@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: ⚡ Servebolt️ Optimizer
+Plugin Name: Servebolt ️Optimizer
 Version: 1.1
 Author: Servebolt
 Author URI: https://servebolt.com
