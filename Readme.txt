@@ -9,7 +9,7 @@ Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-This plugin adds functionality to implement Servebolt Word Preses best practices. This includes database optimizations, log review, performance recommendations and support for down stream full page caching.
+This plugin adds functionality to implement Servebolt Word Press best practices. This includes database optimizations, log review, performance recommendations and support for down stream full page caching.
 
 == Description ==
 Features
@@ -21,6 +21,10 @@ Features
 
 NGINX Full Page Caching
 This plugin rewrites HTTP headers of HTML to allow Nginx and the browser to cache HTML. Full Page Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.
+
+This project is maintained on Github: https://github.com/Servebolt/servebolt-optimizer
+
+Note: Some features are only enabled for hosts on Servebolt.com
 
 == Installation ==
 1. Upload `servebolt-optimizer` to the `/wp-content/plugins/` directory
