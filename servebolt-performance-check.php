@@ -1,11 +1,10 @@
 <?php
 /*
-Plugin Name: Servebolt ⚡️ Performance tools
-Plugin URI: https://servebolt.com
-Version: 0.1
+Plugin Name: ⚡ Servebolt️ Optimizer
+Version: 1.1
 Author: Servebolt
 Author URI: https://servebolt.com
-Description: A plugin that checks and implements Servebolt Performance best practises.
+Description: A plugin that checks and implements Servebolt Performance best practises for WordPress.
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: servebolt-wp
