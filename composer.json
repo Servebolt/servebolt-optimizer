@@ -1,0 +1,12 @@
+{
+  "name": "servebolt/servebolt-wp-optimize-plugin",
+  "type": "wordpress-plugin",
+  "require": {
+    "composer/installers": "*"
+  },
+  "description": "",
+  "extra": {
+    "installer-name": "servebolt-wp-optimize-plugin"
+  },
+  "minimum-stability": "dev"
+}

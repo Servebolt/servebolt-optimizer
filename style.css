@@ -1,0 +1,131 @@
+.sb-content{
+    font-family: "Work Sans", sans-serif;
+}
+.sb-content h1,.sb-content h2{
+    font-weight: 700;
+}
+
+.sb-content a.disabled {
+    pointer-events: none;
+}
+
+.center{
+    margin: 0 auto;
+    text-align: center;
+}
+
+.sb-logo {
+    background: url(img/servebolt-logo.png);
+    height: 50px;
+    width: 200px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+.boxes{
+    width: calc(50% - 1rem);
+    min-width: 500px;
+}
+.boxes.left{
+    float: left;
+    margin-right: .5rem;
+}
+.boxes.right{
+    float: right;
+    margin-left: .5rem;
+}
+.sb-box{
+    width: calc(33.333% - .6666rem);
+    height: 200px;
+    background-color: white;
+    float: left;
+    margin: 0 1rem 0 0;
+    border-radius: 10px;
+    transition: all .2s ease-in-out;
+}
+.sb-box:nth-of-type(3n){
+    margin-right: 0;
+}
+
+.sb-box-wide{
+    width: 100%;
+    height: 100%;
+    background: white;
+    float: left;
+    border-radius: 10px;
+    transition: all .2s ease-in-out;
+    padding: 2rem 0;
+}
+.sb-box-wide .move-content{
+    width: 50%;
+    max-width: 450px;
+    margin: 0 auto;
+}
+.buttons{
+    text-align: center;
+    margin-top: 2rem;
+}
+.sb-button{
+    padding: 10px 10px;
+    color: black;
+    text-decoration: none;
+    border-radius: 50px;
+    margin: 0 2rem;
+    font-weight: 700;
+    width: 150px;
+    display: inline-block;
+    text-align: center;
+}
+
+.sb-button.light{
+    border: 2px solid black;
+    background: white;
+}
+
+.sb-button.yellow{
+    border: 2px solid black;
+    background: #ffd500;
+}
+
+.sb-box .icon{
+    content: "";
+    height: 75px;
+    width: 75px;
+    margin: 0 auto;
+    margin-top: 20%;
+}
+
+.sb-optimize-db .icon{
+    background: url(img/db.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.sb-cache .icon{
+    background: url(img/cache.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.sb-errors .icon{
+    background: url(img/errors.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.sb-move .icon{
+    content: "";
+    height: 75px;
+    width: 75px;
+    margin: 0 auto;
+    background: url(img/move.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.sb-box p.function{
+    font-weight: 700;
+    color: black;
+    text-align: center;
+}
+
