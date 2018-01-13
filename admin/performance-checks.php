@@ -1,7 +1,7 @@
 <?php
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once 'checks.php';
+require_once 'optimize-db/checks.php';
 
 ?>
 
@@ -75,7 +75,7 @@ require_once 'checks.php';
 
     </table>
     <div class="optimize">
-        <h3><?php _e('Run the optimizer'); ?></h3>
+        <h3><?php _e('Run the optimizer', 'servebolt-wp'); ?></h3>
         <p><?php _e('You can run the optimizer below.', 'servebolt-wp'); ?><br>
         <strong><?php _e('Always backup your database before running optimization!', 'servebolt-wp'); ?></strong>
         </p>

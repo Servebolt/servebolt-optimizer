@@ -1,6 +1,6 @@
 <?php
 
-class Nginx_Fpc {
+class Servebolt_Nginx_Fpc {
 
 	static $post_types = [];
 
