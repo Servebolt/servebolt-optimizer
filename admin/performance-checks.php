@@ -1,7 +1,7 @@
 <?php
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once 'checks.php';
+require_once 'optimize-db/checks.php';
 
 ?>
 
@@ -75,7 +75,7 @@ require_once 'checks.php';
 
     </table>
     <div class="optimize">
-        <h3><?php _e('Run the optimizer'); ?></h3>
+        <h3><?php _e('Run the optimizer', 'servebolt-wp'); ?></h3>
         <p><?php _e('You can run the optimizer below.', 'servebolt-wp'); ?><br>
         <strong><?php _e('Always backup your database before running optimization!', 'servebolt-wp'); ?></strong>
         </p>
@@ -103,8 +103,8 @@ require_once 'checks.php';
             </td>
             <td>
                 <?php echo (wp_cron_disabled() === true)
-                    ? '<img src="' . plugin_dir_url( __FILE__ ) . 'img/checked.png" width="20"> WP Cron is disabled. Remember to set on cron on the server.'
-                    : '<img src="' . plugin_dir_url( __FILE__ ) . 'img/cancel.png" width="20"> WP Cron is enabled, and may slow down your site and/or degrade the sites ability to scale. This should be disabled and run with server cron.';
+                    ? '<img src="' . SERVEBOLT_PATH . 'admin/assets/img/checked.png" width="20">'.__('WP Cron is disabled. Remember to set on cron on the server.', 'servebolt-wp')
+                    : '<img src="' . SERVEBOLT_PATH . 'admin/assets/img/cancel.png" width="20">'.__('WP Cron is enabled, and may slow down your site and/or degrade the sites ability to scale. This should be disabled and run with server cron.', 'servebolt-wp');
                 ?>
             </td>
         </tr>

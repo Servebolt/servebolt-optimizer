@@ -1,8 +1,9 @@
 <?php
+if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-function get_error_log() {
+function servebolt_get_error_log() {
 	$logdir = str_replace("/public", "/logs", $_SERVER["DOCUMENT_ROOT"]);
-	$log = tail($logdir. "/ErrorLog", 50);
+	$log = servebolt_tail($logdir. "/ErrorLog", 50);
 
 	echo '<div class="wrap">';
 	     echo '<h2>'. __('Errorlog', 'servebolt-wp') .'</h2>';
@@ -43,7 +44,7 @@ function get_error_log() {
 	echo '</div>';
 }
 
-function tail($filename, $lines = 50, $buffer = 4096){
+function servebolt_tail($filename, $lines = 50, $buffer = 4096){
 	if(!is_file($filename)){
 		return false;
 	}

@@ -1,4 +1,5 @@
 <?php
+if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 function options_has_index(){
     $autoload_index = table_has_index('options', 'autoload');
@@ -12,8 +13,8 @@ function postmeta_has_index(){
 
 function output_index($state) {
     return ($state === false)
-        ? '<img src="' . plugin_dir_url( __FILE__ ) . 'img/cancel.png" width="20"> '. __('Run Optimize to add the index')
-        : '<img src="' . plugin_dir_url( __FILE__ ) . 'img/checked.png" width="20"> '. __('This table has an index');
+        ? '<img src="' . SERVEBOLT_PATH . 'admin/assets/img/cancel.png" width="20"> '. __('Run Optimize to add the index')
+        : '<img src="' . SERVEBOLT_PATH . 'admin/assets/img/checked.png" width="20"> '. __('This table has an index');
 }
 
 /**
