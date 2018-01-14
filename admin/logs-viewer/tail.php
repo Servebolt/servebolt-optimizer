@@ -1,4 +1,5 @@
 <?php
+if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 function servebolt_get_error_log() {
 	$logdir = str_replace("/public", "/logs", $_SERVER["DOCUMENT_ROOT"]);

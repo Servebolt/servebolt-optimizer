@@ -1,4 +1,6 @@
 <?php
+if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 add_action('wp_ajax_sb_optimize', 'servebolt_optimize_db');
 
 function servebolt_optimize_db() {

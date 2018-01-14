@@ -12,14 +12,21 @@ Text Domain: servebolt-wp
 
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-if(!class_exists(Nginx_Fpc)){
-	require_once 'class/class.nginx-fpc.php';
+define( 'SERVEBOLT_PATH', plugin_dir_url( __FILE__ ) );
+
+/**
+ * Loads the class that sets the correct cache headers for NGINX cache
+ */
+if(!class_exists(Servebolt_Nginx_Fpc)){
+	require_once 'class/servebolt-nginx-fpc.class.php';
 	Servebolt_Nginx_Fpc::setup();
 }
 
+/**
+ * If the admin is loaded, load this plugins interface
+ */
 if(is_admin()){
 	require_once 'admin/admin-interface.php';
-	add_action('admin_head', 'servebolt_scripts');
 }
 
 
