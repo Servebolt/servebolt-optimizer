@@ -2,6 +2,7 @@
 if( ! defined( 'ABSPATH' ) ) exit;
 
 require_once 'logs-viewer/tail.php'; // Get the file we need for log viewer
+require_once 'optimize-db/optimize-db.php';
 
 // create custom plugin settings menu
 add_action('admin_menu', 'servebolt_admin_menu');
@@ -41,7 +42,6 @@ add_action('admin_enqueue_scripts', 'servebolt_plugin_styling');
 function servebolt_plugin_styling() {
 	wp_register_style( 'servebolt_optimizer_styling', SERVEBOLT_PATH . 'admin/assets/style.css', false, false );
 	wp_enqueue_style( 'servebolt_optimizer_styling' );
-	wp_enqueue_script( 'servebolt-admin-js', SERVEBOLT_PATH . 'admin/assets/js/admin.js', array('jquery'), false, false );
 }
 
 /**
@@ -92,5 +92,30 @@ function host_is_servebolt() {
 		return true;
 	}
 	return false;
+}
+
+add_action('admin_head', 'servebolt_ajax_optimize');
+function servebolt_ajax_optimize() {
+	?>
+	<script type="text/javascript" >
+        jQuery(document).ready(function($) {
+
+            $('.optimize-now').click(function(){
+                var data = {
+                    action: 'servebolt_optimize_db',
+                    whatever: 1234
+                };
+
+                // since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
+                $.post(ajaxurl, data, function(response) {
+                    alert(response);
+                    location.reload();
+                });
+            });
+
+
+        });
+	</script>
+	<?php
 }
 
