@@ -12,7 +12,7 @@ function servebolt_get_error_log() {
 		$lines = array_reverse($lines);
 		$lines = array_filter($lines);
 
-		$output = '<p>'. __('This table lists the 50 last errors from todays logs/Errorlog', 'servebolt-wp') .':</p>';
+		$output = '<p>'. __("This table lists the 50 last entries from today's logs/Errorlog", 'servebolt-wp') .':</p>';
 		$output .= '<table class="wp-list-table widefat striped posts">
                 <thead>
                     <tr>
