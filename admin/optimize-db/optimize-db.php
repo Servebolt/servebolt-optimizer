@@ -1,13 +1,13 @@
 <?php
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-add_action('wp_ajax_sb_optimize', 'servebolt_optimize_db');
+add_action('wp_ajax_servebolt_optimize_db', 'servebolt_optimize_db');
 
 function servebolt_optimize_db() {
 	global $wpdb; // this is how you get access to the database
-	$innoDB = true;
-	$autoload = true;
-	$meta_value = true;
+	$innoDB = '';
+	$autoload = '';
+	$meta_value = '';
 
 	// Check indexes for postmeta table
 	$postmeta = $wpdb->get_results("SHOW INDEX FROM {$wpdb->prefix}postmeta");
@@ -21,8 +21,7 @@ function servebolt_optimize_db() {
 	if ($metavalue_index === false) {
 		$wpdb->query("ALTER TABLE {$wpdb->postmeta} ADD INDEX `sbpmv` (`meta_value`(10))");
 		echo "Added index to postmeta \n";
-	} else{
-		$meta_value = false;
+		$meta_value = true;
 	}
 
 
@@ -34,12 +33,13 @@ function servebolt_optimize_db() {
 			$autoload_index = $index->Key_name;
 		}
 	}
+
+
 	// Add index to options table
 	if ($autoload_index === false) {
 		$wpdb->query("ALTER TABLE {$wpdb->options} ADD INDEX(autoload)");
 		echo "Added index to options \n";
-	} else {
-		$autoload = false;
+		$autoload = true;
 	}
 
 	// Convert all non-InnoDB tables to InnoDB
@@ -48,15 +48,14 @@ function servebolt_optimize_db() {
 		foreach ( $tables as $obj ) {
 			$wpdb->query( "ALTER TABLE {$obj->table_name} ENGINE = InnoDB" );
 			echo "Converted " . $obj->table_name . " \n";
+			$innoDB = true;
 		}
-	} else {
-		$innoDB = false;
 	}
 
 	// Echo a message if there is nothing to do
-	if($innoDB === false && $autoload === false && $meta_value === false){
+	if($innoDB !== true && $autoload !== true && $meta_value !== true){
 		echo __('Database looks healthy, everything is good! ⚡️', 'servebolt-wp');
 	}
 
-	exit();
+	wp_die();
 }
