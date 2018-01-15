@@ -38,12 +38,12 @@ $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settin
 					</div>
 				</th>
 				<td>
-					<?php foreach ($post_types as $type){
-						$options = get_option('fpc_settings');
+					<?php $options = get_option('servebolt_fpc_settings');
+                    foreach ($post_types as $type){
 						$checked = '';
-						if(array_key_exists($type->name, $options)){ $checked = ' checked="checked" '; }
-						echo $options['fpc_settings'];
-						echo '<input '.$checked.' id="cache_post_type" name="fpc_settings['.$type->name.']" type="checkbox" />'.$type->labels->singular_name.'</input></br>';
+						if(is_array($options) && array_key_exists($type->name, $options)){ $checked = ' checked="checked" '; }
+						echo $options['servebolt_fpc_settings'];
+						echo '<input '.$checked.' id="cache_post_type" name="servebolt_fpc_settings['.$type->name.']" type="checkbox" />'.$type->labels->singular_name.'</input></br>';
 					}
 					?>
 				</td>

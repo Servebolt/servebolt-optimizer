@@ -124,7 +124,7 @@ class Servebolt_Nginx_Fpc {
 	 */
 	static function cacheable_post_types() {
 		// Return array of post types
-		$post_types = get_option('fpc_settings'); // get from admin settings instead
+		$post_types = get_option('servebolt_fpc_settings'); // get from admin settings instead
 		return $post_types;
 	}
 }

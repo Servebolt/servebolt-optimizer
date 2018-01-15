@@ -57,7 +57,7 @@ function servebolt_performance(){
  */
 add_action( 'admin_init', 'servebolt_register_settings' );
 function servebolt_register_settings() {
-	register_setting( 'nginx-fpc-options-page', 'fpc_settings' );
+	register_setting( 'nginx-fpc-options-page', 'servebolt_fpc_settings' );
 }
 
 /**
