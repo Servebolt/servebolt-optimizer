@@ -29,6 +29,7 @@ function servebolt_admin_bar($wp_admin_bar){
 		'title' => __('Servebolt Control Panel', 'servebolt-wp'),
 		'href' => $adminUrl,
 		'meta' => array(
+            'target' => '_blank',
 			'class' => 'sb-admin-button'
 		)
 	);
