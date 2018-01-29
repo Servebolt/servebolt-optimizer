@@ -17,7 +17,7 @@ define( 'SERVEBOLT_PATH', plugin_dir_url( __FILE__ ) );
 /**
  * Loads the class that sets the correct cache headers for NGINX cache
  */
-if(!class_exists(Servebolt_Nginx_Fpc)){
+if(!class_exists('Servebolt_Nginx_Fpc')){
 	require_once 'class/servebolt-nginx-fpc.class.php';
 	Servebolt_Nginx_Fpc::setup();
 }
