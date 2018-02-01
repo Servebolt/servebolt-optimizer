@@ -29,4 +29,25 @@ if(is_admin()){
 	require_once 'admin/admin-interface.php';
 }
 
+/**
+ * Run Servebolt Optimizer.
+ *
+ * Add database indexes and convert database tables to modern table types.
+ *
+ * ## EXAMPLES
+ *
+ *     $ wp servebolt optimize
+ *     Success: Successfully optimized.
+ */
+$servebolt_optimize_cmd = function( $args ) {
+	list( $key ) = $args;
 
+	require_once 'admin/optimize-db/optimize-db.php';
+
+	if ( ! servebolt_optimize_db(TRUE) ) {
+		WP_CLI::error( "Optimization failed." );
+	} else {
+		WP_CLI::success( "Everything OK." );
+	}
+};
+WP_CLI::add_command( 'servebolt optimize', $servebolt_optimize_cmd );

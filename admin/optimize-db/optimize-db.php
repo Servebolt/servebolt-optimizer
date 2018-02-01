@@ -3,7 +3,7 @@ if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 add_action('wp_ajax_servebolt_optimize_db', 'servebolt_optimize_db');
 
-function servebolt_optimize_db() {
+function servebolt_optimize_db($cli = FALSE) {
 	global $wpdb; // this is how you get access to the database
 	$innoDB = '';
 	$autoload = '';
@@ -54,8 +54,14 @@ function servebolt_optimize_db() {
 
 	// Echo a message if there is nothing to do
 	if($innoDB !== true && $autoload !== true && $meta_value !== true){
-		echo __('Database looks healthy, everything is good! ⚡️', 'servebolt-wp');
+		echo __('Database looks healthy, everything is good!️' . "\n", 'servebolt-wp');
+		if ($cli) {
+			return TRUE;
+		}
 	}
 
+	if ($cli) {
+		return FALSE;
+	}
 	wp_die();
 }

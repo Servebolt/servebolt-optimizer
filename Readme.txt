@@ -27,5 +27,19 @@ This project is maintained on Github: https://github.com/Servebolt/servebolt-opt
 Note: Some features are only enabled for hosts on Servebolt.com due to dependencies in the hosting stack.
 
 == Installation ==
-1. Upload `servebolt-optimizer` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the \'Plugins\' menu in WordPress
+1. Upload 'servebolt-optimizer' to the '/wp-content/plugins/' directory
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Navigate to Servebolt > Performance Optimizer and run optimizations if necessary
+
+With WP-CLI
+1. Log in to your site with SSH
+2. cd to your sites root wordpress folder
+3. Run 'wp plugin install servebolt-optimizer --activate'
+4. Run optimizations 'wp servebolt optimize'
+
+== Changelog ==
+
+= 1.3 =
+* Added WP-CLI support
+* Issues on Github #8 added uninstall.php + bug fixes #7 #9
+* Added Changelog to Readme.txt
