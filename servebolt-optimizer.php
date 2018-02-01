@@ -50,4 +50,7 @@ $servebolt_optimize_cmd = function( $args ) {
 		WP_CLI::success( "Everything OK." );
 	}
 };
-WP_CLI::add_command( 'servebolt optimize', $servebolt_optimize_cmd );
+if ( class_exists( 'WP_CLI' ) ) {
+	WP_CLI::add_command( 'servebolt optimize', $servebolt_optimize_cmd );
+}
+
