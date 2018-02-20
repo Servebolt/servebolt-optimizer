@@ -16,6 +16,13 @@ if(! defined( 'CONCATENATE_SCRIPTS')) {
 	define( 'CONCATENATE_SCRIPTS', false);
 }
 
+// hide the meta tag generator from head and rss
+function servebolt_optimizer_disable_version() {
+	return '';
+}
+add_filter('the_generator','servebolt_optimizer_disable_version');
+remove_action('wp_head', 'wp_generator');
+
 define( 'SERVEBOLT_PATH', plugin_dir_url( __FILE__ ) );
 
 $nginx_switch = get_option('servebolt_fpc_switch');
