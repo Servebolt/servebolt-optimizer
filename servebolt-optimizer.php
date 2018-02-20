@@ -12,12 +12,25 @@ Text Domain: servebolt-wp
 
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+if(! defined( 'CONCATENATE_SCRIPTS')) {
+	define( 'CONCATENATE_SCRIPTS', false);
+}
+
+// hide the meta tag generator from head and rss
+function servebolt_optimizer_disable_version() {
+	return '';
+}
+add_filter('the_generator','servebolt_optimizer_disable_version');
+remove_action('wp_head', 'wp_generator');
+
 define( 'SERVEBOLT_PATH', plugin_dir_url( __FILE__ ) );
+
+$nginx_switch = get_option('servebolt_fpc_switch');
 
 /**
  * Loads the class that sets the correct cache headers for NGINX cache
  */
-if(!class_exists(Servebolt_Nginx_Fpc)){
+if(!class_exists(Servebolt_Nginx_Fpc) && $nginx_switch === 'on'){
 	require_once 'class/servebolt-nginx-fpc.class.php';
 	Servebolt_Nginx_Fpc::setup();
 }
@@ -29,4 +42,28 @@ if(is_admin()){
 	require_once 'admin/admin-interface.php';
 }
 
+/**
+ * Run Servebolt Optimizer.
+ *
+ * Add database indexes and convert database tables to modern table types.
+ *
+ * ## EXAMPLES
+ *
+ *     $ wp servebolt optimize
+ *     Success: Successfully optimized.
+ */
+$servebolt_optimize_cmd = function( $args ) {
+	list( $key ) = $args;
+
+	require_once 'admin/optimize-db/optimize-db.php';
+
+	if ( ! servebolt_optimize_db(TRUE) ) {
+		WP_CLI::error( "Optimization failed." );
+	} else {
+		WP_CLI::success( "Everything OK." );
+	}
+};
+if ( class_exists( 'WP_CLI' ) ) {
+	WP_CLI::add_command( 'servebolt optimize', $servebolt_optimize_cmd );
+}
 
