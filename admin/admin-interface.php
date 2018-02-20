@@ -91,7 +91,7 @@ function the_sb_admin_url() {
 function host_is_servebolt() {
 	if (array_key_exists('SERVER_ADMIN', $_SERVER)) {
 		$server_admin = $_SERVER['SERVER_ADMIN'];
-		if (strpos($server_admin, "raskesider.no") !== FALSE || strpos($server_admin, "servebolt.com") !== FALSE || strpos($server_admin, "servebolt.com") !== FALSE) {
+		if (strpos($server_admin, "raskesider.no") !== FALSE || strpos($server_admin, "servebolt.com") !== FALSE ){
 			return true;
 		}
     }
