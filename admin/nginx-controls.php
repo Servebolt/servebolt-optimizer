@@ -29,7 +29,7 @@ $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settin
 		$nginx_switch = get_option('servebolt_fpc_switch');
 		$nginx_switch_checked = '';
 		if($nginx_switch === 'on'){ $nginx_switch_checked = 'checked';}
-		echo '<div class="nginx_switch"><input '.$nginx_switch_checked.' id="nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox" />'.__('Turn Nginx Cache on/off', 'servebolt-wp').'</input></div>';
+		echo '<div class="nginx_switch"><input '.$nginx_switch_checked.' id="nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox" />'.__('Turn Nginx Cache on', 'servebolt-wp').'</input></div>';
 
 
 		if($nginx_switch !== 'on'){$style = 'style="display: none;"';}
