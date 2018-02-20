@@ -25,8 +25,16 @@ $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settin
 			'public' => true
 		);
 		$post_types = get_post_types($args, 'objects');
+
+		$nginx_switch = get_option('servebolt_fpc_switch');
+		$nginx_switch_checked = '';
+		if($nginx_switch === 'on'){ $nginx_switch_checked = 'checked';}
+		echo '<div class="nginx_switch"><input '.$nginx_switch_checked.' id="nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox" />'.__('Turn Nginx Cache on/off', 'servebolt-wp').'</input></div>';
+
+
+		if($nginx_switch !== 'on'){$style = 'style="display: none;"';}
 		?>
-		<table class="form-table">
+		<table class="form-table" <?php echo $style; ?>>
 			<tr valign="top">
 				<th scope="row">Cache post types
 					<div>
@@ -42,7 +50,6 @@ $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settin
                     foreach ($post_types as $type){
 						$checked = '';
 						if(is_array($options) && array_key_exists($type->name, $options)){ $checked = ' checked="checked" '; }
-						echo $options['servebolt_fpc_settings'];
 						echo '<input '.$checked.' id="cache_post_type" name="servebolt_fpc_settings['.$type->name.']" type="checkbox" />'.$type->labels->singular_name.'</input></br>';
 					}
 					?>

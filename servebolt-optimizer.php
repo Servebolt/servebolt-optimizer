@@ -14,10 +14,12 @@ if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 define( 'SERVEBOLT_PATH', plugin_dir_url( __FILE__ ) );
 
+$nginx_switch = get_option('servebolt_fpc_switch');
+
 /**
  * Loads the class that sets the correct cache headers for NGINX cache
  */
-if(!class_exists(Servebolt_Nginx_Fpc)){
+if(!class_exists(Servebolt_Nginx_Fpc) && $nginx_switch === 'on'){
 	require_once 'class/servebolt-nginx-fpc.class.php';
 	Servebolt_Nginx_Fpc::setup();
 }
