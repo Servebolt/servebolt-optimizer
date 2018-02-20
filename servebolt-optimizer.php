@@ -12,6 +12,10 @@ Text Domain: servebolt-wp
 
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+if(! defined( 'CONCATENATE_SCRIPTS')) {
+	define( 'CONCATENATE_SCRIPTS', false);
+}
+
 define( 'SERVEBOLT_PATH', plugin_dir_url( __FILE__ ) );
 
 $nginx_switch = get_option('servebolt_fpc_switch');
