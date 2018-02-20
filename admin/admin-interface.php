@@ -59,6 +59,7 @@ function servebolt_performance(){
 add_action( 'admin_init', 'servebolt_register_settings' );
 function servebolt_register_settings() {
 	register_setting( 'nginx-fpc-options-page', 'servebolt_fpc_settings' );
+	register_setting( 'nginx-fpc-options-page', 'servebolt_fpc_switch' );
 }
 
 /**
@@ -90,7 +91,7 @@ function the_sb_admin_url() {
 function host_is_servebolt() {
 	if (array_key_exists('SERVER_ADMIN', $_SERVER)) {
 		$server_admin = $_SERVER['SERVER_ADMIN'];
-		if (strpos($server_admin, "raskesider.no") !== FALSE || strpos($server_admin, "servebolt.com") !== FALSE) {
+		if (strpos($server_admin, "raskesider.no") !== FALSE || strpos($server_admin, "servebolt.com") !== FALSE ){
 			return true;
 		}
     }
@@ -100,7 +101,7 @@ function host_is_servebolt() {
 			return true;
 		}
 	}
-	return false;
+	return true;
 }
 
 add_action('admin_head', 'servebolt_ajax_optimize');
