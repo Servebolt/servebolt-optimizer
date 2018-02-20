@@ -40,7 +40,8 @@ With WP-CLI
 == Changelog ==
 
 = 1.3 =
-* Added on/off switch for Nginx cache
-* Added WP-CLI support
-* Issues on Github #8 added uninstall.php + bug fixes #7 #9
-* Added Changelog to Readme.txt
+* added on/off switch for Nginx cache
+* remove WP version number and generator tag
+* skip concatenation of admin scripts, we use http2
+* issues on Github #8 added uninstall.php + bug fixes #7 #9
+* added changelog to Readme.txt
