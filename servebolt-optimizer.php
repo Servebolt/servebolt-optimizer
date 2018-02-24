@@ -12,6 +12,13 @@ Text Domain: servebolt-wp
 
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+register_activation_hook(__FILE__, 'servebolt_transient_cron');
+
+require_once 'admin/optimize-db/transients-cleaner.php';
+
+define( 'SERVEBOLT_PATH', plugin_dir_url( __FILE__ ) );
+
+// Disable CONCATENATE_SCRIPTS to get rid of some ddos attacks
 if(! defined( 'CONCATENATE_SCRIPTS')) {
 	define( 'CONCATENATE_SCRIPTS', false);
 }
@@ -22,8 +29,6 @@ function servebolt_optimizer_disable_version() {
 }
 add_filter('the_generator','servebolt_optimizer_disable_version');
 remove_action('wp_head', 'wp_generator');
-
-define( 'SERVEBOLT_PATH', plugin_dir_url( __FILE__ ) );
 
 $nginx_switch = get_option('servebolt_fpc_switch');
 
@@ -40,6 +45,20 @@ if(!class_exists('Servebolt_Nginx_Fpc') && $nginx_switch === 'on'){
  */
 if(is_admin()){
 	require_once 'admin/admin-interface.php';
+}
+
+/**
+ * We need weekly cron scheduling, so we're adding it!
+ * See http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
+ */
+add_filter( 'cron_schedules', 'servebolt_add_weekly_cron_schedule' );
+function servebolt_add_weekly_cron_schedule( $schedules ) {
+	$schedules['weekly'] = array(
+		'interval' => 604800, // 1 week in seconds
+		'display'  => __( 'Once Weekly' ),
+	);
+
+	return $schedules;
 }
 
 /**
@@ -63,7 +82,22 @@ $servebolt_optimize_cmd = function( $args ) {
 		WP_CLI::success( "Everything OK." );
 	}
 };
+
+$servebolt_delete_transients = function( $args ) {
+	list( $key ) = $args;
+
+	require_once 'admin/optimize-db/transients-cleaner.php';
+
+	if ( ! servebolt_optimize_db(TRUE) ) {
+		WP_CLI::error( "Could not delete transients." );
+	} else {
+		WP_CLI::success( "Deleted transients." );
+	}
+};
+
 if ( class_exists( 'WP_CLI' ) ) {
-	WP_CLI::add_command( 'servebolt optimize', $servebolt_optimize_cmd );
+	WP_CLI::add_command( 'servebolt optimize db', $servebolt_optimize_cmd );
+	WP_CLI::add_command( 'servebolt optimize transients', $servebolt_delete_transients );
 }
+
 

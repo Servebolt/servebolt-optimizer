@@ -1,7 +1,7 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: thomasaudunhus
- * Date: 24/02/2018
- * Time: 20:45
- */
+$path = '/Users/thomasaudunhus/Sites/servebolt.com/';
+include($path."wp-load.php");
+
+require_once('../optimize-db/transients-cleaner.php');
+
+echo servebolt_transient_delete();
