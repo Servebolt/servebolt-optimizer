@@ -64,11 +64,11 @@ function servebolt_add_weekly_cron_schedule( $schedules ) {
 /**
  * Run Servebolt Optimizer.
  *
- * Add database indexes and convert database tables to modern table types.
+ * Add database indexes and convert database tables to modern table types or delete transients.
  *
  * ## EXAMPLES
  *
- *     $ wp servebolt optimize
+ *     $ wp servebolt optimize db
  *     Success: Successfully optimized.
  */
 $servebolt_optimize_cmd = function( $args ) {
@@ -87,8 +87,22 @@ $servebolt_delete_transients = function( $args ) {
 	list( $key ) = $args;
 
 	require_once 'admin/optimize-db/transients-cleaner.php';
+	servebolt_transient_delete(TRUE);
 
-	if ( ! servebolt_optimize_db(TRUE) ) {
+	if ( ! servebolt_transient_delete(TRUE) ) {
+		WP_CLI::error( "Could not delete transients." );
+	} else {
+		WP_CLI::success( "Deleted transients." );
+	}
+};
+
+$servebolt_analyze_tables = function( $args ) {
+	list( $key ) = $args;
+
+	require_once 'admin/optimize-db/transients-cleaner.php';
+	servebolt_analyze_tables( TRUE );
+
+	if ( ! servebolt_analyze_tables(TRUE) ) {
 		WP_CLI::error( "Could not delete transients." );
 	} else {
 		WP_CLI::success( "Deleted transients." );
@@ -96,8 +110,9 @@ $servebolt_delete_transients = function( $args ) {
 };
 
 if ( class_exists( 'WP_CLI' ) ) {
-	WP_CLI::add_command( 'servebolt optimize db', $servebolt_optimize_cmd );
-	WP_CLI::add_command( 'servebolt optimize transients', $servebolt_delete_transients );
+	WP_CLI::add_command( 'servebolt db optimize', $servebolt_optimize_cmd );
+	WP_CLI::add_command( 'servebolt db analyze', $servebolt_optimize_cmd );
+	WP_CLI::add_command( 'servebolt transients delete', $servebolt_delete_transients );
 }
 
 

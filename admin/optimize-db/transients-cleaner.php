@@ -2,7 +2,7 @@
 
 
 
-function servebolt_transient_delete() {
+function servebolt_transient_delete( $cli = FALSE ) {
 
 	global $_wp_using_ext_object_cache;
 
@@ -76,12 +76,14 @@ function servebolt_transient_delete() {
 				$wpdb -> query( $sql_multi );
 			}
 		}
-
+	if ($cli) {
+		return TRUE;
+	}
 	return 'Cleaned transients';
 }
 
 
-function servebolt_analyze_tables(){
+function servebolt_analyze_tables( $cli = FALSE ){
 	global $wpdb;
 
 	$wpdb -> query( "ANALYZE TABLE $wpdb->posts" );
@@ -100,6 +102,9 @@ function servebolt_analyze_tables(){
 			$wpdb -> query( "ANALYZE TABLE $wpdb->postmeta" );
 			$wpdb -> query( "ANALYZE TABLE $wpdb->options" );
 		}
+	}
+	if ($cli) {
+		return TRUE;
 	}
 }
 

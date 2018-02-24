@@ -1,6 +1,2 @@
 .DS_Store
 .idea
-admin/test/*
-admin/test
-admin/test/make-random-transients.php
-admin/test/test.php
