@@ -103,15 +103,15 @@ $servebolt_analyze_tables = function( $args ) {
 	servebolt_analyze_tables( TRUE );
 
 	if ( ! servebolt_analyze_tables(TRUE) ) {
-		WP_CLI::error( "Could not delete transients." );
+		WP_CLI::error( "Could not analyze tables." );
 	} else {
-		WP_CLI::success( "Deleted transients." );
+		WP_CLI::success( "Analyzed tables." );
 	}
 };
 
 if ( class_exists( 'WP_CLI' ) ) {
 	WP_CLI::add_command( 'servebolt db optimize', $servebolt_optimize_cmd );
-	WP_CLI::add_command( 'servebolt db analyze', $servebolt_optimize_cmd );
+	WP_CLI::add_command( 'servebolt db analyze', $servebolt_analyze_tables );
 	WP_CLI::add_command( 'servebolt transients delete', $servebolt_delete_transients );
 }
 
