@@ -51,3 +51,4 @@ With WP-CLI
 * Github #8 Added a transients cleaner to wp-cron
 * Added transients cleaner to WP-CLI
 * Changes to WP CLI commands
+* NEW: Added a view to see vulnerablilities in WordPress and plugins

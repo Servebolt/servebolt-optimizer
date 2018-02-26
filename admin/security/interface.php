@@ -59,7 +59,7 @@ $pluginvuln = servebolt_vuln_plugins();
 			<tfoot>
 			<tr>
 				<th><?php _e('Plugin', 'servebolt-wp'); ?></th>
-				<th><?php _e('Active Version', 'servebolt-wp'); ?></th>
+				<th><?php _e('Installed Version', 'servebolt-wp'); ?></th>
 				<th><?php _e('Latest Version', 'servebolt-wp'); ?></th>
 				<th><?php _e('Status', 'servebolt-wp'); ?></th>
 				<th><?php _e('Vulnerabilities', 'servebolt-wp'); ?></th>
@@ -111,4 +111,4 @@ $pluginvuln = servebolt_vuln_plugins();
 	</div>
 
 <?php
-
+servebolt_security_emails();

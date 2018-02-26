@@ -1,4 +1,7 @@
 <?php
+define('SERVEBOLT_WPVULNDB_WP', 'https://wpvulndb.com/api/v2/wordpresses/');
+define('SERVEBOLT_WPVULNDB_PLUGIN', 'https://wpvulndb.com/api/v2/plugins/');
+define('SERVEBOLT_VULNWP_UPDATE_RATE', 172800);
 
 
 function sb_getUrlContent($url, $param){
@@ -19,12 +22,15 @@ function sb_getUrlContent($url, $param){
 function servebolt_vuln_wp($cli = false){
 	global $wp_version;
 	$version = str_replace('.', '', $wp_version);
+	$version = '43';
 
 	$wp_vuln = get_transient('servebolt_wpvulndb_wp_'.$version);
 	if( $wp_vuln  === false ){
-		$get_wp_vuln = sb_getUrlContent('https://wpvulndb.com/api/v2/wordpresses/', $version);
+		$get_wp_vuln = sb_getUrlContent(SERVEBOLT_WPVULNDB_WP, $version);
 		$wpvul = json_decode($get_wp_vuln, true);
-		set_transient('servebolt_wpvulndb_wp_'.$version, $wpvul, 172800);
+		if($wpvuln !== 0){
+			set_transient('servebolt_wpvulndb_wp_'.$version, $wpvul, SERVEBOLT_VULNWP_UPDATE_RATE);
+		}
 	}
 
 	foreach ($wp_vuln as $key => $vuln){
@@ -49,7 +55,7 @@ function servebolt_vuln_wp($cli = false){
     $wpvulnerabilities = $wpvuln;
 
 	if($cli === true){
-
+		// TODO: Add WP CLI Support
 	}else{
 		return $wpvulnerabilities;
 	}
@@ -68,9 +74,9 @@ function servebolt_vuln_plugins($cli = false){
 
 		$plugin_vul = get_transient('servebolt_wpvildb_'.$folder);
 		if( $plugin_vul  === false ){
-			$get_plugin_vul = sb_getUrlContent('https://wpvulndb.com/api/v2/plugins/', $folder);
+			$get_plugin_vul = sb_getUrlContent(SERVEBOLT_WPVULNDB_PLUGIN, $folder);
 			$plugin_vul = json_decode($get_plugin_vul, true);
-			set_transient('servebolt_wpvildb_'.$folder, $plugin_vul, 172800);
+			set_transient('servebolt_wpvildb_'.$folder, $plugin_vul, SERVEBOLT_VULNWP_UPDATE_RATE);
 		}
 
 		if($plugin_vul){
@@ -94,7 +100,6 @@ function servebolt_vuln_plugins($cli = false){
 
 			if(array_key_exists(0,$plugin_db['vulnerabilities'])){
 
-				$latestVuln = array();
 				$fixedin = array_column($plugin_db['vulnerabilities'],'fixed_in');
 				usort($fixedin, 'version_compare');
 				$thisplugin['latest_vuln_version'] = end($fixedin);
@@ -124,7 +129,7 @@ function servebolt_vuln_plugins($cli = false){
 	}
 	$checked_plugins['num_of_vuln'] = $i;
 	if($cli === true){
-
+		// TODO: Add WP CLI Support
     }else{
 		return $checked_plugins;
     }
@@ -162,14 +167,13 @@ function servebolt_security_emails() {
 	$emailcontent = __('<html><body>You have %s vulnerabilities in your WordPress, and %s vulnerabilities in your plugins. You should update as soon as possible.
                     </br>
                     </br>
-                    This email is a service from <a href="https://servebolt.com">Servebolt.com - Amazingly fast hosting</a></body></html>', 'servebolt-wp');
+                    This email is a service from <a href="https://servebolt.com?utm_source=wpplugin&utm_medium=email&utm_campaign=security-email">Servebolt.com - Amazingly fast hosting</a></body></html>', 'servebolt-wp');
 	$message = sprintf($emailcontent,$wpnum, $pluginvulncount);
 
 	// let's send it
-    if($vulnerable === 1 && $critial === 1 || $pluginvulncount > 0){
+    if($critial === 1 || $pluginvulncount > 0){
 	    wp_mail($recepients, $subject, $message, $headers);
 	    remove_filter( 'wp_mail_content_type','servebolt_set_content_type' );
-
     }else{
         die();
     }
@@ -179,7 +183,7 @@ function servebolt_security_emails() {
 add_action ('servebolt_sec_emails_hook', 'servebolt_security_emails');
 
 
-function sample_admin_notice__error() {
+function servebolt_security_notice() {
 	$wpvuln = servebolt_vuln_wp();
 	$pluginvuln = servebolt_vuln_plugins();
 
@@ -189,7 +193,7 @@ function sample_admin_notice__error() {
 
 	$pluginvulncount = $pluginvuln['num_of_vuln'];
 
-	if($vulnerable === 1 && $critial === 1 || $pluginvulncount > 0) {
+	if($vulnerable === 1 || $pluginvulncount > 0) {
 
 		$class   = 'notice notice-error';
 		$message = sprintf( __( 'You have %s WordPress vulnerabilities and %s plugin vulnerabilities. Update WordPress to stay safe!', 'servebolt-wp' ), $wpnum, $pluginvulncount );
@@ -197,4 +201,4 @@ function sample_admin_notice__error() {
 		printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
 	}
 }
-add_action( 'admin_notices', 'sample_admin_notice__error' );
+add_action( 'admin_notices', 'servebolt_security_notice' );
