@@ -69,6 +69,9 @@ function servebolt_vuln_plugins($cli = false){
 	foreach ($all_plugins as $key => $plugin){
 		if (strpos($key, "/") !== FALSE) {
 			list($folder, $file) = explode("/", $key);
+		}else{
+			$folder = $key;
+			$file = '';
 		}
 
 		$plugin_vul = get_transient('servebolt_wpvildb_'.$folder);
@@ -192,7 +195,7 @@ function servebolt_security_notice() {
 
 	$pluginvulncount = $pluginvuln['num_of_vuln'];
 
-	if($vulnerable === 1 || $pluginvulncount > 0) {
+	if($critial === 1 || $pluginvulncount > 0) {
 
 		$class   = 'notice notice-error';
 		$message = sprintf( __( 'You have %s WordPress vulnerabilities and %s plugin vulnerabilities. Update WordPress to stay safe!', 'servebolt-wp' ), $wpnum, $pluginvulncount );

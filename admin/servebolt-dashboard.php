@@ -10,19 +10,31 @@ require_once 'admin-interface.php';
 	<h1><?php _e('Performance tools', 'servebolt-wp') ?></h1>
     <div class="boxes left">
         <a href="admin.php?page=servebolt-performance-tools" class="sb-box sb-optimize-db">
-            <div class="icon"></div>
-            <p class="function"><?php _e('Optimize your database', 'servebolt-wp') ?></p>
+            <div class="inner">
+                <div class="icon"></div>
+                <p class="function"><?php _e('Optimize your database', 'servebolt-wp') ?></p>
+            </div>
         </a>
         <?php if(host_is_servebolt() === true): ?>
         <a href="admin.php?page=servebolt-nginx-cache" class="sb-box sb-cache">
-            <div class="icon"></div>
-            <p class="function"><?php _e('NGINX Cache settings', 'servebolt-wp') ?></p>
+            <div class="inner">
+                <div class="icon"></div>
+                <p class="function"><?php _e('NGINX Cache settings', 'servebolt-wp') ?></p>
+            </div>
         </a>
         <a href="admin.php?page=servebolt-logs" class="sb-box sb-errors">
+            <div class="inner">
                 <div class="icon"></div>
                 <p class="function"><?php _e('Review the error log', 'servebolt-wp') ?></p>
+            </div>
         </a>
         <?php endif; ?>
+        <a href="admin.php?page=servebolt-wpvuldb" class="sb-box sb-wpvulndb">
+            <div class="inner">
+                <div class="icon"></div>
+                <p class="function"><?php _e('Check for security issues', 'servebolt-wp') ?></p>
+            </div>
+        </a>
     </div>
     <?php if(host_is_servebolt() !== true): ?>
     <div class="boxes right">

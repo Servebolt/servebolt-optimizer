@@ -18,7 +18,8 @@ require_once 'admin/security/wpvuldb.php';
 register_activation_hook(__FILE__, 'servebolt_transient_cron');
 register_activation_hook(__FILE__, 'servebolt_email_cronstarter');
 
-define( 'SERVEBOLT_PATH', plugin_dir_url( __FILE__ ) );
+define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
+define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
 
 // Disable CONCATENATE_SCRIPTS to get rid of some ddos attacks
 if(! defined( 'CONCATENATE_SCRIPTS')) {
