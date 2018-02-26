@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.1
 Tested up to: 4.9.4
 Requires PHP: 7
-Stable tag: 1.3.5
+Stable tag: 1.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -47,7 +47,7 @@ With WP-CLI
 * issues on Github #8 added uninstall.php + bug fixes #7 #9
 * added changelog to Readme.txt
 
-= 1.3.5 =
+= 1.4 =
 * Github #8 Added a transients cleaner to wp-cron
 * Added transients cleaner to WP-CLI
 * Changes to WP CLI commands
