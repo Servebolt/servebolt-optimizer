@@ -18,6 +18,7 @@ function servebolt_admin_menu() {
 	    ## Add these if the site is hosted on Servebolt
 		add_submenu_page('servebolt-wp', __('NGINX Cache','servebolt'), __('NGINX Cache','servebolt'), 'manage_options', 'servebolt-nginx-cache', 'Servebolt_NGINX_cache');
 		add_submenu_page('servebolt-wp', __('Error logs','servebolt'), __('Error logs','servebolt'), 'manage_options', 'servebolt-logs', 'servebolt_get_error_log');
+		add_submenu_page('servebolt-wp', __('Security issues','servebolt'), __('Security issues','servebolt'), 'manage_options', 'servebolt-wpvuldb', 'Servebolt_wpvuldb');
 		add_action('admin_bar_menu', 'servebolt_admin_bar', 100);
 	}
 }
@@ -74,6 +75,13 @@ function servebolt_general_page() {
  */
 function Servebolt_NGINX_cache() {
  require_once 'nginx-controls.php';
+}
+
+/**
+ * Set up the WPVULNDB overview
+ */
+function Servebolt_wpvuldb() {
+	require_once 'security/interface.php';
 }
 
 /**
