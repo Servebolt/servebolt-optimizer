@@ -118,7 +118,7 @@ function servebolt_show_transients(){
 	}
 	$transient_number = $total_transients - $total_timed_transients;
 
-	$text =  sprintf( __( 'There are currently %s transients (%s records) in the database.', 'artiss-transient-cleaner' ), $transient_number, $total_transients );
+	$text =  sprintf( __( 'There are currently %s transients (%s records) in the database.', 'servebolt-wp' ), $transient_number, $total_transients );
 
 	if ( 0 <= $total_transients ) {
 
@@ -126,9 +126,9 @@ function servebolt_show_transients(){
 		if ( is_multisite() ) { $expired_transients .= $wpdb -> get_var( "SELECT COUNT(*) FROM $wpdb->sitemeta WHERE meta_key LIKE '_transient_timeout_%' AND meta_value < UNIX_TIMESTAMP()" ); }
 		$text .= ' ';
 		if ( 1 == $expired_transients ) {
-			$text .= sprintf( __( '%s transient has expired.', 'artiss-transient-cleaner' ), $expired_transients );
+			$text .= sprintf( __( '%s transient has expired.', 'servebolt-wp' ), $expired_transients );
 		} else {
-			$text .= sprintf( __( '%s transients have expired.', 'artiss-transient-cleaner' ), $expired_transients );
+			$text .= sprintf( __( '%s transients have expired.', 'servebolt-wp' ), $expired_transients );
 		}
 	}
 	echo '<p>' . $text . '</p>';

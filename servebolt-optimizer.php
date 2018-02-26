@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 1.3.5
+Version: 1.4
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that checks and implements Servebolt Performance best practises for WordPress.
@@ -12,9 +12,11 @@ Text Domain: servebolt-wp
 
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-register_activation_hook(__FILE__, 'servebolt_transient_cron');
-
 require_once 'admin/optimize-db/transients-cleaner.php';
+require_once 'admin/security/wpvuldb.php';
+
+register_activation_hook(__FILE__, 'servebolt_transient_cron');
+register_activation_hook(__FILE__, 'servebolt_email_cronstarter');
 
 define( 'SERVEBOLT_PATH', plugin_dir_url( __FILE__ ) );
 
