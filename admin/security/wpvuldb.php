@@ -22,7 +22,6 @@ function sb_getUrlContent($url, $param){
 function servebolt_vuln_wp($cli = false){
 	global $wp_version;
 	$version = str_replace('.', '', $wp_version);
-	$version = '43';
 
 	$wp_vuln = get_transient('servebolt_wpvulndb_wp_'.$version);
 	if( $wp_vuln  === false ){
