@@ -42,7 +42,7 @@ function servebolt_admin_bar($wp_admin_bar){
  */
 add_action('admin_enqueue_scripts', 'servebolt_plugin_styling');
 function servebolt_plugin_styling() {
-	wp_register_style( 'servebolt_optimizer_styling', SERVEBOLT_PATH . 'admin/assets/style.css', false, false );
+	wp_register_style( 'servebolt_optimizer_styling', SERVEBOLT_PATH . 'admin/assets/style.css', false, filemtime(SERVEBOLT_PATH . 'admin/assets/style.css' );
 	wp_enqueue_style( 'servebolt_optimizer_styling' );
 }
 
