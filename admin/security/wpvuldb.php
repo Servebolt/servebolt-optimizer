@@ -69,6 +69,9 @@ function servebolt_vuln_plugins($cli = false){
 	foreach ($all_plugins as $key => $plugin){
 		if (strpos($key, "/") !== FALSE) {
 			list($folder, $file) = explode("/", $key);
+		}else{
+			$folder = $key;
+			$file = '';
 		}
 
 		$plugin_vul = get_transient('servebolt_wpvildb_'.$folder);
