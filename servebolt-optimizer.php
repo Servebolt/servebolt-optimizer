@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 1.3.4
+Version: 1.4
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that checks and implements Servebolt Performance best practises for WordPress.
@@ -12,6 +12,15 @@ Text Domain: servebolt-wp
 
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+require_once 'admin/optimize-db/transients-cleaner.php';
+require_once 'admin/security/wpvuldb.php';
+
+register_activation_hook(__FILE__, 'servebolt_transient_cron');
+register_activation_hook(__FILE__, 'servebolt_email_cronstarter');
+
+define( 'SERVEBOLT_PATH', plugin_dir_url( __FILE__ ) );
+
+// Disable CONCATENATE_SCRIPTS to get rid of some ddos attacks
 if(! defined( 'CONCATENATE_SCRIPTS')) {
 	define( 'CONCATENATE_SCRIPTS', false);
 }
@@ -22,8 +31,6 @@ function servebolt_optimizer_disable_version() {
 }
 add_filter('the_generator','servebolt_optimizer_disable_version');
 remove_action('wp_head', 'wp_generator');
-
-define( 'SERVEBOLT_PATH', plugin_dir_url( __FILE__ ) );
 
 $nginx_switch = get_option('servebolt_fpc_switch');
 
@@ -43,13 +50,27 @@ if(is_admin()){
 }
 
 /**
+ * We need weekly cron scheduling, so we're adding it!
+ * See http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
+ */
+add_filter( 'cron_schedules', 'servebolt_add_weekly_cron_schedule' );
+function servebolt_add_weekly_cron_schedule( $schedules ) {
+	$schedules['weekly'] = array(
+		'interval' => 604800, // 1 week in seconds
+		'display'  => __( 'Once Weekly' ),
+	);
+
+	return $schedules;
+}
+
+/**
  * Run Servebolt Optimizer.
  *
- * Add database indexes and convert database tables to modern table types.
+ * Add database indexes and convert database tables to modern table types or delete transients.
  *
  * ## EXAMPLES
  *
- *     $ wp servebolt optimize
+ *     $ wp servebolt optimize db
  *     Success: Successfully optimized.
  */
 $servebolt_optimize_cmd = function( $args ) {
@@ -63,7 +84,37 @@ $servebolt_optimize_cmd = function( $args ) {
 		WP_CLI::success( "Everything OK." );
 	}
 };
+
+$servebolt_delete_transients = function( $args ) {
+	list( $key ) = $args;
+
+	require_once 'admin/optimize-db/transients-cleaner.php';
+	servebolt_transient_delete(TRUE);
+
+	if ( ! servebolt_transient_delete(TRUE) ) {
+		WP_CLI::error( "Could not delete transients." );
+	} else {
+		WP_CLI::success( "Deleted transients." );
+	}
+};
+
+$servebolt_analyze_tables = function( $args ) {
+	list( $key ) = $args;
+
+	require_once 'admin/optimize-db/transients-cleaner.php';
+	servebolt_analyze_tables( TRUE );
+
+	if ( ! servebolt_analyze_tables(TRUE) ) {
+		WP_CLI::error( "Could not analyze tables." );
+	} else {
+		WP_CLI::success( "Analyzed tables." );
+	}
+};
+
 if ( class_exists( 'WP_CLI' ) ) {
-	WP_CLI::add_command( 'servebolt optimize', $servebolt_optimize_cmd );
+	WP_CLI::add_command( 'servebolt db optimize', $servebolt_optimize_cmd );
+	WP_CLI::add_command( 'servebolt db analyze', $servebolt_analyze_tables );
+	WP_CLI::add_command( 'servebolt transients delete', $servebolt_delete_transients );
 }
+
 
