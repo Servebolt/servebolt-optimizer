@@ -12,7 +12,7 @@ add_action('admin_menu', 'servebolt_admin_menu');
  */
 function servebolt_admin_menu() {
 	add_options_page('Servebolt', __('General','servebolt'), 'manage_options', 'servebolt-settings', 'servebolt_general_page');
-	add_menu_page('Servebolt', __('Servebolt','servebolt'), 'manage_options', 'servebolt-wp', 'servebolt_general_page', SERVEBOLT_PATH.'admin/assets/img/servebolt-wp.png');
+	add_menu_page('Servebolt', __('Servebolt','servebolt'), 'manage_options', 'servebolt-wp', 'servebolt_general_page', SERVEBOLT_PATH_URL.'admin/assets/img/servebolt-wp.png');
 	add_submenu_page('servebolt-wp', __('Performance optimizer','servebolt'), __('Performance optimizer','servebolt'), 'manage_options', 'servebolt-performance-tools', 'servebolt_performance');
 	if(host_is_servebolt() == true) {
 	    ## Add these if the site is hosted on Servebolt
@@ -42,7 +42,7 @@ function servebolt_admin_bar($wp_admin_bar){
  */
 add_action('admin_enqueue_scripts', 'servebolt_plugin_styling');
 function servebolt_plugin_styling() {
-	wp_register_style( 'servebolt_optimizer_styling', SERVEBOLT_PATH . 'admin/assets/style.css', false, filemtime(SERVEBOLT_PATH . 'admin/assets/style.css') );
+	wp_register_style( 'servebolt_optimizer_styling', SERVEBOLT_PATH_URL . 'admin/assets/style.css', false, filemtime(SERVEBOLT_PATH . 'admin/assets/style.css') );
 	wp_enqueue_style( 'servebolt_optimizer_styling' );
 }
 

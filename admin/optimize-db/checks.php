@@ -13,8 +13,8 @@ function postmeta_has_index(){
 
 function output_index($state) {
     return ($state === false)
-        ? '<img src="' . SERVEBOLT_PATH . 'admin/assets/img/cancel.png" width="20"> '. __('Run Optimize to add the index')
-        : '<img src="' . SERVEBOLT_PATH . 'admin/assets/img/checked.png" width="20"> '. __('This table has an index');
+        ? '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/cancel.png" width="20"> '. __('Run Optimize to add the index')
+        : '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/checked.png" width="20"> '. __('This table has an index');
 }
 
 /**
