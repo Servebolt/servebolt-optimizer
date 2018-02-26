@@ -8,8 +8,9 @@ $pluginvuln = servebolt_vuln_plugins();
 
 ?>
 	<div class="wrap sb-content">
+        <h2>⚡️<?php _e('Servebolt Security Checker', 'servebolt-wp'); ?></h2>
 		<p><?php _e('We use wpvulndb.com to get information about vulnerabilities in WordPress and Plugins','servebolt-wp'); ?></p>
-		<h2><?php _e('WordPress Vulnerabilities', 'servebolt-wp'); ?></h2>
+		<h3><?php _e('WordPress Vulnerabilities', 'servebolt-wp'); ?></h3>
 		<table class="wp-list-table widefat striped">
 			<thead>
 			<tr>
@@ -45,7 +46,7 @@ $pluginvuln = servebolt_vuln_plugins();
 			?>
 			</tbody>
 		</table>
-		<h2><?php _e('Plugin Vulnerabilities', 'servebolt-wp'); ?></h2>
+		<h3><?php _e('Plugin Vulnerabilities', 'servebolt-wp'); ?></h3>
 		<table class="wp-list-table widefat striped">
 			<thead>
 			<tr>

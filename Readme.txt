@@ -18,6 +18,7 @@ Features
 - Recommendations on additional performance improvements
 - Rewrite headers to allow down stream full page caching
 - View Apache/PHP error log
+- View security vulnerabilities in WordPress and installed plugins, with email alerts to site admin
 
 NGINX Full Page Caching
 This plugin rewrites HTTP headers of HTML to allow Nginx and the browser to cache HTML. Full Page Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.

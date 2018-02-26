@@ -40,9 +40,14 @@
     height: 200px;
     background-color: white;
     float: left;
-    margin: 0 1rem 0 0;
+    margin: 1rem 1rem 0 0;
     border-radius: 10px;
     transition: all .2s ease-in-out;
+    display: flex;
+}
+.sb-box .inner{
+    align-self: center;
+    width: 100%;
 }
 .sb-box:nth-of-type(3n){
     margin-right: 0;
@@ -93,7 +98,6 @@
     height: 75px;
     width: 75px;
     margin: 0 auto;
-    margin-top: 20%;
 }
 
 .sb-optimize-db .icon{
@@ -120,6 +124,16 @@
     width: 75px;
     margin: 0 auto;
     background: url(img/move.png);
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.sb-wpvulndb .icon{
+    content: "";
+    height: 75px;
+    width: 75px;
+    margin: 0 auto;
+    background: url(img/security.png);
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
