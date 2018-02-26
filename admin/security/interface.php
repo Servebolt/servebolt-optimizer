@@ -5,6 +5,7 @@ require_once 'wpvuldb.php';
 $wpvlun = servebolt_vuln_wp();
 $pluginvuln = servebolt_vuln_plugins();
 
+
 ?>
 	<div class="wrap sb-content">
 		<p><?php _e('We use wpvulndb.com to get information about vulnerabilities in WordPress and Plugins','servebolt-wp'); ?></p>
@@ -110,8 +111,4 @@ $pluginvuln = servebolt_vuln_plugins();
 	</div>
 
 <?php
-echo '<pre>';
-//echo 'checked: ';
-//print_r(servebolt_vuln_wp());
-echo '</pre>';
 

@@ -19,7 +19,6 @@ function sb_getUrlContent($url, $param){
 function servebolt_vuln_wp($cli = false){
 	global $wp_version;
 	$version = str_replace('.', '', $wp_version);
-	//$version = '491';
 
 	$wp_vuln = get_transient('servebolt_wpvulndb_wp_'.$version);
 	if( $wp_vuln  === false ){
@@ -61,7 +60,7 @@ function servebolt_vuln_plugins($cli = false){
 	$all_plugins = get_plugins();
 
 	$checked_plugins = array ();
-
+    $i = 0;
 	foreach ($all_plugins as $key => $plugin){
 		if (strpos($key, "/") !== FALSE) {
 			list($folder, $file) = explode("/", $key);
@@ -69,7 +68,7 @@ function servebolt_vuln_plugins($cli = false){
 
 		$plugin_vul = get_transient('servebolt_wpvildb_'.$folder);
 		if( $plugin_vul  === false ){
-			$get_plugin_vul = getUrlContent('https://wpvulndb.com/api/v2/plugins/', $folder);
+			$get_plugin_vul = sb_getUrlContent('https://wpvulndb.com/api/v2/plugins/', $folder);
 			$plugin_vul = json_decode($get_plugin_vul, true);
 			set_transient('servebolt_wpvildb_'.$folder, $plugin_vul, 172800);
 		}
@@ -107,6 +106,7 @@ function servebolt_vuln_plugins($cli = false){
             }
 			if(version_compare($thisplugin['active_version'],$thisplugin['latest_vuln_version']) < 0){
 				$thisplugin['is_vulnerable'] = intval(true);
+				$i++;
 			}else{
 				$thisplugin['is_vulnerable'] = intval(false);
 			}
@@ -120,9 +120,9 @@ function servebolt_vuln_plugins($cli = false){
 		}else{
 			$thisplugin['in_wpculndb'] = intval(false);
 		}
-
 		$checked_plugins[$folder] = $thisplugin;
 	}
+	$checked_plugins['num_of_vuln'] = $i;
 	if($cli === true){
 
     }else{
@@ -130,3 +130,71 @@ function servebolt_vuln_plugins($cli = false){
     }
 
 }
+
+// create a scheduled event (if it does not exist already)
+function servebolt_email_cronstarter() {
+	if( !wp_next_scheduled( 'servebolt_sec_emails_hook' ) ) {
+		wp_schedule_event( time(), 'weekly', 'servebolt_sec_emails_hook' );
+	}
+}
+
+function servebolt_set_content_type(){
+	return "text/html";
+}
+
+// here's the function we'd like to call with our cron job
+function servebolt_security_emails() {
+	add_filter( 'wp_mail_content_type','servebolt_set_content_type' );
+
+    $wpvuln = servebolt_vuln_wp();
+    $pluginvuln = servebolt_vuln_plugins();
+
+    $critial = $wpvuln['is_critical'];
+    $wpnum = $wpvuln['num_of_vulnerabilities'];
+    $vulnerable = $wpvuln['is_vulnerable'];
+
+    $pluginvulncount = $pluginvuln['num_of_vuln'];
+
+	// components for our email
+	$recepients = get_bloginfo('admin_email');
+	$subject = '!! Servebolt Security Notice: '.get_bloginfo('name');
+	$headers = array('Content-Type: text/html; charset=UTF-8');
+	$emailcontent = __('<html><body>You have %s vulnerabilities in your WordPress, and %s vulnerabilities in your plugins. You should update as soon as possible.
+                    </br>
+                    </br>
+                    This email is a service from <a href="https://servebolt.com">Servebolt.com - Amazingly fast hosting</a></body></html>', 'servebolt-wp');
+	$message = sprintf($emailcontent,$wpnum, $pluginvulncount);
+
+	// let's send it
+    if($vulnerable === 1 && $critial === 1 || $pluginvulncount > 0){
+	    wp_mail($recepients, $subject, $message, $headers);
+	    remove_filter( 'wp_mail_content_type','servebolt_set_content_type' );
+
+    }else{
+        die();
+    }
+}
+
+// hook that function onto our scheduled event:
+add_action ('servebolt_sec_emails_hook', 'servebolt_security_emails');
+
+
+function sample_admin_notice__error() {
+	$wpvuln = servebolt_vuln_wp();
+	$pluginvuln = servebolt_vuln_plugins();
+
+	$critial = $wpvuln['is_critical'];
+	$wpnum = $wpvuln['num_of_vulnerabilities'];
+	$vulnerable = $wpvuln['is_vulnerable'];
+
+	$pluginvulncount = $pluginvuln['num_of_vuln'];
+
+	if($vulnerable === 1 && $critial === 1 || $pluginvulncount > 0) {
+
+		$class   = 'notice notice-error';
+		$message = sprintf( __( 'You have %s WordPress vulnerabilities and %s plugin vulnerabilities. Update WordPress to stay safe!', 'servebolt-wp' ), $wpnum, $pluginvulncount );
+
+		printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
+	}
+}
+add_action( 'admin_notices', 'sample_admin_notice__error' );
