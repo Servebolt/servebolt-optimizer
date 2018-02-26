@@ -103,8 +103,8 @@ require_once 'optimize-db/checks.php';
             </td>
             <td>
                 <?php echo (wp_cron_disabled() === true)
-                    ? '<img src="' . SERVEBOLT_PATH . 'admin/assets/img/checked.png" width="20"> '.__('WP Cron is disabled. Remember to set on cron on the server.', 'servebolt-wp')
-                    : '<img src="' . SERVEBOLT_PATH . 'admin/assets/img/cancel.png" width="20"> '.__('WP Cron is enabled, and may slow down your site and/or degrade the sites ability to scale. This should be disabled and run with server cron.', 'servebolt-wp');
+                    ? '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/checked.png" width="20"> '.__('WP Cron is disabled. Remember to set on cron on the server.', 'servebolt-wp')
+                    : '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/cancel.png" width="20"> '.__('WP Cron is enabled, and may slow down your site and/or degrade the sites ability to scale. This should be disabled and run with server cron.', 'servebolt-wp');
                 ?>
             </td>
         </tr>
