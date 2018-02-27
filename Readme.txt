@@ -2,10 +2,10 @@
 Contributors: audunhus
 Tags: performance, optimization, cache, log
 Donate link: https://servebolt.com
-Requires at least: 4.9.1
+Requires at least: 4.9.2
 Tested up to: 4.9.4
 Requires PHP: 7
-Stable tag: 1.4.1
+Stable tag: 1.4.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,9 @@ With WP-CLI
 4. Run optimizations 'wp servebolt optimize'
 
 == Changelog ==
+
+= 1.4.2 =
+* Important bugfix
 
 = 1.4.1 =
 * Important bugfix
