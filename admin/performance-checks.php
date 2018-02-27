@@ -1,7 +1,7 @@
 <?php
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once 'optimize-db/checks.php';
+require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
 
 ?>
 

@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.1
 Tested up to: 4.9.4
 Requires PHP: 7
-Stable tag: 1.4
+Stable tag: 1.4.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,9 @@ With WP-CLI
 4. Run optimizations 'wp servebolt optimize'
 
 == Changelog ==
+
+= 1.4.1 =
+* Important bugfix
 
 = 1.4 =
 * Github #8 Added a transients cleaner to wp-cron
