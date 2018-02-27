@@ -12,14 +12,16 @@ Text Domain: servebolt-wp
 
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once 'admin/optimize-db/transients-cleaner.php';
-require_once 'admin/security/wpvuldb.php';
+define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
+define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
+
+require_once SERVEBOLT_PATH . 'admin/optimize-db/transients-cleaner.php';
+require_once SERVEBOLT_PATH . 'admin/security/wpvuldb.php';
+
 
 register_activation_hook(__FILE__, 'servebolt_transient_cron');
 register_activation_hook(__FILE__, 'servebolt_email_cronstarter');
 
-define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
-define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
 
 // Disable CONCATENATE_SCRIPTS to get rid of some ddos attacks
 if(! defined( 'CONCATENATE_SCRIPTS')) {
@@ -39,7 +41,7 @@ $nginx_switch = get_option('servebolt_fpc_switch');
  * Loads the class that sets the correct cache headers for NGINX cache
  */
 if(!class_exists('Servebolt_Nginx_Fpc') && $nginx_switch === 'on'){
-	require_once 'class/servebolt-nginx-fpc.class.php';
+	require_once SERVEBOLT_PATH . 'class/servebolt-nginx-fpc.class.php';
 	Servebolt_Nginx_Fpc::setup();
 }
 
@@ -47,7 +49,7 @@ if(!class_exists('Servebolt_Nginx_Fpc') && $nginx_switch === 'on'){
  * If the admin is loaded, load this plugins interface
  */
 if(is_admin()){
-	require_once 'admin/admin-interface.php';
+	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
 }
 
 /**
@@ -77,7 +79,7 @@ function servebolt_add_weekly_cron_schedule( $schedules ) {
 $servebolt_optimize_cmd = function( $args ) {
 	list( $key ) = $args;
 
-	require_once 'admin/optimize-db/optimize-db.php';
+	require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
 
 	if ( ! servebolt_optimize_db(TRUE) ) {
 		WP_CLI::error( "Optimization failed." );
@@ -89,7 +91,7 @@ $servebolt_optimize_cmd = function( $args ) {
 $servebolt_delete_transients = function( $args ) {
 	list( $key ) = $args;
 
-	require_once 'admin/optimize-db/transients-cleaner.php';
+	require_once SERVEBOLT_PATH . 'admin/optimize-db/transients-cleaner.php';
 	servebolt_transient_delete(TRUE);
 
 	if ( ! servebolt_transient_delete(TRUE) ) {
@@ -102,7 +104,7 @@ $servebolt_delete_transients = function( $args ) {
 $servebolt_analyze_tables = function( $args ) {
 	list( $key ) = $args;
 
-	require_once 'admin/optimize-db/transients-cleaner.php';
+	require_once SERVEBOLT_PATH . 'admin/optimize-db/transients-cleaner.php';
 	servebolt_analyze_tables( TRUE );
 
 	if ( ! servebolt_analyze_tables(TRUE) ) {
