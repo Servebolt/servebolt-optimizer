@@ -1,8 +1,8 @@
 <?php
 if( ! defined( 'ABSPATH' ) ) exit;
 
-require_once 'logs-viewer/tail.php'; // Get the file we need for log viewer
-require_once 'optimize-db/optimize-db.php';
+require_once SERVEBOLT_PATH.'admin/logs-viewer/tail.php'; // Get the file we need for log viewer
+require_once SERVEBOLT_PATH.'admin/optimize-db/optimize-db.php';
 
 // create custom plugin settings menu
 add_action('admin_menu', 'servebolt_admin_menu');
