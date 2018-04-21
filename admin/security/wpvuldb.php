@@ -32,24 +32,28 @@ function servebolt_vuln_wp($cli = false){
 		}
 	}
 
-	foreach ($wp_vuln as $key => $vuln){
-	    $wpvuln = array ();
-	    $wpvuln['current_version'] = $key;
+	if(is_array($wp_vuln)):
+		foreach ($wp_vuln as $key => $vuln){
+		    $wpvuln = array ();
+		    $wpvuln['current_version'] = $key;
 
-		if(array_key_exists(0,$vuln['vulnerabilities'])){
-			$wpvuln['is_vulnerable'] = intval(true);
-		}else{
-			$wpvuln['is_vulnerable'] = intval(false);
-		}
+			if(array_key_exists(0,$vuln['vulnerabilities'])){
+				$wpvuln['is_vulnerable'] = intval(true);
+			}else{
+				$wpvuln['is_vulnerable'] = intval(false);
+			}
 
-		if(count($vuln['vulnerabilities']) > 3){
-			$wpvuln['is_critical'] = intval(true);
-		}else{
-			$wpvuln['is_critical'] = intval(false);
-		}
-		$wpvuln['num_of_vulnerabilities'] = count($vuln['vulnerabilities']);
-		$wpvuln['vulnerabilities'] = $vuln['vulnerabilities'];
-    }
+			if(count($vuln['vulnerabilities']) > 3){
+				$wpvuln['is_critical'] = intval(true);
+			}else{
+				$wpvuln['is_critical'] = intval(false);
+			}
+			$wpvuln['num_of_vulnerabilities'] = count($vuln['vulnerabilities']);
+			$wpvuln['vulnerabilities'] = $vuln['vulnerabilities'];
+	    }
+	    else:
+		    //
+	endif;
 
     $wpvulnerabilities = $wpvuln;
 
