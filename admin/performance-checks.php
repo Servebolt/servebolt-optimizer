@@ -4,7 +4,7 @@ if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
 
 ?>
-
+<div id="optimizations-loading" class=""><img src="<?PHP echo SERVEBOLT_PATH_URL; ?>admin/assets/img/loading.apng" alt="Spinner design by https://loading.io/spinner/magnify" /></div>
 <div class="wrap sb-content">
 	<?php if (isset($_GET['optimize-now'])) : ?>
         <div class="notice notice-success is-dismissible"><p><?php _e('Cache settings saved!', 'servebolt-wp'); ?></p></div>
@@ -64,9 +64,9 @@ require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
 		else {
           foreach ( $myisam_tables as $obj ) {
             echo '<tr>';
-            echo '  <td>' . $obj->TABLE_NAME . '</td>';
-            echo '  <td>' . $obj->ENGINE . '</td>';
-            echo '  <td><a href="#optimize" class="optimize-now">' . _e('Convert to InnoDB', 'servebolt-wp') . '</a></td>';
+            echo '<td>' . $obj->TABLE_NAME . '</td>';
+            echo '<td>' . $obj->ENGINE . '</td>';
+            echo '<td><a href="#optimize" class="optimize-now">' . __('Convert to InnoDB', 'servebolt-wp') . '</a></td>';
             echo '</tr>';
           }
 		}

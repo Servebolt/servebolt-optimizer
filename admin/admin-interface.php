@@ -6,7 +6,6 @@ require_once SERVEBOLT_PATH.'admin/optimize-db/optimize-db.php';
 
 // create custom plugin settings menu
 add_action('admin_menu', 'servebolt_admin_menu');
-
 /**
  * Load the menus
  */
@@ -119,6 +118,9 @@ function servebolt_ajax_optimize() {
         jQuery(document).ready(function($) {
 
             $('.optimize-now').click(function(){
+
+                $('#optimizations-loading').addClass('active');
+
                 var data = {
                     action: 'servebolt_optimize_db',
                     whatever: 1234
@@ -126,6 +128,7 @@ function servebolt_ajax_optimize() {
 
                 // since 2.8 ajaxurl is always defined in the admin header and points to admin-ajax.php
                 $.post(ajaxurl, data, function(response) {
+                    $('#optimizations-loading').removeClass('active');
                     alert(response);
                     location.reload();
                 });
