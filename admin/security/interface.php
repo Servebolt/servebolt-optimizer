@@ -39,7 +39,7 @@ $pluginvuln = servebolt_vuln_plugins();
 						echo '</tr>';
 				}
             else:
-                echo '<tr><td>' . __( 'No known security vulnerabilities in WordPress', 'servebolt-wp' ) . '</td></tr>';
+                echo '<tr><td>' . __( 'No known security vulnerabilities in WordPress', 'servebolt-wp' ) . '</td><td></td><td></td><td></td></tr>';
             endif;
 
 			?>
@@ -103,7 +103,7 @@ $pluginvuln = servebolt_vuln_plugins();
 			}
 			if($i === 0){
 				echo '<tr>';
-				echo '<td>' . __( 'No known security vulnerabilities in your plugins', 'servebolt-wp' ) . '</td>';
+				echo '<td>' . __( 'No known security vulnerabilities in your plugins', 'servebolt-wp' ) . '</td><td></td><td></td><td></td><td></td>';
 			}
 			?>
 			</tbody>
