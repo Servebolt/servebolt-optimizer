@@ -5,7 +5,12 @@ require_once SERVEBOLT_PATH.'admin/logs-viewer/tail.php'; // Get the file we nee
 require_once SERVEBOLT_PATH.'admin/optimize-db/optimize-db.php';
 
 // create custom plugin settings menu
-add_action('admin_menu', 'servebolt_admin_menu');
+if(is_multisite()){
+	add_action('network_admin_menu', 'servebolt_admin_menu');
+}else{
+	add_action('admin_menu', 'servebolt_admin_menu');
+}
+
 /**
  * Load the menus
  */

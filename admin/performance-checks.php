@@ -25,14 +25,18 @@ require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
             </tr>
             </tfoot>
             <tbody>
-            <tr>
-                <td><?php _e('Index on autoload column in _options table', 'servebolt-wp'); ?></td>
-                <td><?php echo options_has_index(); ?></td>
-            </tr>
-            <tr>
-                <td><?php _e('Index on meta_value column in _postmeta', 'servebolt-wp'); ?></td>
-                <td><?php echo postmeta_has_index(); ?></td>
-            </tr>
+            <?php
+            $tables = tables_to_have_index();
+            foreach ($tables as $table){
+                echo '<tr>';
+                echo '<td>'.sprintf(__('Index in the %s table on the %s column', 'servebolt-wp'), $table['name'], $table['index']).'</td>';
+                echo '<td>';
+                echo ($table['has_index'] === false)
+                    ? '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/cancel.png" width="20"> '. __('Run Optimize to add the index')
+                    : '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/checked.png" width="20"> '. __('This table has the right indexes');
+                echo '</td>';
+            }
+            ?>
         </tbody>
     </table>
     <h3><?php _e('Database Table Storage Engines'); ?></h3>
