@@ -11,7 +11,7 @@ require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
 	<?php endif; ?>
     <h2>⚡️<?php _e('Servebolt Optimize', 'servebolt-wp'); ?></h2>
     <h3><?php _e('Database Indexes', 'servebolt-wp'); ?></h3>
-    <table class="wp-list-table widefat fixed striped">
+    <table class="wp-list-table widefat fixed striped sb-db-indx">
         <thead>
             <tr>
                 <th><?php _e('Optimization', 'servebolt-wp'); ?></th>
@@ -27,15 +27,20 @@ require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
             <tbody>
             <?php
             $tables = tables_to_have_index();
-            foreach ($tables as $table){
-                echo '<tr>';
-                echo '<td>'.sprintf(__('Index in the %s table on the %s column', 'servebolt-wp'), $table['name'], $table['index']).'</td>';
-                echo '<td>';
-                echo ($table['has_index'] === false)
-                    ? '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/cancel.png" width="20"> '. __('Run Optimize to add the index')
-                    : '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/checked.png" width="20"> '. __('This table has the right indexes');
-                echo '</td>';
-            }
+            if($tables === false):
+	            echo '<tr><td>'.__('All the Servebolt recommended indexes exists', 'servebolt-wp').'</td><td></td>';
+            else:
+                foreach ($tables as $table){
+                    echo '<tr>';
+                    echo '<td>'.sprintf(__('Index in the %s table on the %s column', 'servebolt-wp'), $table['name'], $table['index']).'</td>';
+                    echo '<td>';
+                    echo ($table['has_index'] === false)
+                        ? '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/cancel.png" width="20"> '. __('Run Optimize to add the index')
+                        : '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/checked.png" width="20"> '. __('This table has the right indexes');
+                    echo '</td>';
+	                $run_optimizer = true;
+                }
+            endif;
             ?>
         </tbody>
     </table>
@@ -72,6 +77,7 @@ require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
             echo '<td>' . $obj->ENGINE . '</td>';
             echo '<td><a href="#optimize" class="optimize-now">' . __('Convert to InnoDB', 'servebolt-wp') . '</a></td>';
             echo '</tr>';
+            $run_optimizer = true;
           }
 		}
 		?>
@@ -83,7 +89,7 @@ require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
         <p><?php _e('You can run the optimizer below.', 'servebolt-wp'); ?><br>
         <strong><?php _e('Always backup your database before running optimization!', 'servebolt-wp'); ?></strong>
         </p>
-        <a href="#optimize-now" class="btn button button-primary optimize-now"><?php _e('Optimize!', 'servebolt-wp'); ?></a>
+        <a <?php if($run_optimizer === true) echo 'href="#optimize-now"'; ?> class="btn button button-primary optimize-now" <?php if($run_optimizer !== true) echo 'disabled'; ?>><?php _e('Optimize!', 'servebolt-wp'); ?></a>
     </div>
     <h2><?php _e('Other suggested optimizations'); ?></h2>
     <p><?php _e('These settings can not be optimized by the plugin, but may be implemented manually.', 'servebolt-wp'); ?></p>

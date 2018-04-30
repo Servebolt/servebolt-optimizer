@@ -8,6 +8,7 @@ function tables_to_have_index(){
 		'options' => 'autoload',
 		'postmeta' => 'meta_value'
 	);
+	$tables_to_have_index = array ();
 
 	if(is_multisite() === true):
 		$sites = get_all_tables();
@@ -52,6 +53,7 @@ function tables_to_have_index(){
 			$tables_to_have_index[] = $a_table;
 		}
 	endif;
+
 	return $tables_to_have_index;
 }
 
