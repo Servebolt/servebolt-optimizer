@@ -7,6 +7,7 @@ require_once SERVEBOLT_PATH.'admin/optimize-db/optimize-db.php';
 // create custom plugin settings menu
 if(is_multisite()){
 	add_action('network_admin_menu', 'servebolt_admin_menu');
+	add_action('admin_menu', 'servebolt_subsite_menu');
 }else{
 	add_action('admin_menu', 'servebolt_admin_menu');
 }
@@ -25,6 +26,10 @@ function servebolt_admin_menu() {
 		add_submenu_page('servebolt-wp', __('Security issues','servebolt'), __('Security issues','servebolt'), 'manage_options', 'servebolt-wpvuldb', 'Servebolt_wpvuldb');
 		add_action('admin_bar_menu', 'servebolt_admin_bar', 100);
 	}
+}
+
+function servebolt_subsite_menu(){
+	add_options_page( __('NGINX Cache','servebolt'), __('NGINX Cache','servebolt'), 'manage_options', 'servebolt-nginx-cache', 'Servebolt_NGINX_cache');
 }
 
 function servebolt_admin_bar($wp_admin_bar){
