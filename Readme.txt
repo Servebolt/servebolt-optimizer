@@ -42,6 +42,7 @@ With WP-CLI
 = 1.5 =
 * Added multisite support
 * Fixed a bug in the wpvulndb security checker
+* Added a nice animation when optimizer runs
 * Updated readme.txt
 
 
