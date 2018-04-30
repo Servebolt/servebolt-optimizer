@@ -207,4 +207,8 @@ function servebolt_security_notice() {
 		printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
 	}
 }
+if(is_multisite() === true && is_network_admin() === true):
+add_action( 'network_admin_notices', 'servebolt_security_notice' );
+else:
 add_action( 'admin_notices', 'servebolt_security_notice' );
+endif;
