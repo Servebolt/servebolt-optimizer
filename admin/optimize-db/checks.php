@@ -36,8 +36,7 @@ function tables_to_have_index(){
 		}
 	else:
 		foreach ($tables as $table => $index){
-			$a_table['site_id'] = $key;
-			$a_table['name'] = implode([$blogprefix,$table]);
+			$a_table['name'] = implode([$table]);
 			$a_table['index'] = $index;
 
 			$db_table = $wpdb->$table;
