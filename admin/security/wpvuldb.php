@@ -32,24 +32,28 @@ function servebolt_vuln_wp($cli = false){
 		}
 	}
 
-	foreach ($wp_vuln as $key => $vuln){
-	    $wpvuln = array ();
-	    $wpvuln['current_version'] = $key;
+	if(is_array($wp_vuln)):
+		foreach ($wp_vuln as $key => $vuln){
+		    $wpvuln = array ();
+		    $wpvuln['current_version'] = $key;
 
-		if(array_key_exists(0,$vuln['vulnerabilities'])){
-			$wpvuln['is_vulnerable'] = intval(true);
-		}else{
-			$wpvuln['is_vulnerable'] = intval(false);
-		}
+			if(array_key_exists(0,$vuln['vulnerabilities'])){
+				$wpvuln['is_vulnerable'] = intval(true);
+			}else{
+				$wpvuln['is_vulnerable'] = intval(false);
+			}
 
-		if(count($vuln['vulnerabilities']) > 3){
-			$wpvuln['is_critical'] = intval(true);
-		}else{
-			$wpvuln['is_critical'] = intval(false);
-		}
-		$wpvuln['num_of_vulnerabilities'] = count($vuln['vulnerabilities']);
-		$wpvuln['vulnerabilities'] = $vuln['vulnerabilities'];
-    }
+			if(count($vuln['vulnerabilities']) > 3){
+				$wpvuln['is_critical'] = intval(true);
+			}else{
+				$wpvuln['is_critical'] = intval(false);
+			}
+			$wpvuln['num_of_vulnerabilities'] = count($vuln['vulnerabilities']);
+			$wpvuln['vulnerabilities'] = $vuln['vulnerabilities'];
+	    }
+	    else:
+		    //
+	endif;
 
     $wpvulnerabilities = $wpvuln;
 
@@ -203,4 +207,8 @@ function servebolt_security_notice() {
 		printf( '<div class="%1$s"><p>%2$s</p></div>', esc_attr( $class ), esc_html( $message ) );
 	}
 }
+if(is_multisite() === true && is_network_admin() === true):
+add_action( 'network_admin_notices', 'servebolt_security_notice' );
+else:
 add_action( 'admin_notices', 'servebolt_security_notice' );
+endif;

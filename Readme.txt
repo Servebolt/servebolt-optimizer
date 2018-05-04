@@ -1,29 +1,28 @@
 === Servebolt Optimizer ===
-Contributors: audunhus
-Tags: performance, optimization, cache, log
+Contributors: audunhus, erlendeide
+Tags: performance, optimization, cache, log, wpvulndb, multisite, wp-cli
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 4.9.4
+Tested up to: 4.9.5
 Requires PHP: 7
-Stable tag: 1.4.3
+Stable tag: 1.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 This plugin adds functionality to implement Servebolt WordPress best practices. This includes database optimizations, log review, performance recommendations and support for down stream full page caching.
 
 == Description ==
-Features
+= Features =
 - Database optimization - Convert tables to InnoDB
 - Database optimization - Add indexes
 - Recommendations on additional performance improvements
 - Rewrite headers to allow down stream full page caching
 - View Apache/PHP error log
 - View security vulnerabilities in WordPress and installed plugins, with email alerts to site admin if there are critical vulnerabilities
+- Multisite support
 
-NGINX Full Page Caching
+= NGINX Full Page Caching =
 This plugin rewrites HTTP headers of HTML to allow Nginx and the browser to cache HTML. Full Page Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.
-
-This project is maintained on Github: https://github.com/Servebolt/servebolt-optimizer
 
 Note: Some features are only enabled for hosts on Servebolt.com due to dependencies in the hosting stack.
 
@@ -36,9 +35,16 @@ With WP-CLI
 1. Log in to your site with SSH
 2. cd to your sites root wordpress folder
 3. Run 'wp plugin install servebolt-optimizer --activate'
-4. Run optimizations 'wp servebolt optimize'
+4. Run optimizations 'wp servebolt db optimize'
 
 == Changelog ==
+
+= 1.5 =
+* Added multisite support
+* Fixed a bug in the wpvulndb security checker
+* Added a nice animation when optimizer runs
+* Updated readme.txt
+
 
 = 1.4.2 =
 * Important bugfix
@@ -60,3 +66,6 @@ With WP-CLI
 * Added WP-CLI support
 * issues on Github #8 added uninstall.php + bug fixes #7 #9
 * added changelog to Readme.txt
+
+
+This project is maintained on Github: https://github.com/Servebolt/servebolt-optimizer

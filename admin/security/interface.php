@@ -5,7 +5,6 @@ require_once 'wpvuldb.php';
 $wpvlun = servebolt_vuln_wp();
 $pluginvuln = servebolt_vuln_plugins();
 
-
 ?>
 	<div class="wrap sb-content">
         <h2>⚡️<?php _e('Servebolt Security Checker', 'servebolt-wp'); ?></h2>
@@ -30,19 +29,19 @@ $pluginvuln = servebolt_vuln_plugins();
 			</tfoot>
 			<tbody>
 			<?php
+            if ( array_key_exists( '0', $wpvlun['vulnerabilities'] ) ):
 				foreach ($wpvlun['vulnerabilities'] as $vuln) {
-					if ( ! empty( $vuln ) ):
 						echo '<tr>';
 						echo '<td>' . $vuln['title'] . '</td>';
 						echo '<td>' . $vuln['vuln_type'] . '</td>';
 						echo '<td>' . $vuln['fixed_in'] . '</td>';
 						echo '<td><a href="' . $vuln['references']['url'][0] . '" target="_blank">' . $vuln['references']['url'][0] . '</a></td>';
 						echo '</tr>';
-					else:
-						echo '<tr><td>' . __( 'No known security vulnerabilities in WordPress', 'servebolt-wp' ) . '</td></tr>';
-
-					endif;
 				}
+            else:
+                echo '<tr><td>' . __( 'No known security vulnerabilities in WordPress', 'servebolt-wp' ) . '</td><td></td><td></td><td></td></tr>';
+            endif;
+
 			?>
 			</tbody>
 		</table>
@@ -104,7 +103,7 @@ $pluginvuln = servebolt_vuln_plugins();
 			}
 			if($i === 0){
 				echo '<tr>';
-				echo '<td>' . __( 'No known security vulnerabilities in your plugins', 'servebolt-wp' ) . '</td>';
+				echo '<td>' . __( 'No known security vulnerabilities in your plugins', 'servebolt-wp' ) . '</td><td></td><td></td><td></td><td></td>';
 			}
 			?>
 			</tbody>

@@ -1,30 +1,91 @@
 <?php
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-function options_has_index(){
-    $autoload_index = table_has_index('options', 'autoload');
-    return output_index($autoload_index);
+function tables_to_have_index(){
+	global $wpdb;
+
+	$tables = array(
+		'options' => 'autoload',
+		'postmeta' => 'meta_value'
+	);
+	$tables_to_have_index = array ();
+
+	if(is_multisite() === true):
+		$sites = get_all_tables();
+		foreach ($sites as $key => $value){
+			foreach ($tables as $table => $index){
+				switch_to_blog($key);
+					$blogprefix = $wpdb->prefix;
+					$a_table['site_id'] = $key;
+					$a_table['name'] = implode([$blogprefix,$table]);
+					$a_table['index'] = $index;
+
+					$db_table = $wpdb->$table;
+					$indexes = $wpdb->get_results( "SHOW INDEX FROM {$db_table}" );
+
+					foreach ( $indexes as $index ) {
+						if ( $index->Column_name == $a_table['index'] ) {
+							$a_table['has_index'] = true;
+						}else{
+							$a_table['has_index'] = false;
+						}
+					}
+					$tables_to_have_index[] = $a_table;
+				restore_current_blog();
+			}
+		}
+	else:
+		foreach ($tables as $table => $index){
+			$a_table['name'] = implode([$table]);
+			$a_table['index'] = $index;
+
+			$db_table = $wpdb->$table;
+			$indexes = $wpdb->get_results( "SHOW INDEX FROM {$db_table}" );
+
+			foreach ( $indexes as $index ) {
+				if ( $index->Column_name == $a_table['index'] ) {
+					$a_table['has_index'] = true;
+				}else{
+					$a_table['has_index'] = false;
+				}
+			}
+			$tables_to_have_index[] = $a_table;
+		}
+	endif;
+
+	return $tables_to_have_index;
 }
 
-function postmeta_has_index(){
-	$metavalue_index = table_has_index('postmeta', 'meta_value');
-	return output_index($metavalue_index);
-}
+function get_all_tables(){
+	global $wpdb;
 
-function output_index($state) {
-    return ($state === false)
-        ? '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/cancel.png" width="20"> '. __('Run Optimize to add the index')
-        : '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/checked.png" width="20"> '. __('This table has an index');
+	if(is_multisite() === true){
+		$sites = get_sites();
+		$tables = array();
+
+		foreach ($sites as $site){
+			$id = $site->blog_id;
+			switch_to_blog($id);
+			$siteTables = $wpdb->tables;
+			$tables[$id] = array_flip($siteTables);
+			restore_current_blog();
+		}
+
+	}else{
+		$tables = $wpdb->tables;
+	}
+	return $tables;
 }
 
 /**
  * @return bool
  */
-function table_has_index($wp_table, $index_name) {
+function table_has_index($wp_table, $index_name, $siteid = NULL) {
     /* WPDB Docs: https://codex.wordpress.org/Class_Reference/wpdb */
     global $wpdb;
     $db_table = $wpdb->$wp_table;
     $indexes = $wpdb->get_results( "SHOW INDEX FROM {$db_table}" );
+
     foreach ( $indexes as $index ) {
 	    if ( $index->Column_name == $index_name ) {
 		    return true;

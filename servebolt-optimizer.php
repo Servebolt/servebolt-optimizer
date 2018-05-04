@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 1.4.3
+Version: 1.5
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that implements Servebolt Security & Performance best practises for WordPress.
@@ -82,9 +82,9 @@ $servebolt_optimize_cmd = function( $args ) {
 	require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
 
 	if ( ! servebolt_optimize_db(TRUE) ) {
-		WP_CLI::error( "Optimization failed." );
+		WP_CLI::success( "Optimization done" );
 	} else {
-		WP_CLI::success( "Everything OK." );
+		WP_CLI::warning( "Everything OK. No optimization to do." );
 	}
 };
 
