@@ -48,7 +48,7 @@ function servebolt_optimize_db($cli = FALSE) {
 			restore_current_blog();
 		}
 	}else{
-		if($metavalue_index === false){
+		if($metavalue_index[$wpdb->postmeta] === false){
 			$wpdb->query("ALTER TABLE {$wpdb->postmeta} ADD INDEX `sbpmv` (`meta_value`(10))");
 			echo "Added index to postmeta \n";
 			$meta_value = true;
@@ -94,7 +94,7 @@ function servebolt_optimize_db($cli = FALSE) {
 			restore_current_blog();
 		}
 	}else{
-		if($autoload_index === false){
+		if($options_indexes[$wpdb->options] === false){
 			$wpdb->query("ALTER TABLE {$wpdb->options} ADD INDEX(autoload)");
 			echo "Added index to options \n";
 			$autoload = true;
