@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide
 Tags: performance, optimization, cache, log, wpvulndb, multisite, wp-cli
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 4.9.5
+Tested up to: 4.9.6
 Requires PHP: 7
-Stable tag: 1.5
+Stable tag: 1.5.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,9 @@ With WP-CLI
 4. Run optimizations 'wp servebolt db optimize'
 
 == Changelog ==
+
+= 1.5.1 =
+* Bugfix: Unable to add indexes on non-multisite installs
 
 = 1.5 =
 * Added multisite support
