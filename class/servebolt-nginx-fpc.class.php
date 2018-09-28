@@ -52,16 +52,10 @@ class Servebolt_Nginx_Fpc {
 		// Only trigger this function once.
 		remove_filter( 'posts_results', __CLASS__.'::set_headers' );
 
-		if ( ( is_front_page() || is_singular() || is_page() ) && array_key_exists( get_post_type(), self::cacheable_post_types() ) ) {
-
-			// Check if cache is disabled for the post
-			foreach ( $posts as $post ) {
-				if ( 'off' === get_post_meta( $post->ID, '_nginx_fpc', true ) ) {
-					// Disable caching for this page / post
-					self::no_cache_headers();
-					return $posts;
-				}
-			}
+        if(class_exists( 'WooCommerce' ) && (is_cart() || is_checkout()) ){
+            self::no_cache_headers();
+        }
+		elseif ( ( is_front_page() || is_singular() || is_page() ) && array_key_exists( get_post_type(), self::cacheable_post_types() ) ) {
 			// Make sure the post type can be cached
 			self::$post_types[] = get_post_type();
 			self::cache_headers();
