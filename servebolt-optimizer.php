@@ -62,7 +62,6 @@ function servebolt_add_weekly_cron_schedule( $schedules ) {
 		'interval' => 604800, // 1 week in seconds
 		'display'  => __( 'Once Weekly' ),
 	);
-
 	return $schedules;
 }
 
@@ -73,7 +72,7 @@ function servebolt_add_weekly_cron_schedule( $schedules ) {
  *
  * ## EXAMPLES
  *
- *     $ wp servebolt optimize db
+ *     $ wp servebolt db optimize
  *     Success: Successfully optimized.
  */
 $servebolt_optimize_cmd = function( $args ) {
@@ -85,19 +84,6 @@ $servebolt_optimize_cmd = function( $args ) {
 		WP_CLI::success( "Optimization done" );
 	} else {
 		WP_CLI::warning( "Everything OK. No optimization to do." );
-	}
-};
-
-$servebolt_delete_transients = function( $args ) {
-	list( $key ) = $args;
-
-	require_once SERVEBOLT_PATH . 'admin/optimize-db/transients-cleaner.php';
-	servebolt_transient_delete(TRUE);
-
-	if ( ! servebolt_transient_delete(TRUE) ) {
-		WP_CLI::error( "Could not delete transients." );
-	} else {
-		WP_CLI::success( "Deleted transients." );
 	}
 };
 
@@ -247,7 +233,6 @@ function servebolt_nginx_set_posttypes($posttypes, $switch, $blogid = NULL){
 if ( class_exists( 'WP_CLI' ) ) {
 	WP_CLI::add_command( 'servebolt db optimize', $servebolt_optimize_cmd );
 	WP_CLI::add_command( 'servebolt db analyze', $servebolt_analyze_tables );
-	WP_CLI::add_command( 'servebolt transients delete', $servebolt_delete_transients );
     WP_CLI::add_command( 'servebolt fpc', $servebolt_cli_nginx );
 }
 
