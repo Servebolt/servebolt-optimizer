@@ -213,7 +213,6 @@ function servebolt_nginx_control($state, $assoc_args){
 }
 
 function servebolt_nginx_set_posttypes($posttypes, $switch, $blogid = NULL){
-
     $posttype_setting = get_option('servebolt_fpc_settings');
     if($blogid !== NULL && is_multisite()) switch_to_blog($blogid);
     $postTypeChanged = array();
@@ -230,6 +229,7 @@ function servebolt_nginx_set_posttypes($posttypes, $switch, $blogid = NULL){
     }elseif(empty($switch)){
         $posttype_setting = array();
         $postTypeChanged = __('all');
+        WP_CLI::warning(__('Cache was not completely disabled, but restored to default settings. Use wp servebolt fpc deactivate [--all] to deactivate NGINX cache completely.', 'servebolt'));
     }
     else{
         foreach ($posttypes as $posttype){
