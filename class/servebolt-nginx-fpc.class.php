@@ -55,6 +55,7 @@ class Servebolt_Nginx_Fpc {
         if(class_exists( 'WooCommerce' ) && (is_cart() || is_checkout()) ){
             self::no_cache_headers();
         }
+
 		elseif ( ( is_front_page() || is_singular() || is_page() ) && array_key_exists( get_post_type(), self::cacheable_post_types() ) ) {
 			// Make sure the post type can be cached
 			self::$post_types[] = get_post_type();

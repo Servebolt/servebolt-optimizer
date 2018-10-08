@@ -114,10 +114,99 @@ $servebolt_analyze_tables = function( $args ) {
 	}
 };
 
+$servebolt_cli_nginx = function( $args, $assoc_args ) {
+    if($args[0] === 'status'):
+        servebolt_nginx_status();
+    elseif($args[0] === 'activate' || $args[0] === 'deactivate'):
+        servebolt_nginx_control($args[0], $assoc_args);
+    endif;
+
+};
+
+function servebolt_nginx_status(){
+    if(is_multisite()):
+        $sites = get_sites();
+        $sites_status = array();
+        foreach ($sites as $site){
+            $id = $site->blog_id;
+            switch_to_blog($id);
+            $status = get_option('servebolt_fpc_switch');
+            $posttypes = get_option('servebolt_fpc_settings');
+
+            $posttypes_keys = array_keys($posttypes);
+            $posttypes_string = implode(',',$posttypes_keys);
+
+            if($status !== 'on'):
+                $status = 'enabled';
+            else:
+                $status = 'disabled';
+            endif;
+
+            $url = get_site_url($id);
+            $site_status = array();
+            $site_status['URL'] = $url;
+            $site_status['STATUS'] = $status;
+            $site_status['POST_TYPES'] = $posttypes_string;
+            $sites_status[] = $site_status;
+            restore_current_blog();
+        }
+        WP_CLI\Utils\format_items( 'table', $sites_status , array('URL', 'STATUS', 'POST_TYPES'));
+    else:
+        $status = get_option('servebolt_fpc_switch');
+        WP_CLI::success(sprintf(__('NGINX cache is %s'), $status));
+    endif;
+}
+
+function servebolt_nginx_control($state, $assoc_args){
+    $switch = '';
+    if($state === 'activate') {
+        $switch = 'on';
+    }elseif($state === 'deactivate'){
+        $switch = '';
+    }
+
+    if(is_multisite() && array_key_exists('all', $assoc_args)){
+        $sites = get_sites();
+        $sites_status = array();
+        foreach ($sites as $site) {
+            $id = $site->blog_id;
+            switch_to_blog($id);
+            $url = get_site_url($id);
+            $status = get_option('servebolt_fpc_switch');
+            if($status !== $switch):
+                update_option('servebolt_fpc_switch', $switch);
+                WP_CLI::success(sprintf(__('NGINX Cache %1$sd on %2$s'), $state, esc_url($url)));
+            elseif($status === $switch):
+                WP_CLI::warning(sprintf(__('NGINX Cache already %1$sd on %2$s'), $state, esc_url($url)));
+            endif;
+            if($assoc_args['posttypes']) servebolt_nginx_set_posttypes($assoc_args['posttypes'], $id);
+            restore_current_blog();
+        }
+    }else{
+        $status = get_option('servebolt_fpc_switch');
+        if($status !== $switch):
+            update_option('servebolt_fpc_switch', $switch);
+            WP_CLI::success(sprintf(__('NGINX Cache %1$sd'), $state));
+        elseif($status === $switch):
+            WP_CLI::warning(sprintf(__('NGINX Cache already %1$sd'), $state));
+        endif;
+    }
+}
+
+function servebolt_nginx_set_posttypes($posttypes, $blogid = NULL){
+    if(!empty($blogid)) $blogid = get_current_blog_id();
+    $posttype_setting = array();
+    foreach ($posttypes as $posttype){
+        $posttype_setting[$posttype] = 'on';
+    }
+    update_option('servebolt_fpc_settings', $posttype_setting);
+}
+
 if ( class_exists( 'WP_CLI' ) ) {
 	WP_CLI::add_command( 'servebolt db optimize', $servebolt_optimize_cmd );
 	WP_CLI::add_command( 'servebolt db analyze', $servebolt_analyze_tables );
 	WP_CLI::add_command( 'servebolt transients delete', $servebolt_delete_transients );
+    WP_CLI::add_command( 'servebolt fpc', $servebolt_cli_nginx );
 }
 
 

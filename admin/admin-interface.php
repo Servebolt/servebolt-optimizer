@@ -1,6 +1,5 @@
 <?php
 if( ! defined( 'ABSPATH' ) ) exit;
-
 require_once SERVEBOLT_PATH.'admin/logs-viewer/tail.php'; // Get the file we need for log viewer
 require_once SERVEBOLT_PATH.'admin/optimize-db/optimize-db.php';
 

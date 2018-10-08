@@ -28,7 +28,9 @@ $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settin
 		$post_types = get_post_types($args, 'objects');
 
 		$nginx_switch = get_option('servebolt_fpc_switch');
+
 		$nginx_switch_checked = '';
+
 		if($nginx_switch === 'on'){ $nginx_switch_checked = 'checked';}
 		echo '<div class="nginx_switch"><input '.$nginx_switch_checked.' id="nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox" />'.__('Turn Nginx Cache on', 'servebolt-wp').'</input></div>';
 
@@ -87,7 +89,6 @@ $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settin
 
         foreach ($sites as $site){
             $sb_fpc_settings = get_blog_option($site->blog_id, 'servebolt_fpc_settings');
-
             echo '<tr>';
             echo '<td>';
             echo $site->blog_id;
