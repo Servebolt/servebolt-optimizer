@@ -10,6 +10,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: servebolt-wp
 */
 
+
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
@@ -59,6 +60,8 @@ function servebolt_add_weekly_cron_schedule( $schedules ) {
 	return $schedules;
 }
 
+
+// TODO: All CLI should really be a class
 /**
  * Run Servebolt Optimizer.
  *
@@ -150,14 +153,14 @@ $servebolt_cli_nginx_deactivate = function( $assoc_args ) {
  *     $ wp servebolt fpc status
  *
  */
-$servebolt_cli_nginx_status = function(  ) {
-    servebolt_nginx_status(  );
+$servebolt_cli_nginx_status = function( $args, $assoc_args  ) {
+    servebolt_nginx_status( $args, $assoc_args  );
 };
 
 
-function servebolt_nginx_status(){
+function servebolt_nginx_status( $args, $assoc_args ){
     // TODO: List post types on single sites
-    if(is_multisite()):
+    if(is_multisite() && array_key_exists('all', $assoc_args)):
         $sites = get_sites();
         $sites_status = array();
         foreach ($sites as $site){
@@ -196,9 +199,33 @@ function servebolt_nginx_status(){
         WP_CLI\Utils\format_items( 'table', $sites_status , array('URL', 'STATUS', 'POST_TYPES'));
     else:
         $status = get_option('servebolt_fpc_switch');
-        WP_CLI::success(sprintf(__('NGINX cache is %s'), $status));
+        $posttypes = get_option('servebolt_fpc_settings');
+
+        $enabledTypes = [];
+        foreach ($posttypes as $key => $value){
+            if($value === 'on') $enabledTypes[$key] = 'on';
+        }
+        $posttypes_keys = array_keys($enabledTypes);
+        $posttypes_string = implode(',',$posttypes_keys);
+
+        if(empty($posttypes_string)):
+            $posttypes_string = __('Default', 'servebolt');
+        elseif(array_key_exists('all', $posttypes)):
+            $posttypes_string = __('All', 'servebolt');
+        endif;
+
+        if($status === 'on'):
+            $status = 'activated';
+        else:
+            $status = 'deactivated';
+        endif;
+
+        WP_CLI::line(sprintf(__('Servebolt Full Page Cache cache is %s'), $status));
+        WP_CLI::line(sprintf(__('Post types enabled for caching: %s'), $posttypes_string));
     endif;
 }
+
+
 
 function servebolt_nginx_control($state, $assoc_args){
     $switch = '';
@@ -235,13 +262,14 @@ function servebolt_nginx_control($state, $assoc_args){
         }
     }else{
         $status = get_option('servebolt_fpc_switch');
+        if(array_key_exists('post_types',$assoc_args)) servebolt_nginx_set_posttypes(explode(',', $assoc_args['post_types']), $switch);
         if($status !== $switch):
             update_option('servebolt_fpc_switch', $switch);
             WP_CLI::success(sprintf(__('NGINX Cache %1$sd'), $state));
         elseif($status === $switch):
             WP_CLI::warning(sprintf(__('NGINX Cache already %1$sd'), $state));
         endif;
-        if(array_key_exists('post_types',$assoc_args)) servebolt_nginx_set_posttypes(explode(',', $assoc_args['post_types']), $switch);
+
     }
 }
 
