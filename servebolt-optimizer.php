@@ -200,7 +200,7 @@ function servebolt_nginx_status( $args, $assoc_args ){
         $posttypes = get_option('servebolt_fpc_settings');
 
         $enabledTypes = [];
-        foreach ($posttypes as $key => $value){
+        if(!empty($posttypes)) foreach ($posttypes as $key => $value){
             if($value === 'on') $enabledTypes[$key] = 'on';
         }
         $posttypes_keys = array_keys($enabledTypes);
