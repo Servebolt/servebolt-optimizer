@@ -30,14 +30,15 @@ function servebolt_optimizer_disable_version() {
 add_filter('the_generator','servebolt_optimizer_disable_version');
 remove_action('wp_head', 'wp_generator');
 
-$nginx_switch = get_option('servebolt_fpc_switch');
+
 
 /**
  * Loads the class that sets the correct cache headers for NGINX cache
  */
-if(!class_exists('Servebolt_Nginx_Fpc') && $nginx_switch === 'on'){
+if(!class_exists('Servebolt_Nginx_Fpc') ){
+    $nginx_switch = get_option('servebolt_fpc_switch');
 	require_once SERVEBOLT_PATH . 'class/servebolt-nginx-fpc.class.php';
-	Servebolt_Nginx_Fpc::setup();
+    if($nginx_switch === 'on') Servebolt_Nginx_Fpc::setup();
 }
 
 /**
@@ -232,7 +233,7 @@ function servebolt_nginx_control($state, $args, $assoc_args){
     }elseif($state === 'deactivate'){
         $switch = '';
     }
-    if(is_multisite() && $state === 'deactivate' && array_key_exists('post_types', $assoc_args)){
+    if(is_multisite() && $state === 'deactivate' && array_key_exists('post_types', $assoc_args) && array_key_exists('all', $assoc_args)){
         $sites = get_sites();
         foreach ($sites as $site) {
             $id = $site->blog_id;
@@ -258,7 +259,12 @@ function servebolt_nginx_control($state, $args, $assoc_args){
             if(array_key_exists('post_types',$assoc_args)) servebolt_nginx_set_posttypes(explode(',', $assoc_args['post_types']), $switch, $id);
             restore_current_blog();
         }
-    }else{
+
+    }
+    elseif($state === 'deactivate' && array_key_exists('post_types', $assoc_args)){
+        servebolt_nginx_set_posttypes(explode(',', $assoc_args['post_types']), $switch);
+    }
+    else{
         $status = get_option('servebolt_fpc_switch');
         if(array_key_exists('post_types',$assoc_args)) servebolt_nginx_set_posttypes(explode(',', $assoc_args['post_types']), $switch);
         if($status !== $switch):
@@ -288,7 +294,7 @@ function servebolt_nginx_set_posttypes($posttypes, $switch, $blogid = NULL){
     }elseif(empty($switch)){
         $posttype_setting = array();
         $postTypeChanged = __('all');
-        WP_CLI::warning(__('Cache was not completely disabled, but restored to default settings. Use wp servebolt fpc deactivate [--all] to deactivate NGINX cache completely.', 'servebolt'));
+        WP_CLI::warning(sprintf(__('Cache was not completely disabled, but restored to default settings [%s]. Use wp servebolt fpc deactivate [--all] to deactivate NGINX cache completely.', 'servebolt'),Servebolt_Nginx_Fpc::default_cacheable_post_types('csv')));
     }
     else{
         foreach ($posttypes as $posttype){

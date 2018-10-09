@@ -55,7 +55,10 @@ class Servebolt_Nginx_Fpc {
         if(class_exists( 'WooCommerce' ) && (is_cart() || is_checkout()) ){
             self::no_cache_headers();
         }
-
+        elseif( !empty(self::cacheable_post_types() ) ) {
+            self::$post_types[] = get_post_type();
+            if( in_array( get_post_type() , self::default_cacheable_post_types() ) ) self::cache_headers();
+        }
 		elseif ( ( is_front_page() || is_singular() || is_page() ) && array_key_exists( get_post_type(), self::cacheable_post_types() ) ) {
 			// Make sure the post type can be cached
 			self::$post_types[] = get_post_type();
@@ -133,4 +136,14 @@ class Servebolt_Nginx_Fpc {
 		$post_types = get_option('servebolt_fpc_settings'); // get from admin settings instead
 		return (is_array($post_types)) ? $post_types : [];
 	}
+
+	public static function default_cacheable_post_types( $format = 'array') {
+	    $defaults = [
+	        'post',
+            'page',
+            'product'
+        ];
+	    if($format === 'array') return $defaults;
+	    elseif($format === 'csv') return implode(',',$defaults);
+    }
 }
