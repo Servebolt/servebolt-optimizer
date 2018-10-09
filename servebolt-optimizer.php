@@ -108,7 +108,6 @@ $servebolt_analyze_tables = function( $args ) {
  * [--post_types=<post_types>]
  * : Comma separated list of post types to be activated
  * ---
- * default: csv
  *
  * ## EXAMPLES
  *
@@ -131,7 +130,6 @@ $servebolt_cli_nginx_activate = function( $args, $assoc_args ) {
  * [--post_types=<post_types>]
  * : Comma separated list of post types to be deactivated
  * ---
- * default: csv
  *
  * ## EXAMPLES
  *
