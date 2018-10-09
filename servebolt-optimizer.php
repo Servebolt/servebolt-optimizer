@@ -116,8 +116,8 @@ $servebolt_analyze_tables = function( $args ) {
  *     $ wp servebolt fpc activate --post_types=post,page
  *
  */
-$servebolt_cli_nginx_activate = function( $assoc_args ) {
-    servebolt_nginx_control('activate', $assoc_args);
+$servebolt_cli_nginx_activate = function( $args, $assoc_args ) {
+    servebolt_nginx_control('activate', $args, $assoc_args);
 };
 
 /**
@@ -139,8 +139,8 @@ $servebolt_cli_nginx_activate = function( $assoc_args ) {
  *     $ wp servebolt fpc deactivate --post_types=post,page
  *
  */
-$servebolt_cli_nginx_deactivate = function( $assoc_args ) {
-        servebolt_nginx_control('deactivate', $assoc_args);
+$servebolt_cli_nginx_deactivate = function( $args, $assoc_args ) {
+        servebolt_nginx_control('deactivate', $args, $assoc_args);
 };
 
 /**
@@ -227,7 +227,7 @@ function servebolt_nginx_status( $args, $assoc_args ){
 
 
 
-function servebolt_nginx_control($state, $assoc_args){
+function servebolt_nginx_control($state, $args, $assoc_args){
     $switch = '';
     if($state === 'activate') {
         $switch = 'on';
