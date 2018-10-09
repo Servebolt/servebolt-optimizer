@@ -1,7 +1,7 @@
 <?php
-define('SERVEBOLT_WPVULNDB_WP', 'https://wpvulndb.com/api/v2/wordpresses/');
-define('SERVEBOLT_WPVULNDB_PLUGIN', 'https://wpvulndb.com/api/v2/plugins/');
-define('SERVEBOLT_VULNWP_UPDATE_RATE', 172800);
+if(!defined('SERVEBOLT_WPVULNDB_WP')) define('SERVEBOLT_WPVULNDB_WP', 'https://wpvulndb.com/api/v2/wordpresses/');
+if(!defined('SERVEBOLT_WPVULNDB_PLUGIN')) define('SERVEBOLT_WPVULNDB_PLUGIN', 'https://wpvulndb.com/api/v2/plugins/');
+if(!defined('SERVEBOLT_VULNWP_UPDATE_RATE')) define('SERVEBOLT_VULNWP_UPDATE_RATE', 172800);
 
 
 function sb_getUrlContent($url, $param){
@@ -65,6 +65,8 @@ function servebolt_vuln_wp($cli = false){
 }
 
 function servebolt_vuln_plugins($cli = false){
+
+
 
 	$all_plugins = get_plugins();
 

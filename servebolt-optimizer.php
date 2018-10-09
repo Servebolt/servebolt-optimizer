@@ -15,13 +15,7 @@ if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
 define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
 
-require_once SERVEBOLT_PATH . 'admin/optimize-db/transients-cleaner.php';
-require_once SERVEBOLT_PATH . 'admin/security/wpvuldb.php';
-
-
-register_activation_hook(__FILE__, 'servebolt_transient_cron');
-register_activation_hook(__FILE__, 'servebolt_email_cronstarter');
-
+if(is_admin()) require_once SERVEBOLT_PATH . 'admin/security/wpvuldb.php';
 
 // Disable CONCATENATE_SCRIPTS to get rid of some ddos attacks
 if(! defined( 'CONCATENATE_SCRIPTS')) {
@@ -100,16 +94,69 @@ $servebolt_analyze_tables = function( $args ) {
 	}
 };
 
-$servebolt_cli_nginx = function( $args, $assoc_args ) {
-    if($args[0] === 'status'):
-        servebolt_nginx_status();
-    elseif($args[0] === 'activate' || $args[0] === 'deactivate'):
-        servebolt_nginx_control($args[0], $assoc_args);
-    endif;
-
+/**
+ * Activate the correct cache headers for Servebolt Full Page Cache
+ *
+ * ## OPTIONS
+ *
+ * [--all]
+ * : Activate on all sites in multisite
+ *
+ * [--post_types=<post_types>]
+ * : Comma separated list of post types to be activated
+ * ---
+ * default: csv
+ *
+ * ## EXAMPLES
+ *
+ *     # Activate Servebolt Full Page Cache, but only for pages and posts
+ *     $ wp servebolt fpc activate --post_types=post,page
+ *
+ */
+$servebolt_cli_nginx_activate = function( $assoc_args ) {
+    servebolt_nginx_control('activate', $assoc_args);
 };
 
+/**
+ * Deactivate the correct cache headers for Servebolt Full Page Cache
+ *
+ * ## OPTIONS
+ *
+ * [--all]
+ * : Deactivate on all sites in multisite
+ *
+ * [--post_types=<post_types>]
+ * : Comma separated list of post types to be deactivated
+ * ---
+ * default: csv
+ *
+ * ## EXAMPLES
+ *
+ *     # Deactivate Servebolt Full Page Cache, but only for pages and posts
+ *     $ wp servebolt fpc deactivate --post_types=post,page
+ *
+ */
+$servebolt_cli_nginx_deactivate = function( $assoc_args ) {
+        servebolt_nginx_control('deactivate', $assoc_args);
+};
+
+/**
+ * Return status of the Servebolt Full Page Cache
+ *
+ *
+ * ## EXAMPLES
+ *
+ *     # Return status of the Servebolt Full Page Cache
+ *     $ wp servebolt fpc status
+ *
+ */
+$servebolt_cli_nginx_status = function(  ) {
+    servebolt_nginx_status(  );
+};
+
+
 function servebolt_nginx_status(){
+    // TODO: List post types on single sites
     if(is_multisite()):
         $sites = get_sites();
         $sites_status = array();
@@ -231,9 +278,12 @@ function servebolt_nginx_set_posttypes($posttypes, $switch, $blogid = NULL){
 }
 
 if ( class_exists( 'WP_CLI' ) ) {
-	WP_CLI::add_command( 'servebolt db optimize', $servebolt_optimize_cmd );
+    WP_CLI::add_command( 'servebolt db optimize', $servebolt_optimize_cmd ); // TODO: Remove in v1.7
+	WP_CLI::add_command( 'servebolt db fix', $servebolt_optimize_cmd );
 	WP_CLI::add_command( 'servebolt db analyze', $servebolt_analyze_tables );
-    WP_CLI::add_command( 'servebolt fpc', $servebolt_cli_nginx );
+    WP_CLI::add_command( 'servebolt fpc activate', $servebolt_cli_nginx_activate );
+    WP_CLI::add_command( 'servebolt fpc deactivate', $servebolt_cli_nginx_deactivate );
+    WP_CLI::add_command( 'servebolt fpc status', $servebolt_cli_nginx_status );
 }
 
 
