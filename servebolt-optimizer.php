@@ -291,10 +291,16 @@ function servebolt_nginx_set_posttypes($posttypes, $switch, $blogid = NULL){
             $posttype_setting[$type->name] = $switch;
             $postTypeChanged[] = $type->name;
         }
-    }elseif(empty($switch)){
+    }elseif(empty($switch) && $posttypes === 'all'){
         $posttype_setting = array();
         $postTypeChanged = __('all');
         WP_CLI::warning(sprintf(__('Cache was not completely disabled, but restored to default settings [%s]. Use wp servebolt fpc deactivate [--all] to deactivate NGINX cache completely.', 'servebolt'),Servebolt_Nginx_Fpc::default_cacheable_post_types('csv')));
+    }elseif(!empty($posttypes) && empty($switch)){
+        foreach ($posttypes as $type) if($type !== 'all'){
+            $posttype_setting[$type->name] = $switch;
+            $postTypeChanged[] = $type->name;
+        }
+        WP_CLI::line("just changed some");
     }
     else{
         foreach ($posttypes as $posttype){
