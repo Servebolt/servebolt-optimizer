@@ -101,7 +101,7 @@ $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settin
 	        echo '</td>';
 	        echo '<td>';
 	        if(!empty($sb_fpc_settings)) foreach ($sb_fpc_settings as $page => $switch){
-	            echo $page.'<br>';
+	            echo $page.' = '.$switch.'<br>';
             }
 	        echo '</td>';
 	        echo '<td>';

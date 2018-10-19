@@ -82,6 +82,9 @@ function servebolt_general_page() {
  * Set up the NGINX cache control page
  */
 function Servebolt_NGINX_cache() {
+    echo '<pre>';
+    print_r(get_option('servebolt_fpc_settings'));
+    echo '</pre>';
  require_once 'nginx-controls.php';
 }
 
