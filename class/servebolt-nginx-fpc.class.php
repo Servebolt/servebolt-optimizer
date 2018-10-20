@@ -60,13 +60,11 @@ class Servebolt_Nginx_Fpc {
         }
         elseif ( array_key_exists( 'all', self::cacheable_post_types() ) && self::cacheable_post_types()['all'] === 'on' ) {
             // Make sure the post type can be cached
-            echo 'all hit';
             self::$post_types[] = get_post_type();
             self::cache_headers();
         }
 		elseif ( ( is_front_page() || is_singular() || is_page() ) && array_key_exists( get_post_type(), self::cacheable_post_types() ) && self::cacheable_post_types()[$posttype] === 'on' ) {
 			// Make sure the post type can be cached
-            echo 'post type hit';
 			self::$post_types[] = get_post_type();
 			self::cache_headers();
 		}
@@ -74,11 +72,10 @@ class Servebolt_Nginx_Fpc {
 			// Make sure the archive has only cachable posts
 			self::cache_headers();
 		}
-        /*elseif( !empty(self::cacheable_post_types() ) ) {
-            echo 'post type fallback';
+        elseif( !empty(self::cacheable_post_types() ) ) {
             self::$post_types[] = get_post_type();
             if( in_array( get_post_type() , self::default_cacheable_post_types() ) ) self::cache_headers();
-        }*/
+        }
 		else {
 			// Default to no-cache headers
 			self::no_cache_headers();
@@ -125,8 +122,7 @@ class Servebolt_Nginx_Fpc {
 		header( 'Pragma: public' );
 		// Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
 		header( 'Expires: '. gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $servebolt_nginx_cache_time) .' GMT');
-		header( 'X-Cache-Plugin: active' );
-		header('X-Cache-PostType: active');
+		header( 'X-Servebolt-Plugin: active' );
 	}
 
 	/**
@@ -136,7 +132,7 @@ class Servebolt_Nginx_Fpc {
 	static function no_cache_headers() {
 		header( 'Cache-Control: max-age=0,no-cache' );
 		header( 'Pragma: no-cache' );
-		header( 'X-Cache-Plugin: active' );
+		header( 'X-Servebolt-Plugin: active' );
 	}
 
 	/**

@@ -66,11 +66,10 @@ function servebolt_vuln_wp($cli = false){
 
 function servebolt_vuln_plugins($cli = false){
 
-
-
 	$all_plugins = get_plugins();
 
 	$checked_plugins = array ();
+
     $i = 0;
 	foreach ($all_plugins as $key => $plugin){
 		if (strpos($key, "/") !== FALSE) {
@@ -99,7 +98,7 @@ function servebolt_vuln_plugins($cli = false){
 		$thisplugin['active_version'] = $plugin['Version'];
 
 		if(!empty($plugin_db)){
-			$thisplugin['in_wpculndb'] = intval(true);
+			$thisplugin['in_wpvulndb'] = intval(true);
 			if(!empty($plugin_db['latest_version'])){
 				$thisplugin['latest_version'] = $plugin_db['latest_version'];
 			}else{
@@ -130,8 +129,9 @@ function servebolt_vuln_plugins($cli = false){
 			}else{
 				$thisplugin['update_available'] = intval(true);
 			}
+
 		}else{
-			$thisplugin['in_wpculndb'] = intval(false);
+			$thisplugin['in_wpvulndb'] = intval(false);
 		}
 		$checked_plugins[$folder] = $thisplugin;
 	}

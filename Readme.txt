@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 4.9.6
 Requires PHP: 7
-Stable tag: 1.5.1
+Stable tag: 1.6-alpha
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,7 +14,7 @@ This plugin adds functionality to implement Servebolt WordPress best practices. 
 == Description ==
 = Features =
 - Database optimization - Convert tables to InnoDB
-- Database optimization - Add indexes
+- Database optimization - Add performance improving indexes
 - Recommendations on additional performance improvements
 - Rewrite headers to allow down stream full page caching
 - View Apache/PHP error log
@@ -38,6 +38,13 @@ With WP-CLI
 4. Run optimizations 'wp servebolt db optimize'
 
 == Changelog ==
+
+= 1.6 =
+* New: Control Full page cache settings with WP CLI (wp servebolt fpc)
+* Improvement: Turn off vulnerable plugins check with `define('SERVEBOLT_VULN_ACTIVATE', false);`
+* Removed the transient cleaner
+* Added a exit if installed on PHP versions lower than 7
+
 
 = 1.5.1 =
 * Bugfix: Unable to add indexes on non-multisite installs

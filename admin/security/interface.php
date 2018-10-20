@@ -73,7 +73,7 @@ $pluginvuln = servebolt_vuln_plugins();
 					echo '<tr>';
 					echo '<td>' . $vuln['name'] . '</td>';
 					echo '<td>' . $vuln['active_version'] . '</td>';
-					if ( $vuln['in_wpculndb'] === 1 ) {
+					if ( $vuln['in_wpvulndb'] === 1 ) {
 						echo '<td>' . $vuln['latest_version'] . '</td>';
 						if ( $vuln['is_vulnerable'] === 1 ) {
 							echo '<td>' . sprintf( '%s is vulnerable', $vuln['name'] ) . '</td>';
