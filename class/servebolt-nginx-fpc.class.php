@@ -31,10 +31,11 @@ class Servebolt_Nginx_Fpc {
 		global $wp_query;
 		static $already_set = false;
 		$posttype = get_post_type();
-		print_r($posttype);
+
 		if ( $already_set ) {
 			return $posts;
 		}
+
 		$already_set = true;
 		// Set no-cache for all admin pages
 		if ( is_admin() || is_user_logged_in() ) {
@@ -53,7 +54,6 @@ class Servebolt_Nginx_Fpc {
 
 		// Only trigger this function once.
 		remove_filter( 'posts_results', __CLASS__.'::set_headers' );
-		print_r(self::cacheable_post_types());
 
         if(class_exists( 'WooCommerce' ) && (is_cart() || is_checkout()) ){
             self::no_cache_headers();
