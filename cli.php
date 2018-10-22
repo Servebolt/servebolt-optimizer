@@ -204,9 +204,9 @@ function servebolt_nginx_control($state, $args, $assoc_args){
             $status = get_option('servebolt_fpc_switch');
             if($status !== $switch):
                 update_option('servebolt_fpc_switch', $switch);
-                WP_CLI::success(sprintf(__('NGINX Cache %1$sd on %2$s'), $state, esc_url($url)));
+                WP_CLI::success(sprintf(__('Full Page Cache %1$sd on %2$s'), $state, esc_url($url)));
             elseif($status === $switch):
-                WP_CLI::warning(sprintf(__('NGINX Cache already %1$sd on %2$s'), $state, esc_url($url)));
+                WP_CLI::warning(sprintf(__('Full Page Cache already %1$sd on %2$s'), $state, esc_url($url)));
             endif;
 
             if(array_key_exists('post_types',$assoc_args)) servebolt_nginx_set_posttypes(explode(',', $assoc_args['post_types']), $state, $id);
@@ -222,9 +222,9 @@ function servebolt_nginx_control($state, $args, $assoc_args){
         if(array_key_exists('post_types',$assoc_args)) servebolt_nginx_set_posttypes(explode(',', $assoc_args['post_types']), $state);
         if($status !== $switch):
             update_option('servebolt_fpc_switch', $switch);
-            WP_CLI::success(sprintf(__('NGINX Cache %1$sd'), $state));
+            WP_CLI::success(sprintf(__('Full Page Cache %1$sd'), $state));
         elseif($status === $switch):
-            WP_CLI::warning(sprintf(__('NGINX Cache already %1$sd'), $state));
+            WP_CLI::warning(sprintf(__('Full Page Cache already %1$sd'), $state));
         endif;
     }
 }

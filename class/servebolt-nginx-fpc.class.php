@@ -104,7 +104,7 @@ class Servebolt_Nginx_Fpc {
 	 */
 	static function cache_headers() {
 
-	    // Set the default NGINX cache time
+	    // Set the default Full Page Cache time
         $servebolt_fpc_cache_time = 600;
         // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $servebolt_nginx_cache_time if it is
         if(defined('SERVEBOLT_FPC_CACHE_TIME')) $servebolt_fpc_cache_time = SERVEBOLT_FPC_CACHE_TIME;

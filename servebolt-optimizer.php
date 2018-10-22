@@ -39,7 +39,7 @@ remove_action('wp_head', 'wp_generator');
 
 
 /**
- * Loads the class that sets the correct cache headers for NGINX cache
+ * Loads the class that sets the correct cache headers for Full Page Cache
  */
 $nginx_switch = get_option('servebolt_fpc_switch');
 if(!class_exists('Servebolt_Nginx_Fpc') ){

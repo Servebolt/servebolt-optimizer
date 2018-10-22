@@ -1,7 +1,7 @@
 <?php
 
 /**
- * This controls the NGINX cache headers.
+ * This controls the Full Page Cache headers.
  */
 
 $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settings', 'servebolt-wp').'</a>';
@@ -32,7 +32,7 @@ $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settin
 		$nginx_switch_checked = '';
 
 		if($nginx_switch === 'on'){ $nginx_switch_checked = 'checked';}
-		echo '<div class="nginx_switch"><input '.$nginx_switch_checked.' id="nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox" />'.__('Turn Nginx Cache on', 'servebolt-wp').'</input></div>';
+		echo '<div class="nginx_switch"><input '.$nginx_switch_checked.' id="nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox" />'.__('Turn Full Page Cache on', 'servebolt-wp').'</input></div>';
 
 		$style = '';
 		if($nginx_switch !== 'on'){$style = 'style="display: none;"';}
