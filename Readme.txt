@@ -42,6 +42,7 @@ With WP-CLI
 = 1.6 =
 * New: Control Full page cache settings with WP CLI (wp servebolt fpc)
 * Improvement: Turn off vulnerable plugins check with `define('SERVEBOLT_VULN_ACTIVATE', false);`
+* Removed: Scanning of plugins for security vulnerabilities. This will be released in a separate plugin.
 * Removed the transient cleaner
 * Added a exit if installed on PHP versions lower than 7
 

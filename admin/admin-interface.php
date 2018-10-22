@@ -1,8 +1,6 @@
 <?php
 if( ! defined( 'ABSPATH' ) ) exit;
 
-if(!defined('SERVEBOLT_VULN_ACTIVATE')) define('SERVEBOLT_VULN_ACTIVATE', true);
-
 require_once SERVEBOLT_PATH.'admin/logs-viewer/tail.php'; // Get the file we need for log viewer
 require_once SERVEBOLT_PATH.'admin/optimize-db/optimize-db.php';
 
@@ -23,15 +21,14 @@ function servebolt_admin_menu() {
 	add_submenu_page('servebolt-wp', __('Performance optimizer','servebolt-wp'), __('Performance optimizer','servebolt'), 'manage_options', 'servebolt-performance-tools', 'servebolt_performance');
 	if(host_is_servebolt() == true) {
 	    ## Add these if the site is hosted on Servebolt
-		add_submenu_page('servebolt-wp', __('NGINX Cache','servebolt-wp'), __('NGINX Cache','servebolt-wp'), 'manage_options', 'servebolt-nginx-cache', 'Servebolt_NGINX_cache');
+		add_submenu_page('servebolt-wp', __('Page Cache','servebolt-wp'), __('NGINX Cache','servebolt-wp'), 'manage_options', 'servebolt-nginx-cache', 'Servebolt_NGINX_cache');
 		add_submenu_page('servebolt-wp', __('Error logs','servebolt-wp'), __('Error logs','servebolt-wp'), 'manage_options', 'servebolt-logs', 'servebolt_get_error_log');
-        if(SERVEBOLT_VULN_ACTIVATE === true) add_submenu_page('servebolt-wp', __('Security issues','servebolt-wp'), __('Security issues','servebolt'), 'manage_options', 'servebolt-wpvuldb', 'Servebolt_wpvuldb');
 		add_action('admin_bar_menu', 'servebolt_admin_bar', 100);
 	}
 }
 
 function servebolt_subsite_menu(){
-	add_options_page( __('NGINX Cache','servebolt-wp'), __('NGINX Cache','servebolt-wp'), 'manage_options', 'servebolt-nginx-cache', 'Servebolt_NGINX_cache');
+	add_options_page( __('Servebolt Page Cache','servebolt-wp'), __('NGINX Cache','servebolt-wp'), 'manage_options', 'servebolt-nginx-cache', 'Servebolt_NGINX_cache');
 }
 
 function servebolt_admin_bar($wp_admin_bar){
@@ -86,13 +83,6 @@ function servebolt_general_page() {
  */
 function Servebolt_NGINX_cache() {
     require_once 'nginx-controls.php';
-}
-
-/**
- * Set up the WPVULNDB overview
- */
-function Servebolt_wpvuldb() {
-	if(SERVEBOLT_VULN_ACTIVATE === true) require_once 'security/interface.php';
 }
 
 /**

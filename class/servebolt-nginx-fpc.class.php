@@ -105,9 +105,9 @@ class Servebolt_Nginx_Fpc {
 	static function cache_headers() {
 
 	    // Set the default NGINX cache time
-        $servebolt_nginx_cache_time = 600;
-        // Check if the constant SERVEBOLT_NGINX_CACHE_TIME is set, and override $servebolt_nginx_cache_time if it is
-        if(defined('SERVEBOLT_NGINX_CACHE_TIME')) $servebolt_nginx_cache_time = SERVEBOLT_NGINX_CACHE_TIME;
+        $servebolt_fpc_cache_time = 600;
+        // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $servebolt_nginx_cache_time if it is
+        if(defined('SERVEBOLT_FPC_CACHE_TIME')) $servebolt_fpc_cache_time = SERVEBOLT_FPC_CACHE_TIME;
 
         // Set the default browser cache time
         $servebolt_browser_cache_time = 600;
@@ -117,11 +117,11 @@ class Servebolt_Nginx_Fpc {
 		header_remove( 'Cache-Control' );
 		header_remove( 'Pragma' );
 		header_remove( 'Expires' );
-		// Allow browser to cache content for 10 minutes, or the set browser cache time
+		// Allow browser to cache content for 10 minutes, or the set browser cache time contant
 		header( 'Cache-Control:max-age=' . $servebolt_browser_cache_time . ', public' );
 		header( 'Pragma: public' );
 		// Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
-		header( 'Expires: '. gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $servebolt_nginx_cache_time) .' GMT');
+		header( 'Expires: '. gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $servebolt_fpc_cache_time) .' GMT');
 		header( 'X-Servebolt-Plugin: active' );
 	}
 

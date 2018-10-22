@@ -7,10 +7,10 @@
 $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settings', 'servebolt-wp').'</a>';
 ?>
 <div class="wrap sb-content">
-	<h1><?php _e('NGINX Cache', 'servebolt-wp') ?></h1>
+	<h1><?php _e('Full Page Cache', 'servebolt-wp') ?></h1>
 	<div>
-		<p><?php _e('Servebolt NGINX Cache is easy to set up, but should always be tested before activating it on production environments.', 'servebolt-wp') ?></p>
-		<p><?php printf( esc_html__( 'To activate NGINX cache to go %s and set "Enable caching of static files" to "All"', 'servebolt-wp' ), $sbAdminButton ) ?></p>
+		<p><?php _e('Servebolt Full Page Cache is easy to set up, but should always be tested before activating it on production environments.', 'servebolt-wp') ?></p>
+		<p><?php printf( esc_html__( 'To activate Full Page Cache to go %s and set "Enable caching of static files" to "Static Files + Full-Page Cache"', 'servebolt-wp' ), $sbAdminButton ) ?></p>
 		<a href="<?php echo the_sb_admin_url() ?>" class="button"><?php _e('Servebolt site settings', 'servebolt-wp') ?></a>
 	</div>
 	<?php if (isset($_GET['settings-updated'])) : ?>
@@ -42,7 +42,7 @@ $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settin
 				<th scope="row">Cache post types
 					<div>
 						<p><?php _e(
-								'By default this plugin enables caching of posts, pages and products. 
+								'By default this plugin enables Full Page Caching of posts, pages and products. 
                             Activate post types here if you want a different cache setup. 
                             This will override the default setup.',
 								'servebolt-wp'); ?></p>
@@ -70,7 +70,7 @@ $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settin
         <tr>
             <th><?php _e('Blog ID', 'servebolt-wp'); ?></th>
             <th><?php _e('URL', 'servebolt-wp'); ?></th>
-            <th><?php _e('NGINX Switch', 'servebolt-wp'); ?></th>
+            <th><?php _e('Full Page Cache Switch', 'servebolt-wp'); ?></th>
             <th><?php _e('Options', 'servebolt-wp'); ?></th>
             <th><?php _e('Controls', 'servebolt-wp'); ?></th>
         </tr>
@@ -79,7 +79,7 @@ $sbAdminButton = '<a href="'. the_sb_admin_url() .'">'.__('Servebolt site settin
         <tr>
             <th><?php _e('Blog ID', 'servebolt-wp'); ?></th>
             <th><?php _e('URL', 'servebolt-wp'); ?></th>
-            <th><?php _e('NGINX Switch', 'servebolt-wp'); ?></th>
+            <th><?php _e('Full Page Cache Switch', 'servebolt-wp'); ?></th>
             <th><?php _e('Options', 'servebolt-wp'); ?></th>
             <th><?php _e('Controls', 'servebolt-wp'); ?></th>
         </tr>
