@@ -22,8 +22,6 @@ if (defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7) {
 define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
 define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
 
-if(is_admin()) require_once SERVEBOLT_PATH . 'admin/security/wpvuldb.php';
-
 // Disable CONCATENATE_SCRIPTS to get rid of some ddos attacks
 if(! defined( 'CONCATENATE_SCRIPTS')) {
 	define( 'CONCATENATE_SCRIPTS', false);
