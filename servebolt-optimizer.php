@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 1.5.1
+Version: 1.6-beta
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that implements Servebolt Security & Performance best practises for WordPress.
@@ -41,8 +41,8 @@ remove_action('wp_head', 'wp_generator');
 /**
  * Loads the class that sets the correct cache headers for NGINX cache
  */
+$nginx_switch = get_option('servebolt_fpc_switch');
 if(!class_exists('Servebolt_Nginx_Fpc') ){
-    $nginx_switch = get_option('servebolt_fpc_switch');
 	require_once SERVEBOLT_PATH . 'class/servebolt-nginx-fpc.class.php';
     if($nginx_switch === 'on') Servebolt_Nginx_Fpc::setup();
 }
