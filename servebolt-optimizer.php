@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 1.5.1
+Version: 1.6
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that implements Servebolt Security & Performance best practises for WordPress.
@@ -10,18 +10,17 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: servebolt-wp
 */
 
+
 if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
+// Exit if PHP_MAJOR_VERSION is less than 7
+if (defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7) {
+    require 'non-php7.php';
+    exit;
+}
 
 define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
 define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
-
-require_once SERVEBOLT_PATH . 'admin/optimize-db/transients-cleaner.php';
-require_once SERVEBOLT_PATH . 'admin/security/wpvuldb.php';
-
-
-register_activation_hook(__FILE__, 'servebolt_transient_cron');
-register_activation_hook(__FILE__, 'servebolt_email_cronstarter');
-
 
 // Disable CONCATENATE_SCRIPTS to get rid of some ddos attacks
 if(! defined( 'CONCATENATE_SCRIPTS')) {
@@ -35,14 +34,15 @@ function servebolt_optimizer_disable_version() {
 add_filter('the_generator','servebolt_optimizer_disable_version');
 remove_action('wp_head', 'wp_generator');
 
-$nginx_switch = get_option('servebolt_fpc_switch');
+
 
 /**
- * Loads the class that sets the correct cache headers for NGINX cache
+ * Loads the class that sets the correct cache headers for Full Page Cache
  */
-if(!class_exists('Servebolt_Nginx_Fpc') && $nginx_switch === 'on'){
+$nginx_switch = get_option('servebolt_fpc_switch');
+if(!class_exists('Servebolt_Nginx_Fpc') ){
 	require_once SERVEBOLT_PATH . 'class/servebolt-nginx-fpc.class.php';
-	Servebolt_Nginx_Fpc::setup();
+    if($nginx_switch === 'on') Servebolt_Nginx_Fpc::setup();
 }
 
 /**
@@ -62,62 +62,17 @@ function servebolt_add_weekly_cron_schedule( $schedules ) {
 		'interval' => 604800, // 1 week in seconds
 		'display'  => __( 'Once Weekly' ),
 	);
-
 	return $schedules;
 }
 
-/**
- * Run Servebolt Optimizer.
- *
- * Add database indexes and convert database tables to modern table types or delete transients.
- *
- * ## EXAMPLES
- *
- *     $ wp servebolt optimize db
- *     Success: Successfully optimized.
- */
-$servebolt_optimize_cmd = function( $args ) {
-	list( $key ) = $args;
-
-	require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
-
-	if ( ! servebolt_optimize_db(TRUE) ) {
-		WP_CLI::success( "Optimization done" );
-	} else {
-		WP_CLI::warning( "Everything OK. No optimization to do." );
-	}
-};
-
-$servebolt_delete_transients = function( $args ) {
-	list( $key ) = $args;
-
-	require_once SERVEBOLT_PATH . 'admin/optimize-db/transients-cleaner.php';
-	servebolt_transient_delete(TRUE);
-
-	if ( ! servebolt_transient_delete(TRUE) ) {
-		WP_CLI::error( "Could not delete transients." );
-	} else {
-		WP_CLI::success( "Deleted transients." );
-	}
-};
-
-$servebolt_analyze_tables = function( $args ) {
-	list( $key ) = $args;
-
-	require_once SERVEBOLT_PATH . 'admin/optimize-db/transients-cleaner.php';
-	servebolt_analyze_tables( TRUE );
-
-	if ( ! servebolt_analyze_tables(TRUE) ) {
-		WP_CLI::error( "Could not analyze tables." );
-	} else {
-		WP_CLI::success( "Analyzed tables." );
-	}
-};
-
 if ( class_exists( 'WP_CLI' ) ) {
-	WP_CLI::add_command( 'servebolt db optimize', $servebolt_optimize_cmd );
+    require_once ('cli.php');
+    WP_CLI::add_command( 'servebolt db optimize', $servebolt_optimize_cmd ); // TODO: Remove in v1.7
+	WP_CLI::add_command( 'servebolt db fix', $servebolt_optimize_cmd );
 	WP_CLI::add_command( 'servebolt db analyze', $servebolt_analyze_tables );
-	WP_CLI::add_command( 'servebolt transients delete', $servebolt_delete_transients );
+    WP_CLI::add_command( 'servebolt fpc activate', $servebolt_cli_nginx_activate );
+    WP_CLI::add_command( 'servebolt fpc deactivate', $servebolt_cli_nginx_deactivate );
+    WP_CLI::add_command( 'servebolt fpc status', $servebolt_cli_nginx_status );
 }
 
 

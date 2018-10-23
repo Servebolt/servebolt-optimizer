@@ -30,9 +30,12 @@ class Servebolt_Nginx_Fpc {
 	static function set_headers( $posts ) {
 		global $wp_query;
 		static $already_set = false;
+		$posttype = get_post_type();
+
 		if ( $already_set ) {
 			return $posts;
 		}
+
 		$already_set = true;
 		// Set no-cache for all admin pages
 		if ( is_admin() || is_user_logged_in() ) {
@@ -52,16 +55,15 @@ class Servebolt_Nginx_Fpc {
 		// Only trigger this function once.
 		remove_filter( 'posts_results', __CLASS__.'::set_headers' );
 
-		if ( ( is_front_page() || is_singular() || is_page() ) && array_key_exists( get_post_type(), self::cacheable_post_types() ) ) {
-
-			// Check if cache is disabled for the post
-			foreach ( $posts as $post ) {
-				if ( 'off' === get_post_meta( $post->ID, '_nginx_fpc', true ) ) {
-					// Disable caching for this page / post
-					self::no_cache_headers();
-					return $posts;
-				}
-			}
+        if(class_exists( 'WooCommerce' ) && (is_cart() || is_checkout()) ){
+            self::no_cache_headers();
+        }
+        elseif ( array_key_exists( 'all', self::cacheable_post_types() ) && self::cacheable_post_types()['all'] === 'on' ) {
+            // Make sure the post type can be cached
+            self::$post_types[] = get_post_type();
+            self::cache_headers();
+        }
+		elseif ( ( is_front_page() || is_singular() || is_page() ) && array_key_exists( get_post_type(), self::cacheable_post_types() ) && self::cacheable_post_types()[$posttype] === 'on' ) {
 			// Make sure the post type can be cached
 			self::$post_types[] = get_post_type();
 			self::cache_headers();
@@ -70,6 +72,10 @@ class Servebolt_Nginx_Fpc {
 			// Make sure the archive has only cachable posts
 			self::cache_headers();
 		}
+        elseif( !empty(self::cacheable_post_types() ) ) {
+            self::$post_types[] = get_post_type();
+            if( in_array( get_post_type() , self::default_cacheable_post_types() ) ) self::cache_headers();
+        }
 		else {
 			// Default to no-cache headers
 			self::no_cache_headers();
@@ -97,15 +103,26 @@ class Servebolt_Nginx_Fpc {
 	 * Print headers that encourage caching
 	 */
 	static function cache_headers() {
+
+	    // Set the default Full Page Cache time
+        $servebolt_fpc_cache_time = 600;
+        // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $servebolt_nginx_cache_time if it is
+        if(defined('SERVEBOLT_FPC_CACHE_TIME')) $servebolt_fpc_cache_time = SERVEBOLT_FPC_CACHE_TIME;
+
+        // Set the default browser cache time
+        $servebolt_browser_cache_time = 600;
+        // Check if the constant SERVEBOLT_BROWSER_CACHE_TIME is set, and override $servebolt_browser_cache_time if it is
+        if(defined('SERVEBOLT_BROWSER_CACHE_TIME')) $servebolt_browser_cache_time = SERVEBOLT_BROWSER_CACHE_TIME;
+
 		header_remove( 'Cache-Control' );
 		header_remove( 'Pragma' );
 		header_remove( 'Expires' );
-		// Allow browser to cache content for 10 minutes
-		header( 'Cache-Control:max-age=600, public' );
+		// Allow browser to cache content for 10 minutes, or the set browser cache time contant
+		header( 'Cache-Control:max-age=' . $servebolt_browser_cache_time . ', public' );
 		header( 'Pragma: public' );
-		// Expire in front-end caches and proxies after 10 minutes
-		header( 'Expires: '. gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + 600) .' GMT');
-		header( 'X-Cache-Plugin: active' );
+		// Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
+		header( 'Expires: '. gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $servebolt_fpc_cache_time) .' GMT');
+		header( 'X-Servebolt-Plugin: active' );
 	}
 
 	/**
@@ -115,7 +132,7 @@ class Servebolt_Nginx_Fpc {
 	static function no_cache_headers() {
 		header( 'Cache-Control: max-age=0,no-cache' );
 		header( 'Pragma: no-cache' );
-		header( 'X-Cache-Plugin: active' );
+		header( 'X-Servebolt-Plugin: active' );
 	}
 
 	/**
@@ -127,4 +144,14 @@ class Servebolt_Nginx_Fpc {
 		$post_types = get_option('servebolt_fpc_settings'); // get from admin settings instead
 		return (is_array($post_types)) ? $post_types : [];
 	}
+
+	public static function default_cacheable_post_types( $format = 'array') {
+	    $defaults = [
+	        'post',
+            'page',
+            'product'
+        ];
+	    if($format === 'array') return $defaults;
+	    elseif($format === 'csv') return implode(',',$defaults);
+    }
 }

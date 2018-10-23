@@ -19,7 +19,7 @@ require_once 'admin-interface.php';
         <a href="admin.php?page=servebolt-nginx-cache" class="sb-box sb-cache">
             <div class="inner">
                 <div class="icon"></div>
-                <p class="function"><?php _e('NGINX Cache settings', 'servebolt-wp') ?></p>
+                <p class="function"><?php _e('Full Page Cache settings', 'servebolt-wp') ?></p>
             </div>
         </a>
         <a href="admin.php?page=servebolt-logs" class="sb-box sb-errors">

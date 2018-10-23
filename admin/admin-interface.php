@@ -16,20 +16,19 @@ if(is_multisite()){
  * Load the menus
  */
 function servebolt_admin_menu() {
-	add_options_page('Servebolt', __('General','servebolt'), 'manage_options', 'servebolt-settings', 'servebolt_general_page');
-	add_menu_page('Servebolt', __('Servebolt','servebolt'), 'manage_options', 'servebolt-wp', 'servebolt_general_page', SERVEBOLT_PATH_URL.'admin/assets/img/servebolt-wp.png');
-	add_submenu_page('servebolt-wp', __('Performance optimizer','servebolt'), __('Performance optimizer','servebolt'), 'manage_options', 'servebolt-performance-tools', 'servebolt_performance');
+	add_options_page('Servebolt', __('General','servebolt-wp'), 'manage_options', 'servebolt-settings', 'servebolt_general_page');
+	add_menu_page('Servebolt', __('Servebolt','servebolt-wp'), 'manage_options', 'servebolt-wp', 'servebolt_general_page', SERVEBOLT_PATH_URL.'admin/assets/img/servebolt-wp.png');
+	add_submenu_page('servebolt-wp', __('Performance optimizer','servebolt-wp'), __('Performance optimizer','servebolt'), 'manage_options', 'servebolt-performance-tools', 'servebolt_performance');
 	if(host_is_servebolt() == true) {
 	    ## Add these if the site is hosted on Servebolt
-		add_submenu_page('servebolt-wp', __('NGINX Cache','servebolt'), __('NGINX Cache','servebolt'), 'manage_options', 'servebolt-nginx-cache', 'Servebolt_NGINX_cache');
-		add_submenu_page('servebolt-wp', __('Error logs','servebolt'), __('Error logs','servebolt'), 'manage_options', 'servebolt-logs', 'servebolt_get_error_log');
-		add_submenu_page('servebolt-wp', __('Security issues','servebolt'), __('Security issues','servebolt'), 'manage_options', 'servebolt-wpvuldb', 'Servebolt_wpvuldb');
+		add_submenu_page('servebolt-wp', __('Page Cache','servebolt-wp'), __('Full Page Cache','servebolt-wp'), 'manage_options', 'servebolt-nginx-cache', 'Servebolt_NGINX_cache');
+		add_submenu_page('servebolt-wp', __('Error logs','servebolt-wp'), __('Error logs','servebolt-wp'), 'manage_options', 'servebolt-logs', 'servebolt_get_error_log');
 		add_action('admin_bar_menu', 'servebolt_admin_bar', 100);
 	}
 }
 
 function servebolt_subsite_menu(){
-	add_options_page( __('NGINX Cache','servebolt'), __('NGINX Cache','servebolt'), 'manage_options', 'servebolt-nginx-cache', 'Servebolt_NGINX_cache');
+	add_options_page( __('Servebolt Page Cache','servebolt-wp'), __('Full Page Cache','servebolt-wp'), 'manage_options', 'servebolt-nginx-cache', 'Servebolt_NGINX_cache');
 }
 
 function servebolt_admin_bar($wp_admin_bar){
@@ -80,17 +79,10 @@ function servebolt_general_page() {
 }
 
 /**
- * Set up the NGINX cache control page
+ * Set up the Full Page Cache control page
  */
 function Servebolt_NGINX_cache() {
- require_once 'nginx-controls.php';
-}
-
-/**
- * Set up the WPVULNDB overview
- */
-function Servebolt_wpvuldb() {
-	require_once 'security/interface.php';
+    require_once 'nginx-controls.php';
 }
 
 /**

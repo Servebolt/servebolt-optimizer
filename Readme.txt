@@ -1,11 +1,11 @@
 === Servebolt Optimizer ===
 Contributors: audunhus, erlendeide
-Tags: performance, optimization, cache, log, wpvulndb, multisite, wp-cli
+Tags: performance, optimization, cache, log, multisite, wp-cli, full page cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 4.9.6
+Tested up to: 4.9.8
 Requires PHP: 7
-Stable tag: 1.5.1
+Stable tag: 1.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -14,17 +14,15 @@ This plugin adds functionality to implement Servebolt WordPress best practices. 
 == Description ==
 = Features =
 - Database optimization - Convert tables to InnoDB
-- Database optimization - Add indexes
+- Database optimization - Add performance improving indexes
 - Recommendations on additional performance improvements
-- Rewrite headers to allow down stream full page caching
-- View Apache/PHP error log
-- View security vulnerabilities in WordPress and installed plugins, with email alerts to site admin if there are critical vulnerabilities
+- Rewrite headers to allow down stream full page caching (Servebolt clients only)
+- View Apache/PHP error log (Servebolt clients only)
 - Multisite support
+- WP CLI support
 
-= NGINX Full Page Caching =
-This plugin rewrites HTTP headers of HTML to allow Nginx and the browser to cache HTML. Full Page Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.
-
-Note: Some features are only enabled for hosts on Servebolt.com due to dependencies in the hosting stack.
+= Full Page Caching =
+This plugin rewrites HTTP headers of HTML to allow Full Page Caching and the browser to cache HTML. Full Page Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.
 
 == Installation ==
 1. Upload 'servebolt-optimizer' to the '/wp-content/plugins/' directory
@@ -38,6 +36,14 @@ With WP-CLI
 4. Run optimizations 'wp servebolt db optimize'
 
 == Changelog ==
+
+= 1.6 =
+* New: Control Full page cache settings with WP CLI (wp servebolt fpc)
+* Improvement: Turn off vulnerable plugins check with `define('SERVEBOLT_VULN_ACTIVATE', false);`
+* Removed: Scanning of plugins for security vulnerabilities. This will be released in a separate plugin.
+* Removed: Transient cleaner
+* Added a exit if installed on PHP versions lower than 7
+
 
 = 1.5.1 =
 * Bugfix: Unable to add indexes on non-multisite installs
