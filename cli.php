@@ -312,8 +312,9 @@ function servebolt_set_exclude_ids($ids){
             // The ID does not exist
         } else {
             // The ID exists
-            array_push($excluded, $id);
-            array_push($additions, $id);
+            $push_id = array($id);
+            array_push($excluded, $push_id);
+            array_push($additions, $push_id);
         }
     }
     if(!empty($additions)){
