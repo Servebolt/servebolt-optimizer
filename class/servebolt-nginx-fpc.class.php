@@ -76,6 +76,9 @@ class Servebolt_Nginx_Fpc {
             self::$post_types[] = get_post_type();
             if( in_array( get_post_type() , self::default_cacheable_post_types() ) ) self::cache_headers();
         }
+        elseif( empty(self::cacheable_post_types() ) && ( is_front_page() || is_singular() || is_page() ) ) {
+            self::cache_headers();
+        }
 		else {
 			// Default to no-cache headers
 			self::no_cache_headers();
@@ -142,7 +145,7 @@ class Servebolt_Nginx_Fpc {
 	static function cacheable_post_types() {
 		// Return array of post types
 		$post_types = get_option('servebolt_fpc_settings'); // get from admin settings instead
-		return (is_array($post_types)) ? $post_types : [];
+		return (is_array($post_types)) ? $post_types : self::default_cacheable_post_types();
 	}
 
 	public static function default_cacheable_post_types( $format = 'array') {
