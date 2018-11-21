@@ -3,7 +3,6 @@ if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 require_once 'admin-interface.php';
 
-
 ?>
 <div class="wrap sb-content">
 	<div class="sb-logo"></div>
@@ -29,12 +28,6 @@ require_once 'admin-interface.php';
             </div>
         </a>
         <?php endif; ?>
-        <a href="admin.php?page=servebolt-wpvuldb" class="sb-box sb-wpvulndb">
-            <div class="inner">
-                <div class="icon"></div>
-                <p class="function"><?php _e('Check for security issues', 'servebolt-wp') ?></p>
-            </div>
-        </a>
     </div>
     <?php if(host_is_servebolt() !== true): ?>
     <div class="boxes right">

@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 4.9.8
 Requires PHP: 7
-Stable tag: 1.6
+Stable tag: 1.6.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,21 @@ With WP-CLI
 4. Run optimizations 'wp servebolt db optimize'
 
 == Changelog ==
+
+= 1.6.5 =
+* Minor bugfix
+
+= 1.6.4 =
+* Minor bugfix
+
+= 1.6.3 =
+* Minor bugfix
+
+= 1.6.2 =
+* Minor bugfix
+
+= 1.6.1 =
+* Removed security from dashboard
 
 = 1.6 =
 * New: Control Full page cache settings with WP CLI (wp servebolt fpc)

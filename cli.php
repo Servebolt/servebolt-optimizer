@@ -156,7 +156,7 @@ function servebolt_nginx_status( $args, $assoc_args ){
         $posttypes_string = implode(',',$posttypes_keys);
 
         if(empty($posttypes_string)):
-            $posttypes_string = __('Default', 'servebolt-wp');
+            $posttypes_string = __('Default [post,page,product]', 'servebolt-wp');
         elseif(array_key_exists('all', $posttypes)):
             $posttypes_string = __('All', 'servebolt-wp');
         endif;
