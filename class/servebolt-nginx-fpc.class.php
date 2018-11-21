@@ -52,10 +52,15 @@ class Servebolt_Nginx_Fpc {
 			return $posts;
 		}
 
+		$excluded_ids = get_option('servebolt_fpc_exclude');
+
 		// Only trigger this function once.
 		remove_filter( 'posts_results', __CLASS__.'::set_headers' );
 
         if(class_exists( 'WooCommerce' ) && (is_cart() || is_checkout()) ){
+            self::no_cache_headers();
+        }
+        elseif( in_array($excluded_ids,get_the_ID()) ){
             self::no_cache_headers();
         }
         elseif ( array_key_exists( 'all', self::cacheable_post_types() ) && self::cacheable_post_types()['all'] === 'on' ) {
