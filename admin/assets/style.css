@@ -148,3 +148,26 @@
 .nginx_switch{
     margin-top: 2rem;
 }
+
+#optimizations-loading{
+    display: none;
+}
+#optimizations-loading.active{
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,255,255,.5);
+    z-index: 1;
+}
+#optimizations-loading.active img{
+    height: 100px;
+    width: 100px;
+    background-image: url("img/db.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    position: relative;
+    top: 100px;
+    left: 45%;
+}
