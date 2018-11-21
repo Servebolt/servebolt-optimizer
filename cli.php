@@ -317,8 +317,10 @@ function servebolt_set_exclude_ids($ids){
         } else {
             // The ID exists
             $push_id = array($id);
-            array_push($excluded, $id);
-            array_push($additions, $id);
+            if(!array_key_exists($id, $excluded)){
+                array_push($excluded, $id);
+                array_push($additions, $id);
+            }
         }
     }
     if(!empty($additions)){
@@ -331,4 +333,5 @@ function servebolt_set_exclude_ids($ids){
     }
 
     update_option('servebolt_fpc_exclude', $excluded);
+
 }
