@@ -306,6 +306,10 @@ function servebolt_set_exclude_ids($ids){
 
     $excluded = get_option('servebolt_fpc_exclude');
 
+    if($excluded === false){
+        $excluded = array();
+    }
+
     $additions = array();
     foreach ($id_array as $id){
         if ( FALSE === get_post_status( $id ) ) {
@@ -318,7 +322,7 @@ function servebolt_set_exclude_ids($ids){
         }
     }
     if(!empty($additions)){
-        $additions_s = implode(',', $additions);
+        $additions_s = explode(',', $additions);
         $clifeedback = sprintf(__('Added %s to the list of excluded ids'),$additions_s);
         WP_CLI::success($clifeedback);
     } else {
