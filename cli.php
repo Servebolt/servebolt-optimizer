@@ -322,7 +322,7 @@ function servebolt_set_exclude_ids($ids){
         }
     }
     if(!empty($additions)){
-        $additions_s = explode(',', $additions);
+        $additions_s = implode(',', $additions);
         $clifeedback = sprintf(__('Added %s to the list of excluded ids'),$additions_s);
         WP_CLI::success($clifeedback);
     } else {
