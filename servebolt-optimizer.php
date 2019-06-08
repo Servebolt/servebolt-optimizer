@@ -22,6 +22,8 @@ if (defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7) {
 define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
 define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
 
+require 'vendor/autoload.php';
+
 // Disable CONCATENATE_SCRIPTS to get rid of some ddos attacks
 if(! defined( 'CONCATENATE_SCRIPTS')) {
 	define( 'CONCATENATE_SCRIPTS', false);
@@ -46,21 +48,31 @@ if(!class_exists('Servebolt_Nginx_Fpc') ){
 }
 
 /**
- * If the admin is loaded, load this plugins interface
+ * Require the Class handling our Cloudflare stuff
+ */
+require_once SERVEBOLT_PATH . 'class/servebolt-cf-purge.class.php';
+
+/**
+ * If the admin is loaded, load this plugins interface and Cloudflare integration
  */
 if(is_admin()){
 	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
+	Servebolt_cloudflare::setup();
 }
 
 /**
  * We need weekly cron scheduling, so we're adding it!
  * See http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
  */
-add_filter( 'cron_schedules', 'servebolt_add_weekly_cron_schedule' );
-function servebolt_add_weekly_cron_schedule( $schedules ) {
+add_filter( 'cron_schedules', 'servebolt_add_cron_schedule' );
+function servebolt_add_cron_schedule( $schedules ) {
 	$schedules['weekly'] = array(
 		'interval' => 604800, // 1 week in seconds
 		'display'  => __( 'Once Weekly' ),
+	);
+	$schedules['every_minute'] = array(
+		'interval' => 60, // 1 minute in seconds
+		'display'  => __( 'Once a minute' ),
 	);
 	return $schedules;
 }
@@ -72,7 +84,10 @@ if ( class_exists( 'WP_CLI' ) ) {
 	WP_CLI::add_command( 'servebolt db analyze', $servebolt_analyze_tables );
     WP_CLI::add_command( 'servebolt fpc activate', $servebolt_cli_nginx_activate );
     WP_CLI::add_command( 'servebolt fpc deactivate', $servebolt_cli_nginx_deactivate );
-    WP_CLI::add_command( 'servebolt fpc status', $servebolt_cli_nginx_status );
+	WP_CLI::add_command( 'servebolt fpc status', $servebolt_cli_nginx_status );
+	WP_CLI::add_command( 'servebolt cf purge', $servebolt_cli_nginx_status );
+	WP_CLI::add_command( 'servebolt cf config set', $servebolt_cli_cf_config_set );
+	WP_CLI::add_command( 'servebolt cf config get', $servebolt_cli_cf_config_get );
 }
 
 

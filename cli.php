@@ -56,6 +56,7 @@ $servebolt_analyze_tables = function( $args ) {
  *     $ wp servebolt fpc activate --post_types=post,page
  *
  */
+
 $servebolt_cli_nginx_activate = function( $args, $assoc_args ) {
     servebolt_nginx_control('activate', $args, $assoc_args);
 };
@@ -288,4 +289,103 @@ function servebolt_nginx_set_posttypes( $posttypes , $state){
     }
 
     update_option('servebolt_fpc_settings', $updateOption);
+}
+
+/**
+ * Set or update the Cloudflare config
+ *
+ * ## OPTIONS
+ *
+ * [--apikey=<api_key>]
+ * : Deactivate on all sites in multisite
+ *
+ * [--username=<email>]
+ * : Comma separated list of post types to be deactivated
+ *
+ * [--zoneid=<zone_id>]
+ * : Display status after control is executed
+ * 
+ * [--cron_purge=<purge_type>]
+ * : Display status after control is executed
+ * ---
+ *
+ * ## EXAMPLES
+ *
+ *     # Deactivate Servebolt Full Page Cache, but only for pages and posts
+ *     $ wp servebolt cf set --apikey=3489mfjg348klfn --username=person@example.com --zoneid=238fsjkl734iuhfdsf
+ *
+ */
+$servebolt_cli_cf_config_set = function( $args, $assoc_args ) {
+    //WP_CLI\Utils\format_items('table', $assoc_args);
+    servebolt_cli_cf_config_set( $assoc_args );
+
+};
+
+
+/**
+ * Updating CF config.
+ *
+ * @param [type] $assoc_args
+ * @return void
+ */
+function servebolt_cli_cf_config_set( $assoc_args ){
+    if( array_key_exists( 'apikey', $assoc_args ) ) {
+        update_option( 'servebolt_cf_apikey', $assoc_args['apikey'] );
+        WP_CLI::success( sprintf( __('Cloudflare API key set to %s.', 'servebolt' ), $assoc_args['apikey'] ) );
+        $update = true;
+    }
+    if( array_key_exists('username', $assoc_args ) ) {
+        update_option( 'servebolt_cf_username', $assoc_args['username'] );
+        WP_CLI::success( sprintf(__('Cloudflare username set to %s.', 'servebolt' ), $assoc_args['username'] ) );
+        $update = true;
+    }
+    if( array_key_exists('zoneid', $assoc_args ) ) {
+        update_option( 'servebolt_cf_zoneid', $assoc_args['zoneid'] );
+        WP_CLI::success( sprintf(__('Cloudflare zone ID set to %s.', 'servebolt' ), $assoc_args['zoneid'] ) );
+        $update = true;
+    }
+    if( array_key_exists('zoneid', $assoc_args ) ) {
+        update_option( 'servebolt_cf_cron_purge', $assoc_args['zoneid'] );
+        WP_CLI::success( sprintf(__('Cloudflare zone ID set to %s.', 'servebolt' ), $assoc_args['zoneid'] ) );
+        $update = true;
+    }
+    if(true !== $update){
+        WP_CLI::error( __('You must provide credentials using --apikey, --username and/or --zoneid. You can also set the purge type using --purge_type.'), 'servebolt' );
+    }
+}
+
+
+
+/**
+ * Set or update the Cloudflare config
+ * ---
+ *
+ * ## EXAMPLES
+ *
+ *     # Deactivate Servebolt Full Page Cache, but only for pages and posts
+ *     $ wp servebolt cf set --apikey=3489mfjg348klfn --username=person@example.com --zoneid=238fsjkl734iuhfdsf
+ *
+ */
+$servebolt_cli_cf_config_get = function( $args, $assoc_args ) {
+    servebolt_cli_cf_config_get();
+};
+
+
+/**
+ * Updating CF config.
+ *
+ * @param [type] $assoc_args
+ * @return void
+ */
+function servebolt_cli_cf_config_get(){
+    
+    $arr = array();
+    $arr['apikey'] = get_option( 'servebolt_cf_apikey' );
+    $arr['username'] = get_option( 'servebolt_cf_username' );
+    $arr['zoneid'] = get_option( 'servebolt_cf_zoneid' );
+    $arr['purge_type'] = get_option( 'servebolt_cf_cron_purge' );
+
+    $items[] = $arr;
+    
+    WP_CLI\Utils\format_items('table', $items, 'apikey,username,zoneid,purge_type');
 }
