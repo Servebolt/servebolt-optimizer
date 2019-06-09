@@ -39,10 +39,10 @@ remove_action('wp_head', 'wp_generator');
 
 
 /**
- * Loads the class that sets the correct cache headers for Full Page Cache
+ * Loads the class that sets the correct cache headers for Full Page Cache. Do not load if this is a rest request.
  */
 $nginx_switch = get_option('servebolt_fpc_switch');
-if( !class_exists( 'Servebolt_Nginx_Fpc' ) && false === REST_REQUEST ) {
+if( !class_exists( 'Servebolt_Nginx_Fpc' ) && defined( 'REST_REQUEST' ) {
 	require_once SERVEBOLT_PATH . 'class/servebolt-nginx-fpc.class.php';
     if( $nginx_switch === 'on' ) Servebolt_Nginx_Fpc::setup();
 }
