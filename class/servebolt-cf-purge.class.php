@@ -80,7 +80,6 @@ class Servebolt_cloudflare {
 
 			// Get the archive link, but don't push it to the array if it doesn't exist.
 			$archiveurl = get_post_type_archive_link( get_post_type( $post_id ) );
-			error_log( $archiveurl );
 			if ( false !== $archiveurl ) {
 				array_push( $purge_urls, $archiveurl );
 			}
