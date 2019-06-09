@@ -307,18 +307,22 @@ function servebolt_nginx_set_posttypes( $posttypes , $state){
  * 
  * [--cron_purge=<purge_type>]
  * : Display status after control is executed
+ * 
+ * [--activate]
+ * : Activate Cloudflare features
+ * 
+ * [--deactivate]
+ * : Deactivate Cloudflare features
  * ---
  *
  * ## EXAMPLES
  *
  *     # Deactivate Servebolt Full Page Cache, but only for pages and posts
- *     $ wp servebolt cf set --apikey=3489mfjg348klfn --username=person@example.com --zoneid=238fsjkl734iuhfdsf
+ *     $ wp servebolt cf set --apikey=3489mfjg348klfn --username=person@example.com --zoneid=238fsjkl734iuhfdsf --cron_purge=true --activate
  *
  */
 $servebolt_cli_cf_config_set = function( $args, $assoc_args ) {
-    //WP_CLI\Utils\format_items('table', $assoc_args);
     servebolt_cli_cf_config_set( $assoc_args );
-
 };
 
 
@@ -329,6 +333,16 @@ $servebolt_cli_cf_config_set = function( $args, $assoc_args ) {
  * @return void
  */
 function servebolt_cli_cf_config_set( $assoc_args ){
+    if( array_key_exists( 'activate', $assoc_args ) ) {
+        update_option( 'servebolt_cf_switch', true );
+        WP_CLI::success( __('Cloudflare features activated', 'servebolt' ) );
+        $update = true;
+    }
+    if( array_key_exists( 'deactivate', $assoc_args ) ) {
+        update_option( 'servebolt_cf_switch', false );
+        WP_CLI::success( __('Cloudflare features deactivated', 'servebolt' ) );
+        $update = true;
+    }
     if( array_key_exists( 'apikey', $assoc_args ) ) {
         update_option( 'servebolt_cf_apikey', $assoc_args['apikey'] );
         WP_CLI::success( sprintf( __('Cloudflare API key set to %s.', 'servebolt' ), $assoc_args['apikey'] ) );
@@ -380,6 +394,7 @@ $servebolt_cli_cf_config_get = function( $args, $assoc_args ) {
 function servebolt_cli_cf_config_get(){
     
     $arr = array();
+    $arr['status'] = get_option( 'servebolt_cf_switch' );
     $arr['apikey'] = get_option( 'servebolt_cf_apikey' );
     $arr['username'] = get_option( 'servebolt_cf_username' );
     $arr['zoneid'] = get_option( 'servebolt_cf_zoneid' );
@@ -387,7 +402,7 @@ function servebolt_cli_cf_config_get(){
 
     $items[] = $arr;
     
-    WP_CLI\Utils\format_items('table', $items, 'apikey,username,zoneid,purge_type');
+    WP_CLI\Utils\format_items('table', $items, 'status,apikey,username,zoneid,purge_type');
 }
 
 /**
