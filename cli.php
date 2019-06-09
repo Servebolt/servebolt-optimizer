@@ -344,9 +344,9 @@ function servebolt_cli_cf_config_set( $assoc_args ){
         WP_CLI::success( sprintf(__('Cloudflare zone ID set to %s.', 'servebolt' ), $assoc_args['zoneid'] ) );
         $update = true;
     }
-    if( array_key_exists('zoneid', $assoc_args ) ) {
-        update_option( 'servebolt_cf_cron_purge', $assoc_args['zoneid'] );
-        WP_CLI::success( sprintf(__('Cloudflare zone ID set to %s.', 'servebolt' ), $assoc_args['zoneid'] ) );
+    if( array_key_exists('cron_purge', $assoc_args ) ) {
+        update_option( 'servebolt_cf_cron_purge', $assoc_args['cron_purge'] );
+        WP_CLI::success( sprintf(__('Cloudflare zone ID set to %s.', 'servebolt' ), $assoc_args['cron_purge'] ) );
         $update = true;
     }
     if(true !== $update){
@@ -388,4 +388,46 @@ function servebolt_cli_cf_config_get(){
     $items[] = $arr;
     
     WP_CLI\Utils\format_items('table', $items, 'apikey,username,zoneid,purge_type');
+}
+
+/**
+ * Set or update the Cloudflare config
+ * ---
+ *
+ * ## EXAMPLES
+ *
+ *     # Deactivate Servebolt Full Page Cache, but only for pages and posts
+ *     $ wp servebolt cf set --apikey=3489mfjg348klfn --username=person@example.com --zoneid=238fsjkl734iuhfdsf
+ *
+ */
+$servebolt_cli_cf_purge = function( $args, $assoc_args ) {
+    if( array_key_exists( 'all', $assoc_args ) ) {
+        servebolt_cli_cf_purgeall();
+    } else {
+        servebolt_cli_cf_purgeurl( $args[0] );
+    }
+};
+
+function servebolt_cli_cf_purgeall(){
+
+    if( NULL === get_option( 'servebolt_cf_apikey' ) && NULL ===  get_option( 'servebolt_cf_username' ) && NULL ===  get_option( 'servebolt_cf_zoneid' ) ) {
+        return WP_CLI::error( __( 'Missing Cloudflare config', 'servebolt') );
+    }
+
+    Servebolt_cloudflare::purge_all();
+    return WP_CLI::success( __('Successfully purged everything', 'servebolt'));
+}
+
+function servebolt_cli_cf_purgeurl( $url ){
+
+    if( NULL === get_option( 'servebolt_cf_apikey' ) && NULL === get_option( 'servebolt_cf_username' ) && NULL === get_option( 'servebolt_cf_zoneid' ) ) {
+        return WP_CLI::error( __( 'Missing Cloudflare config', 'servebolt') );
+    }
+    
+    $purge = Servebolt_cloudflare::purge_by_url( $url );
+    if( is_array( $purge ) ) {
+        $purgearr = implode(', ', $purge);
+        $purge = $purgearr;
+    }
+    return WP_CLI::success( sprintf( __('Successfully purged %s', 'servebolt'), $purge ) );
 }

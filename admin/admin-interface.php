@@ -73,6 +73,7 @@ function servebolt_register_settings() {
 	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_username' );
 	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_zoneid' );
 	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_cron_purge' );
+	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_switch' );
 }
 
 /**

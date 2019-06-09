@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 1.6.5
+Version: 1.6.4-dev
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that implements Servebolt Security & Performance best practises for WordPress.
@@ -55,10 +55,8 @@ require_once SERVEBOLT_PATH . 'class/servebolt-cf-purge.class.php';
 /**
  * If the admin is loaded, load this plugins interface and Cloudflare integration
  */
-if(is_admin()){
-	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
-	Servebolt_cloudflare::setup();
-}
+require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
+Servebolt_cloudflare::setup();
 
 /**
  * We need weekly cron scheduling, so we're adding it!
@@ -88,6 +86,7 @@ if ( class_exists( 'WP_CLI' ) ) {
 	WP_CLI::add_command( 'servebolt cf purge', $servebolt_cli_nginx_status );
 	WP_CLI::add_command( 'servebolt cf config set', $servebolt_cli_cf_config_set );
 	WP_CLI::add_command( 'servebolt cf config get', $servebolt_cli_cf_config_get );
+	WP_CLI::add_command( 'servebolt cf purge', $servebolt_cli_cf_purge );
 }
 
 
