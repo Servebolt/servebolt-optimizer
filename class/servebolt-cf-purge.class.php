@@ -100,7 +100,7 @@ class Servebolt_cloudflare {
 	private static function purge_by_cron() {
 		$ids = get_option( 'servebolt_cf_ids_to_purge' );
 		$urls = array();
-		if( !empty( $ids ) ) {
+		if( ! empty( $ids ) ) {
 			foreach ( $ids as $id ) {
 				$url = get_permalink( $id );
 

@@ -75,6 +75,20 @@ function servebolt_add_cron_schedule( $schedules ) {
 	return $schedules;
 }
 
+/**
+ * Register the custom option for what post type to cache
+ */
+add_action( 'init', 'servebolt_register_settings' );
+function servebolt_register_settings() {
+	register_setting( 'nginx-fpc-options-page', 'servebolt_fpc_settings' );
+	register_setting( 'nginx-fpc-options-page', 'servebolt_fpc_switch' );
+	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_apikey' );
+	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_username' );
+	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_zoneid' );
+	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_cron_purge' );
+	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_switch' );
+}
+
 if ( class_exists( 'WP_CLI' ) ) {
     require_once ('cli.php');
     WP_CLI::add_command( 'servebolt db optimize', $servebolt_optimize_cmd ); // TODO: Remove in v1.7
@@ -84,9 +98,9 @@ if ( class_exists( 'WP_CLI' ) ) {
     WP_CLI::add_command( 'servebolt fpc deactivate', $servebolt_cli_nginx_deactivate );
 	WP_CLI::add_command( 'servebolt fpc status', $servebolt_cli_nginx_status );
 	WP_CLI::add_command( 'servebolt cf purge', $servebolt_cli_nginx_status );
+	WP_CLI::add_command( 'servebolt cf purge', $servebolt_cli_cf_purge );
 	WP_CLI::add_command( 'servebolt cf config set', $servebolt_cli_cf_config_set );
 	WP_CLI::add_command( 'servebolt cf config get', $servebolt_cli_cf_config_get );
-	WP_CLI::add_command( 'servebolt cf purge', $servebolt_cli_cf_purge );
 }
 
 

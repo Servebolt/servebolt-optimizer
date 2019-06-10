@@ -334,12 +334,12 @@ $servebolt_cli_cf_config_set = function( $args, $assoc_args ) {
  */
 function servebolt_cli_cf_config_set( $assoc_args ){
     if( array_key_exists( 'activate', $assoc_args ) ) {
-        update_option( 'servebolt_cf_switch', true );
+        update_option( 'servebolt_cf_switch', 'active' );
         WP_CLI::success( __('Cloudflare features activated', 'servebolt' ) );
         $update = true;
     }
     if( array_key_exists( 'deactivate', $assoc_args ) ) {
-        update_option( 'servebolt_cf_switch', false );
+        update_option( 'servebolt_cf_switch', 'deactive' );
         WP_CLI::success( __('Cloudflare features deactivated', 'servebolt' ) );
         $update = true;
     }
@@ -416,6 +416,9 @@ function servebolt_cli_cf_config_get(){
  *
  */
 $servebolt_cli_cf_purge = function( $args, $assoc_args ) {
+    if( true !== boolval( get_option( 'servebolt_cf_switch' ) ) ) {
+        return WP_CLI::error( __( 'Cloudflare is not activated. Activate it using wp servebolt cf config set --activate', 'servebolt') );
+    }
     if( array_key_exists( 'all', $assoc_args ) ) {
         servebolt_cli_cf_purgeall();
     } else {
@@ -424,7 +427,9 @@ $servebolt_cli_cf_purge = function( $args, $assoc_args ) {
 };
 
 function servebolt_cli_cf_purgeall(){
-
+    if( 'active' !== boolval( get_option( 'servebolt_cf_switch' ) ) ) {
+        return WP_CLI::error( __( 'Cloudflare is not activated. Activate it using wp servebolt cf config set --activate', 'servebolt') );
+    }
     if( NULL === get_option( 'servebolt_cf_apikey' ) && NULL ===  get_option( 'servebolt_cf_username' ) && NULL ===  get_option( 'servebolt_cf_zoneid' ) ) {
         return WP_CLI::error( __( 'Missing Cloudflare config', 'servebolt') );
     }
@@ -434,7 +439,9 @@ function servebolt_cli_cf_purgeall(){
 }
 
 function servebolt_cli_cf_purgeurl( $url ){
-
+    if( 'active' !== get_option( 'servebolt_cf_switch' ) ) {
+        return WP_CLI::error( __( 'Cloudflare is not activated. Activate it using wp servebolt cf config set --activate', 'servebolt') );
+    }
     if( NULL === get_option( 'servebolt_cf_apikey' ) && NULL === get_option( 'servebolt_cf_username' ) && NULL === get_option( 'servebolt_cf_zoneid' ) ) {
         return WP_CLI::error( __( 'Missing Cloudflare config', 'servebolt') );
     }

@@ -63,20 +63,6 @@ function servebolt_performance(){
 }
 
 /**
- * Register the custom option for what post type to cache
- */
-add_action( 'admin_init', 'servebolt_register_settings' );
-function servebolt_register_settings() {
-	register_setting( 'nginx-fpc-options-page', 'servebolt_fpc_settings' );
-	register_setting( 'nginx-fpc-options-page', 'servebolt_fpc_switch' );
-	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_apikey' );
-	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_username' );
-	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_zoneid' );
-	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_cron_purge' );
-	register_setting( 'nginx-fpc-options-page', 'servebolt_cf_switch' );
-}
-
-/**
  * Set up the Servebolt dashboard
  */
 function servebolt_general_page() {
