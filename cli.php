@@ -416,7 +416,7 @@ function servebolt_cli_cf_config_get(){
  *
  */
 $servebolt_cli_cf_purge = function( $args, $assoc_args ) {
-    if( true !== boolval( get_option( 'servebolt_cf_switch' ) ) ) {
+    if( 'active' !== get_option( 'servebolt_cf_switch' ) ) {
         return WP_CLI::error( __( 'Cloudflare is not activated. Activate it using wp servebolt cf config set --activate', 'servebolt') );
     }
     if( array_key_exists( 'all', $assoc_args ) ) {
