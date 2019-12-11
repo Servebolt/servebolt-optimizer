@@ -34,8 +34,6 @@ function servebolt_optimizer_disable_version() {
 add_filter('the_generator','servebolt_optimizer_disable_version');
 remove_action('wp_head', 'wp_generator');
 
-
-
 /**
  * Loads the class that sets the correct cache headers for Full Page Cache
  */

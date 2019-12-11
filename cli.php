@@ -45,6 +45,9 @@ $servebolt_analyze_tables = function( $args ) {
  * [--post_types=<post_types>]
  * : Comma separated list of post types to be activated
  *
+ * [--exclude=<ids>]
+ * : Comma separated list of ids to exclude for full page caching
+ *
  * [--status]
  * : Display status after control is executed
  *
@@ -70,6 +73,9 @@ $servebolt_cli_nginx_activate = function( $args, $assoc_args ) {
  *
  * [--post_types=<post_types>]
  * : Comma separated list of post types to be deactivated
+ *
+ * [--exclude=<ids>]
+ * : Comma separated list of ids to exclude for full page caching
  *
  * [--status]
  * : Display status after control is executed
@@ -227,6 +233,11 @@ function servebolt_nginx_control($state, $args, $assoc_args){
             WP_CLI::warning(sprintf(__('Full Page Cache already %1$sd'), $state));
         endif;
     }
+
+    if(array_key_exists('exclude', $assoc_args)){
+        servebolt_set_exclude_ids($assoc_args['exclude']);
+    }
+
 }
 
 /**
@@ -254,11 +265,12 @@ function servebolt_nginx_set_posttypes( $posttypes , $state){
         $CLIfeedback = sprintf(__('Cache deactivated for all posttypes on %s', 'servebolt-wp'), get_home_url());
         $success = true;
 
-        if($switch === 'on'){
+        if ( $switch === 'on' ) {
 
-            foreach ($AllTypes as $type){
-                $updateOption[$type->name] = $switch;
+            foreach ( $AllTypes as $type ) {
+                $newOption[$type->name] = $switch; 
             }
+            $updateOption = $newOption;
 
             $CLIfeedback = sprintf(__('Cache activated for all posttypes on %s', 'servebolt-wp'), get_home_url());
             $success = true;
@@ -288,4 +300,32 @@ function servebolt_nginx_set_posttypes( $posttypes , $state){
     }
 
     update_option('servebolt_fpc_settings', $updateOption);
+}
+
+function servebolt_set_exclude_ids($ids){
+    $id_array = explode(',', $ids);
+
+    $excluded = get_option('servebolt_fpc_exclude');
+
+    $additions = array();
+    foreach ($id_array as $id){
+        if ( FALSE === get_post_status( $id ) ) {
+            // The ID does not exist
+        } else {
+            // The ID exists
+            $push_id = array($id);
+            array_push($excluded, $push_id);
+            array_push($additions, $push_id);
+        }
+    }
+    if(!empty($additions)){
+        $additions_s = implode(',', $additions);
+        $clifeedback = sprintf(__('Added %s to the list of excluded ids'),$additions_s);
+        WP_CLI::success($clifeedback);
+    } else {
+        $clifeedback = __('No valid ids found in --exclude parameter');
+        WP_CLI::warning($clifeedback);
+    }
+
+    update_option('servebolt_fpc_exclude', $excluded);
 }
