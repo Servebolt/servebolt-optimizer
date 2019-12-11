@@ -265,11 +265,12 @@ function servebolt_nginx_set_posttypes( $posttypes , $state){
         $CLIfeedback = sprintf(__('Cache deactivated for all posttypes on %s', 'servebolt-wp'), get_home_url());
         $success = true;
 
-        if($switch === 'on'){
+        if ( $switch === 'on' ) {
 
-            foreach ($AllTypes as $type){
-                $updateOption[$type->name] = $switch;
+            foreach ( $AllTypes as $type ) {
+                $newOption[$type->name] = $switch; 
             }
+            $updateOption = $newOption;
 
             $CLIfeedback = sprintf(__('Cache activated for all posttypes on %s', 'servebolt-wp'), get_home_url());
             $success = true;
