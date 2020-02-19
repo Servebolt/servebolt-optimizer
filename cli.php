@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Run Servebolt Optimizer.
  *
@@ -14,23 +15,19 @@ $servebolt_optimize_cmd = function( $args ) {
 
     require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
 
-    if ( ! servebolt_optimize_db(TRUE) ) {
-        WP_CLI::success( "Optimization done" );
+    if ( ! ( Servebolt_Optimize_DB::instance() )->optimize_db(true) ) {
+        WP_CLI::success('Optimization done');
     } else {
-        WP_CLI::warning( "Everything OK. No optimization to do." );
+        WP_CLI::warning('Everything OK. No optimization to do.');
     }
 };
 
-$servebolt_analyze_tables = function( $args ) {
-    list( $key ) = $args;
-
-    require_once SERVEBOLT_PATH . 'admin/optimize-db/transients-cleaner.php';
-    servebolt_analyze_tables( TRUE );
-
-    if ( ! servebolt_analyze_tables(TRUE) ) {
-        WP_CLI::error( "Could not analyze tables." );
+$servebolt_analyze_tables = function() {
+	require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
+    if ( ! ( Servebolt_Optimize_DB::instance() )->analyze_tables(true) ) {
+        WP_CLI::error('Could not analyze tables.');
     } else {
-        WP_CLI::success( "Analyzed tables." );
+        WP_CLI::success('Analyzed tables.');
     }
 };
 
@@ -114,25 +111,25 @@ function servebolt_nginx_status( $args, $assoc_args ){
     // TODO: List post types on single sites
     if(is_multisite() && array_key_exists('all', $assoc_args)):
         $sites = get_sites();
-        $sites_status = array();
+        $sites_status = [];
         foreach ($sites as $site){
             $id = $site->blog_id;
             switch_to_blog($id);
-            $status = get_option('servebolt_fpc_switch');
-            $posttypes = get_option('servebolt_fpc_settings');
+            $status = sb_get_option('fpc_switch');
+            $post_types = sb_get_option('fpc_settings');
 
             $enabledTypes = [];
-            foreach ($posttypes as $key => $value){
+            foreach ($post_types as $key => $value){
                 if($value === 'on') $enabledTypes[$key] = 'on';
 
             }
-            $posttypes_keys = array_keys($enabledTypes);
-            $posttypes_string = implode(',',$posttypes_keys);
+            $post_types_keys = array_keys($enabledTypes);
+            $post_types_string = implode(',',$post_types_keys);
 
-            if(empty($posttypes_string)):
-                $posttypes_string = sprintf(__('Default [%s]', 'servebolt-wp'), Servebolt_Nginx_Fpc::default_cacheable_post_types('csv'));
-            elseif(array_key_exists('all', $posttypes)):
-                $posttypes_string = __('All', 'servebolt-wp');
+            if(empty($post_types_string)):
+                $post_types_string = sprintf(sb__('Default [%s]'), Servebolt_Nginx_Fpc::default_cacheable_post_types('csv'));
+            elseif(array_key_exists('all', $post_types)):
+                $post_types_string = sb__('All');
             endif;
 
             if($status === 'on'):
@@ -142,29 +139,29 @@ function servebolt_nginx_status( $args, $assoc_args ){
             endif;
 
             $url = get_site_url($id);
-            $site_status = array();
+            $site_status = [];
             $site_status['URL'] = $url;
             $site_status['STATUS'] = $status;
-            $site_status['ACTIVE_POST_TYPES'] = $posttypes_string;
+            $site_status['ACTIVE_POST_TYPES'] = $post_types_string;
             $sites_status[] = $site_status;
             restore_current_blog();
         }
-        WP_CLI\Utils\format_items( 'table', $sites_status , array('URL', 'STATUS', 'ACTIVE_POST_TYPES'));
+        WP_CLI\Utils\format_items( 'table', $sites_status , ['URL', 'STATUS', 'ACTIVE_POST_TYPES']);
     else:
-        $status = get_option('servebolt_fpc_switch');
-        $posttypes = get_option('servebolt_fpc_settings');
+        $status = sb_get_option('fpc_switch');
+        $post_types = sb_get_option('fpc_settings');
 
         $enabledTypes = [];
-        if(!empty($posttypes)) foreach ($posttypes as $key => $value){
+        if(!empty($post_types)) foreach ($post_types as $key => $value){
             if($value === 'on') $enabledTypes[$key] = 'on';
         }
-        $posttypes_keys = array_keys($enabledTypes);
-        $posttypes_string = implode(',',$posttypes_keys);
+        $post_types_keys = array_keys($enabledTypes);
+        $post_types_string = implode(',',$post_types_keys);
 
-        if(empty($posttypes_string)):
-            $posttypes_string = __('Default [post,page,product]', 'servebolt-wp');
-        elseif(array_key_exists('all', $posttypes)):
-            $posttypes_string = __('All', 'servebolt-wp');
+        if(empty($post_types_string)):
+            $post_types_string = sb__('Default [post,page,product]');
+        elseif(array_key_exists('all', $post_types)):
+            $post_types_string = sb__('All');
         endif;
 
         if($status === 'on'):
@@ -173,8 +170,8 @@ function servebolt_nginx_status( $args, $assoc_args ){
             $status = 'deactivated';
         endif;
 
-        WP_CLI::line(sprintf(__('Servebolt Full Page Cache cache is %s'), $status));
-        WP_CLI::line(sprintf(__('Post types enabled for caching: %s'), $posttypes_string));
+        WP_CLI::line(sprintf(sb__('Servebolt Full Page Cache cache is %s'), $status));
+        WP_CLI::line(sprintf(sb__('Post types enabled for caching: %s'), $post_types_string));
     endif;
 }
 
@@ -196,7 +193,7 @@ function servebolt_nginx_control($state, $args, $assoc_args){
         foreach ($sites as $site) {
             $id = $site->blog_id;
             switch_to_blog($id);
-            if(array_key_exists('post_types',$assoc_args)) servebolt_nginx_set_posttypes(explode(',', $assoc_args['post_types']), $state, $id);
+            if(array_key_exists('post_types',$assoc_args)) servebolt_nginx_set_post_types(explode(',', $assoc_args['post_types']), $state, $id);
             restore_current_blog();
         }
     }
@@ -207,30 +204,30 @@ function servebolt_nginx_control($state, $args, $assoc_args){
             $id = $site->blog_id;
             switch_to_blog($id);
             $url = get_site_url($id);
-            $status = get_option('servebolt_fpc_switch');
+            $status = sb_get_option('fpc_switch');
             if($status !== $switch):
-                update_option('servebolt_fpc_switch', $switch);
-                WP_CLI::success(sprintf(__('Full Page Cache %1$sd on %2$s'), $state, esc_url($url)));
+	            sb_update_option('fpc_switch', $switch);
+                WP_CLI::success(sprintf(sb__('Full Page Cache %1$sd on %2$s'), $state, esc_url($url)));
             elseif($status === $switch):
-                WP_CLI::warning(sprintf(__('Full Page Cache already %1$sd on %2$s'), $state, esc_url($url)));
+                WP_CLI::warning(sprintf(sb__('Full Page Cache already %1$sd on %2$s'), $state, esc_url($url)));
             endif;
 
-            if(array_key_exists('post_types',$assoc_args)) servebolt_nginx_set_posttypes(explode(',', $assoc_args['post_types']), $state, $id);
+            if(array_key_exists('post_types',$assoc_args)) servebolt_nginx_set_post_types(explode(',', $assoc_args['post_types']), $state, $id);
             restore_current_blog();
         }
 
     }
     elseif($state === 'deactivate' && array_key_exists('post_types', $assoc_args)){
-        servebolt_nginx_set_posttypes(explode(',', $assoc_args['post_types']), $state, get_current_blog_id());
+        servebolt_nginx_set_post_types(explode(',', $assoc_args['post_types']), $state, get_current_blog_id());
     }
     else{
-        $status = get_option('servebolt_fpc_switch');
-        if(array_key_exists('post_types',$assoc_args)) servebolt_nginx_set_posttypes(explode(',', $assoc_args['post_types']), $state);
+        $status = sb_get_option('fpc_switch');
+        if(array_key_exists('post_types',$assoc_args)) servebolt_nginx_set_post_types(explode(',', $assoc_args['post_types']), $state);
         if($status !== $switch):
-            update_option('servebolt_fpc_switch', $switch);
-            WP_CLI::success(sprintf(__('Full Page Cache %1$sd'), $state));
+	        sb_update_option('fpc_switch', $switch);
+            WP_CLI::success(sprintf(sb__('Full Page Cache %1$sd'), $state));
         elseif($status === $switch):
-            WP_CLI::warning(sprintf(__('Full Page Cache already %1$sd'), $state));
+            WP_CLI::warning(sprintf(sb__('Full Page Cache already %1$sd'), $state));
         endif;
     }
 
@@ -241,10 +238,12 @@ function servebolt_nginx_control($state, $args, $assoc_args){
 }
 
 /**
- * @param $posttypes
+ * Set post types to cache.
+ *
+ * @param $post_types
  * @param $state
  */
-function servebolt_nginx_set_posttypes( $posttypes , $state){
+function servebolt_nginx_set_post_types( $post_types , $state){
     $switch = '';
     if($state === 'activate') {
         $switch = 'on';
@@ -252,35 +251,35 @@ function servebolt_nginx_set_posttypes( $posttypes , $state){
         $switch = 'off';
     }
 
-    $updateOption = get_option('servebolt_fpc_settings');
+    $updateOption = sb_get_option('fpc_settings');
 
     // Get only publicly available post types
-    $args = array(
+    $args = [
         'public' => true
-    );
+    ];
     $AllTypes = get_post_types($args, 'objects');
 
 
-    if(in_array('all', $posttypes)) {
-        $CLIfeedback = sprintf(__('Cache deactivated for all posttypes on %s', 'servebolt-wp'), get_home_url());
+    if(in_array('all', $post_types)) {
+        $CLIfeedback = sprintf(sb__('Cache deactivated for all post types on %s'), get_home_url());
         $success = true;
 
         if ( $switch === 'on' ) {
 
             foreach ( $AllTypes as $type ) {
-                $newOption[$type->name] = $switch; 
+                $newOption[$type->name] = $switch;
             }
             $updateOption = $newOption;
 
-            $CLIfeedback = sprintf(__('Cache activated for all posttypes on %s', 'servebolt-wp'), get_home_url());
+            $CLIfeedback = sprintf(sb__('Cache activated for all post types on %s'), get_home_url());
             $success = true;
 
         }
 
     } else {
 
-        foreach ($posttypes as $posttype) if(array_key_exists($posttype, $AllTypes)){
-            $updateOption[$posttype] = $switch;
+        foreach ($post_types as $post_type) if(array_key_exists($post_type, $AllTypes)){
+            $updateOption[$post_type] = $switch;
         }
 
         // remove everything that is off
@@ -288,7 +287,7 @@ function servebolt_nginx_set_posttypes( $posttypes , $state){
             if($value === 'off') unset($updateOption[$key]);
         }
 
-        $CLIfeedback = sprintf(__('Cache %sd for post type(s) %s on %s', 'servebolt-wp'),$state, implode(',', $posttypes) , get_home_url());
+        $CLIfeedback = sprintf(sb__('Cache %sd for post type(s) %s on %s'),$state, implode(',', $post_types) , get_home_url());
         $success = true;
 
     }
@@ -299,33 +298,38 @@ function servebolt_nginx_set_posttypes( $posttypes , $state){
         WP_CLI::warning($CLIfeedback);
     }
 
-    update_option('servebolt_fpc_settings', $updateOption);
+	sb_update_option('fpc_settings', $updateOption);
 }
 
+/**
+ * Set exclude Ids.
+ *
+ * @param $ids
+ */
 function servebolt_set_exclude_ids($ids){
     $id_array = explode(',', $ids);
 
-    $excluded = get_option('servebolt_fpc_exclude');
+    $excluded = sb_get_option('fpc_exclude');
 
-    $additions = array();
+    $additions = [];
     foreach ($id_array as $id){
         if ( FALSE === get_post_status( $id ) ) {
             // The ID does not exist
         } else {
             // The ID exists
-            $push_id = array($id);
+            $push_id = [$id];
             array_push($excluded, $push_id);
             array_push($additions, $push_id);
         }
     }
     if(!empty($additions)){
         $additions_s = implode(',', $additions);
-        $clifeedback = sprintf(__('Added %s to the list of excluded ids'),$additions_s);
+        $clifeedback = sprintf(sb__('Added %s to the list of excluded ids'), $additions_s);
         WP_CLI::success($clifeedback);
     } else {
-        $clifeedback = __('No valid ids found in --exclude parameter');
+        $clifeedback = sb__('No valid ids found in --exclude parameter');
         WP_CLI::warning($clifeedback);
     }
 
-    update_option('servebolt_fpc_exclude', $excluded);
+	sb_update_option('fpc_exclude', $excluded);
 }
