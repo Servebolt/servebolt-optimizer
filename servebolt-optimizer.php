@@ -18,6 +18,9 @@ if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
     return;
 }
 
+// Include Composer dependencies
+if ( file_exists(__DIR__ . '/vendor/autoload.php') ) require 'vendor/autoload.php';
+
 // Include general functions
 require_once 'functions.php';
 
@@ -41,6 +44,9 @@ if ( ! class_exists('Servebolt_Nginx_Fpc') ){
     if ( $nginx_switch === 'on' ) Servebolt_Nginx_Fpc::setup();
 }
 
+// Include the Servebolt Cloudflare class.
+require_once SERVEBOLT_PATH . 'class/servebolt-cf.class.php';
+
 // If the admin is loaded, load this plugins interface
 if ( is_admin() ) {
 	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
@@ -60,11 +66,19 @@ add_filter('cron_schedules', function( $schedules ) {
 
 // Initialize CLI-commands.
 if ( class_exists( 'WP_CLI' ) ) {
-    require_once 'cli.php';
-    WP_CLI::add_command( 'servebolt db optimize', $servebolt_optimize_cmd ); // TODO: Remove in v1.7
-	WP_CLI::add_command( 'servebolt db fix', $servebolt_optimize_cmd );
-	WP_CLI::add_command( 'servebolt db analyze', $servebolt_analyze_tables );
-    WP_CLI::add_command( 'servebolt fpc activate', $servebolt_cli_nginx_activate );
-    WP_CLI::add_command( 'servebolt fpc deactivate', $servebolt_cli_nginx_deactivate );
-    WP_CLI::add_command( 'servebolt fpc status', $servebolt_cli_nginx_status );
+    require_once __DIR__ . '/cli/cli.class.php';
+	$s = Servebolt_CLI::getInstance();
+	WP_CLI::add_command( 'servebolt db optimize',           [$s, 'optimize'] ); // TODO: Remove in v1.7
+	WP_CLI::add_command( 'servebolt db fix',                [$s, 'optimize'] );
+	WP_CLI::add_command( 'servebolt db analyze',            [$s, 'analyze_tables'] );
+
+    WP_CLI::add_command( 'servebolt fpc activate',          [$s, 'nginx_activate'] );
+    WP_CLI::add_command( 'servebolt fpc deactivate',        [$s, 'nginx_deactivate'] );
+    WP_CLI::add_command( 'servebolt fpc status',            [$s, 'nginx_status'] );
+
+	WP_CLI::add_command( 'servebolt cf list-zones',         [$s, 'cf_list_zones'] );
+	WP_CLI::add_command( 'servebolt cf set-zone',           [$s, 'cf_set_zone'] );
+	WP_CLI::add_command( 'servebolt cf set-credentials',    [$s, 'cf_set_credentials'] );
+	WP_CLI::add_command( 'servebolt cf purge',              [$s, 'cf_purge'] );
+	WP_CLI::add_command( 'servebolt cf purge-all',          [$s, 'cf_purge_all'] );
 }

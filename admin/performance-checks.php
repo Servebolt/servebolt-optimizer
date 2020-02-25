@@ -24,11 +24,11 @@ class Servebolt_Performance_Checks {
 	}
 
 	/**
-	 * Servebolt_Performance_Checks constructor.
+	 * Initialize events.
 	 */
-  public function __construct() {
-	  $this->add_ajax_handling();
-  }
+	  public function init() {
+		  $this->add_ajax_handling();
+	  }
 
 	/**
 	 * Add AJAX handling.

@@ -61,6 +61,7 @@
 		</tbody>
 	</table>
 
+  <br>
 	<h3><?php sb_e('Database Table Storage Engines'); ?></h3>
 	<table class="wp-list-table widefat fixed striped">
 		<thead>
@@ -97,6 +98,7 @@
 		</tbody>
 	</table>
 
+  <br>
 	<div class="optimize">
 		<h3><?php sb_e('Run the optimizer'); ?></h3>
 		<p><?php sb_e('You can run the optimizer below.'); ?><br>
@@ -105,6 +107,7 @@
 		<a <?php if($run_optimizer === true) echo 'href="#optimize-now"'; ?> class="btn button button-primary optimize-now" <?php if($run_optimizer !== true) echo 'disabled'; ?>><?php sb_e('Optimize!'); ?></a>
 	</div>
 
+  <br>
 	<h2><?php sb_e('Other suggested optimizations'); ?></h2>
 	<p><?php sb_e('These settings can not be optimized by the plugin, but may be implemented manually.'); ?></p>
 	<table class="wp-list-table widefat fixed striped">

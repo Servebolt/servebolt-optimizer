@@ -38,7 +38,7 @@ class Servebolt_Logviewer {
 		$log_file_readable = is_readable($log_file_path);
 		$log = $this->tail($log_file_path, $this->number_of_entries);
 		$entries = $this->prepare_entries($log);
-		sb_view('admin/views/log-viewer', compact('log_file_exists', 'log_file_readable', 'log', 'entries'));
+		sb_view('admin/views/log-viewer', compact('log_file_path', 'log_file_exists', 'log_file_readable', 'log', 'entries'));
 	}
 
 	/**

@@ -53,6 +53,7 @@
     height: 50px;
     width: 200px;
     margin-top: 20px;
+    margin-bottom: 5px;
     background-size: contain;
     background-repeat: no-repeat;
 }

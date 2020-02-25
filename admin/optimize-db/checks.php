@@ -85,14 +85,13 @@ class Servebolt_Checks {
 			foreach ( $sites as $key => $value ) {
 				foreach ( $tables as $table => $index ) {
 					switch_to_blog( $key );
-					$blogprefix  = $wpdb->prefix;
+
 					$a_table = [
 						'blog_id' => $key,
 						'table'   => $table,
-						'name'    => implode( [ $blogprefix, $table ] ),
+						'name'    => implode( [ $wpdb->prefix, $table ] ),
 						'index'   => $index,
 					];
-
 					$db_table = $wpdb->{$a_table['table']};
 					$indexes  = $wpdb->get_results( "SHOW INDEX FROM {$db_table}" );
 

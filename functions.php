@@ -11,6 +11,18 @@ function get_sb_admin_url() {
 	return ( preg_match( "@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $webroot_path, $matches ) ) ? 'https://admin.servebolt.com/siteredirect/?site='. $matches[1] : false;
 }
 
+
+
+/**
+ * Get Servebolt_Performance_Checks-instance.
+ *
+ * @return Servebolt_Performance_Checks|null
+ */
+function sb_performance_checks() {
+	require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
+	return Servebolt_Performance_Checks::instance();
+}
+
 /**
  * Get Servebolt_Checks-instance.
  *
@@ -196,9 +208,17 @@ function sb_get_blog_option($id, $option, $default = false) {
  *
  * @param $key
  * @param $value
+ * @param bool $assertUpdate
+ *
+ * @return bool
  */
-function sb_update_option($key, $value) {
-	update_option(sb_get_option_name($key), $value);
+function sb_update_option($key, $value, $assertUpdate = true) {
+	$option_name = sb_get_option_name($key);
+	$result = update_option($option_name, $value);
+	if ( $assertUpdate && ! $result ) {
+		return ( get_option($option_name) == $value );
+	}
+	return true;
 }
 
 /**

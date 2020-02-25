@@ -18,7 +18,7 @@ class Servebolt_Admin_Interface {
 	    $this->init_menus();
 	    $this->init_assets();
 	    $this->init_settings();
-		Servebolt_Performance_Checks::instance();
+		( sb_performance_checks() )->init();
 	}
 
 	/**
