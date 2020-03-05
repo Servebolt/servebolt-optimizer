@@ -81,7 +81,8 @@
 					</td>
 				</tr>
 			</table>
-			<?php submit_button(); ?>
+      <?php submit_button(); ?>
+
 		</form>
 
 	<?php endif; ?>

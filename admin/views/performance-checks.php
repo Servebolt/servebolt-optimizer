@@ -1,7 +1,4 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
-<div id="optimizations-loading" class="">
-	<div class="loader lds-dual-ring"></div>
-</div>
 
 <div class="wrap sb-content">
 	<?php if ( array_key_exists('optimize-now', $_GET) ) : ?>

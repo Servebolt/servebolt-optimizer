@@ -16,12 +16,17 @@ class Servebolt_Checks {
 	 *
 	 * @return Servebolt_Checks|null
 	 */
-	public static function instance() {
+	public static function getInstance() {
 		if ( self::$instance == null ) {
 			self::$instance = new Servebolt_Checks;
 		}
 		return self::$instance;
 	}
+
+	/**
+	 * Servebolt_Checks constructor.
+	 */
+	private function __construct() {}
 
 	/**
 	 * Return array of index setup for tables.

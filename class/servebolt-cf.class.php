@@ -17,9 +17,25 @@ class Servebolt_CF {
 	private static $instance = null;
 
 	/**
+	 * Cloudflare wrapper class.
+	 *
 	 * @var null
 	 */
 	private $cf = null;
+
+	/**
+	 * The default API authentication type.
+	 *
+	 * @var string
+	 */
+	private $defaultAuthenticationType = 'apiToken';
+
+	/**
+	 * Whether we successfully registered credentials for Cloudflare API class.
+	 *
+	 * @var bool
+	 */
+	private $credentialsOk = false;
 
 	/**
 	 * Instantiate class.
@@ -45,6 +61,42 @@ class Servebolt_CF {
 	}
 
 	/**
+	 * Instantiate CF class and pass authentication parameters.
+	 *
+	 * @return bool
+	 */
+	private function initCF()
+	{
+		if ( ! $this->registerCredentialsInClass() ) return false;
+		$activeZone = $this->getActiveZoneId();
+		if ( $activeZone ) $this->cf()->setZoneId($activeZone, false);
+		return true;
+	}
+
+	/**
+	 * Register action hooks.
+	 */
+	private function registerActions()
+	{
+		if ( ! $this->CFIsActive() ) return;
+		add_action( 'save_post', [$this, 'purgePost'], 99 );
+	}
+
+	/**
+	 * Register Cron job.
+	 */
+	private function registerCron()
+	{
+		if ( ! $this->CFIsActive() || ! $this->cronPurgeIsActive() ) return;
+		$closure = [$this, 'purgeByCron'];
+		/*
+		if ( ! wp_next_scheduled( $closure ) ) {
+			wp_schedule_event(time(), 'every_minute', $closure);
+		}
+		*/
+	}
+
+	/**
 	 * Get Cloudflare instance.
 	 *
 	 * @return Servebolt_CF|null
@@ -58,15 +110,75 @@ class Servebolt_CF {
 	}
 
 	/**
-	 * Instantiate CF class and pass authentication parameters.
+	 * The Cloudflare API permissions required for this plugin.
+	 *
+	 * @param bool $humanReadable
+	 *
+	 * @return array|string
+	 */
+	public function APIPermissionsNeeded($humanReadable = true) {
+		$permissions = ['Zone.Zone', 'Zone.Cache Purge'];
+		if ( $humanReadable ) {
+			return sb_natural_language_join($permissions);
+		}
+		return $permissions;
+	}
+
+	/**
+	 * Test API connection.
 	 *
 	 * @return bool
 	 */
-	private function initCF()
+	public function testAPIConnection()
 	{
-		if ( ! $this->registerCredentials() ) return false;
-		$this->cf()->setZoneId($this->getActiveZoneId());
-		return true;
+		try {
+			$this->cf()->listZones();
+			return true;
+		} catch (Exception $e) {
+			return false;
+		}
+		return false;
+	}
+
+	/**
+	 * Check that we have credentials and have selected a zone.
+	 *
+	 * @return bool
+	 */
+	public function CFCacheFeatureAvailable()
+	{
+		return $this->credentialsOk() && $this->zoneOk();
+	}
+
+	/**
+	 * Check if Cloudflare is used.
+	 *
+	 * @return bool
+	 */
+	public function CFIsActive()
+	{
+		return filter_var(sb_get_option('cf_switch'), FILTER_VALIDATE_BOOLEAN) === true;
+	}
+
+	/**
+	 * Check if we got Cloudflare API credentials in place.
+	 *
+	 * @return bool
+	 */
+	public function credentialsOk()
+	{
+		return $this->credentialsOk === true;
+	}
+
+	/**
+	 * Check that we have specified a zone.
+	 *
+	 * @return bool
+	 */
+	public function zoneOk()
+	{
+		$zone = $this->getActiveZoneId();
+		return $zone !== false && ! is_null($zone);
 	}
 
 	/**
@@ -79,6 +191,15 @@ class Servebolt_CF {
 	public function getZoneById($zoneId)
 	{
 		return $this->cf()->getZoneById($zoneId);
+	}
+
+	/**
+	 * Clear the active zone.
+	 */
+	public function clearActiveZone()
+	{
+		sb_delete_option('cf_zone_id');
+		sb_delete_option('cf_zone_id');
 	}
 
 	/**
@@ -104,127 +225,159 @@ class Servebolt_CF {
 	}
 
 	/**
+	 * List zones.
+	 *
+	 * @return mixed
+	 */
+	public function listZones()
+	{
+		return $this->cf()->listZones();
+	}
+
+	/**
 	 * Get authentication type for Cloudflare.
 	 *
 	 * @return mixed|void
 	 */
-	private function getAuthenticationType()
+	public function getAuthenticationType()
 	{
-		$defaultValue = 'apiToken';
-		return sb_get_option( 'cf_auth_type',  $defaultValue);
+		return sb_get_option('cf_auth_type',  $this->defaultAuthenticationType);
+	}
+
+	/**
+	 * Clear all credentials.
+	 */
+	public function clearCredentials()
+	{
+		foreach(['cf_auth_type', 'cf_api_token', 'cf_api_key', 'cf_email'] as $key) {
+			sb_delete_option($key);
+			sb_delete_option($key);
+		}
 	}
 
 	/**
 	 * Set credentials in Cloudflare class.
 	 *
+	 * @param $authType
 	 * @param $credentials
 	 *
 	 * @return mixed
 	 */
-	public function setCredentials($credentials)
+	public function setCredentialsInCFClass($authType, $credentials)
 	{
-		return $this->cf()->setCredentials($credentials);
+		return $this->cf()->setCredentials($authType, $credentials);
 	}
 
 	/**
-	 * Register credentials.
+	 * Register credentials in class.
 	 *
 	 * @return bool
 	 */
-	private function registerCredentials()
+	private function registerCredentialsInClass()
 	{
 		switch ( $this->getAuthenticationType() ) {
 			case 'apiToken':
-				return $this->setCredentials( sb_get_option( 'cf_api_token' ) );
+				$apiToken = $this->getCredential('apiToken');
+				if ( ! empty($apiToken) ) {
+					$this->setCredentialsInCFClass('apiToken', compact('apiToken'));
+					$this->credentialsOk = true;
+				}
+				break;
 			case 'apiKey':
-				return $this->setCredentials([
-					'email'  => sb_get_option( 'cf_email' ),
-					'apikey' => sb_get_option( 'cf_api_key' ),
-				]);
+				$email = $this->getCredential('email');
+				$apiKey = $this->getCredential('apiKey');
+				if ( ! empty($email) && ! empty($apiKey) ) {
+					$this->setCredentialsInCFClass('apiKey', compact('email', 'apiKey'));
+					$this->credentialsOk = true;
+				}
+				break;
+		}
+		return $this->credentialsOk;
+	}
+
+	/**
+	 * Get credential from DB.
+	 *
+	 * @param $key
+	 *
+	 * @return bool|mixed|void
+	 */
+	public function getCredential($key)
+	{
+		switch ($key) {
+			case 'email':
+				return sb_get_option('cf_email');
+			case 'apiKey':
+				return sb_get_option('cf_api_key');
+			case 'apiToken':
+				return sb_get_option('cf_api_token');
 		}
 		return false;
 	}
 
+	/**
+	 * Store API credentials in DB.
+	 *
+	 * @param $credentials
+	 * @param $type
+	 *
+	 * @return bool
+	 */
 	public function storeCredentials($credentials, $type)
 	{
 		switch ($type) {
 			case 'apiKey':
-				return sb_update_option('cf_auth_type', $type, true) && sb_update_option('cf_email', $credentials['email'], true) && sb_update_option('cf_api_key', $credentials['apiKey'], true);
+				if ( sb_update_option('cf_auth_type', $type, true) && sb_update_option('cf_email', $credentials['email'], true) && sb_update_option('cf_api_key', $credentials['apiKey'], true) ) {
+					$this->registerCredentialsInClass();
+					return true;
+				}
+				break;
 			case 'apiToken':
-				return sb_update_option('cf_auth_type', $type, true) && sb_update_option('cf_api_token', $credentials, true);
-
+				if ( sb_update_option('cf_auth_type', $type, true) && sb_update_option('cf_api_token', $credentials, true) ) {
+					$this->registerCredentialsInClass();
+					return true;
+				}
+				break;
 		}
 		return false;
-	}
-
-	/**
-	 * Register cron job.
-	 */
-	private function registerCron()
-	{
-		if ( ! $this->CFIsActive() || ! $this->cronPurgeIsActive() ) return;
-		wp_schedule_event( time(), 'every_minute', [$this, 'purgeByCron'] );
-	}
-
-	/**
-	 * Register actions
-	 */
-	private function registerActions()
-	{
-		if ( ! $this->CFIsActive() ) return;
-		add_action( 'save_post', [$this, 'purgePost'], 99 );
-	}
-
-	/**
-	 * @return bool
-	 */
-	private function cronPurgeIsActive()
-	{
-		return filter_var(sb_get_option( 'cf_cron_purge' ), FILTER_VALIDATE_BOOLEAN) === true;
-	}
-
-	/**
-	 * Check if Cloudflare is used.
-	 *
-	 * @return bool
-	 */
-	private function CFIsActive()
-	{
-		return filter_var(sb_get_option( 'cf_switch' ), FILTER_VALIDATE_BOOLEAN) === true;
 	}
 
 	/**
 	 * Add a post Id to the purge queue (by cron).
 	 *
-	 * @param int $postId
+	 * @param $item
 	 *
 	 * @return bool
 	 */
-	private function addIdToPurgeQueue(int $postId)
+	public function addItemToPurgeQueue($item)
 	{
-		$idsToPurgeWithCron = $this->getIdsToPurge();
-		array_push( $idsToPurgeWithCron, $postId );
-		return $this->setIdsToPurge($idsToPurgeWithCron);
+		if ( empty($item) ) return false;
+		$itemsToPurgeWithCron = $this->getItemsToPurge();
+		$itemsToPurgeWithCron[] = $item;
+		$itemsToPurgeWithCron = array_unique($itemsToPurgeWithCron);
+		return $this->setItemsToPurge($itemsToPurgeWithCron);
 	}
 
 	/**
-	 * Set the post Ids to purge.
+	 * Set the items to purge.
 	 *
-	 * @param array $idsToPurge
+	 * @param array $itemsToPurge
 	 *
 	 * @return bool
 	 */
-	private function setIdsToPurge( array $idsToPurge ) {
-		return sb_update_option( 'cf_ids_to_purge', $idsToPurge );
+	private function setItemsToPurge( array $itemsToPurge ) {
+		return sb_update_option( 'cf_items_to_purge', $itemsToPurge );
 	}
 
 	/**
-	 * Get the post Ids to purge.
+	 * Get the items to purge.
 	 *
 	 * @return array
 	 */
-	private function getIdsToPurge() {
-		return (array) sb_get_option( 'cf_ids_to_purge', [] );
+	public function getItemsToPurge() {
+		$items = sb_get_option('cf_items_to_purge');
+		if ( ! is_array($items) ) return [];
+		return $items;
 	}
 
 	/**
@@ -237,12 +390,30 @@ class Servebolt_CF {
 	private function getPurgeUrlsByPostId( int $postId )
 	{
 		$purgeUrls = [];
+
+		// Front page
+		if ( $front_page_id = get_option( 'page_on_front' ) ) {
+			array_push( $purgeUrls, get_permalink($front_page_id) );
+		}
+
+		// Posts page
+		if ( $blog_id = get_option( 'page_for_posts' ) ) {
+			array_push( $purgeUrls, get_permalink($blog_id) );
+		}
+
+		// The post
 		if ( $permalink = get_permalink( $postId ) ) {
 			array_push( $purgeUrls, $permalink );
 		}
+
+		// Archive page
 		if ( $archiveUrl = get_post_type_archive_link( get_post_type( $postId ) ) ) {
 			array_push( $purgeUrls, $archiveUrl );
 		}
+
+		// Prevent duplicates
+		$purgeUrls = array_unique($purgeUrls);
+
 		return $purgeUrls;
 	}
 
@@ -255,15 +426,12 @@ class Servebolt_CF {
 	 */
 	public function purgePost( int $postId ) {
 
-		// Check if cron purging is active
-		if ( ! $this->cronPurgeIsActive() ) return;
-
 		// If this is just a revision, don't purge anything.
-		if ( wp_is_post_revision( $postId ) ) return;
+		if ( ! $postId || wp_is_post_revision( $postId ) ) return false;
 
 		// If cron purge is enabled, build the list of ids to purge by cron. If not active, just purge right away.
 		if ( $this->cronPurgeIsActive() ) {
-			return $this->addIdToPurgeQueue($postId);
+			return $this->addItemToPurgeQueue($postId);
 		} else if ( $urlsToPurge = $this->getPurgeUrlsByPostId($postId) ) {
 			return $this->cf()->purgeUrls($urlsToPurge);
 		}
@@ -278,25 +446,86 @@ class Servebolt_CF {
 	 */
 	public function purgeByUrl( string $url ) {
 		$postId = url_to_postid( $url );
-		if ( ! $postId ) return false;
-		return $this->purgePost($postId);
+		if ( $postId ) {
+			return $this->purgePost($postId);
+		} else {
+			if ( $this->cronPurgeIsActive() ) {
+				return $this->addItemToPurgeQueue($url);
+			} else {
+				return $this->cf()->purgeUrls([$url]);
+			}
+		}
 	}
 
 	/**
 	 * Get all urls that are queued up for purging.
 	 *
-	 * @param $postIds
+	 * @param $items
 	 *
 	 * @return array
 	 */
-	private function getPurgeUrlsByPostIds(array $postIds)
+	private function getPurgeUrlsByPostIds(array $items)
 	{
 		$urls = [];
-		foreach ( $postIds as $postId ) {
-			$urls = array_merge($urls, $this->getPurgeUrlsByPostId($postId));
+		foreach ( $items as $item ) {
+			if ( is_int($item) ) {
+				$urls = array_merge($urls, $this->getPurgeUrlsByPostId($item));
+			} else {
+				$urls[] = $item;
+			}
 		}
 		$urls = array_unique($urls);
 		return $urls;
+	}
+
+	/**
+	 * Check if we have overridden whether the Cron purge should be active or not.
+	 *
+	 * @return mixed
+	 */
+	private function cronActiveStateOverride()
+	{
+		if ( defined('SERVEBOLT_CF_PURGE_CRON') && is_bool(SERVEBOLT_CF_PURGE_CRON) ) {
+			return SERVEBOLT_CF_PURGE_CRON;
+		}
+	}
+
+	/**
+	 * Check whether the Cron-based cache purger should be active.
+	 *
+	 * @param bool $respectOverride
+	 *
+	 * @return bool|mixed
+	 */
+	public function cronPurgeIsActive($respectOverride = true)
+	{
+		$activeStateOverride = $this->cronActiveStateOverride();
+		if ( $respectOverride && is_bool($activeStateOverride) ) {
+			return $activeStateOverride;
+		}
+		return filter_var(sb_get_option('cf_cron_purge'), FILTER_VALIDATE_BOOLEAN) === true;
+	}
+
+	/**
+	 * Purging Cloudflare cache by cron using a list of IDs updated.
+	 */
+	public function purgeByCron()
+	{
+		$urls = $this->getPurgeUrlsByPostIds( $this->getItemsToPurge() );
+		if ( ! empty( $urls ) ) {
+			$this->cf()->purgeUrls( $urls );
+			$this->clearItemsToPurge();
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Clear items to purge.
+	 */
+	private function clearItemsToPurge()
+	{
+		$this->setItemsToPurge([]);
 	}
 
 	/**
@@ -309,24 +538,5 @@ class Servebolt_CF {
 		return $this->cf()->purgeAll();
 	}
 
-	public function listZones()
-	{
-		return $this->cf()->listZones();
-	}
-
-	/**
-	 * Purging Cloudflare cache by cron using a list of IDs updated.
-	 */
-	public function purgeByCron() {
-		$urls = $this->getPurgeUrlsByPostIds( $this->getIdsToPurge() );
-		if ( ! empty( $urls ) ) {
-			$this->cf()->purgeUrls( $urls );
-			$this->setIdsToPurge([]);
-			return true;
-		}
-		return false;
-	}
-
 }
-
-
+Servebolt_CF::getInstance();

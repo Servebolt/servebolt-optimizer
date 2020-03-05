@@ -8,10 +8,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  */
 function get_sb_admin_url() {
 	$webroot_path = get_home_path();
+	//$webroot_path = '/kunder/serveb_5418/bankfl_7205/public';
 	return ( preg_match( "@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $webroot_path, $matches ) ) ? 'https://admin.servebolt.com/siteredirect/?site='. $matches[1] : false;
 }
-
-
 
 /**
  * Get Servebolt_Performance_Checks-instance.
@@ -20,7 +19,16 @@ function get_sb_admin_url() {
  */
 function sb_performance_checks() {
 	require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
-	return Servebolt_Performance_Checks::instance();
+	return Servebolt_Performance_Checks::getInstance();
+}
+
+/**
+ * Get Servebolt_Nginx_FPC-instance.
+ * @return Servebolt_Nginx_FPC|null
+ */
+function sb_nginx_fpc() {
+	require_once SERVEBOLT_PATH . 'class/servebolt-nginx-fpc.class.php';
+	return Servebolt_Nginx_FPC::getInstance();
 }
 
 /**
@@ -30,7 +38,47 @@ function sb_performance_checks() {
  */
 function sb_checks() {
 	require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
-	return Servebolt_Checks::instance();
+	return Servebolt_Checks::getInstance();
+}
+
+/**
+ * Create a Cloudflare_Error-instance.
+ *
+ * @param $exception
+ */
+function cf_error($exception) {
+	new Cloudflare_Error($exception->getMessage());
+}
+
+/**
+ * Check whether a variable is a Cloudflare_Error-instance.
+ *
+ * @param $object
+ *
+ * @return bool
+ */
+function sb_is_error($object) {
+	return is_object($object) && is_a($object, 'Cloudflare_Error');
+}
+
+/**
+ * Get Servebolt_Checks-instance.
+ *
+ * @return Servebolt_Checks|null
+ */
+function sb_cf() {
+	require_once SERVEBOLT_PATH . 'class/servebolt-cf.class.php';
+	return Servebolt_CF::getInstance();
+}
+
+/**
+ * Get Servebolt_Checks-instance.
+ *
+ * @return Servebolt_Checks|null
+ */
+function sb_cf_cache_controls() {
+	require_once SERVEBOLT_PATH . 'admin/cf-cache-controls.php';
+	return CF_Cache_Controls::getInstance();
 }
 
 /**
@@ -92,7 +140,6 @@ function sb_e($string, $domain = null) {
  * @return bool
  */
 function host_is_servebolt() {
-	return true;
 	foreach(['SERVER_ADMIN', 'SERVER_NAME'] as $key) {
 		if (array_key_exists($key, $_SERVER)) {
 			$check = $_SERVER[$key];
@@ -193,17 +240,6 @@ function sb_get_option($option, $default = false) {
 }
 
 /**
- * @param $id
- * @param $option
- * @param bool $default
- *
- * @return mixed
- */
-function sb_get_blog_option($id, $option, $default = false) {
-	return get_blog_option($id, sb_get_option_name($option), $default);
-}
-
-/**
  * Update option.
  *
  * @param $key
@@ -222,14 +258,85 @@ function sb_update_option($key, $value, $assertUpdate = true) {
 }
 
 /**
- * Delete custom settings.
+ * Delete option.
+ *
+ * @param $option
+ *
+ * @return bool
+ */
+function sb_delete_option($option) {
+	return delete_option(sb_get_option_name($option));
+}
+
+/**
+ * Get blog option.
+ *
+ * @param $id
+ * @param $option
+ * @param bool $default
+ *
+ * @return mixed
+ */
+function sb_get_blog_option($id, $option, $default = false) {
+	return get_blog_option($id, sb_get_option_name($option), $default);
+}
+
+/**
+ * Delete site option.
+ *
+ * @param $option
+ *
+ * @return bool
+ */
+function sb_delete_site_option($option) {
+	return delete_site_option(sb_get_option_name($option));
+}
+
+/**
+ * Delete plugin settings.
  */
 function sb_clear_all_settings() {
-	foreach(['settings'] as $key) {
-		$option_name = get_options_name($key);
-		\delete_option($option_name);
-		\delete_site_option($option_name);
+	$option_names = [
+		'ajax_nonce',
+
+		'cf_switch',
+		'cf_zone_id',
+		'cf_auth_type',
+		'cf_email',
+		'cf_api_key',
+		'cf_api_token',
+		'cf_items_to_purge',
+		'cf_cron_purge',
+
+		'fpc_switch',
+		'fpc_settings',
+		'fpc_exclude'
+	];
+	foreach ( $option_names as $option_name ) {
+		if ( is_multisite() ) {
+			foreach ( get_sites() as $site ) {
+				sb_get_blog_option($site->blog_id, $option_name);
+			}
+		}
+		sb_delete_option($option_name);
+		sb_delete_site_option($option_name);
 	}
+}
+
+/**
+ * Join strings together in a natural way.
+ *
+ * @param array $list
+ * @param string $conjunction
+ *
+ * @return string
+ */
+function sb_natural_language_join(array $list, $conjunction = 'and') {
+	$last = array_pop($list);
+	if ($list) {
+		return '"' . implode('", "', $list) . '" ' . $conjunction . ' "' . $last . '"';
+	}
+	return '"' . $last . '""';
 }
 
 if ( ! function_exists('dd') ) {

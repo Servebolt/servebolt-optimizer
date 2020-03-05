@@ -51,7 +51,7 @@ class Servebolt_Optimize_DB {
 	 *
 	 * @return Servebolt_Optimize_DB|null
 	 */
-	public static function instance() {
+	public static function getInstance() {
 		if ( self::$instance == null ) {
 			self::$instance = new Servebolt_Optimize_DB;
 		}
@@ -61,7 +61,7 @@ class Servebolt_Optimize_DB {
 	/**
 	 * Servebolt_Optimize_DB constructor.
 	 */
-	public function __construct() {
+	private function __construct() {
 		$this->add_cron_handling();
 	}
 
@@ -130,6 +130,9 @@ class Servebolt_Optimize_DB {
 		return trim($site->domain . $site->path, '/');
 	}
 
+	/**
+	 * Remove table optimization measures.
+	 */
 	public function deoptimize_indexed_tables() {
 		foreach ( $this->get_sites() as $site ) {
 			switch_to_blog( $site->blog_id );
@@ -583,4 +586,4 @@ class Servebolt_Optimize_DB {
 	}
 
 }
-Servebolt_Optimize_DB::instance();
+Servebolt_Optimize_DB::getInstance();

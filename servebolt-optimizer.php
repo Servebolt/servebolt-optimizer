@@ -28,7 +28,7 @@ require_once 'functions.php';
 define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
 define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
 
-// Disable CONCATENATE_SCRIPTS to get rid of some ddos attacks
+// Disable CONCATENATE_SCRIPTS to get rid of some DDOS-attacks
 if ( ! defined('CONCATENATE_SCRIPTS') ) {
 	define('CONCATENATE_SCRIPTS', false);
 }
@@ -37,14 +37,21 @@ if ( ! defined('CONCATENATE_SCRIPTS') ) {
 add_filter('the_generator', '__return_empty_string');
 remove_action('wp_head', 'wp_generator');
 
-// Loads the class that sets the correct cache headers for Full Page Cache
-if ( ! class_exists('Servebolt_Nginx_Fpc') ){
+// Loads the class that sets the correct cache headers for full page cache
+if ( ! class_exists('Servebolt_Nginx_FPC') ){
 	require_once SERVEBOLT_PATH . 'class/servebolt-nginx-fpc.class.php';
-	$nginx_switch = sb_get_option('fpc_switch');
-    if ( $nginx_switch === 'on' ) Servebolt_Nginx_Fpc::setup();
+	$NginxFPC = sb_nginx_fpc();
+    if ( $NginxFPC->FPCIsActive()) $NginxFPC->setup();
 }
 
-// Include the Servebolt Cloudflare class.
+// Add settings-link in plugin list
+add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'sb_add_settings_link_to_plugin');
+function sb_add_settings_link_to_plugin( $links ) {
+	$links[] = sprintf('<a href="%s">%s</a>', admin_url( 'options-general.php?page=servebolt-wp' ), sb__('Settings'));
+	return $links;
+}
+
+// Include the Servebolt Cloudflare class
 require_once SERVEBOLT_PATH . 'class/servebolt-cf.class.php';
 
 // If the admin is loaded, load this plugins interface
@@ -52,33 +59,8 @@ if ( is_admin() ) {
 	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
 }
 
-/**
- * We need weekly cron scheduling, so we're adding it!
- * See http://codex.wordpress.org/Plugin_API/Filter_Reference/cron_schedules
- */
-add_filter('cron_schedules', function( $schedules ) {
-	$schedules['weekly'] = [
-		'interval' => 604800, // 1 week in seconds
-		'display'  => sb__('Once Weekly'),
-	];
-	return $schedules;
-});
-
-// Initialize CLI-commands.
+// Initialize CLI-commands
 if ( class_exists( 'WP_CLI' ) ) {
     require_once __DIR__ . '/cli/cli.class.php';
-	$s = Servebolt_CLI::getInstance();
-	WP_CLI::add_command( 'servebolt db optimize',           [$s, 'optimize'] ); // TODO: Remove in v1.7
-	WP_CLI::add_command( 'servebolt db fix',                [$s, 'optimize'] );
-	WP_CLI::add_command( 'servebolt db analyze',            [$s, 'analyze_tables'] );
-
-    WP_CLI::add_command( 'servebolt fpc activate',          [$s, 'nginx_activate'] );
-    WP_CLI::add_command( 'servebolt fpc deactivate',        [$s, 'nginx_deactivate'] );
-    WP_CLI::add_command( 'servebolt fpc status',            [$s, 'nginx_status'] );
-
-	WP_CLI::add_command( 'servebolt cf list-zones',         [$s, 'cf_list_zones'] );
-	WP_CLI::add_command( 'servebolt cf set-zone',           [$s, 'cf_set_zone'] );
-	WP_CLI::add_command( 'servebolt cf set-credentials',    [$s, 'cf_set_credentials'] );
-	WP_CLI::add_command( 'servebolt cf purge',              [$s, 'cf_purge'] );
-	WP_CLI::add_command( 'servebolt cf purge-all',          [$s, 'cf_purge_all'] );
+	Servebolt_CLI::getInstance();
 }

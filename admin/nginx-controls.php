@@ -7,16 +7,16 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class Nginx_Controls {
 
 	/**
-	 * @var null Singleton instance.
-	 */
+	* @var null Singleton instance.
+	*/
 	private static $instance = null;
 
 	/**
-	 * Singleton instantiation.
-	 *
-	 * @return Nginx_Controls|null
-	 */
-	public static function instance() {
+	* Singleton instantiation.
+	*
+	* @return Nginx_Controls|null
+	*/
+	public static function getInstance() {
 		if ( self::$instance == null ) {
 			self::$instance = new Nginx_Controls;
 		}
@@ -24,51 +24,40 @@ class Nginx_Controls {
 	}
 
 	/**
-	 * Nginx_Controls constructor.
-	 */
-	public function __construct() {
-		$this->add_assets();
+	* Nginx_Controls constructor.
+	*/
+	private function __construct() {
+		$this->init_settings();
 	}
 
 	/**
-	 * Add assets.
-	 */
-	public function add_assets() {
-		add_action('admin_head', [$this, 'add_scripts']);
+	* Initialize settings.
+	*/
+	private function init_settings() {
+		add_action( 'admin_init', [$this, 'register_settings'] );
 	}
 
 	/**
-	 * Add scripts.
-	 */
-	public function add_scripts() {
-		?>
-		<script type="text/javascript" >
-          jQuery(document).ready(function($) {
-            $('#nginx_cache_switch').change(function(){
-              var form = $('#post-types-form');
-              if ( $(this).is(':checked') ) {
-                form.show();
-              } else {
-                form.hide();
-              }
-            });
-          });
-		</script>
-		<?php
+	* Register custom option.
+	*/
+	public function register_settings() {
+		foreach(['fpc_settings', 'fpc_switch'] as $key) {
+			register_setting('nginx-fpc-options-page', sb_get_option_name($key));
+		}
 	}
 
 	/**
-	 * Display performance checks view.
-	 */
+	* Display view.
+	*/
 	public function view() {
 		sb_view('admin/views/nginx-controls', [
 			'sites'        => is_network_admin() ? get_sites() : [],
 			'options'      => sb_get_option('fpc_settings'),
-		  'post_types'   => get_post_types(['public' => true], 'objects'),
-	    'nginx_switch' => sb_get_option('fpc_switch') === 'on',
-      'sb_admin_url' => get_sb_admin_url(),
+			'post_types'   => get_post_types(['public' => true], 'objects'),
+			'nginx_switch' => sb_get_option('fpc_switch') === 'on',
+			'sb_admin_url' => get_sb_admin_url(),
 		]);
 	}
 
 }
-Nginx_Controls::instance();
+Nginx_Controls::getInstance();

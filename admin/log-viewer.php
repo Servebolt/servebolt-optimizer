@@ -21,12 +21,17 @@ class Servebolt_Logviewer {
 	 *
 	 * @return Servebolt_Logviewer|null
 	 */
-	public static function instance() {
+	public static function getInstance() {
 		if ( self::$instance == null ) {
 			self::$instance = new Servebolt_Logviewer;
 		}
 		return self::$instance;
 	}
+
+	/**
+	 * Servebolt_Logviewer constructor.
+	 */
+	private function __construct() {}
 
 	/**
 	 * Display error log.

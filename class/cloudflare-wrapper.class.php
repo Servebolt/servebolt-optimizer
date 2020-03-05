@@ -1,11 +1,12 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+include 'cloudflare-error.php';
+
 use Cloudflare\API\Auth\APIToken;
 use Cloudflare\API\Auth\APIKey;
 use Cloudflare\API\Adapter\Guzzle;
 use Cloudflare\API\Endpoints\Zones;
-use Cloudflare\API\Endpoints\User;
 
 /**
  * Class Cloudflare
@@ -26,6 +27,13 @@ class Cloudflare {
 	 * @var array
 	 */
 	private $credentials = null;
+
+	/**
+	 * Cloudflare API authentication type.
+	 *
+	 * @var null
+	 */
+	private $authType = null;
 
 	/**
 	 * Cloudflare Zone Id.
@@ -59,16 +67,19 @@ class Cloudflare {
 
 	/**
 	 * Purge one or more URL's in a zone.
-	 *
+	 **
 	 * @param array $urls
 	 *
-	 * @return bool
-	 * @throws \Cloudflare\API\Endpoints\EndpointException
+	 * @return bool|void
 	 */
 	public function purgeUrls( array $urls ) {
 		$zoneInstance = $this->getZonesInstance();
 		if ( ! $zoneInstance ) return false;
-		return $zoneInstance->cachePurge( $this->getZoneId(), $urls );
+		try {
+			return $zoneInstance->cachePurge( $this->getZoneId(), $urls );
+		} catch (Exception $e) {
+			return cf_error($e);
+		}
 	}
 
 	/**
@@ -79,44 +90,46 @@ class Cloudflare {
 	public function purgeAll() {
 		$zoneInstance = $this->getZonesInstance();
 		if ( ! $zoneInstance ) return false;
-		return $zoneInstance->cachePurgeEverything($this->getZoneId());
+		try {
+			return $zoneInstance->cachePurgeEverything($this->getZoneId());
+		} catch (Exception $e) {
+			return cf_error($e);
+		}
 	}
 
 	/**
 	 * Set credentials. Can handle both API key-setup and API token-setup.
 	 *
+	 * @param $authType
 	 * @param $credentials
-	 *
-	 * @return bool
 	 */
-	public function setCredentials($credentials) {
-		switch ( $this->getCredentialType($credentials) ) {
-			case 'apiToken':
-			case 'apiKey':
-				$this->credentials = $credentials;
-				return true;
-		}
-		return false;
+	public function setCredentials($authType, $credentials) {
+		$this->authType = $authType;
+		$this->credentials = $credentials;
 	}
 
 	/**
-	 * Check what kind of credentials was passed.
+	 * Get credentials.
 	 *
-	 * @param bool $credentials
-	 *
-	 * @return bool|string
+	 * @return array
 	 */
-	private function getCredentialType($credentials = false) {
-		if ( $credentials === false ) $credentials = $this->credentials;
-		if ( ! $credentials ) return false;
-		if ( is_string($credentials) && ! empty($credentials) ) {
-			return 'apiToken';
-		} else if ( is_array($credentials) ) {
-			$email = array_key_exists('email', $credentials) ? $credentials['email'] : false;
-			$apiKey = array_key_exists('apiKey', $credentials) ? $credentials['apiKey'] : false;
-			if ( $email && $apiKey ) {
-				return 'apiKey';
-			}
+	private function getCredentials()
+	{
+		return $this->credentials;
+	}
+
+	/**
+	 * Get specific credential from credentials.
+	 *
+	 * @param bool $key
+	 *
+	 * @return array|bool|mixed
+	 */
+	public function getCredential($key)
+	{
+		$credentials = $this->getCredentials();
+		if ( array_key_exists($key, $credentials ) ) {
+			return $credentials[$key];
 		}
 		return false;
 	}
@@ -127,12 +140,12 @@ class Cloudflare {
 	 * @return bool|\Cloudflare\API\Auth\APIKey
 	 */
 	private function getKeyInstance() {
-		switch ( $this->getCredentialType() ) {
+		switch ( $this->authType ) {
 			case 'apiToken':
-				return new APIToken($this->getCredential());
+				return new APIToken($this->getCredential('apiToken'));
 				break;
 			case 'apiKey':
-				return new APIKey( $this->getCredential('email'), $this->getCredential('apiKey') );
+				return new APIKey($this->getCredential('email'), $this->getCredential('apiKey'));
 				break;
 		}
 		return false;
@@ -152,17 +165,6 @@ class Cloudflare {
 	}
 
 	/**
-	 * Get User instance.
-	 *
-	 * @return bool|User
-	 */
-	public function getUserInstance() {
-		$adapter = $this->getAdapterInstance();
-		if ( ! $adapter ) return false;
-		return new User($adapter);
-	}
-
-	/**
 	 * Get Zones instance.
 	 *
 	 * @return bool|Zones
@@ -174,21 +176,6 @@ class Cloudflare {
 	}
 
 	/**
-	 * Get zone by Id.
-	 *
-	 * @param $zoneId
-	 *
-	 * @return bool|object
-	 */
-	public function getZoneById($zoneId) {
-		$zoneInstance = $this->getZonesInstance();
-		if ( ! $zoneInstance ) return false;
-		$zone = $zoneInstance->getZoneById($zoneId);
-		if ( ! $zone ) return false;
-		return (object) $zone->result;
-	}
-
-	/**
 	 * List zones.
 	 *
 	 * @return bool|stdClass
@@ -196,9 +183,13 @@ class Cloudflare {
 	public function listZones() {
 		$zoneInstance = $this->getZonesInstance();
 		if ( ! $zoneInstance ) return false;
-		$zones = $zoneInstance->listZones();
-		if ( ! $zones ) return false;
-		return (array) $zones->result;
+		try {
+			$zones = $zoneInstance->listZones();
+			if ( ! $zones ) return false;
+			return (array) $zones->result;
+		} catch (Exception $e) {
+			return cf_error($e);
+		}
 	}
 
 	/**
@@ -211,6 +202,25 @@ class Cloudflare {
 	private function zoneExists($zoneId)
 	{
 		return $this->getZoneByKey($zoneId, 'id') !== false;
+	}
+
+	/**
+	 * Get zone by Id.
+	 *
+	 * @param $zoneId
+	 *
+	 * @return bool|object
+	 */
+	public function getZoneById($zoneId) {
+		$zoneInstance = $this->getZonesInstance();
+		if ( ! $zoneInstance ) return false;
+		try {
+			$zone = $zoneInstance->getZoneById($zoneId);
+			if ( ! $zone ) return false;
+			return (object) $zone->result;
+		} catch (Exception $e) {
+			return cf_error($e);
+		}
 	}
 
 	/**
@@ -235,12 +245,13 @@ class Cloudflare {
 	 * Set zone Id.
 	 *
 	 * @param $zoneId
+	 * @param bool $doZoneCheck
 	 *
 	 * @return bool
 	 */
-	public function setZoneId($zoneId)
+	public function setZoneId($zoneId, $doZoneCheck = true)
 	{
-		if ( ! $zoneId || ! $this->zoneExists($zoneId) ) return false;
+		if ( ! $zoneId || ( $doZoneCheck && ! $this->zoneExists($zoneId) ) ) return false;
 		$this->zoneId = $zoneId;
 		return true;
 	}
@@ -253,25 +264,6 @@ class Cloudflare {
 	private function getZoneId()
 	{
 		return $this->zoneId;
-	}
-
-	/**
-	 * Get specific credential from credentials.
-	 *
-	 * @param bool $key
-	 *
-	 * @return array|bool|mixed
-	 */
-	private function getCredential($key = false) {
-
-		if ( $key ) {
-			if ( array_key_exists($key, $this->credentials ) ) {
-				return $this->credentials[$key];
-			}
-		} else {
-			return $this->credentials;
-		}
-		return false;
 	}
 
 }

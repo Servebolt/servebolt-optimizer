@@ -8,11 +8,43 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class Servebolt_CLI_Extras {
 
 	/**
-	 * Cloudflare zones.
+	 * Get Cloudflare zones.
+	 *
+	 * @return |null
+	 */
+	protected function getZones() {
+		if ( is_null($this->zones) ) {
+			$this->zones = sb_cf()->listZones();
+		}
+		return $this->zones;
+	}
+
+	/**
+	 * Display Cloudflare zones.
 	 *
 	 * @var null
 	 */
 	protected $zones = null;
+
+	/**
+	 * List Cloudflare zones with/without numbering.
+	 *
+	 * @param bool $includeNumbers
+	 */
+	protected function listZones($includeNumbers = false) {
+		$zones = $this->getZones();
+		if ( ! $zones || empty($zones) ) {
+			WP_CLI::error('Could not retrieve any available zones. Make sure you have configured the Cloudflare API credentials and set an active zone.');
+		}
+		WP_CLI::line('The following zones are available:');
+		foreach ($zones as $i => $zone ) {
+			if ( $includeNumbers === true ) {
+				WP_CLI::line(sprintf('[%s] %s (%s)', $i+1, $zone->name, $zone->id));
+			} else {
+				WP_CLI::line(sprintf('%s (%s)', $zone->name, $zone->id));
+			}
+		}
+	}
 
 	/**
 	 * @param $args
@@ -38,7 +70,7 @@ class Servebolt_CLI_Extras {
 				$post_types_string = implode(',',$post_types_keys);
 
 				if(empty($post_types_string)):
-					$post_types_string = sprintf(sb__('Default [%s]'), Servebolt_Nginx_Fpc::default_cacheable_post_types('csv'));
+					$post_types_string = sprintf(sb__('Default [%s]'), sb_nginx_fpc()->defaultCacheablePostTypes('csv'));
 				elseif(array_key_exists('all', $post_types)):
 					$post_types_string = sb__('All');
 				endif;
@@ -219,7 +251,7 @@ class Servebolt_CLI_Extras {
 	protected function servebolt_set_exclude_ids($ids){
 		$id_array = explode(',', $ids);
 
-		$excluded = sb_get_option('fpc_exclude');
+		$excluded = sb_nginx_fpc()->getIdsToExclude();
 
 		$additions = [];
 		foreach ($id_array as $id){
@@ -242,18 +274,6 @@ class Servebolt_CLI_Extras {
 		}
 
 		sb_update_option('fpc_exclude', $excluded);
-	}
-
-	/**
-	 * Get Cloudflare zones.
-	 *
-	 * @return |null
-	 */
-	protected function listZones() {
-		if ( is_null($this->zones) ) {
-			$this->zones = Servebolt_CF::getInstance()->listZones();
-		}
-		return $this->zones;
 	}
 
 }

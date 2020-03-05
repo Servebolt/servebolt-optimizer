@@ -3,24 +3,71 @@
     font-weight: 700;
 }
 
-.status-indicator-container {
+.sb-content h1.heading {
+    margin-bottom: 10px;
+}
+
+.sb-content .status-indicator-container {
     display: flex;
     flex-direction: row;
 }
 
-.status-indicator-container :first-child {
+.sb-content .status-indicator-container :first-child {
     margin-right: 3px;
     display: block;
 }
 
-.lds-dual-ring {
+.sb-content .buttons {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.sb-content .sb-button {
+    padding: 10px 10px;
+    color: black;
+    text-decoration: none;
+    border-radius: 50px;
+    margin: 0 2rem;
+    font-weight: 700;
+    width: 150px;
+    display: inline-block;
+    text-align: center;
+}
+
+.sb-content .sb-button.light {
+    border: 2px solid #ffaf00;
+}
+
+.sb-content .sb-button.yellow {
+    background: #ffaf00;
+}
+
+.servebolt-icon {
+    float: left;
+}
+
+.servebolt-icon:before {
+    display: block;
+    content: ' ';
+    background-image:  url('../img/servebolt-icon.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+    height: 31px;
+    width: 20px;
+    margin-right: 3px;
+    margin-bottom: 1px;
+    margin-left: -3px;
+}
+
+.loading-ring {
     display: inline-block;
     width: 80px;
     height: 80px;
 }
 
-.lds-dual-ring:after {
-    content: " ";
+.loading-ring:after {
+    content: ' ';
     display: block;
     width: 32px;
     height: 32px;
@@ -28,9 +75,10 @@
     border-radius: 50%;
     border: 3px solid #ffaf00;
     border-color: #ffaf00 transparent #ffaf00 transparent;
-    animation: lds-dual-ring .7s linear infinite;
+    animation: loading-ring .7s linear infinite;
 }
-@keyframes lds-dual-ring {
+
+@keyframes loading-ring {
     0% {
         transform: rotate(0deg);
     }
@@ -43,13 +91,23 @@
     pointer-events: none;
 }
 
-.center {
+.sb-content .center {
     margin: 0 auto;
     text-align: center;
 }
 
-.sb-logo {
-    background: url('../img/servebolt-logo.png');
+.sb-content .actions {
+    display: flex;
+    flex-direction: column;
+}
+
+.sb-content .actions .sb-button {
+    width: 300px;
+    margin: 0 0 15px 0;
+}
+
+.sb-content .sb-logo {
+    background-image: url('../img/servebolt-logo.png');
     height: 50px;
     width: 200px;
     margin-top: 20px;
@@ -58,36 +116,31 @@
     background-repeat: no-repeat;
 }
 
-.columns {
-    margin-top: 10px;
-    display: flex;
-    flex-direction: row;
-}
-
-.boxes {
-    width: calc(50% - 1rem);
-}
-
-.sb-box {
+/*
+.sb-content .actions .action {
     width: calc(33.333% - .6666rem);
     height: 50px;
     background-color: white;
-    float: left;
     margin: 0 1rem 0 0;
     border-radius: 10px;
     transition: all .2s ease-in-out;
     display: flex;
 }
-.sb-box .inner {
+
+.sb-content .actions .action .inner {
     align-self: center;
     width: 100%;
 }
-.sb-box:nth-of-type(3n) {
+
+.sb-content .actions .action:nth-of-type(3n) {
     margin-right: 0;
 }
+*/
 
-.sb-box-wide {
+.sb-content .promo-box {
+    margin-top: 20px;
     width: 100%;
+    max-width: 600px;
     height: 100%;
     background: white;
     float: left;
@@ -95,57 +148,27 @@
     transition: all .2s ease-in-out;
     padding: 2rem 0;
 }
-.sb-box-wide .move-content {
+
+.sb-content .promo-box .move-content {
     width: 50%;
     max-width: 450px;
     margin: 0 auto;
 }
-.buttons {
-    text-align: center;
-    margin-top: 2rem;
-}
-.sb-button {
-    padding: 10px 10px;
-    color: black;
-    text-decoration: none;
-    border-radius: 50px;
-    margin: 0 2rem;
-    font-weight: 700;
-    width: 150px;
-    display: inline-block;
-    text-align: center;
-}
 
-.sb-button.light {
-    border: 2px solid #ffaf00;
-}
-
-.sb-button.yellow {
-    background: #ffaf00;
-}
-
-.sb-box .icon {
-    content: '';
-    height: 75px;
-    width: 75px;
-    margin: 0 auto;
-}
-
-.sb-box p.function {
-    font-weight: 700;
-    color: black;
-    text-decoration: none;
-    text-align: center;
-}
-
-.nginx_switch {
+.sb-content .nginx_switch {
     margin-top: 2rem;
 }
 
-#optimizations-loading {
+#toplevel_page_servebolt-wp .wp-menu-image img {
+    padding-top: 6px;
+    height: 22px;
+}
+
+#servebolt-loading {
     display: none;
 }
-#optimizations-loading.active {
+
+#servebolt-loading.active {
     display: flex;
     justify-content: center;
     position: absolute;
@@ -154,23 +177,28 @@
     z-index: 1;
 }
 
-#optimizations-loading .loader {
+#servebolt-loading .loader {
     margin-top: 40vh;
     align-self: flex-start;
 }
 
-#optimizations-loading.active + .sb-content {
+#servebolt-loading.active + .sb-content {
     opacity: 0.4;
 }
 
-#optimizations-loading.active img {
-    height: 100px;
-    width: 100px;
-    background-image: url('../img/db.png');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
+#sb-configuration-table .check-column input {
+    margin-left: 0;
+}
+
+#sb-configuration-table .check-column {
+    width: 33px !important;
+    text-align: center;
+}
+
+#sb-configuration-table > tbody > tr:hover .row-actions {
     position: relative;
-    top: 100px;
-    left: 45%;
+}
+
+#sb-configuration-table > tbody > tr tr:hover .row-actions {
+    position: static;
 }
