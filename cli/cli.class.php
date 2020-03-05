@@ -93,6 +93,10 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 
 	/**
 	 * Display config parameters for Cloudflare.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp servebolt cf get-config
 	 */
 	public function cf_config_get() {
 		$cf = sb_cf();
@@ -355,7 +359,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function nginx_activate( $args, $assoc_args ) {
-		$this->servebolt_nginx_control('activate', $args, $assoc_args);
+		$this->nginx_control('activate', $args, $assoc_args);
 	}
 
 	/**
@@ -383,8 +387,8 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function nginx_deactivate( $args, $assoc_args ) {
-		$this->servebolt_nginx_control('deactivate', $args, $assoc_args);
-		if ( in_array('status', $assoc_args) ) $this->servebolt_nginx_status($args, $assoc_args);
+		$this->nginx_control('deactivate', $args, $assoc_args);
+		if ( in_array('status', $assoc_args) ) $this->get_nginx_status($assoc_args);
 	}
 
 	/**
@@ -396,7 +400,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function nginx_status( $args, $assoc_args  ) {
-		$this->servebolt_nginx_status( $args, $assoc_args  );
+		$this->get_nginx_status($assoc_args);
 	}
 
 	/**

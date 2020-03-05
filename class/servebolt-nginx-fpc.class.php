@@ -96,10 +96,23 @@ class Servebolt_Nginx_FPC {
 	 */
 	public function getIdsToExclude() {
 		if ( is_null( $this->idsToExcludeCache ) ) {
-			$this->idsToExcludeCache = sb_get_option( 'fpc_exclude', [] );
+			$idsToExclude = sb_get_option( 'fpc_exclude');
+			if ( ! is_array($idsToExclude) ) $idsToExclude = [];
+			$this->idsToExcludeCache = $idsToExclude;
 		}
-
 		return $this->idsToExcludeCache;
+	}
+
+	/**
+	 * Set posts to exclude from cache.
+	 * 
+	 * @param $idsToExclude
+	 *
+	 * @return bool
+	 */
+	public function setIdsToExclude($idsToExclude) {
+		$this->idsToExcludeCache = $idsToExclude;
+		return sb_update_option( 'fpc_exclude', $idsToExclude );
 	}
 
 	/**

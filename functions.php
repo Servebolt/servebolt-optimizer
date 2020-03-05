@@ -8,7 +8,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  */
 function get_sb_admin_url() {
 	$webroot_path = get_home_path();
-	//$webroot_path = '/kunder/serveb_5418/bankfl_7205/public';
+	//$webroot_path = '/kunder/serveb_5418/bankfl_7205/public'; // For testing
 	return ( preg_match( "@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $webroot_path, $matches ) ) ? 'https://admin.servebolt.com/siteredirect/?site='. $matches[1] : false;
 }
 
@@ -224,7 +224,7 @@ function sb_view($path, $arguments = [], $echo = true) {
  * @return string
  */
 function sb_get_option_name($option) {
-	return sprintf('servebolt_%s', $option);
+	return 'servebolt_' . $option;
 }
 
 /**
@@ -324,19 +324,20 @@ function sb_clear_all_settings() {
 }
 
 /**
- * Join strings together in a natural way.
+ * Join strings together in a natural readable way.
  *
  * @param array $list
  * @param string $conjunction
+ * @param string $quotes
  *
  * @return string
  */
-function sb_natural_language_join(array $list, $conjunction = 'and') {
+function sb_natural_language_join(array $list, $conjunction = 'and', $quotes = '"') {
 	$last = array_pop($list);
 	if ($list) {
-		return '"' . implode('", "', $list) . '" ' . $conjunction . ' "' . $last . '"';
+		return $quotes . implode($quotes . ', ' . $quotes, $list) . '" ' . $conjunction . ' ' . $quotes . $last . $quotes;
 	}
-	return '"' . $last . '""';
+	return $quotes . $last . $quotes;
 }
 
 if ( ! function_exists('dd') ) {
