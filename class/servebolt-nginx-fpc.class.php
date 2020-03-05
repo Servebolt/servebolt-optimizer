@@ -1,165 +1,328 @@
 <?php
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-class Servebolt_Nginx_Fpc {
-
-	static $post_types = [];
+/**
+ * Class Servebolt_Nginx_FPC
+ * @package Servebolt
+ */
+class Servebolt_Nginx_FPC {
 
 	/**
-	 * Setup
+	 * Singleton instance.
+	 *
+	 * @var null
 	 */
-	static function setup() {
-		// Attach the method for setting cache headers
-		add_filter( 'admin_init', __CLASS__.'::set_headers' );
-		add_filter( 'posts_results', __CLASS__.'::set_headers' );
-		add_filter( 'template_include', __CLASS__.'::last_call' );
+	private static $instance = null;
+
+	/**
+	 * The post types that are cacheable.
+	 *
+	 * @var array
+	 */
+	private $post_types = [];
+
+	/**
+	 * @var bool
+	 */
+	private $alreadySet = false;
+
+	/**
+	 * Cache the result of the function "get$CacheablePostTypes" to save some DB-queries.
+	 *
+	 * @var null
+	 */
+	private $cacheablePostTypesCache = null;
+
+	/**
+	 * Cache the post ids to exclude from cache.
+	 *
+	 * @var null
+	 */
+	private $idsToExcludeCache = null;
+
+	/**
+	 * Instantiate class.
+	 *
+	 * @return Servebolt_Nginx_FPC|null
+	 */
+	public static function getInstance() {
+		if ( self::$instance == null ) {
+			self::$instance = new Servebolt_Nginx_FPC;
+		}
+
+		return self::$instance;
 	}
 
 	/**
-	 * Last call
-	 * Run a last call to the set headers function before the template is loaded
+	 * Check if full page caching is active.
+	 *
+	 * @return bool
 	 */
-	static function last_call( $template ) {
-		self::set_headers([get_post()]);
+	public function FPCIsActive() {
+		return filter_var( sb_get_option( 'fpc_switch' ), FILTER_VALIDATE_BOOLEAN ) === true;
+	}
+
+	/**
+	 * Servebolt_Nginx_FPC constructor.
+	 */
+	private function __construct() {}
+
+	/**
+	 * Setup filters.
+	 */
+	public function setup() {
+		add_filter( 'admin_init', [ $this, 'setHeaders' ] );
+		add_filter( 'posts_results', [ $this, 'setHeaders' ] );
+		add_filter( 'template_include', [ $this, 'lastCall' ] );
+	}
+
+	/**
+	 * Last call - Run a last call to the set headers function before the template is loaded.
+	 *
+	 * @param $template
+	 *
+	 * @return mixed
+	 */
+	public function lastCall( $template ) {
+		$this->setHeaders( [ get_post() ] );
+
 		return $template;
 	}
 
 	/**
-	 * Set cache headers
-	 * Determine and set the type of headers to be used
+	 * Ids of posts to exclude from cache.
+	 *
+	 * @return mixed|void
 	 */
-	static function set_headers( $posts ) {
-		global $wp_query;
-		static $already_set = false;
-		$posttype = get_post_type();
-
-		if ( $already_set ) {
-			return $posts;
+	public function getIdsToExclude() {
+		if ( is_null( $this->idsToExcludeCache ) ) {
+			$idsToExclude = sb_get_option( 'fpc_exclude');
+			if ( ! is_array($idsToExclude) ) $idsToExclude = [];
+			$this->idsToExcludeCache = $idsToExclude;
 		}
+		return $this->idsToExcludeCache;
+	}
 
-		$already_set = true;
+	/**
+	 * Set posts to exclude from cache.
+	 * 
+	 * @param $idsToExclude
+	 *
+	 * @return bool
+	 */
+	public function setIdsToExclude($idsToExclude) {
+		$this->idsToExcludeCache = $idsToExclude;
+		return sb_update_option( 'fpc_exclude', $idsToExclude );
+	}
+
+	/**
+	 * No cache cookie for logged in users.
+	 */
+	private function noCacheForLoggedInUsers() {
+		if ( is_user_logged_in() ) {
+			setcookie( 'no_cache', 1, $_SERVER['REQUEST_TIME'] + 3600, COOKIEPATH, COOKIE_DOMAIN );
+		}
+	}
+
+	/**
+	 * Set cache headers - Determine and set the type of headers to be used.
+	 *
+	 * @param $posts
+	 *
+	 * @return mixed
+	 */
+	public function setHeaders( $posts ) {
+		global $wp_query;
+		$postType = get_post_type();
+
+		if ( $this->alreadySet ) return $posts;
+		$this->alreadySet = true;
+
 		// Set no-cache for all admin pages
 		if ( is_admin() || is_user_logged_in() ) {
-			self::no_cache_headers();
-			// No cache cookie for logged in users
-			if ( is_user_logged_in() ) {
-				setcookie( "no_cache", 1, $_SERVER['REQUEST_TIME'] + 3600, COOKIEPATH, COOKIE_DOMAIN );
-			}
+			$this->noCacheHeaders();
+			$this->noCacheForLoggedInUsers();
 			return $posts;
 		}
 
 		if ( ! isset( $wp_query ) || ! get_post_type() ) {
-			$already_set = false;
+			$this->alreadySet = false;
 			return $posts;
 		}
 
-		$excluded_ids = get_option('servebolt_fpc_exclude');
+		// Only trigger this function once
+		remove_filter( 'posts_results', [$this, 'set_headers'] );
 
-		// Only trigger this function once.
-		remove_filter( 'posts_results', __CLASS__.'::set_headers' );
-
-        if(class_exists( 'WooCommerce' ) && (is_cart() || is_checkout()) ){
-            self::no_cache_headers();
-        }
-        elseif( in_array($excluded_ids,get_the_ID()) ){
-            self::no_cache_headers();
-        }
-        elseif ( array_key_exists( 'all', self::cacheable_post_types() ) && self::cacheable_post_types()['all'] === 'on' ) {
+        if ( $this->isWooCommerce() ) {
+            $this->noCacheHeaders();
+        } elseif ( $this->shouldExcludePost( get_the_ID() ) ) {
+	        $this->noCacheHeaders();
+        } elseif ( $this->cacheAllPostTypes() ) {
             // Make sure the post type can be cached
-            self::$post_types[] = get_post_type();
-            self::cache_headers();
+	        $this->post_types[] = get_post_type();
+	        $this->cacheHeaders();
         }
-		elseif ( ( is_front_page() || is_singular() || is_page() ) && array_key_exists( get_post_type(), self::cacheable_post_types() ) && self::cacheable_post_types()[$posttype] === 'on' ) {
+		elseif ( ( is_front_page() || is_singular() || is_page() ) && $this->cacheActiveForPostType($postType) ) {
 			// Make sure the post type can be cached
-			self::$post_types[] = get_post_type();
-			self::cache_headers();
+			$this->post_types[] = $postType;
+			$this->cacheHeaders();
 		}
-		elseif ( is_archive() && self::can_cache_archive( $posts ) ) {
+		elseif ( is_archive() && $this->canCacheArchive( $posts ) ) {
 			// Make sure the archive has only cachable posts
-			self::cache_headers();
+			$this->cacheHeaders();
 		}
-        elseif( !empty(self::cacheable_post_types() ) ) {
-            self::$post_types[] = get_post_type();
-            if( in_array( get_post_type() , self::default_cacheable_post_types() ) ) self::cache_headers();
+        elseif( !empty($this->getCacheablePostTypes() ) ) {
+            $this->post_types[] = get_post_type();
+            if( in_array( get_post_type() , $this->defaultCacheablePostTypes() ) ) $this->cacheHeaders();
         }
-        elseif( empty(self::cacheable_post_types() ) && ( is_front_page() || is_singular() || is_page() ) ) {
-            self::cache_headers();
+        elseif( empty($this->getCacheablePostTypes() ) && ( is_front_page() || is_singular() || is_page() ) ) {
+	        $this->cacheHeaders();
         }
 		else {
 			// Default to no-cache headers
-			self::no_cache_headers();
+			$this->noCacheHeaders();
 		}
 		return $posts;
 	}
 
 	/**
-	 * Can cache archive
+	 * Check if we should exclude post from cache.
+	 *
+	 * @param $postId
+	 *
+	 * @return bool
+	 */
+	private function shouldExcludePost($postId)
+	{
+		return in_array($this->getIdsToExclude(), $postId);
+	}
+
+	/**
+	 * Check if we are in a WooCommerce-context.
+	 *
+	 * @return bool
+	 */
+	private function isWooCommerce()
+	{
+		return class_exists( 'WooCommerce' ) && ( is_cart() || is_checkout() );
+	}
+
+	/**
+	 * Check if cache is active for given post type.
+	 *
+	 * @param $postType
+	 *
+	 * @return bool
+	 */
+	private function cacheActiveForPostType($postType)
+	{
+		$cacheablePostTypes = $this->getCacheablePostTypes();
+		if ( array_key_exists( $postType, $cacheablePostTypes) && $cacheablePostTypes[$postType] === 'on' ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Check if cache is active for all post types.
+	 *
+	 * @return bool
+	 */
+	private function cacheAllPostTypes()
+	{
+		return $this->cacheActiveForPostType('all');
+	}
+
+	/**
+	 * Can cache archive.
+	 *
 	 * @param  array $posts Posts in the archive
 	 * @return boolean      Return true if all posts are cacheable
 	 */
-	static function can_cache_archive( $posts ) {
+	private function canCacheArchive( $posts ) {
 		foreach ( $posts as $post ) {
-			if ( !array_key_exists( $post->post_type, self::cacheable_post_types() ) )
-				return FALSE;
-			elseif ( !in_array( $post->post_type, self::$post_types ) )
-				self::$post_types[] = $post->post_type;
+			if ( !array_key_exists( $post->post_type, $this->getCacheablePostTypes() ) )
+				return false;
+			elseif ( !in_array( $post->post_type, $this->post_types ) )
+				$this->post_types[] = $post->post_type;
 		}
-		return TRUE;
+		return true;
 	}
 
 	/**
-	 * Cache headers
-	 * Print headers that encourage caching
+	 * Cache headers - Print headers that encourage caching.
 	 */
-	static function cache_headers() {
+	static function cacheHeaders() {
 
 	    // Set the default Full Page Cache time
-        $servebolt_fpc_cache_time = 600;
+        $fpc_cache_time = 600;
+
         // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $servebolt_nginx_cache_time if it is
-        if(defined('SERVEBOLT_FPC_CACHE_TIME')) $servebolt_fpc_cache_time = SERVEBOLT_FPC_CACHE_TIME;
+        if ( defined('SERVEBOLT_FPC_CACHE_TIME') ) {
+	        $fpc_cache_time = SERVEBOLT_FPC_CACHE_TIME;
+        }
 
         // Set the default browser cache time
-        $servebolt_browser_cache_time = 600;
-        // Check if the constant SERVEBOLT_BROWSER_CACHE_TIME is set, and override $servebolt_browser_cache_time if it is
-        if(defined('SERVEBOLT_BROWSER_CACHE_TIME')) $servebolt_browser_cache_time = SERVEBOLT_BROWSER_CACHE_TIME;
+        $browser_cache_time = 600;
 
-		header_remove( 'Cache-Control' );
-		header_remove( 'Pragma' );
-		header_remove( 'Expires' );
+        // Check if the constant SERVEBOLT_BROWSER_CACHE_TIME is set, and override $servebolt_browser_cache_time if it is
+        if ( defined('SERVEBOLT_BROWSER_CACHE_TIME') ) {
+	        $browser_cache_time = SERVEBOLT_BROWSER_CACHE_TIME;
+        }
+
+		header_remove('Cache-Control');
+		header_remove('Pragma');
+		header_remove('Expires');
+
 		// Allow browser to cache content for 10 minutes, or the set browser cache time contant
-		header( 'Cache-Control:max-age=' . $servebolt_browser_cache_time . ', public' );
-		header( 'Pragma: public' );
+		header(sprintf('Cache-Control:max-age=%s, public', $browser_cache_time));
+		header('Pragma: public');
+
 		// Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
-		header( 'Expires: '. gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $servebolt_fpc_cache_time) .' GMT');
-		header( 'X-Servebolt-Plugin: active' );
+		$expiryString = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $fpc_cache_time) . ' GMT';
+		header(sprintf('Expires: %s', $expiryString));
+		header('X-Servebolt-Plugin: active');
 	}
 
 	/**
-	 * No chache headers
-	 * Print headers that prevent caching
+	 * No cache headers - Print headers that prevent caching.
 	 */
-	static function no_cache_headers() {
+	static function noCacheHeaders() {
 		header( 'Cache-Control: max-age=0,no-cache' );
 		header( 'Pragma: no-cache' );
 		header( 'X-Servebolt-Plugin: active' );
 	}
 
 	/**
-	 * Cacheable post types
-	 * @return array A list of cacheable post types
+	 * Get cacheable post types.
+	 *
+	 * @return array A list of cacheable post types.
 	 */
-	static function cacheable_post_types() {
-		// Return array of post types
-		$post_types = get_option('servebolt_fpc_settings'); // get from admin settings instead
-		return (is_array($post_types)) ? $post_types : self::default_cacheable_post_types();
+	private function getCacheablePostTypes() {
+		if ( is_null($this->cacheablePostTypesCache) ) {
+			$post_types = sb_get_option('fpc_settings');
+			$this->cacheablePostTypesCache = is_array($post_types) ? $post_types : $this->default_cacheable_post_types();
+		}
+		return $this->cacheablePostTypesCache;
 	}
 
-	public static function default_cacheable_post_types( $format = 'array') {
+	/**
+	 * Default cacheable post types.
+	 *
+	 * @param string $format
+	 *
+	 * @return array|string
+	 */
+	public function defaultCacheablePostTypes($format = 'array') {
 	    $defaults = [
 	        'post',
             'page',
             'product'
         ];
-	    if($format === 'array') return $defaults;
-	    elseif($format === 'csv') return implode(',',$defaults);
+	    if ( $format === 'array' ) {
+		    return $defaults;
+	    } elseif ( $format === 'csv' ) {
+		    return implode(',', $defaults);
+	    }
     }
 }
