@@ -229,7 +229,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 		if ( $currentZoneId = sb_cf()->getActiveZoneId() ) {
 			$currentZone = sb_cf()->getZoneById($currentZoneId);
 			if ( $currentZone ) {
-				WP_CLI::line(sprintf('Current zone is set to %s', $currentZone->name));
+				WP_CLI::line(sprintf('Current zone is set to %s (%s)', $currentZone->name, $currentZone->id));
 			}
 		}
 
