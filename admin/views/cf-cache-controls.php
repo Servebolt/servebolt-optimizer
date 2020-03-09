@@ -30,7 +30,6 @@
 	  <?php settings_fields( 'sb-cf-options-page' ) ?>
 	  <?php do_settings_sections( 'sb-cf-options-page' ) ?>
 
-
     <table class="form-table" id="sb-configuration-table" role="presentation">
       <tbody>
         <tr>
@@ -41,8 +40,8 @@
           <td>
             <fieldset>
               <legend class="screen-reader-text"><span>Cloudflare cache-feature active?</span></legend>
-              <label for="clourflare_switch">
-                <input name="<?php echo sb_get_option_name('cf_switch'); ?>" type="checkbox" id="clourflare_switch" value="1" <?php checked($cf_settings['cf_switch']); ?>>
+              <label for="clourdlare_switch">
+                <input name="<?php echo sb_get_option_name('cf_switch'); ?>" type="checkbox" id="cloudflare_switch" value="1" <?php checked($cf_settings['cf_switch']); ?>>
                 Cloudflare cache-feature active?
               </label>
             </fieldset>

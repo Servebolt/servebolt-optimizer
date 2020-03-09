@@ -45,7 +45,6 @@ class CF_Cache_Controls {
 		return ['cf_switch', 'cf_zone_id', 'cf_auth_type', 'cf_email', 'cf_api_key', 'cf_api_token', 'cf_items_to_purge', 'cf_cron_purge'];
 	}
 
-
 	/**
 	 * @param bool $with_values
 	 *

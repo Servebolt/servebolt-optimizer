@@ -187,11 +187,9 @@ class Servebolt_CLI_Extras {
 
 		$updateOption = sb_get_option('fpc_settings');
 
-		// Get only publicly available post types
-		$args = [
+		$AllTypes = get_post_types([
 			'public' => true
-		];
-		$AllTypes = get_post_types($args, 'objects');
+		], 'objects');
 
 
 		if(in_array('all', $post_types)) {
@@ -238,29 +236,64 @@ class Servebolt_CLI_Extras {
 	/**
 	 * Set exclude Ids.
 	 *
-	 * @param $ids
+	 * @param $idsToExcludeString
 	 */
-	protected function nginx_set_exclude_ids($ids) {
-		$toExclude = explode(',', $ids);
+	protected function nginx_set_exclude_ids($idsToExcludeString) {
+
+		$idsToExclude = $this->format_id_string($idsToExcludeString);
 		$alreadyExcluded = sb_nginx_fpc()->getIdsToExclude();
 
-		$wasExcluded = [];
-		foreach ($toExclude as $id){
-			if ( ! empty($id) && get_post_status( $id ) !== false && ! in_array($id, $alreadyExcluded)) {
-				$wasExcluded[] = $id;
-				$alreadyExcluded[] = $id;
-			}
+		if ( empty($idsToExclude) ) {
+			WP_CLI::warning(sb__('No ids were specified.'));
+			return;
 		}
 
+		$alreadyAdded = [];
+		$wasExcluded = [];
+		$invalidId = [];
+		foreach ($idsToExclude as $id) {
+			if ( get_post_status( $id ) === false ) {
+				$invalidId[] = $id;
+			} elseif ( ! in_array($id, $alreadyExcluded)) {
+				$wasExcluded[] = $id;
+				$alreadyExcluded[] = $id;
+			} else {
+				$alreadyAdded[] = $id;
+			}
+		}
 		sb_nginx_fpc()->setIdsToExclude($alreadyExcluded);
+
+		if ( ! empty($alreadyAdded) ) {
+			WP_CLI::info(sprintf(sb__('The following ids were already excluded: %s'), implode(',', $alreadyAdded)));
+		}
+
+		if ( ! empty($invalidId) ) {
+			WP_CLI::warning(sprintf(sb__('The following ids were invalid: %s'), implode(',', $alreadyAdded)));
+		}
 
 		if ( ! empty($wasExcluded) ) {
 			WP_CLI::success(sprintf(sb__('Added %s to the list of excluded ids'), implode(',', $wasExcluded)));
 		} else {
-			WP_CLI::warning(sb__('No valid ids found in --exclude parameter'));
+			WP_CLI::info(sb__('No action was made.'));
 		}
 
+	}
 
+	/**
+	 * Format post Ids separated by comma.
+	 *
+	 * @param $string Comma separated post Ids
+	 *
+	 * @return array
+	 */
+	private function format_id_string($string) {
+		$idsToExclude = explode(',', $string);
+		$idsToExclude = array_map(function ($idToExclude) {
+			return $idToExclude;
+		}, $idsToExclude);
+		return array_filter($idsToExclude, function ($idToExclude) {
+			return ! empty($idToExclude);
+		});
 	}
 
 }

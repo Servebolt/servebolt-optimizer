@@ -320,7 +320,6 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 				WP_CLI::error('Could not set credentials.');
 		}
 		if ( sb_cf()->storeCredentials($credentials, $type) ) {
-
 			if ( ! sb_cf()->testAPIConnection() ) {
 				WP_CLI::error(sprintf('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).', sb_cf()->APIPermissionsNeeded()), false);
 			} else {
@@ -330,7 +329,6 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 		} else {
 			WP_CLI::error(sprintf('Could not set Cloudflare credentials set using %s: %s', $verboseType, $verboseCredentials));
 		}
-
 	}
 
 	/**
