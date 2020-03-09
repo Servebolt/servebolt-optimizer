@@ -39,7 +39,7 @@ remove_action('wp_head', 'wp_generator');
 
 // Loads the class that sets the correct cache headers for full page cache
 if ( ! class_exists('Servebolt_Nginx_FPC') ){
-	require_once SERVEBOLT_PATH . 'class/servebolt-nginx-fpc.class.php';
+	require_once SERVEBOLT_PATH . 'classes/servebolt-nginx-fpc.class.php';
 	$NginxFPC = sb_nginx_fpc();
     if ( $NginxFPC->FPCIsActive()) $NginxFPC->setup();
 }
@@ -52,7 +52,7 @@ function sb_add_settings_link_to_plugin( $links ) {
 }
 
 // Include the Servebolt Cloudflare class
-require_once SERVEBOLT_PATH . 'class/servebolt-cf.class.php';
+require_once SERVEBOLT_PATH . 'classes/servebolt-cf.class.php';
 
 // If the admin is loaded, load this plugins interface
 if ( is_admin() ) {

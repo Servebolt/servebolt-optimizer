@@ -10,6 +10,9 @@ use Cloudflare\API\Endpoints\Zones;
 
 /**
  * Class Cloudflare
+ *
+ * This class facilitates the use of the Cloudflare PHP SDK.
+ *
  * @package Servebolt
  */
 class Cloudflare {

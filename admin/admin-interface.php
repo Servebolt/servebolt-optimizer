@@ -3,7 +3,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 require_once SERVEBOLT_PATH . 'admin/log-viewer.php';
 require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
-require_once SERVEBOLT_PATH . 'admin/nginx-controls.php';
+require_once SERVEBOLT_PATH . 'admin/nginx-fpc-controls.php';
 require_once SERVEBOLT_PATH . 'admin/cf-cache-controls.php';
 require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
 
@@ -114,7 +114,7 @@ class Servebolt_Admin_Interface {
 	 * Display the Full Page Cache control page.
 	 */
 	public function NGINX_cache_callback() {
-		( Nginx_Controls::getInstance() )->view();
+		( Nginx_FPC_Controls::getInstance() )->view();
 	}
 
 	/**

@@ -3,6 +3,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
  * Class Servebolt_Nginx_FPC
+ *
+ * This class handles
+ *
  * @package Servebolt
  */
 class Servebolt_Nginx_FPC {
@@ -105,7 +108,7 @@ class Servebolt_Nginx_FPC {
 
 	/**
 	 * Set posts to exclude from cache.
-	 * 
+	 *
 	 * @param $idsToExclude
 	 *
 	 * @return bool
@@ -287,7 +290,7 @@ class Servebolt_Nginx_FPC {
 	/**
 	 * No cache headers - Print headers that prevent caching.
 	 */
-	static function noCacheHeaders() {
+	private function noCacheHeaders() {
 		header( 'Cache-Control: max-age=0,no-cache' );
 		header( 'Pragma: no-cache' );
 		header( 'X-Servebolt-Plugin: active' );

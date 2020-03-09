@@ -27,7 +27,7 @@ function sb_performance_checks() {
  * @return Servebolt_Nginx_FPC|null
  */
 function sb_nginx_fpc() {
-	require_once SERVEBOLT_PATH . 'class/servebolt-nginx-fpc.class.php';
+	require_once SERVEBOLT_PATH . 'classes/servebolt-nginx-fpc.class.php';
 	return Servebolt_Nginx_FPC::getInstance();
 }
 
@@ -67,7 +67,7 @@ function sb_is_error($object) {
  * @return Servebolt_Checks|null
  */
 function sb_cf() {
-	require_once SERVEBOLT_PATH . 'class/servebolt-cf.class.php';
+	require_once SERVEBOLT_PATH . 'classes/servebolt-cf.class.php';
 	return Servebolt_CF::getInstance();
 }
 

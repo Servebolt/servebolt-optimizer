@@ -2,9 +2,9 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
- * Class Nginx_Controls
+ * Class Nginx_FPC_Controls
  */
-class Nginx_Controls {
+class Nginx_FPC_Controls {
 
 	/**
 	* @var null Singleton instance.
@@ -14,17 +14,17 @@ class Nginx_Controls {
 	/**
 	* Singleton instantiation.
 	*
-	* @return Nginx_Controls|null
+	* @return Nginx_FPC_Controls|null
 	*/
 	public static function getInstance() {
 		if ( self::$instance == null ) {
-			self::$instance = new Nginx_Controls;
+			self::$instance = new Nginx_FPC_Controls;
 		}
 		return self::$instance;
 	}
 
 	/**
-	* Nginx_Controls constructor.
+	* Nginx_FPC_Controls constructor.
 	*/
 	private function __construct() {
 		$this->init_settings();
@@ -50,7 +50,7 @@ class Nginx_Controls {
 	* Display view.
 	*/
 	public function view() {
-		sb_view('admin/views/nginx-controls', [
+		sb_view('admin/views/nginx-fpc-controls', [
 			'sites'        => is_network_admin() ? get_sites() : [],
 			'options'      => sb_get_option('fpc_settings'),
 			'post_types'   => get_post_types(['public' => true], 'objects'),
@@ -60,4 +60,4 @@ class Nginx_Controls {
 	}
 
 }
-Nginx_Controls::getInstance();
+Nginx_FPC_Controls::getInstance();

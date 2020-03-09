@@ -5,6 +5,9 @@ require_once 'cloudflare-wrapper.class.php';
 
 /**
  * Class Servebolt_CF
+ *
+ * This class handles actions and triggers related to the Cloudflare feature.
+ *
  * @package Servebolt
  */
 class Servebolt_CF {
