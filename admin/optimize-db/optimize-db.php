@@ -51,7 +51,7 @@ class Servebolt_Optimize_DB {
 	 *
 	 * @return Servebolt_Optimize_DB|null
 	 */
-	public static function getInstance() {
+	public static function get_instance() {
 		if ( self::$instance == null ) {
 			self::$instance = new Servebolt_Optimize_DB;
 		}
@@ -586,4 +586,4 @@ class Servebolt_Optimize_DB {
 	}
 
 }
-Servebolt_Optimize_DB::getInstance();
+Servebolt_Optimize_DB::get_instance();

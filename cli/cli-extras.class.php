@@ -19,9 +19,9 @@ class Servebolt_CLI_Extras {
 	 *
 	 * @return |null
 	 */
-	protected function getZones() {
+	protected function get_zones() {
 		if ( is_null($this->zones) ) {
-			$this->zones = sb_cf()->listZones();
+			$this->zones = sb_cf()->list_zones();
 		}
 		return $this->zones;
 	}
@@ -31,8 +31,8 @@ class Servebolt_CLI_Extras {
 	 *
 	 * @param bool $includeNumbers
 	 */
-	protected function listZones($includeNumbers = false) {
-		$zones = $this->getZones();
+	protected function list_zones($includeNumbers = false) {
+		$zones = $this->get_zones();
 		if ( ! $zones || empty($zones) ) {
 			WP_CLI::error('Could not retrieve any available zones. Make sure you have configured the Cloudflare API credentials and set an active zone.');
 		}
@@ -56,8 +56,8 @@ class Servebolt_CLI_Extras {
 			$sites = get_sites();
 			$sites_status = [];
 			foreach ( $sites as $site ) {
-				$status = sb_get_blog_option($site->blog_id, 'fpc_switch') === true ? 'activated' : 'deactivated';
-				$post_types = sb_get_blog_option($site->blog_id, 'fpc_settings');
+				$status = sb_nginx_fpc()->fpc_is_active($site->blog_id) === true ? 'Active' : 'Inactive';
+				$post_types = sb_nginx_fpc()->get_cacheable_post_types(true, $site->blog_id);
 				$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
 				$sites_status[] = [
 					'URL'               => get_site_url($site->blog_id),
@@ -68,8 +68,8 @@ class Servebolt_CLI_Extras {
 			}
 			WP_CLI\Utils\format_items( 'table', $sites_status , array_keys(current($sites_status)));
 		} else {
-			$status = sb_get_option( 'fpc_switch' ) === true ? 'activated' : 'deactivated';
-			$post_types = sb_get_option( 'fpc_settings' );
+			$status = sb_nginx_fpc()->fpc_is_active() ? 'activate' : 'inactive';
+			$post_types = sb_nginx_fpc()->get_cacheable_post_types();
 			$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
 			WP_CLI::line( sprintf( sb__( 'Servebolt Full Page Cache cache is %s' ), $status ) );
 			WP_CLI::line( sprintf( sb__( 'Post types enabled for caching: %s' ), $enabled_post_types_string ) );
@@ -83,196 +83,171 @@ class Servebolt_CLI_Extras {
 	 *
 	 * @return string|void
 	 */
-	private function nginx_get_active_post_types_string($post_types)
-	{
-		$enabled_post_types = [];
-		if ( is_array($post_types) ) {
-			foreach ( $post_types as $key => $value ) {
-				if ( $value ) {
-					$enabled_post_types[] = $key;
-				}
-			}
-		}
-		$enabled_post_types_string = implode(',', $enabled_post_types);
+	private function nginx_get_active_post_types_string($post_types) {
 
 		// Cache default post types
-		if ( empty($enabled_post_types_string) ) {
-			return sprintf( sb__( 'Default [%s]' ), sb_nginx_fpc()->defaultCacheablePostTypes( 'csv' ) );
+		if ( ! is_array($post_types) || empty($post_types) ) {
+			return sprintf( sb__( 'Default [%s]' ), sb_nginx_fpc()->default_cacheable_post_types( 'csv' ) );
 		}
 
 		// Cache all post types
-		if (array_key_exists('all', $post_types) ) {
+		if ( array_key_exists('all', $post_types) ) {
 			return sb__( 'All' );
 		}
 
-		return $enabled_post_types_string;
+		$enabled_post_types = [];
+		foreach ( $post_types as $key => $value ) {
+			if ( $value ) {
+				$enabled_post_types[] = $key;
+			}
+		}
+		return implode(',', $enabled_post_types);
 	}
 
 	/**
+	 * Toggle cachce active/inactive for blog.
 	 *
-	 *
-	 * @param $state
-	 * @param $args
-	 * @param $assoc_args
+	 * @param $new_cache_state
+	 * @param null $blog_id
 	 */
-	protected function nginx_control($state, $args, $assoc_args){
-		$switch = '';
-		if($state === 'activate') {
-			$switch = 'on';
-		}elseif($state === 'deactivate'){
-			$switch = 'off';
+	private function nginx_toggle_cache_for_blog($new_cache_state, $blog_id = null) {
+		$url = get_site_url($blog_id);
+		$cache_active_string = sb_boolean_to_state_string($new_cache_state);
+		if ( $new_cache_state === sb_nginx_fpc()->fpc_is_active($blog_id) ) {
+			WP_CLI::warning( sprintf( sb__( 'Full Page Cache already %s on %s' ), $cache_active_string, $url ) );
+		} else {
+			sb_nginx_fpc()->fpc_toggle_active($new_cache_state, $blog_id);
+			WP_CLI::success( sprintf( sb__( 'Full Page Cache %s on %s' ), $cache_active_string, $url ) );
 		}
-		if(is_multisite() && $state === 'deactivate' && array_key_exists('post_types', $assoc_args) && array_key_exists('all', $assoc_args)){
-			$sites = get_sites();
-			foreach ($sites as $site) {
-				$id = $site->blog_id;
-				switch_to_blog($id);
-				if(array_key_exists('post_types',$assoc_args)) $this->nginx_set_post_types(explode(',', $assoc_args['post_types']), $state, $id);
-				restore_current_blog();
+	}
+
+	/**
+	 * Prepare post types from argument if present. To be used when toggling Nginx FPC active/inactive.
+	 *
+	 * @param $args
+	 *
+	 * @return array|bool
+	 */
+	private function nginx_prepare_post_type_argument($args)
+	{
+		if ( array_key_exists('post_types', $args) ) {
+			$post_types = $this->format_comma_string();
+			$post_types = array_filter($post_types, function ($post_type) {
+				return post_type_exists($post_type);
+			});
+			if ( ! empty($post_types) ) {
+				return $post_types;
 			}
 		}
-		elseif(is_multisite() && array_key_exists('all', $assoc_args)){
-			$sites = get_sites();
+		return false;
+	}
 
-			foreach ($sites as $site) {
-				$id = $site->blog_id;
-				switch_to_blog($id);
-				$url = get_site_url($id);
-				$status = sb_get_option('fpc_switch');
-				if($status !== $switch):
-					sb_update_option('fpc_switch', $switch);
-					WP_CLI::success(sprintf(sb__('Full Page Cache %1$sd on %2$s'), $state, esc_url($url)));
-				elseif($status === $switch):
-					WP_CLI::warning(sprintf(sb__('Full Page Cache already %1$sd on %2$s'), $state, esc_url($url)));
-				endif;
+	/**
+	 * Enable/disable Nginx cache headers.
+	 *
+	 * @param bool $cache_active
+	 * @param array $args
+	 */
+	protected function nginx_control($cache_active, $args){
 
-				if(array_key_exists('post_types',$assoc_args)) $this->nginx_set_post_types(explode(',', $assoc_args['post_types']), $state, $id);
-				restore_current_blog();
+		$affect_all_blogs    = array_key_exists('all', $args);
+		$post_types          = $this->nginx_prepare_post_type_argument($args);
+		$exclude_ids         = array_key_exists('exclude', $args) ? $args['exclude'] : false;
+
+		if ( is_multisite() && $affect_all_blogs ) {
+			WP_CLI::info( sb__('Activating Nginx Full Page Cache on all blogs...') );
+			foreach (get_sites() as $site) {
+				$this->nginx_toggle_cache_for_blog($cache_active, $site->blog_id);
+				if ( $post_types ) $this->nginx_set_post_types($post_types, $cache_active, $site->blog_id);
+				if ( $exclude_ids ) $this->nginx_set_exclude_ids($exclude_ids, $site->blog_id);
 			}
-
+		} else {
+			$this->nginx_toggle_cache_for_blog($cache_active);
+			if ( $post_types ) $this->nginx_set_post_types($post_types, $cache_active);
+			if ( $exclude_ids ) $this->nginx_set_exclude_ids($exclude_ids);
 		}
-		elseif($state === 'deactivate' && array_key_exists('post_types', $assoc_args)){
-			$this->nginx_set_post_types(explode(',', $assoc_args['post_types']), $state, get_current_blog_id());
-		}
-		else{
-			$status = sb_get_option('fpc_switch');
-			if(array_key_exists('post_types',$assoc_args)) $this->nginx_set_post_types(explode(',', $assoc_args['post_types']), $state);
-			if($status !== $switch):
-				sb_update_option('fpc_switch', $switch);
-				WP_CLI::success(sprintf(sb__('Full Page Cache %1$sd'), $state));
-			elseif($status === $switch):
-				WP_CLI::warning(sprintf(sb__('Full Page Cache already %1$sd'), $state));
-			endif;
-		}
-
-		if(array_key_exists('exclude', $assoc_args)){
-			$this->nginx_set_exclude_ids($assoc_args['exclude']);
-		}
-
 	}
 
 	/**
 	 * Set post types to cache.
 	 *
 	 * @param $post_types
-	 * @param $state
+	 * @param bool $blog_id
 	 */
-	protected function nginx_set_post_types( $post_types , $state){
-		$switch = '';
-		if($state === 'activate') {
-			$switch = 'on';
-		}elseif($state === 'deactivate'){
-			$switch = 'off';
-		}
+	protected function nginx_set_post_types($post_types, $blog_id = false) {
+		$cache_all_post_types = in_array('all', $post_types);
+		$all_post_types = $this->nginx_get_all_post_types($blog_id);// TODO: This needs to respect the post types of each blog in a multisite context (doenst it?)
+		$url = get_site_url($blog_id);
 
-		$updateOption = sb_get_option('fpc_settings');
-
-		$AllTypes = get_post_types([
-			'public' => true
-		], 'objects');
-
-
-		if(in_array('all', $post_types)) {
-			$CLIfeedback = sprintf(sb__('Cache deactivated for all post types on %s'), get_home_url());
-			$success = true;
-
-			if ( $switch === 'on' ) {
-
-				foreach ( $AllTypes as $type ) {
-					$newOption[$type->name] = $switch;
-				}
-				$updateOption = $newOption;
-
-				$CLIfeedback = sprintf(sb__('Cache activated for all post types on %s'), get_home_url());
-				$success = true;
-
-			}
-
+		if ( $cache_all_post_types ) {
+			$post_types = $all_post_types;
 		} else {
-
-			foreach ($post_types as $post_type) if(array_key_exists($post_type, $AllTypes)){
-				$updateOption[$post_type] = $switch;
-			}
-
-			// remove everything that is off
-			foreach ($updateOption as $key => $value){
-				if($value === 'off') unset($updateOption[$key]);
-			}
-
-			$CLIfeedback = sprintf(sb__('Cache %sd for post type(s) %s on %s'),$state, implode(',', $post_types) , get_home_url());
-			$success = true;
-
+			$post_types = array_filter($post_types, function($post_type) use ($all_post_types) {
+				return in_array($post_type, $all_post_types) || $post_type === 'all';
+			});
 		}
+		sb_nginx_fpc()->set_cacheable_post_types($post_types, $blog_id);
+		WP_CLI::success(sprintf(sb__('Cache post type(s) set to %s on %s'), implode(', ', $post_types), $url));
+	}
 
-		if ($success) {
-			WP_CLI::success($CLIfeedback);
-		} else {
-			WP_CLI::warning($CLIfeedback);
+	/**
+	 * Get all post types to be used in cache context.
+	 *
+	 * @param bool $blog_id
+	 *
+	 * @return array|bool
+	 */
+	private function nginx_get_all_post_types($blog_id = false) {
+		// TODO: Should the "get_post_types"-function respect $blog_id?
+		$all_post_types = get_post_types(['public' => true], 'objects');
+		if ( is_array($all_post_types) ) {
+			return array_map(function($post_type) {
+				return $post_type->name;
+			}, $all_post_types);
 		}
-
-		sb_update_option('fpc_settings', $updateOption);
+		return false;
 	}
 
 	/**
 	 * Set exclude Ids.
 	 *
-	 * @param $idsToExcludeString
+	 * @param $ids_to_exclude_string
 	 */
-	protected function nginx_set_exclude_ids($idsToExcludeString) {
+	protected function nginx_set_exclude_ids($ids_to_exclude_string) {
 
-		$idsToExclude = $this->format_id_string($idsToExcludeString);
-		$alreadyExcluded = sb_nginx_fpc()->getIdsToExclude();
+		$ids_to_exclude = $this->format_comma_string($ids_to_exclude_string);
+		$already_excluded = sb_nginx_fpc()->get_ids_to_exclude();
 
-		if ( empty($idsToExclude) ) {
+		if ( empty($ids_to_exclude) ) {
 			WP_CLI::warning(sb__('No ids were specified.'));
 			return;
 		}
 
-		$alreadyAdded = [];
-		$wasExcluded = [];
-		$invalidId = [];
-		foreach ($idsToExclude as $id) {
+		$already_added = [];
+		$was_excluded = [];
+		$invalid_id = [];
+		foreach ($ids_to_exclude as $id) {
 			if ( get_post_status( $id ) === false ) {
-				$invalidId[] = $id;
-			} elseif ( ! in_array($id, $alreadyExcluded)) {
-				$wasExcluded[] = $id;
-				$alreadyExcluded[] = $id;
+				$invalid_id[] = $id;
+			} elseif ( ! in_array($id, $already_excluded)) {
+				$was_excluded[] = $id;
+				$already_excluded[] = $id;
 			} else {
-				$alreadyAdded[] = $id;
+				$already_added[] = $id;
 			}
 		}
-		sb_nginx_fpc()->setIdsToExclude($alreadyExcluded);
+		sb_nginx_fpc()->set_ids_to_exclude($already_excluded);
 
-		if ( ! empty($alreadyAdded) ) {
-			WP_CLI::info(sprintf(sb__('The following ids were already excluded: %s'), implode(',', $alreadyAdded)));
+		if ( ! empty($already_added) ) {
+			WP_CLI::info(sprintf(sb__('The following ids were already excluded: %s'), implode(',', $already_added)));
 		}
 
-		if ( ! empty($invalidId) ) {
-			WP_CLI::warning(sprintf(sb__('The following ids were invalid: %s'), implode(',', $alreadyAdded)));
+		if ( ! empty($invalid_id) ) {
+			WP_CLI::warning(sprintf(sb__('The following ids were invalid: %s'), implode(',', $already_added)));
 		}
 
-		if ( ! empty($wasExcluded) ) {
-			WP_CLI::success(sprintf(sb__('Added %s to the list of excluded ids'), implode(',', $wasExcluded)));
+		if ( ! empty($was_excluded) ) {
+			WP_CLI::success(sprintf(sb__('Added %s to the list of excluded ids'), implode(',', $was_excluded)));
 		} else {
 			WP_CLI::info(sb__('No action was made.'));
 		}
@@ -280,19 +255,19 @@ class Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Format post Ids separated by comma.
+	 * Format a string with comma separated values.
 	 *
-	 * @param $string Comma separated post Ids
+	 * @param $string Comma separated values.
 	 *
 	 * @return array
 	 */
-	private function format_id_string($string) {
-		$idsToExclude = explode(',', $string);
-		$idsToExclude = array_map(function ($idToExclude) {
-			return $idToExclude;
-		}, $idsToExclude);
-		return array_filter($idsToExclude, function ($idToExclude) {
-			return ! empty($idToExclude);
+	private function format_comma_string($string) {
+		$array = explode(',', $string);
+		$array = array_map(function ($item) {
+			return trim($item);
+		}, $array);
+		return array_filter($array, function ($item) {
+			return ! empty($item);
 		});
 	}
 

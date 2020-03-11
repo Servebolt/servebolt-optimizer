@@ -16,7 +16,7 @@ class CF_Cache_Controls {
 	 *
 	 * @return CF_Cache_Controls|null
 	 */
-	public static function getInstance() {
+	public static function get_instance() {
 		if ( self::$instance == null ) {
 			self::$instance = new CF_Cache_Controls;
 		}
@@ -55,7 +55,15 @@ class CF_Cache_Controls {
 		if ( $with_values ) {
 			$items_with_values = [];
 			foreach ( $items as $item ) {
-				$items_with_values[$item] = sb_get_option($item);
+				switch ($item) {
+					case 'cf_switch':
+						$items_with_values[$item] = sb_cf()->cf_is_active();
+						break;
+
+					default:
+						$items_with_values[$item] = sb_get_option($item);
+						break;
+				}
 			}
 			return $items_with_values;
 		}
@@ -83,7 +91,7 @@ class CF_Cache_Controls {
 	 * Purge all cache in Cloudflare cache.
 	 */
 	public function purge_all_cache_callback() {
-		if ( ! sb_cf()->CFCacheFeatureAvailable() ) {
+		if ( ! sb_cf()->cf_cache_feature_available() ) {
 			wp_send_json_error(['message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.']);
 		} elseif ( sb_cf()->purgeAll() ) {
 			wp_send_json_success();
@@ -99,9 +107,9 @@ class CF_Cache_Controls {
 		$url = esc_url_raw($_POST['url']);
 		if ( ! $url || empty($url) ) {
 			wp_send_json_error(['message' => 'Please specify the URL you would like to purge cache for.']);
-		} elseif ( ! sb_cf()->CFCacheFeatureAvailable() ) {
+		} elseif ( ! sb_cf()->cf_cache_feature_available() ) {
 			wp_send_json_error(['message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.']);
-		} elseif ( sb_cf()->purgeByUrl($url) ) {
+		} elseif ( sb_cf()->purge_by_url($url) ) {
 			wp_send_json_success();
 		} else {
 			wp_send_json_error();

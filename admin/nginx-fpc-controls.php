@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
- * Class Nginx_FPC_Controls
+ * Class nginx_fpc_controls
  */
 class Nginx_FPC_Controls {
 
@@ -16,7 +16,7 @@ class Nginx_FPC_Controls {
 	*
 	* @return Nginx_FPC_Controls|null
 	*/
-	public static function getInstance() {
+	public static function get_instance() {
 		if ( self::$instance == null ) {
 			self::$instance = new Nginx_FPC_Controls;
 		}
@@ -52,12 +52,12 @@ class Nginx_FPC_Controls {
 	public function view() {
 		sb_view('admin/views/nginx-fpc-controls', [
 			'sites'        => is_network_admin() ? get_sites() : [],
-			'options'      => sb_get_option('fpc_settings'),
+			'options'      => sb_nginx_fpc()->get_cacheable_post_types(false),
 			'post_types'   => get_post_types(['public' => true], 'objects'),
-			'nginx_switch' => sb_get_option('fpc_switch') === 'on',
+			'nginx_fpc_active' => sb_nginx_fpc()->fpc_is_active(),
 			'sb_admin_url' => get_sb_admin_url(),
 		]);
 	}
 
 }
-Nginx_FPC_Controls::getInstance();
+Nginx_FPC_Controls::get_instance();

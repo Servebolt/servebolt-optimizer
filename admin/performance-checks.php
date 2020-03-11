@@ -16,7 +16,7 @@ class Servebolt_Performance_Checks {
 	*
 	* @return Servebolt_Performance_Checks|null
 	*/
-	public static function getInstance() {
+	public static function get_instance() {
 		if ( self::$instance == null ) {
 			self::$instance = new Servebolt_Performance_Checks;
 		}
@@ -54,7 +54,7 @@ class Servebolt_Performance_Checks {
 	 * Remove all indexes (created by us).
 	 */
 	private function remove_all_indexes() {
-		$sb_optimizer_db = Servebolt_Optimize_DB::getInstance();
+		$sb_optimizer_db = Servebolt_Optimize_DB::get_instance();
 		$sb_optimizer_db->deoptimize_indexed_tables();
 		$sb_optimizer_db->convert_tables_to_non_innodb();
 	}
@@ -80,7 +80,7 @@ class Servebolt_Performance_Checks {
 			return;
 		}
 
-		$sb_optimizer_db       = Servebolt_Optimize_DB::getInstance();
+		$sb_optimizer_db       = Servebolt_Optimize_DB::get_instance();
 		$full_table_name       = $sb_optimizer_db->get_table_name_by_blog_id($blog_id, $table_name);
 		$index_addition_method = $table_name == 'options' ? 'add_options_autoload_index' : 'add_post_meta_index';
 
@@ -101,7 +101,7 @@ class Servebolt_Performance_Checks {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
 
 		$table_name      = sanitize_text_field($_POST['table_name']);
-		$sb_optimizer_db = Servebolt_Optimize_DB::getInstance();
+		$sb_optimizer_db = Servebolt_Optimize_DB::get_instance();
 
 		if ( $sb_optimizer_db->table_is_innodb($table_name) ) {
 			wp_send_json_success([
@@ -125,7 +125,7 @@ class Servebolt_Performance_Checks {
 	 */
 	public function optimize_db_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
-		$result = ( Servebolt_Optimize_DB::getInstance() )->optimize_db();
+		$result = ( Servebolt_Optimize_DB::get_instance() )->optimize_db();
 		if ( $result === false || $result['result'] === false ) {
 			wp_send_json_error();
 		} else {

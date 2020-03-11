@@ -38,11 +38,11 @@
       </tfoot>
       <tbody>
 	    <?php foreach ( $sites as $site ) : ?>
-		  <?php $sb_fpc_settings = sb_get_blog_option($site->blog_id, 'fpc_settings'); ?>
+		  <?php $sb_fpc_settings = sb_nginx_fpc()->get_cacheable_post_types(false, $site->blog_id); ?>
         <tr>
           <td><?php echo $site->blog_id; ?></td>
           <td><?php echo $site->domain.$site->path; ?></td>
-          <td><?php echo sb_get_blog_option($site->blog_id, 'fpc_switch') === 'on' ? sb__('On') : sb__('Off'); ?></td>
+          <td><?php sb_nginx_fpc()->fpc_is_active($site->blog_id) ? sb__('On') : sb__('Off'); ?></td>
           <td>
 			  <?php if ( ! empty($sb_fpc_settings) ) : ?>
 				  <?php foreach ($sb_fpc_settings as $page => $switch) : ?>
@@ -62,9 +62,9 @@
 			<?php settings_fields( 'nginx-fpc-options-page' ) ?>
 			<?php do_settings_sections( 'nginx-fpc-options-page' ) ?>
       <div class="nginx_switch">
-        <input id="nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_switch ? ' checked' : ''; ?>><label for="nginx_cache_switch"><?php sb_e('Turn Full Page Cache on'); ?></label>
+        <input id="nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_fpc_active ? ' checked' : ''; ?>><label for="nginx_cache_switch"><?php sb_e('Turn Full Page Cache on'); ?></label>
       </div>
-			<table class="form-table" id="post-types-form"<?php echo ( $nginx_switch ? '' : ' style="display: none;"' ); ?>>
+			<table class="form-table" id="post-types-form"<?php echo ( $nginx_fpc_active ? '' : ' style="display: none;"' ); ?>>
 				<tr valign="top">
 					<th scope="row">Cache post types
 						<div>

@@ -36,23 +36,23 @@ class Cloudflare {
 	 *
 	 * @var null
 	 */
-	private $authType = null;
+	private $auth_type = null;
 
 	/**
 	 * Cloudflare Zone Id.
 	 *
 	 * @var null
 	 */
-	private $zoneId = null;
+	private $zone_id = null;
 
 	/**
 	 * Instantiate class.
 	 *
 	 * @param bool $credentials
 	 *
-	 * @return Servebolt_CF|null
+	 * @return Cloudflare|null
 	 */
-	public static function getInstance($credentials = false) {
+	public static function get_instance($credentials = false) {
 		if ( self::$instance == null ) {
 			self::$instance = new Cloudflare($credentials);
 		}
@@ -65,7 +65,7 @@ class Cloudflare {
 	 * @param $credentials
 	 */
 	private function __construct($credentials = false) {
-		if ( $credentials ) $this->setCredentials($credentials);
+		if ( $credentials ) $this->set_credentials($credentials);
 	}
 
 	/**
@@ -75,13 +75,13 @@ class Cloudflare {
 	 *
 	 * @return bool|void
 	 */
-	public function purgeUrls( array $urls ) {
-		$zoneInstance = $this->getZonesInstance();
-		if ( ! $zoneInstance ) return false;
+	public function purge_urls( array $urls ) {
+		$zone_instance = $this->get_zones_instance();
+		if ( ! $zone_instance ) return false;
 		try {
-			return $zoneInstance->cachePurge( $this->getZoneId(), $urls );
+			return $zone_instance->cachePurge( $this->get_zone_id(), $urls );
 		} catch (Exception $e) {
-			return cf_error($e);
+			return sb_cf_error($e);
 		}
 	}
 
@@ -90,24 +90,24 @@ class Cloudflare {
 	 *
 	 * @return bool
 	 */
-	public function purgeAll() {
-		$zoneInstance = $this->getZonesInstance();
-		if ( ! $zoneInstance ) return false;
+	public function purge_all() {
+		$zone_instance = $this->get_zones_instance();
+		if ( ! $zone_instance ) return false;
 		try {
-			return $zoneInstance->cachePurgeEverything($this->getZoneId());
+			return $zone_instance->cachePurgeEverything($this->get_zone_id());
 		} catch (Exception $e) {
-			return cf_error($e);
+			return sb_cf_error($e);
 		}
 	}
 
 	/**
 	 * Set credentials. Can handle both API key-setup and API token-setup.
 	 *
-	 * @param $authType
+	 * @param $auth_type
 	 * @param $credentials
 	 */
-	public function setCredentials($authType, $credentials) {
-		$this->authType = $authType;
+	public function set_credentials($auth_type, $credentials) {
+		$this->auth_type = $auth_type;
 		$this->credentials = $credentials;
 	}
 
@@ -116,8 +116,7 @@ class Cloudflare {
 	 *
 	 * @return array
 	 */
-	private function getCredentials()
-	{
+	private function get_credentials() {
 		return $this->credentials;
 	}
 
@@ -128,9 +127,8 @@ class Cloudflare {
 	 *
 	 * @return array|bool|mixed
 	 */
-	public function getCredential($key)
-	{
-		$credentials = $this->getCredentials();
+	public function get_credential($key) {
+		$credentials = $this->get_credentials();
 		if ( array_key_exists($key, $credentials ) ) {
 			return $credentials[$key];
 		}
@@ -142,13 +140,13 @@ class Cloudflare {
 	 *
 	 * @return bool|\Cloudflare\API\Auth\APIKey
 	 */
-	private function getKeyInstance() {
-		switch ( $this->authType ) {
+	private function get_key_instance() {
+		switch ( $this->auth_type ) {
 			case 'apiToken':
-				return new APIToken($this->getCredential('apiToken'));
+				return new APIToken($this->get_credential('apiToken'));
 				break;
 			case 'apiKey':
-				return new APIKey($this->getCredential('email'), $this->getCredential('apiKey'));
+				return new APIKey($this->get_credential('email'), $this->get_credential('apiKey'));
 				break;
 		}
 		return false;
@@ -161,8 +159,8 @@ class Cloudflare {
 	 *
 	 * @return \Cloudflare\API\Adapter\Guzzle
 	 */
-	private function getAdapterInstance($key = false) {
-		if ( ! $key ) $key = $this->getKeyInstance();
+	private function get_adapter_instance($key = false) {
+		if ( ! $key ) $key = $this->get_key_instance();
 		if ( ! $key ) return false;
 		return new Guzzle( $key );
 	}
@@ -172,8 +170,8 @@ class Cloudflare {
 	 *
 	 * @return bool|Zones
 	 */
-	private function getZonesInstance() {
-		$adapter = $this->getAdapterInstance();
+	private function get_zones_instance() {
+		$adapter = $this->get_adapter_instance();
 		if ( ! $adapter ) return false;
 		return new Zones( $adapter );
 	}
@@ -183,61 +181,59 @@ class Cloudflare {
 	 *
 	 * @return bool|stdClass
 	 */
-	public function listZones() {
-		$zoneInstance = $this->getZonesInstance();
-		if ( ! $zoneInstance ) return false;
+	public function list_zones() {
+		$zone_instance = $this->get_zones_instance();
+		if ( ! $zone_instance ) return false;
 		try {
-			$zones = $zoneInstance->listZones();
+			$zones = $zone_instance->listZones();
 			if ( ! $zones ) return false;
 			return (array) $zones->result;
 		} catch (Exception $e) {
-			return cf_error($e);
+			return sb_cf_error($e);
 		}
 	}
 
 	/**
 	 * Check if zone exists.
 	 *
-	 * @param $zoneId
+	 * @param $zone_id
 	 *
 	 * @return bool
 	 */
-	private function zoneExists($zoneId)
-	{
-		return $this->getZoneByKey($zoneId, 'id') !== false;
+	private function zone_exists($zone_id) {
+		return $this->get_zone_by_key($zone_id, 'id') !== false;
 	}
 
 	/**
 	 * Get zone by Id.
 	 *
-	 * @param $zoneId
+	 * @param $zone_id
 	 *
 	 * @return bool|object
 	 */
-	public function getZoneById($zoneId) {
-		$zoneInstance = $this->getZonesInstance();
-		if ( ! $zoneInstance ) return false;
+	public function get_zone_by_id($zone_id) {
+		$zone_instance = $this->get_zones_instance();
+		if ( ! $zone_instance ) return false;
 		try {
-			$zone = $zoneInstance->getZoneById($zoneId);
+			$zone = $zone_instance->getZoneById($zone_id);
 			if ( ! $zone ) return false;
 			return (object) $zone->result;
 		} catch (Exception $e) {
-			return cf_error($e);
+			return sb_cf_error($e);
 		}
 	}
 
 	/**
 	 * Get zone from Cloudflare by given key.
 	 *
-	 * @param $zoneName
+	 * @param $zone_name
 	 * @param string $key
 	 *
 	 * @return bool
 	 */
-	public function getZoneByKey($zoneName, $key = 'name')
-	{
-		foreach ( $this->listZones() as $zone ) {
-			if ( isset($zone->{ $key }) && $zone->{ $key } === $zoneName ) {
+	public function get_zone_by_key($zone_name, $key = 'name') {
+		foreach ( $this->list_zones() as $zone ) {
+			if ( isset($zone->{ $key }) && $zone->{ $key } === $zone_name ) {
 				return $zone;
 			}
 		}
@@ -247,15 +243,14 @@ class Cloudflare {
 	/**
 	 * Set zone Id.
 	 *
-	 * @param $zoneId
-	 * @param bool $doZoneCheck
+	 * @param $zone_id
+	 * @param bool $do_zone_check
 	 *
 	 * @return bool
 	 */
-	public function setZoneId($zoneId, $doZoneCheck = true)
-	{
-		if ( ! $zoneId || ( $doZoneCheck && ! $this->zoneExists($zoneId) ) ) return false;
-		$this->zoneId = $zoneId;
+	public function set_zone_id($zone_id, $do_zone_check = true) {
+		if ( ! $zone_id || ( $do_zone_check && ! $this->zone_exists($zone_id) ) ) return false;
+		$this->zone_id = $zone_id;
 		return true;
 	}
 
@@ -264,9 +259,8 @@ class Cloudflare {
 	 *
 	 * @return null
 	 */
-	private function getZoneId()
-	{
-		return $this->zoneId;
+	private function get_zone_id() {
+		return $this->zone_id;
 	}
 
 }

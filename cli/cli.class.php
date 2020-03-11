@@ -21,7 +21,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 * @return Servebolt_CLI|null
 	 */
-	public static function getInstance() {
+	public static function get_instance() {
 		if ( self::$instance == null ) {
 			self::$instance = new Servebolt_CLI;
 		}
@@ -39,10 +39,10 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 * Register WP CLI commands.
 	 */
 	private function registerCommands() {
-		WP_CLI::add_command( 'servebolt clear-settings',         [$this, 'clear_all_settings'] );
+		WP_CLI::add_command( 'servebolt clear-all-settings',     [$this, 'clear_all_settings'] );
 
-		WP_CLI::add_command( 'servebolt db optimize',            [$this, 'optimize'] ); // TODO: Remove in v1.7
-		WP_CLI::add_command( 'servebolt db fix',                 [$this, 'optimize'] );
+		WP_CLI::add_command( 'servebolt db optimize',            [$this, 'optimize_database'] );
+		WP_CLI::add_command( 'servebolt db fix',                 [$this, 'fix'] );
 		WP_CLI::add_command( 'servebolt db analyze',             [$this, 'analyze_tables'] );
 
 		WP_CLI::add_command( 'servebolt fpc activate',           [$this, 'nginx_activate'] );
@@ -68,11 +68,22 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp servebolt clear-settings
+	 *     wp servebolt clear-all-settings
 	 */
 	public function clear_all_settings() {
 		sb_clear_all_settings();
 		WP_CLI::success('All settings cleared!');
+	}
+
+	/**
+	 * Alias of "wp servebolt db fix". Add database indexes and convert database tables to modern table types or delete transients.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp servebolt db fix
+	 */
+	public function fix() {
+		$this->optimize_database();
 	}
 
 	/**
@@ -82,9 +93,9 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 *     wp servebolt db optimize
 	 */
-	public function optimize() {
+	public function optimize_database() {
 		require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
-		if ( ! ( Servebolt_Optimize_DB::getInstance() )->optimize_db(true) ) {
+		if ( ! ( Servebolt_Optimize_DB::get_instance() )->optimize_db(true) ) {
 			WP_CLI::success('Optimization done');
 		} else {
 			WP_CLI::warning('Everything OK. No optimization to do.');
@@ -100,24 +111,24 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 */
 	public function cf_config_get() {
 		$cf = sb_cf();
-		$authType = $cf->getAuthenticationType();
-		$isCronPurge = $cf->cronPurgeIsActive(true);
+		$authType = $cf->get_authentication_type();
+		$isCronPurge = $cf->cron_purge_is_active(true);
 
 		$arr = [
-			'Status'     => $cf->CFIsActive() ? 'Active' : 'Inactive',
-			'Zone Id'    => $cf->getActiveZoneId(),
+			'Status'     => $cf->cf_is_active() ? 'Active' : 'Inactive',
+			'Zone Id'    => $cf->get_ative_zone_id(),
 			'Purge type' => $isCronPurge ? 'Via cron' : 'Immediate purge',
 		];
 
 		if ($isCronPurge) {
-			$arr['Ids to purge (queue for Cron)'] = $cf->getItemsToPurge();
+			$arr['Ids to purge (queue for Cron)'] = $cf->get_items_to_purge();
 		}
 
 		$arr['API authentication type'] = $authType;
 		switch ($authType) {
 			case 'apiKey':
-				$arr['API key'] = $cf->getCredential('apiKey');
-				$arr['email'] = $cf->getCredential('email');
+				$arr['API key'] = $cf->get_credential('apiKey');
+				$arr['email'] = $cf->get_credential('email');
 				break;
 			case 'apiToken':
 				$arr['API token'] = $cf->getCredential('apiToken');
@@ -136,7 +147,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 */
 	public function analyze_tables() {
 		require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
-		if ( ! ( Servebolt_Optimize_DB::getInstance() )->analyze_tables(true) ) {
+		if ( ! ( Servebolt_Optimize_DB::get_instance() )->analyze_tables(true) ) {
 			WP_CLI::error('Could not analyze tables.');
 		} else {
 			WP_CLI::success('Analyzed tables.');
@@ -173,7 +184,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *     wp servebolt cf list-zones
 	 */
 	public function cf_list_zones() {
-		$this->listZones();
+		$this->list_zones();
 	}
 
 	/**
@@ -184,7 +195,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *     wp servebolt cf clear-zone
 	 */
 	public function cf_clear_zone() {
-		sb_cf()->clearActiveZone();
+		sb_cf()->clear_active_zone();
 		WP_CLI::success('Successfully cleared zone.');
 	}
 
@@ -196,7 +207,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *     wp servebolt cf clear-credentials
 	 */
 	public function cf_clear_credentials() {
-		sb_cf()->clearCredentials();
+		sb_cf()->clear_credentials();
 		WP_CLI::success('Successfully cleared credentials.');
 	}
 
@@ -208,10 +219,10 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *     wp servebolt cf test-api-connection
 	 */
 	public function cf_test_api_connection() {
-		if ( sb_cf()->testAPIConnection() ) {
+		if ( sb_cf()->test_api_connection() ) {
 			WP_CLI::success('API connection passed!');
 		} else {
-			WP_CLI::error(sprintf('Could not communicate with the API. Please check that API credentials are configured correctly and that we have the right permissions (%s).', sb_cf()->APIPermissionsNeeded()));
+			WP_CLI::error(sprintf('Could not communicate with the API. Please check that API credentials are configured correctly and that we have the right permissions (%s).', sb_cf()->api_permissions_needed()));
 		}
 	}
 
@@ -226,17 +237,17 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 
 		WP_CLI::line('This will set/update which Cloudflare zone we are interacting with.');
 
-		if ( $currentZoneId = sb_cf()->getActiveZoneId() ) {
-			$currentZone = sb_cf()->getZoneById($currentZoneId);
+		if ( $currentZoneId = sb_cf()->get_active_zone_id() ) {
+			$currentZone = sb_cf()->get_zone_by_id($currentZoneId);
 			if ( $currentZone ) {
 				WP_CLI::line(sprintf('Current zone is set to %s (%s)', $currentZone->name, $currentZone->id));
 			}
 		}
 
-		$zones = $this->getZones();
+		$zones = $this->get_zones();
 
 		SelectZone:
-		$this->listZones(true);
+		$this->list_zones(true);
 
 		echo 'Select which zone you would like to set up: ';
 		$handle = fopen ('php://stdin', 'r');
@@ -261,7 +272,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 			WP_CLI::warning(sprintf('Selected zone (%s) does not match with the URL fo the current blog (%s). This will most likely inhibit cache purge to work.', $foundZone->name, $homeUrl));
 		}
 
-		sb_cf()->storeActiveZoneId($foundZone->id);
+		sb_cf()->store_active_zone_id($foundZone->id);
 		WP_CLI::success(sprintf('Successfully selected zone %s', $foundZone->name));
 
 	}
@@ -321,7 +332,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 		}
 		if ( sb_cf()->storeCredentials($credentials, $type) ) {
 			if ( ! sb_cf()->testAPIConnection() ) {
-				WP_CLI::error(sprintf('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).', sb_cf()->APIPermissionsNeeded()), false);
+				WP_CLI::error(sprintf('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).', sb_cf()->api_permissions_needed()), false);
 			} else {
 				WP_CLI::success(sprintf('Cloudflare credentials set using %s: %s', $verboseType, $verboseCredentials));
 				WP_CLI::success('API connection test passed!');
@@ -357,7 +368,8 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function nginx_activate( $args, $assoc_args ) {
-		$this->nginx_control('activate', $args, $assoc_args);
+		$this->nginx_control(true, $assoc_args);
+		if ( in_array('status', $assoc_args) ) $this->get_nginx_status($assoc_args);
 	}
 
 	/**
@@ -385,7 +397,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function nginx_deactivate( $args, $assoc_args ) {
-		$this->nginx_control('deactivate', $args, $assoc_args);
+		$this->nginx_control(false, $assoc_args);
 		if ( in_array('status', $assoc_args) ) $this->get_nginx_status($assoc_args);
 	}
 
@@ -456,14 +468,14 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function cf_purge_all() {
-		$currentZoneId = sb_cf()->getActiveZoneId();
-		if ( $currentZoneId && $currentZone = sb_cf()->getZoneById($currentZoneId) ) {
+		$currentZoneId = sb_cf()->get_zctive_zone_id();
+		if ( $currentZoneId && $currentZone = sb_cf()->get_zone_by_id($currentZoneId) ) {
 			WP_CLI::line(sprintf('Purging all cache for zone %s', $currentZone->name));
 		} else {
 			WP_CLI::line('Purging all cache');
 		}
 
-		if ( sb_cf()->purgeAll() ) {
+		if ( sb_cf()->purge_all() ) {
 			WP_CLI::success('Cache purged!');
 		} else {
 			WP_CLI::error('Could not purge cache.');

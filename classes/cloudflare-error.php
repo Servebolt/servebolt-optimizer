@@ -19,7 +19,7 @@ class Cloudflare_Error {
 	 * @param $message
 	 */
 	public function __construct($message) {
-		$this->setErrorMessage($message);
+		$this->set_message($message);
 	}
 
 	/**
@@ -27,7 +27,7 @@ class Cloudflare_Error {
 	 *
 	 * @param $message
 	 */
-	private function setErrorMessage($message) {
+	private function set_message($message) {
 		$this->message = $message;
 	}
 
@@ -35,7 +35,7 @@ class Cloudflare_Error {
 	 * Get error message.
 	 * @return null
 	 */
-	public function getMessage() {
+	public function get_message() {
 		return $this->message;
 	}
 

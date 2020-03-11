@@ -37,6 +37,7 @@ class Servebolt_Admin_Interface {
 	 * Init admin menus.
 	 */
 	public function admin_menu() {
+		if ( ! apply_filters('sb_optimizer_display_menu', true) ) return;
 		add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'general_page_callback'], SERVEBOLT_PATH_URL . 'admin/assets/img/servebolt-icon.svg' );
 		add_submenu_page('servebolt-wp', sb__('General'), sb__('General'), 'manage_options', 'servebolt-wp');
 		$this->add_sub_menu_items();
@@ -49,16 +50,17 @@ class Servebolt_Admin_Interface {
 		add_submenu_page('servebolt-wp', sb__('Performance optimizer'), sb__('Performance optimizer'), 'manage_options', 'servebolt-performance-tools', [$this, 'performance_callback']);
 		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache', [$this, 'cf_cache_callback']);
 		if ( host_is_servebolt() === true ) {
-			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'NGINX_cache_callback']);
-			add_submenu_page('servebolt-wp', sb__('Error log'), sb__('Error log'), 'manage_options', 'servebolt-logs', [$this, 'error_log_callback']);
-			add_action('admin_bar_menu', [$this, 'admin_bar'], 100);
+			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
+			add_submenu_page('servebolt-wp', sb__('Error log'), sb__('Error log'), 'manage_options', 'servebolt-logs', [$this, 'error_log_lallback']);
 		}
+		add_action('admin_bar_menu', [$this, 'admin_bar'], 100);
 	}
 
 	/**
 	 * Init subsite menus.
 	 */
 	public function subsite_menu() {
+		if ( ! apply_filters('sb_optimizer_display_menu', true) ) return;
 		add_options_page( sb__('Servebolt Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'NGINX_cache_callback']);
 	}
 
@@ -107,21 +109,21 @@ class Servebolt_Admin_Interface {
 	 * Display the Full Page Cache control page.
 	 */
 	public function cf_cache_callback() {
-		( CF_Cache_controls::getInstance() )->view();
+		sb_cf_cache_controls()->view();
 	}
 
 	/**
 	 * Display the Full Page Cache control page.
 	 */
-	public function NGINX_cache_callback() {
-		( Nginx_FPC_Controls::getInstance() )->view();
+	public function nginx_cache_callback() {
+		( Nginx_FPC_Controls::get_instance() )->view();
 	}
 
 	/**
 	 * Display error log page.
 	 */
 	public function error_log_callback() {
-		( Servebolt_Logviewer::getInstance() )->view();
+		( Servebolt_Logviewer::get_instance() )->view();
 	}
 
 	/**
@@ -129,7 +131,8 @@ class Servebolt_Admin_Interface {
 	 *
 	 * @param $wp_admin_bar
 	 */
-	public function admin_bar($wp_admin_bar){
+	public function admin_bar($wp_admin_bar) {
+		if ( ! apply_filters('sb_optimizer_display_admin_bar_menu', true) ) return;
 
 		$nodes = [];
 		$sb_icon = '<span class="servebolt-icon"></span>';

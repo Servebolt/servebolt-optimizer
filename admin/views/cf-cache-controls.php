@@ -6,19 +6,19 @@
 
   <p>Active Cloudflare cache zone:
 	<?php if ( $cf_settings['cf_zone_id'] ) : ?>
-    <?php $zone = sb_cf()->getZoneById($cf_settings['cf_zone_id']); ?>
+    <?php $zone = sb_cf()->get_zone_by_id($cf_settings['cf_zone_id']); ?>
      <?php echo ( $zone ? $zone->name . ' (' . $cf_settings['cf_zone_id'] . ')' : $cf_settings['cf_zone_id'] ); ?></p>
   <?php else : ?>
     No zone selected
 	<?php endif; ?>
     </p>
-  <?php if ( ! sb_cf()->CFCacheFeatureAvailable() ) : ?>
+  <?php if ( ! sb_cf()->cf_cache_feature_available() ) : ?>
 	<p>Make sure you have added the API credentials and selected a zone to use this functionality.</p>
   <?php endif; ?>
   <p>
     <?php $disabled = ' disabled title="Make sure you have set up the CF features correctly to purge cache."'; ?>
-    <button class="sb-purge-all-cache button button-secondary"<?php if ( ! sb_cf()->CFCacheFeatureAvailable() ) echo $disabled; ?>>Purge all cache</button>
-    <button class="sb-purge-url button button-secondary"<?php if ( ! sb_cf()->CFCacheFeatureAvailable() ) echo $disabled; ?>>Purge a URL</button>
+    <button class="sb-purge-all-cache button button-secondary"<?php if ( ! sb_cf()->cf_cache_feature_available() ) echo $disabled; ?>>Purge all cache</button>
+    <button class="sb-purge-url button button-secondary"<?php if ( ! sb_cf()->cf_cache_feature_available() ) echo $disabled; ?>>Purge a URL</button>
   </p>
 
   <br>
@@ -62,7 +62,7 @@
           <th scope="row"><label for="api_token">API token</label></th>
           <td>
             <input name="<?php echo sb_get_option_name('cf_api_token'); ?>" type="text" id="api_token" value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" class="regular-text">
-            <p><small>Make sure to add permissions for <?php echo sb_cf()->APIPermissionsNeeded(); ?> when creating a token.</small></p>
+            <p><small>Make sure to add permissions for <?php echo sb_cf()->api_permissions_needed(); ?> when creating a token.</small></p>
           </td>
         </tr>
         <tr class="feature_cf_auth_type-apiKey"<?php if ( $cf_settings['cf_auth_type'] != 'apiKey' ) echo ' style="display: none;"' ?>>
@@ -84,14 +84,16 @@
           <td>
             <input name="<?php echo sb_get_option_name('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID or use the choices below" value="<?php echo esc_attr($cf_settings['cf_zone_id']); ?>" class="regular-text">
 
-            <?php $zones = sb_cf()->listZones(); ?>
+            <?php $zones = sb_cf()->list_zones(); ?>
 
+            <?php if ( is_array($zones) && ! empty($zones) ) : ?>
             <p style="margin-top: 10px;">Available zones:</p>
             <ul class="zone-selector" style="margin: 5px 0;">
               <?php foreach($zones as $zone) : ?>
                 <li><a href="#" data-id="<?php echo esc_attr($zone->id); ?>"><?php echo $zone->name; ?> (<?php echo $zone->id; ?>)</a></li>
               <?php endforeach; ?>
             </ul>
+            <?php endif; ?>
 
           </td>
         </tr>
@@ -119,7 +121,7 @@
           </th>
           <td>
 
-	          <?php $itemsToPurge = sb_cf()->getItemsToPurge(); ?>
+	          <?php $itemsToPurge = sb_cf()->get_items_to_purge(); ?>
 
             <button type="button" style="float:left;" class="button action flush-purge-items-queue"<?php if ( count($itemsToPurge) === 0 ) echo ' disabled'; ?>>Flush queue</button>
 

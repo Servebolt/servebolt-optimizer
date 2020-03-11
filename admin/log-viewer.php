@@ -21,7 +21,7 @@ class Servebolt_Logviewer {
 	 *
 	 * @return Servebolt_Logviewer|null
 	 */
-	public static function getInstance() {
+	public static function get_instance() {
 		if ( self::$instance == null ) {
 			self::$instance = new Servebolt_Logviewer;
 		}
@@ -43,7 +43,8 @@ class Servebolt_Logviewer {
 		$log_file_readable = is_readable($log_file_path);
 		$log = $this->tail($log_file_path, $this->number_of_entries);
 		$entries = $this->prepare_entries($log);
-		sb_view('admin/views/log-viewer', compact('log_file_path', 'log_file_exists', 'log_file_readable', 'log', 'entries'));
+		$number_of_entries = $this->number_of_entries;
+		sb_view('admin/views/log-viewer', compact('number_of_entries', 'log_file_path', 'log_file_exists', 'log_file_readable', 'log', 'entries'));
 	}
 
 	/**

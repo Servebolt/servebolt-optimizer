@@ -9,7 +9,7 @@
 	<?php elseif ( ! $log ) : ?>
 		<p><?php sb_e('Your error log is empty.'); ?></p>
 	<?php else : ?>
-		<p><?php printf( sb__('This table lists the %s last entries from today\'s logs/Errorlog'), $this->number_of_entries); ?>:</p>
+		<p><?php printf( sb__('This table lists the %s last entries from today\'s logs/Errorlog'), $number_of_entries); ?>:</p>
 		<table class="wp-list-table widefat striped posts">
 			<thead>
 			<tr>

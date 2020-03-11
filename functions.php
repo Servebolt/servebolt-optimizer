@@ -19,16 +19,28 @@ function get_sb_admin_url() {
  */
 function sb_performance_checks() {
 	require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
-	return Servebolt_Performance_Checks::getInstance();
+	return Servebolt_Performance_Checks::get_instance();
 }
 
 /**
  * Get Servebolt_Nginx_FPC-instance.
+ *
  * @return Servebolt_Nginx_FPC|null
  */
 function sb_nginx_fpc() {
 	require_once SERVEBOLT_PATH . 'classes/servebolt-nginx-fpc.class.php';
-	return Servebolt_Nginx_FPC::getInstance();
+	return Servebolt_Nginx_FPC::get_instance();
+}
+
+/**
+ * Convert a boolean to a human readable string.
+ *
+ * @param $state
+ *
+ * @return bool|null
+ */
+function sb_boolean_to_state_string($state) {
+	return $state === true ? 'active' : 'inactive';
 }
 
 /**
@@ -38,7 +50,18 @@ function sb_nginx_fpc() {
  */
 function sb_checks() {
 	require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
-	return Servebolt_Checks::getInstance();
+	return Servebolt_Checks::get_instance();
+}
+
+/**
+ * Check if a value is either "on" or boolean and true.
+ *
+ * @param $value
+ *
+ * @return bool
+ */
+function sb_checkbox_true($value) {
+	return $value === 'on' || filter_var($value, FILTER_VALIDATE_BOOLEAN) === true;
 }
 
 /**
@@ -46,7 +69,7 @@ function sb_checks() {
  *
  * @param $exception
  */
-function cf_error($exception) {
+function sb_cf_error($exception) {
 	new Cloudflare_Error($exception->getMessage());
 }
 
@@ -68,7 +91,7 @@ function sb_is_error($object) {
  */
 function sb_cf() {
 	require_once SERVEBOLT_PATH . 'classes/servebolt-cf.class.php';
-	return Servebolt_CF::getInstance();
+	return ServeboltCF::get_instance();
 }
 
 /**
@@ -78,7 +101,7 @@ function sb_cf() {
  */
 function sb_cf_cache_controls() {
 	require_once SERVEBOLT_PATH . 'admin/cf-cache-controls.php';
-	return CF_Cache_Controls::getInstance();
+	return CF_Cache_Controls::get_instance();
 }
 
 /**
@@ -279,6 +302,19 @@ function sb_delete_option($option) {
  */
 function sb_get_blog_option($id, $option, $default = false) {
 	return get_blog_option($id, sb_get_option_name($option), $default);
+}
+
+/**
+ * Update blog option.
+ *
+ * @param $id
+ * @param $option
+ * @param $value
+ *
+ * @return mixed
+ */
+function sb_update_blog_option($id, $option, $value) {
+	return update_blog_option($id, sb_get_option_name($option), $value);
 }
 
 /**

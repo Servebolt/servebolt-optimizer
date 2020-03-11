@@ -41,7 +41,7 @@ remove_action('wp_head', 'wp_generator');
 if ( ! class_exists('Servebolt_Nginx_FPC') ){
 	require_once SERVEBOLT_PATH . 'classes/servebolt-nginx-fpc.class.php';
 	$NginxFPC = sb_nginx_fpc();
-    if ( $NginxFPC->FPCIsActive()) $NginxFPC->setup();
+    if ( $NginxFPC->fpc_is_active()) $NginxFPC->setup();
 }
 
 // Add settings-link in plugin list
@@ -62,5 +62,5 @@ if ( is_admin() ) {
 // Initialize CLI-commands
 if ( class_exists( 'WP_CLI' ) ) {
     require_once __DIR__ . '/cli/cli.class.php';
-	Servebolt_CLI::getInstance();
+	Servebolt_CLI::get_instance();
 }
