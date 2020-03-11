@@ -3,6 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
  * Class Servebolt_Logviewer
+ *
+ * This class facilitates log viewing - only works for sites hosted at Servebolt.
  */
 class Servebolt_Logviewer {
 

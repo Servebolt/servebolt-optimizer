@@ -6,6 +6,8 @@ require_once 'cli-extras.class.php';
 /**
  * Class Servebolt_CLI
  * @package Servebolt
+ *
+ * Does all the WP CLI handling.
  */
 class Servebolt_CLI extends Servebolt_CLI_Extras {
 
@@ -76,7 +78,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Alias of "wp servebolt db fix". Add database indexes and convert database tables to modern table types or delete transients.
+	 * Alias of "wp servebolt db optimize". Add database indexes and convert database tables to modern table types or delete transients.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -102,42 +104,6 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Display config parameters for Cloudflare.
-	 *
-	 * ## EXAMPLES
-	 *
-	 *     wp servebolt cf get-config
-	 */
-	public function cf_config_get() {
-		$cf = sb_cf();
-		$auth_type = $cf->get_authentication_type();
-		$is_cron_purge = $cf->cron_purge_is_active(true);
-
-		$arr = [
-			'Status'     => $cf->cf_is_active() ? 'Active' : 'Inactive',
-			'Zone Id'    => $cf->get_ative_zone_id(),
-			'Purge type' => $is_cron_purge ? 'Via cron' : 'Immediate purge',
-		];
-
-		if ($is_cron_purge) {
-			$arr['Ids to purge (queue for Cron)'] = $cf->get_items_to_purge();
-		}
-
-		$arr['API authentication type'] = $auth_type;
-		switch ($auth_type) {
-			case 'apiKey':
-				$arr['API key'] = $cf->get_credential('apiKey');
-				$arr['email'] = $cf->get_credential('email');
-				break;
-			case 'apiToken':
-				$arr['API token'] = $cf->getCredential('apiToken');
-				break;
-		}
-
-		WP_CLI\Utils\format_items('table', [ $arr ], array_keys($arr));
-	}
-
-	/**
 	 * Analyze tables.
 	 *
 	 * ## EXAMPLES
@@ -160,7 +126,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *     wp servebolt cf activate
 	 */
 	public function cf_activate() {
-		return sb_update_option('cf_switch', true);
+		return sb_cf()->cf_toggle_active(true);
 	}
 
 	/**
@@ -171,7 +137,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *     wp servebolt cf deactivate
 	 */
 	public function cf_deactivate() {
-		return sb_update_option('cf_switch', true);
+		return sb_cf()->cf_toggle_active(false);
 	}
 
 	/**
@@ -478,6 +444,42 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 		} else {
 			WP_CLI::error('Could not purge cache.');
 		}
+	}
+
+	/**
+	 * Display config parameters for Cloudflare.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp servebolt cf get-config
+	 */
+	public function cf_config_get() {
+		$cf = sb_cf();
+		$auth_type = $cf->get_authentication_type();
+		$is_cron_purge = $cf->cron_purge_is_active(true);
+
+		$arr = [
+			'Status'     => $cf->cf_is_active() ? 'Active' : 'Inactive',
+			'Zone Id'    => $cf->get_ative_zone_id(),
+			'Purge type' => $is_cron_purge ? 'Via cron' : 'Immediate purge',
+		];
+
+		if ($is_cron_purge) {
+			$arr['Ids to purge (queue for Cron)'] = $cf->get_items_to_purge();
+		}
+
+		$arr['API authentication type'] = $auth_type;
+		switch ($auth_type) {
+			case 'apiKey':
+				$arr['API key'] = $cf->get_credential('apiKey');
+				$arr['email'] = $cf->get_credential('email');
+				break;
+			case 'apiToken':
+				$arr['API token'] = $cf->getCredential('apiToken');
+				break;
+		}
+
+		WP_CLI\Utils\format_items('table', [ $arr ], array_keys($arr));
 	}
 
 }

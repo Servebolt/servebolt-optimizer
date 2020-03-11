@@ -2,7 +2,9 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
- * Class nginx_fpc_controls
+ * Class Nginx_FPC_Controls
+ *
+ * This class
  */
 class Nginx_FPC_Controls {
 

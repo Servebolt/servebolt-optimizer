@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * Class Servebolt_Nginx_FPC
  * @package Servebolt
  *
- * This class handles the Cache handling via passing headers to the web server.
+ * This class handles the Cache handling by passing headers from WordPress/Apache to the Nginx web server. Only relevant for websites hosted at Servebolt.
  */
 class Servebolt_Nginx_FPC {
 
@@ -79,7 +79,7 @@ class Servebolt_Nginx_FPC {
 	}
 
 	/**
-	 * Check if full page caching is active with optional blog check.
+	 * Set full page caching is active/inactive, either for current blog or specified blog.
 	 *
 	 * @param bool $state
 	 * @param bool $blog_id

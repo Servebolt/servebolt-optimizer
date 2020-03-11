@@ -5,10 +5,9 @@ require_once 'cloudflare-wrapper.class.php';
 
 /**
  * Class Servebolt_CF
- *
- * This class handles actions and triggers related to the Cloudflare feature.
- *
  * @package Servebolt
+ *
+ * This class handles WordPress triggers and actions related to the Cloudflare cache feature.
  */
 class Servebolt_CF {
 
@@ -148,12 +147,32 @@ class Servebolt_CF {
 	}
 
 	/**
-	 * Check if Cloudflare is used.
+	 * The option name/key we use to store the active state for the Cloudflare cache feature.
+	 *
+	 * @return string
+	 */
+	private function cf_active_option_key() {
+		return 'cf_switch';
+	}
+
+	/**
+	 * Check if Cloudflare cache feature is active.
 	 *
 	 * @return bool
 	 */
 	public function cf_is_active() {
-		return sb_checkbox_true(sb_get_option('cf_switch'));
+		return sb_checkbox_true(sb_get_option($this->cf_active_option_key()));
+	}
+
+	/**
+	 * Check if Cloudflare cache feature is active.
+	 *
+	 * @param bool $state
+	 *
+	 * @return bool|mixed
+	 */
+	public function cf_toggle_active(bool $state) {
+		return sb_update_option($this->cf_active_option_key(), $state);
 	}
 
 	/**

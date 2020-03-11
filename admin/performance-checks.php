@@ -2,8 +2,10 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
-* Class Servebolt_Performance_Checks
-*/
+ * Class Servebolt_Performance_Checks
+ *
+ * This class display the optimization options and handles execution of optimizations.
+ */
 class Servebolt_Performance_Checks {
 
 	/**

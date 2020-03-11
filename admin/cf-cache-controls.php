@@ -46,6 +46,8 @@ class CF_Cache_Controls {
 	}
 
 	/**
+	 * Get all plugin settings in array.
+	 *
 	 * @param bool $with_values
 	 *
 	 * @return array

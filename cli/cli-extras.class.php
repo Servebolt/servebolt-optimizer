@@ -4,6 +4,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 /**
  * Class Servebolt_CLI_Extras
  * @package Servebolt
+ *
+ * Additional methods for CLI-class.
  */
 class Servebolt_CLI_Extras {
 
@@ -56,7 +58,7 @@ class Servebolt_CLI_Extras {
 			$sites = get_sites();
 			$sites_status = [];
 			foreach ( $sites as $site ) {
-				$status = sb_nginx_fpc()->fpc_is_active($site->blog_id) === true ? 'Active' : 'Inactive';
+				$status = sb_nginx_fpc()->fpc_is_active($site->blog_id) ? 'Active' : 'Inactive';
 				$post_types = sb_nginx_fpc()->get_cacheable_post_types(true, $site->blog_id);
 				$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
 				$sites_status[] = [
@@ -64,7 +66,6 @@ class Servebolt_CLI_Extras {
 					'STATUS'            => $status,
 					'ACTIVE_POST_TYPES' => $enabled_post_types_string,
 				];
-
 			}
 			WP_CLI\Utils\format_items( 'table', $sites_status , array_keys(current($sites_status)));
 		} else {
@@ -128,8 +129,7 @@ class Servebolt_CLI_Extras {
 	 *
 	 * @return array|bool
 	 */
-	private function nginx_prepare_post_type_argument($args)
-	{
+	private function nginx_prepare_post_type_argument($args) {
 		if ( array_key_exists('post_types', $args) ) {
 			$post_types = $this->format_comma_string();
 			$post_types = array_filter($post_types, function ($post_type) {
@@ -155,7 +155,7 @@ class Servebolt_CLI_Extras {
 		$exclude_ids         = array_key_exists('exclude', $args) ? $args['exclude'] : false;
 
 		if ( is_multisite() && $affect_all_blogs ) {
-			WP_CLI::info( sb__('Activating Nginx Full Page Cache on all blogs...') );
+			WP_CLI::info( sb__('Aplying settings to all blogs') );
 			foreach (get_sites() as $site) {
 				$this->nginx_toggle_cache_for_blog($cache_active, $site->blog_id);
 				if ( $post_types ) $this->nginx_set_post_types($post_types, $cache_active, $site->blog_id);
@@ -251,7 +251,6 @@ class Servebolt_CLI_Extras {
 		} else {
 			WP_CLI::info(sb__('No action was made.'));
 		}
-
 	}
 
 	/**
