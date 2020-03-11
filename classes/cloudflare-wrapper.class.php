@@ -264,5 +264,3 @@ class Cloudflare {
 	}
 
 }
-
-

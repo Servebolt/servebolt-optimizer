@@ -41,12 +41,12 @@
 		  <?php $sb_fpc_settings = sb_nginx_fpc()->get_cacheable_post_types(false, $site->blog_id); ?>
         <tr>
           <td><?php echo $site->blog_id; ?></td>
-          <td><?php echo $site->domain.$site->path; ?></td>
+          <td><?php echo $site->domain . $site->path; ?></td>
           <td><?php sb_nginx_fpc()->fpc_is_active($site->blog_id) ? sb__('On') : sb__('Off'); ?></td>
           <td>
 			  <?php if ( ! empty($sb_fpc_settings) ) : ?>
-				  <?php foreach ($sb_fpc_settings as $page => $switch) : ?>
-					  <?php echo $page.' = '.$switch.'<br>'; ?>
+				  <?php foreach ($sb_fpc_settings as $post_type) : ?>
+					  <?php echo $post_type . '<br>'; ?>
 				  <?php endforeach; ?>
 			  <?php endif; ?>
           </td>

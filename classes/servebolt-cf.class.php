@@ -4,13 +4,13 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 require_once 'cloudflare-wrapper.class.php';
 
 /**
- * Class ServeboltCF
+ * Class Servebolt_CF
  *
  * This class handles actions and triggers related to the Cloudflare feature.
  *
  * @package Servebolt
  */
-class ServeboltCF {
+class Servebolt_CF {
 
 	/**
 	 * Singleton instance.
@@ -45,7 +45,7 @@ class ServeboltCF {
 	 *
 	 * @param bool $credentials
 	 *
-	 * @return ServeboltCF|null
+	 * @return Servebolt_CF|null
 	 */
 	public static function get_instance($credentials = false) {
 		if ( self::$instance == null ) {
@@ -55,7 +55,7 @@ class ServeboltCF {
 	}
 
 	/**
-	 * ServeboltCF constructor.
+	 * Servebolt_CF constructor.
 	 */
 	private function __construct() {
 		$this->init_cf();
@@ -88,7 +88,7 @@ class ServeboltCF {
 	 */
 	private function register_cron() {
 		if ( ! $this->cf_is_active() || ! $this->cron_purge_is_active() ) return;
-		$closure = [$this, 'purgeByCron'];
+		$closure = [$this, 'purge_by_cron'];
 		/*
 		if ( ! wp_next_scheduled( $closure ) ) {
 			wp_schedule_event(time(), 'every_minute', $closure);
@@ -509,9 +509,9 @@ class ServeboltCF {
 	 *
 	 * @return mixed
 	 */
-	public function purgeAll() {
-		return $this->cf()->purgeAll();
+	public function purge_all() {
+		return $this->cf()->purge_all();
 	}
 
 }
-ServeboltCF::get_instance();
+Servebolt_CF::get_instance();

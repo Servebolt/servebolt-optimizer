@@ -59,7 +59,6 @@ class CF_Cache_Controls {
 					case 'cf_switch':
 						$items_with_values[$item] = sb_cf()->cf_is_active();
 						break;
-
 					default:
 						$items_with_values[$item] = sb_get_option($item);
 						break;
@@ -93,7 +92,7 @@ class CF_Cache_Controls {
 	public function purge_all_cache_callback() {
 		if ( ! sb_cf()->cf_cache_feature_available() ) {
 			wp_send_json_error(['message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.']);
-		} elseif ( sb_cf()->purgeAll() ) {
+		} elseif ( sb_cf()->purge_all() ) {
 			wp_send_json_success();
 		} else {
 			wp_send_json_error();

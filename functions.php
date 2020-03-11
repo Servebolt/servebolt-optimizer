@@ -23,6 +23,16 @@ function sb_performance_checks() {
 }
 
 /**
+ * Get Servebolt_Optimize_DB-instance.
+ *
+ * @return Servebolt_Performance_Checks|null
+ */
+function sb_optimize_db() {
+	require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
+	return Servebolt_Optimize_DB::get_instance();
+}
+
+/**
  * Get Servebolt_Nginx_FPC-instance.
  *
  * @return Servebolt_Nginx_FPC|null
@@ -91,7 +101,7 @@ function sb_is_error($object) {
  */
 function sb_cf() {
 	require_once SERVEBOLT_PATH . 'classes/servebolt-cf.class.php';
-	return ServeboltCF::get_instance();
+	return Servebolt_CF::get_instance();
 }
 
 /**

@@ -219,7 +219,7 @@ class Servebolt_Nginx_FPC {
 	 * @return bool
 	 */
 	private function should_exclude_post($post_id) {
-		return in_array($this->getIdsToExclude(), $post_id);
+		return in_array($this->get_ids_to_exclude(), $post_id);
 	}
 
 	/**

@@ -18,7 +18,6 @@ class Servebolt_Admin_Interface {
 	public function __construct() {
 	    $this->init_menus();
 	    $this->init_assets();
-		( sb_performance_checks() )->init();
 	}
 
 	/**
@@ -78,9 +77,7 @@ class Servebolt_Admin_Interface {
 	public function plugin_scripts() {
 		wp_enqueue_script( 'servebolt-optimizer-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/scripts.js', [], filemtime(SERVEBOLT_PATH . 'admin/assets/js/scripts.js'), true );
 		wp_enqueue_script( 'sb-sweetalert2', SERVEBOLT_PATH_URL . 'admin/assets/js/sweetalert2.all.min.js', [], filemtime(SERVEBOLT_PATH . 'admin/assets/js/sweetalert2.all.min.js'), true );
-		wp_localize_script( 'servebolt-optimizer-scripts', 'ajax_object', [
-			'ajax_nonce' => sb_get_ajax_nonce(),
-		] );
+		wp_localize_script( 'servebolt-optimizer-scripts', 'ajax_object', ['ajax_nonce' => sb_get_ajax_nonce()] );
 	}
 
 	/**
@@ -116,7 +113,7 @@ class Servebolt_Admin_Interface {
 	 * Display the Full Page Cache control page.
 	 */
 	public function nginx_cache_callback() {
-		( Nginx_FPC_Controls::get_instance() )->view();
+		sb_nginx_fpc()->view();
 	}
 
 	/**

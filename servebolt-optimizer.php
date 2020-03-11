@@ -40,8 +40,9 @@ remove_action('wp_head', 'wp_generator');
 // Loads the class that sets the correct cache headers for full page cache
 if ( ! class_exists('Servebolt_Nginx_FPC') ){
 	require_once SERVEBOLT_PATH . 'classes/servebolt-nginx-fpc.class.php';
-	$NginxFPC = sb_nginx_fpc();
-    if ( $NginxFPC->fpc_is_active()) $NginxFPC->setup();
+    if ( sb_nginx_fpc()->fpc_is_active()) {
+	    sb_nginx_fpc()->setup();
+    }
 }
 
 // Add settings-link in plugin list

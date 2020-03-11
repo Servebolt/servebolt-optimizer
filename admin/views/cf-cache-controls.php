@@ -150,16 +150,6 @@
               </tr>
               </tfoot>
 
-              <?php
-                /*
-                sb_cf()->addItemToPurgeQueue('test');
-                sb_cf()->addItemToPurgeQueue('/test/more-test/');
-                sb_cf()->addItemToPurgeQueue('1');
-                sb_cf()->addItemToPurgeQueue('2');
-                sb_cf()->addItemToPurgeQueue('https://url.com/uri');
-                */
-	            ?>
-
               <tbody id="the-list">
                 <tr class="no-items<?php if ( count($itemsToPurge) > 0 ) echo ' hidden'; ?>"><td class="colspanchange" colspan="3">No purge items found.</td></tr>
                 <?php foreach($itemsToPurge as $i => $item) : ?>

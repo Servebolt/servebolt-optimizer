@@ -45,6 +45,9 @@ class Servebolt_Performance_Checks {
 		add_action('wp_ajax_servebolt_convert_table_to_innodb', [$this, 'convert_table_to_innodb_callback']);
 	}
 
+	/**
+	 * Trigger database "de-optimization" (to undo our optimization for debugging purposes).
+	 */
 	public function wreak_havoc_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
 		$this->remove_all_indexes();
@@ -54,9 +57,8 @@ class Servebolt_Performance_Checks {
 	 * Remove all indexes (created by us).
 	 */
 	private function remove_all_indexes() {
-		$sb_optimizer_db = Servebolt_Optimize_DB::get_instance();
-		$sb_optimizer_db->deoptimize_indexed_tables();
-		$sb_optimizer_db->convert_tables_to_non_innodb();
+		sb_optimize_db()->deoptimize_indexed_tables();
+		sb_optimize_db()->convert_tables_to_non_innodb();
 	}
 
 	/**
@@ -80,13 +82,12 @@ class Servebolt_Performance_Checks {
 			return;
 		}
 
-		$sb_optimizer_db       = Servebolt_Optimize_DB::get_instance();
-		$full_table_name       = $sb_optimizer_db->get_table_name_by_blog_id($blog_id, $table_name);
+		$full_table_name       = sb_optimize_db()->get_table_name_by_blog_id($blog_id, $table_name);
 		$index_addition_method = $table_name == 'options' ? 'add_options_autoload_index' : 'add_post_meta_index';
 
-		if ( $sb_optimizer_db->table_has_index_on_column($full_table_name, $column) ) {
+		if ( sb_optimize_db()->table_has_index_on_column($full_table_name, $column) ) {
 			wp_send_json_success(['message' => sb__('Table already has index.')]);
-		} elseif ( $sb_optimizer_db->$index_addition_method($blog_id) ) {
+		} elseif ( sb_optimize_db()->$index_addition_method($blog_id) ) {
 			wp_send_json_success(['message' => sb__(sprintf('Added index to %s table.', $table_name))]);
 		} else {
 			wp_send_json_error(['message' => sb__(sprintf('Could not add index to %s table.', $table_name))]);
@@ -101,9 +102,8 @@ class Servebolt_Performance_Checks {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
 
 		$table_name      = sanitize_text_field($_POST['table_name']);
-		$sb_optimizer_db = Servebolt_Optimize_DB::get_instance();
 
-		if ( $sb_optimizer_db->table_is_innodb($table_name) ) {
+		if ( sb_optimize_db()->table_is_innodb($table_name) ) {
 			wp_send_json_success([
 				'message' => 'Table is already using InnoDB.',
 			]);
@@ -111,7 +111,7 @@ class Servebolt_Performance_Checks {
 			wp_send_json_error([
 				'message' => 'Specified table is either invalid or unavailable.',
 			]);
-		} elseif ( $sb_optimizer_db->convert_table_to_innodb($table_name) ) {
+		} elseif ( sb_optimize_db()->convert_table_to_innodb($table_name) ) {
 			wp_send_json_success([
 				'message' => 'Table got converted to InnoDB.',
 			]);
@@ -125,7 +125,7 @@ class Servebolt_Performance_Checks {
 	 */
 	public function optimize_db_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
-		$result = ( Servebolt_Optimize_DB::get_instance() )->optimize_db();
+		$result = sb_optimize_db()->optimize_db();
 		if ( $result === false || $result['result'] === false ) {
 			wp_send_json_error();
 		} else {

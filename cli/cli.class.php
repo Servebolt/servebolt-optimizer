@@ -58,9 +58,9 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 		WP_CLI::add_command( 'servebolt cf clear-zone',          [$this, 'cf_clear_zone'] );
 		WP_CLI::add_command( 'servebolt cf set-credentials',     [$this, 'cf_set_credentials'] );
 		WP_CLI::add_command( 'servebolt cf clear-credentials',   [$this, 'cf_clear_credentials'] );
-		WP_CLI::add_command( 'servebolt cf purge-url',           [$this, 'cf_purge_url'] );
-		WP_CLI::add_command( 'servebolt cf purge-post',          [$this, 'cf_purge_post'] );
-		WP_CLI::add_command( 'servebolt cf purge-all',           [$this, 'cf_purge_all'] );
+		WP_CLI::add_command( 'servebolt cf purge url',           [$this, 'cf_purge_url'] );
+		WP_CLI::add_command( 'servebolt cf purge post',          [$this, 'cf_purge_post'] );
+		WP_CLI::add_command( 'servebolt cf purge all',           [$this, 'cf_purge_all'] );
 	}
 
 	/**
@@ -94,8 +94,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *     wp servebolt db optimize
 	 */
 	public function optimize_database() {
-		require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
-		if ( ! ( Servebolt_Optimize_DB::get_instance() )->optimize_db(true) ) {
+		if ( ! sb_optimize_db()->optimize_db(true) ) {
 			WP_CLI::success('Optimization done');
 		} else {
 			WP_CLI::warning('Everything OK. No optimization to do.');
@@ -111,21 +110,21 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 */
 	public function cf_config_get() {
 		$cf = sb_cf();
-		$authType = $cf->get_authentication_type();
-		$isCronPurge = $cf->cron_purge_is_active(true);
+		$auth_type = $cf->get_authentication_type();
+		$is_cron_purge = $cf->cron_purge_is_active(true);
 
 		$arr = [
 			'Status'     => $cf->cf_is_active() ? 'Active' : 'Inactive',
 			'Zone Id'    => $cf->get_ative_zone_id(),
-			'Purge type' => $isCronPurge ? 'Via cron' : 'Immediate purge',
+			'Purge type' => $is_cron_purge ? 'Via cron' : 'Immediate purge',
 		];
 
-		if ($isCronPurge) {
+		if ($is_cron_purge) {
 			$arr['Ids to purge (queue for Cron)'] = $cf->get_items_to_purge();
 		}
 
-		$arr['API authentication type'] = $authType;
-		switch ($authType) {
+		$arr['API authentication type'] = $auth_type;
+		switch ($auth_type) {
 			case 'apiKey':
 				$arr['API key'] = $cf->get_credential('apiKey');
 				$arr['email'] = $cf->get_credential('email');
@@ -146,8 +145,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *     wp servebolt db analyze
 	 */
 	public function analyze_tables() {
-		require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
-		if ( ! ( Servebolt_Optimize_DB::get_instance() )->analyze_tables(true) ) {
+		if ( ! sb_optimize_db()->analyze_tables(true) ) {
 			WP_CLI::error('Could not analyze tables.');
 		} else {
 			WP_CLI::success('Analyzed tables.');
@@ -297,10 +295,10 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     # Set credentials using email and API key.
-	 *     wp servebolt cf set-credentials key --api-key=your-api-key --email=person@example.com
+	 *     wp servebolt cf set-credentials key --api-key="your-api-key" --email="person@example.com"
 	 *
 	 *     # Set credentials using API token.
-	 *     wp servebolt cf set-credentials token --api-token=your-api-token
+	 *     wp servebolt cf set-credentials token --api-token="your-api-token"
 	 *
 	 */
 	public function cf_set_credentials($args, $assoc_args) {
@@ -423,7 +421,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp servebolt cf purge-url <URL>
+	 *     wp servebolt cf purge url <URL>
 	 *
 	 */
 	public function cf_purge_url($args) {
@@ -441,12 +439,12 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 * ## OPTIONS
 	 *
-	 * <post Id>
+	 * <post ID>
 	 * : The post ID of the post that should be cleared cache for.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp servebolt cf purge-post <post ID>
+	 *     wp servebolt cf purge post <post ID>
 	 *
 	 */
 	public function cf_purge_post($args) {
@@ -464,7 +462,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp servebolt cf purge-all
+	 *     wp servebolt cf purge all
 	 *
 	 */
 	public function cf_purge_all() {
