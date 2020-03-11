@@ -147,8 +147,11 @@ jQuery(document).ready(function($) {
       title: 'Do you want to purge all cache?',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
+      customClass: {
+        confirmButton: 'servebolt-button yellow',
+        cancelButton: 'servebolt-button light'
+      },
+      buttonsStyling: false
     }).then((result) => {
       if (result.value) {
         sb_loading(true);
@@ -195,6 +198,11 @@ jQuery(document).ready(function($) {
     Swal.fire({
       text: 'Which URL do you wish to purge?',
       input: 'text',
+      customClass: {
+        confirmButton: 'servebolt-button yellow',
+        cancelButton: 'servebolt-button light'
+      },
+      buttonsStyling: false,
       inputValidator: (value) => {
         if (!value) {
           return 'Please enter a URL.'
@@ -262,7 +270,7 @@ jQuery(document).ready(function($) {
     Swal.fire({
       icon: 'error',
       title: 'Unknown error',
-      text: message ? message : 'Something went wrong. Please check that you have added valid API credentials and selected an active zone (can be done through WP CLI). If the error still persist then please contact support.'
+      html: message ? message : 'Something went wrong. Please check that you:<br><ul style="text-align: left;max-width:360px;margin: 20px auto;"><li>- Specified a valid URL</li><li>- Have added valid API credentials</li><li>- Have selected an active zone</li></ul> If the error still persist then please contact support.'
     });
   }
 

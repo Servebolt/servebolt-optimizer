@@ -6,7 +6,9 @@
 	<?php endif; ?>
 	<h2>⚡️<?php sb_e('Servebolt Optimize'); ?></h2>
 
-  <!--<button class="wreak-havoc button">Wreak havoc!</button>-->
+  <?php if ( array_key_exists('debug', $_GET)) : ?>
+  <button class="wreak-havoc button" style="margin-top: 10px;">Wreak havoc!</button>
+  <?php endif; ?>
 
 	<h3><?php sb_e('Database Indexes'); ?></h3>
 	<table class="wp-list-table widefat fixed striped sb-db-indx">

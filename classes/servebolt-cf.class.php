@@ -48,7 +48,7 @@ class Servebolt_CF {
 	 */
 	public static function get_instance($credentials = false) {
 		if ( self::$instance == null ) {
-			self::$instance = new ServeboltCF($credentials);
+			self::$instance = new Servebolt_CF($credentials);
 		}
 		return self::$instance;
 	}
@@ -98,7 +98,7 @@ class Servebolt_CF {
 	/**
 	 * Get Cloudflare instance.
 	 *
-	 * @return ServeboltCF|null
+	 * @return Servebolt_CF|null
 	 */
 	private function cf() {
 		if ( is_null($this->cf) ) {
