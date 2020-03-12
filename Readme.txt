@@ -11,6 +11,8 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 This plugin adds functionality to implement Servebolt WordPress best practices. This includes database optimizations, log review, performance recommendations and support for down stream full page caching.
 
+This project is maintained on Github: https://github.com/Servebolt/servebolt-optimizer
+
 == Description ==
 = Features =
 - Database optimization - Convert tables to InnoDB
@@ -60,7 +62,6 @@ With WP-CLI
 * Removed: Transient cleaner
 * Added a exit if installed on PHP versions lower than 7
 
-
 = 1.5.1 =
 * Bugfix: Unable to add indexes on non-multisite installs
 
@@ -91,6 +92,3 @@ With WP-CLI
 * Added WP-CLI support
 * issues on Github #8 added uninstall.php + bug fixes #7 #9
 * added changelog to Readme.txt
-
-
-This project is maintained on Github: https://github.com/Servebolt/servebolt-optimizer
