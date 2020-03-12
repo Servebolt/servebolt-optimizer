@@ -127,6 +127,7 @@ class Servebolt_CF {
 	 *
 	 * @return bool
 	 */
+	/*
 	public function test_api_connection() {
 		try {
 			$this->cf()->list_zones();
@@ -134,8 +135,8 @@ class Servebolt_CF {
 		} catch (Exception $e) {
 			return false;
 		}
-		return false;
 	}
+	*/
 
 	/**
 	 * Check that we have credentials and have selected a zone.

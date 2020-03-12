@@ -23,7 +23,11 @@ class Servebolt_CLI_Extras {
 	 */
 	protected function get_zones() {
 		if ( is_null($this->zones) ) {
-			$this->zones = sb_cf()->list_zones();
+			$zones = sb_cf()->list_zones();
+			if ( sb_is_error($zones) ) {
+				return $zones;
+			}
+			$this->zones = $zones;
 		}
 		return $this->zones;
 	}

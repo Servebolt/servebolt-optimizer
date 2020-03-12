@@ -54,7 +54,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 		WP_CLI::add_command( 'servebolt cf activate',            [$this, 'cf_activate'] );
 		WP_CLI::add_command( 'servebolt cf deactivate',          [$this, 'cf_deactivate'] );
 		WP_CLI::add_command( 'servebolt cf get-config',          [$this, 'cf_config_get'] );
-		WP_CLI::add_command( 'servebolt cf test-api-connection', [$this, 'cf_test_api_connection'] );
+		//WP_CLI::add_command( 'servebolt cf test-api-connection', [$this, 'cf_test_api_connection'] );
 		WP_CLI::add_command( 'servebolt cf list-zones',          [$this, 'cf_list_zones'] );
 		WP_CLI::add_command( 'servebolt cf set-zone',            [$this, 'cf_set_zone'] );
 		WP_CLI::add_command( 'servebolt cf clear-zone',          [$this, 'cf_clear_zone'] );
@@ -182,6 +182,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 *     wp servebolt cf test-api-connection
 	 */
+	/*
 	public function cf_test_api_connection() {
 		if ( sb_cf()->test_api_connection() ) {
 			WP_CLI::success('API connection passed!');
@@ -189,6 +190,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 			WP_CLI::error(sprintf('Could not communicate with the API. Please check that API credentials are configured correctly and that we have the right permissions (%s).', sb_cf()->api_permissions_needed()));
 		}
 	}
+	*/
 
 	/**
 	 * Select active Cloudflare zone.
@@ -197,7 +199,10 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 *     wp servebolt cf set-zone
 	 */
-	public function cf_set_zone() {
+	public function cf_set_zone($args) {
+		list($zone_id) = $args;
+
+		var_dump($zone_id);die;
 
 		WP_CLI::line('This will set/update which Cloudflare zone we are interacting with.');
 
@@ -294,13 +299,16 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 			default:
 				WP_CLI::error('Could not set credentials.');
 		}
-		if ( sb_cf()->storeCredentials($credentials, $type) ) {
-			if ( ! sb_cf()->testAPIConnection() ) {
+		if ( sb_cf()->store_credentials($credentials, $type) ) {
+			WP_CLI::success(sprintf('Cloudflare credentials set using %s: %s', $verboseType, $verboseCredentials));
+			/*
+			if ( ! sb_cf()->test_api_connection() ) {
 				WP_CLI::error(sprintf('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).', sb_cf()->api_permissions_needed()), false);
 			} else {
 				WP_CLI::success(sprintf('Cloudflare credentials set using %s: %s', $verboseType, $verboseCredentials));
 				WP_CLI::success('API connection test passed!');
 			}
+			*/
 		} else {
 			WP_CLI::error(sprintf('Could not set Cloudflare credentials set using %s: %s', $verboseType, $verboseCredentials));
 		}

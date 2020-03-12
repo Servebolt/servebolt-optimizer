@@ -78,9 +78,11 @@ function sb_checkbox_true($value) {
  * Create a Cloudflare_Error-instance.
  *
  * @param $exception
+ *
+ * @return Cloudflare_Error
  */
 function sb_cf_error($exception) {
-	new Cloudflare_Error($exception->getMessage());
+	return new Cloudflare_Error($exception->getMessage());
 }
 
 /**

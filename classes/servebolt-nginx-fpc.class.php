@@ -374,7 +374,9 @@ class Servebolt_Nginx_FPC {
 	 * @return array
 	 */
 	private function maybe_fix_post_type_array_structure($array) {
-		$first_key = key(current($array));
+		if ( ! is_array($array) ) return $array;
+		$flipped_array = array_flip($array);
+		$first_key = current($flipped_array);
 		if ( is_numeric($first_key) ) {
 			return $array;
 		}
