@@ -33,6 +33,22 @@ class Servebolt_CLI_Extras {
 	}
 
 	/**
+	 * Store zone without listing available zones.
+	 *
+	 * @param $zone_id
+	 */
+	protected function store_zone_direct($zone_id) {
+		sb_cf()->store_active_zone_id($zone_id);
+		$zoneObject = sb_cf()->get_zone_by_id($zone_id);
+		$zoneIndentification = $zoneObject ? $zoneObject->name . ' (' . $zoneObject->id . ')' : $zone_id;
+		if ( ! $zoneObject ) {
+			WP_CLI::error_multi_line(['Could not find zone with the specified ID in Cloudflare. This might indicate:', '- the API connection is not working', '- that the zone does not exists', '- that we lack access to the zone']);
+			WP_CLI::confirm( 'Do you still wish to set the zone?');
+		}
+		WP_CLI::success(sprintf('Successfully selected zone %s', $zoneIndentification));
+	}
+
+	/**
 	 * List Cloudflare zones with/without numbering.
 	 *
 	 * @param bool $includeNumbers

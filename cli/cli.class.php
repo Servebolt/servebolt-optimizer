@@ -195,14 +195,27 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	/**
 	 * Select active Cloudflare zone.
 	 *
+	 * [--zone-id=<zone>]
+	 * : Cloudflare Zone id.
+	 *
 	 * ## EXAMPLES
 	 *
+	 *     # Set zone by attempting to fetch available zones from Cloudflare. Might not always work when using tokens that are limited to specific zones.
 	 *     wp servebolt cf set-zone
+	 *
+	 *     # Set zone without any integrity check.
+	 *     wp servebolt cf set-zone --zone-id="zone-id"
+	 *
+	 *
 	 */
-	public function cf_set_zone($args) {
-		list($zone_id) = $args;
+	public function cf_set_zone($args, $assoc_args) {
 
-		var_dump($zone_id);die;
+		// Allow to set zone without listing out available zones.
+		$zone_id = array_key_exists('zone-id', $assoc_args) && ! empty($assoc_args['zone-id']) ? $assoc_args['zone-id'] : false;
+		if ( $zone_id ) {
+			$this->store_zone_direct($zone_id);
+			return;
+		}
 
 		WP_CLI::line('This will set/update which Cloudflare zone we are interacting with.');
 
