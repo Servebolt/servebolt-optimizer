@@ -453,7 +453,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function cf_purge_all() {
-		$currentZoneId = sb_cf()->get_zctive_zone_id();
+		$currentZoneId = sb_cf()->get_active_zone_id();
 		if ( $currentZoneId && $currentZone = sb_cf()->get_zone_by_id($currentZoneId) ) {
 			WP_CLI::line(sprintf('Purging all cache for zone %s', $currentZone->name));
 		} else {
