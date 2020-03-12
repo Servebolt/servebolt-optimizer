@@ -3,7 +3,7 @@ Contributors: audunhus, erlendeide
 Tags: performance, optimization, cache, log, multisite, wp-cli, full page cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 4.9.8
+Tested up to: 5.3.2
 Requires PHP: 7
 Stable tag: 1.6.4
 License: GPLv2 or later
@@ -15,6 +15,7 @@ This plugin adds functionality to implement Servebolt WordPress best practices. 
 = Features =
 - Database optimization - Convert tables to InnoDB
 - Database optimization - Add performance improving indexes
+- Automatic Cloudflare cache purge
 - Recommendations on additional performance improvements
 - Rewrite headers to allow down stream full page caching (Servebolt clients only)
 - View Apache/PHP error log (Servebolt clients only)
@@ -37,7 +38,7 @@ With WP-CLI
 
 == Changelog ==
 = 2.0-alpha =
-* Added Cloudflare cache busting
+* Added Cloudflare cache busting feature
 * Major code refactor
 
 = 1.6.4 =
