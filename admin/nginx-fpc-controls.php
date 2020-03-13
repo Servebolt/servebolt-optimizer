@@ -53,10 +53,6 @@ class Nginx_FPC_Controls {
 	 */
 	public function view() {
 		sb_view('admin/views/nginx-fpc-controls', [
-			'sites'            => is_network_admin() ? get_sites() : [],
-			'options'          => sb_nginx_fpc()->get_cacheable_post_types(false),
-			'post_types'       => get_post_types(['public' => true], 'objects'),
-			'nginx_fpc_active' => sb_nginx_fpc()->fpc_is_active(),
 			'sb_admin_url'     => get_sb_admin_url(),
 		]);
 	}

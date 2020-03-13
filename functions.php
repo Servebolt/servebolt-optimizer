@@ -40,7 +40,7 @@ function sb_optimize_db() {
  * @return Servebolt_Nginx_FPC|null
  */
 function sb_nginx_fpc_controls() {
-	require_once SERVEBOLT_PATH . 'admin/ngxing-fpc-controls.php';
+	require_once SERVEBOLT_PATH . 'admin/nginx-fpc-controls.php';
 	return Nginx_FPC_Controls::get_instance();
 }
 

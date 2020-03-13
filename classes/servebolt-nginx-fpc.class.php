@@ -240,7 +240,7 @@ class Servebolt_Nginx_FPC {
 	 */
 	private function cache_active_for_post_type($post_type) {
 		$cacheable_post_types = $this->get_cacheable_post_types();
-		if ( array_key_exists( $post_type, $cacheable_post_types) && $cacheable_post_types[$post_type] === 'on' ) {
+		if ( in_array( $post_type, $cacheable_post_types) ) {
 			return true;
 		}
 		return false;

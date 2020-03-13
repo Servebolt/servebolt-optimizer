@@ -22,12 +22,12 @@ jQuery(document).ready(function($) {
 
   $('.convert-table').click(function(e){
     e.preventDefault();
-    convert_table();
+    convert_table(this);
   });
 
   $('.create-index').click(function(e){
     e.preventDefault();
-    create_index();
+    create_index(this);
   });
 
   $('#nginx_cache_switch').change(function(){
@@ -170,7 +170,11 @@ jQuery(document).ready(function($) {
                 Swal.fire({
                   icon: 'success',
                   title: 'All good!',
-                  text: 'All cache was purged.'
+                  text: 'All cache was purged.',
+                  customClass: {
+                    confirmButton: 'servebolt-button yellow'
+                  },
+                  buttonsStyling: false
                 });
               }, 100);
             } else {
@@ -228,7 +232,11 @@ jQuery(document).ready(function($) {
                 Swal.fire({
                   icon: 'success',
                   title: 'All good!',
-                  text: 'The cache was purged.'
+                  text: 'The cache was purged.',
+                  customClass: {
+                    confirmButton: 'servebolt-button yellow'
+                  },
+                  buttonsStyling: false
                 });
               }, 100);
             } else {
@@ -270,18 +278,22 @@ jQuery(document).ready(function($) {
     Swal.fire({
       icon: 'error',
       title: 'Unknown error',
-      html: message ? message : 'Something went wrong. Please check that you:<br><ul style="text-align: left;max-width:360px;margin: 20px auto;"><li>- Specified a valid URL</li><li>- Have added valid API credentials</li><li>- Have selected an active zone</li></ul> If the error still persist then please contact support.'
+      html: message ? message : 'Something went wrong. Please check that you:<br><ul style="text-align: left;max-width:360px;margin: 20px auto;"><li>- Specified a valid URL</li><li>- Have added valid API credentials</li><li>- Have selected an active zone</li></ul> If the error still persist then please contact support.',
+      customClass: {
+        confirmButton: 'servebolt-button yellow'
+      },
+      buttonsStyling: false
     });
   }
 
   /**
    * Convert a table to InnoDB.
    */
-  function convert_table() {
+  function convert_table(element) {
     sb_loading(true);
     var data = {
       action: 'servebolt_convert_table_to_innodb',
-      table_name: $(this).data('table'),
+      table_name: $(element).data('table'),
       security: ajax_object.ajax_nonce,
     };
     $.ajax({
@@ -296,7 +308,11 @@ jQuery(document).ready(function($) {
             Swal.fire({
               icon: 'success',
               title: 'All good!',
-              text: message
+              text: message,
+              customClass: {
+                confirmButton: 'servebolt-button yellow'
+              },
+              buttonsStyling: false
             }).then(function () {
               location.reload();
             });
@@ -341,7 +357,11 @@ jQuery(document).ready(function($) {
               width: 800,
               icon: 'success',
               title: 'All good!',
-              html: message
+              html: message,
+              customClass: {
+                confirmButton: 'servebolt-button yellow'
+              },
+              buttonsStyling: false
             }).then(function () {
               location.reload();
             });
@@ -360,12 +380,12 @@ jQuery(document).ready(function($) {
   /**
    * Create index on table.
    */
-  function create_index() {
+  function create_index(element) {
     sb_loading(true);
     var data = {
       action: 'servebolt_create_index',
-      table_name: $(this).data('table'),
-      blog_id: $(this).data('blog-id'),
+      table_name: $(element).data('table'),
+      blog_id: $(element).data('blog-id'),
       security: ajax_object.ajax_nonce,
     };
     $.ajax({
@@ -379,7 +399,11 @@ jQuery(document).ready(function($) {
             Swal.fire({
               icon: 'success',
               title: 'All good!',
-              text: response.data.message
+              text: response.data.message,
+              customClass: {
+                confirmButton: 'servebolt-button yellow'
+              },
+              buttonsStyling: false
             }).then(function () {
               location.reload();
             });
@@ -445,7 +469,11 @@ jQuery(document).ready(function($) {
     Swal.fire({
       icon: 'error',
       title: 'Ouch...',
-      text: 'Something went wrong, please check the error logs or contact the administrator.'
+      text: 'Something went wrong, please check the error logs or contact the administrator.',
+      customClass: {
+        confirmButton: 'servebolt-button yellow'
+      },
+      buttonsStyling: false
     })
   }
 

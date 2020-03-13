@@ -89,7 +89,7 @@
 				<tr>
 					<td><?php echo $obj->TABLE_NAME; ?></td>
 					<td><?php echo $obj->ENGINE; ?></td>
-					<td><a href="#" class="convert-table" data-table="<?php echo $obj->TABLE_NAME; ?>"><?php sb_e('Create index'); ?></a></td>
+					<td><a href="#" class="convert-table" data-table="<?php echo $obj->TABLE_NAME; ?>"><?php sb_e('Convert to InnoDB'); ?></a></td>
 				</tr>
 				<?php $run_optimizer = true; ?>
 			<?php endforeach; ?>

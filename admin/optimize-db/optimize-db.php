@@ -134,12 +134,23 @@ class Servebolt_Optimize_DB {
 	 * Remove table optimization measures.
 	 */
 	public function deoptimize_indexed_tables() {
-		foreach ( $this->get_sites() as $site ) {
-			switch_to_blog( $site->blog_id );
-			$this->remove_post_meta_index();
-			$this->remove_options_autoload_index();
-			restore_current_blog();
+		if ( is_multisite() ) {
+			foreach ( $this->get_sites() as $site ) {
+				switch_to_blog( $site->blog_id );
+				$this->remove_indexes();
+				restore_current_blog();
+			}
+		} else {
+			$this->remove_indexes();
 		}
+	}
+
+	/**
+	 * Revert optimizations.
+	 */
+	private function remove_indexes() {
+		$this->remove_post_meta_index();
+		$this->remove_options_autoload_index();
 	}
 
 	/**
@@ -343,6 +354,17 @@ class Servebolt_Optimize_DB {
 		$table_name = $this->wpdb()->{$table};
 		restore_current_blog();
 		return $table_name;
+	}
+
+	/**
+	 * Get table name by blog Id.
+	 *
+	 * @param $table
+	 *
+	 * @return mixed
+	 */
+	public function get_table_name($table) {
+		return $this->wpdb()->{$table};
 	}
 
 	/**

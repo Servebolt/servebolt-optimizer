@@ -37,7 +37,7 @@
       </tr>
       </tfoot>
       <tbody>
-	    <?php foreach ( $sites as $site ) : ?>
+	    <?php foreach ( get_sites() as $site ) : ?>
 		  <?php $sb_fpc_settings = sb_nginx_fpc()->get_cacheable_post_types(false, $site->blog_id); ?>
         <tr>
           <td><?php echo $site->blog_id; ?></td>
@@ -58,6 +58,12 @@
 
   <?php else : ?>
 
+    <?php
+      $cacheable_post_types = sb_nginx_fpc()->get_cacheable_post_types(false);
+      $nginx_fpc_active = sb_nginx_fpc()->fpc_is_active();
+      $post_types = get_post_types(['public' => true], 'objects');
+    ?>
+
 		<form method="post" action="options.php">
 			<?php settings_fields( 'nginx-fpc-options-page' ) ?>
 			<?php do_settings_sections( 'nginx-fpc-options-page' ) ?>
@@ -75,8 +81,8 @@
 					</th>
 					<td>
             <?php foreach ($post_types as $type) : ?>
-							<?php $checked = ( is_array($options) && array_key_exists($type->name, $options) ) ? ' checked' : ''; ?>
-							<input id="cache_post_type_<?php echo $type->name; ?>" name="servebolt_fpc_settings[<?php echo $type->name; ?>]" type="checkbox"<?php echo $checked; ?>> <label for="cache_post_type_<?php echo $type->name; ?>"><?php echo $type->labels->singular_name; ?></label><br>
+							<?php $checked = ( is_array($cacheable_post_types) && in_array($type->name, $cacheable_post_types) ) ? ' checked' : ''; ?>
+							<input id="cache_post_type_<?php echo $type->name; ?>" name="servebolt_fpc_settings[<?php echo $type->name; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="cache_post_type_<?php echo $type->name; ?>"><?php echo $type->labels->singular_name; ?></label><br>
 						<?php endforeach; ?>
 					</td>
 				</tr>
