@@ -211,7 +211,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	public function cf_set_zone($args, $assoc_args) {
 
 		// Allow to set zone without listing out available zones.
-		$zone_id = array_key_exists('zone-id', $assoc_args) && ! empty($assoc_args['zone-id']) ? $assoc_args['zone-id'] : false;
+		$zone_id = ( array_key_exists('zone-id', $assoc_args) && ! empty($assoc_args['zone-id']) ) ? $assoc_args['zone-id'] : false;
 		if ( $zone_id ) {
 			$this->store_zone_direct($zone_id);
 			return;
