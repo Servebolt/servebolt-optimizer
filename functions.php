@@ -32,6 +32,18 @@ function sb_optimize_db() {
 	return Servebolt_Optimize_DB::get_instance();
 }
 
+
+
+/**
+ * Get Nginx_FPC_Controls-instance.
+ *
+ * @return Servebolt_Nginx_FPC|null
+ */
+function sb_nginx_fpc_controls() {
+	require_once SERVEBOLT_PATH . 'admin/ngxing-fpc-controls.php';
+	return Nginx_FPC_Controls::get_instance();
+}
+
 /**
  * Get Servebolt_Nginx_FPC-instance.
  *

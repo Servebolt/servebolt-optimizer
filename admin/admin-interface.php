@@ -113,7 +113,7 @@ class Servebolt_Admin_Interface {
 	 * Display the Full Page Cache control page.
 	 */
 	public function nginx_cache_callback() {
-		sb_nginx_fpc()->view();
+		sb_nginx_fpc_controls()->view();
 	}
 
 	/**
