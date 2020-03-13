@@ -187,6 +187,7 @@ function sb_e($string, $domain = null) {
  * @return bool
  */
 function host_is_servebolt() {
+	if ( defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE) ) return HOST_IS_SERVEBOLT_OVERRIDE;
 	foreach(['SERVER_ADMIN', 'SERVER_NAME'] as $key) {
 		if (array_key_exists($key, $_SERVER)) {
 			$check = $_SERVER[$key];

@@ -17,8 +17,8 @@
   <?php endif; ?>
   <p>
     <?php $disabled = ' disabled title="Make sure you have set up the CF features correctly to purge cache."'; ?>
-    <button class="sb-purge-all-cache button button-secondary"<?php if ( ! sb_cf()->cf_cache_feature_available() ) echo $disabled; ?>>Purge all cache</button>
-    <button class="sb-purge-url button button-secondary"<?php if ( ! sb_cf()->cf_cache_feature_available() ) echo $disabled; ?>>Purge a URL</button>
+    <button class="sb-purge-all-cache sb-button yellow inline"<?php if ( ! sb_cf()->cf_cache_feature_available() ) echo $disabled; ?>>Purge all cache</button>
+    <button class="sb-purge-url sb-button yellow inline"<?php if ( ! sb_cf()->cf_cache_feature_available() ) echo $disabled; ?>>Purge a URL</button>
   </p>
 
   <br>

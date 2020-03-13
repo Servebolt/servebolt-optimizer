@@ -73,7 +73,7 @@ class Servebolt_CLI_Extras {
 	 *
 	 * @param $assoc_args
 	 */
-	protected function get_nginx_status($assoc_args) {
+	protected function get_nginx_fpc_status($assoc_args, $display_cache_state = true) {
 		if ( is_multisite() && array_key_exists('all', $assoc_args) ) {
 			$sites = get_sites();
 			$sites_status = [];
@@ -89,11 +89,13 @@ class Servebolt_CLI_Extras {
 			}
 			WP_CLI\Utils\format_items( 'table', $sites_status , array_keys(current($sites_status)));
 		} else {
-			$status = sb_nginx_fpc()->fpc_is_active() ? 'activate' : 'inactive';
+			$status = sb_nginx_fpc()->fpc_is_active() ? 'active' : 'inactive';
 			$post_types = sb_nginx_fpc()->get_cacheable_post_types();
 			$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
-			WP_CLI::line( sprintf( sb__( 'Servebolt Full Page Cache cache is %s' ), $status ) );
-			WP_CLI::line( sprintf( sb__( 'Post types enabled for caching: %s' ), $enabled_post_types_string ) );
+			if ( $display_cache_state ) {
+				WP_CLI::line( sprintf( sb__( 'Servebolt Full Page Cache cache is %s' ), $status ) );
+			}
+			WP_CLI::line( sprintf( sb__( 'Cache enabled for post type(s): %s' ), $enabled_post_types_string ) );
 		}
 	}
 
@@ -115,14 +117,7 @@ class Servebolt_CLI_Extras {
 		if ( array_key_exists('all', $post_types) ) {
 			return sb__( 'All' );
 		}
-
-		$enabled_post_types = [];
-		foreach ( $post_types as $key => $value ) {
-			if ( $value ) {
-				$enabled_post_types[] = $key;
-			}
-		}
-		return implode(',', $enabled_post_types);
+		return implode(', ', $post_types);
 	}
 
 	/**
@@ -151,7 +146,7 @@ class Servebolt_CLI_Extras {
 	 */
 	private function nginx_prepare_post_type_argument($args) {
 		if ( array_key_exists('post_types', $args) ) {
-			$post_types = $this->format_comma_string();
+			$post_types = $this->format_comma_string($args['post_types']);
 			$post_types = array_filter($post_types, function ($post_type) {
 				return post_type_exists($post_type);
 			});

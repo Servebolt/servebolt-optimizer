@@ -278,7 +278,7 @@ jQuery(document).ready(function($) {
     Swal.fire({
       icon: 'error',
       title: 'Unknown error',
-      html: message ? message : 'Something went wrong. Please check that you:<br><ul style="text-align: left;max-width:360px;margin: 20px auto;"><li>- Specified a valid URL</li><li>- Have added valid API credentials</li><li>- Have selected an active zone</li></ul> If the error still persist then please contact support.',
+      html: message ? message : 'Something went wrong. Please check that you:<br><ul style="text-align: left;max-width:350px;margin: 20px auto;"><li>- Specified a valid URL</li><li>- Have added valid API credentials</li><li>- Have selected an active zone</li></ul> If the error still persist then please contact support.',
       customClass: {
         confirmButton: 'servebolt-button yellow'
       },

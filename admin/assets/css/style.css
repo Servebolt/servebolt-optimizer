@@ -43,6 +43,11 @@
     border: 2px solid #ffaf00;
 }
 
+.sb-content .sb-button.inline {
+    margin-left: 0;
+    margin-right: 10px;
+}
+
 .servebolt-button.yellow,
 .sb-content .sb-button.yellow {
     background: #ffaf00;

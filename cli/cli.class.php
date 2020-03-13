@@ -41,28 +41,29 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 * Register WP CLI commands.
 	 */
 	private function registerCommands() {
-		WP_CLI::add_command( 'servebolt clear-all-settings',     [$this, 'clear_all_settings'] );
+		WP_CLI::add_command( 'servebolt clear-all-settings',       [$this, 'clear_all_settings'] );
 
-		WP_CLI::add_command( 'servebolt db optimize',            [$this, 'optimize_database'] );
-		WP_CLI::add_command( 'servebolt db fix',                 [$this, 'fix'] );
-		WP_CLI::add_command( 'servebolt db analyze',             [$this, 'analyze_tables'] );
+		WP_CLI::add_command( 'servebolt db optimize',              [$this, 'optimize_database'] );
+		WP_CLI::add_command( 'servebolt db fix',                   [$this, 'fix'] );
+		WP_CLI::add_command( 'servebolt db analyze',               [$this, 'analyze_tables'] );
 
-		WP_CLI::add_command( 'servebolt fpc activate',           [$this, 'nginx_activate'] );
-		WP_CLI::add_command( 'servebolt fpc deactivate',         [$this, 'nginx_deactivate'] );
-		WP_CLI::add_command( 'servebolt fpc status',             [$this, 'nginx_status'] );
+		WP_CLI::add_command( 'servebolt fpc enable',               [$this, 'nginx_fpc_enable'] );
+		WP_CLI::add_command( 'servebolt fpc disable',              [$this, 'nginx_fpc_disable'] );
+		//WP_CLI::add_command( 'servebolt fpc set-cache-post-types', [$this, 'nginx_fpc_set_cache_post_types'] );
+		WP_CLI::add_command( 'servebolt fpc status',               [$this, 'nginx_fpc_status'] );
 
-		WP_CLI::add_command( 'servebolt cf activate',            [$this, 'cf_activate'] );
-		WP_CLI::add_command( 'servebolt cf deactivate',          [$this, 'cf_deactivate'] );
-		WP_CLI::add_command( 'servebolt cf get-config',          [$this, 'cf_config_get'] );
-		//WP_CLI::add_command( 'servebolt cf test-api-connection', [$this, 'cf_test_api_connection'] );
-		WP_CLI::add_command( 'servebolt cf list-zones',          [$this, 'cf_list_zones'] );
-		WP_CLI::add_command( 'servebolt cf set-zone',            [$this, 'cf_set_zone'] );
-		WP_CLI::add_command( 'servebolt cf clear-zone',          [$this, 'cf_clear_zone'] );
-		WP_CLI::add_command( 'servebolt cf set-credentials',     [$this, 'cf_set_credentials'] );
-		WP_CLI::add_command( 'servebolt cf clear-credentials',   [$this, 'cf_clear_credentials'] );
-		WP_CLI::add_command( 'servebolt cf purge url',           [$this, 'cf_purge_url'] );
-		WP_CLI::add_command( 'servebolt cf purge post',          [$this, 'cf_purge_post'] );
-		WP_CLI::add_command( 'servebolt cf purge all',           [$this, 'cf_purge_all'] );
+		WP_CLI::add_command( 'servebolt cf enable',                [$this, 'cf_enable'] );
+		WP_CLI::add_command( 'servebolt cf disable',               [$this, 'cf_disable'] );
+		WP_CLI::add_command( 'servebolt cf get-config',            [$this, 'cf_config_get'] );
+		//WP_CLI::add_command( 'servebolt cf test-api-connection',   [$this, 'cf_test_api_connection'] );
+		WP_CLI::add_command( 'servebolt cf list-zones',            [$this, 'cf_list_zones'] );
+		WP_CLI::add_command( 'servebolt cf set-zone',              [$this, 'cf_set_zone'] );
+		WP_CLI::add_command( 'servebolt cf clear-zone',            [$this, 'cf_clear_zone'] );
+		WP_CLI::add_command( 'servebolt cf set-credentials',       [$this, 'cf_set_credentials'] );
+		WP_CLI::add_command( 'servebolt cf clear-credentials',     [$this, 'cf_clear_credentials'] );
+		WP_CLI::add_command( 'servebolt cf purge url',             [$this, 'cf_purge_url'] );
+		WP_CLI::add_command( 'servebolt cf purge post',            [$this, 'cf_purge_post'] );
+		WP_CLI::add_command( 'servebolt cf purge all',             [$this, 'cf_purge_all'] );
 	}
 
 	/**
@@ -123,9 +124,9 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp servebolt cf activate
+	 *     wp servebolt cf enable
 	 */
-	public function cf_activate() {
+	public function cf_enable() {
 		return sb_cf()->cf_toggle_active(true);
 	}
 
@@ -134,9 +135,9 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp servebolt cf deactivate
+	 *     wp servebolt cf disable
 	 */
-	public function cf_deactivate() {
+	public function cf_disable() {
 		return sb_cf()->cf_toggle_active(false);
 	}
 
@@ -349,16 +350,16 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     # Activate Servebolt Full Page Cache, but only for pages and posts
-	 *     wp servebolt fpc activate --post_types=post,page
+	 *     wp servebolt fpc enable --post_types=post,page
 	 *
 	 */
-	public function nginx_activate( $args, $assoc_args ) {
+	public function nginx_fpc_enable( $args, $assoc_args ) {
 		$this->nginx_control(true, $assoc_args);
-		if ( in_array('status', $assoc_args) ) $this->get_nginx_status($assoc_args);
+		if ( in_array('status', $assoc_args) ) $this->get_nginx_fpc_status($assoc_args, false);
 	}
 
 	/**
-	 * Deactivate the correct cache headers for Servebolt Full Page Cache.
+	 * Disable Nginx Full Page Cache.
 	 *
 	 * ## OPTIONS
 	 *
@@ -381,9 +382,9 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *     wp servebolt fpc deactivate --post_types=post,page
 	 *
 	 */
-	public function nginx_deactivate( $args, $assoc_args ) {
+	public function nginx_fpc_disable( $args, $assoc_args ) {
 		$this->nginx_control(false, $assoc_args);
-		if ( in_array('status', $assoc_args) ) $this->get_nginx_status($assoc_args);
+		if ( in_array('status', $assoc_args) ) $this->get_nginx_fpc_status($assoc_args, false);
 	}
 
 	/**
@@ -394,8 +395,8 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *     wp servebolt fpc status
 	 *
 	 */
-	public function nginx_status( $args, $assoc_args  ) {
-		$this->get_nginx_status($assoc_args);
+	public function nginx_fpc_status( $args, $assoc_args  ) {
+		$this->get_nginx_fpc_status($assoc_args);
 	}
 
 	/**
