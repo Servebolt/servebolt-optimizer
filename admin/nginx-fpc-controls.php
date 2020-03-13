@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 /**
  * Class Nginx_FPC_Controls
  *
- * This class
+ * This class displays the Nginx Full Page Cache control GUI.
  */
 class Nginx_FPC_Controls {
 
