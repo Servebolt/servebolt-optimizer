@@ -192,7 +192,7 @@ class Servebolt_Nginx_FPC {
             // Make sure the post type can be cached
 	        $this->post_types[] = get_post_type();
 	        $this->cache_headers();
-        } elseif ( ( is_front_page() || is_singular() || is_page() ) && $this->cacheActiveForPostType($postType) ) {
+        } elseif ( ( is_front_page() || is_singular() || is_page() ) && $this->cache_active_for_post_type($postType) ) {
 			// Make sure the post type can be cached
 			$this->post_types[] = $postType;
 			$this->cache_headers();
