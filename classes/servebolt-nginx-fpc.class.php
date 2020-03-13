@@ -201,7 +201,7 @@ class Servebolt_Nginx_FPC {
 			$this->cache_headers();
 		} elseif( !empty($this->get_cacheable_post_types() ) ) {
             $this->post_types[] = get_post_type();
-            if( in_array( get_post_type() , $this->default_cacheable_post_types() ) ) $this->cacheHeaders();
+            if( in_array( get_post_type() , $this->default_cacheable_post_types() ) ) $this->cache_headers();
         } elseif( empty($this->get_cacheable_post_types() ) && ( is_front_page() || is_singular() || is_page() ) ) {
 	        $this->cache_headers();
         } else {
