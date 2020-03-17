@@ -380,17 +380,6 @@ function sb_update_blog_option($id, $option, $value) {
 }
 
 /**
- * Delete site option.
- *
- * @param $option
- *
- * @return bool
- */
-function sb_delete_site_option($option) {
-	return delete_site_option(sb_get_option_name($option));
-}
-
-/**
  * Delete plugin settings.
  */
 function sb_clear_all_settings() {
@@ -417,7 +406,6 @@ function sb_clear_all_settings() {
 			}
 		}
 		sb_delete_option($option_name);
-		sb_delete_site_option($option_name);
 	}
 }
 
