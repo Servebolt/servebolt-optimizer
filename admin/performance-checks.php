@@ -42,9 +42,18 @@ class Servebolt_Performance_Checks {
 	*/
 	private function add_ajax_handling() {
 		add_action('wp_ajax_servebolt_wreak_havoc', [$this, 'wreak_havoc_callback']);
+		add_action('wp_ajax_servebolt_clear_all_settings', [$this, 'clear_all_settings_callback']);
 		add_action('wp_ajax_servebolt_create_index', [$this, 'create_index_callback']);
 		add_action('wp_ajax_servebolt_optimize_db', [$this, 'optimize_db_callback']);
 		add_action('wp_ajax_servebolt_convert_table_to_innodb', [$this, 'convert_table_to_innodb_callback']);
+	}
+
+	/**
+	 * Clear all plugin settings.
+	 */
+	public function clear_all_settings_callback() {
+		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+		sb_clear_all_settings();
 	}
 
 	/**

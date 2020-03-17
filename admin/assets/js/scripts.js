@@ -1,5 +1,10 @@
 jQuery(document).ready(function($) {
 
+  $('.sb-clear-all-settings').click(function(e) {
+    e.preventDefault();
+    sb_clear_all_settings();
+  });
+
   $('.sb-wreak-havoc').click(function(e) {
     e.preventDefault();
     sb_wreak_havoc();
@@ -420,6 +425,32 @@ jQuery(document).ready(function($) {
       error: function() {
         sb_loading(false);
         sb_optimization_error();
+      }
+    });
+  }
+
+  /**
+   * Clear all plugin settings.
+   */
+  function sb_clear_all_settings() {
+    if ( ! confirm('Warning: this will clear all settings and essentially reset the whole plugin. You want to proceed?') ) {
+      return;
+    }
+    sb_loading(true);
+    var data = {
+      action: 'servebolt_clear_all_settings',
+      security: ajax_object.ajax_nonce,
+    };
+    $.ajax({
+      type: 'POST',
+      url: ajaxurl,
+      data: data,
+      success: function (response) {
+        sb_loading(false);
+        setTimeout(function () {
+          alert('Done!');
+          location.reload();
+        }, 100);
       }
     });
   }

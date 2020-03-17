@@ -354,6 +354,19 @@ function sb_get_blog_option($id, $option, $default = false) {
 }
 
 /**
+ * Delete blog option.
+ *
+ * @param $id
+ * @param $option
+ * @param bool $default
+ *
+ * @return mixed
+ */
+function sb_delete_blog_option($id, $option, $default = false) {
+	return get_blog_option($id, sb_get_option_name($option), $default);
+}
+
+/**
  * Update blog option.
  *
  * @param $id
@@ -400,7 +413,7 @@ function sb_clear_all_settings() {
 	foreach ( $option_names as $option_name ) {
 		if ( is_multisite() ) {
 			foreach ( get_sites() as $site ) {
-				sb_get_blog_option($site->blog_id, $option_name);
+				sb_delete_blog_option($site->blog_id, $option_name);
 			}
 		}
 		sb_delete_option($option_name);

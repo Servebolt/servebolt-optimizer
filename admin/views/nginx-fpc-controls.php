@@ -69,7 +69,6 @@
       $post_types_to_cache  = sb_nginx_fpc()->get_post_types_to_cache(false, false);
       $available_post_types = sb_nginx_fpc()->get_available_post_types_to_cache(true);
     ?>
-
 		<form method="post" action="options.php">
 			<?php settings_fields( 'nginx-fpc-options-page' ) ?>
 			<?php do_settings_sections( 'nginx-fpc-options-page' ) ?>
