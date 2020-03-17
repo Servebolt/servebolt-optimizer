@@ -315,7 +315,7 @@ class Servebolt_Nginx_FPC {
 		// Make sure we migrate from old array structure
 		$post_types_to_cache = $this->maybe_fix_post_type_array_structure($post_types_to_cache);
 
-		if ( $respect_all && in_array('all', $post_types_to_cache) ) {
+		if ( $respect_all && in_array('all', (array) $post_types_to_cache) ) {
 			return array_keys(sb_nginx_fpc()->get_available_post_types_to_cache());
 		}
 
