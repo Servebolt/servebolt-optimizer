@@ -220,43 +220,43 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 
 		WP_CLI::line('This will set/update which Cloudflare zone we are interacting with.');
 
-		if ( $currentZoneId = sb_cf()->get_active_zone_id() ) {
-			$currentZone = sb_cf()->get_zone_by_id($currentZoneId);
-			if ( $currentZone ) {
-				WP_CLI::line(sprintf('Current zone is set to %s (%s)', $currentZone->name, $currentZone->id));
+		if ( $current_zone_id = sb_cf()->get_active_zone_id() ) {
+			$current_zone = sb_cf()->get_zone_by_id($current_zone_id);
+			if ( $current_zone ) {
+				WP_CLI::line(sprintf('Current zone is set to %s (%s)', $current_zone->name, $current_zone->id));
 			}
 		}
 
 		$zones = $this->get_zones();
 
-		SelectZone:
+		select_zone:
 		$this->list_zones(true);
 
 		echo 'Select which zone you would like to set up: ';
 		$handle = fopen ('php://stdin', 'r');
 		$line = trim(fgets($handle));
 
-		$foundZone = false;
+		$found_zone = false;
 		foreach ( $zones as $i => $zone ) {
 			if ( $i+1 == $line || $zone->id == $line || $zone->name == $line ) {
-				$foundZone = $zone;
+				$found_zone = $zone;
 				break;
 			}
 		}
 		fclose($handle);
-		if ( ! $foundZone ) {
+		if ( ! $found_zone ) {
 			WP_CLI::error('Invalid selection, please try again.', false);
-			goto SelectZone;
+			goto select_zone;
 		}
 
 		// Notify user if the zone domain name does not match in the blog URL.
-		$homeUrl = get_home_url();
-		if ( strpos($homeUrl, $foundZone->name) === false ) {
-			WP_CLI::warning(sprintf('Selected zone (%s) does not match with the URL fo the current blog (%s). This will most likely inhibit cache purge to work.', $foundZone->name, $homeUrl));
+		$home_url = get_home_url();
+		if ( strpos($home_url, $found_zone->name) === false ) {
+			WP_CLI::warning(sprintf('Selected zone (%s) does not match with the URL fo the current blog (%s). This will most likely inhibit cache purge to work.', $found_zone->name, $home_url));
 		}
 
-		sb_cf()->store_active_zone_id($foundZone->id);
-		WP_CLI::success(sprintf('Successfully selected zone %s', $foundZone->name));
+		sb_cf()->store_active_zone_id($found_zone->id);
+		WP_CLI::success(sprintf('Successfully selected zone %s', $found_zone->name));
 
 	}
 
@@ -287,18 +287,18 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function cf_set_credentials($args, $assoc_args) {
-		list($authType) = $args;
-		switch ( $authType ) {
+		list($auth_type) = $args;
+		switch ( $auth_type ) {
 			case 'key':
 				$email = array_key_exists('email', $assoc_args) ? $assoc_args['email'] : false;
-				$apiKey = array_key_exists('api-key', $assoc_args) ? $assoc_args['api-key'] : false;
-				if ( ! $email || empty($email) || ! $apiKey || empty($apiKey) ) {
+				$api_key = array_key_exists('api-key', $assoc_args) ? $assoc_args['api-key'] : false;
+				if ( ! $email || empty($email) || ! $api_key || empty($api_key) ) {
 					WP_CLI::error('Please specify API key and email.');
 				}
 				$type        = 'apiKey';
-				$verboseType = 'API key';
+				$verbose_type = 'API key';
 				$credentials = compact('email', 'apiKey');
-				$verboseCredentials = implode(' / ', $credentials);
+				$verbose_credentials = implode(' / ', $credentials);
 				break;
 			case 'token':
 				$token = array_key_exists('api-token', $assoc_args) ? $assoc_args['api-token'] : false;
@@ -306,15 +306,15 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 					WP_CLI::error('Please specify a token.');
 				}
 				$type        = 'apiToken';
-				$verboseType = 'API token';
+				$verbose_type = 'API token';
 				$credentials = $token;
-				$verboseCredentials = $credentials;
+				$verbose_credentials = $credentials;
 				break;
 			default:
 				WP_CLI::error('Could not set credentials.');
 		}
 		if ( sb_cf()->store_credentials($credentials, $type) ) {
-			WP_CLI::success(sprintf('Cloudflare credentials set using %s: %s', $verboseType, $verboseCredentials));
+			WP_CLI::success(sprintf('Cloudflare credentials set using %s: %s', $verbose_type, $verbose_credentials));
 			/*
 			if ( ! sb_cf()->test_api_connection() ) {
 				WP_CLI::error(sprintf('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).', sb_cf()->api_permissions_needed()), false);
@@ -324,7 +324,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 			}
 			*/
 		} else {
-			WP_CLI::error(sprintf('Could not set Cloudflare credentials set using %s: %s', $verboseType, $verboseCredentials));
+			WP_CLI::error(sprintf('Could not set Cloudflare credentials set using %s: %s', $verbose_type, $verbose_credentials));
 		}
 	}
 
@@ -436,9 +436,9 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function cf_purge_post($args) {
-		list($postId) = $args;
-		WP_CLI::line(sprintf('Purging cache for post %s', $postId));
-		if ( sb_cf()->purgePost($postId) ) {
+		list($post_id) = $args;
+		WP_CLI::line(sprintf('Purging cache for post %s', $post_id));
+		if ( sb_cf()->purgePost($post_id) ) {
 			WP_CLI::success('Cache purged!');
 		} else {
 			WP_CLI::error('Could not purge cache.');
@@ -454,9 +454,9 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function cf_purge_all() {
-		$currentZoneId = sb_cf()->get_active_zone_id();
-		if ( $currentZoneId && $currentZone = sb_cf()->get_zone_by_id($currentZoneId) ) {
-			WP_CLI::line(sprintf('Purging all cache for zone %s', $currentZone->name));
+		$current_zone_id = sb_cf()->get_active_zone_id();
+		if ( $current_zone_id && $current_zone = sb_cf()->get_zone_by_id($current_zone_id) ) {
+			WP_CLI::line(sprintf('Purging all cache for zone %s', $current_zone->name));
 		} else {
 			WP_CLI::line('Purging all cache');
 		}

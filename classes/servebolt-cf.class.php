@@ -540,4 +540,3 @@ class Servebolt_CF {
 	}
 
 }
-Servebolt_CF::get_instance();

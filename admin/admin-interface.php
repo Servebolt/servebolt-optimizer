@@ -18,6 +18,19 @@ class Servebolt_Admin_Interface {
 	public function __construct() {
 	    $this->init_menus();
 	    $this->init_assets();
+		add_filter('plugin_action_links_' . SERVEBOLT_BASENAME, [$this, 'add_settings_link_to_plugin']);
+	}
+
+	/**
+	 * Add settings-link in plugin list.
+	 *
+	 * @param $links
+	 *
+	 * @return array
+	 */
+	public function add_settings_link_to_plugin($links) {
+		$links[] = sprintf('<a href="%s">%s</a>', admin_url( 'options-general.php?page=servebolt-wp' ), sb__('Settings'));
+		return $links;
 	}
 
 	/**

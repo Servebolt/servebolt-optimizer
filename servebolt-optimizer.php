@@ -19,12 +19,17 @@ if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
 }
 
 // Include Composer dependencies
-if ( file_exists(__DIR__ . '/vendor/autoload.php') ) require 'vendor/autoload.php';
+if ( ! file_exists(__DIR__ . '/vendor/autoload.php') ) {
+	require 'composer-missing.php';
+	return;
+}
+require 'vendor/autoload.php';
 
 // Include general functions
 require_once 'functions.php';
 
 // Defines plugin path and URL
+define( 'SERVEBOLT_BASENAME', plugin_basename(__FILE__) );
 define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
 define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
 
@@ -45,15 +50,9 @@ if ( ! class_exists('Servebolt_Nginx_FPC') ){
     }
 }
 
-// Add settings-link in plugin list
-add_filter('plugin_action_links_'.plugin_basename(__FILE__), 'sb_add_settings_link_to_plugin');
-function sb_add_settings_link_to_plugin( $links ) {
-	$links[] = sprintf('<a href="%s">%s</a>', admin_url( 'options-general.php?page=servebolt-wp' ), sb__('Settings'));
-	return $links;
-}
-
-// Include the Servebolt Cloudflare class
+// Invoke the Servebolt Cloudflare class
 require_once SERVEBOLT_PATH . 'classes/servebolt-cf.class.php';
+sb_cf();
 
 // If the admin is loaded, load this plugins interface
 if ( is_admin() ) {
