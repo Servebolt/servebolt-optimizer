@@ -60,7 +60,7 @@ class Servebolt_Logviewer {
 		preg_match("/^\[(.*)\] (\[.*\] )(\[.*\] )(\[.*Client:([\d\.\:]+):.*\] )(.*)$/Ui", $entry, $matches);
 		$unixtime = strtotime($matches[1]);
 		return (object) [
-			'date'  => date('H:i:s', $unixtime),
+			'date'  => date('Y-m-d H:i:s', $unixtime),
 			'ip'    => $matches[5],
 			'error' => $matches[6],
 		];

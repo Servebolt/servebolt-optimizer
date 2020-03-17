@@ -86,7 +86,7 @@ class Servebolt_CF {
 	 */
 	private function register_actions() {
 		if ( ! $this->cf_is_active() ) return;
-		add_action( 'save_post', [$this, 'purgePost'], 99 );
+		add_action( 'save_post', [$this, 'purge_post'], 99 );
 	}
 
 	/**

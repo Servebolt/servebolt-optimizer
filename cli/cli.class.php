@@ -464,7 +464,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	public function cf_purge_post($args) {
 		list($post_id) = $args;
 		WP_CLI::line(sprintf('Purging cache for post %s', $post_id));
-		if ( sb_cf()->purgePost($post_id) ) {
+		if ( sb_cf()->purge_post($post_id) ) {
 			WP_CLI::success('Cache purged!');
 		} else {
 			WP_CLI::error('Could not purge cache.');
