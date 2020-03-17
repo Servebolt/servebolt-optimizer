@@ -89,7 +89,7 @@ class Servebolt_CLI_Extras {
 			}
 			WP_CLI\Utils\format_items( 'table', $sites_status , array_keys(current($sites_status)));
 		} else {
-			$status = sb_nginx_fpc()->fpc_is_active() ? 'active' : 'inactive';
+			$status = sb_boolean_to_state_string( sb_nginx_fpc()->fpc_is_active() );
 			$post_types = sb_nginx_fpc()->get_post_types_to_cache();
 			$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
 			if ( $display_cache_state ) {

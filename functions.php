@@ -2,31 +2,6 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
- * Get a link to the Servebolt admin panel.
- *
- * @return bool|string
- */
-function get_sb_admin_url() {
-	$webroot_path = get_home_path();
-	//$webroot_path = '/kunder/serveb_5418/bankfl_7205/public'; // For testing
-	return ( preg_match( "@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $webroot_path, $matches ) ) ? 'https://admin.servebolt.com/siteredirect/?site='. $matches[1] : false;
-}
-
-/**
- * Format a post type slug.
- *
- * @param $post_type
- *
- * @return mixed|string
- */
-function sb_format_post_type($post_type) {
-	$post_type = str_replace('_', ' ', $post_type);
-	$post_type = str_replace('-', ' ', $post_type);
-	$post_type = ucfirst($post_type);
-	return $post_type;
-}
-
-/**
  * Get Servebolt_Performance_Checks-instance.
  *
  * @return Servebolt_Performance_Checks|null
@@ -56,7 +31,25 @@ function sb_optimize_db() {
 	return Servebolt_Optimize_DB::get_instance();
 }
 
+/**
+ * Get Servebolt_Checks-instance.
+ *
+ * @return Servebolt_Checks|null
+ */
+function sb_cf() {
+	require_once SERVEBOLT_PATH . 'classes/servebolt-cf.class.php';
+	return Servebolt_CF::get_instance();
+}
 
+/**
+ * Get Servebolt_Checks-instance.
+ *
+ * @return Servebolt_Checks|null
+ */
+function sb_cf_cache_controls() {
+	require_once SERVEBOLT_PATH . 'admin/cf-cache-controls.php';
+	return CF_Cache_Controls::get_instance();
+}
 
 /**
  * Get Nginx_FPC_Controls-instance.
@@ -79,6 +72,16 @@ function sb_nginx_fpc() {
 }
 
 /**
+ * Get Servebolt_Checks-instance.
+ *
+ * @return Servebolt_Optimize_DB|null
+ */
+function sb_checks() {
+	require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
+	return Servebolt_Checks::get_instance();
+}
+
+/**
  * Convert a boolean to a human readable string.
  *
  * @param $state
@@ -90,13 +93,28 @@ function sb_boolean_to_state_string($state) {
 }
 
 /**
- * Get Servebolt_Checks-instance.
+ * Get a link to the Servebolt admin panel.
  *
- * @return Servebolt_Optimize_DB|null
+ * @return bool|string
  */
-function sb_checks() {
-	require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
-	return Servebolt_Checks::get_instance();
+function get_sb_admin_url() {
+	$webroot_path = get_home_path();
+	//$webroot_path = '/kunder/serveb_5418/bankfl_7205/public'; // For testing
+	return ( preg_match( "@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $webroot_path, $matches ) ) ? 'https://admin.servebolt.com/siteredirect/?site='. $matches[1] : false;
+}
+
+/**
+ * Format a post type slug.
+ *
+ * @param $post_type
+ *
+ * @return mixed|string
+ */
+function sb_format_post_type($post_type) {
+	$post_type = str_replace('_', ' ', $post_type);
+	$post_type = str_replace('-', ' ', $post_type);
+	$post_type = ucfirst($post_type);
+	return $post_type;
 }
 
 /**
@@ -133,26 +151,6 @@ function sb_is_error($object) {
 }
 
 /**
- * Get Servebolt_Checks-instance.
- *
- * @return Servebolt_Checks|null
- */
-function sb_cf() {
-	require_once SERVEBOLT_PATH . 'classes/servebolt-cf.class.php';
-	return Servebolt_CF::get_instance();
-}
-
-/**
- * Get Servebolt_Checks-instance.
- *
- * @return Servebolt_Checks|null
- */
-function sb_cf_cache_controls() {
-	require_once SERVEBOLT_PATH . 'admin/cf-cache-controls.php';
-	return CF_Cache_Controls::get_instance();
-}
-
-/**
  * Get plugin text domain.
  *
  * @return string
@@ -178,6 +176,8 @@ function sb_esc_html__($string, $domain = null) {
  *
  * @param $string
  * @param null $domain
+ *
+ * @return mixed
  */
 function sb_esc_html_e($string, $domain = null) {
 	return esc_html_e($string, $domain ?: sb_get_text_domain());
@@ -231,7 +231,7 @@ function host_is_servebolt() {
  *
  * @return mixed
  */
-function remove_keys_from_array($arguments, $blacklisted_keys) {
+function sb_remove_keys_from_array($arguments, $blacklisted_keys) {
 	foreach ( $blacklisted_keys as $key ) {
 		if ( array_key_exists($key, $arguments) ) {
 			unset($arguments[$key]);
@@ -274,7 +274,7 @@ function sb_view($path, $arguments = [], $echo = true) {
 	$path = SERVEBOLT_PATH . $path . '.php';
 	if ( ! file_exists($path) || ! is_readable($path) ) return false;
 	if ( is_array($arguments) ) {
-		$arguments = remove_keys_from_array($arguments, ['path', 'arguments', 'echo', 'html']);
+		$arguments = sb_remove_keys_from_array($arguments, ['path', 'arguments', 'echo', 'html']);
 		extract($arguments);
 	}
 	ob_start();
