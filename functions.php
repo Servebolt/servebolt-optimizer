@@ -441,3 +441,20 @@ if ( ! function_exists('dd') ) {
 		exit;
 	}
 }
+
+/**
+ * Format a string with comma separated values.
+ *
+ * @param $string Comma separated values.
+ *
+ * @return array
+ */
+function sb_format_comma_string($string) {
+	$array = explode(',', $string);
+	$array = array_map(function ($item) {
+		return trim($item);
+	}, $array);
+	return array_filter($array, function ($item) {
+		return ! empty($item);
+	});
+}

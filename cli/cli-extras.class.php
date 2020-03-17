@@ -146,7 +146,7 @@ class Servebolt_CLI_Extras {
 	 */
 	private function nginx_prepare_post_type_argument($args) {
 		if ( array_key_exists('post_types', $args) ) {
-			$post_types = $this->format_comma_string($args['post_types']);
+			$post_types = sb_format_comma_string($args['post_types']);
 			$post_types = array_filter($post_types, function ($post_type) {
 				return post_type_exists($post_type);
 			});
@@ -229,7 +229,7 @@ class Servebolt_CLI_Extras {
 	 */
 	protected function nginx_set_exclude_ids($ids_to_exclude_string) {
 
-		$ids_to_exclude = $this->format_comma_string($ids_to_exclude_string);
+		$ids_to_exclude = sb_format_comma_string($ids_to_exclude_string);
 		$already_excluded = sb_nginx_fpc()->get_ids_to_exclude_from_cache();
 
 		if ( empty($ids_to_exclude) ) {
@@ -265,23 +265,6 @@ class Servebolt_CLI_Extras {
 		} else {
 			WP_CLI::info(sb__('No action was made.'));
 		}
-	}
-
-	/**
-	 * Format a string with comma separated values.
-	 *
-	 * @param $string Comma separated values.
-	 *
-	 * @return array
-	 */
-	private function format_comma_string($string) {
-		$array = explode(',', $string);
-		$array = array_map(function ($item) {
-			return trim($item);
-		}, $array);
-		return array_filter($array, function ($item) {
-			return ! empty($item);
-		});
 	}
 
 }
