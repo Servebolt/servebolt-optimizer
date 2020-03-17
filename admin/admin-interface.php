@@ -18,19 +18,7 @@ class Servebolt_Admin_Interface {
 	public function __construct() {
 	    $this->init_menus();
 	    $this->init_assets();
-		add_filter('plugin_action_links_' . SERVEBOLT_BASENAME, [$this, 'add_settings_link_to_plugin']);
-	}
-
-	/**
-	 * Add settings-link in plugin list.
-	 *
-	 * @param $links
-	 *
-	 * @return array
-	 */
-	public function add_settings_link_to_plugin($links) {
-		$links[] = sprintf('<a href="%s">%s</a>', admin_url( 'options-general.php?page=servebolt-wp' ), sb__('Settings'));
-		return $links;
+	    $this->init_plugin_settings_link();
 	}
 
 	/**
@@ -108,6 +96,25 @@ class Servebolt_Admin_Interface {
 	public function plugin_styling() {
 		wp_enqueue_style( 'servebolt-optimizer-styling', SERVEBOLT_PATH_URL . 'admin/assets/css/style.css', [], filemtime(SERVEBOLT_PATH . 'admin/assets/css/style.css') );
 		wp_enqueue_style( 'sb-sweetalert2', SERVEBOLT_PATH_URL . 'admin/assets/css/sweetalert2.min.css', [], filemtime(SERVEBOLT_PATH . 'admin/assets/css/sweetalert2.min.css') );
+	}
+
+	/**
+	 * Initialize plugin settings link hook.
+	 */
+	private function init_plugin_settings_link() {
+		add_filter('plugin_action_links_' . SERVEBOLT_BASENAME, [$this, 'add_settings_link_to_plugin']);
+	}
+
+	/**
+	 * Add settings-link in plugin list.
+	 *
+	 * @param $links
+	 *
+	 * @return array
+	 */
+	public function add_settings_link_to_plugin($links) {
+		$links[] = sprintf('<a href="%s">%s</a>', admin_url( 'options-general.php?page=servebolt-wp' ), sb__('Settings'));
+		return $links;
 	}
 
 	/**

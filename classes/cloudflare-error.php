@@ -3,6 +3,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
  * Class Cloudflare_Error
+ * @package Servebolt
+ *
+ * This class is used for Guzzle-exception handling when error occurs in the Cloudflare PHP SDK.
  */
 class Cloudflare_Error {
 

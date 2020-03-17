@@ -38,29 +38,29 @@ class Servebolt_CLI_Extras {
 	 * @param $zone_id
 	 */
 	protected function store_zone_direct($zone_id) {
-		$zoneObject = sb_cf()->get_zone_by_id($zone_id);
-		$zoneIndentification = $zoneObject ? $zoneObject->name . ' (' . $zoneObject->id . ')' : $zone_id;
-		if ( ! $zoneObject ) {
+		$zone_object = sb_cf()->get_zone_by_id($zone_id);
+		$zone_indentification = $zone_object ? $zone_object->name . ' (' . $zone_object->id . ')' : $zone_id;
+		if ( ! $zone_object ) {
 			WP_CLI::error_multi_line(['Could not find zone with the specified ID in Cloudflare. This might indicate:', '- the API connection is not working', '- that the zone does not exists', '- that we lack access to the zone']);
 			WP_CLI::confirm( 'Do you still wish to set the zone?');
 		}
 		sb_cf()->store_active_zone_id($zone_id);
-		WP_CLI::success(sprintf('Successfully selected zone %s', $zoneIndentification));
+		WP_CLI::success(sprintf('Successfully selected zone %s', $zone_indentification));
 	}
 
 	/**
 	 * List Cloudflare zones with/without numbering.
 	 *
-	 * @param bool $includeNumbers
+	 * @param bool $include_numbers
 	 */
-	protected function list_zones($includeNumbers = false) {
+	protected function list_zones($include_numbers = false) {
 		$zones = $this->get_zones();
 		if ( ! $zones || empty($zones) ) {
 			WP_CLI::error('Could not retrieve any available zones. Make sure you have configured the Cloudflare API credentials and set an active zone.');
 		}
 		WP_CLI::line('The following zones are available:');
 		foreach ($zones as $i => $zone ) {
-			if ( $includeNumbers === true ) {
+			if ( $include_numbers === true ) {
 				WP_CLI::line(sprintf('[%s] %s (%s)', $i+1, $zone->name, $zone->id));
 			} else {
 				WP_CLI::line(sprintf('%s (%s)', $zone->name, $zone->id));

@@ -5,7 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * Class Servebolt_Nginx_FPC
  * @package Servebolt
  *
- * This class handles the Cache handling by passing headers from WordPress/Apache to the Nginx web server. Only relevant for websites hosted at Servebolt.
+ * This class handles the actual cache handling by passing headers from WordPress/Apache to the Nginx web server.
+ * Note: Only relevant for websites hosted at Servebolt!
  */
 class Servebolt_Nginx_FPC {
 

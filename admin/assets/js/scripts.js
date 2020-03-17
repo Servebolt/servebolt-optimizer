@@ -5,7 +5,7 @@ jQuery(document).ready(function($) {
     sb_clear_all_settings();
   });
 
-  $('.sb-wreak-havoc').click(function(e) {
+  $('.sb-deoptimize-database').click(function(e) {
     e.preventDefault();
     sb_wreak_havoc();
   });
@@ -36,24 +36,12 @@ jQuery(document).ready(function($) {
   });
 
   $('#sb-cache_post_type_all').change(function(){
-    var bool = $(this).is(':checked');
-    $('.servebolt_fpc_settings_item').not('#sb-cache_post_type_all').each(function (i, el) {
-      var item = $(el).closest('span');
-      if ( bool ) {
-        item.addClass('disabled');
-      } else {
-        item.removeClass('disabled');
-      }
-    });
+    sb_toggle_all_post_types($(this).is(':checked'));
+
   });
 
   $('#sb-nginx_cache_switch').change(function(){
-    var form = $('#post-types-form');
-    if ( $(this).is(':checked') ) {
-      form.show();
-    } else {
-      form.hide();
-    }
+    sb_toggle_nginx_cache_switch($(this).is(':checked'));
   });
 
   $('#sb-configuration #purge-items-table input[type="checkbox"]').change(function() {
@@ -82,16 +70,7 @@ jQuery(document).ready(function($) {
   });
 
   $('#sb-configuration input[name="servebolt_cf_auth_type"]').change(function() {
-    switch ($(this).val()) {
-      case 'apiKey':
-        $('#sb-configuration .feature_cf_auth_type-apiToken').hide();
-        $('#sb-configuration .feature_cf_auth_type-apiKey').show();
-        break;
-      case 'apiToken':
-        $('#sb-configuration .feature_cf_auth_type-apiToken').show();
-        $('#sb-configuration .feature_cf_auth_type-apiKey').hide();
-        break;
-    }
+    sb_toggle_auth_type($(this).val());
   });
 
   $('#sb-configuration .zone-selector a').click(function(e) {
@@ -108,6 +87,52 @@ jQuery(document).ready(function($) {
 
   // Insert loader markup
   sb_insert_loader_markup();
+
+  /**
+   * Toggle select/deselect all post types.
+   * @param boolean
+   */
+  function sb_toggle_all_post_types(boolean) {
+    $('.servebolt_fpc_settings_item').not('#sb-cache_post_type_all').each(function (i, el) {
+      var item = $(el).closest('span');
+      if ( boolean ) {
+        item.addClass('disabled');
+      } else {
+        item.removeClass('disabled');
+      }
+    });
+  }
+
+  /**
+   * Toggle whether Nginx post type settings should be displayed or not.
+   * @param boolean
+   */
+  function sb_toggle_nginx_cache_switch(boolean) {
+    var form = $('#post-types-form');
+    if ( boolean ) {
+      form.show();
+    } else {
+      form.hide();
+    }
+  }
+
+  /**
+   * Toggle display of field when selecting authentication type with Cloudflare.
+   *
+   * @param boolean
+   */
+  function sb_toggle_auth_type(boolean) {
+    switch (boolean) {
+      case 'apiKey':
+        $('#sb-configuration .feature_cf_auth_type-apiToken').hide();
+        $('#sb-configuration .feature_cf_auth_type-apiKey').show();
+        break;
+      case 'apiToken':
+        $('#sb-configuration .feature_cf_auth_type-apiToken').show();
+        $('#sb-configuration .feature_cf_auth_type-apiKey').hide();
+        break;
+    }
+  }
 
   /**
    * Check if the cache purge queue table is empty or not.
@@ -130,6 +155,7 @@ jQuery(document).ready(function($) {
 
   /**
    * Validate the form before submitting.
+   * TODO: Complete this. Should hijack the form submit in CF settings and do validation of values before allowing submit.
    *
    * @returns {boolean}
    */
@@ -436,6 +462,9 @@ jQuery(document).ready(function($) {
     if ( ! confirm('Warning: this will clear all settings and essentially reset the whole plugin. You want to proceed?') ) {
       return;
     }
+    if ( ! confirm('Last warning? You really want to proceed?') ) {
+      return;
+    }
     sb_loading(true);
     var data = {
       action: 'servebolt_clear_all_settings',
@@ -462,7 +491,7 @@ jQuery(document).ready(function($) {
     if ( ! confirm('WARNING: This functionality is added for development purposes and will remove indexes and convert table engines to MyISAM. This is not something you really want unless you are debugging/developing. Do you want to proceed?') ) {
       return
     }
-    if ( ! confirm('Last warning? You want to proceed?') ) {
+    if ( ! confirm('Last warning? You really want to proceed?') ) {
       return;
     }
     sb_loading(true);

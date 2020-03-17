@@ -73,13 +73,13 @@
           <th scope="row" colspan="100%" style="padding-bottom: 5px;"><h3 style="margin-bottom: 0;">API configuration</h3></th>
         </tr>
         <tr>
-          <th scope="row">Cloudflare cache</th>
+          <th scope="row">Cloudflare cache-feature</th>
           <td>
             <fieldset>
               <legend class="screen-reader-text"><span>Cloudflare cache-feature active?</span></legend>
               <label for="clourdlare_switch">
                 <input name="<?php echo sb_get_option_name('cf_switch'); ?>" type="checkbox" id="cloudflare_switch" value="1" <?php checked($cf_settings['cf_switch']); ?>>
-                Cloudflare cache-feature active?
+                Active?
               </label>
             </fieldset>
           </td>
