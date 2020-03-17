@@ -56,7 +56,7 @@
           None
           <?php endif; ?>
           </td>
-          <td><a href="<?php echo get_admin_url( $site->blog_id, 'options-general.php?page=servebolt-nginx-cache' ); ?>" class="button btn"><?php sb_e('Go to site NGINX settings'); ?></a></td>
+          <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-nginx-cache' ); ?>" class="button btn"><?php sb_e('Go to site NGINX settings'); ?></a></td>
         </tr>
 	    <?php endforeach; ?>
       </tbody>

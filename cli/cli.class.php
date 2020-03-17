@@ -54,6 +54,8 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 
 		WP_CLI::add_command( 'servebolt cf enable',                [$this, 'cf_enable'] );
 		WP_CLI::add_command( 'servebolt cf disable',               [$this, 'cf_disable'] );
+		WP_CLI::add_command( 'servebolt cf cron enable',           [$this, 'nginx_cf_cron_enable'] );
+		WP_CLI::add_command( 'servebolt cf cron disable',          [$this, 'nginx_cf_cron_disable'] );
 		WP_CLI::add_command( 'servebolt cf get-config',            [$this, 'cf_config_get'] );
 		//WP_CLI::add_command( 'servebolt cf test-api-connection',   [$this, 'cf_test_api_connection'] );
 		WP_CLI::add_command( 'servebolt cf list-zones',            [$this, 'cf_list_zones'] );
@@ -329,6 +331,30 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	}
 
 	/**
+	 * Schedule the cron to execute queue-based cache purge.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp servebolt cf cron enable
+	 *
+	 */
+	public function nginx_cf_cron_enable( $args, $assoc_args ) {
+		$this->cf_cron_control(true, $assoc_args);
+	}
+
+	/**
+	 * Un-schedule the cron cache purge,
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp servebolt cf cron disable
+	 *
+	 */
+	public function nginx_cf_cron_disable( $args, $assoc_args ) {
+		$this->cf_cron_control(false, $assoc_args);
+	}
+
+	/**
 	 * Activate the correct cache headers for Servebolt Full Page Cache.
 	 *
 	 * ## OPTIONS
@@ -354,7 +380,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function nginx_fpc_enable( $args, $assoc_args ) {
-		$this->nginx_control(true, $assoc_args);
+		$this->nginx_fpc_control(true, $assoc_args);
 		if ( in_array('status', $assoc_args) ) $this->get_nginx_fpc_status($assoc_args, false);
 	}
 
@@ -383,7 +409,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function nginx_fpc_disable( $args, $assoc_args ) {
-		$this->nginx_control(false, $assoc_args);
+		$this->nginx_fpc_control(false, $assoc_args);
 		if ( in_array('status', $assoc_args) ) $this->get_nginx_fpc_status($assoc_args, false);
 	}
 

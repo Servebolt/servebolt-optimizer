@@ -116,7 +116,11 @@ class Servebolt_Optimize_DB {
 	 * Handle table analyze cron.
 	 */
 	private function add_cron_handling() {
-		add_action('servebolt_cron_analyze_tables', [$this, 'analyze_tables']);
+		$cron_key = 'servebolt_cron_hook_analyze_tables';
+		add_action( $cron_key, [$this, 'analyze_tables'] );
+		if ( ! wp_next_scheduled( $cron_key ) ) {
+			wp_schedule_event( time(), 'daily', $cron_key );
+		}
 	}
 
 	/**
@@ -510,7 +514,7 @@ class Servebolt_Optimize_DB {
 	 *
 	 * @return bool
 	 */
-	function analyze_tables($cli = false) {
+	public function analyze_tables($cli = false) {
 		$this->analyze_tables_query();
 		if ( is_multisite() ) {
 			$this->wpdb()->query( "ANALYZE TABLE {$this->wpdb()->sitemeta}" );

@@ -160,10 +160,26 @@ class Servebolt_CLI_Extras {
 	/**
 	 * Enable/disable Nginx cache headers.
 	 *
+	 * @param bool $cron_active
+	 */
+	protected function cf_cron_control(bool $cron_active) {
+		$current_state = sb_cf()->cron_purge_is_active();
+		if ( $current_state === $cron_active ) {
+			WP_CLI::success(sb__('Cloudflare cache purge cron is already %s', sb_boolean_to_state_string($cron_active)));
+		} else {
+			sb_cf()->cf_toggle_cron_active($cron_active);
+			WP_CLI::success(sb__('Cloudflare cache purge cron is now %s', sb_boolean_to_state_string($cron_active)));
+		}
+		sb_cf()->handle_cron();
+	}
+
+	/**
+	 * Enable/disable Nginx cache headers.
+	 *
 	 * @param bool $cache_active
 	 * @param array $args
 	 */
-	protected function nginx_control($cache_active, $args){
+	protected function nginx_fpc_control($cache_active, $args){
 
 		$affect_all_blogs    = array_key_exists('all', $args);
 		$post_types          = $this->nginx_prepare_post_type_argument($args);

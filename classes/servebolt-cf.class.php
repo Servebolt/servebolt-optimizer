@@ -26,6 +26,13 @@ class Servebolt_CF {
 	private $cf = null;
 
 	/**
+	 * The key to be used when scheduling CF cache purge.
+	 *
+	 * @var string
+	 */
+	private $cron_key = 'servebolt_cron_hook_purge_by_cron';
+
+	/**
 	 * The default API authentication type.
 	 *
 	 * @var string
@@ -59,7 +66,7 @@ class Servebolt_CF {
 	private function __construct() {
 		$this->init_cf();
 		$this->register_actions();
-		$this->register_cron();
+		$this->handle_cron();
 	}
 
 	/**
@@ -83,16 +90,66 @@ class Servebolt_CF {
 	}
 
 	/**
-	 * Register Cron job.
+	 * Handle Cloudflare cache purge cron job.
 	 */
-	private function register_cron() {
-		if ( ! $this->cf_is_active() || ! $this->cron_purge_is_active() ) return;
-		$closure = [$this, 'purge_by_cron'];
-		/*
-		if ( ! wp_next_scheduled( $closure ) ) {
-			wp_schedule_event(time(), 'every_minute', $closure);
+	public function handle_cron() {
+
+		// Add schedule for execution every minute
+		add_filter( 'cron_schedules', [$this, 'add_cache_purge_cron_schedule'] );
+
+		// Check if we should use cron-based cache purging
+		if ( ! $this->cf_is_active() || ! $this->cron_purge_is_active() || ! $this->should_purge_cache_queue() ) {
+			$this->deregister_cron();
+			return;
 		}
-		*/
+
+		// Schedule task
+		$this->register_cron();
+
+	}
+
+	/**
+	 * Check whether we should execute cron purge with cron or not. This can be used to only schedule purges but not execute them in a system.
+	 *
+	 * @return bool
+	 */
+	private function should_purge_cache_queue() {
+		if ( defined('SERVEBOLT_CF_PURGE_QUEUE') && SERVEBOLT_CF_PURGE_QUEUE === false ) return false;
+		return true;
+	}
+
+	/**
+	 * Add cron schedule to be used with Cloudflare cache purging.
+	 *
+	 * @param $schedules
+	 *
+	 * @return mixed
+	 */
+	public function add_cache_purge_cron_schedule( $schedules ) {
+		$schedules['every_minute'] = array(
+			'interval' => 60,
+			'display' => sb__( 'Every minute' )
+		);
+		return $schedules;
+	}
+
+	/**
+	 * Remove cron-based cache purge task from schedule.
+	 */
+	public function deregister_cron() {
+		if ( ! wp_next_scheduled($this->cron_key) ) {
+			wp_clear_scheduled_hook($this->cron_key);
+		}
+	}
+
+	/**
+	 * Add cron-based cache purge task from schedule.
+	 */
+	public function register_cron() {
+		add_action( $this->cron_key, [$this, 'purge_by_cron'] );
+		if ( ! wp_next_scheduled( $this->cron_key ) ) {
+			wp_schedule_event( time(), 'every_minute', $this->cron_key );
+		}
 	}
 
 	/**
@@ -507,7 +564,26 @@ class Servebolt_CF {
 		if ( $respectOverride && is_bool($activeStateOverride) ) {
 			return $activeStateOverride;
 		}
-		return sb_checkbox_true(sb_get_option('cf_cron_purge'));
+		return sb_checkbox_true(sb_get_option($this->cf_cron_active_option_key()));
+	}
+
+	/**
+	 * The option name/key we use to store the active state for the Cloudflare cache cron purge feature.
+	 *
+	 * @return string
+	 */
+	private function cf_cron_active_option_key() {
+		return 'cf_cron_purge';
+	}
+
+	/**
+	 * Toggle whether Cloudflare cache purge cron should be active or not.
+	 * @param bool $state
+	 *
+	 * @return bool
+	 */
+	public function cf_toggle_cron_active(bool $state) {
+		return sb_update_option($this->cf_cron_active_option_key(), $state);
 	}
 
 	/**
