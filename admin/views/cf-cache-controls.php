@@ -249,6 +249,36 @@
 
   </form>
 
+	<?php if ( sb_is_debug() ) : ?>
+
+
+      <h2>Cron debug</h2>
+      <p>Cron is active: <?php
+
+	      $next_run_timestamp = sb_get_next_cron_time(sb_cf()->get_cron_key());
+
+        if ( sb_cf()->cron_purge_is_active(false) ) {
+
+          if ( sb_cf()->cron_active_state_override() ) {
+	          sb_e('Yes, due to constant "SERVEBOLT_CF_PURGE_CRON" being set to "true');
+          } else {
+	          sb_e('Yes');
+          }
+
+          if ( sb_cf()->should_purge_cache_queue() ) {
+	          sb_e('. Note that cache purge requests are only added to the queue, not executed. This is due to the constant "SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE" being set to "false".');
+          }
+
+        } else {
+          sb_e('No');
+        }
+
+      ?></p>
+      <p>Cron schedule hook: <?php echo sb_cf()->get_cron_key(); ?></p>
+      <p>Next run: <?php echo $next_run_timestamp ? date_i18n('Y-m-d H:i:s', $next_run_timestamp) : '-'; ?></p>
+
+  <?php endif; ?>
+
   <?php endif; ?>
 
 </div>

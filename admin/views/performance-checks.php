@@ -6,7 +6,7 @@
 	<?php endif; ?>
 	<h2>⚡️<?php sb_e('Servebolt Optimize'); ?></h2>
 
-  <?php if ( defined('WP_DEBUG') && WP_DEBUG === true ) : ?>
+  <?php if ( sb_is_debug() ) : ?>
     <button class="sb-deoptimize-database button" style="margin-top: 10px;">De-optimize database!</button>
     <button class="sb-clear-all-settings button" style="margin-top: 10px;">Reset all settings</button>
   <?php endif; ?>

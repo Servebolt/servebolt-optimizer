@@ -90,6 +90,15 @@ class Servebolt_CF {
 	}
 
 	/**
+	 * Get cron key used for scheduling Cloudflare cache purge.
+	 *
+	 * @return string
+	 */
+	public function get_cron_key() {
+		return $this->cron_key;
+	}
+
+	/**
 	 * Handle Cloudflare cache purge cron job.
 	 */
 	public function handle_cron() {
@@ -113,8 +122,8 @@ class Servebolt_CF {
 	 *
 	 * @return bool
 	 */
-	private function should_purge_cache_queue() {
-		if ( defined('SERVEBOLT_CF_PURGE_QUEUE') && SERVEBOLT_CF_PURGE_QUEUE === false ) return false;
+	public function should_purge_cache_queue() {
+		if ( defined('SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE') && SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE === false ) return false;
 		return true;
 	}
 
@@ -137,8 +146,8 @@ class Servebolt_CF {
 	 * Remove cron-based cache purge task from schedule.
 	 */
 	public function deregister_cron() {
-		if ( ! wp_next_scheduled($this->cron_key) ) {
-			wp_clear_scheduled_hook($this->cron_key);
+		if ( ! wp_next_scheduled($this->get_cron_key()) ) {
+			wp_clear_scheduled_hook($this->get_cron_key());
 		}
 	}
 
@@ -146,9 +155,9 @@ class Servebolt_CF {
 	 * Add cron-based cache purge task from schedule.
 	 */
 	public function register_cron() {
-		add_action( $this->cron_key, [$this, 'purge_by_cron'] );
-		if ( ! wp_next_scheduled( $this->cron_key ) ) {
-			wp_schedule_event( time(), 'every_minute', $this->cron_key );
+		add_action( $this->get_cron_key(), [$this, 'purge_by_cron'] );
+		if ( ! wp_next_scheduled( $this->get_cron_key() ) ) {
+			wp_schedule_event( time(), 'every_minute', $this->get_cron_key() );
 		}
 	}
 
@@ -546,7 +555,7 @@ class Servebolt_CF {
 	 *
 	 * @return mixed
 	 */
-	private function cron_active_state_override() {
+	public function cron_active_state_override() {
 		if ( defined('SERVEBOLT_CF_PURGE_CRON') && is_bool(SERVEBOLT_CF_PURGE_CRON) ) {
 			return SERVEBOLT_CF_PURGE_CRON;
 		}

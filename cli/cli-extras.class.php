@@ -165,10 +165,10 @@ class Servebolt_CLI_Extras {
 	protected function cf_cron_control(bool $cron_active) {
 		$current_state = sb_cf()->cron_purge_is_active();
 		if ( $current_state === $cron_active ) {
-			WP_CLI::success(sb__('Cloudflare cache purge cron is already %s', sb_boolean_to_state_string($cron_active)));
+			WP_CLI::line(sprintf(sb__('Cloudflare cache purge cron is already %s'), sb_boolean_to_state_string($cron_active)));
 		} else {
 			sb_cf()->cf_toggle_cron_active($cron_active);
-			WP_CLI::success(sb__('Cloudflare cache purge cron is now %s', sb_boolean_to_state_string($cron_active)));
+			WP_CLI::success(sprintf(sb__('Cloudflare cache purge cron is now %s'), sb_boolean_to_state_string($cron_active)));
 		}
 		sb_cf()->handle_cron();
 	}
@@ -186,7 +186,7 @@ class Servebolt_CLI_Extras {
 		$exclude_ids         = array_key_exists('exclude', $args) ? $args['exclude'] : false;
 
 		if ( is_multisite() && $affect_all_blogs ) {
-			WP_CLI::info( sb__('Aplying settings to all blogs') );
+			WP_CLI::line( sb__('Applying settings to all blogs') );
 			foreach (get_sites() as $site) {
 				$this->nginx_toggle_cache_for_blog($cache_active, $site->blog_id);
 				if ( $post_types ) $this->nginx_set_post_types($post_types, $cache_active, $site->blog_id);
@@ -269,7 +269,7 @@ class Servebolt_CLI_Extras {
 		sb_nginx_fpc()->set_ids_to_exclude_from_cache($already_excluded);
 
 		if ( ! empty($already_added) ) {
-			WP_CLI::info(sprintf(sb__('The following ids were already excluded: %s'), implode(',', $already_added)));
+			WP_CLI::line(sprintf(sb__('The following ids were already excluded: %s'), implode(',', $already_added)));
 		}
 
 		if ( ! empty($invalid_id) ) {
@@ -279,7 +279,7 @@ class Servebolt_CLI_Extras {
 		if ( ! empty($was_excluded) ) {
 			WP_CLI::success(sprintf(sb__('Added %s to the list of excluded ids'), implode(',', $was_excluded)));
 		} else {
-			WP_CLI::info(sb__('No action was made.'));
+			WP_CLI::line(sb__('No action was made.'));
 		}
 	}
 

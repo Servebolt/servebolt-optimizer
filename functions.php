@@ -380,6 +380,31 @@ function sb_update_blog_option($id, $option, $value) {
 }
 
 /**
+ * Find out next time a cron event will be triggered.
+ *
+ * @param $cron_name
+ *
+ * @return bool|int|string
+ */
+function sb_get_next_cron_time($cron_name) {
+	foreach(  _get_cron_array() as $timestamp => $crons ){
+		if ( in_array( $cron_name, array_keys( $crons ) ) ) {
+			return $timestamp;
+		}
+	}
+	return false;
+}
+
+/**
+ * Whether we are in debug mode.
+ *
+ * @return bool
+ */
+function sb_is_debug() {
+	return ( defined('WP_DEBUG') && WP_DEBUG === true ) || ( array_key_exists('debug', $_GET) && filter_var($_GET['debug'], FILTER_VALIDATE_BOOLEAN) === true );
+}
+
+/**
  * Delete plugin settings.
  */
 function sb_clear_all_settings() {
