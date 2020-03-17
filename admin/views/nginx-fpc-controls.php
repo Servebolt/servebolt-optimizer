@@ -22,8 +22,8 @@
       <tr>
         <th><?php sb_e('Blog ID'); ?></th>
         <th><?php sb_e('URL'); ?></th>
-        <th><?php sb_e('Full Page Cache Switch'); ?></th>
-        <th><?php sb_e('Options'); ?></th>
+        <th><?php sb_e('Full Page Cache Active'); ?></th>
+        <th><?php sb_e('Post types'); ?></th>
         <th><?php sb_e('Controls'); ?></th>
       </tr>
       </thead>
@@ -31,26 +31,32 @@
       <tr>
         <th><?php sb_e('Blog ID'); ?></th>
         <th><?php sb_e('URL'); ?></th>
-        <th><?php sb_e('Full Page Cache Switch'); ?></th>
-        <th><?php sb_e('Options'); ?></th>
+        <th><?php sb_e('Full Page Cache Active'); ?></th>
+        <th><?php sb_e('Post types'); ?></th>
         <th><?php sb_e('Controls'); ?></th>
       </tr>
       </tfoot>
       <tbody>
 	    <?php foreach ( get_sites() as $site ) : ?>
-		  <?php $sb_fpc_settings = sb_nginx_fpc()->get_cacheable_post_types(false, $site->blog_id); ?>
+		  <?php $sb_fpc_settings = sb_nginx_fpc()->get_post_types_to_cache(false, false, $site->blog_id); ?>
         <tr>
           <td><?php echo $site->blog_id; ?></td>
           <td><?php echo $site->domain . $site->path; ?></td>
-          <td><?php sb_nginx_fpc()->fpc_is_active($site->blog_id) ? sb__('On') : sb__('Off'); ?></td>
+          <td><?php echo sb_nginx_fpc()->fpc_is_active($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
           <td>
-			  <?php if ( ! empty($sb_fpc_settings) ) : ?>
-				  <?php foreach ($sb_fpc_settings as $post_type) : ?>
-					  <?php echo $post_type . '<br>'; ?>
-				  <?php endforeach; ?>
-			  <?php endif; ?>
+          <?php if ( ! empty($sb_fpc_settings) ) : ?>
+            <?php if ( in_array('all', $sb_fpc_settings) ) : ?>
+            All
+            <?php else: ?>
+            <?php foreach ($sb_fpc_settings as $post_type) : ?>
+              <?php echo sb_format_post_type($post_type) . '<br>'; ?>
+            <?php endforeach; ?>
+	          <?php endif; ?>
+          <?php else : ?>
+          None
+          <?php endif; ?>
           </td>
-          <td><a href="<?php admin_url( $site->blog_id, 'options-general.php?page=servebolt-nginx-cache' ); ?>" class="button btn"><?php sb_e('Go to site NGINX settings'); ?></a></td>
+          <td><a href="<?php echo get_admin_url( $site->blog_id, 'options-general.php?page=servebolt-nginx-cache' ); ?>" class="button btn"><?php sb_e('Go to site NGINX settings'); ?></a></td>
         </tr>
 	    <?php endforeach; ?>
       </tbody>
@@ -59,16 +65,16 @@
   <?php else : ?>
 
     <?php
-      $cacheable_post_types = sb_nginx_fpc()->get_cacheable_post_types(false);
-      $nginx_fpc_active = sb_nginx_fpc()->fpc_is_active();
-      $post_types = get_post_types(['public' => true], 'objects');
+	    $nginx_fpc_active     = sb_nginx_fpc()->fpc_is_active();
+      $post_types_to_cache  = sb_nginx_fpc()->get_post_types_to_cache(false, false);
+      $available_post_types = sb_nginx_fpc()->get_available_post_types_to_cache(true);
     ?>
 
 		<form method="post" action="options.php">
 			<?php settings_fields( 'nginx-fpc-options-page' ) ?>
 			<?php do_settings_sections( 'nginx-fpc-options-page' ) ?>
       <div class="nginx_switch">
-        <input id="nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_fpc_active ? ' checked' : ''; ?>><label for="nginx_cache_switch"><?php sb_e('Turn Full Page Cache on'); ?></label>
+        <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_fpc_active ? ' checked' : ''; ?>><label for="nginx_cache_switch"><?php sb_e('Turn Full Page Cache on'); ?></label>
       </div>
 			<table class="form-table" id="post-types-form"<?php echo ( $nginx_fpc_active ? '' : ' style="display: none;"' ); ?>>
 				<tr valign="top">
@@ -80,9 +86,10 @@
 						</div>
 					</th>
 					<td>
-            <?php foreach ($post_types as $type) : ?>
-							<?php $checked = ( is_array($cacheable_post_types) && in_array($type->name, $cacheable_post_types) ) ? ' checked' : ''; ?>
-							<input id="cache_post_type_<?php echo $type->name; ?>" name="servebolt_fpc_settings[<?php echo $type->name; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="cache_post_type_<?php echo $type->name; ?>"><?php echo $type->labels->singular_name; ?></label><br>
+			      <?php $all_checked = in_array('all', (array) $post_types_to_cache); ?>
+            <?php foreach ($available_post_types as $post_type => $post_type_name) : ?>
+							<?php $checked = in_array($post_type, (array) $post_types_to_cache) ? ' checked' : ''; ?>
+							<span class="<?php if ( $all_checked && $post_type !== 'all' ) echo ' disabled'; ?>"><input id="sb-cache_post_type_<?php echo $post_type; ?>" class="servebolt_fpc_settings_item" name="servebolt_fpc_settings[<?php echo $post_type; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="sb-cache_post_type_<?php echo $post_type; ?>"><?php echo $post_type_name; ?></label></span><br>
 						<?php endforeach; ?>
 					</td>
 				</tr>

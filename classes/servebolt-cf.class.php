@@ -159,10 +159,16 @@ class Servebolt_CF {
 	/**
 	 * Check if Cloudflare cache feature is active.
 	 *
+	 * @param bool $blog_id
+	 *
 	 * @return bool
 	 */
-	public function cf_is_active() {
-		return sb_checkbox_true(sb_get_option($this->cf_active_option_key()));
+	public function cf_is_active($blog_id = false) {
+		if ( is_numeric($blog_id) ) {
+			return sb_checkbox_true(sb_get_blog_option($blog_id, $this->cf_active_option_key()));
+		} else {
+			return sb_checkbox_true(sb_get_option($this->cf_active_option_key()));
+		}
 	}
 
 	/**

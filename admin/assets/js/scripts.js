@@ -1,36 +1,48 @@
 jQuery(document).ready(function($) {
 
-  $('.wreak-havoc').click(function(e) {
+  $('.sb-wreak-havoc').click(function(e) {
     e.preventDefault();
-    wreak_havoc();
+    sb_wreak_havoc();
   });
 
   $('.sb-purge-all-cache').click(function(e) {
     e.preventDefault();
-    purge_all_cache();
+    sb_purge_all_cache();
   });
 
   $('.sb-purge-url').click(function(e) {
     e.preventDefault();
-    purge_url();
+    sb_purge_url();
   });
 
-  $('.optimize-now').click(function(e){
+  $('.sb-optimize-now').click(function(e){
     e.preventDefault();
-    optimize()
+    sb_optimize();
   });
 
-  $('.convert-table').click(function(e){
+  $('.sb-convert-table').click(function(e){
     e.preventDefault();
-    convert_table(this);
+    sb_convert_table(this);
   });
 
-  $('.create-index').click(function(e){
+  $('.sb-create-index').click(function(e){
     e.preventDefault();
-    create_index(this);
+    sb_create_index(this);
   });
 
-  $('#nginx_cache_switch').change(function(){
+  $('#sb-cache_post_type_all').change(function(){
+    var bool = $(this).is(':checked');
+    $('.servebolt_fpc_settings_item').not('#sb-cache_post_type_all').each(function (i, el) {
+      var item = $(el).closest('span');
+      if ( bool ) {
+        item.addClass('disabled');
+      } else {
+        item.removeClass('disabled');
+      }
+    });
+  });
+
+  $('#sb-nginx_cache_switch').change(function(){
     var form = $('#post-types-form');
     if ( $(this).is(':checked') ) {
       form.show();
@@ -43,29 +55,25 @@ jQuery(document).ready(function($) {
     var checkboxCount = $('#sb-configuration #purge-items-table input[type="checkbox"]:checked').length,
         itemCount = $('#sb-configuration #purge-items-table tbody .purge-item').length,
         buttons = $('#sb-configuration .remove-selected-purge-items');
-    if (checkboxCount === 0 || itemCount === 0) {
-      buttons.prop('disabled', true);
-    } else {
-      buttons.prop('disabled', false);
-    }
+    buttons.prop('disabled', (checkboxCount === 0 || itemCount === 0));
   });
 
   $('#sb-configuration .flush-purge-items-queue').click(function() {
     $('#sb-configuration #purge-items-table tbody .purge-item').remove();
-    checkForEmptyPurgeItemsTable();
+    sb_check_for_empty_purge_items_table();
   });
 
   $('#sb-configuration .remove-selected-purge-items').click(function() {
     $('#sb-configuration #purge-items-table tbody .purge-item input[type="checkbox"]:checked').each(function () {
       $(this).closest('tr').remove();
     });
-    checkForEmptyPurgeItemsTable();
+    sb_check_for_empty_purge_items_table();
   });
 
   $('#sb-configuration .remove-purge-item-from-queue').click(function(e) {
     e.preventDefault();
     $(this).closest('tr').remove();
-    checkForEmptyPurgeItemsTable();
+    sb_check_for_empty_purge_items_table();
   });
 
   $('#sb-configuration input[name="servebolt_cf_auth_type"]').change(function() {
@@ -86,17 +94,20 @@ jQuery(document).ready(function($) {
     $('#sb-configuration input[name="servebolt_cf_zone_id"]').val( $(this).data('id') );
   });
 
-  // Insert loader markup
-  insert_loader_markup();
-
   /**
    * Insert loader mnarkup.
    */
-  function insert_loader_markup() {
+  function sb_insert_loader_markup() {
     $('<div id="servebolt-loading" class=""><div class="loader loading-ring"></div></div>').insertBefore('.wrap.sb-content');
   }
 
-  function checkForEmptyPurgeItemsTable() {
+  // Insert loader markup
+  sb_insert_loader_markup();
+
+  /**
+   * Check if the cache purge queue table is empty or not.
+   */
+  function sb_check_for_empty_purge_items_table() {
     var checkboxItems = $('#sb-configuration #purge-items-table input[type="checkbox"]');
     checkboxItems.prop('checked', false);
     checkboxItems.first().change();
@@ -113,20 +124,14 @@ jQuery(document).ready(function($) {
   }
 
   /**
+   * Validate the form before submitting.
    *
    * @returns {boolean}
    */
   window.sb_validate_configuration_form = function() {
-
-
-
     /*
     var errors = [];
-
     var auth_type = $('#sb-configuration input[name="cf_auth_type"]').val();
-
-
-
     switch (auth_type) {
 
     }
@@ -142,7 +147,7 @@ jQuery(document).ready(function($) {
   /**
    * Clear all cache in Cloudflare.
    */
-  function purge_all_cache() {
+  function sb_purge_all_cache() {
     Swal.fire({
       title: 'Do you want to purge all cache?',
       icon: 'warning',
@@ -178,17 +183,17 @@ jQuery(document).ready(function($) {
                 });
               }, 100);
             } else {
-              var message = get_message_from_response(response);
+              var message = sb_get_message_from_response(response);
               if ( message ) {
-                cache_purge_error(message);
+                sb_cache_purge_error(message);
               } else {
-                cache_purge_error();
+                sb_cache_purge_error();
               }
             }
           },
           error: function() {
             sb_loading(false);
-            cache_purge_error();
+            sb_cache_purge_error();
           }
         });
       }
@@ -198,7 +203,7 @@ jQuery(document).ready(function($) {
   /**
    * Clear all cache in Cloudflare.
    */
-  function purge_url() {
+  function sb_purge_url() {
     Swal.fire({
       text: 'Which URL do you wish to purge?',
       input: 'text',
@@ -240,17 +245,17 @@ jQuery(document).ready(function($) {
                 });
               }, 100);
             } else {
-              var message = get_message_from_response(response);
+              var message = sb_get_message_from_response(response);
               if ( message ) {
-                cache_purge_error(message);
+                sb_cache_purge_error(message);
               } else {
-                cache_purge_error();
+                sb_cache_purge_error();
               }
             }
           },
           error: function() {
             sb_loading(false);
-            cache_purge_error();
+            sb_cache_purge_error();
           }
         });
       }
@@ -264,7 +269,7 @@ jQuery(document).ready(function($) {
    * @param response
    * @returns {*}
    */
-  function get_message_from_response(response) {
+  function sb_get_message_from_response(response) {
     if ( typeof response.data !== 'undefined' && typeof response.data.message !== 'undefined' ) {
       return response.data.message;
     }
@@ -274,7 +279,7 @@ jQuery(document).ready(function($) {
   /**
    * Display cache purge error.
    */
-  function cache_purge_error(message) {
+  function sb_cache_purge_error(message) {
     Swal.fire({
       icon: 'error',
       title: 'Unknown error',
@@ -289,7 +294,7 @@ jQuery(document).ready(function($) {
   /**
    * Convert a table to InnoDB.
    */
-  function convert_table(element) {
+  function sb_convert_table(element) {
     sb_loading(true);
     var data = {
       action: 'servebolt_convert_table_to_innodb',
@@ -303,7 +308,7 @@ jQuery(document).ready(function($) {
       success: function(response) {
         sb_loading(false);
         if ( response.success ) {
-          var message = get_message_from_response(response);
+          var message = sb_get_message_from_response(response);
           setTimeout(function () {
             Swal.fire({
               icon: 'success',
@@ -331,7 +336,7 @@ jQuery(document).ready(function($) {
   /**
    * Run full optimization.
    */
-  function optimize() {
+  function sb_optimize() {
     sb_loading(true);
     var data = {
       action: 'servebolt_optimize_db',
@@ -380,7 +385,7 @@ jQuery(document).ready(function($) {
   /**
    * Create index on table.
    */
-  function create_index(element) {
+  function sb_create_index(element) {
     sb_loading(true);
     var data = {
       action: 'servebolt_create_index',
@@ -422,7 +427,7 @@ jQuery(document).ready(function($) {
   /**
    * Debug function to remove indexes and change DB engine.
    */
-  function wreak_havoc() {
+  function sb_wreak_havoc() {
     if ( ! confirm('WARNING: This functionality is added for development purposes and will remove indexes and convert table engines to MyISAM. This is not something you really want unless you are debugging/developing. Do you want to proceed?') ) {
       return
     }

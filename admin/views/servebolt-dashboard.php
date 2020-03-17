@@ -4,11 +4,27 @@
 	<h1 class="heading"><?php sb_e('Performance tools'); ?></h1>
 
     <div class="actions">
-      <a href="admin.php?page=servebolt-performance-tools" class="sb-button yellow"><?php sb_e('Optimize your database'); ?></a>
-      <a href="admin.php?page=servebolt-cf-cache" class="sb-button yellow"><?php sb_e('Cloudflare Cache'); ?></a>
-	    <?php if ( host_is_servebolt() ) : ?>
-        <a href="admin.php?page=servebolt-nginx-cache" class="sb-button yellow"><?php sb_e('Full Page Cache settings') ?></a>
-        <a href="admin.php?page=servebolt-logs" class="sb-button yellow"><?php sb_e('Review the error log') ?></a>
+
+	    <?php if ( ! is_multisite() || is_network_admin() ) : ?>
+
+        <?php $method = is_multisite() && is_network_admin() ? 'network_admin_url' : 'admin_url'; ?>
+
+        <a href="<?php echo $method('admin.php?page=servebolt-performance-tools'); ?>" class="sb-button yellow"><?php sb_e('Optimize your database'); ?></a>
+        <a href="<?php echo $method('admin.php?page=servebolt-cf-cache'); ?>" class="sb-button yellow"><?php sb_e('Cloudflare Cache'); ?></a>
+	      <?php if ( host_is_servebolt() ) : ?>
+          <a href="<?php echo $method('admin.php?page=servebolt-nginx-cache'); ?>" class="sb-button yellow"><?php sb_e('Full Page Cache settings') ?></a>
+          <a href="<?php echo $method('admin.php?page=servebolt-logs'); ?>" class="sb-button yellow"><?php sb_e('Review the error log') ?></a>
+	      <?php endif; ?>
+
+	    <?php else : ?>
+
+        <a href="<?php echo admin_url('admin.php?page=servebolt-cf-cache'); ?>" class="sb-button yellow"><?php sb_e('Cloudflare Cache'); ?></a>
+	      <?php if ( host_is_servebolt() ) : ?>
+          <a href="<?php echo admin_url('admin.php?page=servebolt-nginx-cache'); ?>" class="sb-button yellow"><?php sb_e('Full Page Cache settings') ?></a>
+	      <?php endif; ?>
+
+        <a href="<?php echo network_admin_url('admin.php?page=servebolt-wp'); ?>" class="sb-button yellow"><?php sb_e('Go to network admin for more options') ?></a>
+
 	    <?php endif; ?>
     </div>
 

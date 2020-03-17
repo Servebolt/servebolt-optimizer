@@ -52,7 +52,9 @@ class Servebolt_Admin_Interface {
 			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
 			add_submenu_page('servebolt-wp', sb__('Error log'), sb__('Error log'), 'manage_options', 'servebolt-logs', [$this, 'error_log_callback']);
 		}
-		add_action('admin_bar_menu', [$this, 'admin_bar'], 100);
+		if ( ! is_network_admin() ) {
+			add_action( 'admin_bar_menu', [ $this, 'admin_bar' ], 100 );
+		}
 	}
 
 	/**
@@ -60,7 +62,14 @@ class Servebolt_Admin_Interface {
 	 */
 	public function subsite_menu() {
 		if ( ! apply_filters('sb_optimizer_display_menu', true) ) return;
-		add_options_page( sb__('Servebolt Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'NGINX_cache_callback']);
+		add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'general_page_callback'], SERVEBOLT_PATH_URL . 'admin/assets/img/servebolt-icon.svg' );
+		add_submenu_page('servebolt-wp', sb__('General'), sb__('General'), 'manage_options', 'servebolt-wp');
+		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache', [$this, 'cf_cache_callback']);
+
+		if ( host_is_servebolt() === true ) {
+			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
+		}
+		add_action('admin_bar_menu', [$this, 'admin_bar'], 100);
 	}
 
 	/**
@@ -133,7 +142,7 @@ class Servebolt_Admin_Interface {
 
 		$nodes = [];
 		$sb_icon = '<span class="servebolt-icon"></span>';
-		$cache_purge_available = true;
+		$cache_purge_available = sb_cf()->cf_is_active();
 
 		if ( $admin_url = get_sb_admin_url() ) {
 			$nodes[] = [
@@ -150,7 +159,7 @@ class Servebolt_Admin_Interface {
 		if ( $cache_purge_available ) {
 			$nodes[] = [
 				'id'     => 'servebolt-clear-cf-cache',
-				'title'  => sb__('Clear Cloudflare cache'),
+				'title'  => sb__('Purge Cloudflare Cache'),
 				'href'   => '#',
 				'meta'   => [
 					'target' => '_blank',

@@ -79,7 +79,7 @@ class Servebolt_CLI_Extras {
 			$sites_status = [];
 			foreach ( $sites as $site ) {
 				$status = sb_nginx_fpc()->fpc_is_active($site->blog_id) ? 'Active' : 'Inactive';
-				$post_types = sb_nginx_fpc()->get_cacheable_post_types(true, $site->blog_id);
+				$post_types = sb_nginx_fpc()->get_post_types_to_cache(true, true, $site->blog_id);
 				$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
 				$sites_status[] = [
 					'URL'               => get_site_url($site->blog_id),
@@ -90,7 +90,7 @@ class Servebolt_CLI_Extras {
 			WP_CLI\Utils\format_items( 'table', $sites_status , array_keys(current($sites_status)));
 		} else {
 			$status = sb_nginx_fpc()->fpc_is_active() ? 'active' : 'inactive';
-			$post_types = sb_nginx_fpc()->get_cacheable_post_types();
+			$post_types = sb_nginx_fpc()->get_post_types_to_cache();
 			$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
 			if ( $display_cache_state ) {
 				WP_CLI::line( sprintf( sb__( 'Servebolt Full Page Cache cache is %s' ), $status ) );
@@ -110,7 +110,7 @@ class Servebolt_CLI_Extras {
 
 		// Cache default post types
 		if ( ! is_array($post_types) || empty($post_types) ) {
-			return sprintf( sb__( 'Default [%s]' ), sb_nginx_fpc()->default_cacheable_post_types( 'csv' ) );
+			return sprintf( sb__( 'Default [%s]' ), sb_nginx_fpc()->get_default_post_types_to_cache( 'csv' ) );
 		}
 
 		// Cache all post types
@@ -191,7 +191,7 @@ class Servebolt_CLI_Extras {
 	 */
 	protected function nginx_set_post_types($post_types, $blog_id = false) {
 		$cache_all_post_types = in_array('all', $post_types);
-		$all_post_types = $this->nginx_get_all_post_types($blog_id);// TODO: This needs to respect the post types of each blog in a multisite context (doenst it?)
+		$all_post_types = $this->nginx_get_all_post_types();
 		$url = get_site_url($blog_id);
 
 		if ( $cache_all_post_types ) {
@@ -213,8 +213,7 @@ class Servebolt_CLI_Extras {
 	 * @return array|bool
 	 */
 	private function nginx_get_all_post_types($blog_id = false) {
-		// TODO: Should the "get_post_types"-function respect $blog_id?
-		$all_post_types = get_post_types(['public' => true], 'objects');
+		$all_post_types = sb_nginx_fpc()->get_available_post_types_to_cache(false);
 		if ( is_array($all_post_types) ) {
 			return array_map(function($post_type) {
 				return $post_type->name;
@@ -231,7 +230,7 @@ class Servebolt_CLI_Extras {
 	protected function nginx_set_exclude_ids($ids_to_exclude_string) {
 
 		$ids_to_exclude = $this->format_comma_string($ids_to_exclude_string);
-		$already_excluded = sb_nginx_fpc()->get_ids_to_exclude();
+		$already_excluded = sb_nginx_fpc()->get_ids_to_exclude_from_cache();
 
 		if ( empty($ids_to_exclude) ) {
 			WP_CLI::warning(sb__('No ids were specified.'));
@@ -251,7 +250,7 @@ class Servebolt_CLI_Extras {
 				$already_added[] = $id;
 			}
 		}
-		sb_nginx_fpc()->set_ids_to_exclude($already_excluded);
+		sb_nginx_fpc()->set_ids_to_exclude_from_cache($already_excluded);
 
 		if ( ! empty($already_added) ) {
 			WP_CLI::info(sprintf(sb__('The following ids were already excluded: %s'), implode(',', $already_added)));

@@ -7,7 +7,7 @@
 	<h2>⚡️<?php sb_e('Servebolt Optimize'); ?></h2>
 
   <?php if ( array_key_exists('debug', $_GET)) : ?>
-  <button class="wreak-havoc button" style="margin-top: 10px;">Wreak havoc!</button>
+  <button class="sb-wreak-havoc button" style="margin-top: 10px;">Wreak havoc!</button>
   <?php endif; ?>
 
 	<h3><?php sb_e('Database Indexes'); ?></h3>
@@ -49,12 +49,11 @@
 		      <?php if ( $index_fix_available ) : ?>
           <td>
 	          <?php if ( ! $table['has_index'] ) : ?>
-            <a href="#" class="create-index" data-blog-id="<?php echo array_key_exists('blog_id', $table) ? esc_attr($table['blog_id']) : ''; ?>" data-table="<?php echo esc_attr($table['table']); ?>"><?php sb_e('Create index'); ?></a>
+            <a href="#" class="sb-create-index" data-blog-id="<?php echo array_key_exists('blog_id', $table) ? esc_attr($table['blog_id']) : ''; ?>" data-table="<?php echo esc_attr($table['table']); ?>"><?php sb_e('Create index'); ?></a>
             <?php endif; ?>
           </td>
           <?php endif; ?>
 				</tr>
-				<?php $run_optimizer = true; ?>
 			<?php endforeach; ?>
 		<?php endif; ?>
 		</tbody>
@@ -89,9 +88,8 @@
 				<tr>
 					<td><?php echo $obj->TABLE_NAME; ?></td>
 					<td><?php echo $obj->ENGINE; ?></td>
-					<td><a href="#" class="convert-table" data-table="<?php echo $obj->TABLE_NAME; ?>"><?php sb_e('Convert to InnoDB'); ?></a></td>
+					<td><a href="#" class="sb-convert-table" data-table="<?php echo $obj->TABLE_NAME; ?>"><?php sb_e('Convert to InnoDB'); ?></a></td>
 				</tr>
-				<?php $run_optimizer = true; ?>
 			<?php endforeach; ?>
 		<?php endif; ?>
 		</tbody>
@@ -103,7 +101,7 @@
 		<p><?php sb_e('You can run the optimizer below.'); ?><br>
 			<strong><?php sb_e('Always backup your database before running optimization!'); ?></strong>
 		</p>
-		<a <?php if($run_optimizer === true) echo 'href="#optimize-now"'; ?> class="btn button button-primary optimize-now" <?php if($run_optimizer !== true) echo 'disabled'; ?>><?php sb_e('Optimize!'); ?></a>
+		<a class="btn button button-primary sb-optimize-now"><?php sb_e('Optimize!'); ?></a>
 	</div>
 
   <br>

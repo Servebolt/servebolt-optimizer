@@ -1,7 +1,44 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
 <div class="wrap sb-content" id="sb-configuration">
 	<h1><?php sb_e('Cloudflare Cache'); ?></h1>
-  <p>This feature will automatically bust the Cloudflare cache whenever you do an update in Wordpress. Neat right?</p>
+
+  <p>This feature will automatically purge the Cloudflare cache whenever you do an update in Wordpress. Neat right?</p>
+
+	<?php if ( is_network_admin() ) : ?>
+
+    <p>Please navigate to each blog to control settings regarding Cloudflare cache purging.</p>
+
+    <table class="wp-list-table widefat striped">
+      <thead>
+      <tr>
+        <th><?php sb_e('Blog ID'); ?></th>
+        <th><?php sb_e('URL'); ?></th>
+        <th><?php sb_e('Cloudflare Cache Purge Active'); ?></th>
+        <th><?php sb_e('Controls'); ?></th>
+      </tr>
+      </thead>
+      <tfoot>
+      <tr>
+        <th><?php sb_e('Blog ID'); ?></th>
+        <th><?php sb_e('URL'); ?></th>
+        <th><?php sb_e('Cloudflare Cache Purge Active'); ?></th>
+        <th><?php sb_e('Controls'); ?></th>
+      </tr>
+      </tfoot>
+      <tbody>
+	  <?php foreach ( get_sites() as $site ) : ?>
+        <tr>
+          <td><?php echo $site->blog_id; ?></td>
+          <td><?php echo $site->domain . $site->path; ?></td>
+          <td><?php echo sb_cf()->cf_is_active($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
+          <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-wp' ); ?>" class="button btn"><?php sb_e('Go to site Cloudflare settings'); ?></a></td>
+        </tr>
+	  <?php endforeach; ?>
+      </tbody>
+    </table>
+
+  <?php else : ?>
+
 	<?php $cf_settings = sb_cf_cache_controls()->get_settings_items(); ?>
 
   <p>Active Cloudflare cache zone:
@@ -211,5 +248,7 @@
     <?php submit_button(); ?>
 
   </form>
+
+  <?php endif; ?>
 
 </div>

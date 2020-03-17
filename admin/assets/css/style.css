@@ -17,6 +17,13 @@
     display: block;
 }
 
+.sb-content #post-types-form .disabled {
+    pointer-events: none;
+}
+.sb-content #post-types-form .disabled input {
+    opacity: 0.5;
+}
+
 .sb-content .buttons {
     text-align: center;
     margin-top: 2rem;
@@ -36,6 +43,12 @@
     width: 150px;
     display: inline-block;
     text-align: center;
+}
+
+.servebolt-button[disabled],
+.sb-content .sb-button[disabled] {
+    opacity: 0.5;
+    cursor: default;
 }
 
 .servebolt-button.light,

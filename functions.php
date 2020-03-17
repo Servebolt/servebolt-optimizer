@@ -13,6 +13,20 @@ function get_sb_admin_url() {
 }
 
 /**
+ * Format a post type slug.
+ *
+ * @param $post_type
+ *
+ * @return mixed|string
+ */
+function sb_format_post_type($post_type) {
+	$post_type = str_replace('_', ' ', $post_type);
+	$post_type = str_replace('-', ' ', $post_type);
+	$post_type = ucfirst($post_type);
+	return $post_type;
+}
+
+/**
  * Get Servebolt_Performance_Checks-instance.
  *
  * @return Servebolt_Performance_Checks|null
@@ -20,6 +34,16 @@ function get_sb_admin_url() {
 function sb_performance_checks() {
 	require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
 	return Servebolt_Performance_Checks::get_instance();
+}
+
+/**
+ * Get Servebolt_Multisite_Post_Type_Index-instance.
+ *
+ * @return Servebolt_Multisite_Post_Type_Index|null
+ */
+function sb_multisite_post_type_index() {
+	require_once SERVEBOLT_PATH . 'class/multisite-post-type-index.class.php';
+	return Servebolt_Multisite_Post_Type_Index::get_instance();
 }
 
 /**
