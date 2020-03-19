@@ -57,7 +57,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 		WP_CLI::add_command( 'servebolt cf cron enable',           [$this, 'nginx_cf_cron_enable'] );
 		WP_CLI::add_command( 'servebolt cf cron disable',          [$this, 'nginx_cf_cron_disable'] );
 		WP_CLI::add_command( 'servebolt cf get-config',            [$this, 'cf_config_get'] );
-		//WP_CLI::add_command( 'servebolt cf test-api-connection',   [$this, 'cf_test_api_connection'] );
+		WP_CLI::add_command( 'servebolt cf test-api-connection',   [$this, 'cf_test_api_connection'] );
 		WP_CLI::add_command( 'servebolt cf list-zones',            [$this, 'cf_list_zones'] );
 		WP_CLI::add_command( 'servebolt cf set-zone',              [$this, 'cf_set_zone'] );
 		WP_CLI::add_command( 'servebolt cf clear-zone',            [$this, 'cf_clear_zone'] );
@@ -185,7 +185,6 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	 *
 	 *     wp servebolt cf test-api-connection
 	 */
-	/*
 	public function cf_test_api_connection() {
 		if ( sb_cf()->test_api_connection() ) {
 			WP_CLI::success('API connection passed!');
@@ -193,7 +192,6 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 			WP_CLI::error(sprintf('Could not communicate with the API. Please check that API credentials are configured correctly and that we have the right permissions (%s).', sb_cf()->api_permissions_needed()));
 		}
 	}
-	*/
 
 	/**
 	 * Select active Cloudflare zone.
@@ -297,9 +295,9 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 				if ( ! $email || empty($email) || ! $api_key || empty($api_key) ) {
 					WP_CLI::error('Please specify API key and email.');
 				}
-				$type        = 'apiKey';
+				$type         = 'api_key';
 				$verbose_type = 'API key';
-				$credentials = compact('email', 'apiKey');
+				$credentials = compact('email', 'api_key');
 				$verbose_credentials = implode(' / ', $credentials);
 				break;
 			case 'token':
@@ -307,7 +305,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 				if ( ! $token || empty($token) ) {
 					WP_CLI::error('Please specify a token.');
 				}
-				$type        = 'apiToken';
+				$type         = 'api_token';
 				$verbose_type = 'API token';
 				$credentials = $token;
 				$verbose_credentials = $credentials;
@@ -316,15 +314,13 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 				WP_CLI::error('Could not set credentials.');
 		}
 		if ( sb_cf()->store_credentials($credentials, $type) ) {
-			WP_CLI::success(sprintf('Cloudflare credentials set using %s: %s', $verbose_type, $verbose_credentials));
-			/*
+			//WP_CLI::success(sprintf('Cloudflare credentials set using %s: %s', $verbose_type, $verbose_credentials));
 			if ( ! sb_cf()->test_api_connection() ) {
 				WP_CLI::error(sprintf('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).', sb_cf()->api_permissions_needed()), false);
 			} else {
-				WP_CLI::success(sprintf('Cloudflare credentials set using %s: %s', $verboseType, $verboseCredentials));
+				WP_CLI::success(sprintf('Cloudflare credentials set using %s: %s', $verbose_type, $verbose_credentials));
 				WP_CLI::success('API connection test passed!');
 			}
-			*/
 		} else {
 			WP_CLI::error(sprintf('Could not set Cloudflare credentials set using %s: %s', $verbose_type, $verbose_credentials));
 		}
@@ -508,7 +504,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 
 		$arr = [
 			'Status'     => $cf->cf_is_active() ? 'Active' : 'Inactive',
-			'Zone Id'    => $cf->get_ative_zone_id(),
+			'Zone Id'    => $cf->get_active_zone_id(),
 			'Purge type' => $is_cron_purge ? 'Via cron' : 'Immediate purge',
 		];
 
@@ -518,12 +514,12 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 
 		$arr['API authentication type'] = $auth_type;
 		switch ($auth_type) {
-			case 'apiKey':
-				$arr['API key'] = $cf->get_credential('apiKey');
+			case 'api_key':
+				$arr['API key'] = $cf->get_credential('api_key');
 				$arr['email'] = $cf->get_credential('email');
 				break;
-			case 'apiToken':
-				$arr['API token'] = $cf->getCredential('apiToken');
+			case 'api_token':
+				$arr['API token'] = $cf->getCredential('api_token');
 				break;
 		}
 

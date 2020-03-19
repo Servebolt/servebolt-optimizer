@@ -320,10 +320,10 @@ function sb_get_option($option, $default = false) {
  *
  * @return bool
  */
-function sb_update_option($key, $value, $assertUpdate = true) {
+function sb_update_option($key, $value, $assert_update = true) {
 	$option_name = sb_get_option_name($key);
 	$result = update_option($option_name, $value);
-	if ( $assertUpdate && ! $result ) {
+	if ( $assert_update && ! $result ) {
 		return ( get_option($option_name) == $value );
 	}
 	return true;

@@ -123,13 +123,13 @@ jQuery(document).ready(function($) {
    */
   function sb_toggle_auth_type(boolean) {
     switch (boolean) {
-      case 'apiKey':
-        $('#sb-configuration .feature_cf_auth_type-apiToken').hide();
-        $('#sb-configuration .feature_cf_auth_type-apiKey').show();
+      case 'api_key':
+        $('#sb-configuration .feature_cf_auth_type-api_token').hide();
+        $('#sb-configuration .feature_cf_auth_type-api_key').show();
         break;
-      case 'apiToken':
-        $('#sb-configuration .feature_cf_auth_type-apiToken').show();
-        $('#sb-configuration .feature_cf_auth_type-apiKey').hide();
+      case 'api_token':
+        $('#sb-configuration .feature_cf_auth_type-api_token').show();
+        $('#sb-configuration .feature_cf_auth_type-api_key').hide();
         break;
     }
   }

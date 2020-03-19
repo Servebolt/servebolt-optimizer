@@ -7,6 +7,7 @@ use Cloudflare\API\Auth\APIToken;
 use Cloudflare\API\Auth\APIKey;
 use Cloudflare\API\Adapter\Guzzle;
 use Cloudflare\API\Endpoints\Zones;
+use Cloudflare\API\Endpoints\User;
 
 /**
  * Class Cloudflare
@@ -56,6 +57,16 @@ class Cloudflare {
 			self::$instance = new Cloudflare($credentials);
 		}
 		return self::$instance;
+	}
+
+	/**
+	 * Get user ID of authenticated user.
+	 *
+	 * @return mixed
+	 */
+	public function get_user_id() {
+		$user = $this->get_user_instance();
+		return $user->getUserID();
 	}
 
 	/**
@@ -143,11 +154,11 @@ class Cloudflare {
 	 */
 	private function get_key_instance() {
 		switch ( $this->auth_type ) {
-			case 'apiToken':
-				return new APIToken($this->get_credential('apiToken'));
+			case 'api_token':
+				return new APIToken($this->get_credential('api_token'));
 				break;
-			case 'apiKey':
-				return new APIKey($this->get_credential('email'), $this->get_credential('apiKey'));
+			case 'api_key':
+				return new APIKey($this->get_credential('email'), $this->get_credential('api_key'));
 				break;
 		}
 		return false;
@@ -175,6 +186,17 @@ class Cloudflare {
 		$adapter = $this->get_adapter_instance();
 		if ( ! $adapter ) return false;
 		return new Zones( $adapter );
+	}
+
+	/**
+	 * Get User instance.
+	 *
+	 * @return bool|Zones
+	 */
+	private function get_user_instance() {
+		$adapter = $this->get_adapter_instance();
+		if ( ! $adapter ) return false;
+		return new User( $adapter );
 	}
 
 	/**

@@ -54,6 +54,10 @@ if ( ! class_exists('Servebolt_Nginx_FPC') ){
 require_once SERVEBOLT_PATH . 'classes/servebolt-cf.class.php';
 sb_cf();
 
+// Invoke the Serveolt Cloudflare Cron class
+require_once SERVEBOLT_PATH . 'classes/servebolt-cf-cron.class.php';
+new Servebolt_CF_Cron_Handle;
+
 // If the admin is loaded, load this plugins interface
 if ( is_admin() ) {
 	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';

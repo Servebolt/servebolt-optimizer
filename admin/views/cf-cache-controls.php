@@ -89,24 +89,24 @@
           <td>
             <fieldset>
               <legend class="screen-reader-text"><span>Authentication type</span></legend>
-              <label><input type="radio" name="<?php echo sb_get_option_name('cf_auth_type'); ?>" value="apiToken" <?php checked($cf_settings['cf_auth_type'] == 'apiToken'); ?>> <code>API token</code></label><br>
-              <label><input type="radio" name="<?php echo sb_get_option_name('cf_auth_type'); ?>" value="apiKey" <?php checked($cf_settings['cf_auth_type'] == 'apiKey'); ?>> <code>API key</code></label>
+              <label><input type="radio" name="<?php echo sb_get_option_name('cf_auth_type'); ?>" value="api_token" <?php checked($cf_settings['cf_auth_type'] == 'api_token'); ?>> <code>API token</code></label><br>
+              <label><input type="radio" name="<?php echo sb_get_option_name('cf_auth_type'); ?>" value="api_key" <?php checked($cf_settings['cf_auth_type'] == 'api_key'); ?>> <code>API key</code></label>
               <p>Read about Cloudflare API authentication <a href="https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys" target="_blank">here</a>. We recommend using an API token since it allows for more fine grained access control.</p>
             </fieldset>
           </td>
         </tr>
-        <tr class="feature_cf_auth_type-apiToken"<?php if ( $cf_settings['cf_auth_type'] != 'apiToken' ) echo ' style="display: none;"' ?>>
+        <tr class="feature_cf_auth_type-api_token"<?php if ( $cf_settings['cf_auth_type'] != 'api_token' ) echo ' style="display: none;"' ?>>
           <th scope="row"><label for="api_token">API token</label></th>
           <td>
             <input name="<?php echo sb_get_option_name('cf_api_token'); ?>" type="text" id="api_token" value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" class="regular-text">
             <p><small>Make sure to add permissions for <?php echo sb_cf()->api_permissions_needed(); ?> when creating a token.</small></p>
           </td>
         </tr>
-        <tr class="feature_cf_auth_type-apiKey"<?php if ( $cf_settings['cf_auth_type'] != 'apiKey' ) echo ' style="display: none;"' ?>>
+        <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
           <th scope="row"><label for="email">Cloudflare e-mail</label></th>
           <td><input name="<?php echo sb_get_option_name('cf_email'); ?>" type="email" id="email" value="<?php echo esc_attr($cf_settings['cf_email']); ?>" class="regular-text"></td>
         </tr>
-        <tr class="feature_cf_auth_type-apiKey"<?php if ( $cf_settings['cf_auth_type'] != 'apiKey' ) echo ' style="display: none;"' ?>>
+        <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
           <th scope="row"><label for="api_key">API key</label></th>
           <td><input name="<?php echo sb_get_option_name('cf_api_key'); ?>" type="text" id="api_key" value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" class="regular-text"></td>
         </tr>

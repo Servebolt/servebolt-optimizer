@@ -37,7 +37,7 @@ class Servebolt_CF {
 	 *
 	 * @var string
 	 */
-	private $default_authentication_type = 'apiToken';
+	private $default_authentication_type = 'api_token';
 
 	/**
 	 * Whether we successfully registered credentials for Cloudflare API class.
@@ -65,8 +65,6 @@ class Servebolt_CF {
 	 */
 	private function __construct() {
 		$this->init_cf();
-		$this->register_actions();
-		$this->handle_cron();
 	}
 
 	/**
@@ -82,39 +80,12 @@ class Servebolt_CF {
 	}
 
 	/**
-	 * Register action hooks.
-	 */
-	private function register_actions() {
-		if ( ! $this->cf_is_active() ) return;
-		add_action( 'save_post', [$this, 'purge_post'], 99 );
-	}
-
-	/**
 	 * Get cron key used for scheduling Cloudflare cache purge.
 	 *
 	 * @return string
 	 */
 	public function get_cron_key() {
 		return $this->cron_key;
-	}
-
-	/**
-	 * Handle Cloudflare cache purge cron job.
-	 */
-	public function handle_cron() {
-
-		// Add schedule for execution every minute
-		add_filter( 'cron_schedules', [$this, 'add_cache_purge_cron_schedule'] );
-
-		// Check if we should use cron-based cache purging
-		if ( ! $this->cf_is_active() || ! $this->cron_purge_is_active() || ! $this->should_purge_cache_queue() ) {
-			$this->deregister_cron();
-			return;
-		}
-
-		// Schedule task
-		$this->register_cron();
-
 	}
 
 	/**
@@ -125,40 +96,6 @@ class Servebolt_CF {
 	public function should_purge_cache_queue() {
 		if ( defined('SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE') && SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE === false ) return false;
 		return true;
-	}
-
-	/**
-	 * Add cron schedule to be used with Cloudflare cache purging.
-	 *
-	 * @param $schedules
-	 *
-	 * @return mixed
-	 */
-	public function add_cache_purge_cron_schedule( $schedules ) {
-		$schedules['every_minute'] = array(
-			'interval' => 60,
-			'display' => sb__( 'Every minute' )
-		);
-		return $schedules;
-	}
-
-	/**
-	 * Remove cron-based cache purge task from schedule.
-	 */
-	public function deregister_cron() {
-		if ( ! wp_next_scheduled($this->get_cron_key()) ) {
-			wp_clear_scheduled_hook($this->get_cron_key());
-		}
-	}
-
-	/**
-	 * Add cron-based cache purge task from schedule.
-	 */
-	public function register_cron() {
-		add_action( $this->get_cron_key(), [$this, 'purge_by_cron'] );
-		if ( ! wp_next_scheduled( $this->get_cron_key() ) ) {
-			wp_schedule_event( time(), 'every_minute', $this->get_cron_key() );
-		}
 	}
 
 	/**
@@ -193,16 +130,44 @@ class Servebolt_CF {
 	 *
 	 * @return bool
 	 */
-	/*
 	public function test_api_connection() {
 		try {
-			$this->cf()->list_zones();
-			return true;
+			switch ( $this->get_authentication_type() ) {
+				case 'api_token':
+					return $this->verify_token();
+					break;
+				case 'api_key':
+					return $this->verify_user();
+					break;
+			}
+			return false;
 		} catch (Exception $e) {
 			return false;
 		}
 	}
-	*/
+
+	/**
+	 * Verify that the API token is valid.
+	 */
+	private function verify_token() {
+		$client = new GuzzleHttp\Client(['base_uri' => 'https://api.cloudflare.com']);
+		$headers = [
+			'Authorization' => 'Bearer ' . $this->get_credential('api_token'),
+			'Content-Type'  => 'application/json',
+			'Accept'        => 'application/json',
+		];
+		$response = $client->request('GET', '/client/v4/user/tokens/verify', [
+			'headers' => $headers
+		]);
+		return $response->getStatusCode() === 200;
+	}
+
+	/**
+	 * Verify that the API key is valid by fetching the user.
+	 */
+	private function verify_user() {
+		return $this->cf()->get_user_id();
+	}
 
 	/**
 	 * Check that we have credentials and have selected a zone.
@@ -325,11 +290,21 @@ class Servebolt_CF {
 	}
 
 	/**
+	 * Set authentication type.
+	 *
+	 * @param $type
+	 *
+	 * @return bool
+	 */
+	private function set_authentication_type($type) {
+		return sb_update_option('cf_auth_type', $type, true);
+	}
+
+	/**
 	 * Clear all credentials.
 	 */
 	public function clear_credentials() {
 		foreach(['cf_auth_type', 'cf_api_token', 'cf_api_key', 'cf_email'] as $key) {
-			sb_delete_option($key);
 			sb_delete_option($key);
 		}
 	}
@@ -353,18 +328,18 @@ class Servebolt_CF {
 	 */
 	private function register_credentials_in_class() {
 		switch ( $this->get_authentication_type() ) {
-			case 'apiToken':
-				$apiToken = $this->get_credential('apiToken');
-				if ( ! empty($apiToken) ) {
-					$this->set_credentials_in_cf_class('apiToken', compact('apiToken'));
+			case 'api_token':
+				$api_token = $this->get_credential('api_token');
+				if ( ! empty($api_token) ) {
+					$this->set_credentials_in_cf_class('api_token', compact('api_token'));
 					$this->credentials_ok = true;
 				}
 				break;
-			case 'apiKey':
+			case 'api_key':
 				$email = $this->get_credential('email');
-				$apiKey = $this->get_credential('apiKey');
-				if ( ! empty($email) && ! empty($apiKey) ) {
-					$this->set_credentials_in_cf_class('apiKey', compact('email', 'apiKey'));
+				$api_key = $this->get_credential('api_key');
+				if ( ! empty($email) && ! empty($api_key) ) {
+					$this->set_credentials_in_cf_class('api_key', compact('email', 'api_key'));
 					$this->credentials_ok = true;
 				}
 				break;
@@ -383,10 +358,30 @@ class Servebolt_CF {
 		switch ($key) {
 			case 'email':
 				return sb_get_option('cf_email');
-			case 'apiKey':
+			case 'api_key':
 				return sb_get_option('cf_api_key');
-			case 'apiToken':
+			case 'api_token':
 				return sb_get_option('cf_api_token');
+		}
+		return false;
+	}
+
+	/**
+	 * Store credential.
+	 *
+	 * @param $key
+	 * @param $value
+	 *
+	 * @return bool
+	 */
+	private function store_credential($key, $value) {
+		switch ($key) {
+			case 'email':
+				return sb_update_option('cf_email', $value, true);
+			case 'api_key':
+				return sb_update_option('cf_api_key', $value, true);
+			case 'api_token':
+				return sb_update_option('cf_api_token', $value, true);
 		}
 		return false;
 	}
@@ -401,14 +396,14 @@ class Servebolt_CF {
 	 */
 	public function store_credentials($credentials, $type) {
 		switch ($type) {
-			case 'apiKey':
-				if ( sb_update_option('cf_auth_type', $type, true) && sb_update_option('cf_email', $credentials['email'], true) && sb_update_option('cf_api_key', $credentials['apiKey'], true) ) {
+			case 'api_key':
+				if ( $this->set_authentication_type($type) && $this->store_credential('email', $credentials['email']) && $this->store_credential('api_key', $credentials['api_key']) ) {
 					$this->register_credentials_in_class();
 					return true;
 				}
 				break;
-			case 'apiToken':
-				if ( sb_update_option('cf_auth_type', $type, true) && sb_update_option('cf_api_token', $credentials, true) ) {
+			case 'api_token':
+				if ( $this->set_authentication_type($type) && $this->store_credential('api_token', $credentials) ) {
 					$this->register_credentials_in_class();
 					return true;
 				}

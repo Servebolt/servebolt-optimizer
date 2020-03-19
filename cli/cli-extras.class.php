@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  *
  * Additional methods for CLI-class.
  */
-class Servebolt_CLI_Extras {
+abstract class Servebolt_CLI_Extras {
 
 	/**
 	 * Store Cloudflare zones for cache purposes.
