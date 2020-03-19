@@ -441,7 +441,7 @@ class Servebolt_CLI extends Servebolt_CLI_Extras {
 	public function cf_purge_url($args) {
 		list($url) = $args;
 		WP_CLI::line(sprintf('Purging cache for url %s', $url));
-		if ( sb_cf()->purgeByUrl($url) ) {
+		if ( sb_cf()->purge_by_url($url) ) {
 			WP_CLI::success('Cache purged!');
 		} else {
 			WP_CLI::error('Could not purge cache.');
