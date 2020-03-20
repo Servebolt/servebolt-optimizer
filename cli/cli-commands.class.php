@@ -67,7 +67,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp servebolt cf enable
+	 *     wp servebolt cf activate
 	 */
 	public function cf_enable() {
 		return sb_cf()->cf_toggle_active(true);
@@ -78,7 +78,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp servebolt cf disable
+	 *     wp servebolt cf deactivate
 	 */
 	public function cf_disable() {
 		return sb_cf()->cf_toggle_active(false);
@@ -271,7 +271,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp servebolt cf cron enable
+	 *     wp servebolt cf cron activate
 	 *
 	 */
 	public function cf_cron_enable( $args, $assoc_args ) {
@@ -283,7 +283,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp servebolt cf cron disable
+	 *     wp servebolt cf cron deactivate
 	 *
 	 */
 	public function cf_cron_disable( $args, $assoc_args ) {
@@ -366,7 +366,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     # Activate Servebolt Full Page Cache, but only for pages and posts
-	 *     wp servebolt fpc enable --post-types=post,page
+	 *     wp servebolt fpc activate --post-types=post,page
 	 *
 	 */
 	public function nginx_fpc_enable( $args, $assoc_args ) {

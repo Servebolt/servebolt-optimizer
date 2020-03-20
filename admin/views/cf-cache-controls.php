@@ -73,9 +73,6 @@
     <table class="form-table" id="sb-configuration-table" role="presentation">
       <thead>
         <tr>
-          <th scope="row" colspan="100%" style="padding-bottom: 5px;"><h3 style="margin-bottom: 0;">API configuration</h3></th>
-        </tr>
-        <tr>
           <th scope="row">Cloudflare cache-feature</th>
           <td>
             <fieldset>
@@ -89,6 +86,9 @@
         </tr>
       </thead>
       <tbody class="sb-toggle-active-item"<?php if ( ! $cf_settings['cf_switch'] ) echo ' style="display: none;"'; ?>>
+        <tr>
+          <th scope="row" colspan="100%" style="padding-bottom: 5px;"><h3 style="margin-bottom: 0;">API configuration</h3></th>
+        </tr>
         <tr>
           <th scope="row">Authentication type</th>
           <td>
