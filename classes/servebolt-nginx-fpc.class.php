@@ -29,7 +29,7 @@ class Servebolt_Nginx_FPC {
 	 *
 	 * @var bool
 	 */
-	private $already_set = false;
+	private $headers_already_set = false;
 
 	/**
 	 * Cache the post ids to exclude from cache.
@@ -60,20 +60,9 @@ class Servebolt_Nginx_FPC {
 	 */
 	public function setup() {
 		add_filter( 'admin_init', [ $this, 'set_headers' ] );
+		add_action( 'set_auth_cookie', [ $this, 'no_cache_cookie_for_logged_in_users' ] );
 		add_filter( 'posts_results', [ $this, 'set_headers' ] );
 		add_filter( 'template_include', [ $this, 'last_call' ] );
-	}
-
-	/**
-	 * Last call - Run a last call to the set headers function before the template is loaded.
-	 *
-	 * @param $template
-	 *
-	 * @return mixed
-	 */
-	public function last_call( $template ) {
-		$this->set_headers( [ get_post() ] );
-		return $template;
 	}
 
 	/**
@@ -87,18 +76,18 @@ class Servebolt_Nginx_FPC {
 		global $wp_query;
 		$post_type = get_post_type();
 
-		if ( $this->already_set ) return $posts;
-		$this->already_set = true;
+		if ( $this->headers_already_set ) return $posts;
+		$this->headers_already_set = true;
 
 		// Set no-cache for all admin pages
 		if ( is_admin() || is_user_logged_in() ) {
 			$this->no_cache_headers();
-			$this->no_cache_for_logged_in_users();
+			$this->no_cache_cookie_for_logged_in_users();
 			return $posts;
 		}
 
 		if ( ! isset( $wp_query ) || ! get_post_type() ) {
-			$this->already_set = false;
+			$this->headers_already_set = false;
 			return $posts;
 		}
 
@@ -133,9 +122,21 @@ class Servebolt_Nginx_FPC {
 	}
 
 	/**
+	 * Last call - Run a last call to the set headers function before the template is loaded.
+	 *
+	 * @param $template
+	 *
+	 * @return mixed
+	 */
+	public function last_call( $template ) {
+		$this->set_headers( [ get_post() ] );
+		return $template;
+	}
+
+	/**
 	 * No cache cookie for logged in users.
 	 */
-	private function no_cache_for_logged_in_users() {
+	public function no_cache_cookie_for_logged_in_users() {
 		if ( is_user_logged_in() ) {
 			setcookie( 'no_cache', 1, $_SERVER['REQUEST_TIME'] + 3600, COOKIEPATH, COOKIE_DOMAIN );
 		}
