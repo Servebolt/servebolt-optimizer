@@ -247,12 +247,12 @@ class Servebolt_CF {
 	/**
 	 * Store active zone Id.
 	 *
-	 * @param $zoneId
+	 * @param $zone_id
 	 *
 	 * @return bool
 	 */
-	public function store_active_zone_id($zoneId) {
-		return sb_update_option('cf_zone_id', $zoneId);
+	public function store_active_zone_id($zone_id) {
+		return sb_update_option('cf_zone_id', $zone_id);
 	}
 
 	/**
