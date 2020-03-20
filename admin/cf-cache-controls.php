@@ -46,6 +46,15 @@ class CF_Cache_Controls {
 	}
 
 	/**
+	 * The default auth type if none is selected.
+	 *
+	 * @return string
+	 */
+	private function get_default_auth_type() {
+		return 'api_token';
+	}
+
+	/**
 	 * Get all plugin settings in array.
 	 *
 	 * @param bool $with_values
@@ -60,6 +69,10 @@ class CF_Cache_Controls {
 				switch ($item) {
 					case 'cf_switch':
 						$items_with_values[$item] = sb_cf()->cf_is_active();
+						break;
+					case 'cf_auth_type':
+						$value = sb_get_option($item);
+						$items_with_values['cf_auth_type'] = $value ?: $this->get_default_auth_type();
 						break;
 					default:
 						$items_with_values[$item] = sb_get_option($item);
@@ -86,13 +99,86 @@ class CF_Cache_Controls {
 	private function add_ajax_handling() {
 		add_action( 'wp_ajax_servebolt_purge_all_cache', [ $this, 'purge_all_cache_callback' ] );
 		add_action( 'wp_ajax_servebolt_purge_url', [ $this, 'purge_url_callback' ] );
-		add_action( 'wp_ajax_servebolt_validate_cf_settings', [ $this, 'validate_cf_settings_form' ] );
+		add_action( 'wp_ajax_servebolt_validate_cf_settings', [ $this, 'validate_cf_settings_form_callback' ] );
+		add_action( 'wp_ajax_servebolt_lookup_zones', [ $this, 'lookup_zones_callback' ] );
+		add_action( 'wp_ajax_servebolt_lookup_zone', [ $this, 'lookup_zone_callback' ] );
+	}
+
+	/**
+	 * Try to resolve the zone name by zone ID.
+	 */
+	public function lookup_zone_callback() {
+		check_ajax_referer( sb_get_ajax_nonce_key(), 'security' );
+		parse_str($_POST['form'], $form_data);
+		$auth_type = sanitize_text_field($form_data['servebolt_cf_auth_type']);
+		$api_token = sanitize_text_field($form_data['servebolt_cf_api_token']);
+		$email     = sanitize_text_field($form_data['servebolt_cf_email']);
+		$api_key   = sanitize_text_field($form_data['servebolt_cf_api_key']);
+		$zone_id   = sanitize_text_field($form_data['servebolt_cf_zone_id']);
+		try {
+			switch ($auth_type) {
+				case 'api_token':
+					sb_cf()->cf()->set_credentials('api_token', compact('api_token'));
+					break;
+				case 'api_key':
+					sb_cf()->cf()->set_credentials('api_key', compact('email', 'api_key'));
+					break;
+				default:
+					throw new Exception;
+			}
+			$zone = sb_cf()->get_zone_by_id($zone_id);
+			if ( $zone && isset($zone->name) ) {
+				return wp_send_json_success([
+					'zone' => $zone->name,
+				]);
+			}
+			throw new Exception;
+		} catch (Exception $e) {
+			wp_send_json_error();
+		}
+	}
+
+	/**
+	 * Generate li-markup of zones-array.
+	 *
+	 * @param $zones
+	 *
+	 * @return string
+	 */
+	private function generate_zone_list_markup($zones) {
+		$markup = '';
+		foreach($zones as $zone) {
+			$markup .= sprintf('<li><a href="#" data-id="%s">%s (%s)</a></li>', esc_attr($zone->id), $zone->name, $zone->id);
+		}
+		return $markup;
+	}
+
+	/**
+	 * Try to fetch available zones based on given API key credentials.
+	 */
+	public function lookup_zones_callback() {
+		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+		$email = sanitize_text_field($_POST['email']);
+		$api_key = sanitize_text_field($_POST['api_key']);
+		try {
+			sb_cf()->cf()->set_credentials('api_key', compact('email', 'api_key'));
+			$zones = sb_cf()->cf()->list_zones();
+			if ( ! empty($zones) ) {
+				wp_send_json_success([
+					'markup' => $this->generate_zone_list_markup($zones),
+				]);
+				return;
+			}
+			throw new Exception;
+		} catch (Exception $e) {
+			wp_send_json_error();
+		}
 	}
 
 	/**
 	 * Validate Cloudflare settings form.
 	 */
-	public function validate_cf_settings_form() {
+	public function validate_cf_settings_form_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
 
 		parse_str($_POST['form'], $form_data);
@@ -113,26 +199,41 @@ class CF_Cache_Controls {
 
 		switch ($auth_type) {
 			case 'api_token':
-				sb_cf()->cf()->set_credentials('api_token', compact('api_token'));
-				try {
-					if ( ! sb_cf()->cf()->verify_token() ) {
-						throw new Exception;
+				if ( empty($api_token) ) {
+					$errors['api_token'] = sb__('You need to provide an API token.');
+				} else {
+					sb_cf()->cf()->set_credentials('api_token', compact('api_token'));
+					try {
+						if ( ! sb_cf()->cf()->verify_token() ) {
+							throw new Exception;
+						}
+						$validate_zone = true;
+					} catch (Exception $e) {
+						$errors['api_token'] = sb__('Invalid API token.');
 					}
-					$validate_zone = true;
-				} catch (Exception $e) {
-					$errors['api_token'] = sb__('Invalid API token.');
 				}
 				break;
 			case 'api_key':
-				sb_cf()->cf()->set_credentials('api_key', compact('email', 'api_key'));
-				try {
-					if ( ! sb_cf()->cf()->verify_user() ) {
-						throw new Exception;
-					}
-					$validate_zone = true;
-				} catch (Exception $e) {
-					$errors['api_key'] = sb__( 'Invalid API credentials.' );
+				if ( empty($email) ) {
+					$errors['email'] = sb__('You need to provide an email address.');
 				}
+
+				if ( empty($api_key) ) {
+					$errors['api_key'] = sb__('You need to provide an API key.');
+				}
+
+				if ( ! empty($email) && ! empty($api_key) ) {
+					sb_cf()->cf()->set_credentials('api_key', compact('email', 'api_key'));
+					try {
+						if ( ! sb_cf()->cf()->verify_user() ) {
+							throw new Exception;
+						}
+						$validate_zone = true;
+					} catch (Exception $e) {
+						$errors['api_key_credentials'] = sb__( 'Invalid API credentials.' );
+					}
+				}
+
 				break;
 			default:
 				$errors[] = sb__('Invalid authentication type.');
@@ -140,12 +241,16 @@ class CF_Cache_Controls {
 		}
 
 		if ( $validate_zone ) {
-			try {
-				if ( ! $zone_id = sb_cf()->cf()->get_zone_by_id($zone_id) ) {
-					throw new Exception;
+			if ( empty($zone_id) ) {
+				$errors['zone_id'] = sb__('You need to provide a zone.');
+			} else {
+				try {
+					if ( ! $zone_id = sb_cf()->cf()->get_zone_by_id($zone_id) ) {
+						throw new Exception;
+					}
+				} catch (Exception $e) {
+					$errors['zone_id'] = sb__('Seems like we are lacking access to zone (check permissions) or the zone does not exist.');
 				}
-			} catch (Exception $e) {
-				$errors['zone_id'] = sb__('Seems like we are lacking access to zone (check permissions) or the zone does not exist.');
 			}
 		} else {
 			/*

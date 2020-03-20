@@ -4,6 +4,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 /**
  * Class Servebolt_CLI_Commands
  * @package Servebolt
+ *
+ * This class contains the callback methods for all commands.
  */
 abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 

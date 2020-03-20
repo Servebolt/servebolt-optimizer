@@ -210,6 +210,19 @@
     opacity: 0.4;
 }
 
+#sb-configuration .spinner {
+    display: none;
+}
+
+#sb-configuration .spinner.is-active {
+    display: inline-block;
+}
+
+
+#sb-configuration .hidden {
+    display: none !important;
+}
+
 #sb-configuration .invalid {
     border: solid 1px #dc3545;
 }

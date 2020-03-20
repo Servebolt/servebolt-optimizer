@@ -228,12 +228,12 @@ class Servebolt_CF {
 	/**
 	 * Get zone by Id from Cloudflare.
 	 *
-	 * @param $zoneId
+	 * @param $zone_id
 	 *
 	 * @return mixed
 	 */
-	public function get_zone_by_id($zoneId) {
-		return $this->cf()->get_zone_by_id($zoneId);
+	public function get_zone_by_id($zone_id) {
+		return $this->cf()->get_zone_by_id($zone_id);
 	}
 
 	/**
