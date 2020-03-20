@@ -63,7 +63,7 @@
   <h1>Configuration</h1>
   <p>This feature can be set up using WP CLI or with the form below.</p><p>Run <code>wp servebolt cf --help</code> to see available commands.</p>
 
-  <form method="post" action="options.php" id="sb-configuration-table" onsubmit="return window.sb_validate_configuration_form();">
+  <form method="post" action="options.php" name="sb_configuration_table" id="sb-configuration-table" onsubmit="return window.sb_validate_cf_configuration_form(event);">
 	  <?php settings_fields( 'sb-cf-options-page' ) ?>
 	  <?php do_settings_sections( 'sb-cf-options-page' ) ?>
 
@@ -91,24 +91,28 @@
               <legend class="screen-reader-text"><span>Authentication type</span></legend>
               <label><input type="radio" name="<?php echo sb_get_option_name('cf_auth_type'); ?>" value="api_token" <?php checked($cf_settings['cf_auth_type'] == 'api_token'); ?>> <code>API token</code></label><br>
               <label><input type="radio" name="<?php echo sb_get_option_name('cf_auth_type'); ?>" value="api_key" <?php checked($cf_settings['cf_auth_type'] == 'api_key'); ?>> <code>API key</code></label>
-              <p>Read about Cloudflare API authentication <a href="https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys" target="_blank">here</a>. We recommend using an API token since it allows for more fine grained access control.</p>
+              <p>Read about Cloudflare API authentication <a href="https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys" target="_blank">here</a>. We recommend using an API token since it allows for more granular access control.</p>
             </fieldset>
           </td>
         </tr>
         <tr class="feature_cf_auth_type-api_token"<?php if ( $cf_settings['cf_auth_type'] != 'api_token' ) echo ' style="display: none;"' ?>>
           <th scope="row"><label for="api_token">API token</label></th>
           <td>
-            <input name="<?php echo sb_get_option_name('cf_api_token'); ?>" type="text" id="api_token" value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" class="regular-text">
+            <input name="<?php echo sb_get_option_name('cf_api_token'); ?>" type="text" id="api_token" data-original-value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" class="regular-text validate-field validation-group-api_token">
+            <p class="invalid-message"></p>
             <p><small>Make sure to add permissions for <?php echo sb_cf()->api_permissions_needed(); ?> when creating a token.</small></p>
           </td>
         </tr>
         <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
           <th scope="row"><label for="email">Cloudflare e-mail</label></th>
-          <td><input name="<?php echo sb_get_option_name('cf_email'); ?>" type="email" id="email" value="<?php echo esc_attr($cf_settings['cf_email']); ?>" class="regular-text"></td>
+          <td><input name="<?php echo sb_get_option_name('cf_email'); ?>" type="email" id="email" data-original-value="<?php echo esc_attr($cf_settings['cf_email']); ?>" value="<?php echo esc_attr($cf_settings['cf_email']); ?>" class="regular-text validate-field validation-group-api_key"></td>
         </tr>
         <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
           <th scope="row"><label for="api_key">API key</label></th>
-          <td><input name="<?php echo sb_get_option_name('cf_api_key'); ?>" type="text" id="api_key" value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" class="regular-text"></td>
+          <td>
+            <input name="<?php echo sb_get_option_name('cf_api_key'); ?>" type="text" id="api_key" data-original-value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" class="regular-text validate-field validation-group-api_key">
+            <p class="invalid-message"></p>
+          </td>
         </tr>
         <tr>
           <th scope="row" colspan="100%" style="padding-bottom: 5px;">
@@ -119,17 +123,21 @@
         <tr>
           <th scope="row"><label for="zone_id">Zone ID</label></th>
           <td>
-            <input name="<?php echo sb_get_option_name('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID or use the choices below" value="<?php echo esc_attr($cf_settings['cf_zone_id']); ?>" class="regular-text">
+            <input name="<?php echo sb_get_option_name('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID or use the choices below" value="<?php echo esc_attr($cf_settings['cf_zone_id']); ?>" class="regular-text validate-field validation-group-zone_id">
+            <p class="invalid-message"></p>
 
+            <?php if ( $cf_settings['cf_auth_type'] == 'api_key' ) : ?>
             <?php $zones = sb_cf()->list_zones(); ?>
-
             <?php if ( is_array($zones) && ! empty($zones) ) : ?>
-            <p style="margin-top: 10px;">Available zones:</p>
-            <ul class="zone-selector" style="margin: 5px 0;">
-              <?php foreach($zones as $zone) : ?>
-                <li><a href="#" data-id="<?php echo esc_attr($zone->id); ?>"><?php echo $zone->name; ?> (<?php echo $zone->id; ?>)</a></li>
-              <?php endforeach; ?>
-            </ul>
+            <div class="zone-selector-container">
+              <p style="margin-top: 10px;">Available zones:</p>
+              <ul class="zone-selector" style="margin: 5px 0;">
+                <?php foreach($zones as $zone) : ?>
+                  <li><a href="#" data-id="<?php echo esc_attr($zone->id); ?>"><?php echo $zone->name; ?> (<?php echo $zone->id; ?>)</a></li>
+                <?php endforeach; ?>
+              </ul>
+            </div>
+            <?php endif; ?>
             <?php endif; ?>
 
           </td>

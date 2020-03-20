@@ -210,6 +210,15 @@
     opacity: 0.4;
 }
 
+#sb-configuration .invalid {
+    border: solid 1px #dc3545;
+}
+
+#sb-configuration .invalid-message {
+    display: none;
+    color: #dc3545;
+}
+
 #sb-configuration-table .check-column input {
     margin-left: 0;
 }

@@ -73,7 +73,7 @@ class Servebolt_CF {
 	 * @return bool
 	 */
 	private function init_cf() {
-		if ( ! $this->register_credentials_in_class() ) return false;
+		if ( ! $this->register_credentials() ) return false;
 		$activeZone = $this->get_active_zone_id();
 		if ( $activeZone ) $this->cf()->set_zone_id($activeZone, false);
 		return true;
@@ -103,7 +103,7 @@ class Servebolt_CF {
 	 *
 	 * @return Servebolt_CF|null
 	 */
-	private function cf() {
+	public function cf() {
 		if ( is_null($this->cf) ) {
 			$this->cf = Cloudflare::get_instance();
 		}
@@ -133,9 +133,11 @@ class Servebolt_CF {
 	public function test_api_connection() {
 		try {
 			switch ( $this->get_authentication_type() ) {
+				case 'apiToken':
 				case 'api_token':
 					return $this->verify_token();
 					break;
+				case 'apiKey':
 				case 'api_key':
 					return $this->verify_user();
 					break;
@@ -150,23 +152,14 @@ class Servebolt_CF {
 	 * Verify that the API token is valid.
 	 */
 	private function verify_token() {
-		$client = new GuzzleHttp\Client(['base_uri' => 'https://api.cloudflare.com']);
-		$headers = [
-			'Authorization' => 'Bearer ' . $this->get_credential('api_token'),
-			'Content-Type'  => 'application/json',
-			'Accept'        => 'application/json',
-		];
-		$response = $client->request('GET', '/client/v4/user/tokens/verify', [
-			'headers' => $headers
-		]);
-		return $response->getStatusCode() === 200;
+		return $this->cf()->verify_token();
 	}
 
 	/**
 	 * Verify that the API key is valid by fetching the user.
 	 */
 	private function verify_user() {
-		return $this->cf()->get_user_id();
+		return $this->cf()->verify_user();
 	}
 
 	/**
@@ -312,13 +305,13 @@ class Servebolt_CF {
 	/**
 	 * Set credentials in Cloudflare class.
 	 *
-	 * @param $authType
+	 * @param $auth_type
 	 * @param $credentials
 	 *
 	 * @return mixed
 	 */
-	public function set_credentials_in_cf_class($authType, $credentials) {
-		return $this->cf()->set_credentials($authType, $credentials);
+	public function set_credentials_in_cf_class($auth_type, $credentials) {
+		return $this->cf()->set_credentials($auth_type, $credentials);
 	}
 
 	/**
@@ -326,8 +319,9 @@ class Servebolt_CF {
 	 *
 	 * @return bool
 	 */
-	private function register_credentials_in_class() {
+	private function register_credentials() {
 		switch ( $this->get_authentication_type() ) {
+			case 'apiToken':
 			case 'api_token':
 				$api_token = $this->get_credential('api_token');
 				if ( ! empty($api_token) ) {
@@ -335,6 +329,7 @@ class Servebolt_CF {
 					$this->credentials_ok = true;
 				}
 				break;
+			case 'apiKey':
 			case 'api_key':
 				$email = $this->get_credential('email');
 				$api_key = $this->get_credential('api_key');
@@ -398,13 +393,13 @@ class Servebolt_CF {
 		switch ($type) {
 			case 'api_key':
 				if ( $this->set_authentication_type($type) && $this->store_credential('email', $credentials['email']) && $this->store_credential('api_key', $credentials['api_key']) ) {
-					$this->register_credentials_in_class();
+					$this->register_credentials();
 					return true;
 				}
 				break;
 			case 'api_token':
 				if ( $this->set_authentication_type($type) && $this->store_credential('api_token', $credentials) ) {
-					$this->register_credentials_in_class();
+					$this->register_credentials();
 					return true;
 				}
 				break;

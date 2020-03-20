@@ -70,12 +70,47 @@ class Cloudflare {
 	}
 
 	/**
+	 * Verify that we can fetch the user.
+	 *
+	 * @return bool
+	 */
+	public function verify_user() {
+		return is_string($this->get_user_id());
+	}
+
+	/**
 	 * Cloudflare constructor.
 	 *
 	 * @param $credentials
 	 */
 	private function __construct($credentials = false) {
 		if ( $credentials ) $this->set_credentials($credentials);
+	}
+
+	/**
+	 * Verify API token.
+	 *
+	 * @param $token
+	 *
+	 * @return bool
+	 */
+	public function verify_token($token = false) {
+		if ( ! $token ) {
+			$token = $this->get_credential('api_token');
+		}
+		$client = new GuzzleHttp\Client([
+			'base_uri' => 'https://api.cloudflare.com',
+			'http_errors' => false,
+		]);
+		$headers = [
+			'Authorization' => 'Bearer ' . $token,
+			'Content-Type'  => 'application/json',
+			'Accept'        => 'application/json',
+		];
+		$response = $client->request('GET', '/client/v4/user/tokens/verify', [
+			'headers' => $headers
+		]);
+		return $response->getStatusCode() === 200;
 	}
 
 	/**
@@ -154,9 +189,11 @@ class Cloudflare {
 	 */
 	private function get_key_instance() {
 		switch ( $this->auth_type ) {
+			case 'apiToken':
 			case 'api_token':
 				return new APIToken($this->get_credential('api_token'));
 				break;
+			case 'apiKey':
 			case 'api_key':
 				return new APIKey($this->get_credential('email'), $this->get_credential('api_key'));
 				break;

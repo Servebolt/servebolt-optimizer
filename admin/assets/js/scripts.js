@@ -119,17 +119,43 @@ jQuery(document).ready(function($) {
   /**
    * Toggle display of field when selecting authentication type with Cloudflare.
    *
-   * @param boolean
+   * @param auth_type
    */
-  function sb_toggle_auth_type(boolean) {
-    switch (boolean) {
+  function sb_toggle_auth_type(auth_type) {
+    var api_token_container = $('#sb-configuration .feature_cf_auth_type-api_token'),
+        api_key_container = $('#sb-configuration .feature_cf_auth_type-api_key'),
+        zone_selector_container = $('#sb-configuration .zone-selector-container');
+    switch (auth_type) {
       case 'api_key':
-        $('#sb-configuration .feature_cf_auth_type-api_token').hide();
-        $('#sb-configuration .feature_cf_auth_type-api_key').show();
+        api_token_container.hide();
+        api_key_container.show();
+        zone_selector_container.show();
         break;
       case 'api_token':
-        $('#sb-configuration .feature_cf_auth_type-api_token').show();
-        $('#sb-configuration .feature_cf_auth_type-api_key').hide();
+        api_token_container.show();
+        api_key_container.hide();
+        zone_selector_container.hide();
+    }
+  }
+
+  /**
+   * Revert hidden fields to original value.
+   *
+   * @param auth_type
+   */
+  function sb_cf_revert_values() {
+    var auth_type = $('#sb-configuration input[name="servebolt_cf_auth_type"]:checked').val();
+    switch (auth_type) {
+      case 'api_key':
+        var api_token_element = $('#sb-configuration .feature_cf_auth_type-api_token #api_token');
+        api_token_element.val(api_token_element.data('original-value'));
+        break;
+      case 'api_token':
+        var api_key_container = $('#sb-configuration .feature_cf_auth_type-api_key'),
+            api_key_element = api_key_container.find('#api_key'),
+          email_element = api_key_container.find('#email');
+        api_key_element.val(api_key_element.data('original-value'));
+        email_element.val(email_element.data('original-value'));
         break;
     }
   }
@@ -154,25 +180,90 @@ jQuery(document).ready(function($) {
   }
 
   /**
+   * Hide all validation error indicators from form field.
+   */
+  function clear_validation_errors() {
+    $('#sb-configuration .validate-field').each(function(i, el) {
+      var el = $(el);
+      el.removeClass('invalid');
+      el.next().text('').hide();
+    });
+  }
+
+  /**
+   * Display validation error indicators from form field.
+   *
+   * @param errors
+   */
+  function indicate_validation_errors(errors) {
+    for (var key in errors) {
+      if ( ! $.isNumeric(key) ) {
+        var value = errors.hasOwnProperty(key) ? errors[key] : false,
+            input_element = $('#sb-configuration').find('.validation-group-' + key);
+        input_element.addClass('invalid');
+        input_element.next().text(value).show();
+      }
+    }
+  }
+
+  /**
    * Validate the form before submitting.
-   * TODO: Complete this. Should hijack the form submit in CF settings and do validation of values before allowing submit.
    *
    * @returns {boolean}
    */
-  window.sb_validate_configuration_form = function() {
-    /*
-    var errors = [];
-    var auth_type = $('#sb-configuration input[name="cf_auth_type"]').val();
-    switch (auth_type) {
-
+  window.sb_validate_cf_configuration_form_is_running = false;
+  window.sb_validate_cf_configuration_form = function(event) {
+    if ( window.sb_validate_cf_configuration_form_is_running ) event.preventDefault();
+    window.sb_validate_cf_configuration_form_is_running = true;
+    clear_validation_errors();
+    var valid = false,
+        form = $('#sb-configuration-table'),
+        data = {
+          action: 'servebolt_validate_cf_settings',
+          security: ajax_object.ajax_nonce,
+          form: form.serialize(),
+        };
+    $.ajax({
+      type: 'POST',
+      url: ajaxurl,
+      async: false,
+      data: data,
+      success: function (response) {
+        if ( response.success ) {
+          valid = true;
+        } else {
+          indicate_validation_errors(response.data.errors);
+          Swal.fire({
+            title: 'Ouch! Validation failed :(',
+            icon: 'warning',
+            html: response.data.error_html,
+            customClass: {
+              confirmButton: 'servebolt-button yellow',
+              cancelButton: 'servebolt-button light'
+            },
+            buttonsStyling: false
+          });
+        }
+      },
+      error: function() {
+        Swal.fire({
+          title: 'Ouch!',
+          icon: 'warning',
+          text: 'An unkown error occurred. Please try agin or contact support.',
+          customClass: {
+            confirmButton: 'servebolt-button yellow',
+            cancelButton: 'servebolt-button light'
+          },
+          buttonsStyling: false
+        });
+      }
+    });
+    if ( valid ) {
+      sb_cf_revert_values(); // Revert hidden fields back to original value
+      form.attr('onsubmit', 'return false');
     }
-    var api_token = $('#sb-configuration #api_token').val();
-    var email = $('#sb-configuration #email').val();
-    var api_key = $('#sb-configuration #api_key').val();
-    var zone_id = $('#sb-configuration #zone_id').val();
-
-    return errors.length === 0;
-    */
+    window.sb_validate_cf_configuration_form_is_running = false;
+    return valid;
   }
 
   /**
