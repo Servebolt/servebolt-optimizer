@@ -414,7 +414,7 @@ class Servebolt_CF {
 	 *
 	 * @return bool
 	 */
-	public function add_item_tp_purge_queue($item) {
+	public function add_item_to_purge_queue($item) {
 		if ( empty($item) ) return false;
 		$itemsToPurgeWithCron = $this->get_items_to_purge();
 		$itemsToPurgeWithCron[] = $item;
@@ -483,20 +483,21 @@ class Servebolt_CF {
 	/**
 	 * Purging Cloudflare on save.
 	 *
-	 * @param int $postId The post ID.
+	 * @param int $post_id The post ID.
 	 *
 	 * @return bool|void
 	 */
-	public function purge_post( int $postId ) {
+	public function purge_post( int $post_id ) {
 
 		// If this is just a revision, don't purge anything.
-		if ( ! $postId || wp_is_post_revision( $postId ) ) return false;
+		if ( ! $post_id || wp_is_post_revision( $post_id ) ) return false;
 
 		// If cron purge is enabled, build the list of ids to purge by cron. If not active, just purge right away.
 		if ( $this->cron_purge_is_active() ) {
-			return $this->add_item_to_purge_queue($postId);
-		} else if ( $urlsToPurge = $this->get_purge_urls_by_post_id($postId) ) {
-			return $this->cf()->purge_urls($urlsToPurge);
+
+			return $this->add_item_to_purge_queue($post_id);
+		} else if ( $urls_to_purge = $this->get_purge_urls_by_post_id($post_id) ) {
+			return $this->cf()->purge_urls($urls_to_purge);
 		}
 	}
 

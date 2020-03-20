@@ -28,7 +28,6 @@ class CF_Cache_Controls {
 	 */
 	private function __construct() {
 		$this->add_ajax_handling();
-		$this->register_actions();
 		$this->init_settings();
 	}
 
@@ -37,14 +36,6 @@ class CF_Cache_Controls {
 	 */
 	private function init_settings() {
 		add_action( 'admin_init', [$this, 'register_settings'] );
-	}
-
-	/**
-	 * Register action hooks.
-	 */
-	private function register_actions() {
-		if ( ! sb_cf()->cf_is_active() ) return;
-		add_action( 'save_post', [sb_cf(), 'purge_post'], 99 );
 	}
 
 	/**

@@ -79,7 +79,7 @@ jQuery(document).ready(function($) {
   });
 
   /**
-   * Insert loader mnarkup.
+   * Insert loader markup.
    */
   function sb_insert_loader_markup() {
     $('<div id="servebolt-loading" class=""><div class="loader loading-ring"></div></div>').insertBefore('.wrap.sb-content');
@@ -90,6 +90,7 @@ jQuery(document).ready(function($) {
 
   /**
    * Toggle select/deselect all post types.
+   *
    * @param boolean
    */
   function sb_toggle_all_post_types(boolean) {
@@ -105,6 +106,7 @@ jQuery(document).ready(function($) {
 
   /**
    * Toggle whether Nginx post type settings should be displayed or not.
+   *
    * @param boolean
    */
   function sb_toggle_nginx_cache_switch(boolean) {
@@ -587,8 +589,8 @@ jQuery(document).ready(function($) {
     }
     sb_loading(true);
     var data = {
-      action: 'servebolt_wreak_havoc',
-      security: ajax_object.ajax_nonce,
+        action: 'servebolt_wreak_havoc',
+        security: ajax_object.ajax_nonce,
     };
     $.ajax({
       type: 'POST',

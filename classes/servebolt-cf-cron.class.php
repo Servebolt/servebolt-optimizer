@@ -6,6 +6,8 @@ require_once 'cloudflare-wrapper.class.php';
 /**
  * Class Servebolt_CF_Cron_Handle
  * @package Servebolt
+ *
+ * This class registers WP cron schedule and task.
  */
 class Servebolt_CF_Cron_Handle {
 
@@ -50,7 +52,7 @@ class Servebolt_CF_Cron_Handle {
 	 */
 	public function register_cron() {
 		$cron_key = sb_cf()->get_cron_key();
-		add_action( $cron_key, [$this, 'purge_by_cron'] );
+		add_action( $cron_key, [sb_cf(), 'purge_by_cron'] );
 		if ( ! wp_next_scheduled($cron_key) ) {
 			wp_schedule_event( time(), 'every_minute', $cron_key );
 		}
