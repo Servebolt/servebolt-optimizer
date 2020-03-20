@@ -148,7 +148,7 @@ class CF_Cache_Controls {
 	private function generate_zone_list_markup($zones) {
 		$markup = '';
 		foreach($zones as $zone) {
-			$markup .= sprintf('<li><a href="#" data-id="%s">%s (%s)</a></li>', esc_attr($zone->id), $zone->name, $zone->id);
+			$markup .= sprintf('<li><a href="#" data-name="%s" data-id="%s">%s (%s)</a></li>', esc_attr($zone->name), esc_attr($zone->id), $zone->name, $zone->id);
 		}
 		return $markup;
 	}

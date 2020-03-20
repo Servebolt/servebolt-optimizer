@@ -5,7 +5,7 @@
 
 	<?php settings_errors(); ?>
 
-  <p>This feature will automatically purge the Cloudflare cache whenever you do an update in Wordpress. Neat right?</p>
+  <p>This feature will automatically purge the Cloudflare cache whenever you do an update in WordPress. Neat right?</p>
 
 	<?php if ( is_network_admin() ) : ?>
 
@@ -44,6 +44,8 @@
 
 	<?php $cf_settings = sb_cf_cache_controls()->get_settings_items(); ?>
 
+  <?php if ( sb_cf()->cf_is_active() && sb_cf()->cf_cache_feature_available() ) : ?>
+
   <p>Active Cloudflare cache zone:
 	<?php if ( $cf_settings['cf_zone_id'] ) : ?>
     <?php $zone = sb_cf()->get_zone_by_id($cf_settings['cf_zone_id']); ?>
@@ -56,12 +58,11 @@
 	<p>Make sure you have added the API credentials and selected a zone to use this functionality.</p>
   <?php endif; ?>
   <p>
-    <?php $disabled = ' disabled title="Make sure you have set up the CF features correctly to purge cache."'; ?>
-    <button class="sb-purge-all-cache sb-button yellow inline"<?php if ( ! sb_cf()->cf_cache_feature_available() ) echo $disabled; ?>>Purge all cache</button>
-    <button class="sb-purge-url sb-button yellow inline"<?php if ( ! sb_cf()->cf_cache_feature_available() ) echo $disabled; ?>>Purge a URL</button>
+    <button class="sb-purge-all-cache sb-button yellow inline">Purge all cache</button>
+    <button class="sb-purge-url sb-button yellow inline">Purge a URL</button>
   </p>
-
-  <br>
+      <br>
+  <?php endif; ?>
 
   <h1>Configuration</h1>
   <p>This feature can be set up using WP CLI or with the form below.</p><p>Run <code>wp servebolt cf --help</code> to see available commands.</p>
@@ -142,16 +143,15 @@
             ?>
 
             <input name="<?php echo sb_get_option_name('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID<?php if ( $have_zones ) echo ' or use the choices below'; ?>" value="<?php echo esc_attr($cf_settings['cf_zone_id']); ?>" class="regular-text validate-field validation-group-zone_id">
+            <span class="spinner zone-loading-spinner"></span>
             <p class="invalid-message"></p>
             <p class="active-zone"<?php if ( ! isset($zone) ) echo ' style="display: none;"'; ?>>Selected zone: <span><?php if ( isset($zone) && $zone ) echo $zone->name; ?></span></p>
-
-            <span class="spinner zone-loading-spinner" style="float: none;margin-left: 0;"></span>
 
             <div class="zone-selector-container"<?php if ( ! $have_zones ) echo ' style="display: none;"'; ?>>
               <p style="margin-top: 10px;">Available zones:</p>
               <ul class="zone-selector" style="margin: 5px 0;">
                 <?php foreach($zones as $zone) : ?>
-                  <li><a href="#" data-id="<?php echo esc_attr($zone->id); ?>"><?php echo $zone->name; ?> (<?php echo $zone->id; ?>)</a></li>
+                  <li><a href="#" data-name="<?php echo esc_attr($zone->name); ?>" data-id="<?php echo esc_attr($zone->id); ?>"><?php echo $zone->name; ?> (<?php echo $zone->id; ?>)</a></li>
                 <?php endforeach; ?>
               </ul>
             </div>

@@ -214,6 +214,12 @@
     display: none;
 }
 
+#sb-configuration .spinner.zone-loading-spinner {
+    float: none;
+    height: 28px;
+    margin-left: 0;
+}
+
 #sb-configuration .spinner.is-active {
     display: inline-block;
 }

@@ -111,7 +111,7 @@ jQuery(document).ready(function($) {
     e.preventDefault();
     var input = $('#sb-configuration input[name="servebolt_cf_zone_id"]');
     input.val( $(this).data('id') );
-    sb_set_active_zone($(this).text());
+    sb_set_active_zone($(this).data('name'));
   });
 
   /**
@@ -130,13 +130,13 @@ jQuery(document).ready(function($) {
    * @param name
    */
   function sb_set_active_zone(name) {
-    var a = $('#sb-configuration .active-zone');
+    var active_zone_container = $('#sb-configuration .active-zone');
     if ( name ) {
-      a.find('span').text(name);
-      a.show();
+      active_zone_container.find('span').text(name);
+      active_zone_container.show();
     } else {
-      a.find('span').text('');
-      a.hide();
+      active_zone_container.find('span').text('');
+      active_zone_container.hide();
     }
   }
 
@@ -221,7 +221,7 @@ jQuery(document).ready(function($) {
   }
 
   /**
-   * Apply API key credentials from form a try to catch available zones.
+   * Apply API key credentials from form a try to fetch available zones.
    *
    * @type {null}
    */
@@ -229,42 +229,58 @@ jQuery(document).ready(function($) {
   function sb_apply_api_key_credentials() {
     clearTimeout(api_key_type_wait_timeout);
     var auth_type = $('#sb-configuration input[name="servebolt_cf_auth_type"]:checked').val(),
-      email = $('#sb-configuration #email').val(),
-      api_key = $('#sb-configuration #api_key').val();
+        email = $('#sb-configuration #email').val(),
+        api_key = $('#sb-configuration #api_key').val();
     if ( auth_type === 'api_key' && email && api_key ) {
       api_key_type_wait_timeout = setTimeout(function () {
-        maybe_trigger_zone_id_resolve();
-        var spinner = $('#sb-configuration .zone-loading-spinner');
-        spinner.addClass('is-active');
-        var data = {
-          action: 'servebolt_lookup_zones',
-          security: ajax_object.ajax_nonce,
-          email: email,
-          api_key: api_key,
-        };
-        $.ajax({
-          type: 'POST',
-          url: ajaxurl,
-          data: data,
-          success: function (response) {
-            spinner.removeClass('is-active');
-            var container = $('#sb-configuration .zone-selector-container');
-            if ( response.success ) {
-              container.show();
-              container.find('.zone-selector').html(response.data.markup);
-            } else {
-              container.hide();
-              container.find('.zone-selector').html('');
-            }
-          },
-          error: function () {
-            spinner.removeClass('is-active');
-          }
-        });
+        fetch_and_display_available_zones(email, api_key);
       }, 1000);
     }
   }
 
+
+  /**
+   * Fetch available zones and diplay in list.
+   *
+   * @param email
+   * @param api_key
+   */
+  function fetch_and_display_available_zones(email, api_key) {
+    maybe_trigger_zone_id_resolve();
+    var spinner = $('#sb-configuration .zone-loading-spinner');
+    spinner.addClass('is-active');
+    var data = {
+      action: 'servebolt_lookup_zones',
+      security: ajax_object.ajax_nonce,
+      email: email,
+      api_key: api_key,
+    };
+    $.ajax({
+      type: 'POST',
+      url: ajaxurl,
+      data: data,
+      success: function (response) {
+        spinner.removeClass('is-active');
+        var container = $('#sb-configuration .zone-selector-container');
+        if ( response.success ) {
+          container.show();
+          container.find('.zone-selector').html(response.data.markup);
+        } else {
+          container.hide();
+          container.find('.zone-selector').html('');
+        }
+      },
+      error: function () {
+        spinner.removeClass('is-active');
+      }
+    });
+  }
+
+  /**
+   * Wait for credentials to be typed and then try to resolve any existing zone Id.
+   *
+   * @type {null}
+   */
   let api_token_type_wait_timeout = null;
   function sb_apply_api_token_credentials() {
     clearTimeout(api_token_type_wait_timeout);
@@ -277,6 +293,9 @@ jQuery(document).ready(function($) {
     }
   }
 
+  /**
+   * Check if we should trigger zone Id resolve.
+   */
   function maybe_trigger_zone_id_resolve() {
     var zone_id = $('#sb-configuration #zone_id').val();
     if ( zone_id ) {
@@ -327,15 +346,19 @@ jQuery(document).ready(function($) {
       case 'api_key':
         api_token_container.hide();
         api_key_container.show();
-
         if ( zone_selector_container.find('a').length > 0 ) {
           zone_selector_container.show();
+        } else {
+          var email = $('#sb-configuration #email').val(),
+              api_key = $('#sb-configuration #api_key').val();
+          fetch_and_display_available_zones(email, api_key);
         }
         break;
       case 'api_token':
         api_token_container.show();
         api_key_container.hide();
         zone_selector_container.hide();
+        maybe_trigger_zone_id_resolve();
     }
   }
 
@@ -387,7 +410,7 @@ jQuery(document).ready(function($) {
     $('#sb-configuration .validate-field').each(function(i, el) {
       var el = $(el);
       el.removeClass('invalid');
-      el.next().text('').hide();
+      el.parent().find('.invalid-message').text('').hide();
     });
   }
 
@@ -403,13 +426,13 @@ jQuery(document).ready(function($) {
             input_elements = $('#sb-configuration').find('.validation-group-' + key),
             input_element = $('#sb-configuration').find('.validation-input-' + key);
         input_element.addClass('invalid');
-        input_element.next().text(value).show();
+        input_element.parent().find('.invalid-message').text(value).show();
         $.each(input_elements, function (i, el) {
           var el = $(el);
           el.addClass('invalid');
           var is_last_item = (i == (input_elements.length - 1));
           if ( is_last_item ) {
-            el.next().text(value).show();
+            el.parent().find('.invalid-message').text(value).show();
           }
         })
 
