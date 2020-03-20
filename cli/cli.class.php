@@ -1,9 +1,8 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once 'cli-methods.class.php';
 require_once 'cli-extras.class.php';
-
+require_once 'cli-commands.class.php';
 
 /**
  * Class Servebolt_CLI
@@ -51,14 +50,14 @@ class Servebolt_CLI extends Servebolt_CLI_Commands {
 
 		WP_CLI::add_command( 'servebolt fpc enable',               [$this, 'nginx_fpc_enable'] );
 		WP_CLI::add_command( 'servebolt fpc disable',              [$this, 'nginx_fpc_disable'] );
-		//WP_CLI::add_command( 'servebolt fpc set-cache-post-types', [$this, 'nginx_fpc_set_cache_post_types'] );
+		WP_CLI::add_command( 'servebolt fpc set-post-types',       [$this, 'nginx_fpc_set_cache_post_types'] );
 		WP_CLI::add_command( 'servebolt fpc status',               [$this, 'nginx_fpc_status'] );
 
 		WP_CLI::add_command( 'servebolt cf enable',                [$this, 'cf_enable'] );
 		WP_CLI::add_command( 'servebolt cf disable',               [$this, 'cf_disable'] );
-		WP_CLI::add_command( 'servebolt cf cron enable',           [$this, 'nginx_cf_cron_enable'] );
-		WP_CLI::add_command( 'servebolt cf cron disable',          [$this, 'nginx_cf_cron_disable'] );
-		WP_CLI::add_command( 'servebolt cf get-config',            [$this, 'cf_config_get'] );
+		WP_CLI::add_command( 'servebolt cf cron enable',           [$this, 'cf_cron_enable'] );
+		WP_CLI::add_command( 'servebolt cf cron disable',          [$this, 'cf_cron_disable'] );
+		WP_CLI::add_command( 'servebolt cf get-config',            [$this, 'cf_get_config'] );
 		WP_CLI::add_command( 'servebolt cf test-api-connection',   [$this, 'cf_test_api_connection'] );
 		WP_CLI::add_command( 'servebolt cf list-zones',            [$this, 'cf_list_zones'] );
 		WP_CLI::add_command( 'servebolt cf set-zone',              [$this, 'cf_set_zone'] );

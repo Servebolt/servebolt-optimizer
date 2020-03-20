@@ -189,12 +189,12 @@ abstract class Servebolt_CLI_Extras {
 			WP_CLI::line( sb__('Applying settings to all blogs') );
 			foreach (get_sites() as $site) {
 				$this->nginx_toggle_cache_for_blog($cache_active, $site->blog_id);
-				if ( $post_types ) $this->nginx_set_post_types($post_types, $cache_active, $site->blog_id);
+				if ( $post_types ) $this->nginx_set_post_types($post_types, $site->blog_id);
 				if ( $exclude_ids ) $this->nginx_set_exclude_ids($exclude_ids, $site->blog_id);
 			}
 		} else {
 			$this->nginx_toggle_cache_for_blog($cache_active);
-			if ( $post_types ) $this->nginx_set_post_types($post_types, $cache_active);
+			if ( $post_types ) $this->nginx_set_post_types($post_types);
 			if ( $exclude_ids ) $this->nginx_set_exclude_ids($exclude_ids);
 		}
 	}
@@ -206,17 +206,11 @@ abstract class Servebolt_CLI_Extras {
 	 * @param bool $blog_id
 	 */
 	protected function nginx_set_post_types($post_types, $blog_id = false) {
-		$cache_all_post_types = in_array('all', $post_types);
 		$all_post_types = $this->nginx_get_all_post_types();
 		$url = get_site_url($blog_id);
-
-		if ( $cache_all_post_types ) {
-			$post_types = $all_post_types;
-		} else {
-			$post_types = array_filter($post_types, function($post_type) use ($all_post_types) {
-				return in_array($post_type, $all_post_types) || $post_type === 'all';
-			});
-		}
+		$post_types = array_filter($post_types, function($post_type) use ($all_post_types) {
+			return in_array($post_type, $all_post_types) || $post_type === 'all';
+		});
 		sb_nginx_fpc()->set_cacheable_post_types($post_types, $blog_id);
 		WP_CLI::success(sprintf(sb__('Cache post type(s) set to %s on %s'), implode(', ', $post_types), $url));
 	}

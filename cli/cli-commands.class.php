@@ -274,7 +274,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *     wp servebolt cf cron enable
 	 *
 	 */
-	public function nginx_cf_cron_enable( $args, $assoc_args ) {
+	public function cf_cron_enable( $args, $assoc_args ) {
 		$this->cf_cron_control(true, $assoc_args);
 	}
 
@@ -286,8 +286,62 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *     wp servebolt cf cron disable
 	 *
 	 */
-	public function nginx_cf_cron_disable( $args, $assoc_args ) {
+	public function cf_cron_disable( $args, $assoc_args ) {
 		$this->cf_cron_control(false, $assoc_args);
+	}
+
+	/**
+	 * Set the post types we would like to cache.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all-blogs]
+	 * : Set post types on all sites in multisite
+	 *
+	 * [--all]
+	 * : Set cache for all post types
+	 *
+	 * [--post-types]
+	 * : The post types we would like to cache.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Set specific post types on all blogs
+	 *     servebolt fpc set-post-types --post-types=page,post --all-blogs
+	 *
+	 *     # Activate for all all post types
+	 *     servebolt fpc set-post-types --all
+	 *
+	 */
+	public function nginx_fpc_set_cache_post_types($args, $assoc_args) {
+		$post_types_string = array_key_exists('post-types', $assoc_args) ? $assoc_args['post-types'] : '';
+		$post_types = sb_format_comma_string($post_types_string);
+		$all_post_types = array_key_exists('all', $assoc_args);
+		$affect_all_blogs = array_key_exists('all-blogs', $assoc_args);
+
+		if ( $all_post_types ) {
+			$post_types = ['all'];
+		}
+
+		if ( empty($post_types) ) {
+			WP_CLI::error(sb__('No post types specified'));
+		}
+
+		if ( ! $all_post_types ) {
+			foreach($post_types as $post_type) {
+				if ( $post_type !== 'all' && ! get_post_type_object($post_type) ) {
+					WP_CLI::error(sb__(sprintf('Post type "%s" does not exist', $post_type)));
+				}
+			}
+		}
+
+		if ( is_multisite() && $affect_all_blogs ) {
+			foreach (get_sites() as $site) {
+				$this->nginx_set_post_types($post_types, $site->blog_id);
+			}
+		} else {
+			$this->nginx_set_post_types($post_types);
+		}
 	}
 
 	/**
@@ -437,7 +491,14 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 *     wp servebolt cf get-config
 	 */
-	public function cf_config_get() {
+	public function cf_get_config() {
+
+		if ( is_multisite() ) {
+
+
+
+		}
+
 		$cf = sb_cf();
 		$auth_type = $cf->get_authentication_type();
 		$is_cron_purge = $cf->cron_purge_is_active(true);
@@ -461,7 +522,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 				break;
 			case 'apiToken':
 			case 'api_token':
-				$arr['API token'] = $cf->getCredential('api_token');
+				$arr['API token'] = $cf->get_credential('api_token');
 				break;
 		}
 
