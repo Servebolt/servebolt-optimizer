@@ -352,7 +352,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * [--all]
 	 * : Activate on all sites in multisite
 	 *
-	 * [--post_types=<post_types>]
+	 * [--post-types=<post_types>]
 	 * : Comma separated list of post types to be activated
 	 *
 	 * [--exclude=<ids>]
@@ -366,7 +366,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     # Activate Servebolt Full Page Cache, but only for pages and posts
-	 *     wp servebolt fpc enable --post_types=post,page
+	 *     wp servebolt fpc enable --post-types=post,page
 	 *
 	 */
 	public function nginx_fpc_enable( $args, $assoc_args ) {
@@ -382,7 +382,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * [--all]
 	 * : Deactivate on all sites in multisite
 	 *
-	 * [--post_types=<post_types>]
+	 * [--post-types=<post_types>]
 	 * : Comma separated list of post types to be deactivated
 	 *
 	 * [--exclude=<ids>]
@@ -395,7 +395,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     # Deactivate Servebolt Full Page Cache, but only for pages and posts
-	 *     wp servebolt fpc deactivate --post_types=post,page
+	 *     wp servebolt fpc deactivate --post-types=post,page
 	 *
 	 */
 	public function nginx_fpc_disable( $args, $assoc_args ) {

@@ -145,8 +145,8 @@ abstract class Servebolt_CLI_Extras {
 	 * @return array|bool
 	 */
 	private function nginx_prepare_post_type_argument($args) {
-		if ( array_key_exists('post_types', $args) ) {
-			$post_types = sb_format_comma_string($args['post_types']);
+		if ( array_key_exists('post-types', $args) ) {
+			$post_types = sb_format_comma_string($args['post-types']);
 			$post_types = array_filter($post_types, function ($post_type) {
 				return post_type_exists($post_type);
 			});
@@ -207,9 +207,10 @@ abstract class Servebolt_CLI_Extras {
 	 */
 	protected function nginx_set_post_types($post_types, $blog_id = false) {
 		$all_post_types = $this->nginx_get_all_post_types();
+		$all_post_type_keys = array_keys($all_post_types);
 		$url = get_site_url($blog_id);
-		$post_types = array_filter($post_types, function($post_type) use ($all_post_types) {
-			return in_array($post_type, $all_post_types) || $post_type === 'all';
+		$post_types = array_filter($post_types, function($post_type) use ($all_post_type_keys) {
+			return in_array($post_type, $all_post_type_keys) || $post_type === 'all';
 		});
 		sb_nginx_fpc()->set_cacheable_post_types($post_types, $blog_id);
 		WP_CLI::success(sprintf(sb__('Cache post type(s) set to %s on %s'), implode(', ', $post_types), $url));
@@ -218,15 +219,13 @@ abstract class Servebolt_CLI_Extras {
 	/**
 	 * Get all post types to be used in cache context.
 	 *
-	 * @param bool $blog_id
-	 *
 	 * @return array|bool
 	 */
-	private function nginx_get_all_post_types($blog_id = false) {
+	private function nginx_get_all_post_types() {
 		$all_post_types = sb_nginx_fpc()->get_available_post_types_to_cache(false);
 		if ( is_array($all_post_types) ) {
 			return array_map(function($post_type) {
-				return $post_type->name;
+				return isset($post_type->name) ? $post_type->name : $post_type;
 			}, $all_post_types);
 		}
 		return false;
