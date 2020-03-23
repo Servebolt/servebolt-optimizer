@@ -1,5 +1,5 @@
 === Servebolt Optimizer ===
-Contributors: audunhus, erlendeide
+Contributors: audunhus, erlendeide, robsat91
 Tags: performance, optimization, cache, log, multisite, wp-cli, full page cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
