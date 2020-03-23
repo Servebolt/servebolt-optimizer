@@ -12,16 +12,6 @@ function sb_performance_checks() {
 }
 
 /**
- * Get Servebolt_Multisite_Post_Type_Index-instance.
- *
- * @return Servebolt_Multisite_Post_Type_Index|null
- */
-function sb_multisite_post_type_index() {
-	require_once SERVEBOLT_PATH . 'class/multisite-post-type-index.class.php';
-	return Servebolt_Multisite_Post_Type_Index::get_instance();
-}
-
-/**
  * Get Servebolt_Optimize_DB-instance.
  *
  * @return Servebolt_Performance_Checks|null
@@ -37,7 +27,7 @@ function sb_optimize_db() {
  * @return Servebolt_Checks|null
  */
 function sb_cf() {
-	require_once SERVEBOLT_PATH . 'classes/servebolt-cf.class.php';
+	require_once SERVEBOLT_PATH . 'classes/sb-cf.php';
 	return Servebolt_CF::get_instance();
 }
 
@@ -67,7 +57,7 @@ function sb_nginx_fpc_controls() {
  * @return Servebolt_Nginx_FPC|null
  */
 function sb_nginx_fpc() {
-	require_once SERVEBOLT_PATH . 'classes/servebolt-nginx-fpc.class.php';
+	require_once SERVEBOLT_PATH . 'classes/sb-nginx-fpc.php';
 	return Servebolt_Nginx_FPC::get_instance();
 }
 

@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once 'cloudflare-wrapper.class.php';
+require_once 'cloudflare-wrapper.php';
 
 /**
  * Class Servebolt_CF_Cron_Handle

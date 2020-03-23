@@ -1,6 +1,8 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+require_once 'sb-nginx-fpc-auth-handling.php';
+
 /**
  * Class Servebolt_Nginx_FPC
  * @package Servebolt
@@ -53,7 +55,10 @@ class Servebolt_Nginx_FPC {
 	/**
 	 * Servebolt_Nginx_FPC constructor.
 	 */
-	private function __construct() {}
+	private function __construct() {
+		// Handle "no_cache"-header for authenticated users.
+		new Servebolt_Nginx_FPC_Auth_Handling;
+	}
 
 	/**
 	 * Setup filters.
@@ -63,76 +68,6 @@ class Servebolt_Nginx_FPC {
 		// Unauthenticated cache handling
 		add_filter( 'posts_results', [ $this, 'set_headers' ] );
 		add_filter( 'template_include', [ $this, 'last_call' ] );
-
-		// Handle cache-prevention for authenticated users.
-		add_action( 'set_auth_cookie', [ $this, 'set_no_cache_cookie_after_authentication' ], 10, 3 );
-		//add_filter( 'secure_logged_in_cookie', [$this, 'a'], PHP_INT_MAX, 1 );
-		//add_filter( 'init', [ $this, 'no_cache_cookie_keepalive' ] );
-		add_action( 'clear_auth_cookie', [ $this, 'clear_no_cache_cookie' ] );
-	}
-
-	/*
-	private $secure_logged_in_cookie = false;
-	public function a($secure_logged_in_cookie) {
-		$this->secure_logged_in_cookie = $secure_logged_in_cookie;
-		return $secure_logged_in_cookie;
-	}
-	*/
-
-	/**
-	 * Set no-cache cookie.
-	 *
-	 * @param $expire
-	 */
-	private function set_no_cache_cookie($expire = false) {
-		if ( ! $expire ) {
-			$expire = time() - YEAR_IN_SECONDS;
-		}
-		//setcookie( 'no_cache', 1, $expire, COOKIEPATH, COOKIE_DOMAIN, $this->secure_logged_in_cookie, true );
-		setcookie( 'no_cache', 1, $expire, COOKIEPATH, COOKIE_DOMAIN, true, true );
-	}
-
-	/**
-	 * Set no-cache cookie right after authentication cookies have been set.
-	 *
-	 * @param $auth_cookie
-	 * @param $expire
-	 */
-	public function set_no_cache_cookie_after_authentication($auth_cookie, $expire, $expiration) {
-		$this->set_no_cache_cookie($expiration);
-	}
-
-	/**
-	 * Keep our no-cache cookie alive and "coupled" with WP's own login cookie by best effort.
-	 */
-	public function no_cache_cookie_keepalive() {
-		if ( ! is_admin() && ! is_user_logged_in() ) return;
-		$this->set_no_cache_cookie( $this->no_cache_cookie_keepalive_expiry_time() );
-	}
-
-	/**
-	 * Get the expiry time for the no-cache header when keeping it alive.
-	 *
-	 * @return bool
-	 */
-	private function no_cache_cookie_keepalive_expiry_time() {
-
-		// Try to get expiry time from WP's own login cookie
-		$cookie_elements = wp_parse_auth_cookie('', 'logged_in');
-		if ( is_array($cookie_elements) && array_key_exists('expiration', $cookie_elements) && ! empty($cookie_elements['expiration']) ) {
-			return $cookie_elements['expiration'];
-		}
-
-		// Get WP default expiry time (without remember)
-		return time() + apply_filters( 'auth_cookie_expiration', 2 * DAY_IN_SECONDS, get_current_user_id(), false );
-
-	}
-
-	/**
-	 * Clear no-cache cookie when logging out.
-	 */
-	public function clear_no_cache_cookie() {
-		$this->set_no_cache_cookie(false);
 	}
 
 	/**

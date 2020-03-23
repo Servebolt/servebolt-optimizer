@@ -44,24 +44,24 @@ remove_action('wp_head', 'wp_generator');
 
 // Loads the class that sets the correct cache headers for full page cache
 if ( ! class_exists('Servebolt_Nginx_FPC') ){
-	require_once SERVEBOLT_PATH . 'classes/servebolt-nginx-fpc.class.php';
+	require_once SERVEBOLT_PATH . 'classes/sb-nginx-fpc.php';
     if ( sb_nginx_fpc()->fpc_is_active()) {
 	    sb_nginx_fpc()->setup();
     }
 }
 
 // Invoke the Servebolt Cloudflare class
-require_once SERVEBOLT_PATH . 'classes/servebolt-cf.class.php';
+require_once SERVEBOLT_PATH . 'classes/sb-cf.php';
 sb_cf();
 
 // Invoke the Serveolt Cloudflare Cron class
-require_once SERVEBOLT_PATH . 'classes/servebolt-cf-cron.class.php';
+require_once SERVEBOLT_PATH . 'classes/sb-cf-cron.php';
 new Servebolt_CF_Cron_Handle;
 
 if ( is_admin() ) {
 
 	// Register cache actions (cache queue, cache purge trigger)
-	require_once SERVEBOLT_PATH . 'classes/servebolt-cf-cache-action.class.php';
+	require_once SERVEBOLT_PATH . 'classes/sb-cf-cache-action.php';
 	new CF_Cache_Action;
 
 	// Load this plugins interface
