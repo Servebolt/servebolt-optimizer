@@ -59,10 +59,70 @@ class Servebolt_Nginx_FPC {
 	 * Setup filters.
 	 */
 	public function setup() {
-		add_filter( 'admin_init', [ $this, 'set_headers' ] );
-		add_action( 'set_auth_cookie', [ $this, 'no_cache_cookie_for_logged_in_users' ] );
+
+		// Unauthenticated cache handling
 		add_filter( 'posts_results', [ $this, 'set_headers' ] );
 		add_filter( 'template_include', [ $this, 'last_call' ] );
+
+		// Handle cache-prevention for authenticated users.
+		add_action( 'set_auth_cookie', [ $this, 'set_no_cache_cookie_after_authentication' ], 10, 2 );
+		add_filter( 'admin_init', [ $this, 'no_cache_cookie_keepalive' ] );
+		add_action( 'clear_auth_cookie', [ $this, 'clear_no_cache_cookie' ] );
+	}
+
+	/**
+	 * Set no-cache cookie.
+	 *
+	 * @param $expire
+	 */
+	private function set_no_cache_cookie($expire = false) {
+		if ( ! $expire ) {
+			$expire = time() - YEAR_IN_SECONDS;
+		}
+		setcookie( 'no_cache', 1, $expire, COOKIEPATH, COOKIE_DOMAIN );
+	}
+
+	/**
+	 * Set no-cache cookie right after authentication cookies have been set.
+	 *
+	 * @param $auth_cookie
+	 * @param $expire
+	 */
+	public function set_no_cache_cookie_after_authentication($auth_cookie, $expire) {
+		$this->set_no_cache_cookie($expire);
+	}
+
+	/**
+	 * Keep our no-cache cookie alive and "coupled" with WP's own login cookie by best effort.
+	 */
+	public function no_cache_cookie_keepalive() {
+		if ( ! is_admin() && ! is_user_logged_in() ) return;
+		$this->set_no_cache_cookie( $this->no_cache_cookie_keepalive_expiry_time() );
+	}
+
+	/**
+	 * Get the expiry time for the no-cache header when keeping it alive.
+	 *
+	 * @return bool
+	 */
+	private function no_cache_cookie_keepalive_expiry_time() {
+
+		// Try to get expiry time from WP's own login cookie
+		$cookie_elements = wp_parse_auth_cookie('', 'logged_in');
+		if ( is_array($cookie_elements) && array_key_exists('expiration', $cookie_elements) && ! empty($cookie_elements['expiration']) ) {
+			return $cookie_elements['expiration'];
+		}
+
+		// Get WP default expiry time (without remember)
+		return time() + apply_filters( 'auth_cookie_expiration', 2 * DAY_IN_SECONDS, get_current_user_id(), false );
+
+	}
+
+	/**
+	 * Clear no-cache cookie when logging out.
+	 */
+	public function clear_no_cache_cookie() {
+		$this->set_no_cache_cookie(false);
 	}
 
 	/**
@@ -81,8 +141,8 @@ class Servebolt_Nginx_FPC {
 
 		// Set no-cache for all admin pages
 		if ( is_admin() || is_user_logged_in() ) {
-			$this->no_cache_headers();
-			$this->no_cache_cookie_for_logged_in_users();
+			//$this->no_cache_headers();
+			//$this->no_cache_cookie_for_logged_in_users();
 			return $posts;
 		}
 
@@ -94,7 +154,7 @@ class Servebolt_Nginx_FPC {
 		// Only trigger this function once
 		remove_filter( 'posts_results', [$this, 'set_headers'] );
 
-        if ( $this->is_woocommerce() ) {
+        if ( $this->is_woocommerce_page() ) {
             $this->no_cache_headers();
         } elseif ( $this->should_exclude_post_from_cache( get_the_ID() ) ) {
 	        $this->no_cache_headers();
@@ -134,15 +194,6 @@ class Servebolt_Nginx_FPC {
 	}
 
 	/**
-	 * No cache cookie for logged in users.
-	 */
-	public function no_cache_cookie_for_logged_in_users() {
-		if ( is_user_logged_in() ) {
-			setcookie( 'no_cache', 1, $_SERVER['REQUEST_TIME'] + 3600, COOKIEPATH, COOKIE_DOMAIN );
-		}
-	}
-
-	/**
 	 * Check if we should exclude post from cache.
 	 *
 	 * @param $post_id
@@ -159,8 +210,17 @@ class Servebolt_Nginx_FPC {
 	 *
 	 * @return bool
 	 */
-	private function is_woocommerce() {
-		return class_exists( 'WooCommerce' ) && ( is_cart() || is_checkout() );
+	private function is_woocommerce_page() {
+		return $this->woocommerce_is_active() && ( is_cart() || is_checkout() );
+	}
+
+	/**
+	 * Check if WooCommerce is active.
+	 *
+	 * @return bool
+	 */
+	private function woocommerce_is_active() {
+		return class_exists( 'WooCommerce' );
 	}
 
 	/**

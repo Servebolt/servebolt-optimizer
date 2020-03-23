@@ -58,13 +58,15 @@ sb_cf();
 require_once SERVEBOLT_PATH . 'classes/servebolt-cf-cron.class.php';
 new Servebolt_CF_Cron_Handle;
 
-// Register cache actions (cache queue, cache purge trigger)
-require_once SERVEBOLT_PATH . 'classes/servebolt-cf-cache-action.class.php';
-new CF_Cache_Action;
-
-// If the admin is loaded, load this plugins interface
 if ( is_admin() ) {
+
+	// Register cache actions (cache queue, cache purge trigger)
+	require_once SERVEBOLT_PATH . 'classes/servebolt-cf-cache-action.class.php';
+	new CF_Cache_Action;
+
+	// Load this plugins interface
 	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
+
 }
 
 // Initialize CLI-commands

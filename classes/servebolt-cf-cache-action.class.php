@@ -23,5 +23,6 @@ class CF_Cache_Action {
 	private function register_actions() {
 		if ( ! sb_cf()->cf_is_active() ) return;
 		add_action( 'save_post', [sb_cf(), 'purge_post'], 99, 1 );
+		//add_action( 'woocommerce_update_product', [sb_cf(), 'purge_post'], 99, 1 );
 	}
 }

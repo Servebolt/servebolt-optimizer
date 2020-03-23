@@ -494,7 +494,6 @@ class Servebolt_CF {
 
 		// If cron purge is enabled, build the list of ids to purge by cron. If not active, just purge right away.
 		if ( $this->cron_purge_is_active() ) {
-
 			return $this->add_item_to_purge_queue($post_id);
 		} else if ( $urls_to_purge = $this->get_purge_urls_by_post_id($post_id) ) {
 			return $this->cf()->purge_urls($urls_to_purge);

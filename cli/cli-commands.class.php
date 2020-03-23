@@ -307,10 +307,10 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     # Set specific post types on all blogs
-	 *     servebolt fpc set-post-types --post-types=page,post --all-blogs
+	 *     wp servebolt fpc set-post-types --post-types=page,post --all-blogs
 	 *
 	 *     # Activate for all all post types
-	 *     servebolt fpc set-post-types --all
+	 *     wp servebolt fpc set-post-types --all
 	 *
 	 */
 	public function nginx_fpc_set_cache_post_types($args, $assoc_args) {
