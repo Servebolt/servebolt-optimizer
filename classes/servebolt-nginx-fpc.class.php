@@ -65,9 +65,9 @@ class Servebolt_Nginx_FPC {
 		add_filter( 'template_include', [ $this, 'last_call' ] );
 
 		// Handle cache-prevention for authenticated users.
-		add_action( 'set_auth_cookie', [ $this, 'set_no_cache_cookie_after_authentication' ], 10, 2 );
+		add_action( 'set_auth_cookie', [ $this, 'set_no_cache_cookie_after_authentication' ], 10, 3 );
 		//add_filter( 'secure_logged_in_cookie', [$this, 'a'], PHP_INT_MAX, 1 );
-		add_filter( 'init', [ $this, 'no_cache_cookie_keepalive' ] );
+		//add_filter( 'init', [ $this, 'no_cache_cookie_keepalive' ] );
 		add_action( 'clear_auth_cookie', [ $this, 'clear_no_cache_cookie' ] );
 	}
 
@@ -98,8 +98,8 @@ class Servebolt_Nginx_FPC {
 	 * @param $auth_cookie
 	 * @param $expire
 	 */
-	public function set_no_cache_cookie_after_authentication($auth_cookie, $expire) {
-		$this->set_no_cache_cookie($expire);
+	public function set_no_cache_cookie_after_authentication($auth_cookie, $expire, $expiration) {
+		$this->set_no_cache_cookie($expiration);
 	}
 
 	/**
