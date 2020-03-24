@@ -320,27 +320,30 @@ function sb_get_option_name($option) {
 /**
  * Get option.
  *
- * @param $option
+ * @param $option_name
  * @param bool $default
  *
  * @return mixed|void
  */
-function sb_get_option($option, $default = false) {
-	return get_option(sb_get_option_name($option), $default);
+function sb_get_option($option_name, $default = false) {
+	$full_option_name = sb_get_option_name($option_name);
+	$value = get_option($full_option_name, $default);
+	$value = apply_filters('sb_get_option_' . $full_option_name, $value);
+	return $value;
 }
 
 /**
  * Update option.
  *
- * @param $key
+ * @param $option_name
  * @param $value
  * @param bool $assert_update
  *
  * @return bool
  */
-function sb_update_option($key, $value, $assert_update = true) {
-	$option_name = sb_get_option_name($key);
-	$result = update_option($option_name, $value);
+function sb_update_option($option_name, $value, $assert_update = true) {
+	$full_option_name = sb_get_option_name($option_name);
+	$result = update_option($full_option_name, $value);
 	if ( $assert_update && ! $result ) {
 		return ( get_option($option_name) == $value );
 	}

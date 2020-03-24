@@ -3,15 +3,15 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
- * Class CF_Cache_Action
+ * Class SB_Post_Save_Action
  * @package Servebolt
  *
- * This class registers the save event to queue/purge cache.
+ * This class registers the save event which purges cache either immediately or adds it the post to a cache purge queue.
  */
-class CF_Cache_Action {
+class SB_Post_Save_Action {
 
 	/**
-	 * CF_Cache_Controls constructor.
+	 * SB_Post_Save_Action constructor.
 	 */
 	public function __construct() {
 		$this->register_actions();
@@ -25,4 +25,4 @@ class CF_Cache_Action {
 		add_action( 'save_post', [sb_cf(), 'purge_post'], 99, 1 );
 	}
 }
-new CF_Cache_Action;
+new SB_Post_Save_Action;

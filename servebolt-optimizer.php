@@ -44,7 +44,6 @@ remove_action('wp_head', 'wp_generator');
 
 // Make sure we dont API credentials in clear text.
 require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
-new SB_Option_Encryption;
 
 // Loads the class that sets the correct cache headers for full page cache
 if ( ! class_exists('Servebolt_Nginx_FPC') ){
@@ -60,7 +59,7 @@ sb_cf();
 
 // Register cache actions (cache queue, cache purge trigger)
 require_once SERVEBOLT_PATH . 'classes/sb-cf-cron.php';
-require_once SERVEBOLT_PATH . 'classes/sb-cf-cache-action.php';
+require_once SERVEBOLT_PATH . 'classes/sb-cf-post-save-action.php';
 
 if ( is_admin() ) {
 

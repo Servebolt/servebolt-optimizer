@@ -31,10 +31,10 @@ class SB_Option_Encryption {
 	 * Make sure we don't store certain option items in clear text.
 	 */
 	private function option_encryption_handling() {
-		foreach($this->encrypted_option_items as $key) {
-			$key = sb_get_option_name($key);
-			add_filter( 'pre_update_option_' . $key, [$this, 'encrypt_option'], 10, 1);
-			add_filter( 'option_' . $key, [$this, 'decrypt_option'], 10, 1);
+		foreach($this->encrypted_option_items as $option_name) {
+			$full_option_name = sb_get_option_name($option_name);
+			add_filter( 'pre_update_option_' . $full_option_name, [$this, 'encrypt_option'], 10, 1);
+			add_filter( 'sb_get_option_' . $full_option_name, [$this, 'decrypt_option'], 10, 1);
 		}
 	}
 
@@ -63,3 +63,4 @@ class SB_Option_Encryption {
 	}
 
 }
+new SB_Option_Encryption;
