@@ -290,6 +290,10 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 		$this->cf_cron_control(false, $assoc_args);
 	}
 
+	public function cf_clear_cache_purge_queue() {
+		// TODO: Finish this
+	}
+
 	/**
 	 * Set the post types that should be cached with Nginx Full Page Cache.
 	 *

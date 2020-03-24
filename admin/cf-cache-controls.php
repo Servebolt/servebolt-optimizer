@@ -42,7 +42,15 @@ class CF_Cache_Controls {
 	 * @return array
 	 */
 	private function settings_items() {
-		return ['cf_switch', 'cf_zone_id', 'cf_auth_type', 'cf_email', 'cf_api_key', 'cf_api_token', 'cf_items_to_purge', 'cf_cron_purge'];
+		return [
+			'cf_switch',
+			'cf_zone_id',
+			'cf_auth_type',
+			'cf_email',
+			'cf_api_key',
+			'cf_api_token',
+			//'cf_items_to_purge', // No longer managed from the options page, only via AJAX
+			'cf_cron_purge'];
 	}
 
 	/**

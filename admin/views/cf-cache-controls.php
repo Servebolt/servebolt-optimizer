@@ -184,7 +184,7 @@
           <tr class="feature_cf_cron_purge sb-toggle-active-cron-item<?php if ( ! $cf_settings['cf_cron_purge'] ) echo ' cf-hidden-cron'; ?>">
             <th scope="row" colspan="2" style="padding-bottom: 5px;">
               <label for="items_to_purge"><?php sb_e('Cache purge queue'); ?></label>
-              <p style="font-weight: normal;"><?php sb_e(sprintf('The list below contains all the posts/URLs that are scheduled for cache purge. The max number of items is %s with the most recent added item at the bottom.%s Note: If you have more than %s items in the list then that would indicate that there is something wrong with the cron-setup. If so please investigate and/or contact support.', $max_number_of_cache_purge_queue_items, '<br>', $max_number_of_cache_purge_queue_items)); ?></p>
+              <p style="font-weight: normal;"><?php sb_e(sprintf('The list below contains all the posts/URLs that are scheduled for cache purge. The max number of items in the list is %s, the rest will be unavailable for display. The most recently added item can be seen at the bottom of the list.%s Note: If you have more than %s items in the list then that would indicate that there is something wrong with the cron-setup. If so please investigate and/or contact support.', $max_number_of_cache_purge_queue_items, '<br>', $max_number_of_cache_purge_queue_items)); ?></p>
             </th>
           </tr>
           <tr class="sb-toggle-active-cron-item<?php if ( ! $cf_settings['cf_cron_purge'] ) echo ' cf-hidden-cron'; ?>">
