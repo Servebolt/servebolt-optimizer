@@ -29,6 +29,42 @@ class CF_Cache_Controls {
 	private function __construct() {
 		$this->add_ajax_handling();
 		$this->init_settings();
+		$this->option_encryption_handling();
+	}
+
+	/**
+	 * Make sure we don't store certain option items in clear text.
+	 */
+	private function option_encryption_handling() {
+		foreach(['cf_email', 'cf_api_key', 'cf_api_token'] as $key) {
+			$key = sb_get_option_name($key);
+			add_filter( 'pre_update_option_' . $key, [$this, 'encrypt_option'], 10, 1);
+			add_filter( 'option_' . $key, [$this, 'decrypt_option'], 10, 1);
+		}
+	}
+
+	/**
+	 * Decrypt option value.
+	 *
+	 * @param $value
+	 *
+	 * @return bool|string
+	 */
+	public function decrypt_option($value) {
+		$decrypted_value = SB_Crypto::decrypt($value);
+		return $decrypted_value !== false ? $decrypted_value : $value;
+	}
+
+	/**
+	 * Encrypt option value.
+	 *
+	 * @param $value
+	 *
+	 * @return bool|string
+	 */
+	public function encrypt_option($value) {
+		$encrypted_value = SB_Crypto::encrypt($value);
+		return $encrypted_value !== false ? $encrypted_value : $value;
 	}
 
 	/**

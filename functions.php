@@ -243,12 +243,40 @@ function sb_get_ajax_nonce() {
  * @return mixed|string|void
  */
 function sb_get_ajax_nonce_key() {
-	$key = sb_get_option('ajax_nonce');
+	return sb_generate_random_permanent_key('ajax_nonce');
+}
+
+/**
+ * Generate a random key stored in the database.
+ *
+ * @param $name
+ *
+ * @return mixed|string|void
+ */
+function sb_generate_random_permanent_key($name) {
+	$key = sb_get_option($name);
 	if ( ! $key ) {
-		$key = uniqid() . uniqid() . uniqid();
-		sb_update_option('ajax_nonce', $key);
+		$key = sb_generate_random_string(36);
+		sb_update_option($name, $key);
 	}
 	return $key;
+}
+
+/**
+ * Generate a random string.
+ *
+ * @param $length
+ *
+ * @return string
+ */
+function sb_generate_random_string($length) {
+	$include_chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-@|';
+	$char_length = strlen($include_chars);
+	$random_string = '';
+	for ($i = 0; $i < $length; $i++) {
+		$random_string .= $include_chars [rand(0, $char_length - 1)];
+	}
+	return $random_string;
 }
 
 /**
@@ -306,7 +334,7 @@ function sb_get_option($option, $default = false) {
  *
  * @param $key
  * @param $value
- * @param bool $assertUpdate
+ * @param bool $assert_update
  *
  * @return bool
  */
@@ -400,6 +428,9 @@ function sb_is_debug() {
 function sb_clear_all_settings() {
 	$option_names = [
 		'ajax_nonce',
+		'mcrypt_key',
+		'openssl_key',
+		'openssl_iv',
 
 		'cf_switch',
 		'cf_zone_id',
@@ -472,4 +503,173 @@ function sb_format_comma_string($string) {
 	return array_filter($array, function ($item) {
 		return ! empty($item);
 	});
+}
+
+/**
+ * Class SB_Crypto
+ */
+class SB_Crypto {
+
+	/**
+	 * Determine if and which encryption method is available.
+	 *
+	 * @return bool|string
+	 */
+	private static function determine_encryption_method() {
+		if ( function_exists('openssl_encrypt') && function_exists('openssl_decrypt') ) {
+			return 'openssl';
+		}
+		if ( function_exists('mcrypt_encrypt') && function_exists('mcrypt_decrypt') ) {
+			return 'mcrypt';
+		}
+		return false;
+	}
+
+	/**
+	 * Encrypt string.
+	 *
+	 * @param $input_string
+	 * @param bool $method
+	 *
+	 * @return bool|string
+	 */
+	public static function encrypt($input_string, $method = false) {
+		try {
+			if ( ! $method ) {
+				$method = self::determine_encryption_method();
+			}
+			switch ( $method ) {
+				case 'openssl':
+					return self::openssl_encrypt($input_string);
+					break;
+				case 'mcrypt':
+					return self::mcrypt_encrypt($input_string);
+					break;
+			}
+		} catch (Exception $e) {
+			return false;
+		}
+		return false;
+	}
+
+	/**
+	 * Decrypt string.
+	 *
+	 * @param $input_string
+	 * @param bool $method
+	 *
+	 * @return bool|string
+	 */
+	public static function decrypt($input_string, $method = false) {
+		try {
+			if ( ! $method ) {
+				$method = self::determine_encryption_method();
+			}
+			switch ( $method ) {
+				case 'openssl':
+					return self::openssl_decrypt($input_string);
+					break;
+				case 'mcrypt':
+						return self::mcrypt_decrypt($input_string);
+					break;
+			}
+		} catch (Exception $e) {
+			return false;
+		}
+		return false;
+	}
+
+	/**
+	 * Mcrypt key.
+	 *
+	 * @return string
+	 */
+	public static function mcrypt_key() {
+		return sb_generate_random_permanent_key('mcrypt_key');
+	}
+
+	/**
+	 * Initiate mcrypt encryption/decryption.
+	 *
+	 * @return array
+	 */
+	public static function mcrypt_init() {
+		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
+		$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
+		$h_key = hash('sha256', self::mcrypt_key(), TRUE);
+		return compact('iv', 'h_key');
+	}
+
+	/**
+	 * Encrypt string using mcrypt.
+	 *
+	 * @param $input_string
+	 *
+	 * @return string
+	 */
+	public static function mcrypt_encrypt($input_string) {
+		$init = self::mcrypt_init();
+		return base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $init['h_key'], $input_string, MCRYPT_MODE_ECB, $init['iv']));
+	}
+
+	/**
+	 * Decrypt string using mcrypt.
+	 *
+	 * @param $encrypted_input_string
+	 *
+	 * @return string
+	 */
+	public static function mcrypt_decrypt($encrypted_input_string) {
+		$init = self::mcrypt_init();
+		return trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $init['h_key'], base64_decode($encrypted_input_string), MCRYPT_MODE_ECB, $init['iv']));
+	}
+
+	/**
+	 * OpenSSL encryption keys.
+	 *
+	 * @return array
+	 */
+	public static function openssl_keys() {
+		$key = sb_generate_random_permanent_key('openssl_key');
+		$iv = sb_generate_random_permanent_key('openssl_iv');
+		return compact('key', 'iv');
+	}
+
+	/**
+	 * Init OpenSSL.
+	 *
+	 * @return array
+	 */
+	public static function openssl_init() {
+		$encrypt_method = 'AES-256-CBC';
+		$secret = self::openssl_keys();
+		$key = hash('sha256', $secret['key']);
+		$iv = substr(hash('sha256', $secret['iv']), 0, 16);
+		return compact('encrypt_method', 'key', 'iv');
+	}
+
+	/**
+	 * Encrypt string using mcrypt.
+	 *
+	 * @param $input_string
+	 *
+	 * @return string
+	 */
+	public static function openssl_encrypt($input_string) {
+		$init = self::openssl_init();
+		return base64_encode(openssl_encrypt($input_string, $init['encrypt_method'], $init['key'], 0, $init['iv']));
+	}
+
+	/**
+	 * Decrypt string using OpenSSL.
+	 *
+	 * @param $encrypted_input_string
+	 *
+	 * @return string
+	 */
+	public static function openssl_decrypt($encrypted_input_string) {
+		$init = self::openssl_init();
+		return openssl_decrypt(base64_decode($encrypted_input_string), $init['encrypt_method'], $init['key'], 0, $init['iv']);
+	}
+
 }
