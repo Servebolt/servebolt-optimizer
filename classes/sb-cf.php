@@ -416,10 +416,10 @@ class Servebolt_CF {
 	 */
 	public function add_item_to_purge_queue($item) {
 		if ( empty($item) ) return false;
-		$itemsToPurgeWithCron = $this->get_items_to_purge();
-		$itemsToPurgeWithCron[] = $item;
-		$itemsToPurgeWithCron = array_unique($itemsToPurgeWithCron);
-		return $this->set_items_to_purge($itemsToPurgeWithCron);
+		$items_to_purge_with_cron = $this->get_items_to_purge();
+		$items_to_purge_with_cron[] = $item;
+		$items_to_purge_with_cron = array_unique($items_to_purge_with_cron);
+		return $this->set_items_to_purge($items_to_purge_with_cron);
 	}
 
 	/**

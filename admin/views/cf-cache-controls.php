@@ -163,7 +163,7 @@
         <tr>
           <th scope="row" colspan="100%" style="padding-bottom: 0;">
             <h3 style="margin-bottom: 0;">Cron setup</h3>
-            <p>Use this feature to trigger cache bust by cron instead of doing it immediately. The cron task is set to run every 1 minute.<br>We recommend that you set WordPress up to use the UNIX-based cron. Read about how to achieve this <a href="https://developer.wordpress.org/plugins/cron/hooking-wp-cron-into-the-system-task-scheduler/" target="_">here</a>.</p>
+            <p>Use this feature to trigger cache bust by cron instead of doing it immediately. The cron task is set to run every 1 minute.<br>We recommend that you set WordPress up to use the UNIX-based cron. Read about how to achieve this <a href="https://servebo.lt/vkr8-" target="_">here</a>.</p>
           </th>
         </tr>
         <tr>
