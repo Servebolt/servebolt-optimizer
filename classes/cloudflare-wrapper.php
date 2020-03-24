@@ -60,6 +60,15 @@ class Cloudflare {
 	}
 
 	/**
+	 * Cloudflare constructor.
+	 *
+	 * @param $credentials
+	 */
+	private function __construct($credentials = false) {
+		if ( $credentials ) $this->set_credentials($credentials);
+	}
+
+	/**
 	 * Get user ID of authenticated user.
 	 *
 	 * @return mixed
@@ -76,15 +85,6 @@ class Cloudflare {
 	 */
 	public function verify_user() {
 		return is_string($this->get_user_id());
-	}
-
-	/**
-	 * Cloudflare constructor.
-	 *
-	 * @param $credentials
-	 */
-	private function __construct($credentials = false) {
-		if ( $credentials ) $this->set_credentials($credentials);
 	}
 
 	/**

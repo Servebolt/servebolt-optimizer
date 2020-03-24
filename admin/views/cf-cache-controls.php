@@ -88,7 +88,10 @@
       </thead>
       <tbody class="sb-toggle-active-item"<?php if ( ! $cf_settings['cf_switch'] ) echo ' style="display: none;"'; ?>>
         <tr>
-          <th scope="row" colspan="100%" style="padding-bottom: 5px;"><h3 style="margin-bottom: 0;">API configuration</h3></th>
+          <th scope="row" colspan="100%" style="padding-bottom: 5px;">
+            <h3 style="margin-bottom: 0;">API configuration</h3>
+            <p style="font-weight: normal;">We'll be using the Cloudflare API to connect your site to your Cloudflare account.<br>We recommend using an API token as this will allow for more granular access control. You can learn more about how to set this up in <a href="https://servebo.lt/xjmkq" target="_blank">our documentation</a>.</p>
+          </th>
         </tr>
         <tr>
           <th scope="row">Authentication type</th>
@@ -97,7 +100,6 @@
               <legend class="screen-reader-text"><span>Authentication type</span></legend>
               <label><input type="radio" name="<?php echo sb_get_option_name('cf_auth_type'); ?>" value="api_token" <?php checked($cf_settings['cf_auth_type'] == 'api_token'); ?>> <code>API token</code></label><br>
               <label><input type="radio" name="<?php echo sb_get_option_name('cf_auth_type'); ?>" value="api_key" <?php checked($cf_settings['cf_auth_type'] == 'api_key'); ?>> <code>API key</code></label>
-              <p>Read about Cloudflare API authentication <a href="https://support.cloudflare.com/hc/en-us/articles/200167836-Managing-API-Tokens-and-Keys" target="_blank">here</a>. We recommend using an API token since it allows for more granular access control.</p>
             </fieldset>
           </td>
         </tr>
@@ -126,7 +128,7 @@
         <tr >
           <th scope="row" colspan="100%" style="padding-bottom: 5px;">
             <h3 style="margin-bottom: 0;">Cloudflare zone</h3>
-            <p>The zone is the Cloudflare resource you would like to interact with.</p>
+            <p style="font-weight: normal;">A domain in Cloudflare is called a zone. We'll need the ID of the zone you'd like to connect here. You can find the Zone ID in the Cloudflare Overview tab of the domain you'd like to connect, in the right sidebar under the API section.</p>
           </th>
         </tr>
         <tr>
@@ -145,7 +147,7 @@
             <input name="<?php echo sb_get_option_name('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID<?php if ( $have_zones ) echo ' or use the choices below'; ?>" value="<?php echo esc_attr($cf_settings['cf_zone_id']); ?>" class="regular-text validate-field validation-group-zone_id">
             <span class="spinner zone-loading-spinner"></span>
             <p class="invalid-message"></p>
-            <p class="active-zone"<?php if ( ! isset($zone) ) echo ' style="display: none;"'; ?>>Selected zone: <span><?php if ( isset($zone) && $zone ) echo $zone->name; ?></span></p>
+            <p class="active-zone"<?php if ( ! isset($zone) || ! $zone ) echo ' style="display: none;"'; ?>>Selected zone: <span><?php if ( isset($zone) && $zone ) echo $zone->name; ?></span></p>
 
             <div class="zone-selector-container"<?php if ( ! $have_zones ) echo ' style="display: none;"'; ?>>
               <p style="margin-top: 10px;">Available zones:</p>

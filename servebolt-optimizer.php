@@ -12,26 +12,26 @@ Text Domain: servebolt-wp
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-// Exit if PHP_MAJOR_VERSION is less than 7
-if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
-    require 'non-php7.php';
-    return;
-}
-
-// Include Composer dependencies
-if ( ! file_exists(__DIR__ . '/vendor/autoload.php') ) {
-	require 'composer-missing.php';
-	return;
-}
-require 'vendor/autoload.php';
-
-// Include general functions
-require_once 'functions.php';
-
 // Defines plugin path and URL
 define( 'SERVEBOLT_BASENAME', plugin_basename(__FILE__) );
 define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
 define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
+
+// Exit if PHP_MAJOR_VERSION is less than 7
+if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
+    require SERVEBOLT_PATH . 'non-php7.php';
+    return;
+}
+
+// Include Composer dependencies
+if ( ! file_exists(SERVEBOLT_PATH . 'vendor/autoload.php') ) {
+	require SERVEBOLT_PATH . 'composer-missing.php';
+	return;
+}
+require SERVEBOLT_PATH . 'vendor/autoload.php';
+
+// Include general functions
+require_once SERVEBOLT_PATH . 'functions.php';
 
 // Disable CONCATENATE_SCRIPTS to get rid of some DDOS-attacks
 if ( ! defined('CONCATENATE_SCRIPTS') ) {
@@ -41,6 +41,10 @@ if ( ! defined('CONCATENATE_SCRIPTS') ) {
 // Hide the meta tag generator from head and RSS
 add_filter('the_generator', '__return_empty_string');
 remove_action('wp_head', 'wp_generator');
+
+// Make sure we dont API credentials in clear text.
+require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
+new SB_Option_Encryption;
 
 // Loads the class that sets the correct cache headers for full page cache
 if ( ! class_exists('Servebolt_Nginx_FPC') ){
@@ -53,10 +57,6 @@ if ( ! class_exists('Servebolt_Nginx_FPC') ){
 // Invoke the Servebolt Cloudflare class
 require_once SERVEBOLT_PATH . 'classes/sb-cf.php';
 sb_cf();
-
-// Invoke the Serveolt Cloudflare Cron class
-require_once SERVEBOLT_PATH . 'classes/sb-cf-cron.php';
-new Servebolt_CF_Cron_Handle;
 
 if ( is_admin() ) {
 
@@ -71,6 +71,6 @@ if ( is_admin() ) {
 
 // Initialize CLI-commands
 if ( class_exists( 'WP_CLI' ) ) {
-    require_once __DIR__ . '/cli/cli.class.php';
+    require_once SERVEBOLT_PATH . 'cli/cli.class.php';
 	Servebolt_CLI::get_instance();
 }
