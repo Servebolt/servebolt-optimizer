@@ -34,7 +34,7 @@ class SB_Option_Encryption {
 		foreach($this->encrypted_option_items as $option_name) {
 			$full_option_name = sb_get_option_name($option_name);
 			add_filter( 'pre_update_option_' . $full_option_name, [$this, 'encrypt_option'], 10, 1);
-			add_filter( 'sb_get_option_' . $full_option_name, [$this, 'decrypt_option'], 10, 1);
+			add_filter( 'sb_optimizer_get_option_' . $full_option_name, [$this, 'decrypt_option'], 10, 1);
 		}
 	}
 

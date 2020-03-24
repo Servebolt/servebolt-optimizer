@@ -75,25 +75,20 @@ jQuery(document).ready(function($) {
     buttons.prop('disabled', (checkboxCount === 0 || itemCount === 0));
   });
 
-  // Flush purge item queue
+  // Flush cache purge queue
   $('#sb-configuration .flush-purge-items-queue').click(function() {
-    $('#sb-configuration #purge-items-table tbody .purge-item').remove();
-    sb_check_for_empty_purge_items_table();
+    flush_purge_queue();
   });
 
   // Remove selected purge items from purge queue
   $('#sb-configuration .remove-selected-purge-items').click(function() {
-    $('#sb-configuration #purge-items-table tbody .purge-item input[type="checkbox"]:checked').each(function () {
-      $(this).closest('tr').remove();
-    });
-    sb_check_for_empty_purge_items_table();
+    remove_selected_purge_items();
   });
 
   // Remove purge item from purge queue
   $('#sb-configuration .remove-purge-item-from-queue').click(function(e) {
     e.preventDefault();
-    $(this).closest('tr').remove();
-    sb_check_for_empty_purge_items_table();
+    remove_purge_item(this);
   });
 
   // Toggle between API key and API token authentication
@@ -113,6 +108,142 @@ jQuery(document).ready(function($) {
     input.val( $(this).data('id') );
     sb_set_active_zone($(this).data('name'));
   });
+
+  /**
+   * Update the cache purge queue.
+   */
+  function submit_cache_purge_queue(success_function, error_function) {
+    setTimeout(function () {
+      var form = $('#sb-configuration-table'),
+          spinner = $('#sb-configuration .purge-queue-loading-spinner'),
+          data = {
+            action: 'servebolt_update_cf_cache_purge_queue',
+            security: ajax_object.ajax_nonce,
+            form: form.serialize(),
+          };
+      if ( ! zone_id ) {
+        sb_set_active_zone(false);
+        return;
+      }
+      spinner.addClass('is-active');
+      $.ajax({
+        type: 'POST',
+        url: ajaxurl,
+        data: data,
+        success: function (response) {
+          spinner.removeClass('is-active');
+          if (response.success) {
+            if (success_function) success_function();
+            Swal.fire({
+              icon: 'success',
+              title: 'All good!',
+              text: 'The queue was updated.',
+              customClass: {
+                confirmButton: 'servebolt-button yellow'
+              },
+              buttonsStyling: false
+            });
+          } else {
+            if (error_function) error_function();
+            alert('fail');
+          }
+        },
+        error: function () {
+          spinner.removeClass('is-active');
+          alert('fail2');
+        }
+      });
+    }, 250);
+  }
+
+  /**
+   * Remove a single item form the cache purge queue.
+   *
+   * @param obj
+   */
+  function remove_purge_item(obj) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you really want remove the item?',
+      icon: 'warning',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: 'servebolt-button yellow',
+        cancelButton: 'servebolt-button light'
+      },
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.value) {
+        var item = $(obj).closest('.purge-item'),
+          input_element = item.find('.purge-item-input');
+        input_element.prop('disabled', true);
+        submit_cache_purge_queue(function() {
+          item.remove();
+          sb_check_for_empty_purge_items_table(false);
+        }, function() {
+          input_element.prop('disabled', false);
+        });
+      }
+    });
+  }
+
+  /**
+   * Remove selected purge items from purge queue.
+   */
+  function remove_selected_purge_items() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you really want remove the selected items?',
+      icon: 'warning',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: 'servebolt-button yellow',
+        cancelButton: 'servebolt-button light'
+      },
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.value) {
+        var items = $('#sb-configuration #purge-items-table tbody .purge-item input[type="checkbox"]:checked').closest('.purge-item'),
+          input_elements = items.find('.purge-item-input');
+        input_elements.prop('disabled', true);
+        submit_cache_purge_queue(function () {
+          items.remove();
+          sb_check_for_empty_purge_items_table(true);
+        }, function() {
+          input_elements.prop('disabled', false);
+        });
+      }
+    });
+  }
+
+  /**
+   * Flush cache purge queue.
+   */
+  function flush_purge_queue() {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you really want to empty cache purge queue?',
+      icon: 'warning',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: 'servebolt-button yellow',
+        cancelButton: 'servebolt-button light'
+      },
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.value) {
+        var items = $('#sb-configuration #purge-items-table tbody .purge-item'),
+          input_elements = items.find('.purge-item-input');
+        input_elements.prop('disabled', true);
+        submit_cache_purge_queue(function () {
+          items.remove();
+          sb_check_for_empty_purge_items_table(false);
+        }, function() {
+          input_elements.prop('disabled', false);
+        });
+      }
+    });
+  }
 
   /**
    * Insert loader markup.
@@ -387,9 +518,11 @@ jQuery(document).ready(function($) {
   /**
    * Check if the cache purge queue table is empty or not.
    */
-  function sb_check_for_empty_purge_items_table() {
+  function sb_check_for_empty_purge_items_table(uncheck_all) {
     var checkboxItems = $('#sb-configuration #purge-items-table input[type="checkbox"]');
-    checkboxItems.prop('checked', false);
+    if ( uncheck_all ) {
+      checkboxItems.prop('checked', false);
+    }
     checkboxItems.first().change();
     var items = $('#sb-configuration #purge-items-table tbody .purge-item'),
         flushButton = $('#sb-configuration .flush-purge-items-queue');

@@ -291,7 +291,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Set the post types we would like to cache.
+	 * Set the post types that should be cached with Nginx Full Page Cache.
 	 *
 	 * ## OPTIONS
 	 *
@@ -306,10 +306,10 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Set specific post types on all blogs
+	 *     # Activate cache for given post types on all blogs
 	 *     wp servebolt fpc set-post-types --post-types=page,post --all-blogs
 	 *
-	 *     # Activate for all all post types
+	 *     # Activate cache for all post types on current blog
 	 *     wp servebolt fpc set-post-types --all
 	 *
 	 */
@@ -345,7 +345,34 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Activate the correct cache headers for Servebolt Full Page Cache.
+	 * Set the post types that should be cached with Nginx Full Page Cache.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all-blogs]
+	 * : Set post types on all sites in multisite
+	 *
+	 * [--all]
+	 * : Set cache for all post types
+	 *
+	 * [--post-types]
+	 * : The post types we would like to cache.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Activate cache for given post types on all blogs
+	 *     wp servebolt fpc set-post-types --post-types=page,post --all-blogs
+	 *
+	 *     # Activate cache for all post types on current blog
+	 *     wp servebolt fpc set-post-types --all
+	 *
+	 */
+	public function nginx_fpc_set_excluded_posts($args, $assoc_args) {
+		// TODO: Complete this
+	}
+
+	/**
+	 * Enable Nginx Full Page Cache.
 	 *
 	 * ## OPTIONS
 	 *
@@ -378,15 +405,6 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * Disable Nginx Full Page Cache.
 	 *
 	 * ## OPTIONS
-	 *
-	 * [--all]
-	 * : Deactivate on all sites in multisite
-	 *
-	 * [--post-types=<post_types>]
-	 * : Comma separated list of post types to be deactivated
-	 *
-	 * [--exclude=<ids>]
-	 * : Comma separated list of ids to exclude for full page caching
 	 *
 	 * [--status]
 	 * : Display status after control is executed

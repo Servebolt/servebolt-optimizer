@@ -72,8 +72,8 @@ class Servebolt_CF {
 	 */
 	private function init_cf() {
 		if ( ! $this->register_credentials() ) return false;
-		$activeZone = $this->get_active_zone_id();
-		if ( $activeZone ) $this->cf()->set_zone_id($activeZone, false);
+		$active_zone = $this->get_active_zone_id();
+		if ( $active_zone ) $this->cf()->set_zone_id($active_zone, false);
 		return true;
 	}
 
@@ -238,7 +238,6 @@ class Servebolt_CF {
 	 * Clear the active zone.
 	 */
 	public function clear_active_zone() {
-		sb_delete_option('cf_zone_id');
 		sb_delete_option('cf_zone_id');
 	}
 
@@ -427,18 +426,32 @@ class Servebolt_CF {
 	 *
 	 * @return bool
 	 */
-	private function set_items_to_purge( array $items_to_purge ) {
-		return sb_update_option( 'cf_items_to_purge', $items_to_purge );
+	public function set_items_to_purge( array $items_to_purge ) {
+		return sb_update_option( 'cf_items_to_purge', $items_to_purge, false );
+	}
+
+	/**
+	 * Count the items to purge.
+	 *
+	 * @return int
+	 */
+	public function count_items_to_purge() {
+		return count($this->get_items_to_purge());
 	}
 
 	/**
 	 * Get the items to purge.
 	 *
-	 * @return array
+	 * @param bool $limit
+	 *
+	 * @return array|mixed|void
 	 */
-	public function get_items_to_purge() {
+	public function get_items_to_purge($limit = false) {
 		$items = sb_get_option('cf_items_to_purge');
 		if ( ! is_array($items) ) return [];
+		if ( is_numeric($limit) ) {
+			$items = array_reverse(array_slice(array_reverse($items), 0, $limit));
+		}
 		return $items;
 	}
 
@@ -450,32 +463,32 @@ class Servebolt_CF {
 	 * @return array
 	 */
 	private function get_purge_urls_by_post_id( int $post_id ) {
-		$purgeUrls = [];
+		$purge_urls = [];
 
 		// Front page
 		if ( $front_page_id = get_option( 'page_on_front' ) ) {
-			array_push( $purgeUrls, get_permalink($front_page_id) );
+			array_push( $purge_urls, get_permalink($front_page_id) );
 		}
 
 		// Posts page
 		if ( $blog_id = get_option( 'page_for_posts' ) ) {
-			array_push( $purgeUrls, get_permalink($blog_id) );
+			array_push( $purge_urls, get_permalink($blog_id) );
 		}
 
 		// The post
 		if ( $permalink = get_permalink( $post_id ) ) {
-			array_push( $purgeUrls, $permalink );
+			array_push( $purge_urls, $permalink );
 		}
 
 		// Archive page
 		if ( $archiveUrl = get_post_type_archive_link( get_post_type( $post_id ) ) ) {
-			array_push( $purgeUrls, $archiveUrl );
+			array_push( $purge_urls, $archiveUrl );
 		}
 
 		// Prevent duplicates
-		$purgeUrls = array_unique($purgeUrls);
+		$purge_urls = array_unique($purge_urls);
 
-		return $purgeUrls;
+		return $purge_urls;
 	}
 
 	/**
@@ -557,9 +570,9 @@ class Servebolt_CF {
 	 * @return bool|mixed
 	 */
 	public function cron_purge_is_active($respect_override = true) {
-		$activeStateOverride = $this->cron_active_state_override();
-		if ( $respect_override && is_bool($activeStateOverride) ) {
-			return $activeStateOverride;
+		$active_state_override = $this->cron_active_state_override();
+		if ( $respect_override && is_bool($active_state_override) ) {
+			return $active_state_override;
 		}
 		return sb_checkbox_true(sb_get_option($this->cf_cron_active_option_key()));
 	}

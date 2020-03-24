@@ -53,6 +53,7 @@ class Servebolt_CLI extends Servebolt_CLI_Commands {
 		WP_CLI::add_command( 'servebolt fpc disable',              [$this, 'nginx_fpc_disable'] );
 		WP_CLI::add_command( 'servebolt fpc deactivate',           [$this, 'nginx_fpc_disable'] );
 		WP_CLI::add_command( 'servebolt fpc set-post-types',       [$this, 'nginx_fpc_set_cache_post_types'] );
+		WP_CLI::add_command( 'servebolt fpc set-excluded-posts',   [$this, 'nginx_fpc_set_excluded_posts'] );
 		WP_CLI::add_command( 'servebolt fpc status',               [$this, 'nginx_fpc_status'] );
 
 		WP_CLI::add_command( 'servebolt cf enable',                [$this, 'cf_enable'] );

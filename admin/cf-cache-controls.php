@@ -29,7 +29,6 @@ class CF_Cache_Controls {
 	private function __construct() {
 		$this->add_ajax_handling();
 		$this->init_settings();
-
 	}
 
 	/**
@@ -103,6 +102,24 @@ class CF_Cache_Controls {
 		add_action( 'wp_ajax_servebolt_validate_cf_settings', [ $this, 'validate_cf_settings_form_callback' ] );
 		add_action( 'wp_ajax_servebolt_lookup_zones', [ $this, 'lookup_zones_callback' ] );
 		add_action( 'wp_ajax_servebolt_lookup_zone', [ $this, 'lookup_zone_callback' ] );
+		add_action( 'wp_ajax_servebolt_update_cf_cache_purge_queue', [ $this, 'update_cache_purge_queue_callback' ] );
+	}
+
+	/**
+	 * Update cache purge queue.
+	 */
+	public function update_cache_purge_queue_callback() {
+		check_ajax_referer( sb_get_ajax_nonce_key(), 'security' );
+		parse_str($_POST['form'], $form_data);
+		$items = $form_data['servebolt_cf_items_to_purge'];
+		$items = array_filter($items, function ($item) {
+			return is_numeric($item) || is_string($item);
+		});
+		if ( ! is_array($items) ) {
+			$items = [];
+		}
+		sb_cf()->set_items_to_purge($items);
+		wp_send_json_success();
 	}
 
 	/**

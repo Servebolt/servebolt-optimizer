@@ -328,7 +328,7 @@ function sb_get_option_name($option) {
 function sb_get_option($option_name, $default = false) {
 	$full_option_name = sb_get_option_name($option_name);
 	$value = get_option($full_option_name, $default);
-	$value = apply_filters('sb_get_option_' . $full_option_name, $value);
+	$value = apply_filters('sb_optimizer_get_option_' . $full_option_name, $value);
 	return $value;
 }
 
