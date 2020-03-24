@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once 'sb-nginx-fpc-auth-handling.php';
+require_once __DIR__ . '/sb-nginx-fpc-auth-handling.php';
 
 /**
  * Class Servebolt_Nginx_FPC

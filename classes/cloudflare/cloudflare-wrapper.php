@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-include 'cloudflare-error.php';
+include __DIR__ . '/cloudflare-error.php';
 
 use Cloudflare\API\Auth\APIToken;
 use Cloudflare\API\Auth\APIKey;

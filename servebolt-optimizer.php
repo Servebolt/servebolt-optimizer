@@ -47,19 +47,19 @@ require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
 
 // Loads the class that sets the correct cache headers for full page cache
 if ( ! class_exists('Servebolt_Nginx_FPC') ){
-	require_once SERVEBOLT_PATH . 'classes/sb-nginx-fpc.php';
+	require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
     if ( sb_nginx_fpc()->fpc_is_active()) {
 	    sb_nginx_fpc()->setup();
     }
 }
 
 // Invoke the Servebolt Cloudflare class
-require_once SERVEBOLT_PATH . 'classes/sb-cf.php';
+require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf.php';
 sb_cf();
 
 // Register cache actions (cache queue, cache purge trigger)
-require_once SERVEBOLT_PATH . 'classes/sb-cf-cron.php';
-require_once SERVEBOLT_PATH . 'classes/sb-cf-post-save-action.php';
+require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf-cron.php';
+require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf-post-save-action.php';
 
 if ( is_admin() ) {
 

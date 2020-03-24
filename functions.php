@@ -27,7 +27,7 @@ function sb_optimize_db() {
  * @return Servebolt_Checks|null
  */
 function sb_cf() {
-	require_once SERVEBOLT_PATH . 'classes/sb-cf.php';
+	require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf.php';
 	return Servebolt_CF::get_instance();
 }
 
@@ -57,7 +57,7 @@ function sb_nginx_fpc_controls() {
  * @return Servebolt_Nginx_FPC|null
  */
 function sb_nginx_fpc() {
-	require_once SERVEBOLT_PATH . 'classes/sb-nginx-fpc.php';
+	require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
 	return Servebolt_Nginx_FPC::get_instance();
 }
 
