@@ -17,7 +17,7 @@ define( 'SERVEBOLT_BASENAME', plugin_basename(__FILE__) );
 define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
 define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
 
-// Exit if PHP_MAJOR_VERSION is less than 7
+// Abort and display admin notice if PHP_MAJOR_VERSION is less than 7
 if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
     require SERVEBOLT_PATH . 'non-php7.php';
     return;

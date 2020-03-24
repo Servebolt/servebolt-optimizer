@@ -53,7 +53,7 @@ class Nginx_FPC_Controls {
 	 */
 	public function view() {
 		sb_view('admin/views/nginx-fpc-controls', [
-			'sb_admin_url'     => get_sb_admin_url(),
+			'sb_admin_url'     => sb_get_admin_url(),
 		]);
 	}
 

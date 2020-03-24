@@ -164,7 +164,7 @@ class Servebolt_Admin_Interface {
 		$sb_icon = '<span class="servebolt-icon"></span>';
 		$cache_purge_available = sb_cf()->cf_is_active();
 
-		if ( $admin_url = get_sb_admin_url() ) {
+		if ( $admin_url = sb_get_admin_url() ) {
 			$nodes[] = [
 				'id'     => 'servebolt-crontrol-panel',
 				'title'  => sb__('Servebolt Control Panel'),

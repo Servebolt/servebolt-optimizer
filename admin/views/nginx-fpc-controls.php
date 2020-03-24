@@ -3,11 +3,11 @@
 	<h1><?php sb_e('Full Page Cache'); ?></h1>
 
 	<div>
-	  <?php $sb_admin_button = $sb_admin_url ? '<a href="'. get_sb_admin_url() .'">' . sb__('Servebolt site settings') . '</a>' : sb__('Servebolt site settings'); ?>
+	  <?php $sb_admin_button = $sb_admin_url ? sprintf('<a href="%s">%s</a>', $sb_admin_url, sb__('Servebolt Control Panel dashboard')) : sb__('Servebolt Control Panel dashboard'); ?>
 		<p><?php sb_e('Servebolt Full Page Cache is easy to set up, but should always be tested before activating it on production environments.'); ?></p>
 		<p><?php printf( sb_esc_html__( 'To activate Full Page Cache to go %s and set "Caching" to "Static Files + Full-Page Cache"'), $sb_admin_button ) ?></p>
     <?php if ( $sb_admin_url ) : ?>
-		<a href="<?php echo $sb_admin_url; ?>" class="button"><?php sb_e('Servebolt site settings') ?></a>
+		<a href="<?php echo $sb_admin_url; ?>" class="button"><?php sb_e('Servebolt Control Panel dashboard') ?></a>
     <?php endif; ?>
 	</div>
 
@@ -73,7 +73,7 @@
 			<?php settings_fields( 'nginx-fpc-options-page' ) ?>
 			<?php do_settings_sections( 'nginx-fpc-options-page' ) ?>
       <div class="nginx_switch">
-        <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_fpc_active ? ' checked' : ''; ?>><label for="nginx_cache_switch"><?php sb_e('Turn Full Page Cache on'); ?></label>
+        <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_fpc_active ? ' checked' : ''; ?>><label for="sb-nginx_cache_switch"><?php sb_e('Turn Full Page Cache on'); ?></label>
       </div>
 			<table class="form-table" id="post-types-form"<?php echo ( $nginx_fpc_active ? '' : ' style="display: none;"' ); ?>>
 				<tr valign="top">

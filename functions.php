@@ -87,9 +87,9 @@ function sb_boolean_to_state_string($state) {
  *
  * @return bool|string
  */
-function get_sb_admin_url() {
+function sb_get_admin_url() {
 	$webroot_path = get_home_path();
-	//$webroot_path = '/kunder/serveb_5418/bankfl_7205/public'; // For testing
+	//$webroot_path = '/kunder/serveb_1234/custom_1234/public'; // For testing
 	return ( preg_match( "@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $webroot_path, $matches ) ) ? 'https://admin.servebolt.com/siteredirect/?site='. $matches[1] : false;
 }
 
