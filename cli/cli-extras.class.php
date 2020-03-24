@@ -33,22 +33,6 @@ abstract class Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Store zone without listing available zones.
-	 *
-	 * @param $zone_id
-	 */
-	protected function store_zone_direct($zone_id) {
-		$zone_object = sb_cf()->get_zone_by_id($zone_id);
-		$zone_indentification = $zone_object ? $zone_object->name . ' (' . $zone_object->id . ')' : $zone_id;
-		if ( ! $zone_object ) {
-			WP_CLI::error_multi_line(['Could not find zone with the specified ID in Cloudflare. This might indicate:', '- the API connection is not working', '- that the zone does not exists', '- that we lack access to the zone']);
-			WP_CLI::confirm( 'Do you still wish to set the zone?');
-		}
-		sb_cf()->store_active_zone_id($zone_id);
-		WP_CLI::success(sprintf('Successfully selected zone %s', $zone_indentification));
-	}
-
-	/**
 	 * List Cloudflare zones with/without numbering.
 	 *
 	 * @param bool $include_numbers
@@ -66,6 +50,38 @@ abstract class Servebolt_CLI_Extras {
 				WP_CLI::line(sprintf('%s (%s)', $zone->name, $zone->id));
 			}
 		}
+	}
+
+	/**
+	 * Store zone without listing available zones.
+	 *
+	 * @param $zone_id
+	 */
+	protected function store_zone_direct($zone_id) {
+		$zone_object = sb_cf()->get_zone_by_id($zone_id);
+		$zone_indentification = $zone_object ? $zone_object->name . ' (' . $zone_object->id . ')' : $zone_id;
+		if ( ! $zone_object ) {
+			WP_CLI::error_multi_line(['Could not find zone with the specified ID in Cloudflare. This might indicate:', '- the API connection is not working', '- that the zone does not exists', '- that we lack access to the zone']);
+			WP_CLI::confirm( 'Do you still wish to set the zone?');
+		}
+		sb_cf()->store_active_zone_id($zone_id);
+		WP_CLI::success(sprintf('Successfully selected zone %s', $zone_indentification));
+	}
+
+	/**
+	 * Enable/disable Nginx cache headers.
+	 *
+	 * @param bool $cron_active
+	 */
+	protected function cf_cron_control(bool $cron_active) {
+		$current_state = sb_cf()->cron_purge_is_active();
+		if ( $current_state === $cron_active ) {
+			WP_CLI::line(sprintf(sb__('Cloudflare cache purge cron is already %s'), sb_boolean_to_state_string($cron_active)));
+		} else {
+			sb_cf()->cf_toggle_cron_active($cron_active);
+			WP_CLI::success(sprintf(sb__('Cloudflare cache purge cron is now %s'), sb_boolean_to_state_string($cron_active)));
+		}
+		sb_cf()->handle_cron();
 	}
 
 	/**
@@ -155,22 +171,6 @@ abstract class Servebolt_CLI_Extras {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Enable/disable Nginx cache headers.
-	 *
-	 * @param bool $cron_active
-	 */
-	protected function cf_cron_control(bool $cron_active) {
-		$current_state = sb_cf()->cron_purge_is_active();
-		if ( $current_state === $cron_active ) {
-			WP_CLI::line(sprintf(sb__('Cloudflare cache purge cron is already %s'), sb_boolean_to_state_string($cron_active)));
-		} else {
-			sb_cf()->cf_toggle_cron_active($cron_active);
-			WP_CLI::success(sprintf(sb__('Cloudflare cache purge cron is now %s'), sb_boolean_to_state_string($cron_active)));
-		}
-		sb_cf()->handle_cron();
 	}
 
 	/**

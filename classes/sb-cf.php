@@ -113,13 +113,13 @@ class Servebolt_CF {
 	/**
 	 * The Cloudflare API permissions required for this plugin.
 	 *
-	 * @param bool $humanReadable
+	 * @param bool $human_readable
 	 *
 	 * @return array|string
 	 */
-	public function api_permissions_needed($humanReadable = true) {
+	public function api_permissions_needed($human_readable = true) {
 		$permissions = ['Zone.Zone', 'Zone.Cache Purge'];
-		if ( $humanReadable ) {
+		if ( $human_readable ) {
 			return sb_natural_language_join($permissions);
 		}
 		return $permissions;
@@ -425,12 +425,12 @@ class Servebolt_CF {
 	/**
 	 * Set the items to purge.
 	 *
-	 * @param array $itemsToPurge
+	 * @param array $items_to_purge
 	 *
 	 * @return bool
 	 */
-	private function set_items_to_purge( array $itemsToPurge ) {
-		return sb_update_option( 'cf_items_to_purge', $itemsToPurge );
+	private function set_items_to_purge( array $items_to_purge ) {
+		return sb_update_option( 'cf_items_to_purge', $items_to_purge );
 	}
 
 	/**
@@ -447,11 +447,11 @@ class Servebolt_CF {
 	/**
 	 * Get all URL's to purge for a post.
 	 *
-	 * @param $postId
+	 * @param $post_id
 	 *
 	 * @return array
 	 */
-	private function get_purge_urls_by_post_id( int $postId ) {
+	private function get_purge_urls_by_post_id( int $post_id ) {
 		$purgeUrls = [];
 
 		// Front page
@@ -465,12 +465,12 @@ class Servebolt_CF {
 		}
 
 		// The post
-		if ( $permalink = get_permalink( $postId ) ) {
+		if ( $permalink = get_permalink( $post_id ) ) {
 			array_push( $purgeUrls, $permalink );
 		}
 
 		// Archive page
-		if ( $archiveUrl = get_post_type_archive_link( get_post_type( $postId ) ) ) {
+		if ( $archiveUrl = get_post_type_archive_link( get_post_type( $post_id ) ) ) {
 			array_push( $purgeUrls, $archiveUrl );
 		}
 
@@ -508,9 +508,9 @@ class Servebolt_CF {
 	 * @return bool|void
 	 */
 	public function purge_by_url( string $url ) {
-		$postId = url_to_postid( $url );
-		if ( $postId ) {
-			return $this->purge_post($postId);
+		$post_id = url_to_postid( $url );
+		if ( $post_id ) {
+			return $this->purge_post($post_id);
 		} else {
 			if ( $this->cron_purge_is_active() ) {
 				return $this->add_item_to_purge_queue($url);
@@ -554,13 +554,13 @@ class Servebolt_CF {
 	/**
 	 * Check whether the Cron-based cache purger should be active.
 	 *
-	 * @param bool $respectOverride
+	 * @param bool $respect_override
 	 *
 	 * @return bool|mixed
 	 */
-	public function cron_purge_is_active($respectOverride = true) {
+	public function cron_purge_is_active($respect_override = true) {
 		$activeStateOverride = $this->cron_active_state_override();
-		if ( $respectOverride && is_bool($activeStateOverride) ) {
+		if ( $respect_override && is_bool($activeStateOverride) ) {
 			return $activeStateOverride;
 		}
 		return sb_checkbox_true(sb_get_option($this->cf_cron_active_option_key()));
