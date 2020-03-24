@@ -49,13 +49,11 @@ class Servebolt_CF {
 	/**
 	 * Instantiate class.
 	 *
-	 * @param bool $credentials
-	 *
 	 * @return Servebolt_CF|null
 	 */
-	public static function get_instance($credentials = false) {
+	public static function get_instance() {
 		if ( self::$instance == null ) {
-			self::$instance = new Servebolt_CF($credentials);
+			self::$instance = new Servebolt_CF();
 		}
 		return self::$instance;
 	}

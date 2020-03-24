@@ -74,3 +74,4 @@ class Servebolt_CF_Cron_Handle {
 	}
 
 }
+new Servebolt_CF_Cron_Handle;

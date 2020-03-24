@@ -53,6 +53,9 @@ class Servebolt_Admin_Interface {
 			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
 			add_submenu_page('servebolt-wp', sb__('Error log'), sb__('Error log'), 'manage_options', 'servebolt-logs', [$this, 'error_log_callback']);
 		}
+		if ( sb_is_dev_debug() ) {
+			add_submenu_page('servebolt-wp', sb__('Debug'), sb__('Debug'), 'manage_options', 'servebolt-debug', [$this, 'debug_callback']);
+		}
 		if ( ! is_network_admin() ) {
 			add_action( 'admin_bar_menu', [ $this, 'admin_bar' ], 100 );
 		}
@@ -150,6 +153,13 @@ class Servebolt_Admin_Interface {
 	 */
 	public function error_log_callback() {
 		( Servebolt_Logviewer::get_instance() )->view();
+	}
+
+	/**
+	 * Display debug information.
+	 */
+	public function debug_callback() {
+		sb_view('admin/views/debug');
 	}
 
 	/**

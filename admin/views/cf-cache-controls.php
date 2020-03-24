@@ -67,7 +67,7 @@
   <h1>Configuration</h1>
   <p>This feature can be set up using WP CLI or with the form below.</p><p>Run <code>wp servebolt cf --help</code> to see available commands.</p>
 
-  <form method="post" autocomplete="off" action="options.php" name="sb_configuration_table" id="sb-configuration-table" onsubmit="return window.sb_validate_cf_configuration_form(event);">
+  <form method="post" autocomplete="off" action="options.php" name="sb_configuration_table" id="sb-configuration-table" onsubmit="<?php if ( apply_filters('sb_cf_form_validation_active', true) ) echo 'return window.sb_validate_cf_configuration_form(event);'; ?>">
 	  <?php settings_fields( 'sb-cf-options-page' ) ?>
 	  <?php do_settings_sections( 'sb-cf-options-page' ) ?>
 

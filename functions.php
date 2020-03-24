@@ -423,6 +423,15 @@ function sb_is_debug() {
 }
 
 /**
+ * Check whether we are in Servebolt developer debug mode.
+ *
+ * @return bool
+ */
+function sb_is_dev_debug() {
+	return ( defined('SB_DEBUG') && SB_DEBUG === true ) || ( array_key_exists('debug', $_GET) && filter_var($_GET['debug'], FILTER_VALIDATE_BOOLEAN) === true );
+}
+
+/**
  * Delete plugin settings.
  */
 function sb_clear_all_settings() {

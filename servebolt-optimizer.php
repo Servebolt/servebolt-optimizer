@@ -58,11 +58,11 @@ if ( ! class_exists('Servebolt_Nginx_FPC') ){
 require_once SERVEBOLT_PATH . 'classes/sb-cf.php';
 sb_cf();
 
-if ( is_admin() ) {
+// Register cache actions (cache queue, cache purge trigger)
+require_once SERVEBOLT_PATH . 'classes/sb-cf-cron.php';
+require_once SERVEBOLT_PATH . 'classes/sb-cf-cache-action.php';
 
-	// Register cache actions (cache queue, cache purge trigger)
-	require_once SERVEBOLT_PATH . 'classes/sb-cf-cache-action.php';
-	new CF_Cache_Action;
+if ( is_admin() ) {
 
 	// Load this plugins interface
 	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
