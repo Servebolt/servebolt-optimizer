@@ -227,6 +227,11 @@
     margin-left: 0;
 }
 
+#sb-configuration .cf-hidden-cron,
+#sb-configuration .cf-hidden {
+    display: none;
+}
+
 #sb-configuration #purge-items-table .purge-item-column {
     padding-left: 0;
     padding-top: 10px;

@@ -47,6 +47,11 @@ jQuery(document).ready(function($) {
     sb_toggle_cf_feature_active($(this).is(':checked'));
   });
 
+  // Toggle Cloudflare feature active/inactive
+  $('#cf_cron_purge').change(function() {
+    sb_toggle_cf_cron_feature_active($(this).is(':checked'));
+  });
+
   // Toggle all post types for Nginx cache
   $('#sb-cache_post_type_all').change(function(){
     sb_toggle_all_post_types($(this).is(':checked'));
@@ -338,16 +343,30 @@ jQuery(document).ready(function($) {
   }
 
   /**
-   * Toggle form elements to show/hide based on active state.
+   * Toggle CF-related form elements to show/hide based on active state.
    *
    * @param boolean
    */
   function sb_toggle_cf_feature_active(boolean) {
-    var items = $('#sb-configuration .sb-toggle-active-item');
+    var items = $('#sb-configuration .sb-toggle-active-cf-item');
     if ( boolean ) {
-      items.show();
+      items.removeClass('cf-hidden');
     } else {
-      items.hide();
+      items.addClass('cf-hidden');
+    }
+  }
+
+  /**
+   * Toggle CF cron-related form elements to show/hide based on active state.
+   *
+   * @param boolean
+   */
+  function sb_toggle_cf_cron_feature_active(boolean) {
+    var items = $('#sb-configuration .sb-toggle-active-cron-item');
+    if ( boolean ) {
+      items.removeClass('cf-hidden-cron');
+    } else {
+      items.addClass('cf-hidden-cron');
     }
   }
 
