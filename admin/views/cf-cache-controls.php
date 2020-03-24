@@ -139,6 +139,7 @@
             <td>
 
               <?php
+                $zone = $cf_settings['cf_zone_id'] ? sb_cf()->get_zone_by_id($cf_settings['cf_zone_id']) : false;
                 $have_zones = false;
                 $zones = [];
                 if ( $cf_settings['cf_auth_type'] === 'api_key' ) {
