@@ -10,29 +10,61 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class Servebolt_CF_Cron_Handle {
 
 	/**
+	 * Singleton instance.
+	 *
+	 * @var null
+	 */
+	private static $instance = null;
+
+	/**
+	 * Instantiate class.
+	 *
+	 * @return Servebolt_CF_Cron_Handle|null
+	 */
+	public static function get_instance() {
+		if ( self::$instance == null ) {
+			self::$instance = new Servebolt_CF_Cron_Handle;
+		}
+		return self::$instance;
+	}
+
+	/**
 	 * Servebolt_CF_Cron_Handle constructor.
 	 */
-	public function __construct() {
+	private function __construct() {
 		$this->handle_cron();
 	}
 
 	/**
 	 * Handle Cloudflare cache purge cron job.
 	 */
-	public function handle_cron() {
+	private function handle_cron() {
 
 		// Add schedule for execution every minute
-		add_filter( 'cron_schedules', [$this, 'add_cache_purge_cron_schedule'] );
+		add_filter( 'cron_schedules', [ $this, 'add_cache_purge_cron_schedule' ] );
+
+		// Update cron state
+		$this->update_cron_state();
+
+	}
+
+	/**
+	 * Update cron state.
+	 */
+	public function update_cron_state() {
 
 		// Check if we should use cron-based cache purging
 		if ( ! sb_cf()->cf_is_active() || ! sb_cf()->cron_purge_is_active() || ! sb_cf()->should_purge_cache_queue() ) {
+
+			// Un-schedule task
 			$this->deregister_cron();
-			return;
+
+		} else {
+
+			// Schedule task
+			$this->register_cron();
+
 		}
-
-		// Schedule task
-		$this->register_cron();
-
 	}
 
 	/**
@@ -72,4 +104,4 @@ class Servebolt_CF_Cron_Handle {
 	}
 
 }
-new Servebolt_CF_Cron_Handle;
+Servebolt_CF_Cron_Handle::get_instance();

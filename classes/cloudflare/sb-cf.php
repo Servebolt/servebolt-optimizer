@@ -440,6 +440,15 @@ class Servebolt_CF {
 	}
 
 	/**
+	 * Check if we have items to purge.
+	 *
+	 * @return bool
+	 */
+	public function has_items_to_purge() {
+		return $this->count_items_to_purge() > 0;
+	}
+
+	/**
 	 * Get the items to purge.
 	 *
 	 * @param bool $limit
@@ -612,7 +621,7 @@ class Servebolt_CF {
 	/**
 	 * Clear items to purge.
 	 */
-	private function clear_items_to_purge() {
+	public function clear_items_to_purge() {
 		$this->set_items_to_purge([]);
 	}
 

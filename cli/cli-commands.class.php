@@ -290,8 +290,30 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 		$this->cf_cron_control(false, $assoc_args);
 	}
 
-	public function cf_clear_cache_purge_queue() {
-		// TODO: Finish this
+	/**
+	 * Clear the cache purge queue.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all-blogs]
+	 * : Clear queue on all sites in multisite
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp servebolt cf clear-cache-purge-queue
+	 *
+	 */
+	public function cf_clear_cache_purge_queue( $args, $assoc_args ) {
+		$affect_all_blogs = array_key_exists('all-blogs', $assoc_args);
+		if ( ! sb_cf()->cron_purge_is_active() ) {
+			WP_CLI::warning(sb__('Note: cache purge via cron is not active.'));
+		}
+		if ( sb_cf()->has_items_to_purge() ) {
+			sb_cf()->clear_items_to_purge();
+			WP_CLI::success(sb__('Cache purge queue cleared.'));
+		} else {
+			WP_CLI::warning('Cache purge queue already empty.');
+		}
 	}
 
 	/**

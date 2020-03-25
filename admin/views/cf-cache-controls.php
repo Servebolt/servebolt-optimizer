@@ -232,6 +232,7 @@
                       $title = get_the_title($item);
                       $url = get_permalink($item);
                       $is_url = true;
+	                    $edit_url = get_edit_post_link($item);
                     } else {
                       $is_post = false;
                       $url = $item;
@@ -249,8 +250,10 @@
                       <?php echo $item; ?>
                       <div class="row-actions">
                         <span class="trash"><a href="#" class="remove-purge-item-from-queue"><?php sb_e('Delete'); ?></a> | </span>
-                        <span class="view"><a href="<?php echo esc_attr($url); ?>" target="_blank"><?php sb_e('View'); ?></a> | </span>
-                        <span class="view"><a href="<?php echo get_edit_post_link($item); ?>" target="_blank"><?php sb_e('Edit'); ?></a></span>
+                        <span class="view"><a href="<?php echo esc_attr($url); ?>" target="_blank"><?php sb_e('View'); ?></a><?php if ( $edit_url ) echo ' | '; ?></span>
+                        <?php if ( $edit_url ) : ?>
+                        <span class="view"><a href="<?php echo $edit_url; ?>" target="_blank"><?php sb_e('Edit'); ?></a></span>
+                        <?php endif; ?>
                       </div>
                     </td>
                     <td class="purge-item-column"><strong><?php echo $title; ?></strong></td>
