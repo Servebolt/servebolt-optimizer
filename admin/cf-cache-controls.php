@@ -118,15 +118,22 @@ class CF_Cache_Controls {
 	 */
 	public function update_cache_purge_queue_callback() {
 		check_ajax_referer( sb_get_ajax_nonce_key(), 'security' );
-		parse_str($_POST['form'], $form_data);
-		$items = $form_data['servebolt_cf_items_to_purge'];
-		$items = array_filter($items, function ($item) {
+		$items_to_remove = array_key_exists('items', $_POST) ? $_POST['items'] : false;
+		if ( $items_to_remove === 'all' ) {
+			sb_cf()->set_items_to_purge([]);
+			wp_send_json_success();
+		}
+		if ( ! $items_to_remove || empty($items_to_remove) ) wp_send_json_error();
+		if ( ! is_array($items_to_remove) ) $items_to_remove = [];
+		$items_to_remove = array_filter($items_to_remove, function ($item) {
 			return is_numeric($item) || is_string($item);
 		});
-		if ( ! is_array($items) ) {
-			$items = [];
-		}
-		sb_cf()->set_items_to_purge($items);
+		$current_items = sb_cf()->get_items_to_purge();
+		if ( ! is_array($current_items) ) $current_items = [];
+		$updated_items = array_filter($current_items, function($item) use ($items_to_remove) {
+			return ! in_array($item, $items_to_remove);
+		});
+		sb_cf()->set_items_to_purge($updated_items);
 		wp_send_json_success();
 	}
 
@@ -180,14 +187,14 @@ class CF_Cache_Controls {
 	}
 
 	/**
-	 * Try to fetch available zones based on given API key credentials.
+	 * Try to fetch available zones based on given API credentials.
 	 */
 	public function lookup_zones_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
-		$email = sanitize_text_field($_POST['email']);
-		$api_key = sanitize_text_field($_POST['api_key']);
+		$auth_type = sanitize_text_field($_POST['auth_type']);
+		$credentials = $_POST['credentials'];
 		try {
-			sb_cf()->cf()->set_credentials('api_key', compact('email', 'api_key'));
+			sb_cf()->cf()->set_credentials($auth_type, $credentials);
 			$zones = sb_cf()->cf()->list_zones();
 			if ( ! empty($zones) ) {
 				wp_send_json_success([

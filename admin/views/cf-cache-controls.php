@@ -109,7 +109,7 @@
           <tr class="feature_cf_auth_type-api_token"<?php if ( $cf_settings['cf_auth_type'] != 'api_token' ) echo ' style="display: none;"' ?>>
             <th scope="row"><label for="api_token"><?php sb_e('API token'); ?></label></th>
             <td>
-              <input name="<?php echo sb_get_option_name('cf_api_token'); ?>" type="text" id="api_token" data-original-value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" class="regular-text validate-field validation-group-api_token">
+              <input name="<?php echo sb_get_option_name('cf_api_token'); ?>" type="text" id="api_token" data-original-value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" class="regular-text validate-field validation-group-api_token validation-group-api_credentials">
               <p class="invalid-message"></p>
               <p><small><?php sb_e(sprintf('Make sure to add permissions for %s when creating a token.', sb_cf()->api_permissions_needed())); ?></small></p>
             </td>
@@ -117,14 +117,14 @@
           <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
             <th scope="row"><label for="email"><?php sb_e('Cloudflare e-mail'); ?></label></th>
             <td>
-              <input name="<?php echo sb_get_option_name('cf_email'); ?>" type="email" id="email" data-original-value="<?php echo esc_attr($cf_settings['cf_email']); ?>" value="<?php echo esc_attr($cf_settings['cf_email']); ?>" class="regular-text validate-field validation-input-email validation-group-api_key_credentials">
+              <input name="<?php echo sb_get_option_name('cf_email'); ?>" type="email" id="email" data-original-value="<?php echo esc_attr($cf_settings['cf_email']); ?>" value="<?php echo esc_attr($cf_settings['cf_email']); ?>" class="regular-text validate-field validation-input-email validation-group-api_key_credentials validation-group-api_credentials">
               <p class="invalid-message"></p>
             </td>
           </tr>
           <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
             <th scope="row"><label for="api_key"><?php sb_e('API key'); ?></label></th>
             <td>
-              <input name="<?php echo sb_get_option_name('cf_api_key'); ?>" type="text" id="api_key" data-original-value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" class="regular-text validate-field validation-input-api_key validation-group-api_key_credentials">
+              <input name="<?php echo sb_get_option_name('cf_api_key'); ?>" type="text" id="api_key" data-original-value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" class="regular-text validate-field validation-input-api_key validation-group-api_key_credentials validation-group-api_credentials">
               <p class="invalid-message"></p>
             </td>
           </tr>
@@ -141,11 +141,8 @@
               <?php
                 $zone = $cf_settings['cf_zone_id'] ? sb_cf()->get_zone_by_id($cf_settings['cf_zone_id']) : false;
                 $have_zones = false;
-                $zones = [];
-                if ( $cf_settings['cf_auth_type'] === 'api_key' ) {
-                  $zones = sb_cf()->list_zones();
-                  $have_zones = ( is_array($zones) && ! empty($zones) );
-                }
+                $zones = sb_cf()->list_zones();
+                $have_zones = ( is_array($zones) && ! empty($zones) );
               ?>
 
               <input name="<?php echo sb_get_option_name('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID<?php if ( $have_zones ) echo ' or use the choices below'; ?>" value="<?php echo esc_attr($cf_settings['cf_zone_id']); ?>" class="regular-text validate-field validation-group-zone_id">
@@ -156,9 +153,11 @@
               <div class="zone-selector-container"<?php if ( ! $have_zones ) echo ' style="display: none;"'; ?>>
                 <p style="margin-top: 10px;"><?php sb_e('Available zones:'); ?></p>
                 <ul class="zone-selector" style="margin: 5px 0;">
+                  <?php if ( $have_zones ) : ?>
                   <?php foreach($zones as $zone) : ?>
                     <li><a href="#" data-name="<?php echo esc_attr($zone->name); ?>" data-id="<?php echo esc_attr($zone->id); ?>"><?php echo $zone->name; ?> (<?php echo $zone->id; ?>)</a></li>
                   <?php endforeach; ?>
+                  <?php endif; ?>
                 </ul>
               </div>
 
@@ -225,7 +224,7 @@
                 </tfoot>
 
                 <tbody id="the-list">
-                  <tr class="no-items<?php if ( count($items_to_purge) > 0 ) echo ' hidden'; ?>"><td class="colspanchange" colspan="3"><?php sb_e('No purge items found.'); ?></td></tr>
+                  <tr class="no-items<?php if ( count($items_to_purge) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php sb_e('No purge items found.'); ?></td></tr>
                   <?php foreach($items_to_purge as $i => $item) : ?>
                   <?php
                     if ( is_numeric($item) && $post = get_post($item) ) {
@@ -249,7 +248,7 @@
                     <td class="column-post-id has-row-actions purge-item-column">
                       <?php echo $item; ?>
                       <div class="row-actions">
-                        <span class="trash"><a href="#" class="remove-purge-item-from-queue"><?php sb_e('Trash'); ?></a> | </span>
+                        <span class="trash"><a href="#" class="remove-purge-item-from-queue"><?php sb_e('Delete'); ?></a> | </span>
                         <span class="view"><a href="<?php echo esc_attr($url); ?>" target="_blank"><?php sb_e('View'); ?></a> | </span>
                         <span class="view"><a href="<?php echo get_edit_post_link($item); ?>" target="_blank"><?php sb_e('Edit'); ?></a></span>
                       </div>
@@ -259,7 +258,7 @@
                     <td class="column-post-id has-row-actions purge-item-column" colspan="2">
                       <?php sb_e('Purged via URL only, no post object available.') ?>
                       <div class="row-actions">
-                        <span class="trash"><a href="#" class="remove-purge-item-from-queue"><?php sb_e('Trash'); ?></a><?php if ( $is_url ) : ?> | <?php endif; ?></span>
+                        <span class="trash"><a href="#" class="remove-purge-item-from-queue"><?php sb_e('Delete'); ?></a><?php if ( $is_url ) : ?> | <?php endif; ?></span>
                         <?php if ( $is_url ) : ?>
                             <span class="view"><a href="<?php echo esc_attr($url); ?>" target="_blank"><?php sb_e('View'); ?></a></span>
                         <?php endif; ?>

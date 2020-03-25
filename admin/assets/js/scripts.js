@@ -58,8 +58,8 @@ jQuery(document).ready(function($) {
   });
 
   // Automatic zone list population when API key credentials are filled into form.
-  $('#sb-configuration .validation-group-api_key_credentials').on('keyup', function() {
-    sb_apply_api_key_credentials();
+  $('#sb-configuration .validation-group-api_credentials').on('keyup', function() {
+    sb_apply_api_credentials();
   });
 
   // Trigger zone name resolve if we change the API credentials
@@ -117,14 +117,14 @@ jQuery(document).ready(function($) {
   /**
    * Update the cache purge queue.
    */
-  function submit_cache_purge_queue(success_function, error_function) {
+  function submit_cache_purge_queue(items, success_function, error_function) {
     setTimeout(function () {
       var form = $('#sb-configuration-table'),
           spinner = $('#sb-configuration .purge-queue-loading-spinner'),
           data = {
             action: 'servebolt_update_cf_cache_purge_queue',
             security: ajax_object.ajax_nonce,
-            form: form.serialize(),
+            items: items,
           };
       if ( ! zone_id ) {
         sb_set_active_zone(false);
@@ -139,26 +139,52 @@ jQuery(document).ready(function($) {
           spinner.removeClass('is-active');
           if (response.success) {
             if (success_function) success_function();
-            Swal.fire({
-              icon: 'success',
-              title: 'All good!',
-              text: 'The queue was updated.',
-              customClass: {
-                confirmButton: 'servebolt-button yellow'
-              },
-              buttonsStyling: false
-            });
           } else {
-            if (error_function) error_function();
-            alert('fail');
+            sb_warning('Ouch...', 'Could not alter the cache purge queue.');
           }
         },
         error: function () {
           spinner.removeClass('is-active');
-          alert('fail2');
+          sb_warning('Ouch...', 'Could not alter the cache purge queue.');
         }
       });
     }, 250);
+  }
+
+  /**
+   * Display success modal.
+   *
+   * @param title
+   * @param html
+   */
+  function sb_success(title, html) {
+    Swal.fire({
+      icon: 'success',
+      title: title,
+      html: html,
+      customClass: {
+        confirmButton: 'servebolt-button yellow'
+      },
+      buttonsStyling: false
+    });
+  }
+
+  /**
+   * Display warning modal.
+   *
+   * @param title
+   * @param html
+   */
+  function sb_warning(title, html) {
+    Swal.fire({
+      icon: 'warning',
+      title: title,
+      html: html,
+      customClass: {
+        confirmButton: 'servebolt-button yellow'
+      },
+      buttonsStyling: false
+    });
   }
 
   /**
@@ -180,13 +206,11 @@ jQuery(document).ready(function($) {
     }).then((result) => {
       if (result.value) {
         var item = $(obj).closest('.purge-item'),
-          input_element = item.find('.purge-item-input');
-        input_element.prop('disabled', true);
-        submit_cache_purge_queue(function() {
+            item_value = item.find('.purge-item-input').val();
+        submit_cache_purge_queue([item_value], function() {
           item.remove();
+          sb_success('All good!', 'The item was deleted.');
           sb_check_for_empty_purge_items_table(false);
-        }, function() {
-          input_element.prop('disabled', false);
         });
       }
     });
@@ -209,13 +233,16 @@ jQuery(document).ready(function($) {
     }).then((result) => {
       if (result.value) {
         var items = $('#sb-configuration #purge-items-table tbody .purge-item input[type="checkbox"]:checked').closest('.purge-item'),
-          input_elements = items.find('.purge-item-input');
-        input_elements.prop('disabled', true);
-        submit_cache_purge_queue(function () {
+            input_elements = items.find('.purge-item-input'),
+            ids = [];
+        input_elements.each(function (i, el) {
+          ids.push($(el).val());
+        });
+        submit_cache_purge_queue(ids, function () {
           items.remove();
+          var response = ids.length > 1 ? 'The items were deleted.' : 'The item was deleted.';
+          sb_success('All good!', response);
           sb_check_for_empty_purge_items_table(true);
-        }, function() {
-          input_elements.prop('disabled', false);
         });
       }
     });
@@ -237,14 +264,10 @@ jQuery(document).ready(function($) {
       buttonsStyling: false
     }).then((result) => {
       if (result.value) {
-        var items = $('#sb-configuration #purge-items-table tbody .purge-item'),
-          input_elements = items.find('.purge-item-input');
-        input_elements.prop('disabled', true);
-        submit_cache_purge_queue(function () {
-          items.remove();
+        submit_cache_purge_queue('all', function () {
+          $('#sb-configuration #purge-items-table tbody .purge-item').remove();
+          sb_success('All good!', 'The queue was emptied.');
           sb_check_for_empty_purge_items_table(false);
-        }, function() {
-          input_elements.prop('disabled', false);
         });
       }
     });
@@ -371,20 +394,32 @@ jQuery(document).ready(function($) {
   }
 
   /**
-   * Apply API key credentials from form a try to fetch available zones.
+   * Apply API credentials from form a try to fetch available zones.
    *
    * @type {null}
    */
   let api_key_type_wait_timeout = null;
-  function sb_apply_api_key_credentials() {
+  function sb_apply_api_credentials() {
     clearTimeout(api_key_type_wait_timeout);
-    var auth_type = $('#sb-configuration input[name="servebolt_cf_auth_type"]:checked').val(),
-        email = $('#sb-configuration #email').val(),
-        api_key = $('#sb-configuration #api_key').val();
-    if ( auth_type === 'api_key' && email && api_key ) {
-      api_key_type_wait_timeout = setTimeout(function () {
-        fetch_and_display_available_zones(email, api_key);
-      }, 1000);
+    var auth_type = $('#sb-configuration input[name="servebolt_cf_auth_type"]:checked').val();
+    switch (auth_type) {
+      case 'api_token':
+        var api_token = $('#sb-configuration #api_token').val();
+        if ( api_token ) {
+          api_key_type_wait_timeout = setTimeout(function () {
+            fetch_and_display_available_zones(auth_type, { api_token: api_token });
+          }, 1000);
+        }
+        break;
+      case 'api_key':
+        var email = $('#sb-configuration #email').val(),
+            api_key = $('#sb-configuration #api_key').val();
+        if ( email && api_key ) {
+          api_key_type_wait_timeout = setTimeout(function () {
+            fetch_and_display_available_zones(auth_type, { email: email, api_key: api_key });
+          }, 1000);
+        }
+        break;
     }
   }
 
@@ -395,15 +430,15 @@ jQuery(document).ready(function($) {
    * @param email
    * @param api_key
    */
-  function fetch_and_display_available_zones(email, api_key) {
+  function fetch_and_display_available_zones(auth_type, credentials) {
     maybe_trigger_zone_id_resolve();
     var spinner = $('#sb-configuration .zone-loading-spinner');
     spinner.addClass('is-active');
     var data = {
       action: 'servebolt_lookup_zones',
       security: ajax_object.ajax_nonce,
-      email: email,
-      api_key: api_key,
+      auth_type: auth_type,
+      credentials: credentials
     };
     $.ajax({
       type: 'POST',
@@ -496,19 +531,17 @@ jQuery(document).ready(function($) {
       case 'api_key':
         api_token_container.hide();
         api_key_container.show();
-        if ( zone_selector_container.find('a').length > 0 ) {
-          zone_selector_container.show();
-        } else {
-          var email = $('#sb-configuration #email').val(),
-              api_key = $('#sb-configuration #api_key').val();
-          fetch_and_display_available_zones(email, api_key);
-        }
+        var email = $('#sb-configuration #email').val(),
+            api_key = $('#sb-configuration #api_key').val();
+        fetch_and_display_available_zones(auth_type, { email: email, api_key: api_key });
         break;
       case 'api_token':
         api_token_container.show();
         api_key_container.hide();
         zone_selector_container.hide();
         maybe_trigger_zone_id_resolve();
+        var api_token = $('#sb-configuration #api_token').val();
+        fetch_and_display_available_zones(auth_type, { api_token: api_token });
     }
   }
 
@@ -619,29 +652,11 @@ jQuery(document).ready(function($) {
           valid = true;
         } else {
           indicate_validation_errors(response.data.errors);
-          Swal.fire({
-            title: 'Ouch! Validation failed :(',
-            icon: 'warning',
-            html: response.data.error_html,
-            customClass: {
-              confirmButton: 'servebolt-button yellow',
-              cancelButton: 'servebolt-button light'
-            },
-            buttonsStyling: false
-          });
+          sb_warning('Ouch! Validation failed :(', response.data.error_html);
         }
       },
       error: function() {
-        Swal.fire({
-          title: 'Ouch!',
-          icon: 'warning',
-          text: 'An unkown error occurred. Please try agin or contact support.',
-          customClass: {
-            confirmButton: 'servebolt-button yellow',
-            cancelButton: 'servebolt-button light'
-          },
-          buttonsStyling: false
-        });
+        sb_warning('Ouch!', 'An unkown error occurred. Please try agin or contact support.');
       }
     });
     if ( valid ) {
@@ -680,15 +695,7 @@ jQuery(document).ready(function($) {
             sb_loading(false);
             if ( response.success ) {
               setTimeout(function () {
-                Swal.fire({
-                  icon: 'success',
-                  title: 'All good!',
-                  text: 'All cache was purged.',
-                  customClass: {
-                    confirmButton: 'servebolt-button yellow'
-                  },
-                  buttonsStyling: false
-                });
+                sb_success('All good!', 'All cache was purged.');
               }, 100);
             } else {
               var message = sb_get_message_from_response(response);
@@ -742,15 +749,7 @@ jQuery(document).ready(function($) {
             sb_loading(false);
             if ( response.success ) {
               setTimeout(function () {
-                Swal.fire({
-                  icon: 'success',
-                  title: 'All good!',
-                  text: 'The cache was purged.',
-                  customClass: {
-                    confirmButton: 'servebolt-button yellow'
-                  },
-                  buttonsStyling: false
-                });
+                sb_success('All good!', 'The cache was purged.');
               }, 100);
             } else {
               var message = sb_get_message_from_response(response);
@@ -963,8 +962,9 @@ jQuery(document).ready(function($) {
               confirmButton: 'servebolt-button yellow'
             },
             buttonsStyling: false
+          }).then(function () {
+            location.reload();
           });
-          location.reload();
         }, 100);
       }
     });
