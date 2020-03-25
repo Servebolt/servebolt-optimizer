@@ -65,22 +65,34 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	/**
 	 * Activate Cloudflare features.
 	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Activate Cloudflare API feature on all sites in multisite-network.
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf activate
 	 */
-	public function cf_enable() {
+	public function cf_enable($args, $assoc_args) {
+		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
 		return sb_cf()->cf_toggle_active(true);
 	}
 
 	/**
 	 * Deactivate Cloudflare features.
 	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Deactivate Cloudflare API feature on all sites in multisite-network.
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf deactivate
 	 */
-	public function cf_disable() {
+	public function cf_disable($args, $assoc_args) {
+		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
 		return sb_cf()->cf_toggle_active(false);
 	}
 
@@ -98,11 +110,17 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	/**
 	 * Clear active Cloudflare zone so that we do not interact with it more.
 	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Clear Cloudflare zone on all sites in multisite-network.
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf clear-zone
 	 */
-	public function cf_clear_zone() {
+	public function cf_clear_zone($args, $assoc_args) {
+		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
 		sb_cf()->clear_active_zone();
 		WP_CLI::success('Successfully cleared zone.');
 	}
@@ -110,23 +128,35 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	/**
 	 * Clear Cloudflare credentials.
 	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Clear Cloudflare API credentials on all sites in multisite-network.
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf clear-credentials
 	 */
-	public function cf_clear_credentials() {
+	public function cf_clear_credentials($args, $assoc_args) {
+		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
 		sb_cf()->clear_credentials();
 		WP_CLI::success('Successfully cleared credentials.');
 	}
 
 	/**
-	 * Check that we can communicate with the Cloudflare API.
+	 * Test the Cloudflare API connection.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Test Cloudflare API connection on all sites in multisite-network.
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf test-api-connection
 	 */
-	public function cf_test_api_connection() {
+	public function cf_test_api_connection($args, $assoc_args) {
+		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
 		if ( sb_cf()->test_api_connection() ) {
 			WP_CLI::success('API connection passed!');
 		} else {
@@ -194,10 +224,10 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 			goto select_zone;
 		}
 
-		// Notify user if the zone domain name does not match in the blog URL.
+		// Notify user if the zone domain name does not match in the site URL.
 		$home_url = get_home_url();
 		if ( strpos($home_url, $found_zone->name) === false ) {
-			WP_CLI::warning(sprintf('Selected zone (%s) does not match with the URL fo the current blog (%s). This will most likely inhibit cache purge to work.', $found_zone->name, $home_url));
+			WP_CLI::warning(sprintf('Selected zone (%s) does not match with the URL fo the current site (%s). This will most likely inhibit cache purge to work.', $found_zone->name, $home_url));
 		}
 
 		sb_cf()->store_active_zone_id($found_zone->id);
@@ -222,6 +252,9 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * [--email=<email>]
 	 * : Cloudflare API username. Only required when using API authentication method "key"
 	 *
+	 * [--all]
+	 * : Set Cloudflare API credentials on all sites in multisite-network.
+	 *
 	 * ---
 	 *
 	 * ## EXAMPLES
@@ -235,10 +268,12 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 */
 	public function cf_set_credentials($args, $assoc_args) {
 		list($auth_type) = $args;
+		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
+
 		switch ( $auth_type ) {
 			case 'key':
-				$email = array_key_exists('email', $assoc_args) ? $assoc_args['email'] : false;
-				$api_key = array_key_exists('api-key', $assoc_args) ? $assoc_args['api-key'] : false;
+				$email = sb_array_get('email', $assoc_args);
+				$api_key = sb_array_get('api-key', $assoc_args);
 				if ( ! $email || empty($email) || ! $api_key || empty($api_key) ) {
 					WP_CLI::error('Please specify API key and email.');
 				}
@@ -248,7 +283,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 				$verbose_credentials = implode(' / ', $credentials);
 				break;
 			case 'token':
-				$token = array_key_exists('api-token', $assoc_args) ? $assoc_args['api-token'] : false;
+				$token = sb_array_get('api-token', $assoc_args);
 				if ( ! $token || empty($token) ) {
 					WP_CLI::error('Please specify a token.');
 				}
@@ -260,7 +295,16 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 			default:
 				WP_CLI::error('Could not set credentials.');
 		}
-		if ( sb_cf()->store_credentials($credentials, $type) ) {
+
+		if ( $affect_all_sites ) {
+			foreach (get_sites() as $site) {
+				$store = sb_cf()->store_credentials($credentials, $type, $site->blog_id);
+			}
+		} else {
+			$store = sb_cf()->store_credentials($credentials, $type);
+		}
+
+		if ( $store ) {
 			if ( ! sb_cf()->test_api_connection() ) {
 				WP_CLI::error(sprintf('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).', sb_cf()->api_permissions_needed()), false);
 			} else {
@@ -312,9 +356,9 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function cf_clear_cache_purge_queue( $args, $assoc_args ) {
-		$affect_all_blogs = array_key_exists('all', $assoc_args);
+		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
 
-		if ( is_multisite() && $affect_all_blogs ) {
+		if ( $affect_all_sites ) {
 			foreach (get_sites() as $site) {
 
 			}
@@ -353,18 +397,18 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Activate cache for given post types on all blogs
+	 *     # Activate cache for given post types on all sites
 	 *     wp servebolt fpc set-post-types --post-types=page,post --all
 	 *
-	 *     # Activate cache for all post types on current blog
+	 *     # Activate cache for all post types on current site
 	 *     wp servebolt fpc set-post-types --all-post-types
 	 *
 	 */
 	public function nginx_fpc_set_cache_post_types($args, $assoc_args) {
-		$post_types_string = array_key_exists('post-types', $assoc_args) ? $assoc_args['post-types'] : '';
+		$post_types_string = sb_array_get('post-types', $assoc_args, '');
 		$post_types = sb_format_comma_string($post_types_string);
 		$all_post_types = array_key_exists('all-post-types', $assoc_args);
-		$affect_all_blogs = array_key_exists('all', $assoc_args);
+		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
 
 		if ( $all_post_types ) {
 			$post_types = ['all'];
@@ -382,7 +426,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 			}
 		}
 
-		if ( is_multisite() && $affect_all_blogs ) {
+		if ( $affect_all_sites ) {
 			foreach (get_sites() as $site) {
 				$this->nginx_set_post_types($post_types, $site->blog_id);
 			}
@@ -554,7 +598,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## OPTIONS
 	 *
 	 * [--all]
-	 * : Display config for all blogs.
+	 * : Display config for all sites.
 	 *
 	 * ---
 	 *
@@ -563,9 +607,9 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *     wp servebolt cf get-config
 	 */
 	public function cf_get_config($args, $assoc_args) {
-		$affect_all_blogs = array_key_exists('all', $assoc_args);
+		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
 		$arr = [];
-		if ( is_multisite() && $affect_all_blogs ) {
+		if ( $affect_all_sites ) {
 			foreach (get_sites() as $site) {
 				$arr[] = $this->cf_get_config_for_blog($site->blog_id);
 			}

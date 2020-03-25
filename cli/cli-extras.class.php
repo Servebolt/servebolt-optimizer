@@ -130,7 +130,7 @@ abstract class Servebolt_CLI_Extras {
 		foreach($array as $item) {
 			$new_item = [];
 			foreach ($most_column_item as $column) {
-				$new_item[$column] = array_key_exists($column, $item) ? $item[$column] : null;
+				$new_item[$column] = sb_array_get($column, $item, null);
 			}
 			$new_array[] = $new_item;
 		}
@@ -255,7 +255,7 @@ abstract class Servebolt_CLI_Extras {
 
 		$affect_all_blogs    = array_key_exists('all', $args);
 		$post_types          = $this->nginx_prepare_post_type_argument($args);
-		$exclude_ids         = array_key_exists('exclude', $args) ? $args['exclude'] : false;
+		$exclude_ids         = sb_array_get('exclude', $args);
 
 		if ( is_multisite() && $affect_all_blogs ) {
 			WP_CLI::line( sb__('Applying settings to all blogs') );

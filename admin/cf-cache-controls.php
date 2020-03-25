@@ -118,7 +118,7 @@ class CF_Cache_Controls {
 	 */
 	public function update_cache_purge_queue_callback() {
 		check_ajax_referer( sb_get_ajax_nonce_key(), 'security' );
-		$items_to_remove = array_key_exists('items', $_POST) ? $_POST['items'] : false;
+		$items_to_remove = sb_array_get('items', $_POST);
 		if ( $items_to_remove === 'all' ) {
 			sb_cf()->set_items_to_purge([]);
 			wp_send_json_success();

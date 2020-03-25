@@ -295,11 +295,16 @@ class Servebolt_CF {
 	 * Set authentication type.
 	 *
 	 * @param $type
+	 * @param bool $blog_id
 	 *
 	 * @return bool
 	 */
-	private function set_authentication_type($type) {
-		return sb_update_option('cf_auth_type', $type, true);
+	private function set_authentication_type($type, $blog_id = false) {
+		if ( is_numeric($blog_id) ) {
+			return sb_update_blog_option($blog_id, 'cf_auth_type', $type, true);
+		} else {
+			return sb_update_option('cf_auth_type', $type, true);
+		}
 	}
 
 	/**
@@ -386,17 +391,28 @@ class Servebolt_CF {
 	 *
 	 * @param $key
 	 * @param $value
+	 * @param bool $blog_id
 	 *
 	 * @return bool
 	 */
-	private function store_credential($key, $value) {
+	private function store_credential($key, $value, $blog_id = false) {
 		switch ($key) {
 			case 'email':
-				return sb_update_option('cf_email', $value, true);
+				$option_name = 'cf_email';
+				break;
 			case 'api_key':
-				return sb_update_option('cf_api_key', $value, true);
+				$option_name = 'cf_api_key';
+				break;
 			case 'api_token':
-				return sb_update_option('cf_api_token', $value, true);
+				$option_name = 'cf_api_token';
+				break;
+		}
+		if ( isset($option_name) ) {
+			if ( is_numeric($blog_id) ) {
+				return sb_update_blog_option($blog_id, $option_name, $value, true);
+			} else {
+				return sb_update_option($option_name, $value, true);
+			}
 		}
 		return false;
 	}
@@ -406,19 +422,20 @@ class Servebolt_CF {
 	 *
 	 * @param $credentials
 	 * @param $type
+	 * @param bool $blog_id
 	 *
 	 * @return bool
 	 */
-	public function store_credentials($credentials, $type) {
+	public function store_credentials($credentials, $type, $blog_id = false) {
 		switch ($type) {
 			case 'api_key':
-				if ( $this->set_authentication_type($type) && $this->store_credential('email', $credentials['email']) && $this->store_credential('api_key', $credentials['api_key']) ) {
+				if ( $this->set_authentication_type($type, $blog_id) && $this->store_credential('email', $credentials['email'], $blog_id) && $this->store_credential('api_key', $credentials['api_key'], $blog_id) ) {
 					$this->register_credentials();
 					return true;
 				}
 				break;
 			case 'api_token':
-				if ( $this->set_authentication_type($type) && $this->store_credential('api_token', $credentials) ) {
+				if ( $this->set_authentication_type($type, $blog_id) && $this->store_credential('api_token', $credentials, $blog_id) ) {
 					$this->register_credentials();
 					return true;
 				}

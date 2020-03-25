@@ -551,6 +551,19 @@ function sb_write_log($log)  {
 }
 
 /**
+ * Get item from array.
+ *
+ * @param $key
+ * @param $array
+ * @param bool $default_value
+ *
+ * @return bool
+ */
+function sb_array_get($key, $array, $default_value = false) {
+	return array_key_exists($key, $array) ? $array[$key] : $default_value;
+}
+
+/**
  * Class SB_Crypto
  */
 class SB_Crypto {
