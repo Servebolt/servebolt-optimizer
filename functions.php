@@ -108,6 +108,17 @@ function sb_format_post_type($post_type) {
 }
 
 /**
+ * Check if post exists.
+ *
+ * @param $post_id
+ *
+ * @return bool
+ */
+function sb_post_exists($post_id) {
+	return get_post_status($post_id) !== false;
+}
+
+/**
  * Check if a value is either "on" or boolean and true.
  *
  * @param $value
@@ -119,25 +130,12 @@ function sb_checkbox_true($value) {
 }
 
 /**
- * Create a Cloudflare_Error-instance.
+ * Log an Cloudflare error.
  *
  * @param $exception
- *
- * @return Cloudflare_Error
  */
 function sb_cf_error($exception) {
-	return new Cloudflare_Error($exception->getMessage());
-}
-
-/**
- * Check whether a variable is a Cloudflare_Error-instance.
- *
- * @param $object
- *
- * @return bool
- */
-function sb_is_error($object) {
-	return is_object($object) && is_a($object, 'Cloudflare_Error');
+	sb_write_log($exception->getMessage());
 }
 
 /**
@@ -537,6 +535,19 @@ function sb_format_comma_string($string) {
 	return array_filter($array, function ($item) {
 		return ! empty($item);
 	});
+}
+
+/**
+ * Write to log.
+ *
+ * @param $log
+ */
+function sb_write_log($log)  {
+	if ( is_array( $log ) || is_object( $log ) ) {
+		error_log( print_r( $log, true ) );
+	} else {
+		error_log( $log );
+	}
 }
 
 /**

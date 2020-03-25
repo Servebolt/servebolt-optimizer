@@ -1,8 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-include __DIR__ . '/cloudflare-error.php';
-
 use Cloudflare\API\Auth\APIToken;
 use Cloudflare\API\Auth\APIKey;
 use Cloudflare\API\Adapter\Guzzle;
@@ -126,8 +124,7 @@ class Cloudflare {
 		try {
 			return $zone_instance->cachePurge( $this->get_zone_id(), $urls );
 		} catch (Exception $e) {
-			return false;
-			//return sb_cf_error($e);
+			return sb_cf_error($e);
 		}
 	}
 
@@ -142,8 +139,7 @@ class Cloudflare {
 		try {
 			return $zone_instance->cachePurgeEverything($this->get_zone_id());
 		} catch (Exception $e) {
-			return false;
-			//return sb_cf_error($e);
+			return sb_cf_error($e);
 		}
 	}
 
@@ -249,8 +245,7 @@ class Cloudflare {
 			if ( ! $zones ) return false;
 			return (array) $zones->result;
 		} catch (Exception $e) {
-			return false;
-			//return sb_cf_error($e);
+			return sb_cf_error($e);
 		}
 	}
 
@@ -281,7 +276,7 @@ class Cloudflare {
 			return (object) $zone->result;
 		} catch (Exception $e) {
 			return false;
-			//return sb_cf_error($e);
+			return sb_cf_error($e);
 		}
 	}
 

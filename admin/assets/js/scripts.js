@@ -788,7 +788,7 @@ jQuery(document).ready(function($) {
    */
   function sb_cache_purge_error(message, include_url_message) {
     if ( typeof include_url_message === 'undefined' ) include_url_message = true;
-    var generic_message = 'Something went wrong. Please check that you:<br><ul style="text-align: left;max-width:350px;margin: 20px auto;">' + ( include_url_message ? '<li>- Specified a valid URL</li>' : '' ) + '<li>- Have added valid API credentials</li><li>- Have selected an active zone</li></ul> If the error still persist then please contact support.';
+    var generic_message = 'Something went wrong. Please check that you:<br><ul style="text-align: left;max-width:350px;margin: 20px auto;">' + ( include_url_message ? '<li>- Specified a valid URL</li>' : '' ) + '<li>- Have added valid API credentials</li><li>- Have selected an active zone</li></ul> If the error still persist then please check the error logs and/or contact support.';
     Swal.fire({
       icon: 'error',
       title: 'Unknown error',

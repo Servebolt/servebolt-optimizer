@@ -23,11 +23,7 @@ abstract class Servebolt_CLI_Extras {
 	 */
 	protected function get_zones() {
 		if ( is_null($this->zones) ) {
-			$zones = sb_cf()->list_zones();
-			if ( sb_is_error($zones) ) {
-				return $zones;
-			}
-			$this->zones = $zones;
+			$this->zones = sb_cf()->list_zones();
 		}
 		return $this->zones;
 	}
@@ -121,7 +117,7 @@ abstract class Servebolt_CLI_Extras {
 	 *
 	 * @return array
 	 */
-	protected function cf_ensure_array_integrity($array) {
+	protected function cf_ensure_config_array_integrity($array) {
 
 		$most_column_item = [];
 		foreach($array as $item) {
@@ -209,7 +205,7 @@ abstract class Servebolt_CLI_Extras {
 		if ( array_key_exists('all', $post_types) ) {
 			return sb__( 'All' );
 		}
-		return implode(', ', $post_types);
+		return sb_format_array_to_csv($post_types);
 	}
 
 	/**
@@ -289,11 +285,11 @@ abstract class Servebolt_CLI_Extras {
 			return in_array($post_type, $all_post_type_keys) || $post_type === 'all';
 		});
 		sb_nginx_fpc()->set_cacheable_post_types($post_types, $blog_id);
-		WP_CLI::success(sprintf(sb__('Cache post type(s) set to %s on %s'), implode(', ', $post_types), $url));
+		WP_CLI::success(sprintf(sb__('Cache post type(s) set to %s on %s'), sb_format_array_to_csv($post_types), $url));
 	}
 
 	/**
-	 * Get all post types to be used in cache context.
+	 * Get all post types to be used in Nginx FPC context.
 	 *
 	 * @return array|bool
 	 */
@@ -308,13 +304,14 @@ abstract class Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Set exclude Ids.
+	 * Set posts to be excluded from the Nginx FPC.
 	 *
-	 * @param $ids_to_exclude_string
+	 * @param $ids_to_exclude
 	 */
-	protected function nginx_set_exclude_ids($ids_to_exclude_string) {
-
-		$ids_to_exclude = sb_format_comma_string($ids_to_exclude_string);
+	protected function nginx_set_exclude_ids($ids_to_exclude) {
+		if ( ! is_array($ids_to_exclude) ) {
+			$ids_to_exclude = sb_format_comma_string($ids_to_exclude);
+		}
 		$already_excluded = sb_nginx_fpc()->get_ids_to_exclude_from_cache();
 
 		if ( empty($ids_to_exclude) ) {
@@ -338,17 +335,17 @@ abstract class Servebolt_CLI_Extras {
 		sb_nginx_fpc()->set_ids_to_exclude_from_cache($already_excluded);
 
 		if ( ! empty($already_added) ) {
-			WP_CLI::line(sprintf(sb__('The following ids were already excluded: %s'), implode(',', $already_added)));
+			WP_CLI::warning(sprintf(sb__('The following ids were already excluded: %s'), sb_format_array_to_csv($already_added)));
 		}
 
 		if ( ! empty($invalid_id) ) {
-			WP_CLI::warning(sprintf(sb__('The following ids were invalid: %s'), implode(',', $already_added)));
+			WP_CLI::warning(sprintf(sb__('The following ids were invalid: %s'), sb_format_array_to_csv($invalid_id)));
 		}
 
 		if ( ! empty($was_excluded) ) {
-			WP_CLI::success(sprintf(sb__('Added %s to the list of excluded ids'), implode(',', $was_excluded)));
+			WP_CLI::success(sprintf(sb__('Added %s to the list of excluded ids'), sb_format_array_to_csv($was_excluded)));
 		} else {
-			WP_CLI::line(sb__('No action was made.'));
+			WP_CLI::warning(sb__('No action was made.'));
 		}
 	}
 

@@ -301,7 +301,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--all-blogs]
+	 * [--all]
 	 * : Clear queue on all sites in multisite
 	 *
 	 * ---
@@ -312,7 +312,17 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function cf_clear_cache_purge_queue( $args, $assoc_args ) {
-		$affect_all_blogs = array_key_exists('all-blogs', $assoc_args);
+		$affect_all_blogs = array_key_exists('all', $assoc_args);
+
+		if ( is_multisite() && $affect_all_blogs ) {
+			foreach (get_sites() as $site) {
+
+			}
+		} else {
+
+		}
+
+		/*
 		if ( ! sb_cf()->cron_purge_is_active() ) {
 			WP_CLI::warning(sb__('Note: cache purge via cron is not active.'));
 		}
@@ -322,6 +332,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 		} else {
 			WP_CLI::warning('Cache purge queue already empty.');
 		}
+		*/
 	}
 
 	/**
@@ -329,10 +340,10 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--all-blogs]
+	 * [--all]
 	 * : Set post types on all sites in multisite
 	 *
-	 * [--all]
+	 * [--all-post-types]
 	 * : Set cache for all post types
 	 *
 	 * [--post-types]
@@ -343,17 +354,17 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     # Activate cache for given post types on all blogs
-	 *     wp servebolt fpc set-post-types --post-types=page,post --all-blogs
+	 *     wp servebolt fpc set-post-types --post-types=page,post --all
 	 *
 	 *     # Activate cache for all post types on current blog
-	 *     wp servebolt fpc set-post-types --all
+	 *     wp servebolt fpc set-post-types --all-post-types
 	 *
 	 */
 	public function nginx_fpc_set_cache_post_types($args, $assoc_args) {
 		$post_types_string = array_key_exists('post-types', $assoc_args) ? $assoc_args['post-types'] : '';
 		$post_types = sb_format_comma_string($post_types_string);
-		$all_post_types = array_key_exists('all', $assoc_args);
-		$affect_all_blogs = array_key_exists('all-blogs', $assoc_args);
+		$all_post_types = array_key_exists('all-post-types', $assoc_args);
+		$affect_all_blogs = array_key_exists('all', $assoc_args);
 
 		if ( $all_post_types ) {
 			$post_types = ['all'];
@@ -381,32 +392,24 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Set the post types that should be cached with Nginx Full Page Cache.
+	 * Set the post that should be excluded from the cache.
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--all-blogs]
-	 * : Set post types on all sites in multisite
-	 *
-	 * [--all]
-	 * : Set cache for all post types
-	 *
-	 * [--post-types]
-	 * : The post types we would like to cache.
+	 * <post_ids>
+	 * : The posts to exclude from cache.
 	 *
 	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Activate cache for given post types on all blogs
-	 *     wp servebolt fpc set-post-types --post-types=page,post --all-blogs
-	 *
-	 *     # Activate cache for all post types on current blog
-	 *     wp servebolt fpc set-post-types --all
+	 *     # Exclude cache for posts with ID 1, 2 and 3
+	 *     wp servebolt fpc set-excluded-posts 1,2,3
 	 *
 	 */
 	public function nginx_fpc_set_excluded_posts($args, $assoc_args) {
-		// TODO: Complete this
+		list($post_ids_raw) = $args;
+		$this->nginx_set_exclude_ids($post_ids_raw);
 	}
 
 	/**
@@ -550,8 +553,8 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--all-blogs]
-	 * : Set post types on all sites in multisite
+	 * [--all]
+	 * : Display config for all blogs.
 	 *
 	 * ---
 	 *
@@ -560,13 +563,13 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *     wp servebolt cf get-config
 	 */
 	public function cf_get_config($args, $assoc_args) {
-		$affect_all_blogs = array_key_exists('all-blogs', $assoc_args);
+		$affect_all_blogs = array_key_exists('all', $assoc_args);
 		$arr = [];
 		if ( is_multisite() && $affect_all_blogs ) {
 			foreach (get_sites() as $site) {
 				$arr[] = $this->cf_get_config_for_blog($site->blog_id);
 			}
-			$arr = $this->cf_ensure_array_integrity($arr);
+			$arr = $this->cf_ensure_config_array_integrity($arr);
 		} else {
 			$arr[] = $this->cf_get_config_for_blog();
 		}
