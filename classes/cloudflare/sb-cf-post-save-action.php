@@ -34,16 +34,20 @@ class SB_Post_Save_Action {
 	 */
 	private function should_purge_post_cache($post_id) {
 
+		// Let users override the outcome
+		$override = apply_filters('sb_optimizer_should_purge_post_cache', null, $post_id);
+		if ( is_bool($override) ) return $override;
+
 		// Check that the post type is public
 		$post_type = get_post_type($post_id);
 		$post_type_object = get_post_type_object($post_type);
-		if ( $post_type_object && ! $post_type_object->publicly_queryable ) return false;
+		if ( ! $post_type_object || $post_type_object->public === true || $post_type_object->publicly_queryable === true ) return true;
 
 		// Make sure that post is not just a draft
 		$post_status = get_post_status($post_id);
-		if ( in_array($post_status, ['auto-draft']) ) return false;
+		if ( in_array($post_status, ['publish']) ) return true;
 
-		return true;
+		return false;
 	}
 
 	/**

@@ -255,10 +255,16 @@ class Servebolt_CF {
 	/**
 	 * Get active zone Id.
 	 *
+	 * @param bool $blog_id
+	 *
 	 * @return mixed|void
 	 */
-	public function get_active_zone_id() {
-		return sb_get_option('cf_zone_id');
+	public function get_active_zone_id($blog_id = false) {
+		if ( is_numeric($blog_id) ) {
+			return sb_get_blog_option($blog_id, 'cf_zone_id');
+		} else {
+			return sb_get_option('cf_zone_id');
+		}
 	}
 
 	/**
@@ -273,10 +279,16 @@ class Servebolt_CF {
 	/**
 	 * Get authentication type for Cloudflare.
 	 *
+	 * @param bool $blog_id
+	 *
 	 * @return mixed|void
 	 */
-	public function get_authentication_type() {
-		return sb_get_option('cf_auth_type',  $this->default_authentication_type);
+	public function get_authentication_type($blog_id = false) {
+		if ( is_numeric($blog_id) ) {
+			return sb_get_blog_option($blog_id, 'cf_auth_type',  $this->default_authentication_type);
+		} else {
+			return sb_get_option('cf_auth_type',  $this->default_authentication_type);
+		}
 	}
 
 	/**
@@ -343,17 +355,28 @@ class Servebolt_CF {
 	 * Get credential from DB.
 	 *
 	 * @param $key
+	 * @param bool $blog_id
 	 *
 	 * @return bool|mixed|void
 	 */
-	public function get_credential($key) {
+	public function get_credential($key, $blog_id = false) {
 		switch ($key) {
 			case 'email':
-				return sb_get_option('cf_email');
+				$option_name = 'cf_email';
+				break;
 			case 'api_key':
-				return sb_get_option('cf_api_key');
+				$option_name = 'cf_api_key';
+				break;
 			case 'api_token':
-				return sb_get_option('cf_api_token');
+				$option_name = 'cf_api_token';
+				break;
+		}
+		if ( isset($option_name) ) {
+			if ( is_numeric($blog_id) ) {
+				return sb_get_blog_option($blog_id, $option_name);
+			} else {
+				return sb_get_option($option_name);
+			}
 		}
 		return false;
 	}
@@ -452,11 +475,16 @@ class Servebolt_CF {
 	 * Get the items to purge.
 	 *
 	 * @param bool $limit
+	 * @param bool $blog_id
 	 *
 	 * @return array|mixed|void
 	 */
-	public function get_items_to_purge($limit = false) {
-		$items = sb_get_option('cf_items_to_purge');
+	public function get_items_to_purge($limit = false, $blog_id = false) {
+		if ( is_numeric($blog_id) ) {
+			$items = sb_get_blog_option($blog_id, 'cf_items_to_purge');
+		} else {
+			$items = sb_get_option('cf_items_to_purge');
+		}
 		if ( ! is_array($items) ) return [];
 		if ( is_numeric($limit) ) {
 			$items = array_reverse(array_slice(array_reverse($items), 0, $limit));
@@ -575,15 +603,21 @@ class Servebolt_CF {
 	 * Check whether the Cron-based cache purger should be active.
 	 *
 	 * @param bool $respect_override
+	 * @param bool $blog_id
 	 *
 	 * @return bool|mixed
 	 */
-	public function cron_purge_is_active($respect_override = true) {
+	public function cron_purge_is_active($respect_override = true, $blog_id = false) {
 		$active_state_override = $this->cron_active_state_override();
 		if ( $respect_override && is_bool($active_state_override) ) {
 			return $active_state_override;
 		}
-		return sb_checkbox_true(sb_get_option($this->cf_cron_active_option_key()));
+		if ( is_numeric($blog_id) ) {
+			$value = sb_get_blog_option($blog_id, $this->cf_cron_active_option_key());
+		} else {
+			$value = sb_get_option($this->cf_cron_active_option_key());
+		}
+		return sb_checkbox_true($value);
 	}
 
 	/**

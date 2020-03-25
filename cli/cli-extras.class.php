@@ -69,6 +69,80 @@ abstract class Servebolt_CLI_Extras {
 	}
 
 	/**
+	 * Display Cloudflare config for a given blog.
+	 *
+	 * @param bool $blog_id
+	 *
+	 * @return array
+	 */
+	protected function cf_get_config_for_blog($blog_id = false) {
+		$auth_type = sb_cf()->get_authentication_type($blog_id);
+		$is_cron_purge = sb_cf()->cron_purge_is_active(true, $blog_id);
+
+
+		if ( $blog_id ) {
+			$arr = ['Blog' => $blog_id];
+		} else {
+			$arr = [];
+		}
+
+		$arr = array_merge($arr, [
+			'Status'     => sb_cf()->cf_is_active($blog_id) ? 'Active' : 'Inactive',
+			'Zone Id'    => sb_cf()->get_active_zone_id($blog_id),
+			'Purge type' => $is_cron_purge ? 'Via cron' : 'Immediate purge',
+		]);
+
+		if ($is_cron_purge) {
+			$max_items = 50;
+			$items_to_purge = sb_cf()->get_items_to_purge($max_items, $blog_id);
+			$items_to_purge_count = sb_cf()->count_items_to_purge();
+			$arr['Purge queue (cron)'] = $items_to_purge ? sb_format_array_to_csv($items_to_purge) . ( $items_to_purge_count > $max_items ? '...' : '') : null;
+		}
+
+		$arr['API authentication type'] = $auth_type;
+		switch ($auth_type) {
+			case 'apiKey':
+			case 'api_key':
+				$arr['API key/token'] = sb_cf()->get_credential('api_key', $blog_id);
+				$arr['email'] = sb_cf()->get_credential('email', $blog_id);
+				break;
+			case 'apiToken':
+			case 'api_token':
+				$arr['API key/token'] = sb_cf()->get_credential('api_token', $blog_id);
+				break;
+		}
+		return $arr;
+	}
+
+	/**
+	 * Ensure all CF config items have the same column structure.
+	 *
+	 * @param $array
+	 *
+	 * @return array
+	 */
+	protected function cf_ensure_array_integrity($array) {
+
+		$most_column_item = [];
+		foreach($array as $item) {
+			if ( count($item) > count($most_column_item) ) {
+				$most_column_item = array_keys($item);
+			}
+		}
+
+		$new_array = [];
+		foreach($array as $item) {
+			$new_item = [];
+			foreach ($most_column_item as $column) {
+				$new_item[$column] = array_key_exists($column, $item) ? $item[$column] : null;
+			}
+			$new_array[] = $new_item;
+		}
+
+		return $new_array;
+	}
+
+	/**
 	 * Enable/disable Nginx cache headers.
 	 *
 	 * @param bool $cron_active
@@ -181,7 +255,7 @@ abstract class Servebolt_CLI_Extras {
 	 * @param bool $cache_active
 	 * @param array $args
 	 */
-	protected function nginx_fpc_control($cache_active, $args){
+	protected function nginx_fpc_control($cache_active, $args = []){
 
 		$affect_all_blogs    = array_key_exists('all', $args);
 		$post_types          = $this->nginx_prepare_post_type_argument($args);

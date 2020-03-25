@@ -41,6 +41,20 @@ class Servebolt_Nginx_FPC {
 	private $ids_to_exclude_cache = null;
 
 	/**
+	 * The default browser cache time.
+	 *
+	 * @var int
+	 */
+	private $browser_cache_time = 600;
+
+	/**
+	 * The default Full Page Cache time.
+	 *
+	 * @var int
+	 */
+	private $fpc_cache_time = 600;
+
+	/**
 	 * Instantiate class.
 	 *
 	 * @return Servebolt_Nginx_FPC|null
@@ -55,15 +69,15 @@ class Servebolt_Nginx_FPC {
 	/**
 	 * Servebolt_Nginx_FPC constructor.
 	 */
-	private function __construct() {
-		// Handle "no_cache"-header for authenticated users.
-		new Servebolt_Nginx_FPC_Auth_Handling;
-	}
+	private function __construct() {}
 
 	/**
 	 * Setup filters.
 	 */
 	public function setup() {
+
+		// Handle "no_cache"-header for authenticated users.
+		new Servebolt_Nginx_FPC_Auth_Handling;
 
 		// Unauthenticated cache handling
 		add_filter( 'posts_results', [ $this, 'set_headers' ] );
@@ -78,20 +92,27 @@ class Servebolt_Nginx_FPC {
 	 * @return mixed
 	 */
 	public function set_headers( $posts ) {
+
+		// No cache if FPC is not active
+		if ( ! $this->fpc_is_active() ) {
+			$this->no_cache_headers();
+			return $posts;
+		}
+
 		global $wp_query;
 		$post_type = get_post_type();
 
+		// Abort if cache headers are allready set
 		if ( $this->headers_already_set ) return $posts;
 		$this->headers_already_set = true;
 
 		// Set no-cache for all admin pages
 		if ( is_admin() || is_user_logged_in() ) {
-			//$this->no_cache_headers();
-			//$this->no_cache_cookie_for_logged_in_users();
 			return $posts;
 		}
 
-		if ( ! isset( $wp_query ) || ! get_post_type() ) {
+		// We don't have any posts at the time, abort
+		if ( ! isset( $wp_query ) || ! $post_type ) {
 			$this->headers_already_set = false;
 			return $posts;
 		}
@@ -105,7 +126,7 @@ class Servebolt_Nginx_FPC {
 	        $this->no_cache_headers();
         } elseif ( $this->cache_all_post_types() ) {
             // Make sure the post type can be cached
-	        $this->post_types[] = get_post_type();
+	        $this->post_types[] = $post_type;
 	        $this->cache_headers();
         } elseif ( ( is_front_page() || is_singular() || is_page() ) && $this->cache_active_for_post_type($post_type) ) {
 			// Make sure the post type can be cached
@@ -115,8 +136,8 @@ class Servebolt_Nginx_FPC {
 			// Make sure the archive has only cachable posts
 			$this->cache_headers();
 		} elseif( !empty($this->get_post_types_to_cache() ) ) {
-            $this->post_types[] = get_post_type();
-            if( in_array( get_post_type() , $this->get_default_post_types_to_cache() ) ) $this->cache_headers();
+            $this->post_types[] = $post_type;
+            if( in_array( $post_type , $this->get_default_post_types_to_cache() ) ) $this->cache_headers();
         } elseif( empty($this->get_post_types_to_cache() ) && ( is_front_page() || is_singular() || is_page() ) ) {
 	        $this->cache_headers();
         } else {
@@ -211,22 +232,16 @@ class Servebolt_Nginx_FPC {
 	/**
 	 * Cache headers - Print headers that encourage caching.
 	 */
-	static function cache_headers() {
-
-	    // Set the default Full Page Cache time
-        $fpc_cache_time = 600;
+	private function cache_headers() {
 
         // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $servebolt_nginx_cache_time if it is
         if ( defined('SERVEBOLT_FPC_CACHE_TIME') ) {
-	        $fpc_cache_time = SERVEBOLT_FPC_CACHE_TIME;
+	        $this->fpc_cache_time = SERVEBOLT_FPC_CACHE_TIME;
         }
-
-        // Set the default browser cache time
-        $browser_cache_time = 600;
 
         // Check if the constant SERVEBOLT_BROWSER_CACHE_TIME is set, and override $servebolt_browser_cache_time if it is
         if ( defined('SERVEBOLT_BROWSER_CACHE_TIME') ) {
-	        $browser_cache_time = SERVEBOLT_BROWSER_CACHE_TIME;
+	        $this->browser_cache_time = SERVEBOLT_BROWSER_CACHE_TIME;
         }
 
 		header_remove('Cache-Control');
@@ -234,11 +249,11 @@ class Servebolt_Nginx_FPC {
 		header_remove('Expires');
 
 		// Allow browser to cache content for 10 minutes, or the set browser cache time contant
-		header(sprintf('Cache-Control:max-age=%s, public', $browser_cache_time));
+		header(sprintf('Cache-Control:max-age=%s, public', $this->browser_cache_time));
 		header('Pragma: public');
 
 		// Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
-		$expiryString = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $fpc_cache_time) . ' GMT';
+		$expiryString = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $this->fpc_cache_time) . ' GMT';
 		header(sprintf('Expires: %s', $expiryString));
 		header('X-Servebolt-Plugin: active');
 	}
@@ -372,7 +387,7 @@ class Servebolt_Nginx_FPC {
 	    if ( $format === 'array' ) {
 		    return $defaults;
 	    } elseif ( $format === 'csv' ) {
-		    return implode(',', $defaults);
+		    return sb_format_array_to_csv($defaults);
 	    }
     }
 

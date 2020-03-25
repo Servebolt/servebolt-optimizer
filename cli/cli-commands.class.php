@@ -137,8 +137,12 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	/**
 	 * Select active Cloudflare zone.
 	 *
+	 * ## OPTIONS
+	 *
 	 * [--zone-id=<zone>]
 	 * : Cloudflare Zone id.
+	 *
+	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
@@ -217,6 +221,8 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * [--email=<email>]
 	 * : Cloudflare API username. Only required when using API authentication method "key"
+	 *
+	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
@@ -298,6 +304,8 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * [--all-blogs]
 	 * : Clear queue on all sites in multisite
 	 *
+	 * ---
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf clear-cache-purge-queue
@@ -329,6 +337,8 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * [--post-types]
 	 * : The post types we would like to cache.
+	 *
+	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
@@ -384,6 +394,8 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * [--post-types]
 	 * : The post types we would like to cache.
 	 *
+	 * ---
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     # Activate cache for given post types on all blogs
@@ -433,17 +445,18 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## OPTIONS
 	 *
 	 * [--status]
-	 * : Display status after control is executed
+	 * : Display status after command is executed
+	 *
 	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Deactivate Servebolt Full Page Cache, but only for pages and posts
-	 *     wp servebolt fpc deactivate --post-types=post,page
+	 *     # Deactivate Servebolt Full Page Cache
+	 *     wp servebolt fpc deactivate
 	 *
 	 */
 	public function nginx_fpc_disable( $args, $assoc_args ) {
-		$this->nginx_fpc_control(false, $assoc_args);
+		$this->nginx_fpc_control(false);
 		if ( in_array('status', $assoc_args) ) $this->get_nginx_fpc_status($assoc_args, false);
 	}
 
@@ -467,6 +480,8 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * <URL>
 	 * : The URL that should be cleared cache for.
 	 *
+	 * ---
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf purge url <URL>
@@ -489,6 +504,8 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * <post ID>
 	 * : The post ID of the post that should be cleared cache for.
+	 *
+	 * ---
 	 *
 	 * ## EXAMPLES
 	 *
@@ -531,46 +548,29 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	/**
 	 * Display config parameters for Cloudflare.
 	 *
+	 * ## OPTIONS
+	 *
+	 * [--all-blogs]
+	 * : Set post types on all sites in multisite
+	 *
+	 * ---
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf get-config
 	 */
-	public function cf_get_config() {
-
-		if ( is_multisite() ) {
-
-
-
+	public function cf_get_config($args, $assoc_args) {
+		$affect_all_blogs = array_key_exists('all-blogs', $assoc_args);
+		$arr = [];
+		if ( is_multisite() && $affect_all_blogs ) {
+			foreach (get_sites() as $site) {
+				$arr[] = $this->cf_get_config_for_blog($site->blog_id);
+			}
+			$arr = $this->cf_ensure_array_integrity($arr);
+		} else {
+			$arr[] = $this->cf_get_config_for_blog();
 		}
-
-		$cf = sb_cf();
-		$auth_type = $cf->get_authentication_type();
-		$is_cron_purge = $cf->cron_purge_is_active(true);
-
-		$arr = [
-			'Status'     => $cf->cf_is_active() ? 'Active' : 'Inactive',
-			'Zone Id'    => $cf->get_active_zone_id(),
-			'Purge type' => $is_cron_purge ? 'Via cron' : 'Immediate purge',
-		];
-
-		if ($is_cron_purge) {
-			$arr['Ids to purge (queue for Cron)'] = $cf->get_items_to_purge();
-		}
-
-		$arr['API authentication type'] = $auth_type;
-		switch ($auth_type) {
-			case 'apiKey':
-			case 'api_key':
-				$arr['API key'] = $cf->get_credential('api_key');
-				$arr['email'] = $cf->get_credential('email');
-				break;
-			case 'apiToken':
-			case 'api_token':
-				$arr['API token'] = $cf->get_credential('api_token');
-				break;
-		}
-
-		WP_CLI\Utils\format_items('table', [ $arr ], array_keys($arr));
+		WP_CLI\Utils\format_items('table', $arr, array_keys(current($arr)));
 	}
 
 }

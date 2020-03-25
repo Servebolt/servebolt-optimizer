@@ -35,6 +35,7 @@ class SB_Option_Encryption {
 			$full_option_name = sb_get_option_name($option_name);
 			add_filter( 'pre_update_option_' . $full_option_name, [$this, 'encrypt_option'], 10, 1);
 			add_filter( 'sb_optimizer_get_option_' . $full_option_name, [$this, 'decrypt_option'], 10, 1);
+			add_filter( 'sb_optimizer_get_blog_option_' . $full_option_name, [$this, 'decrypt_blog_option'], 10, 2);
 		}
 	}
 
@@ -47,6 +48,18 @@ class SB_Option_Encryption {
 	 */
 	public function decrypt_option($value) {
 		$decrypted_value = SB_Crypto::decrypt($value);
+		return $decrypted_value !== false ? $decrypted_value : $value;
+	}
+
+	/**
+	 * Decrypt option value in context of a blog.
+	 * @param $value
+	 * @param $blog_id
+	 *
+	 * @return bool|string
+	 */
+	public function decrypt_blog_option($value, $blog_id) {
+		$decrypted_value = SB_Crypto::decrypt($value, false, $blog_id);
 		return $decrypted_value !== false ? $decrypted_value : $value;
 	}
 

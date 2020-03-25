@@ -250,14 +250,23 @@ function sb_get_ajax_nonce_key() {
  * Generate a random key stored in the database.
  *
  * @param $name
+ * @param bool $blog_id
  *
  * @return mixed|string|void
  */
-function sb_generate_random_permanent_key($name) {
-	$key = sb_get_option($name);
+function sb_generate_random_permanent_key($name, $blog_id = false) {
+	if ( is_numeric($blog_id) ) {
+		$key = sb_get_blog_option($blog_id, $name);
+	} else {
+		$key = sb_get_option($name);
+	}
 	if ( ! $key ) {
 		$key = sb_generate_random_string(36);
-		sb_update_option($name, $key);
+		if ( is_numeric($blog_id) ) {
+			sb_update_blog_option($blog_id, $name, $key);
+		} else {
+			sb_update_option($name, $key);
+		}
 	}
 	return $key;
 }
@@ -328,8 +337,7 @@ function sb_get_option_name($option) {
 function sb_get_option($option_name, $default = false) {
 	$full_option_name = sb_get_option_name($option_name);
 	$value = get_option($full_option_name, $default);
-	$value = apply_filters('sb_optimizer_get_option_' . $full_option_name, $value);
-	return $value;
+	return apply_filters('sb_optimizer_get_option_' . $full_option_name, $value);
 }
 
 /**
@@ -365,13 +373,15 @@ function sb_delete_option($option) {
  * Get blog option.
  *
  * @param $id
- * @param $option
+ * @param $option_name
  * @param bool $default
  *
  * @return mixed
  */
-function sb_get_blog_option($id, $option, $default = false) {
-	return get_blog_option($id, sb_get_option_name($option), $default);
+function sb_get_blog_option($id, $option_name, $default = false) {
+	$full_option_name = sb_get_option_name($option_name);
+	$value = get_blog_option($id, $full_option_name, $default);
+	return apply_filters('sb_optimizer_get_blog_option_' . $full_option_name, $value, $id);
 }
 
 /**
@@ -501,6 +511,18 @@ if ( ! function_exists('dd') ) {
 }
 
 /**
+ * Convert an array to a CSV-string.
+ *
+ * @param $array
+ * @param string $glue
+ *
+ * @return string
+ */
+function sb_format_array_to_csv($array, $glue = ',') {
+	return implode($glue, $array);
+}
+
+/**
  * Format a string with comma separated values.
  *
  * @param $string Comma separated values.
@@ -523,6 +545,13 @@ function sb_format_comma_string($string) {
 class SB_Crypto {
 
 	/**
+	 * Blog id - used to retrieve encryption keys for the given blog.
+	 *
+	 * @var bool
+	 */
+	private static $blog_id = false;
+
+	/**
 	 * Determine if and which encryption method is available.
 	 *
 	 * @return bool|string
@@ -542,10 +571,14 @@ class SB_Crypto {
 	 *
 	 * @param $input_string
 	 * @param bool $method
+	 * @param bool $blog_id
 	 *
 	 * @return bool|string
 	 */
-	public static function encrypt($input_string, $method = false) {
+	public static function encrypt($input_string, $method = false, $blog_id = false) {
+		if ( is_numeric($blog_id) ) {
+			self::$blog_id = $blog_id;
+		}
 		try {
 			if ( ! $method ) {
 				$method = self::determine_encryption_method();
@@ -569,10 +602,14 @@ class SB_Crypto {
 	 *
 	 * @param $input_string
 	 * @param bool $method
+	 * @param bool $blog_id
 	 *
 	 * @return bool|string
 	 */
-	public static function decrypt($input_string, $method = false) {
+	public static function decrypt($input_string, $method = false, $blog_id = false) {
+		if ( is_numeric($blog_id) ) {
+			self::$blog_id = $blog_id;
+		}
 		try {
 			if ( ! $method ) {
 				$method = self::determine_encryption_method();
@@ -597,7 +634,7 @@ class SB_Crypto {
 	 * @return string
 	 */
 	public static function mcrypt_key() {
-		return sb_generate_random_permanent_key('mcrypt_key');
+		return sb_generate_random_permanent_key('mcrypt_key', self::$blog_id);
 	}
 
 	/**
@@ -642,8 +679,8 @@ class SB_Crypto {
 	 * @return array
 	 */
 	public static function openssl_keys() {
-		$key = sb_generate_random_permanent_key('openssl_key');
-		$iv = sb_generate_random_permanent_key('openssl_iv');
+		$key = sb_generate_random_permanent_key('openssl_key', self::$blog_id);
+		$iv = sb_generate_random_permanent_key('openssl_iv', self::$blog_id);
 		return compact('key', 'iv');
 	}
 

@@ -48,9 +48,7 @@ require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
 // Loads the class that sets the correct cache headers for full page cache
 if ( ! class_exists('Servebolt_Nginx_FPC') ){
 	require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
-    if ( sb_nginx_fpc()->fpc_is_active()) {
-	    sb_nginx_fpc()->setup();
-    }
+	sb_nginx_fpc()->setup();
 }
 
 // Invoke the Servebolt Cloudflare class
