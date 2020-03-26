@@ -85,6 +85,32 @@ class Servebolt_Nginx_FPC {
 	}
 
 	/**
+	 * Set a header by best effort.
+	 *
+	 * @param $string
+	 */
+	private function header($string) {
+
+		// Abort if headers are already sent
+		if ( headers_sent() ) {
+			sb_write_log(sprintf('Servebolt Optimizer attepted to set header "", but headers already sent.', $string));
+			return;
+		}
+
+		// Headers already sent, but we are too late for the "send_headers"-action
+		if ( did_action('send_headers') ) {
+			header($string);
+			return;
+		}
+
+		// Set headers using WP's "send_headers"-action
+		add_action('send_headers', function () use ($string) {
+			header( $string );
+		});
+
+	}
+
+	/**
 	 * Set cache headers - Determine and set the type of headers to be used.
 	 *
 	 * @param $posts
@@ -249,22 +275,22 @@ class Servebolt_Nginx_FPC {
 		header_remove('Expires');
 
 		// Allow browser to cache content for 10 minutes, or the set browser cache time contant
-		header(sprintf('Cache-Control:max-age=%s, public', $this->browser_cache_time));
-		header('Pragma: public');
+		$this->header(sprintf('Cache-Control:max-age=%s, public', $this->browser_cache_time));
+		$this->header('Pragma: public');
 
 		// Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
 		$expiryString = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $this->fpc_cache_time) . ' GMT';
-		header(sprintf('Expires: %s', $expiryString));
-		header('X-Servebolt-Plugin: active');
+		$this->header(sprintf('Expires: %s', $expiryString));
+		$this->header('X-Servebolt-Plugin: active');
 	}
 
 	/**
 	 * No cache headers - Print headers that prevent caching.
 	 */
 	private function no_cache_headers() {
-		header( 'Cache-Control: max-age=0,no-cache' );
-		header( 'Pragma: no-cache' );
-		header( 'X-Servebolt-Plugin: active' );
+		$this->header( 'Cache-Control: max-age=0,no-cache' );
+		$this->header( 'Pragma: no-cache' );
+		$this->header( 'X-Servebolt-Plugin: active' );
 	}
 
 	/**
