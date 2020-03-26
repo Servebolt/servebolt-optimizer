@@ -44,7 +44,7 @@ class Servebolt_CLI extends Servebolt_CLI_Commands {
 	private function registerCommands() {
 
 		// General
-		WP_CLI::add_command( 'servebolt clear-all-settings',         [$this, 'command_clear_all_settings'] );
+		WP_CLI::add_command( 'servebolt delete-all-settings',         [$this, 'command_delete_all_settings'] );
 
 		// Optimization
 		WP_CLI::add_command( 'servebolt db optimize',                [$this, 'command_optimize_database'] );
@@ -52,13 +52,13 @@ class Servebolt_CLI extends Servebolt_CLI_Commands {
 		WP_CLI::add_command( 'servebolt db analyze',                 [$this, 'command_analyze_tables'] );
 
 		// Servebolt Full Page Cache
-		WP_CLI::add_command( 'servebolt fpc enable',                 [$this, 'command_nginx_fpc_enable'] );
 		WP_CLI::add_command( 'servebolt fpc activate',               [$this, 'command_nginx_fpc_enable'] );
-		WP_CLI::add_command( 'servebolt fpc disable',                [$this, 'command_nginx_fpc_disable'] );
 		WP_CLI::add_command( 'servebolt fpc deactivate',             [$this, 'command_nginx_fpc_disable'] );
-		WP_CLI::add_command( 'servebolt fpc set-post-types',         [$this, 'command_nginx_fpc_set_cache_post_types'] );
-		WP_CLI::add_command( 'servebolt fpc set-excluded-posts',     [$this, 'command_nginx_fpc_set_excluded_posts'] );
 		WP_CLI::add_command( 'servebolt fpc status',                 [$this, 'command_nginx_fpc_status'] );
+		WP_CLI::add_command( 'servebolt fpc set-post-types',         [$this, 'command_nginx_fpc_set_cache_post_types'] );
+		WP_CLI::add_command( 'servebolt fpc clear-post-types',       [$this, 'command_nginx_fpc_clear_cache_post_types'] );
+		WP_CLI::add_command( 'servebolt fpc set-excluded-posts',     [$this, 'command_nginx_fpc_set_excluded_posts'] );
+		WP_CLI::add_command( 'servebolt fpc clear-excluded-posts',   [$this, 'command_nginx_fpc_clear_excluded_posts'] );
 
 		// Cloudflare
 		WP_CLI::add_command( 'servebolt cf status',                  [$this, 'command_cf_status'] );

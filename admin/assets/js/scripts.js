@@ -220,7 +220,7 @@ jQuery(document).ready(function($) {
   function remove_purge_item(obj) {
     Swal.fire({
       title: 'Are you sure?',
-      text: 'Do you really want remove the item?',
+      text: 'Do you really want to remove the item?',
       icon: 'warning',
       showCancelButton: true,
       customClass: {
@@ -883,40 +883,54 @@ jQuery(document).ready(function($) {
    * Convert a table to InnoDB.
    */
   function sb_convert_table(element) {
-    sb_loading(true);
-    var data = {
-      action: 'servebolt_convert_table_to_innodb',
-      table_name: $(element).data('table'),
-      security: ajax_object.ajax_nonce,
-    };
-    $.ajax({
-      type: 'POST',
-      url: ajaxurl,
-      data: data,
-      success: function(response) {
-        sb_loading(false);
-        if ( response.success ) {
-          var message = sb_get_message_from_response(response);
-          setTimeout(function () {
-            Swal.fire({
-              icon: 'success',
-              title: 'All good!',
-              text: message,
-              customClass: {
-                confirmButton: 'servebolt-button yellow'
-              },
-              buttonsStyling: false
-            }).then(function () {
-              location.reload();
-            });
-          }, 100);
-        } else {
-          sb_optimization_error()
-        }
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you really want to convert the table?',
+      icon: 'warning',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: 'servebolt-button yellow',
+        cancelButton: 'servebolt-button light'
       },
-      error: function() {
-        sb_loading(false);
-        sb_optimization_error();
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.value) {
+        sb_loading(true);
+        var data = {
+          action: 'servebolt_convert_table_to_innodb',
+          table_name: $(element).data('table'),
+          security: ajax_object.ajax_nonce,
+        };
+        $.ajax({
+          type: 'POST',
+          url: ajaxurl,
+          data: data,
+          success: function(response) {
+            sb_loading(false);
+            if ( response.success ) {
+              var message = sb_get_message_from_response(response);
+              setTimeout(function () {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'All good!',
+                  text: message,
+                  customClass: {
+                    confirmButton: 'servebolt-button yellow'
+                  },
+                  buttonsStyling: false
+                }).then(function () {
+                  location.reload();
+                });
+              }, 100);
+            } else {
+              sb_optimization_error()
+            }
+          },
+          error: function() {
+            sb_loading(false);
+            sb_optimization_error();
+          }
+        });
       }
     });
   }
@@ -974,40 +988,54 @@ jQuery(document).ready(function($) {
    * Create index on table.
    */
   function sb_create_index(element) {
-    sb_loading(true);
-    var data = {
-      action: 'servebolt_create_index',
-      table_name: $(element).data('table'),
-      blog_id: $(element).data('blog-id'),
-      security: ajax_object.ajax_nonce,
-    };
-    $.ajax({
-      type: 'POST',
-      url: ajaxurl,
-      data: data,
-      success: function(response) {
-        sb_loading(false);
-        if ( response.success ) {
-          setTimeout(function () {
-            Swal.fire({
-              icon: 'success',
-              title: 'All good!',
-              text: response.data.message,
-              customClass: {
-                confirmButton: 'servebolt-button yellow'
-              },
-              buttonsStyling: false
-            }).then(function () {
-              location.reload();
-            });
-          }, 100);
-        } else {
-          sb_optimization_error()
-        }
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Do you really want to create index?',
+      icon: 'warning',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: 'servebolt-button yellow',
+        cancelButton: 'servebolt-button light'
       },
-      error: function() {
-        sb_loading(false);
-        sb_optimization_error();
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.value) {
+        sb_loading(true);
+        var data = {
+          action: 'servebolt_create_index',
+          table_name: $(element).data('table'),
+          blog_id: $(element).data('blog-id'),
+          security: ajax_object.ajax_nonce,
+        };
+        $.ajax({
+          type: 'POST',
+          url: ajaxurl,
+          data: data,
+          success: function(response) {
+            sb_loading(false);
+            if ( response.success ) {
+              setTimeout(function () {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'All good!',
+                  text: response.data.message,
+                  customClass: {
+                    confirmButton: 'servebolt-button yellow'
+                  },
+                  buttonsStyling: false
+                }).then(function () {
+                  location.reload();
+                });
+              }, 100);
+            } else {
+              sb_optimization_error()
+            }
+          },
+          error: function() {
+            sb_loading(false);
+            sb_optimization_error();
+          }
+        });
       }
     });
   }
@@ -1016,35 +1044,57 @@ jQuery(document).ready(function($) {
    * Clear all plugin settings.
    */
   function sb_clear_all_settings() {
-    if ( ! confirm('Warning: this will clear all settings and essentially reset the whole plugin. You want to proceed?') ) {
-      return;
-    }
-    if ( ! confirm('Last warning? You really want to proceed?') ) {
-      return;
-    }
-    sb_loading(true);
-    var data = {
-      action: 'servebolt_clear_all_settings',
-      security: ajax_object.ajax_nonce,
-    };
-    $.ajax({
-      type: 'POST',
-      url: ajaxurl,
-      data: data,
-      success: function (response) {
-        sb_loading(false);
-        setTimeout(function () {
-          Swal.fire({
-            icon: 'success',
-            title: 'Done!',
-            customClass: {
-              confirmButton: 'servebolt-button yellow'
-            },
-            buttonsStyling: false
-          }).then(function () {
-            location.reload();
-          });
-        }, 100);
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'Warning: this will clear all settings and essentially reset the whole plugin. You want to proceed?',
+      icon: 'warning',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: 'servebolt-button yellow',
+        cancelButton: 'servebolt-button light'
+      },
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.value) {
+        Swal.fire({
+          title: 'Last warning',
+          text: 'Do you really want to proceed?',
+          icon: 'warning',
+          showCancelButton: true,
+          customClass: {
+            confirmButton: 'servebolt-button yellow',
+            cancelButton: 'servebolt-button light'
+          },
+          buttonsStyling: false
+        }).then((result) => {
+          if (result.value) {
+            sb_loading(true);
+            var data = {
+              action: 'servebolt_clear_all_settings',
+              security: ajax_object.ajax_nonce,
+            };
+            $.ajax({
+              type: 'POST',
+              url: ajaxurl,
+              data: data,
+              success: function (response) {
+                sb_loading(false);
+                setTimeout(function () {
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'Done!',
+                    customClass: {
+                      confirmButton: 'servebolt-button yellow'
+                    },
+                    buttonsStyling: false
+                  }).then(function () {
+                    location.reload();
+                  });
+                }, 100);
+              }
+            });
+          }
+        });
       }
     });
   }
@@ -1053,27 +1103,50 @@ jQuery(document).ready(function($) {
    * Debug function to remove indexes and change DB engine.
    */
   function sb_wreak_havoc() {
-    if ( ! confirm('WARNING: This functionality is added for development purposes and will remove indexes and convert table engines to MyISAM. This is not something you really want unless you are debugging/developing. Do you want to proceed?') ) {
-      return
-    }
-    if ( ! confirm('Last warning? You really want to proceed?') ) {
-      return;
-    }
-    sb_loading(true);
-    var data = {
-        action: 'servebolt_wreak_havoc',
-        security: ajax_object.ajax_nonce,
-    };
-    $.ajax({
-      type: 'POST',
-      url: ajaxurl,
-      data: data,
-      success: function (response) {
-        sb_loading(false);
-        setTimeout(function () {
-          alert('Done!');
-          location.reload();
-        }, 100);
+
+    Swal.fire({
+      title: 'Are you sure?',
+      html: 'WARNING: This functionality is added for development purposes and will remove indexes and convert table engines to MyISAM. This is <strong>not something you really want</strong> unless you are debugging/developing. Do you want to proceed?',
+      icon: 'warning',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: 'servebolt-button yellow',
+        cancelButton: 'servebolt-button light'
+      },
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.value) {
+        Swal.fire({
+          title: 'Are you sure?',
+          text: 'Last warning? You really want to proceed?',
+          icon: 'warning',
+          showCancelButton: true,
+          customClass: {
+            confirmButton: 'servebolt-button yellow',
+            cancelButton: 'servebolt-button light'
+          },
+          buttonsStyling: false
+        }).then((result) => {
+          if (result.value) {
+            sb_loading(true);
+            var data = {
+              action: 'servebolt_wreak_havoc',
+              security: ajax_object.ajax_nonce,
+            };
+            $.ajax({
+              type: 'POST',
+              url: ajaxurl,
+              data: data,
+              success: function (response) {
+                sb_loading(false);
+                setTimeout(function () {
+                  alert('Done!');
+                  location.reload();
+                }, 100);
+              }
+            });
+          }
+        });
       }
     });
   }

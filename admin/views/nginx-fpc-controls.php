@@ -76,22 +76,25 @@
         <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_fpc_active ? ' checked' : ''; ?>><label for="sb-nginx_cache_switch"><?php sb_e('Turn Full Page Cache on'); ?></label>
       </div>
 			<table class="form-table" id="post-types-form"<?php echo ( $nginx_fpc_active ? '' : ' style="display: none;"' ); ?>>
-				<tr valign="top">
-					<th scope="row">Cache post types
-						<div>
-							<p><?php sb_e('By default this plugin enables Full Page Caching of posts, pages and products. 
-                            Activate post types here if you want a different cache setup. 
-                            This will override the default setup.'); ?></p>
-						</div>
-					</th>
+				<tr>
+					<th scope="row">Cache post types</th>
 					<td>
 			      <?php $all_checked = in_array('all', (array) $post_types_to_cache); ?>
             <?php foreach ($available_post_types as $post_type => $post_type_name) : ?>
 							<?php $checked = in_array($post_type, (array) $post_types_to_cache) ? ' checked' : ''; ?>
 							<span class="<?php if ( $all_checked && $post_type !== 'all' ) echo ' disabled'; ?>"><input id="sb-cache_post_type_<?php echo $post_type; ?>" class="servebolt_fpc_settings_item" name="servebolt_fpc_settings[<?php echo $post_type; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="sb-cache_post_type_<?php echo $post_type; ?>"><?php echo $post_type_name; ?></label></span><br>
 						<?php endforeach; ?>
+            <p><?php sb_e('By default this plugin enables Full Page Caching of posts, pages and products. 
+                            Activate post types here if you want a different cache setup. 
+                            This will override the default setup.'); ?></p>
 					</td>
 				</tr>
+        <tr>
+          <th scope="row">Posts to exclude from cache</th>
+          <td>
+
+          </td>
+        </tr>
 			</table>
       <?php submit_button(); ?>
 

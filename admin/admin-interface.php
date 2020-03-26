@@ -49,11 +49,13 @@ class Servebolt_Admin_Interface {
 	private function add_sub_menu_items() {
 		add_submenu_page('servebolt-wp', sb__('Performance optimizer'), sb__('Performance optimizer'), 'manage_options', 'servebolt-performance-tools', [$this, 'performance_callback']);
 		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache', [$this, 'cf_cache_callback']);
+
 		if ( host_is_servebolt() === true ) {
 			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
 			add_submenu_page('servebolt-wp', sb__('Error log'), sb__('Error log'), 'manage_options', 'servebolt-logs', [$this, 'error_log_callback']);
 		}
-		if ( sb_is_dev_debug() ) {
+
+		if ( ! is_multisite() && sb_is_dev_debug() ) {
 			add_submenu_page('servebolt-wp', sb__('Debug'), sb__('Debug'), 'manage_options', 'servebolt-debug', [$this, 'debug_callback']);
 		}
 
@@ -72,6 +74,11 @@ class Servebolt_Admin_Interface {
 		if ( host_is_servebolt() === true ) {
 			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
 		}
+
+		if ( is_multisite() && sb_is_dev_debug() ) {
+			add_submenu_page('servebolt-wp', sb__('Debug'), sb__('Debug'), 'manage_options', 'servebolt-debug', [$this, 'debug_callback']);
+		}
+
 		add_action('admin_bar_menu', [$this, 'admin_bar'], 100);
 	}
 

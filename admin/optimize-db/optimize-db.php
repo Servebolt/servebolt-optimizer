@@ -24,7 +24,7 @@ class Servebolt_Optimize_DB {
 	/**
 	 * @var null Whether we converted one or more tables to InnoDB.
 	 */
-	private $InnoDB_conversion = null;
+	private $innodb_conversion = null;
 
 	/**
 	 * @var array The tasks done while running optimization.
@@ -74,6 +74,9 @@ class Servebolt_Optimize_DB {
 	 */
 	public function optimize_db($cli = false) {
 		$this->cli = $cli;
+		if ( $this->cli ) {
+			WP_CLI::line(sb__('Starting optimization...'));
+		}
 		$this->reset_result_variables();
 		$this->optimize_post_meta_tables();
 		$this->optimize_options_tables();
@@ -82,34 +85,242 @@ class Servebolt_Optimize_DB {
 	}
 
 	/**
+	 * Set result variables to defaults.
+	 */
+	private function reset_result_variables() {
+		$boilerplate_array = [
+			'success' => [],
+			'fail'    => [],
+			'count'   => 0,
+		];
+		if ( is_multisite() ) {
+			$this->meta_value_index_addition = $boilerplate_array;
+			$this->autoload_index_addition = $boilerplate_array;
+			$this->innodb_conversion = $boilerplate_array;
+		} else {
+			$this->meta_value_index_addition = null;
+			$this->autoload_index_addition = null;
+			$this->innodb_conversion = $boilerplate_array;
+		}
+	}
+
+	/**
+	 * @param $result
+	 * @param $message
+	 * @param bool $tasks
+	 *
+	 * @return array
+	 */
+	private function return_result($result, $message, $tasks = false) {
+		if ( $this->cli ) {
+			$this->out($message, ( $result ? 'success' : 'error' ));
+			return $result;
+		} else {
+			return compact('result', 'message', 'tasks');
+		}
+	}
+
+	/**
 	 * Handle optimization result.
 	 *
-	 * @return bool|string
+	 * @return array
 	 */
 	private function handle_result() {
-		if ( ! $this->did_do_changes() ) {
-			$result_string = sb__('No changes needed, database looks healthy, and everything is good!');
+		$result = $this->parse_result();
+
+		if ( is_null($result) ) {
+			// No changes made
+			return $this->return_result( true, sb__('No changes needed, database looks healthy, and everything is good!') );
+		} elseif ( $result === true ) {
+			// Changes made and they were done successfully
+			return $this->return_result( true, sb__('Nice, we got to do some changes to the database and it seems that we we\'re successful!'), $this->tasks );
+		} else {
+
+			// We did some changes, and got one or more errors
 			if ( $this->cli ) {
-				$this->out($result_string);
-				return true;
+				WP_CLI::line(str_repeat('-', 20) . PHP_EOL . __('Summary:'));
+				foreach($result as $key => $value) {
+					switch ($value['type']) {
+						case 'success':
+							WP_CLI::success($value['message']);
+							break;
+						case 'error':
+							WP_CLI::error($value['message'], false);
+							break;
+						case 'table':
+							WP_CLI\Utils\format_items( 'table', $value['table'] , array_keys(current($value['table'])));
+							break;
+					}
+				}
 			} else {
-				return [
-					'result'  => true,
-					'message' => $result_string,
+				return $this->return_result( true, sb__( '' ), $this->tasks );
+			}
+
+		}
+	}
+
+	/**
+	 * Check how the optimization resulted.
+	 *
+	 * @return bool
+	 */
+	private function parse_result() {
+
+		$result = [];
+		$meta_value_index_addition = false;
+		$autoload_index_addition = false;
+		$innodb_conversion = false;
+
+		// Validate creation of meta_value-column index
+		if ( is_bool( $this->meta_value_index_addition ) || is_null($this->meta_value_index_addition) ) {
+			if ( is_null($this->meta_value_index_addition) ) {
+				$result['meta_value_index_addition'] = [
+					'type'    => 'success',
+					'message' => sb__('Post meta-table already have an index on the meta_value-column.'),
 				];
+				$meta_value_index_addition = null;
+			} elseif ( $this->meta_value_index_addition === false ) {
+				$result['meta_value_index_addition'] = [
+					'type'    => 'error',
+					'message' => sb__('Could not add meta_value-column index on post meta-table.'),
+				];
+				$meta_value_index_addition = false;
+			} else {
+				$result['meta_value_index_addition'] = [
+					'type'    => 'success',
+					'message' => sb__('Added meta_value-column index to post meta-table.'),
+				];
+				$meta_value_index_addition = true;
+			}
+		} elseif ( is_array($this->meta_value_index_addition) ) {
+			if ( $this->meta_value_index_addition['count'] === 0 ) {
+				$result['meta_value_index_addition'] = [
+					'type'    => 'success',
+					'message' => sb__('All post meta-tables already has an index on the meta_value-column.'),
+				];
+				$meta_value_index_addition = null;
+			} elseif ( count($this->meta_value_index_addition['fail']) > 0 ) {
+				if ( count($this->meta_value_index_addition['fail']) === $this->meta_value_index_addition['count'] ) {
+					$result['meta_value_index_addition'] = [
+						'type'    => 'error',
+						'message' => sb__('Failed to add meta_value-column index on all post meta-tables.'),
+					];
+				} else {
+					$failed_blog_urls = array_map(function($blog_id) {
+						return get_site_url($blog_id);
+					}, $this->meta_value_index_addition['fail']);
+					$result['meta_value_index_addition'] = [
+						'type'  => 'table',
+						'table' => [ sb__('Failed to add meta_value-column index to post meta-tables on sites:') => $failed_blog_urls ]
+					];
+				}
+				$meta_value_index_addition = false;
+			} else {
+				$result['meta_value_index_addition'] = [
+					'type'    => 'success',
+					'message' => sb__('Added meta_value-column index to all post meta-tables.'),
+				];
+				$meta_value_index_addition = true;
 			}
 		}
 
-		if ( $this->cli ) {
-			$this->out('Changes were made, database looks healthy, and everything is good!');
-			return true;
-		} else {
-			return [
-				'result'  => true,
-				'message' => sb__('Nice, we got to do some changes to the database!'),
-				'tasks'   => $this->tasks,
-			];
+		// Validate creation of autoload-column index
+		if ( is_bool( $this->autoload_index_addition ) || is_null($this->autoload_index_addition) ) {
+			if ( is_null($this->autoload_index_addition) ) {
+				$result['autoload_index_addition'] = [
+					'type'    => 'success',
+					'message' => sb__('Options-table already have an index on the autoload-column.'),
+				];
+				$autoload_index_addition = null;
+			} elseif ( $this->autoload_index_addition === false ) {
+				$result['autoload_index_addition'] = [
+					'type'    => 'error',
+					'message' => sb__('Could not add autoload-column index on options-table.'),
+				];
+				$autoload_index_addition = false;
+			} else {
+				$result['autoload_index_addition'] = [
+					'type'    => 'success',
+					'message' => sb__('Added autoload-column index to options-table.'),
+				];
+				$autoload_index_addition = true;
+			}
+		} elseif ( is_array($this->autoload_index_addition) ) {
+			if ( $this->autoload_index_addition['count'] === 0 ) {
+				$result['autoload_index_addition'] = [
+					'type' => 'success',
+					'message' => sb__('All options-tables already has an index on the autoload-column.'),
+				];
+				$autoload_index_addition = null;
+			} elseif ( count($this->autoload_index_addition['fail']) > 0 ) {
+				if ( count($this->autoload_index_addition['fail']) === $this->autoload_index_addition['count'] ) {
+					$result['autoload_index_addition'] = [
+						'type'    => 'error',
+						'message' => sb__('Failed to add autoload-column index on all options-tables'),
+					];
+				} else {
+					$failed_blog_urls = array_map(function($blog_id) {
+						return [ sb__('Failed to add autoload-column index to options-tables on sites:') => get_site_url($blog_id) ];
+					}, $this->autoload_index_addition['fail']);
+					$result['autoload_index_addition'] = [
+						'type'  => 'table',
+						'table' => $failed_blog_urls,
+					];
+				}
+				$autoload_index_addition = false;
+			} else {
+				$result['autoload_index_addition'] = [
+					'type'    => 'success',
+					'message' => sb__('Added autoload-column index to all options-tables.'),
+				];
+				$autoload_index_addition = true;
+			}
 		}
+
+		// Validate InnoDB conversion
+		if ( $this->innodb_conversion['count'] === 0 ) {
+			$result['innodb_conversion'] = [
+				'type'    => 'success',
+				'message' => sb__('All tables are already using InnoDB.'),
+			];
+			$innodb_conversion = null;
+		} elseif ( count($this->innodb_conversion['fail']) > 0 ) {
+			if ( count($this->innodb_conversion['fail']) === $this->innodb_conversion['count'] ) {
+				$result['innodb_conversion'] = [
+					'type'    => 'error',
+					'message' => sb__('Could not convert tables to InnoDB.'),
+				];
+			} else {
+				$failed_tables = array_map(function($table_name) {
+					return [ sb__('Failed to convert the following tables to InnoDB:') => $table_name ];
+				}, $this->innodb_conversion['fail']);
+				$result['innodb_conversion'] = [
+					'type'  => 'table',
+					'table' => $failed_tables
+				];
+			}
+			$innodb_conversion = false;
+		} else {
+			$result['innodb_conversion'] = [
+				'type'    => 'success',
+				'message' => sb__('All tables converted to InnoDB.'),
+			];
+			$innodb_conversion = true;
+		}
+
+		// All actions successful
+		if ( $meta_value_index_addition === true && $autoload_index_addition === true && $innodb_conversion === true ) {
+			return true;
+		}
+
+		// No action made
+		if ( is_null($meta_value_index_addition) && is_null($autoload_index_addition) && is_null($innodb_conversion) ) {
+			return null;
+		}
+
+		// We got one or more error
+		return $result;
+
 	}
 
 	/**
@@ -179,24 +390,24 @@ class Servebolt_Optimize_DB {
 			foreach ( $this->get_sites() as $site ) {
 				switch_to_blog( $site->blog_id );
 				if ( ! in_array($this->wpdb()->postmeta, $post_meta_tables_with_post_meta_value_index ) ) {
+					$this->meta_value_index_addition['count']++;
 					if ( $this->dry_run || $this->add_post_meta_index() ) {
-						$this->out(sprintf( sb__('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blog_identification($site), $site->blog_id));
+						$this->out(sprintf( sb__('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blog_identification($site), $site->blog_id), 'success');
 						$this->meta_value_index_addition['success'][] = $site->blog_id;
 					} else {
-						$this->out(sprintf( sb__('Could not add index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blog_identification($site), $site->blog_id));
+						$this->out(sprintf( sb__('Could not add index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blog_identification($site), $site->blog_id), 'error');
 						$this->meta_value_index_addition['fail'][] = $site->blog_id;
 					}
 				}
 				restore_current_blog();
 			}
-
 		} else {
 			if ( ! in_array($this->wpdb()->postmeta, $post_meta_tables_with_post_meta_value_index ) ) {
 				if ( $this->dry_run || $this->add_post_meta_index() ) {
-					$this->out(sprintf(sb__('Added index to table "%s"'), $this->wpdb()->postmeta));
+					$this->out(sprintf(sb__('Added index to table "%s"'), $this->wpdb()->postmeta), 'success');
 					$this->meta_value_index_addition = true;
 				} else {
-					$this->out(sprintf(sb__('Could not add index to table "%s"'), $this->wpdb()->postmeta));
+					$this->out(sprintf(sb__('Could not add index to table "%s"'), $this->wpdb()->postmeta), 'error');
 					$this->meta_value_index_addition = false;
 				}
 			}
@@ -212,11 +423,12 @@ class Servebolt_Optimize_DB {
 			foreach ( $this->get_sites() as $site ) {
 				switch_to_blog( $site->blog_id );
 				if ( ! in_array($this->wpdb()->options, $options_tables_with_autoload_index ) ) {
+					$this->autoload_index_addition['count']++;
 					if ( $this->dry_run || $this->add_options_autoload_index() ) {
-						$this->out(sprintf( sb__('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->options, $this->blog_identification($site), $site->blog_id ));
+						$this->out(sprintf( sb__('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->options, $this->blog_identification($site), $site->blog_id ), 'success');
 						$this->autoload_index_addition['success'][] = $site->blog_id;
 					} else {
-						$this->out(sprintf( sb__('Could not add index to table "%" on site %s (site ID %s)'), $this->wpdb()->options, $this->blog_identification($site), $site->blog_id ));
+						$this->out(sprintf( sb__('Could not add index to table "%" on site %s (site ID %s)'), $this->wpdb()->options, $this->blog_identification($site), $site->blog_id ), 'error');
 						$this->autoload_index_addition['fail'][] = $site->blog_id;
 					}
 				}
@@ -225,10 +437,10 @@ class Servebolt_Optimize_DB {
 		} else {
 			if ( ! in_array($this->wpdb()->options, $options_tables_with_autoload_index ) ) {
 				if ( $this->dry_run || $this->add_options_autoload_index() ) {
-					$this->out('Added index to table "options-table');
+					$this->out(sb__('Added index to table "options-table'), 'success');
 					$this->autoload_index_addition = true;
 				} else {
-					$this->out('Could not add index to options-table');
+					$this->out(sb__('Could not add index to options-table'), 'error');
 					$this->autoload_index_addition = false;
 				}
 
@@ -454,7 +666,7 @@ class Servebolt_Optimize_DB {
 	 * @return bool
 	 */
 	public function table_has_engine($table_name, $engine) {
-		$sql = $this->wpdb()->prepare("SELECT count(*) AS count FROM INFORMATION_SCHEMA.TABLES WHERE engine = %s and TABLE_NAME = %s", $engine, $table_name);
+		$sql = $this->wpdb()->prepare("SELECT count(*) AS count FROM INFORMATION_SCHEMA.TABLES WHERE LOWER(engine) = %s AND TABLE_NAME = %s AND TABLE_SCHEMA = %s", $engine, $table_name, DB_NAME);
 		$check = $this->wpdb()->get_var($sql);
 		return $check == '1';
 	}
@@ -476,7 +688,7 @@ class Servebolt_Optimize_DB {
 	 * @return mixed
 	 */
 	private function get_non_innodb_tables() {
-		return $this->wpdb()->get_results("SELECT *, table_name FROM INFORMATION_SCHEMA.TABLES WHERE engine != 'innodb' and TABLE_NAME like '{$this->wpdb()->prefix}%'");
+		return $this->wpdb()->get_results("SELECT engine, table_name FROM INFORMATION_SCHEMA.TABLES WHERE LOWER(engine) != 'innodb' AND TABLE_SCHEMA = '" . DB_NAME . "' AND TABLE_NAME LIKE '{$this->wpdb()->prefix}%'");
 	}
 
 	/**
@@ -485,7 +697,7 @@ class Servebolt_Optimize_DB {
 	 * @return mixed
 	 */
 	private function get_innodb_tables() {
-		return $this->wpdb()->get_results("SELECT *, table_name FROM INFORMATION_SCHEMA.TABLES WHERE engine = 'innodb' and TABLE_NAME like '{$this->wpdb()->prefix}%'");
+		return $this->wpdb()->get_results("SELECT engine, table_name FROM INFORMATION_SCHEMA.TABLES WHERE LOWER(engine) = 'innodb' AND TABLE_SCHEMA = '" . DB_NAME . "' AND TABLE_NAME LIKE '{$this->wpdb()->prefix}%'");
 	}
 
 	/**
@@ -496,12 +708,13 @@ class Servebolt_Optimize_DB {
 		if( is_array($tables) && ! empty($tables) ) {
 			foreach ( $tables as $table ) {
 				if ( ! isset($table->table_name) ) continue;
+				$this->innodb_conversion['count']++;
 				if ( $this->dry_run || $this->convert_table_to_innodb($table->table_name) ) {
-					$this->out(sprintf(sb__('Converted table "%s" to InnoDB'), $table->table_name));
-					$this->InnoDB_conversion['success'] = $table->table_name;
+					$this->out(sprintf(sb__('Converted table "%s" to InnoDB'), $table->table_name), 'success');
+					$this->innodb_conversion['success'][] = $table->table_name;
 				} else {
-					$this->out(sprintf(sb__('Could not convert table "%s" to InnoDB'), $table->table_name));
-					$this->InnoDB_conversion['fail'] = $table->table_name;
+					$this->out(sprintf(sb__('Could not convert table "%s" to InnoDB'), $table->table_name), 'error');
+					$this->innodb_conversion['fail'][] = $table->table_name;
 				}
 			}
 		}
@@ -542,34 +755,6 @@ class Servebolt_Optimize_DB {
 	}
 
 	/**
-	 * Check if the optimization resulted in changes being done.
-	 *
-	 * @return bool
-	 */
-	private function did_do_changes() {
-
-		if ( is_array($this->meta_value_index_addition) && ( count($this->meta_value_index_addition['success']) > 0 || count($this->meta_value_index_addition['fail']) > 0 ) ) {
-			return true;
-		} elseif ( is_bool( $this->meta_value_index_addition ) ) {
-			return true;
-		}
-
-		if ( is_array($this->autoload_index_addition) && ( count($this->autoload_index_addition['success']) > 0 || count($this->autoload_index_addition['fail']) > 0 ) ) {
-			return true;
-		} elseif ( is_bool( $this->autoload_index_addition ) ) {
-			return true;
-		}
-
-		if ( is_array($this->InnoDB_conversion) && ( count($this->InnoDB_conversion['success']) > 0 || count($this->InnoDB_conversion['fail']) > 0 ) ) {
-			return true;
-		} elseif ( is_bool( $this->InnoDB_conversion ) ) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
 	 * Get all sites in a multisite setup.
 	 *
 	 * @return array
@@ -585,29 +770,17 @@ class Servebolt_Optimize_DB {
 	 * Handle output.
 	 *
 	 * @param $string
-	 * @param bool $include_cr
+	 * @param string $type
 	 */
-	private function out($string, $include_cr = true) {
+	private function out($string, $type = 'line') {
 		if ( $this->cli ) {
-			echo $string . ( $include_cr ? PHP_EOL : null );
+			if ( $type == 'error' ) {
+				WP_CLI::error($string, false);
+			} else {
+				WP_CLI::$type($string);
+			}
 		} else {
 			$this->tasks[] = $string;
-		}
-	}
-
-	/**
-	 * Set result variables to defaults.
-	 */
-	private function reset_result_variables() {
-		foreach( ['meta_value_index_addition', 'autoload_index_addition', 'InnoDB_conversion'] as $key ) {
-			if ( is_multisite() ) {
-				$this->{$key} = [
-					'success' => [],
-					'fail'    => [],
-				];
-			} else {
-				$this->{$key} = null;
-			}
 		}
 	}
 

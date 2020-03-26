@@ -10,15 +10,16 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 
 	/**
-	 * Clear all settings related to this plugin.
+	 * Delete all settings related to this plugin.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp servebolt clear-all-settings
+	 *     wp servebolt delete-all-settings
 	 */
-	public function command_clear_all_settings() {
-		sb_clear_all_settings();
-		WP_CLI::success(sb__('All settings cleared!'));
+	public function command_delete_all_settings() {
+		sb_delete_all_settings();
+		WP_CLI::confirm(sb__('Do you really want to delete all settings?'));
+		WP_CLI::success(sb__('All settings deleted!'));
 	}
 
 	/**
@@ -29,7 +30,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *     wp servebolt db fix
 	 */
 	public function command_fix() {
-		$this->optimize_database();
+		$this->command_optimize_database();
 	}
 
 	/**
@@ -41,11 +42,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function command_optimize_database() {
-		if ( ! sb_optimize_db()->optimize_db(true) ) {
-			WP_CLI::success(sb__('Optimization done'));
-		} else {
-			WP_CLI::warning(sb__('Everything OK. No optimization to do.'));
-		}
+		sb_optimize_db()->optimize_db(true);
 	}
 
 	/**
@@ -89,11 +86,12 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 */
 	public function command_nginx_fpc_set_cache_post_types($args, $assoc_args) {
 		$all_post_types = array_key_exists('all-post-types', $assoc_args);
-		$post_types_string = sb_array_get('post-types', $assoc_args, '');
-		$post_types = sb_format_comma_string($post_types_string);
 
 		if ( $all_post_types ) {
 			$post_types = ['all'];
+		} else {
+			$post_types_string = sb_array_get('post-types', $assoc_args, '');
+			$post_types = sb_format_comma_string($post_types_string);
 		}
 
 		if ( empty($post_types) ) {
@@ -110,7 +108,34 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Set the post that should be excluded from the cache.
+	 * Clear post types that should be cached with Servebolt Full Page Cache.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Clear post types to cache on all sites in multisite
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Clear all post types to cache on all sites
+	 *     wp servebolt fpc clear-post-types --all
+	 *
+	 *     # Clear all post types to cache
+	 *     wp servebolt fpc clear-post-types
+	 *
+	 */
+	public function command_nginx_fpc_clear_cache_post_types($args, $assoc_args) {
+		if ( $this->affect_all_sites($assoc_args) ) {
+			sb_iterate_sites(function ( $site ) {
+				$this->nginx_set_post_types([], $site->blog_id);
+			});
+		} else {
+			$this->nginx_set_post_types([]);
+		}
+	}
+
+	/**
+	 * Set the posts that should be excluded from the cache.
 	 *
 	 * ## OPTIONS
 	 *
@@ -129,7 +154,34 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Activatae Servebolt Full Page Cache.
+	 * Clear the posts that was excluded from the cache.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Clear post types to cache on all sites in multisite
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Clear all post types to cache on all sites
+	 *     wp servebolt fpc clear-excluded-posts --all
+	 *
+	 *     # Clear all post types to cache
+	 *     wp servebolt fpc clear-excluded-posts
+	 *
+	 */
+	public function command_nginx_fpc_clear_excluded_posts($args, $assoc_args) {
+		if ( $this->affect_all_sites( $assoc_args ) ) {
+			sb_iterate_sites(function ( $site ) {
+				$this->nginx_set_exclude_ids(false, $site->blog_id);
+			});
+		} else {
+			$this->nginx_set_exclude_ids(false);
+		}
+	}
+
+	/**
+	 * Activate Servebolt Full Page Cache.
 	 *
 	 * ## OPTIONS
 	 *
@@ -174,12 +226,17 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function command_nginx_fpc_disable($args, $assoc_args) {
-		$this->nginx_fpc_control(false);
+		$this->nginx_fpc_control(false, $assoc_args);
 		if ( in_array('status', $assoc_args) ) $this->get_nginx_fpc_status($assoc_args, false);
 	}
 
 	/**
 	 * Return status of the Servebolt Full Page Cache.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Check status on all sites in multisite-network.
 	 *
 	 * ## EXAMPLES
 	 *
@@ -390,7 +447,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 * ## OPTIONS
 	 *
-	 * <apiAuthType>
+	 * <api_auth_type>
 	 * : Choose between API authentication methods: "key" or "token"
 	 *
 	 * [--api-token=<token>]

@@ -1,7 +1,7 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
 <div class="wrap sb-content" id="sb-configuration">
 
-	<h1><?php sb_e('Serverbolt Optimizer - Debug information'); ?></h1>
+	<h1><?php sb_e('Servebolt Optimizer - Debug information'); ?></h1>
 	<p>This page displays debug information about the settings. A useful tool to ensure integrity of the settings and how they are being presented in the GUI and in the system.</p>
 
 	<hr>

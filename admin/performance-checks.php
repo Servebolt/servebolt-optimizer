@@ -56,7 +56,7 @@ class Servebolt_Performance_Checks {
 		sb_ajax_user_allowed();
 		sb_optimize_db()->deoptimize_indexed_tables();
 		sb_optimize_db()->convert_tables_to_non_innodb();
-		wp_send_ajax_success();
+		wp_send_json_success();
 	}
 
 	/**
@@ -65,8 +65,8 @@ class Servebolt_Performance_Checks {
 	public function clear_all_settings_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
 		sb_ajax_user_allowed();
-		sb_clear_all_settings();
-		wp_send_ajax_success();
+		sb_delete_all_settings();
+		wp_send_json_success();
 	}
 
 	/**

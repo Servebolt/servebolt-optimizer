@@ -166,7 +166,7 @@ class Servebolt_Checks {
 	 */
 	public function get_myisam_tables() {
 		global $wpdb;
-		return $wpdb->get_results("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE engine = 'myisam' AND TABLE_NAME LIKE '{$wpdb->prefix}%'");
+		return $wpdb->get_results("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE LOWER(engine) = 'myisam' AND TABLE_SCHEMA = '" . DB_NAME . "' AND TABLE_NAME LIKE '{$wpdb->prefix}%'");
 	}
 
 	/**

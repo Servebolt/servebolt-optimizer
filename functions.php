@@ -495,7 +495,7 @@ function sb_is_dev_debug() {
 /**
  * Delete plugin settings.
  */
-function sb_clear_all_settings() {
+function sb_delete_all_settings() {
 	$option_names = [
 		'ajax_nonce',
 		'mcrypt_key',
@@ -517,11 +517,12 @@ function sb_clear_all_settings() {
 	];
 	foreach ( $option_names as $option_name ) {
 		if ( is_multisite() ) {
-			foreach ( get_sites() as $site ) {
+			sb_iterate_sites(function ( $site ) use ($option_name) {
 				sb_delete_blog_option($site->blog_id, $option_name);
-			}
+			});
+		} else {
+			sb_delete_option($option_name);
 		}
-		sb_delete_option($option_name);
 	}
 }
 
@@ -578,6 +579,10 @@ function sb_format_array_to_csv($array, $glue = ',') {
  * @return array
  */
 function sb_format_comma_string($string) {
+	$string = trim($string);
+	if ( empty($string) ) {
+		return [];
+	}
 	$array = explode(',', $string);
 	$array = array_map(function ($item) {
 		return trim($item);

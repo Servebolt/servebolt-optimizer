@@ -55,6 +55,13 @@ class Servebolt_Nginx_FPC {
 	private $fpc_cache_time = 600;
 
 	/**
+	 * Whether we should attempt to set headers even tho headers are already sent (not good practice, should be fixed).
+	 *
+	 * @var bool
+	 */
+	private $allow_force_headers = true;
+
+	/**
 	 * Instantiate class.
 	 *
 	 * @return Servebolt_Nginx_FPC|null
@@ -82,6 +89,7 @@ class Servebolt_Nginx_FPC {
 		// Unauthenticated cache handling
 		add_filter( 'posts_results', [ $this, 'set_headers' ] );
 		add_filter( 'template_include', [ $this, 'last_call' ] );
+
 	}
 
 	/**
@@ -92,12 +100,12 @@ class Servebolt_Nginx_FPC {
 	private function header($string) {
 
 		// Abort if headers are already sent
-		if ( headers_sent() ) {
-			sb_write_log(sprintf('Servebolt Optimizer attepted to set header "", but headers already sent.', $string));
+		if ( headers_sent() && ! $this->allow_force_headers ) {
+			sb_write_log(sprintf('Servebolt Optimizer attempted to set header "%s", but headers already sent.', $string));
 			return;
 		}
 
-		// Headers already sent, but we are too late for the "send_headers"-action
+		// WP action already passed but headers are not yet sent
 		if ( did_action('send_headers') ) {
 			header($string);
 			return;
@@ -105,7 +113,7 @@ class Servebolt_Nginx_FPC {
 
 		// Set headers using WP's "send_headers"-action
 		add_action('send_headers', function () use ($string) {
-			header( $string );
+			header($string);
 		});
 
 	}
@@ -420,11 +428,17 @@ class Servebolt_Nginx_FPC {
 	/**
 	 * Ids of posts to exclude from cache.
 	 *
-	 * @return mixed|void
+	 * @param bool $blog_id
+	 *
+	 * @return array|mixed|void|null
 	 */
-	public function get_ids_to_exclude_from_cache() {
+	public function get_ids_to_exclude_from_cache($blog_id = false) {
 		if ( is_null( $this->ids_to_exclude_cache ) ) {
-			$ids_to_exclude = sb_get_option( 'fpc_exclude');
+			if ( is_numeric($blog_id) ) {
+				$ids_to_exclude = sb_get_blog_option( $blog_id, 'fpc_exclude');
+			} else {
+				$ids_to_exclude = sb_get_option( 'fpc_exclude');
+			}
 			if ( ! is_array($ids_to_exclude) ) $ids_to_exclude = [];
 			$this->ids_to_exclude_cache = $ids_to_exclude;
 		}
@@ -435,12 +449,17 @@ class Servebolt_Nginx_FPC {
 	 * Set posts to exclude from cache.
 	 *
 	 * @param $ids_to_exclude
+	 * @param bool $blog_id
 	 *
 	 * @return bool
 	 */
-	public function set_ids_to_exclude_from_cache($ids_to_exclude) {
+	public function set_ids_to_exclude_from_cache($ids_to_exclude, $blog_id = false) {
 		$this->ids_to_exclude_cache = $ids_to_exclude;
-		return sb_update_option( 'fpc_exclude', $ids_to_exclude );
+		if ( is_numeric($blog_id) ) {
+			return sb_update_blog_option( $blog_id, 'fpc_exclude', $ids_to_exclude );
+		} else {
+			return sb_update_option( 'fpc_exclude', $ids_to_exclude );
+		}
 	}
 
 	/**
