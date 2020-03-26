@@ -68,6 +68,25 @@ jQuery(document).ready(function($) {
     sb_apply_api_credentials();
   });
 
+  // Input toggle value visibility
+  $('#sb-configuration .sb-hide-pwd').click(function() {
+    var el = $(this),
+        parent_el = el.closest('.sb-pwd'),
+        input_el = parent_el.find('input'),
+        icon = parent_el.find('.dashicons'),
+        input_type = input_el.attr('type');
+    switch (input_type) {
+      case 'password':
+        input_el.attr('type', 'text');
+        icon.removeClass('dashicons-visibility').addClass('dashicons-hidden');
+        break;
+      case 'text':
+        input_el.attr('type', 'password');
+        icon.removeClass('dashicons-hidden').addClass('dashicons-visibility');
+        break;
+    }
+  });
+
   // Trigger zone name resolve if we change the API credentials
   $('#sb-configuration #api_token').on('keyup', function() {
     sb_apply_api_token_credentials();

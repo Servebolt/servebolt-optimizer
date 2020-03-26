@@ -109,7 +109,14 @@
           <tr class="feature_cf_auth_type-api_token"<?php if ( $cf_settings['cf_auth_type'] != 'api_token' ) echo ' style="display: none;"' ?>>
             <th scope="row"><label for="api_token"><?php sb_e('API token'); ?></label></th>
             <td>
-              <input name="<?php echo sb_get_option_name('cf_api_token'); ?>" type="text" id="api_token" data-original-value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" class="regular-text validate-field validation-group-api_token validation-group-api_credentials">
+
+              <div class="sb-pwd">
+                <input name="<?php echo sb_get_option_name('cf_api_token'); ?>" type="password" id="api_token" data-original-value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" class="regular-text validate-field validation-group-api_token validation-group-api_credentials">
+                <button type="button" class="button button-secondary wp-hide-pw sb-hide-pwd hide-if-no-js" data-toggle="0" aria-label="Show password">
+                  <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+                </button>
+              </div>
+
               <p class="invalid-message"></p>
               <p><small><?php echo sprintf(sb__('Make sure to add permissions for %s when creating a token.'), sb_cf()->api_permissions_needed()); ?></small></p>
             </td>
@@ -124,7 +131,12 @@
           <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
             <th scope="row"><label for="api_key"><?php sb_e('API key'); ?></label></th>
             <td>
-              <input name="<?php echo sb_get_option_name('cf_api_key'); ?>" type="text" id="api_key" data-original-value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" class="regular-text validate-field validation-input-api_key validation-group-api_key_credentials validation-group-api_credentials">
+              <div class="sb-pwd">
+                <input name="<?php echo sb_get_option_name('cf_api_key'); ?>" type="password" id="api_key" data-original-value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" class="regular-text validate-field validation-input-api_key validation-group-api_key_credentials validation-group-api_credentials">
+                <button type="button" class="button button-secondary wp-hide-pw sb-hide-pwd hide-if-no-js" data-toggle="0" aria-label="Show password">
+                  <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
+                </button>
+              </div>
               <p class="invalid-message"></p>
             </td>
           </tr>
