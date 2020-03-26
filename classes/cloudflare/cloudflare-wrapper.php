@@ -172,7 +172,7 @@ class Cloudflare {
 	 */
 	public function get_credential($key) {
 		$credentials = $this->get_credentials();
-		if ( array_key_exists($key, $credentials ) ) {
+		if ( $credentials && array_key_exists($key, $credentials ) ) {
 			return $credentials[$key];
 		}
 		return false;

@@ -100,6 +100,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 			WP_CLI::error(sb__('No post types specified'));
 		}
 
+		/*
 		if ( ! $all_post_types ) {
 			foreach($post_types as $post_type) {
 				if ( $post_type !== 'all' && ! get_post_type_object($post_type) ) {
@@ -107,9 +108,10 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 				}
 			}
 		}
+		*/
 
 		if ( $this->affect_all_sites($assoc_args) ) {
-			$this->iterate_sites(function($site) use ($post_types) {
+			$this->iterate_sites(function ( $site ) use ($post_types) {
 				$this->nginx_set_post_types($post_types, $site->blog_id);
 			});
 		} else {
@@ -158,6 +160,9 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *     # Activate Servebolt Full Page Cache, but only for pages and posts
 	 *     wp servebolt fpc activate --post-types=post,page
 	 *
+	 *     # Activate Servebolt Full Page Cache for all public post types on all sites in multisite-network
+	 *     wp servebolt fpc activate --post-types=all --all
+	 *
 	 */
 	public function command_nginx_fpc_enable($args, $assoc_args) {
 		$this->nginx_fpc_control(true, $assoc_args);
@@ -196,7 +201,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Activate Cloudflare features.
+	 * Activate Cloudflare feature.
 	 *
 	 * ## OPTIONS
 	 *
@@ -209,12 +214,17 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function command_cf_enable($args, $assoc_args) {
-		$affect_all_sites = $this->affect_all_sites($assoc_args);
-		return sb_cf()->cf_toggle_active(true);
+		if ( $this->affect_all_sites( $assoc_args ) ) {
+			$this->iterate_sites(function ( $site ) {
+				$this->cf_toggle_active(true, $site->blog_id);
+			});
+		} else {
+			$this->cf_toggle_active(true);
+		}
 	}
 
 	/**
-	 * Deactivate Cloudflare features.
+	 * Deactivate Cloudflare feature.
 	 *
 	 * ## OPTIONS
 	 *
@@ -227,8 +237,13 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function command_cf_disable($args, $assoc_args) {
-		$affect_all_sites = $this->affect_all_sites($assoc_args);
-		return sb_cf()->cf_toggle_active(false);
+		if ( $this->affect_all_sites( $assoc_args ) ) {
+			$this->iterate_sites(function ( $site ) {
+				$this->cf_toggle_active(false, $site->blog_id);
+			});
+		} else {
+			$this->cf_toggle_active(false);
+		}
 	}
 
 	/**
@@ -257,13 +272,17 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function command_cf_clear_zone($args, $assoc_args) {
-		$affect_all_sites = $this->affect_all_sites($assoc_args);
-		sb_cf()->clear_active_zone();
-		WP_CLI::success(sb__('Successfully cleared zone.'));
+		if ( $this->affect_all_sites( $assoc_args ) ) {
+			$this->iterate_sites(function ( $site ) {
+				$this->cf_clear_zone( $site->blog_id );
+			});
+		} else {
+			$this->cf_clear_zone();
+		}
 	}
 
 	/**
-	 * Clear Cloudflare credentials.
+	 * Clear Cloudflare API credentials.
 	 *
 	 * ## OPTIONS
 	 *
@@ -276,9 +295,13 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function command_cf_clear_credentials($args, $assoc_args) {
-		$affect_all_sites = $this->affect_all_sites($assoc_args);
-		sb_cf()->clear_credentials();
-		WP_CLI::success(sb__('Successfully cleared credentials.'));
+		if ( $this->affect_all_sites( $assoc_args ) ) {
+			$this->iterate_sites(function ( $site ) {
+				$this->cf_clear_credentials( $site->blog_id );
+			});
+		} else {
+			$this->cf_clear_credentials();
+		}
 	}
 
 	/**
@@ -295,11 +318,12 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 */
 	public function command_cf_test_api_connection($args, $assoc_args) {
-		$affect_all_sites = $this->affect_all_sites($assoc_args);
-		if ( sb_cf()->test_api_connection() ) {
-			WP_CLI::success(sb__('API connection passed!'));
+		if ( $this->affect_all_sites( $assoc_args ) ) {
+			$this->iterate_sites(function ( $site ) {
+				$this->cf_test_api_connection( $site->blog_id );
+			});
 		} else {
-			WP_CLI::error(sprintf(sb__('Could not communicate with the API. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), sb_cf()->api_permissions_needed()));
+			$this->cf_test_api_connection();
 		}
 	}
 
@@ -402,78 +426,17 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 */
 	public function command_cf_set_credentials($args, $assoc_args) {
 		list($auth_type) = $args;
+
 		$affect_all_sites = $this->affect_all_sites($assoc_args);
 		$credential_data = $this->cf_prepare_credentials($auth_type, $assoc_args);
-		if ( $credential_data === false ) {
-			WP_CLI::error(sb__('Could not set credentials.'));
-		}
 
 		if ( $affect_all_sites ) {
-			foreach (get_sites() as $site) {
-				$store = sb_cf()->store_credentials($credential_data->credentials, $credential_data->type, $site->blog_id);
-				if ( $store === false ) break; // Abort, and continue to feedback if one fails
-			}
+			$this->iterate_sites(function ( $site ) use ($credential_data) {
+				$this->cf_set_credentials($credential_data, $site->blog_id);
+			});
 		} else {
-			$store = sb_cf()->store_credentials($credential_data->credentials, $credential_data->type);
+			$this->cf_set_credentials($credential_data);
 		}
-
-		if ( isset($store) && $store ) {
-			if ( ! sb_cf()->test_api_connection() ) {
-				if ( $affect_all_sites ) {
-					WP_CLI::error(sprintf(sb__('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), sb_cf()->api_permissions_needed()), false);
-				} else {
-					WP_CLI::error(sprintf(sb__('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), sb_cf()->api_permissions_needed()), false);
-				}
-			} else {
-				WP_CLI::success(sprintf(sb__('Cloudflare credentials set using %s: %s'), $credential_data->verbose_type, $credential_data->verbose_credentials));
-				WP_CLI::success(sb__('API connection test passed!'));
-			}
-		} else {
-			if ( $affect_all_sites ) {
-				WP_CLI::error(sprintf(sb__('Could not set Cloudflare credentials on all sites set using %s: %s'), $credential_data->verbose_type, $credential_data->verbose_credentials));
-			} else {
-				WP_CLI::error(sprintf(sb__('Could not set Cloudflare credentials set using %s: %s'), $credential_data->verbose_type, $credential_data->verbose_credentials));
-			}
-		}
-	}
-
-	/**
-	 * Prepare credentials for storage.
-	 *
-	 * @param $auth_type
-	 * @param $assoc_args
-	 *
-	 * @return array|bool
-	 */
-	protected function cf_prepare_credentials($auth_type, $assoc_args) {
-		switch ( $auth_type ) {
-			case 'key':
-				$email = sb_array_get('email', $assoc_args);
-				$api_key = sb_array_get('api-key', $assoc_args);
-				if ( ! $email || empty($email) || ! $api_key || empty($api_key) ) {
-					WP_CLI::error(sb__('Please specify API key and email.'));
-					return;
-				}
-				$type         = 'api_key';
-				$verbose_type = 'API key';
-				$credentials = compact('email', 'api_key');
-				$verbose_credentials = implode(' / ', $credentials);
-				return (object) compact('type', 'verbose_type', 'credentials', 'verbose_credentials');
-				break;
-			case 'token':
-				$token = sb_array_get('api-token', $assoc_args);
-				if ( ! $token || empty($token) ) {
-					WP_CLI::error(sb__('Please specify a token.'));
-					return;
-				}
-				$type         = 'api_token';
-				$verbose_type = 'API token';
-				$credentials = $token;
-				$verbose_credentials = $credentials;
-				return (object) compact('type', 'verbose_type', 'credentials', 'verbose_credentials');
-				break;
-		}
-		return false;
 	}
 
 	/**
@@ -491,9 +454,9 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 */
 	public function command_cf_status($args, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			$this->iterate_sites( function ( $site ) {
+			$this->iterate_sites(function ( $site ) {
 				$this->cf_status($site->blog_id);
-			} );
+			});
 		} else {
 			$this->cf_status();
 		}
@@ -514,9 +477,9 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 */
 	public function command_cf_cron_status($args, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			$this->iterate_sites( function ( $site ) {
+			$this->iterate_sites(function ( $site ) {
 				$this->cf_cron_status($site->blog_id);
-			} );
+			});
 		} else {
 			$this->cf_cron_status();
 		}
@@ -528,7 +491,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## OPTIONS
 	 *
 	 * [--all]
-	 * : Schedule on all sites in multisite
+	 * : Schedule cron on all sites in multisite
 	 *
 	 * ## EXAMPLES
 	 *
@@ -545,7 +508,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## OPTIONS
 	 *
 	 * [--all]
-	 * : Un-schedule on all sites in multisite
+	 * : Un-schedule cron on all sites in multisite
 	 *
 	 * ## EXAMPLES
 	 *
@@ -571,9 +534,9 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 */
 	public function command_cf_clear_cache_purge_queue($args, $assoc_args ) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			$this->iterate_sites( function ( $site ) {
+			$this->iterate_sites(function ( $site ) {
 				$this->cf_clear_cache_purge_queue($site->blog_id);
-			} );
+			});
 		} else {
 			$this->cf_clear_cache_purge_queue();
 		}
@@ -640,7 +603,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 */
 	public function command_cf_purge_all($args, $assoc_args) {
 		if ( $this->affect_all_sites($assoc_args) ) {
-			$this->iterate_sites(function($site) {
+			$this->iterate_sites(function ( $site ) {
 				if ( $this->cf_purge_all($site->blog_id) ) {
 					WP_CLI::success(sprintf(sb__('All cache was purged for %s'), get_site_url($site->blog_id)), false);
 				} else {
@@ -672,7 +635,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	public function command_cf_get_config($args, $assoc_args) {
 		$arr = [];
 		if ( $this->affect_all_sites($assoc_args) ) {
-			$this->iterate_sites(function($site) use(&$arr) {
+			$this->iterate_sites(function ( $site ) use (&$arr) {
 				$arr[] = $this->cf_get_config($site->blog_id);
 			});
 			$arr = $this->cf_ensure_config_array_integrity($arr); // Make sure each item has the same column-structure

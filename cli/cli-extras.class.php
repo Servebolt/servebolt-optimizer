@@ -75,7 +75,6 @@ abstract class Servebolt_CLI_Extras {
 		$auth_type = sb_cf()->get_authentication_type($blog_id);
 		$is_cron_purge = sb_cf()->cron_purge_is_active(true, $blog_id);
 
-
 		if ( $blog_id ) {
 			$arr = ['Blog' => $blog_id];
 		} else {
@@ -146,9 +145,9 @@ abstract class Servebolt_CLI_Extras {
 	 */
 	protected function cf_cron_toggle($state, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			$this->iterate_sites( function ( $site ) use ($state) {
+			$this->iterate_sites(function ( $site ) use ($state) {
 				$this->cf_cron_control($state, $site->blog_id);
-			} );
+			});
 		} else {
 			$this->cf_cron_control($state);
 		}
@@ -230,7 +229,6 @@ abstract class Servebolt_CLI_Extras {
 			} else {
 				WP_CLI::line(sprintf(sb__('Cloudflare cache purge cron is already %s'), $cron_state_string));
 			}
-
 		} else {
 			sb_cf()->cf_toggle_cron_active($cron_state);
 			if ( is_numeric($blog_id) ) {
@@ -245,6 +243,146 @@ abstract class Servebolt_CLI_Extras {
 	}
 
 	/**
+	 * Prepare credentials for storage.
+	 *
+	 * @param $auth_type
+	 * @param $assoc_args
+	 *
+	 * @return object
+	 */
+	protected function cf_prepare_credentials($auth_type, $assoc_args) {
+		switch ( $auth_type ) {
+			case 'key':
+				$email = sb_array_get('email', $assoc_args);
+				$api_key = sb_array_get('api-key', $assoc_args);
+				if ( ! $email || empty($email) || ! $api_key || empty($api_key) ) {
+					WP_CLI::error(sb__('Please specify API key and email.'));
+				}
+				$type         = 'api_key';
+				$verbose_type = 'API key';
+				$credentials = compact('email', 'api_key');
+				$verbose_credentials = implode(' / ', $credentials);
+				return (object) compact('type', 'verbose_type', 'credentials', 'verbose_credentials');
+				break;
+			case 'token':
+				$token = sb_array_get('api-token', $assoc_args);
+				if ( ! $token || empty($token) ) {
+					WP_CLI::error(sb__('Please specify a token.'));
+				}
+				$type         = 'api_token';
+				$verbose_type = 'API token';
+				$credentials  = compact('token');
+				$verbose_credentials = $token;
+				return (object) compact('type', 'verbose_type', 'credentials', 'verbose_credentials');
+				break;
+		}
+
+		WP_CLI::error(sb__('Could not set credentials. Please check the arguments and try again.'));
+	}
+
+	/**
+	 * Clear active Cloudflare zone.
+	 *
+	 * @param bool $blog_id
+	 */
+	protected function cf_clear_zone($blog_id = false) {
+		sb_cf()->clear_active_zone($blog_id);
+		if ( $blog_id ) {
+			WP_CLI::success(sprintf(sb__('Successfully cleared zone on site %s.'), get_site_url($blog_id)));
+		} else {
+			WP_CLI::success(sb__('Successfully cleared zone.'));
+		}
+	}
+
+	/**
+	 * Clear Cloudflare API credentials.
+	 *
+	 * @param bool $blog_id
+	 */
+	protected function cf_clear_credentials($blog_id = false) {
+		sb_cf()->clear_credentials($blog_id);
+		if ( $blog_id ) {
+			WP_CLI::success(sprintf(sb__('Successfully cleared API credentials on site %s.'), get_site_url($blog_id)));
+		} else {
+			WP_CLI::success(sb__('Successfully cleared API credentials.'));
+		}
+	}
+
+	/**
+	 * Test Cloudflare API connection on specified blog.
+	 *
+	 * @param bool $blog_id
+	 */
+	protected function cf_test_api_connection($blog_id = false) {
+
+		// Switch context to blog
+		if ( $this->cf_switch_to_blog($blog_id) === false ) {
+
+			// Could not switch to blog
+			WP_CLI::error(sprintf(sb__('Could not test Cloudflare API connection on site %s'), get_site_url($blog_id)), false);
+			return;
+
+		}
+
+		if ( sb_cf()->test_api_connection() ) {
+			if ( $blog_id ) {
+				WP_CLI::success(sprintf(sb__('API connection passed on site %s'), get_site_url($blog_id)));
+			} else {
+				WP_CLI::success(sb__('API connection passed!'));
+			}
+
+		} else {
+			if ( $blog_id ) {
+				WP_CLI::error(sprintf(sb__('Could not communicate with the API on site %s. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), get_site_url($blog_id), sb_cf()->api_permissions_needed()), false);
+			} else {
+				WP_CLI::error(sprintf(sb__('Could not communicate with the API. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), sb_cf()->api_permissions_needed()), false);
+			}
+		}
+	}
+
+	/**
+	 * Set credentials on specified blog.
+	 *
+	 * @param $credential_data
+	 * @param bool $blog_id
+	 */
+	protected function cf_set_credentials($credential_data, $blog_id = false) {
+
+		// Switch context to blog
+		if ( $this->cf_switch_to_blog($blog_id) === false ) {
+
+			// Could not switch to blog
+			WP_CLI::error(sprintf(sb__('Could not set Cloudflare credentials on site %s'), get_site_url($blog_id)), false);
+			return;
+
+		}
+
+		if ( sb_cf()->store_credentials($credential_data->credentials, $credential_data->type) ) {
+			if ( sb_cf()->test_api_connection() ) {
+				if ( $blog_id ) {
+					WP_CLI::success(sprintf(sb__('Cloudflare credentials set on site %s using %s: %s'), get_site_url($blog_id), $credential_data->verbose_type, $credential_data->verbose_credentials));
+					WP_CLI::success(sprintf(sb__('API connection test passed on site %s'), get_site_url($blog_id)));
+				} else {
+					WP_CLI::success(sprintf(sb__('Cloudflare credentials set using %s: %s'), $credential_data->verbose_type, $credential_data->verbose_credentials));
+					WP_CLI::success(sb__('API connection test passed!'));
+				}
+			} else {
+				if ( $blog_id ) {
+					WP_CLI::warning(sprintf(sb__('Credentials were stored on site %s but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), get_site_url($blog_id), sb_cf()->api_permissions_needed()), false);
+				} else {
+					WP_CLI::warning(sprintf(sb__('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), sb_cf()->api_permissions_needed()), false);
+				}
+			}
+		} else {
+			if ( $blog_id ) {
+				WP_CLI::error(sprintf(sb__('Could not set Cloudflare credentials on site %s using %s: %s'), get_site_url($blog_id), $credential_data->verbose_type, $credential_data->verbose_credentials), false);
+			} else {
+				WP_CLI::error(sprintf(sb__('Could not set Cloudflare credentials using %s: %s'), $credential_data->verbose_type, $credential_data->verbose_credentials), false);
+			}
+		}
+	}
+
+	/**
 	 * Switch API credentials and zone to the specified blog.
 	 *
 	 * @param bool $blog_id
@@ -256,7 +394,8 @@ abstract class Servebolt_CLI_Extras {
 			return true;
 		}
 		if ( is_numeric($blog_id) ) {
-			return sb_cf()->cf_init($blog_id);
+			sb_cf()->cf_init($blog_id);
+			return true;
 		}
 		return null;
 	}
@@ -379,6 +518,29 @@ abstract class Servebolt_CLI_Extras {
 				WP_CLI::line(sprintf(sb__( 'Servebolt Full Page Cache cache is %s' ), $status ));
 			}
 			WP_CLI::line(sprintf(sb__( 'Cache enabled for post type(s): %s' ), $enabled_post_types_string ));
+		}
+	}
+
+	/**
+	 * Activate/deactivate Cloudflare feature.
+	 *
+	 * @param bool $state
+	 * @param bool $blog_id
+	 */
+	protected function cf_toggle_active(bool $state, $blog_id = false) {
+		$state_string = sb_boolean_to_state_string($state);
+		if ( sb_cf()->cf_toggle_active($state, $blog_id) ) {
+			if ( $blog_id ) {
+				WP_CLI::success(sprintf(sb__('Cloudflare feature was set to %s on site %s'), $state_string, get_site_url($blog_id)));
+			} else {
+				WP_CLI::success(sprintf(sb__('Cloudflare feature was set to %s'), $state_string));
+			}
+		} else {
+			if ( $blog_id ) {
+				WP_CLI::error(sprintf(sb__('Could not set Cloudflare feature to %s on site %s'), $state_string, get_site_url($blog_id)), false);
+			} else {
+				WP_CLI::error(sprintf(sb__('Could not set Cloudflare feature to %s'), $state_string), false);
+			}
 		}
 	}
 

@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 /**
  * Display notice about composer-files missing.
  */
-add_action( 'admin_notices', function() {
+add_action('admin_notices', function() {
 	?>
 	<div class="notice notice-error is-dismissable ">
 		<h3>Servebolt Optimizer</h3>
@@ -13,4 +13,4 @@ add_action( 'admin_notices', function() {
 		<pre>composer install</pre>
 	</div>
 	<?php
-} );
+});

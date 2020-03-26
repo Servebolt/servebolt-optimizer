@@ -351,7 +351,7 @@ function sb_update_option($option_name, $value, $assert_update = true) {
 	$full_option_name = sb_get_option_name($option_name);
 	$result = update_option($full_option_name, $value);
 	if ( $assert_update && ! $result ) {
-		return ( get_option($option_name) == $value );
+		return ( sb_get_option($option_name) == $value );
 	}
 	return true;
 }
@@ -370,42 +370,48 @@ function sb_delete_option($option) {
 /**
  * Get blog option.
  *
- * @param $id
+ * @param $blog_id
  * @param $option_name
  * @param bool $default
  *
  * @return mixed
  */
-function sb_get_blog_option($id, $option_name, $default = false) {
+function sb_get_blog_option($blog_id, $option_name, $default = false) {
 	$full_option_name = sb_get_option_name($option_name);
-	$value = get_blog_option($id, $full_option_name, $default);
-	return apply_filters('sb_optimizer_get_blog_option_' . $full_option_name, $value, $id);
-}
-
-/**
- * Delete blog option.
- *
- * @param $id
- * @param $option
- * @param bool $default
- *
- * @return mixed
- */
-function sb_delete_blog_option($id, $option, $default = false) {
-	return get_blog_option($id, sb_get_option_name($option), $default);
+	$value = get_blog_option($blog_id, $full_option_name, $default);
+	return apply_filters('sb_optimizer_get_blog_option_' . $full_option_name, $value, $blog_id);
 }
 
 /**
  * Update blog option.
  *
- * @param $id
- * @param $option
+ * @param $blog_id
+ * @param $option_name
  * @param $value
+ * @param bool $assert_update
  *
  * @return mixed
  */
-function sb_update_blog_option($id, $option, $value) {
-	return update_blog_option($id, sb_get_option_name($option), $value);
+function sb_update_blog_option($blog_id, $option_name, $value, $assert_update = true) {
+	$full_option_name = sb_get_option_name($option_name);
+	$result = update_blog_option($blog_id, $full_option_name, $value);
+	if ( $assert_update && ! $result ) {
+		return ( sb_get_blog_option($blog_id, $option_name) == $value );
+	}
+	return true;
+}
+
+/**
+ * Delete blog option.
+ *
+ * @param $blog_id
+ * @param $option
+ * @param bool $default
+ *
+ * @return mixed
+ */
+function sb_delete_blog_option($blog_id, $option, $default = false) {
+	return delete_blog_option($blog_id, sb_get_option_name($option), $default);
 }
 
 /**

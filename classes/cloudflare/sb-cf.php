@@ -219,11 +219,17 @@ class Servebolt_CF {
 	 * Check if Cloudflare cache feature is active.
 	 *
 	 * @param bool $state
+	 * @param bool $blog_id
 	 *
-	 * @return bool|mixed
+	 * @return bool
 	 */
-	public function cf_toggle_active(bool $state) {
-		return sb_update_option($this->cf_active_option_key(), $state);
+	public function cf_toggle_active(bool $state, $blog_id = false) {
+		$blog_id = $this->get_blog_id($blog_id);
+		if ( is_numeric($blog_id) ) {
+			return sb_update_blog_option($blog_id, $this->cf_active_option_key(), $state);
+		} else {
+			return sb_update_option($this->cf_active_option_key(), $state);
+		}
 	}
 
 	/**
@@ -258,9 +264,16 @@ class Servebolt_CF {
 
 	/**
 	 * Clear the active zone.
+	 *
+	 * @param bool $blog_id
 	 */
-	public function clear_active_zone() {
-		sb_delete_option('cf_zone_id');
+	public function clear_active_zone($blog_id = false) {
+		$blog_id = $this->get_blog_id($blog_id);
+		if ( is_numeric( $blog_id ) ) {
+			sb_delete_blog_option($blog_id,'cf_zone_id');
+		} else {
+			sb_delete_option('cf_zone_id');
+		}
 	}
 
 	/**
@@ -326,18 +339,25 @@ class Servebolt_CF {
 	private function set_authentication_type($type, $blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric($blog_id) ) {
-			return sb_update_blog_option($blog_id, 'cf_auth_type', $type, true);
+			return sb_update_blog_option($blog_id, 'cf_auth_type', $type);
 		} else {
-			return sb_update_option('cf_auth_type', $type, true);
+			return sb_update_option('cf_auth_type', $type);
 		}
 	}
 
 	/**
-	 * Clear all credentials.
+	 * Clear API credentials.
+	 *
+	 * @param bool $blog_id
 	 */
-	public function clear_credentials() {
+	public function clear_credentials($blog_id = false) {
+		$blog_id = $this->get_blog_id($blog_id);
 		foreach(['cf_auth_type', 'cf_api_token', 'cf_api_key', 'cf_email'] as $key) {
-			sb_delete_option($key);
+			if ( is_numeric($blog_id) ) {
+				sb_delete_blog_option($blog_id, $key);
+			} else {
+				sb_delete_option($key);
+			}
 		}
 	}
 
@@ -458,6 +478,7 @@ class Servebolt_CF {
 	 */
 	public function store_credentials($credentials, $type, $blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
+
 		switch ($type) {
 			case 'api_key':
 				if ( $this->set_authentication_type($type, $blog_id) && $this->store_credential('email', $credentials['email'], $blog_id) && $this->store_credential('api_key', $credentials['api_key'], $blog_id) ) {
@@ -466,7 +487,7 @@ class Servebolt_CF {
 				}
 				break;
 			case 'api_token':
-				if ( $this->set_authentication_type($type, $blog_id) && $this->store_credential('api_token', $credentials, $blog_id) ) {
+				if ( $this->set_authentication_type($type, $blog_id) && $this->store_credential('api_token', $credentials['token'], $blog_id) ) {
 					$this->register_credentials();
 					return true;
 				}
