@@ -122,19 +122,19 @@ class Servebolt_Performance_Checks {
 
 		if ( sb_optimize_db()->table_has_index_on_column($full_table_name, $validated_data['column']) ) {
 			wp_send_json_success([
-				'message' => sb__(sprintf('Table "%s" already has index.', $full_table_name))
+				'message' => sprintf(sb__('Table "%s" already has index.'), $full_table_name)
 			]);
 		} elseif ( is_multisite() && sb_optimize_db()->$method($validated_data['blog_id']) ) {
 			wp_send_json_success([
-				'message' => sb__(sprintf('Added index to table "%s".', $full_table_name))
+				'message' => sprintf(sb__('Added index to table "%s".'), $full_table_name)
 			]);
 		} elseif ( ! is_multisite() && sb_optimize_db()->$method() ) {
 			wp_send_json_success([
-				'message' => sb__(sprintf('Added index to table "%s".', $full_table_name))
+				'message' => sprintf(sb__('Added index to table "%s".'), $full_table_name)
 			]);
 		} else {
 			wp_send_json_error([
-				'message' => sb__(sprintf('Could not add index to table "%s".', $full_table_name))
+				'message' => sprintf(sb__('Could not add index to table "%s".'), $full_table_name)
 			]);
 		}
 

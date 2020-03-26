@@ -288,7 +288,7 @@ class CF_Cache_Controls {
 		} else {
 			/*
 			$string = $auth_type == 'api_token' ? 'token' : 'credentials';
-			$errors[] = sb__(sprintf('Cannot validate zone due to insufficient/invalid API %s', $string));
+			$errors[] = sprintf(sb__('Cannot validate zone due to insufficient/invalid API %s'), $string);
 			*/
 		}
 

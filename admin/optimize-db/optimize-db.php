@@ -180,10 +180,10 @@ class Servebolt_Optimize_DB {
 				switch_to_blog( $site->blog_id );
 				if ( ! in_array($this->wpdb()->postmeta, $post_meta_tables_with_post_meta_value_index ) ) {
 					if ( $this->dry_run || $this->add_post_meta_index() ) {
-						$this->out(sprintf( 'Added index to table "%s" on site %s (site ID %s)', $this->wpdb()->postmeta, $this->blog_identification($site), $site->blog_id));
+						$this->out(sprintf( sb__('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blog_identification($site), $site->blog_id));
 						$this->meta_value_index_addition['success'][] = $site->blog_id;
 					} else {
-						$this->out(sprintf( 'Could not add index to table "%s" on site %s (site ID %s)', $this->wpdb()->postmeta, $this->blog_identification($site), $site->blog_id));
+						$this->out(sprintf( sb__('Could not add index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blog_identification($site), $site->blog_id));
 						$this->meta_value_index_addition['fail'][] = $site->blog_id;
 					}
 				}
@@ -193,10 +193,10 @@ class Servebolt_Optimize_DB {
 		} else {
 			if ( ! in_array($this->wpdb()->postmeta, $post_meta_tables_with_post_meta_value_index ) ) {
 				if ( $this->dry_run || $this->add_post_meta_index() ) {
-					$this->out(sprintf('Added index to table "%s"', $this->wpdb()->postmeta));
+					$this->out(sprintf(sb__('Added index to table "%s"'), $this->wpdb()->postmeta));
 					$this->meta_value_index_addition = true;
 				} else {
-					$this->out(sprintf('Could not add index to table "%s"', $this->wpdb()->postmeta));
+					$this->out(sprintf(sb__('Could not add index to table "%s"'), $this->wpdb()->postmeta));
 					$this->meta_value_index_addition = false;
 				}
 			}
@@ -213,10 +213,10 @@ class Servebolt_Optimize_DB {
 				switch_to_blog( $site->blog_id );
 				if ( ! in_array($this->wpdb()->options, $options_tables_with_autoload_index ) ) {
 					if ( $this->dry_run || $this->add_options_autoload_index() ) {
-						$this->out(sprintf( 'Added index to table "%s" on site %s (site ID %s)', $this->wpdb()->options, $this->blog_identification($site), $site->blog_id ));
+						$this->out(sprintf( sb__('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->options, $this->blog_identification($site), $site->blog_id ));
 						$this->autoload_index_addition['success'][] = $site->blog_id;
 					} else {
-						$this->out(sprintf( 'Could not add index to table "%" on site %s (site ID %s)', $this->wpdb()->options, $this->blog_identification($site), $site->blog_id ));
+						$this->out(sprintf( sb__('Could not add index to table "%" on site %s (site ID %s)'), $this->wpdb()->options, $this->blog_identification($site), $site->blog_id ));
 						$this->autoload_index_addition['fail'][] = $site->blog_id;
 					}
 				}
@@ -497,10 +497,10 @@ class Servebolt_Optimize_DB {
 			foreach ( $tables as $table ) {
 				if ( ! isset($table->table_name) ) continue;
 				if ( $this->dry_run || $this->convert_table_to_innodb($table->table_name) ) {
-					$this->out(sprintf('Converted table "%s" to InnoDB', $table->table_name));
+					$this->out(sprintf(sb__('Converted table "%s" to InnoDB'), $table->table_name));
 					$this->InnoDB_conversion['success'] = $table->table_name;
 				} else {
-					$this->out(sprintf('Could not convert table "%s" to InnoDB', $table->table_name));
+					$this->out(sprintf(sb__('Could not convert table "%s" to InnoDB'), $table->table_name));
 					$this->InnoDB_conversion['fail'] = $table->table_name;
 				}
 			}

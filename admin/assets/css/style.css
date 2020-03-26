@@ -221,6 +221,13 @@
     margin-left: 5px;
 }
 
+#sb-configuration .spinner.form-submit-spinner {
+    float: none;
+    height: 20px;
+    margin-top: -3px;
+    margin-left: 5px;
+}
+
 #sb-configuration .spinner.zone-loading-spinner {
     float: none;
     height: 28px;

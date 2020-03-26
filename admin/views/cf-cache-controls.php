@@ -8,7 +8,7 @@
 	<?php if ( ! is_network_admin() ) : ?>
 		<?php if ( $number_of_cache_purge_queue_items > $max_number_of_cache_purge_queue_items ) : ?>
         <div class="notice notice-warning">
-          <p><?php sb_e(sprintf('Note: It seems like there is over %s items in the %scache purge queue list%s. This indicates that there might be something wrong with the cron-setup since the cache does not get purged automatically. Please make sure you have set everything up correctly and/or contact support.', $max_number_of_cache_purge_queue_items, '<a href="#purge-items-table">', '</a>')); ?></p>
+          <p><?php echo sprintf(sb__('Note: It seems like there is over %s items in the %scache purge queue list%s. This indicates that there might be something wrong with the cron-setup since the cache does not get purged automatically. Please make sure you have set everything up correctly and/or contact support.'), $max_number_of_cache_purge_queue_items, '<a href="#purge-items-table">', '</a>'); ?></p>
         </div>
 		<?php endif; ?>
 	<?php endif; ?>
@@ -68,9 +68,9 @@
 
     <h1><?php sb_e('Configuration'); ?></h1>
     <p><?php sb_e('This feature can be set up using WP CLI or with the form below.'); ?></p>
-    <p><?php sb_e(sprintf('Run %swp servebolt cf --help%s to see available commands.', '<code>', '</code>')); ?></p>
+    <p><?php echo sprintf(sb__('Run %swp servebolt cf --help%s to see available commands.'), '<code>', '</code>'); ?></p>
 
-    <form method="post" autocomplete="off" action="options.php" name="sb_configuration_table" id="sb-configuration-table" onsubmit="<?php if ( apply_filters('sb_cf_form_validation_active', true) ) echo 'return window.sb_validate_cf_configuration_form(event);'; ?>">
+    <form method="post" autocomplete="off" action="options.php" id="sb-configuration-form" onsubmit="<?php if ( apply_filters('sb_cf_form_validation_active', true) ) echo 'return window.sb_validate_cf_configuration_form(event);'; ?>">
       <?php settings_fields( 'sb-cf-options-page' ) ?>
       <?php do_settings_sections( 'sb-cf-options-page' ) ?>
 
@@ -93,7 +93,7 @@
           <tr>
             <th scope="row" colspan="100%" style="padding-bottom: 5px;">
               <h3 style="margin-bottom: 0;"><?php sb_e('API credentials'); ?></h3>
-              <p style="font-weight: normal;"><?php sb_e(sprintf('We\'ll be using the Cloudflare API to connect your site to your Cloudflare account. We recommend using an API token as this will allow for more granular access control. You can learn more about how to set this up in %sour documentation%s.', '<a href="https://servebo.lt/xjmkq" target="_blank">', '</a>')); ?></p>
+              <p style="font-weight: normal;"><?php echo sprintf(sb__('We\'ll be using the Cloudflare API to connect your site to your Cloudflare account. We recommend using an API token as this will allow for more granular access control. You can learn more about how to set this up in %sour documentation%s.'), '<a href="https://servebo.lt/xjmkq" target="_blank">', '</a>'); ?></p>
             </th>
           </tr>
           <tr>
@@ -111,7 +111,7 @@
             <td>
               <input name="<?php echo sb_get_option_name('cf_api_token'); ?>" type="text" id="api_token" data-original-value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" class="regular-text validate-field validation-group-api_token validation-group-api_credentials">
               <p class="invalid-message"></p>
-              <p><small><?php sb_e(sprintf('Make sure to add permissions for %s when creating a token.', sb_cf()->api_permissions_needed())); ?></small></p>
+              <p><small><?php echo sprintf(sb__('Make sure to add permissions for %s when creating a token.'), sb_cf()->api_permissions_needed()); ?></small></p>
             </td>
           </tr>
           <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
@@ -166,7 +166,7 @@
           <tr>
             <th scope="row" colspan="100%" style="padding-bottom: 0;">
               <h3 style="margin-bottom: 0;"><?php sb_e('Cron setup'); ?></h3>
-              <p style="font-weight: normal;"><?php sb_e(sprintf('Use this feature to trigger cache bust by cron instead of doing it immediately. The cron task is set to run every 1 minute. We recommend that you set WordPress up to use the UNIX-based cron. Read about how to achieve this %shere%s.', '<a href="https://servebo.lt/vkr8-" target="_">', '</a>')); ?></p>
+              <p style="font-weight: normal;"><?php echo sprintf(sb__('Use this feature to trigger cache bust by cron instead of doing it immediately. The cron task is set to run every 1 minute. We recommend that you set WordPress up to use the UNIX-based cron. Read about how to achieve this %shere%s.'), '<a href="https://servebo.lt/vkr8-" target="_">', '</a>'); ?></p>
             </th>
           </tr>
           <tr>
@@ -184,7 +184,7 @@
           <tr class="feature_cf_cron_purge sb-toggle-active-cron-item<?php if ( ! $cf_settings['cf_cron_purge'] ) echo ' cf-hidden-cron'; ?>">
             <th scope="row" colspan="2" style="padding-bottom: 5px;">
               <label for="items_to_purge"><?php sb_e('Cache purge queue'); ?></label>
-              <p style="font-weight: normal;"><?php sb_e(sprintf('The list below contains all the posts/URLs that are scheduled for cache purge. The max number of items in the list is %s, the rest will be unavailable for display. The most recently added item can be seen at the bottom of the list.%s Note: If you have more than %s items in the list then that would indicate that there is something wrong with the cron-setup. If so please investigate and/or contact support.', $max_number_of_cache_purge_queue_items, '<br>', $max_number_of_cache_purge_queue_items)); ?></p>
+              <p style="font-weight: normal;"><?php echo sprintf(sb__('The list below contains all the posts/URLs that are scheduled for cache purge. The max number of items in the list is %s, the rest will be unavailable for display. The most recently added item can be seen at the bottom of the list.%s Note: If you have more than %s items in the list then that would indicate that there is something wrong with the cron-setup. If so please investigate and/or contact support.'), $max_number_of_cache_purge_queue_items, '<br>', $max_number_of_cache_purge_queue_items); ?></p>
             </th>
           </tr>
           <tr class="sb-toggle-active-cron-item<?php if ( ! $cf_settings['cf_cron_purge'] ) echo ' cf-hidden-cron'; ?>">
@@ -293,7 +293,11 @@
         </tbody>
       </table>
 
-      <?php submit_button(); ?>
+      <p class="submit">
+	      <?php submit_button(null, 'primary', 'form-submit', false); ?>
+        <span class="spinner form-submit-spinner"></span>
+      </p>
+
 
     </form>
 

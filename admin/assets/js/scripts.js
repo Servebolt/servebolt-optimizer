@@ -119,7 +119,7 @@ jQuery(document).ready(function($) {
    */
   function submit_cache_purge_queue(items, success_function, error_function) {
     setTimeout(function () {
-      var form = $('#sb-configuration-table'),
+      var form = $('#sb-configuration-form'),
           spinner = $('#sb-configuration .purge-queue-loading-spinner'),
           data = {
             action: 'servebolt_update_cf_cache_purge_queue',
@@ -332,7 +332,7 @@ jQuery(document).ready(function($) {
       return;
     }
     zone_id_type_wait_timeout = setTimeout(function () {
-      var form = $('#sb-configuration-table'),
+      var form = $('#sb-configuration-form'),
           zone_id = $('#sb-configuration #zone_id').val(),
           spinner = $('#sb-configuration .zone-loading-spinner'),
           data = {
@@ -634,37 +634,40 @@ jQuery(document).ready(function($) {
   window.sb_validate_cf_configuration_form = function(event) {
     if ( window.sb_validate_cf_configuration_form_is_running ) event.preventDefault();
     window.sb_validate_cf_configuration_form_is_running = true;
-    clear_validation_errors();
-    var valid = false,
-        form = $('#sb-configuration-table'),
+    var spinner = $('#sb-configuration .form-submit-spinner'),
+        form = $('#sb-configuration-form'),
         data = {
           action: 'servebolt_validate_cf_settings',
           security: ajax_object.ajax_nonce,
           form: form.serialize(),
         };
+    spinner.addClass('is-active');
     $.ajax({
       type: 'POST',
       url: ajaxurl,
-      async: false,
+      //async: false,
       data: data,
       success: function (response) {
+        clear_validation_errors();
         if ( response.success ) {
-          valid = true;
+          sb_cf_revert_values(); // Revert hidden fields back to original value
+          form.removeAttr('onsubmit');
+          form.submit();
         } else {
+          window.sb_validate_cf_configuration_form_is_running = false;
+          spinner.removeClass('is-active');
           indicate_validation_errors(response.data.errors);
           sb_warning('Ouch! Validation failed :(', response.data.error_html);
         }
       },
       error: function() {
+        clear_validation_errors();
+        window.sb_validate_cf_configuration_form_is_running = false;
+        spinner.removeClass('is-active');
         sb_warning('Ouch!', 'An unkown error occurred. Please try agin or contact support.');
       }
     });
-    if ( valid ) {
-      sb_cf_revert_values(); // Revert hidden fields back to original value
-      form.attr('onsubmit', 'return false');
-    }
-    window.sb_validate_cf_configuration_form_is_running = false;
-    return valid;
+    return false;
   }
 
   /**

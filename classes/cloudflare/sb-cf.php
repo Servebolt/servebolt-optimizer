@@ -47,6 +47,13 @@ class Servebolt_CF {
 	private $credentials_ok = false;
 
 	/**
+	 * Blog context - used only in multisite context.
+	 *
+	 * @var bool
+	 */
+	private $blog_id = false;
+
+	/**
 	 * Instantiate class.
 	 *
 	 * @return Servebolt_CF|null
@@ -62,18 +69,20 @@ class Servebolt_CF {
 	 * Servebolt_CF constructor.
 	 */
 	private function __construct() {
-		$this->init_cf();
+		$this->cf_init();
 	}
 
 	/**
-	 * Instantiate CF class and pass authentication parameters.
+	 * Instantiate CF class by passing authentication and zone parameters.
+	 *
+	 * @param bool $blog_id
 	 *
 	 * @return bool
 	 */
-	private function init_cf() {
+	public function cf_init($blog_id = false) {
+		$this->blog_id = $blog_id;
 		if ( ! $this->register_credentials() ) return false;
-		$active_zone = $this->get_active_zone_id();
-		if ( $active_zone ) $this->cf()->set_zone_id($active_zone, false);
+		if ( $active_zone = $this->get_active_zone_id() ) $this->cf()->set_zone_id($active_zone, false);
 		return true;
 	}
 
@@ -179,6 +188,18 @@ class Servebolt_CF {
 	}
 
 	/**
+	 * Get the blog context with possibility for override.
+	 *
+	 * @param bool $override
+	 *
+	 * @return bool
+	 */
+	private function get_blog_id($override = false) {
+		if ( is_numeric($override) ) return $override;
+		return $this->blog_id;
+	}
+
+	/**
 	 * Check if Cloudflare cache feature is active.
 	 *
 	 * @param bool $blog_id
@@ -186,7 +207,8 @@ class Servebolt_CF {
 	 * @return bool
 	 */
 	public function cf_is_active($blog_id = false) {
-		if ( is_numeric($blog_id) ) {
+		$blog_id = $this->get_blog_id($blog_id);
+		if ( is_numeric( $blog_id ) ) {
 			return sb_checkbox_true(sb_get_blog_option($blog_id, $this->cf_active_option_key()));
 		} else {
 			return sb_checkbox_true(sb_get_option($this->cf_active_option_key()));
@@ -260,6 +282,7 @@ class Servebolt_CF {
 	 * @return mixed|void
 	 */
 	public function get_active_zone_id($blog_id = false) {
+		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric($blog_id) ) {
 			return sb_get_blog_option($blog_id, 'cf_zone_id');
 		} else {
@@ -284,6 +307,7 @@ class Servebolt_CF {
 	 * @return mixed|void
 	 */
 	public function get_authentication_type($blog_id = false) {
+		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric($blog_id) ) {
 			return sb_get_blog_option($blog_id, 'cf_auth_type',  $this->default_authentication_type);
 		} else {
@@ -300,6 +324,7 @@ class Servebolt_CF {
 	 * @return bool
 	 */
 	private function set_authentication_type($type, $blog_id = false) {
+		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric($blog_id) ) {
 			return sb_update_blog_option($blog_id, 'cf_auth_type', $type, true);
 		} else {
@@ -331,13 +356,16 @@ class Servebolt_CF {
 	/**
 	 * Register credentials in class.
 	 *
+	 * @param bool $blog_id
+	 *
 	 * @return bool
 	 */
-	private function register_credentials() {
-		switch ( $this->get_authentication_type() ) {
+	public function register_credentials($blog_id = false) {
+		$blog_id = $this->get_blog_id($blog_id);
+		switch ( $this->get_authentication_type($blog_id) ) {
 			case 'apiToken':
 			case 'api_token':
-				$api_token = $this->get_credential('api_token');
+				$api_token = $this->get_credential('api_token', $blog_id);
 				if ( ! empty($api_token) ) {
 					$this->set_credentials_in_cf_class('api_token', compact('api_token'));
 					$this->credentials_ok = true;
@@ -345,8 +373,8 @@ class Servebolt_CF {
 				break;
 			case 'apiKey':
 			case 'api_key':
-				$email = $this->get_credential('email');
-				$api_key = $this->get_credential('api_key');
+				$email = $this->get_credential('email', $blog_id);
+				$api_key = $this->get_credential('api_key', $blog_id);
 				if ( ! empty($email) && ! empty($api_key) ) {
 					$this->set_credentials_in_cf_class('api_key', compact('email', 'api_key'));
 					$this->credentials_ok = true;
@@ -377,6 +405,7 @@ class Servebolt_CF {
 				break;
 		}
 		if ( isset($option_name) ) {
+			$blog_id = $this->get_blog_id($blog_id);
 			if ( is_numeric($blog_id) ) {
 				return sb_get_blog_option($blog_id, $option_name);
 			} else {
@@ -408,6 +437,7 @@ class Servebolt_CF {
 				break;
 		}
 		if ( isset($option_name) ) {
+			$blog_id = $this->get_blog_id($blog_id);
 			if ( is_numeric($blog_id) ) {
 				return sb_update_blog_option($blog_id, $option_name, $value, true);
 			} else {
@@ -427,6 +457,7 @@ class Servebolt_CF {
 	 * @return bool
 	 */
 	public function store_credentials($credentials, $type, $blog_id = false) {
+		$blog_id = $this->get_blog_id($blog_id);
 		switch ($type) {
 			case 'api_key':
 				if ( $this->set_authentication_type($type, $blog_id) && $this->store_credential('email', $credentials['email'], $blog_id) && $this->store_credential('api_key', $credentials['api_key'], $blog_id) ) {
@@ -497,6 +528,7 @@ class Servebolt_CF {
 	 * @return array|mixed|void
 	 */
 	public function get_items_to_purge($limit = false, $blog_id = false) {
+		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric($blog_id) ) {
 			$items = sb_get_blog_option($blog_id, 'cf_items_to_purge');
 		} else {
@@ -525,8 +557,8 @@ class Servebolt_CF {
 		}
 
 		// Posts page
-		if ( $blog_id = get_option( 'page_for_posts' ) ) {
-			array_push( $purge_urls, get_permalink($blog_id) );
+		if ( $page_for_posts = get_option( 'page_for_posts' ) ) {
+			array_push( $purge_urls, get_permalink($page_for_posts) );
 		}
 
 		// The post
@@ -625,6 +657,7 @@ class Servebolt_CF {
 	 * @return bool|mixed
 	 */
 	public function cron_purge_is_active($respect_override = true, $blog_id = false) {
+		$blog_id = $this->get_blog_id($blog_id);
 		$active_state_override = $this->cron_active_state_override();
 		if ( $respect_override && is_bool($active_state_override) ) {
 			return $active_state_override;
@@ -648,12 +681,19 @@ class Servebolt_CF {
 
 	/**
 	 * Toggle whether Cloudflare cache purge cron should be active or not.
-	 * @param bool $state
 	 *
-	 * @return bool
+	 * @param bool $state
+	 * @param bool $blog_id
+	 *
+	 * @return bool|mixed
 	 */
-	public function cf_toggle_cron_active(bool $state) {
-		return sb_update_option($this->cf_cron_active_option_key(), $state);
+	public function cf_toggle_cron_active(bool $state, $blog_id = false) {
+		$blog_id = $this->get_blog_id($blog_id);
+		if ( is_numeric($blog_id) ) {
+			return sb_update_blog_option($blog_id, $this->cf_cron_active_option_key(), $state);
+		} else {
+			return sb_update_option($this->cf_cron_active_option_key(), $state);
+		}
 	}
 
 	/**

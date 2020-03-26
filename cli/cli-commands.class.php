@@ -16,9 +16,9 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 *     wp servebolt clear-all-settings
 	 */
-	public function clear_all_settings() {
+	public function command_clear_all_settings() {
 		sb_clear_all_settings();
-		WP_CLI::success('All settings cleared!');
+		WP_CLI::success(sb__('All settings cleared!'));
 	}
 
 	/**
@@ -28,7 +28,7 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *
 	 *     wp servebolt db fix
 	 */
-	public function fix() {
+	public function command_fix() {
 		$this->optimize_database();
 	}
 
@@ -38,12 +38,13 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt db optimize
+	 *
 	 */
-	public function optimize_database() {
+	public function command_optimize_database() {
 		if ( ! sb_optimize_db()->optimize_db(true) ) {
-			WP_CLI::success('Optimization done');
+			WP_CLI::success(sb__('Optimization done'));
 		} else {
-			WP_CLI::warning('Everything OK. No optimization to do.');
+			WP_CLI::warning(sb__('Everything OK. No optimization to do.'));
 		}
 	}
 
@@ -53,13 +54,145 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt db analyze
+	 *
 	 */
-	public function analyze_tables() {
+	public function command_analyze_tables() {
 		if ( ! sb_optimize_db()->analyze_tables(true) ) {
-			WP_CLI::error('Could not analyze tables.');
+			WP_CLI::error(sb__('Could not analyze tables.'));
 		} else {
-			WP_CLI::success('Analyzed tables.');
+			WP_CLI::success(sb__('Analyzed tables.'));
 		}
+	}
+
+	/**
+	 * Set the post types that should be cached with Servebolt Full Page Cache.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Set post types on all sites in multisite
+	 *
+	 * [--all-post-types]
+	 * : Set cache for all post types
+	 *
+	 * [--post-types]
+	 * : The post types we would like to cache.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Activate cache for given post types on all sites
+	 *     wp servebolt fpc set-post-types --post-types=page,post --all
+	 *
+	 *     # Activate cache for all post types on current site
+	 *     wp servebolt fpc set-post-types --all-post-types
+	 *
+	 */
+	public function command_nginx_fpc_set_cache_post_types($args, $assoc_args) {
+		$post_types_string = sb_array_get('post-types', $assoc_args, '');
+		$post_types = sb_format_comma_string($post_types_string);
+		$all_post_types = array_key_exists('all-post-types', $assoc_args);
+
+		if ( $all_post_types ) {
+			$post_types = ['all'];
+		}
+
+		if ( empty($post_types) ) {
+			WP_CLI::error(sb__('No post types specified'));
+		}
+
+		if ( ! $all_post_types ) {
+			foreach($post_types as $post_type) {
+				if ( $post_type !== 'all' && ! get_post_type_object($post_type) ) {
+					WP_CLI::error(sprintf(sb__('Post type "%s" does not exist'), $post_type));
+				}
+			}
+		}
+
+		if ( $this->affect_all_sites($assoc_args) ) {
+			$this->iterate_sites(function($site) use ($post_types) {
+				$this->nginx_set_post_types($post_types, $site->blog_id);
+			});
+		} else {
+			$this->nginx_set_post_types($post_types);
+		}
+	}
+
+	/**
+	 * Set the post that should be excluded from the cache.
+	 *
+	 * ## OPTIONS
+	 *
+	 * <post_ids>
+	 * : The posts to exclude from cache.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Exclude cache for posts with ID 1, 2 and 3
+	 *     wp servebolt fpc set-excluded-posts 1,2,3
+	 *
+	 */
+	public function command_nginx_fpc_set_excluded_posts($args, $assoc_args) {
+		list($post_ids_raw) = $args;
+		$this->nginx_set_exclude_ids($post_ids_raw);
+	}
+
+	/**
+	 * Activatae Servebolt Full Page Cache.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Activate on all sites in multisite
+	 *
+	 * [--post-types=<post_types>]
+	 * : Comma separated list of post types to be activated
+	 *
+	 * [--exclude=<ids>]
+	 * : Comma separated list of ids to exclude for full page caching
+	 *
+	 * [--status]
+	 * : Display status after control is executed
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Activate Servebolt Full Page Cache, but only for pages and posts
+	 *     wp servebolt fpc activate --post-types=post,page
+	 *
+	 */
+	public function command_nginx_fpc_enable($args, $assoc_args) {
+		$this->nginx_fpc_control(true, $assoc_args);
+		if ( in_array('status', $assoc_args) ) $this->get_nginx_fpc_status($assoc_args, false);
+	}
+
+	/**
+	 * Deactivate Servebolt Full Page Cache.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--status]
+	 * : Display status after command is executed
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Deactivate Servebolt Full Page Cache
+	 *     wp servebolt fpc deactivate
+	 *
+	 */
+	public function command_nginx_fpc_disable($args, $assoc_args) {
+		$this->nginx_fpc_control(false);
+		if ( in_array('status', $assoc_args) ) $this->get_nginx_fpc_status($assoc_args, false);
+	}
+
+	/**
+	 * Return status of the Servebolt Full Page Cache.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp servebolt fpc status
+	 *
+	 */
+	public function command_nginx_fpc_status($args, $assoc_args) {
+		$this->get_nginx_fpc_status($assoc_args);
 	}
 
 	/**
@@ -73,9 +206,10 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf activate
+	 *
 	 */
-	public function cf_enable($args, $assoc_args) {
-		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
+	public function command_cf_enable($args, $assoc_args) {
+		$affect_all_sites = $this->affect_all_sites($assoc_args);
 		return sb_cf()->cf_toggle_active(true);
 	}
 
@@ -90,9 +224,10 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf deactivate
+	 *
 	 */
-	public function cf_disable($args, $assoc_args) {
-		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
+	public function command_cf_disable($args, $assoc_args) {
+		$affect_all_sites = $this->affect_all_sites($assoc_args);
 		return sb_cf()->cf_toggle_active(false);
 	}
 
@@ -102,8 +237,9 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf list-zones
+	 *
 	 */
-	public function cf_list_zones() {
+	public function command_cf_list_zones() {
 		$this->list_zones();
 	}
 
@@ -118,11 +254,12 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf clear-zone
+	 *
 	 */
-	public function cf_clear_zone($args, $assoc_args) {
-		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
+	public function command_cf_clear_zone($args, $assoc_args) {
+		$affect_all_sites = $this->affect_all_sites($assoc_args);
 		sb_cf()->clear_active_zone();
-		WP_CLI::success('Successfully cleared zone.');
+		WP_CLI::success(sb__('Successfully cleared zone.'));
 	}
 
 	/**
@@ -136,11 +273,12 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf clear-credentials
+	 *
 	 */
-	public function cf_clear_credentials($args, $assoc_args) {
-		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
+	public function command_cf_clear_credentials($args, $assoc_args) {
+		$affect_all_sites = $this->affect_all_sites($assoc_args);
 		sb_cf()->clear_credentials();
-		WP_CLI::success('Successfully cleared credentials.');
+		WP_CLI::success(sb__('Successfully cleared credentials.'));
 	}
 
 	/**
@@ -154,13 +292,14 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf test-api-connection
+	 *
 	 */
-	public function cf_test_api_connection($args, $assoc_args) {
-		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
+	public function command_cf_test_api_connection($args, $assoc_args) {
+		$affect_all_sites = $this->affect_all_sites($assoc_args);
 		if ( sb_cf()->test_api_connection() ) {
-			WP_CLI::success('API connection passed!');
+			WP_CLI::success(sb__('API connection passed!'));
 		} else {
-			WP_CLI::error(sprintf('Could not communicate with the API. Please check that API credentials are configured correctly and that we have the right permissions (%s).', sb_cf()->api_permissions_needed()));
+			WP_CLI::error(sprintf(sb__('Could not communicate with the API. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), sb_cf()->api_permissions_needed()));
 		}
 	}
 
@@ -172,8 +311,6 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * [--zone-id=<zone>]
 	 * : Cloudflare Zone id.
 	 *
-	 * ---
-	 *
 	 * ## EXAMPLES
 	 *
 	 *     # Set zone by attempting to fetch available zones from Cloudflare. Might not always work when using tokens that are limited to specific zones.
@@ -182,9 +319,8 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *     # Set zone without any integrity check.
 	 *     wp servebolt cf set-zone --zone-id="zone-id"
 	 *
-	 *
 	 */
-	public function cf_set_zone($args, $assoc_args) {
+	public function command_cf_set_zone($args, $assoc_args) {
 
 		// Allow to set zone without listing out available zones.
 		$zone_id = ( array_key_exists('zone-id', $assoc_args) && ! empty($assoc_args['zone-id']) ) ? $assoc_args['zone-id'] : false;
@@ -193,12 +329,12 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 			return;
 		}
 
-		WP_CLI::line('This will set/update which Cloudflare zone we are interacting with.');
+		WP_CLI::line(sb__('This will set/update which Cloudflare zone we are interacting with.'));
 
 		if ( $current_zone_id = sb_cf()->get_active_zone_id() ) {
 			$current_zone = sb_cf()->get_zone_by_id($current_zone_id);
 			if ( $current_zone ) {
-				WP_CLI::line(sprintf('Current zone is set to %s (%s)', $current_zone->name, $current_zone->id));
+				WP_CLI::line(sprintf(sb__('Current zone is set to %s (%s)'), $current_zone->name, $current_zone->id));
 			}
 		}
 
@@ -220,18 +356,18 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 		}
 		fclose($handle);
 		if ( ! $found_zone ) {
-			WP_CLI::error('Invalid selection, please try again.', false);
+			WP_CLI::error(sb__('Invalid selection, please try again.'), false);
 			goto select_zone;
 		}
 
 		// Notify user if the zone domain name does not match in the site URL.
 		$home_url = get_home_url();
 		if ( strpos($home_url, $found_zone->name) === false ) {
-			WP_CLI::warning(sprintf('Selected zone (%s) does not match with the URL fo the current site (%s). This will most likely inhibit cache purge to work.', $found_zone->name, $home_url));
+			WP_CLI::warning(sprintf(sb__('Selected zone (%s) does not match with the URL fo the current site (%s). This will most likely inhibit cache purge to work.'), $found_zone->name, $home_url));
 		}
 
 		sb_cf()->store_active_zone_id($found_zone->id);
-		WP_CLI::success(sprintf('Successfully selected zone %s', $found_zone->name));
+		WP_CLI::success(sprintf(sb__('Successfully selected zone %s'), $found_zone->name));
 
 	}
 
@@ -255,8 +391,6 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * [--all]
 	 * : Set Cloudflare API credentials on all sites in multisite-network.
 	 *
-	 * ---
-	 *
 	 * ## EXAMPLES
 	 *
 	 *     # Set credentials using email and API key.
@@ -266,78 +400,160 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 *     wp servebolt cf set-credentials token --api-token="your-api-token"
 	 *
 	 */
-	public function cf_set_credentials($args, $assoc_args) {
+	public function command_cf_set_credentials($args, $assoc_args) {
 		list($auth_type) = $args;
-		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
+		$affect_all_sites = $this->affect_all_sites($assoc_args);
+		$credential_data = $this->cf_prepare_credentials($auth_type, $assoc_args);
+		if ( $credential_data === false ) {
+			WP_CLI::error(sb__('Could not set credentials.'));
+		}
 
+		if ( $affect_all_sites ) {
+			foreach (get_sites() as $site) {
+				$store = sb_cf()->store_credentials($credential_data->credentials, $credential_data->type, $site->blog_id);
+				if ( $store === false ) break; // Abort, and continue to feedback if one fails
+			}
+		} else {
+			$store = sb_cf()->store_credentials($credential_data->credentials, $credential_data->type);
+		}
+
+		if ( isset($store) && $store ) {
+			if ( ! sb_cf()->test_api_connection() ) {
+				if ( $affect_all_sites ) {
+					WP_CLI::error(sprintf(sb__('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), sb_cf()->api_permissions_needed()), false);
+				} else {
+					WP_CLI::error(sprintf(sb__('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), sb_cf()->api_permissions_needed()), false);
+				}
+			} else {
+				WP_CLI::success(sprintf(sb__('Cloudflare credentials set using %s: %s'), $credential_data->verbose_type, $credential_data->verbose_credentials));
+				WP_CLI::success(sb__('API connection test passed!'));
+			}
+		} else {
+			if ( $affect_all_sites ) {
+				WP_CLI::error(sprintf(sb__('Could not set Cloudflare credentials on all sites set using %s: %s'), $credential_data->verbose_type, $credential_data->verbose_credentials));
+			} else {
+				WP_CLI::error(sprintf(sb__('Could not set Cloudflare credentials set using %s: %s'), $credential_data->verbose_type, $credential_data->verbose_credentials));
+			}
+		}
+	}
+
+	/**
+	 * Prepare credentials for storage.
+	 *
+	 * @param $auth_type
+	 * @param $assoc_args
+	 *
+	 * @return array|bool
+	 */
+	protected function cf_prepare_credentials($auth_type, $assoc_args) {
 		switch ( $auth_type ) {
 			case 'key':
 				$email = sb_array_get('email', $assoc_args);
 				$api_key = sb_array_get('api-key', $assoc_args);
 				if ( ! $email || empty($email) || ! $api_key || empty($api_key) ) {
-					WP_CLI::error('Please specify API key and email.');
+					WP_CLI::error(sb__('Please specify API key and email.'));
+					return;
 				}
 				$type         = 'api_key';
 				$verbose_type = 'API key';
 				$credentials = compact('email', 'api_key');
 				$verbose_credentials = implode(' / ', $credentials);
+				return (object) compact('type', 'verbose_type', 'credentials', 'verbose_credentials');
 				break;
 			case 'token':
 				$token = sb_array_get('api-token', $assoc_args);
 				if ( ! $token || empty($token) ) {
-					WP_CLI::error('Please specify a token.');
+					WP_CLI::error(sb__('Please specify a token.'));
+					return;
 				}
 				$type         = 'api_token';
 				$verbose_type = 'API token';
 				$credentials = $token;
 				$verbose_credentials = $credentials;
+				return (object) compact('type', 'verbose_type', 'credentials', 'verbose_credentials');
 				break;
-			default:
-				WP_CLI::error('Could not set credentials.');
 		}
+		return false;
+	}
 
-		if ( $affect_all_sites ) {
-			foreach (get_sites() as $site) {
-				$store = sb_cf()->store_credentials($credentials, $type, $site->blog_id);
-			}
+	/**
+	 * Check if the Cloudflare-feature is active/inactive.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Check on all sites in multisite
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp servebolt cf status
+	 *
+	 */
+	public function command_cf_status($args, $assoc_args) {
+		if ( $this->affect_all_sites( $assoc_args ) ) {
+			$this->iterate_sites( function ( $site ) {
+				$this->cf_status($site->blog_id);
+			} );
 		} else {
-			$store = sb_cf()->store_credentials($credentials, $type);
+			$this->cf_status();
 		}
+	}
 
-		if ( $store ) {
-			if ( ! sb_cf()->test_api_connection() ) {
-				WP_CLI::error(sprintf('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).', sb_cf()->api_permissions_needed()), false);
-			} else {
-				WP_CLI::success(sprintf('Cloudflare credentials set using %s: %s', $verbose_type, $verbose_credentials));
-				WP_CLI::success('API connection test passed!');
-			}
+	/**
+	 * Check if the Cloudflare cron cache purge-feature is active/inactive.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Check on all sites in multisite
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp servebolt cf cron status
+	 *
+	 */
+	public function command_cf_cron_status($args, $assoc_args) {
+		if ( $this->affect_all_sites( $assoc_args ) ) {
+			$this->iterate_sites( function ( $site ) {
+				$this->cf_cron_status($site->blog_id);
+			} );
 		} else {
-			WP_CLI::error(sprintf('Could not set Cloudflare credentials set using %s: %s', $verbose_type, $verbose_credentials));
+			$this->cf_cron_status();
 		}
 	}
 
 	/**
 	 * Schedule the cron to execute queue-based cache purge.
 	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Schedule on all sites in multisite
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf cron activate
 	 *
 	 */
-	public function cf_cron_enable( $args, $assoc_args ) {
-		$this->cf_cron_control(true, $assoc_args);
+	public function command_cf_cron_enable($args, $assoc_args) {
+		$this->cf_cron_toggle( true, $assoc_args );
 	}
 
 	/**
-	 * Un-schedule the cron cache purge,
+	 * Un-schedule the cron to execute queue-based cache purge.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Un-schedule on all sites in multisite
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf cron deactivate
 	 *
 	 */
-	public function cf_cron_disable( $args, $assoc_args ) {
-		$this->cf_cron_control(false, $assoc_args);
+	public function command_cf_cron_disable($args, $assoc_args) {
+		$this->cf_cron_toggle( false, $assoc_args );
 	}
 
 	/**
@@ -348,175 +564,19 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * [--all]
 	 * : Clear queue on all sites in multisite
 	 *
-	 * ---
-	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf clear-cache-purge-queue
 	 *
 	 */
-	public function cf_clear_cache_purge_queue( $args, $assoc_args ) {
-		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
-
-		if ( $affect_all_sites ) {
-			foreach (get_sites() as $site) {
-
-			}
+	public function command_cf_clear_cache_purge_queue($args, $assoc_args ) {
+		if ( $this->affect_all_sites( $assoc_args ) ) {
+			$this->iterate_sites( function ( $site ) {
+				$this->cf_clear_cache_purge_queue($site->blog_id);
+			} );
 		} else {
-
+			$this->cf_clear_cache_purge_queue();
 		}
-
-		/*
-		if ( ! sb_cf()->cron_purge_is_active() ) {
-			WP_CLI::warning(sb__('Note: cache purge via cron is not active.'));
-		}
-		if ( sb_cf()->has_items_to_purge() ) {
-			sb_cf()->clear_items_to_purge();
-			WP_CLI::success(sb__('Cache purge queue cleared.'));
-		} else {
-			WP_CLI::warning('Cache purge queue already empty.');
-		}
-		*/
-	}
-
-	/**
-	 * Set the post types that should be cached with Nginx Full Page Cache.
-	 *
-	 * ## OPTIONS
-	 *
-	 * [--all]
-	 * : Set post types on all sites in multisite
-	 *
-	 * [--all-post-types]
-	 * : Set cache for all post types
-	 *
-	 * [--post-types]
-	 * : The post types we would like to cache.
-	 *
-	 * ---
-	 *
-	 * ## EXAMPLES
-	 *
-	 *     # Activate cache for given post types on all sites
-	 *     wp servebolt fpc set-post-types --post-types=page,post --all
-	 *
-	 *     # Activate cache for all post types on current site
-	 *     wp servebolt fpc set-post-types --all-post-types
-	 *
-	 */
-	public function nginx_fpc_set_cache_post_types($args, $assoc_args) {
-		$post_types_string = sb_array_get('post-types', $assoc_args, '');
-		$post_types = sb_format_comma_string($post_types_string);
-		$all_post_types = array_key_exists('all-post-types', $assoc_args);
-		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
-
-		if ( $all_post_types ) {
-			$post_types = ['all'];
-		}
-
-		if ( empty($post_types) ) {
-			WP_CLI::error(sb__('No post types specified'));
-		}
-
-		if ( ! $all_post_types ) {
-			foreach($post_types as $post_type) {
-				if ( $post_type !== 'all' && ! get_post_type_object($post_type) ) {
-					WP_CLI::error(sb__(sprintf('Post type "%s" does not exist', $post_type)));
-				}
-			}
-		}
-
-		if ( $affect_all_sites ) {
-			foreach (get_sites() as $site) {
-				$this->nginx_set_post_types($post_types, $site->blog_id);
-			}
-		} else {
-			$this->nginx_set_post_types($post_types);
-		}
-	}
-
-	/**
-	 * Set the post that should be excluded from the cache.
-	 *
-	 * ## OPTIONS
-	 *
-	 * <post_ids>
-	 * : The posts to exclude from cache.
-	 *
-	 * ---
-	 *
-	 * ## EXAMPLES
-	 *
-	 *     # Exclude cache for posts with ID 1, 2 and 3
-	 *     wp servebolt fpc set-excluded-posts 1,2,3
-	 *
-	 */
-	public function nginx_fpc_set_excluded_posts($args, $assoc_args) {
-		list($post_ids_raw) = $args;
-		$this->nginx_set_exclude_ids($post_ids_raw);
-	}
-
-	/**
-	 * Enable Nginx Full Page Cache.
-	 *
-	 * ## OPTIONS
-	 *
-	 * [--all]
-	 * : Activate on all sites in multisite
-	 *
-	 * [--post-types=<post_types>]
-	 * : Comma separated list of post types to be activated
-	 *
-	 * [--exclude=<ids>]
-	 * : Comma separated list of ids to exclude for full page caching
-	 *
-	 * [--status]
-	 * : Display status after control is executed
-	 *
-	 * ---
-	 *
-	 * ## EXAMPLES
-	 *
-	 *     # Activate Servebolt Full Page Cache, but only for pages and posts
-	 *     wp servebolt fpc activate --post-types=post,page
-	 *
-	 */
-	public function nginx_fpc_enable( $args, $assoc_args ) {
-		$this->nginx_fpc_control(true, $assoc_args);
-		if ( in_array('status', $assoc_args) ) $this->get_nginx_fpc_status($assoc_args, false);
-	}
-
-	/**
-	 * Disable Nginx Full Page Cache.
-	 *
-	 * ## OPTIONS
-	 *
-	 * [--status]
-	 * : Display status after command is executed
-	 *
-	 * ---
-	 *
-	 * ## EXAMPLES
-	 *
-	 *     # Deactivate Servebolt Full Page Cache
-	 *     wp servebolt fpc deactivate
-	 *
-	 */
-	public function nginx_fpc_disable( $args, $assoc_args ) {
-		$this->nginx_fpc_control(false);
-		if ( in_array('status', $assoc_args) ) $this->get_nginx_fpc_status($assoc_args, false);
-	}
-
-	/**
-	 * Return status of the Servebolt Full Page Cache.
-	 *
-	 * ## EXAMPLES
-	 *
-	 *     wp servebolt fpc status
-	 *
-	 */
-	public function nginx_fpc_status( $args, $assoc_args  ) {
-		$this->get_nginx_fpc_status($assoc_args);
 	}
 
 	/**
@@ -527,20 +587,18 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * <URL>
 	 * : The URL that should be cleared cache for.
 	 *
-	 * ---
-	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf purge url <URL>
 	 *
 	 */
-	public function cf_purge_url($args) {
+	public function command_cf_purge_url($args) {
 		list($url) = $args;
-		WP_CLI::line(sprintf('Purging cache for url %s', $url));
+		WP_CLI::line(sprintf(sb__('Purging cache for url %s'), $url));
 		if ( sb_cf()->purge_by_url($url) ) {
-			WP_CLI::success('Cache purged!');
+			WP_CLI::success(sb__('Cache purged!'));
 		} else {
-			WP_CLI::error('Could not purge cache.');
+			WP_CLI::error(sb__('Could not purge cache.'));
 		}
 	}
 
@@ -552,43 +610,49 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * <post ID>
 	 * : The post ID of the post that should be cleared cache for.
 	 *
-	 * ---
-	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf purge post <post ID>
 	 *
 	 */
-	public function cf_purge_post($args) {
+	public function command_cf_purge_post($args) {
 		list($post_id) = $args;
-		WP_CLI::line(sprintf('Purging cache for post %s', $post_id));
+		WP_CLI::line(sprintf(sb__('Purging cache for post %s'), $post_id));
 		if ( sb_cf()->purge_post($post_id) ) {
-			WP_CLI::success('Cache purged!');
+			WP_CLI::success(sb__('Cache purged!'));
 		} else {
-			WP_CLI::error('Could not purge cache.');
+			WP_CLI::error(sb__('Could not purge cache.'));
 		}
 	}
 
 	/**
 	 * Clear all Cloudflare cache.
 	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Display config for all sites.
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf purge all
 	 *
 	 */
-	public function cf_purge_all() {
-		$current_zone_id = sb_cf()->get_active_zone_id();
-		if ( $current_zone_id && $current_zone = sb_cf()->get_zone_by_id($current_zone_id) ) {
-			WP_CLI::line(sprintf('Purging all cache for zone %s', $current_zone->name));
+	public function command_cf_purge_all($args, $assoc_args) {
+		if ( $this->affect_all_sites($assoc_args) ) {
+			$this->iterate_sites(function($site) {
+				if ( $this->cf_purge_all($site->blog_id) ) {
+					WP_CLI::success(sprintf(sb__('All cache was purged for %s'), get_site_url($site->blog_id)), false);
+				} else {
+					WP_CLI::error(sprintf(sb__('Could not purge cache for %s'), get_site_url($site->blog_id)), false);
+				}
+			});
 		} else {
-			WP_CLI::line('Purging all cache');
-		}
-
-		if ( sb_cf()->purge_all() ) {
-			WP_CLI::success('Cache purged!');
-		} else {
-			WP_CLI::error('Could not purge cache.');
+			if ( $this->cf_purge_all() ) {
+				WP_CLI::success(sb__('All cache was purged.'));
+			} else {
+				WP_CLI::error(sb__('Could not purge cache.'));
+			}
 		}
 	}
 
@@ -600,22 +664,20 @@ abstract class Servebolt_CLI_Commands extends Servebolt_CLI_Extras {
 	 * [--all]
 	 * : Display config for all sites.
 	 *
-	 * ---
-	 *
 	 * ## EXAMPLES
 	 *
 	 *     wp servebolt cf get-config
+	 *
 	 */
-	public function cf_get_config($args, $assoc_args) {
-		$affect_all_sites = is_multisite() && array_key_exists('all', $assoc_args);
+	public function command_cf_get_config($args, $assoc_args) {
 		$arr = [];
-		if ( $affect_all_sites ) {
-			foreach (get_sites() as $site) {
-				$arr[] = $this->cf_get_config_for_blog($site->blog_id);
-			}
-			$arr = $this->cf_ensure_config_array_integrity($arr);
+		if ( $this->affect_all_sites($assoc_args) ) {
+			$this->iterate_sites(function($site) use(&$arr) {
+				$arr[] = $this->cf_get_config($site->blog_id);
+			});
+			$arr = $this->cf_ensure_config_array_integrity($arr); // Make sure each item has the same column-structure
 		} else {
-			$arr[] = $this->cf_get_config_for_blog();
+			$arr[] = $this->cf_get_config();
 		}
 		WP_CLI\Utils\format_items('table', $arr, array_keys(current($arr)));
 	}
