@@ -480,7 +480,7 @@ function sb_get_next_cron_time($cron_name) {
  * @return bool
  */
 function sb_is_debug() {
-	return ( defined('WP_DEBUG') && WP_DEBUG === true ) || ( array_key_exists('debug', $_GET) && filter_var($_GET['debug'], FILTER_VALIDATE_BOOLEAN) === true );
+	return ( defined('WP_DEBUG') && WP_DEBUG === true ) || ( array_key_exists('debug', $_GET) );
 }
 
 /**
@@ -489,7 +489,7 @@ function sb_is_debug() {
  * @return bool
  */
 function sb_is_dev_debug() {
-	return ( defined('SB_DEBUG') && SB_DEBUG === true ) || ( array_key_exists('debug', $_GET) && filter_var($_GET['debug'], FILTER_VALIDATE_BOOLEAN) === true );
+	return ( defined('SB_DEBUG') && SB_DEBUG === true ) || ( array_key_exists('debug', $_GET ) );
 }
 
 /**
