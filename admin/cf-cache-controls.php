@@ -106,6 +106,7 @@ class CF_Cache_Controls {
 	 */
 	private function add_ajax_handling() {
 		add_action( 'wp_ajax_servebolt_purge_all_cache', [ $this, 'purge_all_cache_callback' ] );
+		add_action( 'wp_ajax_servebolt_purge_network_cache', [ $this, 'purge_network_cache_callback' ] );
 		add_action( 'wp_ajax_servebolt_purge_url', [ $this, 'purge_url_callback' ] );
 		add_action( 'wp_ajax_servebolt_validate_cf_settings', [ $this, 'validate_cf_settings_form_callback' ] );
 		add_action( 'wp_ajax_servebolt_lookup_zones', [ $this, 'lookup_zones_callback' ] );
@@ -118,6 +119,8 @@ class CF_Cache_Controls {
 	 */
 	public function update_cache_purge_queue_callback() {
 		check_ajax_referer( sb_get_ajax_nonce_key(), 'security' );
+		sb_ajax_user_allowed();
+
 		$items_to_remove = sb_array_get('items', $_POST);
 		if ( $items_to_remove === 'all' ) {
 			sb_cf()->set_items_to_purge([]);
@@ -142,6 +145,8 @@ class CF_Cache_Controls {
 	 */
 	public function lookup_zone_callback() {
 		check_ajax_referer( sb_get_ajax_nonce_key(), 'security' );
+		sb_ajax_user_allowed();
+
 		parse_str($_POST['form'], $form_data);
 		$auth_type = sanitize_text_field($form_data['servebolt_cf_auth_type']);
 		$api_token = sanitize_text_field($form_data['servebolt_cf_api_token']);
@@ -191,6 +196,8 @@ class CF_Cache_Controls {
 	 */
 	public function lookup_zones_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+		sb_ajax_user_allowed();
+
 		$auth_type = sanitize_text_field($_POST['auth_type']);
 		$credentials = $_POST['credentials'];
 		try {
@@ -213,9 +220,9 @@ class CF_Cache_Controls {
 	 */
 	public function validate_cf_settings_form_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+		sb_ajax_user_allowed();
 
 		parse_str($_POST['form'], $form_data);
-
 		$errors = [];
 
 		$is_active = array_key_exists('servebolt_cf_switch', $form_data) && filter_var($form_data['servebolt_cf_switch'], FILTER_VALIDATE_BOOLEAN) === true;
@@ -319,8 +326,24 @@ class CF_Cache_Controls {
 	/**
 	 * Purge all cache in Cloudflare cache.
 	 */
+	public function purge_network_cache_callback() {
+		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+		sb_require_superadmin();
+		wp_send_json_success();
+		// TODO: Purge all cache on all blogs
+		/*
+		sb_iterate_sites(function($site) {
+
+		});
+		*/
+	}
+
+	/**
+	 * Purge all cache in Cloudflare cache.
+	 */
 	public function purge_all_cache_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+		sb_ajax_user_allowed();
 		if ( ! sb_cf()->cf_cache_feature_available() ) {
 			wp_send_json_error(['message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.']);
 		} elseif ( sb_cf()->purge_all() ) {
@@ -335,6 +358,7 @@ class CF_Cache_Controls {
 	 */
 	public function purge_url_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+		sb_ajax_user_allowed();
 		$url = esc_url_raw($_POST['url']);
 		if ( ! $url || empty($url) ) {
 			wp_send_json_error(['message' => 'Please specify the URL you would like to purge cache for.']);

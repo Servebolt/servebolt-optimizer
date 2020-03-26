@@ -88,9 +88,8 @@ function sb_boolean_to_state_string($state) {
  * @return bool|string
  */
 function sb_get_admin_url() {
-	$webroot_path = get_home_path();
-	//$webroot_path = '/kunder/serveb_1234/custom_1234/public'; // For testing
-	return ( preg_match( "@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $webroot_path, $matches ) ) ? 'https://admin.servebolt.com/siteredirect/?site='. $matches[1] : false;
+	$web_root_path = sb_is_dev_debug() ? '/kunder/serveb_1234/custom_4321/public' : get_home_path();
+	return ( preg_match( "@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $web_root_path, $matches ) ) ? 'https://admin.servebolt.com/siteredirect/?site='. $matches[1] : false;
 }
 
 /**
@@ -399,6 +398,51 @@ function sb_update_blog_option($blog_id, $option_name, $value, $assert_update = 
 		return ( sb_get_blog_option($blog_id, $option_name) == $value );
 	}
 	return true;
+}
+
+/**
+ * Check if current user has capability, abort if not.
+ *
+ * @param bool $return_result
+ * @param string $capability
+ *
+ * @return mixed
+ */
+function sb_ajax_user_allowed($return_result = false, $capability = 'manage_options') {
+	$user_can = apply_filters('sb_optimizer_ajax_user_allowed', current_user_can($capability));
+	if ( $return_result ) {
+		return $user_can;
+	}
+	if ( ! $user_can ) {
+		wp_die();
+	}
+}
+
+/**
+ * Run function closure for each site in multisite-network.
+ *
+ * @param $function
+ *
+ * @return bool
+ */
+function sb_iterate_sites($function) {
+	$sites = apply_filters('sb_optimizer_site_iteration', get_sites(), $function);
+	if ( is_array($sites) ) {
+		foreach ($sites as $site) {
+			$function($site);
+		}
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Require the user to be a super admin.
+ */
+function sb_require_superadmin() {
+	if ( ! is_super_admin() ) {
+		wp_die();
+	}
 }
 
 /**

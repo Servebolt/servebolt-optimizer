@@ -56,9 +56,8 @@ class Servebolt_Admin_Interface {
 		if ( sb_is_dev_debug() ) {
 			add_submenu_page('servebolt-wp', sb__('Debug'), sb__('Debug'), 'manage_options', 'servebolt-debug', [$this, 'debug_callback']);
 		}
-		if ( ! is_network_admin() ) {
-			add_action( 'admin_bar_menu', [ $this, 'admin_bar' ], 100 );
-		}
+
+		add_action( 'admin_bar_menu', [ $this, 'admin_bar' ], 100 );
 	}
 
 	/**
@@ -163,16 +162,12 @@ class Servebolt_Admin_Interface {
 	}
 
 	/**
-	 * Add our items to the admin bar.
+	 * Get admin bar nodes.
 	 *
-	 * @param $wp_admin_bar
+	 * @return array
 	 */
-	public function admin_bar($wp_admin_bar) {
-		if ( ! apply_filters('sb_optimizer_display_admin_bar_menu', true) ) return;
-
+	private function get_admin_bar_nodes() {
 		$nodes = [];
-		$sb_icon = '<span class="servebolt-icon"></span>';
-		$cache_purge_available = sb_cf()->cf_is_active();
 
 		if ( $admin_url = sb_get_admin_url() ) {
 			$nodes[] = [
@@ -186,17 +181,64 @@ class Servebolt_Admin_Interface {
 			];
 		}
 
-		if ( $cache_purge_available ) {
+		$method = is_multisite() && is_network_admin() ? 'network_admin_url' : 'admin_url';
+		$nodes[] = [
+			'id'     => 'servebolt-plugin-settings',
+			'title'  => sb__('Settings'),
+			'href'   => $method('admin.php?page=servebolt-wp'),
+			'meta'   => [
+				'target' => '',
+				'class' => 'sb-admin-button'
+			]
+		];
+
+		if ( is_network_admin() ) {
+
+			// TODO: Complete feature
+			/*
 			$nodes[] = [
 				'id'     => 'servebolt-clear-cf-cache',
 				'title'  => sb__('Purge Cloudflare Cache'),
 				'href'   => '#',
 				'meta'   => [
 					'target' => '_blank',
-					'class' => 'sb-admin-button sb-purge-all-cache'
+					'class' => 'sb-admin-button sb-purge-network-cache'
 				]
 			];
+			*/
+
+		} else {
+
+			$cache_purge_available = sb_cf()->cf_is_active() && sb_cf()->cf_cache_feature_available();
+			if ( $cache_purge_available ) {
+				$nodes[] = [
+					'id'     => 'servebolt-clear-cf-cache',
+					'title'  => sb__('Purge Cloudflare Cache'),
+					'href'   => '#',
+					'meta'   => [
+						'target' => '_blank',
+						'class' => 'sb-admin-button sb-purge-all-cache'
+					]
+				];
+			}
+
 		}
+		return $nodes;
+	}
+
+	/**
+	 * Add our items to the admin bar.
+	 *
+	 * @param $wp_admin_bar
+	 */
+	public function admin_bar($wp_admin_bar) {
+		if ( ! apply_filters('sb_optimizer_display_admin_bar_menu', true) ) return;
+
+		if ( ! current_user_can('manage_options') ) return;
+
+		$admin_url = sb_get_admin_url();
+		$sb_icon = '<span class="servebolt-icon"></span>';
+		$nodes = $this->get_admin_bar_nodes();
 
 		if ( count($nodes) > 1 ) {
 			$parent_id = 'servebolt-optimizer';
@@ -208,7 +250,7 @@ class Servebolt_Admin_Interface {
 				[
 					'id'     => $parent_id,
 					'title'  => $sb_icon . sb__('Servebolt Optimizer'),
-					'href'   => $admin_url,
+					'href'   => $admin_url ?: '#',
 					'meta'   => [
 						'target' => '_blank',
 						'class' => 'sb-admin-button'
@@ -222,8 +264,10 @@ class Servebolt_Admin_Interface {
 			}, $nodes);
 		}
 
-		foreach ( $nodes as $node ) {
-			$wp_admin_bar->add_node($node);
+		if ( ! empty($nodes) ) {
+			foreach ( $nodes as $node ) {
+				$wp_admin_bar->add_node($node);
+			}
 		}
 
 	}

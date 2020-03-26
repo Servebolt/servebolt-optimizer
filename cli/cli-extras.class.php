@@ -145,7 +145,7 @@ abstract class Servebolt_CLI_Extras {
 	 */
 	protected function cf_cron_toggle($state, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			$this->iterate_sites(function ( $site ) use ($state) {
+			sb_iterate_sites(function ( $site ) use ($state) {
 				$this->cf_cron_control($state, $site->blog_id);
 			});
 		} else {
@@ -626,24 +626,6 @@ abstract class Servebolt_CLI_Extras {
 			if ( $post_types ) $this->nginx_set_post_types($post_types);
 			if ( $exclude_ids ) $this->nginx_set_exclude_ids($exclude_ids);
 		}
-	}
-
-	/**
-	 * Run function closure for each site in multisite-network.
-	 *
-	 * @param $function
-	 *
-	 * @return bool
-	 */
-	protected function iterate_sites($function) {
-		$sites = apply_filters('sb_optimizer_site_iteration', get_sites(), $function);
-		if ( is_array($sites) ) {
-			foreach ($sites as $site) {
-				$function($site);
-			}
-			return true;
-		}
-		return false;
 	}
 
 	/**

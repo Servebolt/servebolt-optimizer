@@ -12,7 +12,13 @@ jQuery(document).ready(function($) {
     sb_wreak_havoc();
   });
 
-  // Purge all
+  // Purge network cache
+  $('.sb-purge-network-cache').click(function(e) {
+    e.preventDefault();
+    sb_purge_network_cache();
+  });
+
+  // Purge all cache
   $('.sb-purge-all-cache').click(function(e) {
     e.preventDefault();
     sb_purge_all_cache();
@@ -668,6 +674,57 @@ jQuery(document).ready(function($) {
       }
     });
     return false;
+  }
+
+
+  /**
+   * Clear network cache in Cloudflare.
+   */
+  // TODO: Complete this feature
+  function sb_purge_network_cache() {
+    Swal.fire({
+      title: 'Do you want to purge all cache?',
+      text: 'This includes all your sites in the network',
+      icon: 'warning',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: 'servebolt-button yellow',
+        cancelButton: 'servebolt-button light'
+      },
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.value) {
+        sb_loading(true);
+        var data = {
+          action: 'servebolt_purge_network_cache',
+          security: ajax_object.ajax_nonce,
+        };
+        $.ajax({
+          type: 'POST',
+          url: ajaxurl,
+          data: data,
+          success: function(response) {
+            sb_loading(false);
+            if ( response.success ) {
+              setTimeout(function () {
+                sb_success('All good!', 'The cache was purged on all sites.');
+              }, 100);
+            } else {
+              var message = sb_get_message_from_response(response);
+              if ( message ) {
+                sb_cache_purge_error(message);
+              } else {
+                sb_cache_purge_error(null, false);
+              }
+            }
+          },
+          error: function() {
+            sb_loading(false);
+            sb_cache_purge_error(null, false);
+          }
+        });
+      }
+    });
   }
 
   /**
