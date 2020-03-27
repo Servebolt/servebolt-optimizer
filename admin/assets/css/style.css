@@ -241,7 +241,7 @@
     display: none;
 }
 
-#sb-configuration #purge-items-table .fpc-exclude-item-column,
+#sb-nginx-fpc-form #nginx-fpc-ids-to-exclude-table .fpc-exclude-item-column,
 #sb-configuration #purge-items-table .purge-item-column {
     padding-left: 0;
     padding-top: 10px;

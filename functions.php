@@ -632,7 +632,7 @@ function fpc_exclude_post_table_row_markup($post_id, $echo = true) {
         <input id="cb-select-<?php echo $post_id; ?>" type="checkbox">
       </th>
         <?php if ( $is_post ) : ?>
-      <td class="column-post-id has-row-actions exclude-item-column">
+      <td class="column-post-id has-row-actions fpc-exclude-item-column">
 	          <?php echo $post_id; ?>
             <div class="row-actions">
               <span class="trash"><a href="#" class="sb-remove-item-from-fpc-post-exclude"><?php sb_e('Delete'); ?></a> | </span>
