@@ -144,15 +144,12 @@ class Servebolt_Checks {
 	private function get_all_tables(){
 		global $wpdb;
 		if ( is_multisite() ) {
-			$sites = get_sites();
 			$tables = [];
-			foreach ($sites as $site){
-				$id = $site->blog_id;
-				switch_to_blog($id);
-				$siteTables = $wpdb->tables;
-				$tables[$id] = array_flip($siteTables);
+			sb_iterate_sites(function($site) use ($wpdb, $tables) {
+				switch_to_blog($site->blog_id);
+				$tables[$site->blog_id] = array_flip($wpdb->tables);
 				restore_current_blog();
-			}
+			});
 		} else {
 			$tables = $wpdb->tables;
 		}

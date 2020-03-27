@@ -87,6 +87,31 @@ class Servebolt_CF {
 	}
 
 	/**
+	 * Switch API credentials and zone to the specified blog.
+	 *
+	 * @param bool $blog_id
+	 *
+	 * @return bool|null
+	 */
+	public function cf_switch_to_blog($blog_id = false) {
+		if ( $blog_id === false ) {
+			return true;
+		}
+		if ( is_numeric($blog_id) ) {
+			$this->cf_init($blog_id);
+			return true;
+		}
+		return null;
+	}
+
+	/**
+	 * Switch API credentials and zone back to the current blog.
+	 */
+	public function cf_restore_current_blog() {
+		return $this->cf_init(false);
+	}
+
+	/**
 	 * Get cron key used for scheduling Cloudflare cache purge.
 	 *
 	 * @return string
@@ -167,6 +192,15 @@ class Servebolt_CF {
 	 */
 	private function verify_user() {
 		return $this->cf()->verify_user();
+	}
+
+	/**
+	 * Check if we should use Cloudflare feature.
+	 *
+	 * @return bool
+	 */
+	public function should_user_cf_feature() {
+		return $this->cf_is_active() && $this->cf_cache_feature_available();
 	}
 
 	/**

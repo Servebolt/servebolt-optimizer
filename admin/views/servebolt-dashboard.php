@@ -10,7 +10,7 @@
         <?php $method = is_multisite() && is_network_admin() ? 'network_admin_url' : 'admin_url'; ?>
 
         <a href="<?php echo $method('admin.php?page=servebolt-performance-tools'); ?>" class="sb-button yellow"><?php sb_e('Optimize your database'); ?></a>
-        <a href="<?php echo $method('admin.php?page=servebolt-cf-cache'); ?>" class="sb-button yellow"><?php sb_e('Cloudflare Cache'); ?></a>
+        <a href="<?php echo $method('admin.php?page=servebolt-cf'); ?>" class="sb-button yellow"><?php sb_e('Cloudflare Cache'); ?></a>
 	      <?php if ( host_is_servebolt() ) : ?>
           <a href="<?php echo $method('admin.php?page=servebolt-nginx-cache'); ?>" class="sb-button yellow"><?php sb_e('Full Page Cache settings') ?></a>
           <a href="<?php echo $method('admin.php?page=servebolt-logs'); ?>" class="sb-button yellow"><?php sb_e('Review the error log') ?></a>
@@ -18,7 +18,7 @@
 
 	    <?php else : ?>
 
-        <a href="<?php echo admin_url('admin.php?page=servebolt-cf-cache'); ?>" class="sb-button yellow"><?php sb_e('Cloudflare Cache'); ?></a>
+        <a href="<?php echo admin_url('admin.php?page=servebolt-cf'); ?>" class="sb-button yellow"><?php sb_e('Cloudflare Cache'); ?></a>
 	      <?php if ( host_is_servebolt() ) : ?>
           <a href="<?php echo admin_url('admin.php?page=servebolt-nginx-cache'); ?>" class="sb-button yellow"><?php sb_e('Full Page Cache settings') ?></a>
 	      <?php endif; ?>

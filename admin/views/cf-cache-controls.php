@@ -44,7 +44,7 @@
           <td><?php echo $site->blog_id; ?></td>
           <td><?php echo $site->domain . $site->path; ?></td>
           <td><?php echo sb_cf()->cf_is_active($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
-          <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-cf-cache' ); ?>" class="button btn"><?php sb_e('Go to site Cloudflare settings'); ?></a></td>
+          <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-cf' ); ?>" class="button btn"><?php sb_e('Go to site Cloudflare settings'); ?></a></td>
         </tr>
 	  <?php endforeach; ?>
       </tbody>
@@ -54,7 +54,7 @@
 
     <?php $cf_settings = sb_cf_cache_controls()->get_settings_items(); ?>
 
-    <?php if ( sb_cf()->cf_is_active() && sb_cf()->cf_cache_feature_available() ) : ?>
+    <?php if ( sb_cf()->should_user_cf_feature() ) : ?>
       <?php if ( ! sb_cf()->cf_cache_feature_available() ) : ?>
       <p><?php sb_e('Make sure you have added the API credentials and selected a zone to use this functionality.'); ?></p>
       <?php endif; ?>
@@ -204,14 +204,14 @@
 
               <?php $items_to_purge = sb_cf()->get_items_to_purge($max_number_of_cache_purge_queue_items); ?>
 
-              <span class="spinner purge-queue-loading-spinner"></span>
-
-              <button type="button" style="float:left;" class="button action flush-purge-items-queue"<?php if ( count($items_to_purge) === 0 ) echo ' disabled'; ?>><?php sb_e('Flush queue'); ?></button>
-
               <div class="tablenav top">
                 <div class="alignleft actions bulkactions">
                   <button type="button" class="button action remove-selected-purge-items" disabled><?php sb_e('Remove selected'); ?></button>
                 </div>
+                <div class="alignleft actions bulkactions">
+                  <button type="button" style="float:left;" class="button action flush-purge-items-queue"<?php if ( count($items_to_purge) === 0 ) echo ' disabled'; ?>><?php sb_e('Flush queue'); ?></button>
+                </div>
+                <span class="spinner purge-queue-loading-spinner"></span>
                 <br class="clear">
               </div>
 
@@ -254,7 +254,7 @@
                   <tr class="purge-item">
                     <th scope="row" class="check-column">
                       <label class="screen-reader-text" for="cb-select-<?php echo $i; ?>">Select "<?php echo $is_post ? $title : $url; ?>"</label>
-                      <input type="hidden" name="<?php echo sb_get_option_name('cf_items_to_purge'); ?>[]" class="purge-item-input" value="<?php echo esc_attr($item); ?>">
+                      <input type="hidden" class="purge-item-input" value="<?php echo esc_attr($item); ?>">
                       <input id="cb-select-<?php echo $i; ?>" type="checkbox">
                     </th>
                     <?php if ( $is_post ) : ?>

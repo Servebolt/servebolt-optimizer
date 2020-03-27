@@ -32,11 +32,6 @@ class Servebolt_Optimize_DB {
 	private $tasks = [];
 
 	/**
-	 * @var null Sites in a multisite setup.
-	 */
-	private $sites = null;
-
-	/**
 	 * @var bool Whether we run this via CLI or not.
 	 */
 	private $cli = false;
@@ -350,11 +345,11 @@ class Servebolt_Optimize_DB {
 	 */
 	public function deoptimize_indexed_tables() {
 		if ( is_multisite() ) {
-			foreach ( $this->get_sites() as $site ) {
+			sb_iterate_sites(function($site) {
 				switch_to_blog( $site->blog_id );
 				$this->remove_indexes();
 				restore_current_blog();
-			}
+			});
 		} else {
 			$this->remove_indexes();
 		}
@@ -387,7 +382,7 @@ class Servebolt_Optimize_DB {
 	private function optimize_post_meta_tables() {
 		$post_meta_tables_with_post_meta_value_index = $this->tables_with_index_on_column('postmeta', 'meta_value');
 		if ( is_multisite() ) {
-			foreach ( $this->get_sites() as $site ) {
+			sb_iterate_sites(function($site) use($post_meta_tables_with_post_meta_value_index) {
 				switch_to_blog( $site->blog_id );
 				if ( ! in_array($this->wpdb()->postmeta, $post_meta_tables_with_post_meta_value_index ) ) {
 					$this->meta_value_index_addition['count']++;
@@ -400,7 +395,7 @@ class Servebolt_Optimize_DB {
 					}
 				}
 				restore_current_blog();
-			}
+			});
 		} else {
 			if ( ! in_array($this->wpdb()->postmeta, $post_meta_tables_with_post_meta_value_index ) ) {
 				if ( $this->dry_run || $this->add_post_meta_index() ) {
@@ -420,7 +415,7 @@ class Servebolt_Optimize_DB {
 	private function optimize_options_tables() {
 		$options_tables_with_autoload_index = $this->tables_with_index_on_column('options', 'autoload');
 		if ( is_multisite() ) {
-			foreach ( $this->get_sites() as $site ) {
+			sb_iterate_sites(function($site) use ($options_tables_with_autoload_index) {
 				switch_to_blog( $site->blog_id );
 				if ( ! in_array($this->wpdb()->options, $options_tables_with_autoload_index ) ) {
 					$this->autoload_index_addition['count']++;
@@ -433,7 +428,7 @@ class Servebolt_Optimize_DB {
 					}
 				}
 				restore_current_blog();
-			}
+			});
 		} else {
 			if ( ! in_array($this->wpdb()->options, $options_tables_with_autoload_index ) ) {
 				if ( $this->dry_run || $this->add_options_autoload_index() ) {
@@ -459,11 +454,11 @@ class Servebolt_Optimize_DB {
 	private function tables_with_index_on_column($table_name, $column_name) {
 		$tables = [];
 		if ( is_multisite() ) {
-			foreach ( $this->get_sites() as $site ) {
+			sb_iterate_sites(function($site) use ($table_name, &$tables) {
 				switch_to_blog($site->blog_id);
 				$tables[] = $this->wpdb()->get_results("SHOW INDEX FROM {$this->wpdb()->prefix}{$table_name}");
 				restore_current_blog();
-			}
+			});
 		} else {
 			$tables[] = $this->wpdb()->get_results("SHOW INDEX FROM {$this->wpdb()->prefix}{$table_name}");
 		}
@@ -752,18 +747,6 @@ class Servebolt_Optimize_DB {
 		$wpdb_instance->query( "ANALYZE TABLE {$wpdb_instance->posts}" );
 		$wpdb_instance->query( "ANALYZE TABLE {$wpdb_instance->postmeta}" );
 		$wpdb_instance->query( "ANALYZE TABLE {$wpdb_instance->options}" );
-	}
-
-	/**
-	 * Get all sites in a multisite setup.
-	 *
-	 * @return array
-	 */
-	private function get_sites() {
-		if ( is_null($this->sites) ) {
-			$this->sites = get_sites() ?: [];
-		}
-		return $this->sites;
 	}
 
 	/**

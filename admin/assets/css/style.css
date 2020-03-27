@@ -17,10 +17,10 @@
     display: block;
 }
 
-.sb-content #post-types-form .disabled {
+.sb-content #sb-nginx-fpc-form .disabled {
     pointer-events: none;
 }
-.sb-content #post-types-form .disabled input {
+.sb-content #sb-nginx-fpc-form .disabled input {
     opacity: 0.5;
 }
 
@@ -206,7 +206,8 @@
     align-self: flex-start;
 }
 
-#servebolt-loading.active + .sb-content {
+#servebolt-loading.active + .wrap,
+#servebolt-loading.active + .wrap.sb-content {
     opacity: 0.4;
 }
 
@@ -215,10 +216,11 @@
 }
 
 
+#sb-nginx-fpc-form .spinner.flush-fpc-exlcude-list-loading-spinner,
 #sb-configuration .spinner.purge-queue-loading-spinner {
     float: none;
     height: 20px;
-    margin-left: 5px;
+    margin-left: 0;
 }
 
 #sb-configuration .spinner.form-submit-spinner {
@@ -239,6 +241,7 @@
     display: none;
 }
 
+#sb-configuration #purge-items-table .fpc-exclude-item-column,
 #sb-configuration #purge-items-table .purge-item-column {
     padding-left: 0;
     padding-top: 10px;
@@ -272,10 +275,12 @@
     text-align: center;
 }
 
+#sb-nginx-fpc-form > tbody > tr:hover .row-actions,
 #sb-configuration-table > tbody > tr:hover .row-actions {
     position: relative;
 }
 
+#sb-nginx-fpc-form > tbody > tr tr:hover .row-actions,
 #sb-configuration-table > tbody > tr tr:hover .row-actions {
     position: static;
 }

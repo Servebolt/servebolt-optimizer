@@ -75,7 +75,7 @@
       <div class="nginx_switch">
         <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_fpc_active ? ' checked' : ''; ?>><label for="sb-nginx_cache_switch"><?php sb_e('Turn Full Page Cache on'); ?></label>
       </div>
-			<table class="form-table" id="post-types-form"<?php echo ( $nginx_fpc_active ? '' : ' style="display: none;"' ); ?>>
+			<table class="form-table" id="sb-nginx-fpc-form"<?php echo ( $nginx_fpc_active ? '' : ' style="display: none;"' ); ?>>
 				<tr>
 					<th scope="row">Cache post types</th>
 					<td>
@@ -92,6 +92,56 @@
         <tr>
           <th scope="row">Posts to exclude from cache</th>
           <td>
+            <?php $ids_to_exclude = sb_nginx_fpc()->get_ids_to_exclude_from_cache() ?: []; ?>
+
+            <div class="tablenav top">
+              <div class="alignleft actions bulkactions">
+                <button type="button" class="button action sb-remove-selected-exclude-items" disabled><?php sb_e('Remove selected'); ?></button>
+              </div>
+              <div class="alignleft actions bulkactions">
+                <button type="button" style="float:left;" class="button action sb-flush-fpc-exclude-items"<?php if ( count($ids_to_exclude) === 0 ) echo ' disabled'; ?>><?php sb_e('Flush posts'); ?></button>
+              </div>
+              <div class="alignleft actions bulkactions">
+                <button class="button button-primary sb-add-exclude-post" type="button">Add post to list</button>
+              </div>
+              <span class="spinner flush-fpc-exlcude-list-loading-spinner"></span>
+              <br class="clear">
+            </div>
+
+            <table class="wp-list-table widefat striped" id="nginx-fpc-ids-to-exclude-table">
+
+              <thead>
+              <tr>
+                <td id="cb" class="manage-column column-cb check-column"><label class="screen-reader-text" for="cb-select-all-1"><?php sb_e('Select All'); ?></label><input id="cb-select-all-1" type="checkbox"></td>
+                <th scope="col" id="post_id" class="manage-column column-post-id"><?php sb_e('Post ID'); ?></th>
+                <th scope="col" id="post_id" class="manage-column column-post-id"><?php sb_e('Post title'); ?></th>
+                <th scope="col" id="url" class="manage-column column-url"><?php sb_e('URL'); ?></th>
+              </tr>
+              </thead>
+
+              <tfoot>
+              <tr>
+                <td class="manage-column column-cb check-column"><label class="screen-reader-text" for="cb-select-all-2"><?php sb_e('Select All'); ?></label><input id="cb-select-all-2" type="checkbox"></td>
+                <th scope="col" class="manage-column column-title column-primary"><?php sb_e('Post ID'); ?></th>
+                <th scope="col" class="manage-column column-title column-primary"><?php sb_e('Post title'); ?></th>
+                <th scope="col" class="manage-column column-author"><?php sb_e('URL'); ?></th>
+              </tr>
+              </tfoot>
+
+              <tbody id="the-list">
+              <tr class="no-items<?php if ( count($ids_to_exclude) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php sb_e('No posts to exclude from cache.'); ?></td></tr>
+	            <?php foreach($ids_to_exclude as $i => $post_id) : ?>
+		          <?php fpc_exclude_post_table_row_markup($post_id); ?>
+	            <?php endforeach; ?>
+              </tbody>
+
+            </table>
+
+            <div class="tablenav bottom">
+              <div class="alignleft actions bulkactions">
+                <button type="button" id="doaction" class="button action sb-remove-selected-exclude-items" disabled><?php sb_e('Remove selected'); ?></button>
+              </div>
+            </div>
 
           </td>
         </tr>

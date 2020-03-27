@@ -28,7 +28,24 @@ class CF_Cache_Controls {
 	 */
 	private function __construct() {
 		$this->add_ajax_handling();
+		$this->init_assets();
 		$this->init_settings();
+	}
+
+	/**
+	 * Init assets.
+	 */
+	private function init_assets() {
+		add_action('admin_enqueue_scripts', [$this, 'plugin_scripts']);
+	}
+
+	/**
+	 * Plugin scripts.
+	 */
+	public function plugin_scripts() {
+		$screen = get_current_screen();
+		if ( $screen->id != 'servebolt_page_servebolt-cf' ) return;
+		wp_enqueue_script( 'servebolt-optimizer-cloudflare-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/cloudflare.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/cloudflare.js'), true );
 	}
 
 	/**
@@ -105,13 +122,16 @@ class CF_Cache_Controls {
 	 * Add AJAX handling.
 	 */
 	private function add_ajax_handling() {
-		add_action( 'wp_ajax_servebolt_purge_all_cache', [ $this, 'purge_all_cache_callback' ] );
-		add_action( 'wp_ajax_servebolt_purge_network_cache', [ $this, 'purge_network_cache_callback' ] );
-		add_action( 'wp_ajax_servebolt_purge_url', [ $this, 'purge_url_callback' ] );
-		add_action( 'wp_ajax_servebolt_validate_cf_settings', [ $this, 'validate_cf_settings_form_callback' ] );
 		add_action( 'wp_ajax_servebolt_lookup_zones', [ $this, 'lookup_zones_callback' ] );
 		add_action( 'wp_ajax_servebolt_lookup_zone', [ $this, 'lookup_zone_callback' ] );
+		add_action( 'wp_ajax_servebolt_validate_cf_settings', [ $this, 'validate_cf_settings_form_callback' ] );
 		add_action( 'wp_ajax_servebolt_update_cf_cache_purge_queue', [ $this, 'update_cache_purge_queue_callback' ] );
+		add_action( 'wp_ajax_servebolt_purge_all_cache', [ $this, 'purge_all_cache_callback' ] );
+		add_action( 'wp_ajax_servebolt_purge_url', [ $this, 'purge_url_callback' ] );
+
+		if ( is_multisite() ) {
+			add_action( 'wp_ajax_servebolt_purge_network_cache', [ $this, 'purge_network_cache_callback' ] );
+		}
 	}
 
 	/**
@@ -199,7 +219,7 @@ class CF_Cache_Controls {
 		sb_ajax_user_allowed();
 
 		$auth_type = sanitize_text_field($_POST['auth_type']);
-		$credentials = $_POST['credentials'];
+		$credentials = sb_array_get('credentials', $_POST);
 		try {
 			sb_cf()->cf()->set_credentials($auth_type, $credentials);
 			$zones = sb_cf()->cf()->list_zones();
@@ -329,13 +349,74 @@ class CF_Cache_Controls {
 	public function purge_network_cache_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
 		sb_require_superadmin();
-		wp_send_json_success();
-		// TODO: Purge all cache on all blogs
-		/*
-		sb_iterate_sites(function($site) {
+
+		$failed = [];
+		sb_iterate_sites(function($site) use (&$failed) {
+
+			// Switch context to blog
+			if ( sb_cf()->cf_switch_to_blog($site->blog_id) === false ) {
+				$failed[] = [
+					'blog_id' => $site->blog_id,
+					'reason' => false,
+				];
+				return;
+			}
+
+			// Check if we should use Cloudflare
+			if ( ! sb_cf()->should_user_cf_feature() ) {
+				$failed[] = [
+					'blog_id' => $site->blog_id,
+					'reason' => sb__('Cloudflare feature not active/available'),
+				];
+				return;
+			}
+
+			// Purge all cache
+			if ( ! sb_cf()->purge_all() ) {
+				$failed[] = [
+					'blog_id' => $site->blog_id,
+					'reason' => false,
+				];
+			}
 
 		});
-		*/
+
+		$failed_count = count($failed);
+		$all_failed   = $failed_count == sb_count_sites();
+
+		if ( $all_failed ) {
+			wp_send_json_error([
+				'message' => sb__('Could not purge cache on any sites.'),
+			]);
+		} else {
+			if ( $failed_count > 0 ) {
+				wp_send_json_success([
+					'type' => 'warning',
+					'title' => sb__('Could not clear cache on all sites'),
+					'markup' => $this->purge_network_cache_failed_sites($failed),
+				]);
+			} else {
+				wp_send_json_success([
+					'type' => 'success',
+					'title' => sb__('Cache cleared for all sites'),
+				]);
+			}
+		}
+	}
+
+	/**
+	 * Generate markup for user feedback after purging cache on all sites in multisite-network.
+	 *
+	 * @param $failed
+	 *
+	 * @return string
+	 */
+	private function purge_network_cache_failed_sites($failed) {
+		$markup = '<strong>' . sb__('The cache was cleared on all sites except the following:') . '</strong>';
+		$markup .= create_li_tags_from_array($failed, function ($item) {
+			return sb_get_blog_name($item['blog_id']) . ( $item['reason'] ? ' (' . $item['reason'] . ')' : '' );
+		});
+		return $markup;
 	}
 
 	/**

@@ -132,9 +132,12 @@ function sb_checkbox_true($value) {
  * Log an Cloudflare error.
  *
  * @param $exception
+ *
+ * @return bool
  */
 function sb_cf_error($exception) {
 	sb_write_log($exception->getMessage());
+	return false;
 }
 
 /**
@@ -419,14 +422,15 @@ function sb_ajax_user_allowed($return_result = false, $capability = 'manage_opti
 }
 
 /**
- * Run function closure for each site in multisite-network.
+ * Execute function closure for each site in multisite-network.
  *
  * @param $function
  *
  * @return bool
  */
 function sb_iterate_sites($function) {
-	$sites = apply_filters('sb_optimizer_site_iteration', get_sites(), $function);
+  if ( ! is_multisite() ) return false;
+	$sites = sb_get_sites();
 	if ( is_array($sites) ) {
 		foreach ($sites as $site) {
 			$function($site);
@@ -437,12 +441,41 @@ function sb_iterate_sites($function) {
 }
 
 /**
+ * Count sites in multisite-network.
+ *
+ * @return int
+ */
+function sb_count_sites() {
+	$sites = sb_get_sites();
+	return is_array($sites) ? count($sites) : 0;
+}
+
+/**
+ * Get all sites in multisite-network.
+ *
+ * @return mixed|void
+ */
+function sb_get_sites() {
+	return apply_filters('sb_optimizer_site_iteration', get_sites());
+}
+
+/**
  * Require the user to be a super admin.
  */
 function sb_require_superadmin() {
-	if ( ! is_super_admin() ) {
+	if ( ! is_multisite() || ! is_super_admin() ) {
 		wp_die();
 	}
+}
+
+/**
+ * Get blog name.
+ *
+ * @param $blog_id
+ */
+function sb_get_blog_name($blog_id) {
+	$current_blog_details = get_blog_details( [ 'blog_id' => $blog_id ] );
+	return $current_blog_details ? $current_blog_details->blogname : false;
 }
 
 /**
@@ -569,6 +602,90 @@ if ( ! function_exists('dd') ) {
  */
 function sb_format_array_to_csv($array, $glue = ',') {
 	return implode($glue, $array);
+}
+
+/**
+ * Build markup for row in FPC post exclude table.
+ *
+ * @param $post_id
+ * @param bool $echo
+ *
+ * @return false|string
+ */
+function fpc_exclude_post_table_row_markup($post_id, $echo = true) {
+	if ( is_numeric($post_id) && $post = get_post($post_id) ) {
+      $title = get_the_title($post_id);
+      $url = get_permalink($post_id);
+        $edit_url = get_edit_post_link($post_id);
+        $is_post = true;
+    } else {
+      $title = false;
+      $url = false;
+        $is_post = false;
+    }
+	ob_start();
+	?>
+    <tr class="exclude-item">
+      <th scope="row" class="check-column">
+        <label class="screen-reader-text" for="cb-select-<?php echo $post_id; ?>">Select "<?php echo $is_post ? $title : $url; ?>"</label>
+        <input type="hidden" class="exclude-item-input" value="<?php echo esc_attr($post_id); ?>">
+        <input id="cb-select-<?php echo $post_id; ?>" type="checkbox">
+      </th>
+        <?php if ( $is_post ) : ?>
+      <td class="column-post-id has-row-actions exclude-item-column">
+	          <?php echo $post_id; ?>
+            <div class="row-actions">
+              <span class="trash"><a href="#" class="sb-remove-item-from-fpc-post-exclude"><?php sb_e('Delete'); ?></a> | </span>
+              <span class="view"><a href="<?php echo esc_attr($url); ?>" target="_blank"><?php sb_e('View'); ?></a><?php if ( $edit_url ) echo ' | '; ?></span>
+	            <?php if ( $edit_url ) : ?>
+                  <span class="view"><a href="<?php echo $edit_url; ?>" target="_blank"><?php sb_e('Edit'); ?></a></span>
+	            <?php endif; ?>
+            </div>
+          </td>
+          <td class="fpc-exclude-item-column"><strong><?php echo $title; ?></strong></td>
+        <?php else : ?>
+          <td class="column-post-id has-row-actions fpc-exclude-item-column" colspan="2">
+            <?php echo $post_id; ?> (<?php sb_e('Post does not exist.') ?>)
+            <div class="row-actions">
+              <span class="trash"><a href="#" class="sb-remove-item-from-fpc-post-exclude"><?php sb_e('Delete'); ?></a></span>
+            </div>
+          </td>
+        <?php endif; ?>
+      <td class="column-url" style="padding-left: 0;padding-top: 10px;padding-bottom: 10px;">
+          <?php if ( $url ) : ?>
+            <a href="<?php echo esc_attr($url); ?>" target="_blank"><?php echo $url; ?></a>
+          <?php else: ?>
+	          <?php echo $url; ?>
+          <?php endif; ?>
+
+      </td>
+    </tr>
+	<?php
+	$html = ob_get_contents();
+	ob_end_clean();
+	if ( ! $echo ) {
+		return $html;
+	}
+	echo $html;
+}
+
+/**
+ * Create li-tags from array.
+ *
+ * @param $iterator
+ * @param $closure
+ * @param bool $include_ul
+ *
+ * @return string
+ */
+function create_li_tags_from_array($iterator, $closure = false, $include_ul = true) {
+	$markup = '';
+	if ( $include_ul ) $markup .= '<ul>';
+	array_map(function($item) use (&$markup, $closure) {
+		$markup .= '<li>' . ( is_callable($closure) ? $closure($item) : $item ) . '</li>';
+	}, $iterator);
+	if ( $include_ul ) $markup .= '</ul>';
+	return $markup;
 }
 
 /**

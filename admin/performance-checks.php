@@ -35,6 +35,21 @@ class Servebolt_Performance_Checks {
 	*/
 	public function init() {
 		$this->add_ajax_handling();
+		$this->init_assets();
+	}
+
+	/**
+	 * Init assets.
+	 */
+	private function init_assets() {
+		add_action('admin_enqueue_scripts', [$this, 'plugin_scripts']);
+	}
+
+	/**
+	 * Plugin scripts.
+	 */
+	public function plugin_scripts() {
+		wp_enqueue_script( 'servebolt-optimizer-performance-checks-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/performance-checks.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/performance-checks.js'), true );
 	}
 
 	/**

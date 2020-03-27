@@ -48,7 +48,7 @@ class Servebolt_Admin_Interface {
 	 */
 	private function add_sub_menu_items() {
 		add_submenu_page('servebolt-wp', sb__('Performance optimizer'), sb__('Performance optimizer'), 'manage_options', 'servebolt-performance-tools', [$this, 'performance_callback']);
-		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache', [$this, 'cf_cache_callback']);
+		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf', [$this, 'cf_cache_callback']);
 
 		if ( host_is_servebolt() === true ) {
 			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
@@ -69,7 +69,7 @@ class Servebolt_Admin_Interface {
 		if ( ! apply_filters('sb_optimizer_display_menu', true) ) return;
 		add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'general_page_callback'], SERVEBOLT_PATH_URL . 'admin/assets/img/servebolt-icon.svg' );
 		add_submenu_page('servebolt-wp', sb__('General'), sb__('General'), 'manage_options', 'servebolt-wp');
-		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache', [$this, 'cf_cache_callback']);
+		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf', [$this, 'cf_cache_callback']);
 
 		if ( host_is_servebolt() === true ) {
 			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
@@ -94,8 +94,9 @@ class Servebolt_Admin_Interface {
 	 * Plugin scripts.
 	 */
 	public function plugin_scripts() {
-		wp_enqueue_script( 'servebolt-optimizer-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/scripts.js', [], filemtime(SERVEBOLT_PATH . 'admin/assets/js/scripts.js'), true );
-		wp_enqueue_script( 'sb-sweetalert2', SERVEBOLT_PATH_URL . 'admin/assets/js/sweetalert2.all.min.js', [], filemtime(SERVEBOLT_PATH . 'admin/assets/js/sweetalert2.all.min.js'), true );
+		wp_enqueue_script( 'servebolt-optimizer-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/general.js', [], filemtime(SERVEBOLT_PATH . 'admin/assets/js/general.js'), true );
+		wp_enqueue_script( 'servebolt-optimizer-cloudflare-cache-purge-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/cloudflare-cache-purge.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/cloudflare-cache-purge.js'), true );
+		wp_enqueue_script( 'sb-sweetalert2', SERVEBOLT_PATH_URL . 'admin/assets/js/sweetalert2.all.min.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/sweetalert2.all.min.js'), true );
 		wp_localize_script( 'servebolt-optimizer-scripts', 'ajax_object', ['ajax_nonce' => sb_get_ajax_nonce()] );
 	}
 
@@ -175,6 +176,7 @@ class Servebolt_Admin_Interface {
 	 */
 	private function get_admin_bar_nodes() {
 		$nodes = [];
+		$method = is_multisite() && is_network_admin() ? 'network_admin_url' : 'admin_url';
 
 		if ( $admin_url = sb_get_admin_url() ) {
 			$nodes[] = [
@@ -188,35 +190,20 @@ class Servebolt_Admin_Interface {
 			];
 		}
 
-		$method = is_multisite() && is_network_admin() ? 'network_admin_url' : 'admin_url';
-		$nodes[] = [
-			'id'     => 'servebolt-plugin-settings',
-			'title'  => sb__('Settings'),
-			'href'   => $method('admin.php?page=servebolt-wp'),
-			'meta'   => [
-				'target' => '',
-				'class' => 'sb-admin-button'
-			]
-		];
-
 		if ( is_network_admin() ) {
-
-			// TODO: Complete feature
-			/*
 			$nodes[] = [
-				'id'     => 'servebolt-clear-cf-cache',
-				'title'  => sb__('Purge Cloudflare Cache'),
+				'id'     => 'servebolt-clear-cf-network-cache',
+				'title'  => sb__('Purge Cloudflare Cache for all sites'),
 				'href'   => '#',
 				'meta'   => [
 					'target' => '_blank',
 					'class' => 'sb-admin-button sb-purge-network-cache'
 				]
 			];
-			*/
+		}
 
-		} else {
-
-			$cache_purge_available = sb_cf()->cf_is_active() && sb_cf()->cf_cache_feature_available();
+		if ( ! is_network_admin() ) {
+			$cache_purge_available = sb_cf()->should_user_cf_feature();
 			if ( $cache_purge_available ) {
 				$nodes[] = [
 					'id'     => 'servebolt-clear-cf-cache',
@@ -228,8 +215,18 @@ class Servebolt_Admin_Interface {
 					]
 				];
 			}
-
 		}
+
+		$nodes[] = [
+			'id'     => 'servebolt-plugin-settings',
+			'title'  => sb__('Settings'),
+			'href'   => $method('admin.php?page=servebolt-wp'),
+			'meta'   => [
+				'target' => '',
+				'class' => 'sb-admin-button'
+			]
+		];
+
 		return $nodes;
 	}
 
@@ -243,7 +240,6 @@ class Servebolt_Admin_Interface {
 
 		if ( ! current_user_can('manage_options') ) return;
 
-		$admin_url = sb_get_admin_url();
 		$sb_icon = '<span class="servebolt-icon"></span>';
 		$nodes = $this->get_admin_bar_nodes();
 
@@ -256,20 +252,18 @@ class Servebolt_Admin_Interface {
 			$nodes = array_merge([
 				[
 					'id'     => $parent_id,
-					'title'  => $sb_icon . sb__('Servebolt Optimizer'),
-					'href'   => $admin_url ?: '#',
+					'title'  => sb__('Servebolt Optimizer'),
+					'href'   => false,
 					'meta'   => [
 						'target' => '_blank',
 						'class' => 'sb-admin-button'
 					]
 				]
 			], $nodes);
-		} elseif ( count($nodes) === 1 ) {
-			$nodes = array_map(function($node) use ($sb_icon) {
-				$node['title'] = $sb_icon . $node['title'];
-				return $node;
-			}, $nodes);
 		}
+
+		// Add SB icon to first element
+		$nodes[0]['title'] = $sb_icon . $nodes[0]['title'];
 
 		if ( ! empty($nodes) ) {
 			foreach ( $nodes as $node ) {

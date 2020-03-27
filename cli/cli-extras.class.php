@@ -161,7 +161,7 @@ abstract class Servebolt_CLI_Extras {
 	protected function cf_status($blog_id = false) {
 
 		// Switch context to blog
-		if ( $this->cf_switch_to_blog($blog_id) === false ) {
+		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
 			WP_CLI::error(sprintf(sb__('Could not get Cloudflare feature status on site %s'), get_site_url($blog_id)), false);
@@ -186,7 +186,7 @@ abstract class Servebolt_CLI_Extras {
 	protected function cf_cron_status($blog_id = false) {
 
 		// Switch context to blog
-		if ( $this->cf_switch_to_blog($blog_id) === false ) {
+		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
 			WP_CLI::error(sprintf(sb__('Could not get cron status on site %s'), get_site_url($blog_id)), false);
@@ -214,7 +214,7 @@ abstract class Servebolt_CLI_Extras {
 		$cron_state_string = sb_boolean_to_state_string($cron_state);
 
 		// Switch context to blog
-		if ( $this->cf_switch_to_blog($blog_id) === false ) {
+		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
 			WP_CLI::error(sprintf(sb__('Could not set cache purge cron as %s on site %s'), $cron_state_string, get_site_url($blog_id)), false);
@@ -316,7 +316,7 @@ abstract class Servebolt_CLI_Extras {
 	protected function cf_test_api_connection($blog_id = false) {
 
 		// Switch context to blog
-		if ( $this->cf_switch_to_blog($blog_id) === false ) {
+		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
 			WP_CLI::error(sprintf(sb__('Could not test Cloudflare API connection on site %s'), get_site_url($blog_id)), false);
@@ -349,7 +349,7 @@ abstract class Servebolt_CLI_Extras {
 	protected function cf_set_credentials($credential_data, $blog_id = false) {
 
 		// Switch context to blog
-		if ( $this->cf_switch_to_blog($blog_id) === false ) {
+		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
 			WP_CLI::error(sprintf(sb__('Could not set Cloudflare credentials on site %s'), get_site_url($blog_id)), false);
@@ -383,31 +383,6 @@ abstract class Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Switch API credentials and zone to the specified blog.
-	 *
-	 * @param bool $blog_id
-	 *
-	 * @return bool|null
-	 */
-	protected function cf_switch_to_blog($blog_id = false) {
-		if ( $blog_id === false ) {
-			return true;
-		}
-		if ( is_numeric($blog_id) ) {
-			sb_cf()->cf_init($blog_id);
-			return true;
-		}
-		return null;
-	}
-
-	/**
-	 * Switch API credentials and zone back to the current blog.
-	 */
-	protected function cf_restore_current_blog() {
-		return sb_cf()->cf_init(false);
-	}
-
-	/**
 	 * Check if we should affect all sites in multisite-network.
 	 *
 	 * @param $assoc_args
@@ -426,7 +401,7 @@ abstract class Servebolt_CLI_Extras {
 	protected function cf_clear_cache_purge_queue($blog_id = false) {
 
 		// Switch context to blog
-		if ( $this->cf_switch_to_blog($blog_id) === false ) {
+		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
 			WP_CLI::error(sprintf(sb__('Could not execute cache purge on site %s'), get_site_url($blog_id)), false);
@@ -472,7 +447,7 @@ abstract class Servebolt_CLI_Extras {
 	protected function cf_purge_all($blog_id = false) {
 
 		// Switch context to blog
-		if ( $this->cf_switch_to_blog($blog_id) === false ) return false;
+		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) return false;
 
 		// Get zone name
 		$current_zone_id = sb_cf()->get_active_zone_id();
@@ -497,9 +472,8 @@ abstract class Servebolt_CLI_Extras {
 	 */
 	protected function get_nginx_fpc_status($assoc_args, bool $display_cache_state = true) {
 		if ( $this->affect_all_sites($assoc_args) ) {
-			$sites = get_sites();
 			$sites_status = [];
-			foreach ( $sites as $site ) {
+			sb_iterate_sites(function ($site) use (&$sites_status) {
 				$status = sb_nginx_fpc()->fpc_is_active($site->blog_id) ? 'Active' : 'Inactive';
 				$post_types = sb_nginx_fpc()->get_post_types_to_cache(true, true, $site->blog_id);
 				$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
@@ -510,7 +484,7 @@ abstract class Servebolt_CLI_Extras {
 					'Active post types' => $enabled_post_types_string,
 					'Posts to exclude'  => sb_format_array_to_csv($excluded_posts),
 				];
-			}
+			});
 			WP_CLI\Utils\format_items( 'table', $sites_status , array_keys(current($sites_status)));
 		} else {
 			$status = sb_boolean_to_state_string( sb_nginx_fpc()->fpc_is_active() );
@@ -639,11 +613,10 @@ abstract class Servebolt_CLI_Extras {
 
 		if ( is_multisite() && $affect_all_blogs ) {
 			WP_CLI::line(sb__('Applying settings to all blogs'));
-			foreach (get_sites() as $site) {
+			sb_iterate_sites(function($site) use ($cache_active, $post_types) {
 				$this->nginx_toggle_cache_for_blog($cache_active, $site->blog_id);
 				if ( $post_types ) $this->nginx_set_post_types($post_types, $site->blog_id);
-
-			}
+			});
 			if ( $exclude_ids ) {
 				WP_CLI::warning(sb__('Exclude ids were not set since ids are relative to each site.'));
 			}

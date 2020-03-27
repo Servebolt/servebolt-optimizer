@@ -200,7 +200,7 @@ class Servebolt_Nginx_FPC {
 	 *
 	 * @return bool
 	 */
-	private function should_exclude_post_from_cache($post_id) {
+	public function should_exclude_post_from_cache($post_id) {
 		$ids_to_exclude = $this->get_ids_to_exclude_from_cache();
 		return is_array($ids_to_exclude) && in_array($post_id, $ids_to_exclude);
 	}
@@ -443,6 +443,36 @@ class Servebolt_Nginx_FPC {
 			$this->ids_to_exclude_cache = $ids_to_exclude;
 		}
 		return $this->ids_to_exclude_cache;
+	}
+
+	/**
+	 * Exclude post from FPC.
+	 *
+	 * @param $post_id
+	 * @param bool $blog_id
+	 *
+	 * @return bool
+	 */
+	public function exclude_post_from_cache($post_id, $blog_id = false) {
+		return $this->exclude_posts_from_cache([$post_id], $blog_id);
+	}
+
+	/**
+	 * Exclude posts from FPC.
+	 *
+	 * @param $posts
+	 * @param bool $blog_id
+	 *
+	 * @return bool
+	 */
+	public function exclude_posts_from_cache($posts, $blog_id = false) {
+		$already_excluded = sb_nginx_fpc()->get_ids_to_exclude_from_cache($blog_id) ?: [];
+		foreach($posts as $post_id) {
+			if ( ! in_array($post_id, $already_excluded) ) {
+				$already_excluded[] = $post_id;
+			}
+		}
+		return sb_nginx_fpc()->set_ids_to_exclude_from_cache($already_excluded, $blog_id);
 	}
 
 	/**
