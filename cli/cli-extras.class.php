@@ -122,7 +122,7 @@ abstract class Servebolt_CLI_Extras {
 			if ( $blog_id ) {
 				WP_CLI::warning(sprintf(sb__('Active zone is not set for site %s'), get_site_url($blog_id)));
 			} else {
-				WP_CLI::warning(sprintf(sb__('Active zone is not set'),));
+				WP_CLI::warning(sb__('Active zone is not set'));
 			}
 		} else {
 			if ( $blog_id ) {
