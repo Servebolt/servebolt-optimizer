@@ -118,6 +118,36 @@ function sb_post_exists($post_id) {
 }
 
 /**
+ * Convert an array of post IDs into array of title and Post ID.
+ *
+ * @param $posts
+ * @param bool $blog_id
+ *
+ * @return array
+ */
+function sb_resolve_post_ids($posts, $blog_id = false) {
+	return array_map(function($post_id) use ($blog_id) {
+		$title = sb_get_the_title($post_id, $blog_id);
+		return $title ? $title . ' (' . $post_id . ')' : $post_id;
+	}, $posts);
+}
+
+/**
+ * Get the title with optional blog-parameter.
+ *
+ * @param $post_id
+ * @param bool $blog_id
+ *
+ * @return string
+ */
+function sb_get_the_title($post_id, $blog_id = false) {
+  if ( $blog_id ) switch_to_blog($blog_id);
+  $title = get_the_title($post_id);
+  if ( $blog_id ) restore_current_blog();
+  return $title;
+}
+
+/**
  * Check if a value is either "on" or boolean and true.
  *
  * @param $value

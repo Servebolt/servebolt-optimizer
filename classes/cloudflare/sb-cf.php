@@ -289,11 +289,15 @@ class Servebolt_CF {
 	 * Get zone by Id from Cloudflare.
 	 *
 	 * @param $zone_id
+	 * @param bool $blog_id
 	 *
 	 * @return mixed
 	 */
-	public function get_zone_by_id($zone_id) {
-		return $this->cf()->get_zone_by_id($zone_id);
+	public function get_zone_by_id($zone_id, $blog_id = false) {
+		if ( $blog_id ) $this->cf_switch_to_blog($blog_id);
+		$zone = $this->cf()->get_zone_by_id($zone_id);
+		if ( $blog_id ) $this->cf_restore_current_blog();
+		return $zone;
 	}
 
 	/**

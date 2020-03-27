@@ -433,12 +433,13 @@ class Servebolt_Nginx_FPC {
 	 * @return array|mixed|void|null
 	 */
 	public function get_ids_to_exclude_from_cache($blog_id = false) {
+		if ( is_numeric($blog_id) ) {
+			$ids_to_exclude = sb_get_blog_option( $blog_id, 'fpc_exclude');
+			if ( ! is_array($ids_to_exclude) ) $ids_to_exclude = [];
+			return $ids_to_exclude;
+		}
 		if ( is_null( $this->ids_to_exclude_cache ) ) {
-			if ( is_numeric($blog_id) ) {
-				$ids_to_exclude = sb_get_blog_option( $blog_id, 'fpc_exclude');
-			} else {
-				$ids_to_exclude = sb_get_option( 'fpc_exclude');
-			}
+			$ids_to_exclude = sb_get_option( 'fpc_exclude');
 			if ( ! is_array($ids_to_exclude) ) $ids_to_exclude = [];
 			$this->ids_to_exclude_cache = $ids_to_exclude;
 		}

@@ -65,6 +65,133 @@ abstract class Servebolt_CLI_Extras {
 	}
 
 	/**
+	 * Display status about the cache purge situation for a specified blog.
+	 *
+	 * @param bool $blog_id
+	 * @param bool $extended
+	 *
+	 * @return array
+	 */
+	protected function cf_purge_status($blog_id = false, $extended = false) {
+		$is_cron_purge = sb_cf()->cron_purge_is_active(true, $blog_id);
+		if ( $blog_id ) {
+			$arr = ['Blog' => $blog_id];
+		} else {
+			$arr = [];
+		}
+
+		if ( $extended ) {
+			$arr['Cloudfare feature active'] = sb_cf()->cf_is_active($blog_id) ? 'Active' : 'Inactive';
+		}
+
+		$arr['Purge type'] = $is_cron_purge ? 'Via cron' : 'Immediate purge';
+		$purge_item_column_key = 'Purge queue' . ( $extended ? '' : ' (Post ID)' );
+
+		if ($is_cron_purge) {
+			$max_items = 50;
+			$items_to_purge = sb_cf()->get_items_to_purge(false, $blog_id);
+			$items_to_purge_count = sb_cf()->count_items_to_purge();
+
+			if ( $extended ) {
+				$posts = sb_resolve_post_ids($items_to_purge, $blog_id);
+				$posts_string = sb_format_array_to_csv($posts, ', ');
+			} else {
+				$posts_string = sb_format_array_to_csv($items_to_purge);
+			}
+
+			$arr[$purge_item_column_key] = $items_to_purge ? $posts_string . ( $items_to_purge_count > $max_items ? '...' : '') : 'Empty';
+		} else {
+			$arr[$purge_item_column_key] = '-';
+		}
+		return $arr;
+	}
+
+	/**
+	 * Get zone for specified site.
+	 *
+	 * @param bool $blog_id
+	 */
+	protected function cf_get_zone($blog_id = false) {
+		$zone_id = sb_cf()->get_active_zone_id($blog_id);
+		if ( $zone_id && $zone_object = sb_cf()->get_zone_by_id($zone_id, $blog_id) ) {
+			$zone = $zone_object ? $zone_object->name . ' (' . $zone_object->id . ')' : $zone_id;
+		} else {
+			$zone = $zone_id;
+		}
+		if ( empty($zone) ) {
+			if ( $blog_id ) {
+				WP_CLI::warning(sprintf(sb__('Active zone is not set for site %s'), get_site_url($blog_id)));
+			} else {
+				WP_CLI::warning(sprintf(sb__('Active zone is not set'),));
+			}
+		} else {
+			if ( $blog_id ) {
+				WP_CLI::success(sprintf(sb__('Active zone is %s for site %s'), $zone, get_site_url($blog_id)));
+			} else {
+				WP_CLI::success(sprintf(sb__('Active zone is %s'), $zone));
+			}
+		}
+	}
+
+	/**
+	 * Display Cloudflare API credentials for a specified site.
+	 *
+	 * @param bool $blog_id
+	 *
+	 * @return array
+	 */
+	protected function cf_get_credentials($blog_id = false) {
+		$auth_type = sb_cf()->get_authentication_type($blog_id);
+
+		if ( $blog_id ) {
+			$arr = ['Blog' => $blog_id];
+		} else {
+			$arr = [];
+		}
+
+		$arr['Cloudflare feature status'] = sb_cf()->cf_is_active($blog_id) ? 'Active' : 'Inactive';
+
+		$arr['API authentication type'] = $auth_type;
+		switch ($auth_type) {
+			case 'apiKey':
+			case 'api_key':
+				$arr['API key/token'] = sb_cf()->get_credential('api_key', $blog_id);
+				$arr['email'] = sb_cf()->get_credential('email', $blog_id);
+				break;
+			case 'apiToken':
+			case 'api_token':
+				$arr['API key/token'] = sb_cf()->get_credential('api_token', $blog_id);
+				$arr['email'] = null;
+				break;
+		}
+		return $arr;
+	}
+
+	/**
+	 * Get posts excluded from FPC for specified site.
+	 *
+	 * @param bool $blog_id
+	 * @param bool $extended
+	 *
+	 * @return array
+	 */
+	protected function nginx_fpc_get_excluded_posts($blog_id = false, $extended = false) {
+		if ( $blog_id ) {
+			$arr = ['Blog' => $blog_id];
+		} else {
+			$arr = [];
+		}
+		$already_excluded = sb_nginx_fpc()->get_ids_to_exclude_from_cache($blog_id);
+		if ( $extended ) {
+			$already_excluded = sb_format_array_to_csv(sb_resolve_post_ids($already_excluded), ', ');
+		} else {
+			$already_excluded = sb_format_array_to_csv($already_excluded);
+		}
+		$arr['Excluded posts'] = $already_excluded;
+		return $arr;
+	}
+
+	/**
 	 * Display Cloudflare config for a given site.
 	 *
 	 * @param bool $blog_id
@@ -172,9 +299,9 @@ abstract class Servebolt_CLI_Extras {
 		$current_state = sb_cf()->cf_is_active();
 		$cron_state_string = sb_boolean_to_state_string($current_state);
 		if ( $blog_id ) {
-			WP_CLI::line(sprintf(sb__('Cloudflare feature is %s for site %s'), $cron_state_string, get_site_url($blog_id)));
+			WP_CLI::success(sprintf(sb__('Cloudflare feature is %s for site %s'), $cron_state_string, get_site_url($blog_id)));
 		} else {
-			WP_CLI::line(sprintf(sb__('Cloudflare feature is %s'), $cron_state_string));
+			WP_CLI::success(sprintf(sb__('Cloudflare feature is %s'), $cron_state_string));
 		}
 	}
 
@@ -197,9 +324,9 @@ abstract class Servebolt_CLI_Extras {
 		$current_state = sb_cf()->cron_purge_is_active();
 		$cron_state_string = sb_boolean_to_state_string($current_state);
 		if ( $blog_id ) {
-			WP_CLI::line(sprintf(sb__('Cron cache purge is %s for site %s'), $cron_state_string, get_site_url($blog_id)));
+			WP_CLI::success(sprintf(sb__('Cron cache purge is %s for site %s'), $cron_state_string, get_site_url($blog_id)));
 		} else {
-			WP_CLI::line(sprintf(sb__('Cron cache purge is %s'), $cron_state_string));
+			WP_CLI::success(sprintf(sb__('Cron cache purge is %s'), $cron_state_string));
 		}
 	}
 
@@ -211,13 +338,13 @@ abstract class Servebolt_CLI_Extras {
 	 */
 	protected function cf_cron_control(bool $cron_state, $blog_id = false) {
 
-		$cron_state_string = sb_boolean_to_state_string($cron_state);
+		$purge_type = $cron_state === true ? 'cron' : 'immediately';
 
 		// Switch context to blog
 		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
-			WP_CLI::error(sprintf(sb__('Could not set cache purge cron as %s on site %s'), $cron_state_string, get_site_url($blog_id)), false);
+			WP_CLI::error(sprintf(sb__('Could not set cache purge type to "%s" on site %s'), $purge_type, get_site_url($blog_id)), false);
 			return;
 
 		}
@@ -225,16 +352,16 @@ abstract class Servebolt_CLI_Extras {
 		$current_state = sb_cf()->cron_purge_is_active();
 		if ( $current_state === $cron_state ) {
 			if ( is_numeric($blog_id) ) {
-				WP_CLI::line(sprintf(sb__('Cloudflare cache purge cron is already %s on site %s'), $cron_state_string, get_site_url($blog_id)));
+				WP_CLI::warning(sprintf(sb__('Cache purge type is already "%s" on site %s'), $purge_type, get_site_url($blog_id)));
 			} else {
-				WP_CLI::line(sprintf(sb__('Cloudflare cache purge cron is already %s'), $cron_state_string));
+				WP_CLI::warning(sprintf(sb__('Cache purge type is already "%s"'), $purge_type));
 			}
 		} else {
 			sb_cf()->cf_toggle_cron_active($cron_state);
 			if ( is_numeric($blog_id) ) {
-				WP_CLI::success(sprintf(sb__('Cloudflare cache purge cron is now %s on site %s'), $cron_state_string, get_site_url($blog_id)));
+				WP_CLI::success(sprintf(sb__('Cache purge type is set to "%s" on site %s'), $purge_type, get_site_url($blog_id)));
 			} else {
-				WP_CLI::success(sprintf(sb__('Cloudflare cache purge cron is now %s'), $cron_state_string));
+				WP_CLI::success(sprintf(sb__('Cache purge type is set to "%s"'), $purge_type));
 			}
 		}
 
@@ -467,55 +594,45 @@ abstract class Servebolt_CLI_Extras {
 	/**
 	 * Display Nginx status - which post types have cache active.
 	 *
-	 * @param $assoc_args
-	 * @param bool $display_cache_state
+	 * @param bool $blog_id
+	 *
+	 * @return array
 	 */
-	protected function get_nginx_fpc_status($assoc_args, bool $display_cache_state = true) {
-		if ( $this->affect_all_sites($assoc_args) ) {
-			$sites_status = [];
-			sb_iterate_sites(function ($site) use (&$sites_status) {
-				$status = sb_nginx_fpc()->fpc_is_active($site->blog_id) ? 'Active' : 'Inactive';
-				$post_types = sb_nginx_fpc()->get_post_types_to_cache(true, true, $site->blog_id);
-				$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
-				$excluded_posts = sb_nginx_fpc()->get_ids_to_exclude_from_cache($site->blog_id);
-				$sites_status[] = [
-					'URL'               => get_site_url($site->blog_id),
-					'Status'            => $status,
-					'Active post types' => $enabled_post_types_string,
-					'Posts to exclude'  => sb_format_array_to_csv($excluded_posts),
-				];
-			});
-			WP_CLI\Utils\format_items( 'table', $sites_status , array_keys(current($sites_status)));
-		} else {
-			$status = sb_boolean_to_state_string( sb_nginx_fpc()->fpc_is_active() );
-			$post_types = sb_nginx_fpc()->get_post_types_to_cache();
-			$excluded_posts = sb_nginx_fpc()->get_ids_to_exclude_from_cache();
-
-			if ( $display_cache_state ) {
-				WP_CLI::line(sprintf(sb__( 'Servebolt Full Page Cache cache is %s' ), $status ));
-			}
-
-			$post_types_table = [];
-			foreach ( $post_types as $post_type ) {
-				$post_types_table[] = [
-					sb__('Post type(s) selected for cachcing') => $post_type,
-				];
-			}
-			WP_CLI::line('');
-			WP_CLI\Utils\format_items( 'table', $post_types_table, array_keys(current($post_types_table)) );
-
-			if ( ! empty($excluded_posts) ) {
-				WP_CLI::line('');
-				$exclude_ids_table = [];
-				foreach ( $excluded_posts as $post_id ) {
-					$title = get_the_title($post_id);
-					$exclude_ids_table[] = [
-						sb__('Posts to be excluded from cache') => ( $title ? sprintf('%s (%s)', $title, $post_id) : $post_id ),
-					];
-				}
-				WP_CLI\Utils\format_items( 'table', $exclude_ids_table, array_keys(current($exclude_ids_table)) );
-			}
+	protected function get_nginx_fpc_status($blog_id = false) {
+		$status = sb_nginx_fpc()->fpc_is_active($blog_id) ? 'Active' : 'Inactive';
+		$post_types = sb_nginx_fpc()->get_post_types_to_cache(true, true, $blog_id);
+		$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
+		$excluded_posts = sb_nginx_fpc()->get_ids_to_exclude_from_cache($blog_id);
+		$array = [];
+		if ( $blog_id ) {
+			$array['URL'] = get_site_url($blog_id);
 		}
+		$array = array_merge($array, [
+			'Status'            => $status,
+			'Active post types' => $enabled_post_types_string,
+			'Posts to exclude'  => sb_format_array_to_csv($excluded_posts),
+		]);
+		return $array;
+	}
+
+	/**
+	 * Get post types to cache with FPC.
+	 *
+	 * @param bool $blog_id
+	 *
+	 * @return array
+	 */
+	protected function nginx_fpc_get_cache_post_types($blog_id = false) {
+		$post_types = sb_nginx_fpc()->get_post_types_to_cache(true, true, $blog_id);
+		$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
+		$array = [];
+		if ( $blog_id ) {
+			$array['URL'] = get_site_url($blog_id);
+		}
+		$array = array_merge($array, [
+			'Active post types' => $enabled_post_types_string,
+		]);
+		return $array;
 	}
 
 	/**
@@ -526,6 +643,17 @@ abstract class Servebolt_CLI_Extras {
 	 */
 	protected function cf_toggle_active(bool $state, $blog_id = false) {
 		$state_string = sb_boolean_to_state_string($state);
+		$is_active = sb_cf()->cf_is_active($blog_id);
+
+		if ( $is_active === $state ) {
+			if ( $blog_id ) {
+				WP_CLI::warning(sprintf(sb__('Cloudflare feature is already set to %s on site %s'), $state_string, get_site_url($blog_id)));
+			} else {
+				WP_CLI::warning(sprintf(sb__('Cloudflare feature is already set to %s'), $state_string));
+			}
+			return;
+		}
+
 		if ( sb_cf()->cf_toggle_active($state, $blog_id) ) {
 			if ( $blog_id ) {
 				WP_CLI::success(sprintf(sb__('Cloudflare feature was set to %s on site %s'), $state_string, get_site_url($blog_id)));
@@ -563,7 +691,7 @@ abstract class Servebolt_CLI_Extras {
 	}
 
 	/**
-	 * Toggle cachce active/inactive for site.
+	 * Toggle cache active/inactive for site.
 	 *
 	 * @param $new_cache_state
 	 * @param null $blog_id
@@ -682,9 +810,12 @@ abstract class Servebolt_CLI_Extras {
 			$ids_to_exclude = sb_format_comma_string($ids_to_exclude);
 		}
 		$already_excluded = sb_nginx_fpc()->get_ids_to_exclude_from_cache($blog_id);
+		$clear_all = $ids_to_exclude === false;
 
-		if ( $ids_to_exclude === false ) {
-			$ids_to_exclude = [];
+		if ( $clear_all ) {
+			sb_nginx_fpc()->set_ids_to_exclude_from_cache([], $blog_id);
+			WP_CLI::success(sb__('All excluded posts were cleared.'));
+			return;
 		} elseif ( is_array($ids_to_exclude) && empty($ids_to_exclude) ) {
 			WP_CLI::warning(sb__('No ids were specified.'));
 			return;
@@ -719,5 +850,46 @@ abstract class Servebolt_CLI_Extras {
 			WP_CLI::warning(sb__('No action was made.'));
 		}
 	}
+
+	/**
+	 * Enable/disable Nginx cache headers.
+	 *
+	 * @param bool $cron_state
+	 * @param bool $blog_id
+	 */
+	/*
+	protected function cf_cron_control_old(bool $cron_state, $blog_id = false) {
+
+		$cron_state_string = sb_boolean_to_state_string($cron_state);
+
+		// Switch context to blog
+		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
+
+			// Could not switch to blog
+			WP_CLI::error(sprintf(sb__('Could not set cache purge cron as %s on site %s'), $cron_state_string, get_site_url($blog_id)), false);
+			return;
+
+		}
+
+		$current_state = sb_cf()->cron_purge_is_active();
+		if ( $current_state === $cron_state ) {
+			if ( is_numeric($blog_id) ) {
+				WP_CLI::line(sprintf(sb__('Cloudflare cache purge cron is already %s on site %s'), $cron_state_string, get_site_url($blog_id)));
+			} else {
+				WP_CLI::line(sprintf(sb__('Cloudflare cache purge cron is already %s'), $cron_state_string));
+			}
+		} else {
+			sb_cf()->cf_toggle_cron_active($cron_state);
+			if ( is_numeric($blog_id) ) {
+				WP_CLI::success(sprintf(sb__('Cloudflare cache purge cron is now %s on site %s'), $cron_state_string, get_site_url($blog_id)));
+			} else {
+				WP_CLI::success(sprintf(sb__('Cloudflare cache purge cron is now %s'), $cron_state_string));
+			}
+		}
+
+		// Add / remove task from schedule
+		( Servebolt_CF_Cron_Handle::get_instance() )->update_cron_state($blog_id);
+	}
+	*/
 
 }
