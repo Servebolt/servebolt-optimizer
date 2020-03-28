@@ -12,7 +12,7 @@
     flex-direction: row;
 }
 
-.sb-content .status-indicator-container :first-child {
+.sb-content .status-indicator-container > :first-child {
     margin-right: 3px;
     display: block;
 }
