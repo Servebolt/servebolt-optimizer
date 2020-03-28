@@ -11,13 +11,21 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	/**
 	 * Setup procedure for Cloudflare feature.
 	 *
-	 * [--interactive]
-	 * : Whether to run interactive setup guide or not. If present then all the parameters except "all" and "" will be omitted.
+	 * ## OPTIONS
+	 *
+	 * [--interactive[=<interactive>]]
+	 * : Whether to run interactive setup guide or not.
+	 * ---
+	 * default: true
+	 * options:
+	 *   - true
+	 *   - false
+	 * ---
 	 *
 	 * [--all]
 	 * : Setup on all sites in multisite.
 	 *
-	 * [--auth-type]
+	 * [--auth-type[=<auth-type>]]
 	 * : The way we want to authenticate with the Cloudflare API.
 	 * ---
 	 * default: token
@@ -26,16 +34,16 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 *   - key
 	 * ---
 	 *
-	 * [--api-token]
+	 * [--api-token=<api-token>]
 	 * : Cloudflare API token.
 	 *
-	 * [--email]
+	 * [--email=<email>]
 	 * : Cloudflare e-mail.
 	 *
-	 * [--api-key]
+	 * [--api-key=<api-key>]
 	 * : Cloudflare API key.
 	 *
-	 * [--zone-id]
+	 * [--zone-id=<zone-id>]
 	 * : Cloudflare Zone.
 	 *
 	 * [--disable-validation]
@@ -44,38 +52,36 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 * ## EXAMPLES
 	 *
 	 *     # Run interactive setup guide
-	 *     wp servebolt cf setup --interactive
+	 *     wp servebolt cf setup
 	 *
 	 *     # Run interactive setup guide that will be applied for all sites in a multisite-network
-	 *     wp servebolt cf setup --interactive --all
+	 *     wp servebolt cf setup --all
 	 *
-	 *     # Run setup with only direct arguments using API token
-	 *     wp servebolt cf setup --auth-type=token --api-token="your-api-token" --zone-id="your-zone-id"
+	 *     # Run interactive setup guide (using token) that will be applied for all sites in a multisite-network
+	 *     wp servebolt cf setup --auth-type=token --api-token="your-api-token" --all
 	 *
-	 *     # Run setup with only direct arguments using API keys with no validation
-	 *     wp servebolt cf setup --auth-type=key --email="your@email.com" --api-key="your-api-key" --zone-id="your-zone-id" --disable-validation
+	 *     # Run setup non-interactive with arguments setting up API token and a zone
+	 *     wp servebolt cf setup --interactive=false --auth-type=token --api-token="your-api-token" --zone-id="your-zone-id"
+	 *
+	 *     # Run setup non-interactive with arguments setting up API token and a zone with no validation
+	 *     wp servebolt cf setup --interactive=false --auth-type=key --email="your@email.com" --api-key="your-api-key" --zone-id="your-zone-id" --disable-validation
 	 *
 	 */
-	// TODO: Finish this
 	public function command_cf_setup($args, $assoc_args) {
-
-		$interactive = array_key_exists( 'interactive', $assoc_args );
-		$affect_all_sites = $this->affect_all_sites( $assoc_args );
+		$interactive        = sb_array_get('interactive', $assoc_args) ? filter_var(sb_array_get('interactive', $assoc_args), FILTER_VALIDATE_BOOLEAN) : true;
+		$affect_all_sites   = $this->affect_all_sites( $assoc_args );
 		$auth_type          = sb_array_get('auth-type', $assoc_args);
 		$api_token          = sb_array_get('api-token', $assoc_args);
 		$email              = sb_array_get('email', $assoc_args);
 		$api_key            = sb_array_get('api-key', $assoc_args);
-		$zone_id            = sb_array_get('zone-id', $assoc_args);
+		$zone               = sb_array_get('zone', $assoc_args);
 		$disable_validation = array_key_exists( 'disable-validation', $assoc_args );
-		$params             = compact('interactive', 'affect_all_sites', 'auth_type', 'api_token', 'email', 'api_key', 'zone_id', 'disable_validation');
-
+		$params             = compact('interactive', 'affect_all_sites', 'auth_type', 'api_token', 'email', 'api_key', 'zone', 'disable_validation');
 		if ( $interactive ) {
 			$this->cf_setup_interactive($params);
-			return;
+		} else {
+			$this->cf_setup_non_interactive($params);
 		}
-
-		print_r($params);
-
 	}
 
 	/**

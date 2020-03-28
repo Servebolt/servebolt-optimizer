@@ -57,11 +57,22 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	}
 
 	/**
+	 * Non-interactive setup for Cloudflare.
+	 *
+	 * @param $params
+	 */
+	protected function cf_setup_non_interactive($params) {
+
+	}
+
+	/**
 	 * Interactive setup for Cloudflare.
 	 *
 	 * @param $params
 	 */
 	protected function cf_setup_interactive($params) {
+
+		$api_connection_available = false;
 
 		WP_CLI::line(sb__('Welcome!'));
 		WP_CLI::line(sb__('This guide will set up the Cloudflare feature on your site.'));
@@ -70,20 +81,17 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			WP_CLI::warning(sb__('This will affect all your site in the multisite-network'));
 		}
 		WP_CLI::line();
-
 		WP_CLI::confirm(sb__('Do you want to continue?'));
 
 		WP_CLI::line(PHP_EOL . sb__('Okay, first we need to set up the API connection to Cloudflare.'));
 
+		// Determine authentication type
 		if ( $params['auth_type'] ) {
-
 			if ( ! $this->auth_type_valid($params['auth_type']) ) {
-				WP_CLI::error(sprintf(sb__('Invalid authentication type: %s'), $params['auth_type']));
+				WP_CLI::error(sprintf(sb__('Invalid authentication type specified: %s'), $params['auth_type']));
 			}
 			WP_CLI::success(sprintf(sb__('Cloudflare API authentication type is already set to %s'), $params['auth_type']));
-
 		} else {
-
 			$params['auth_type'] = $this->collect_parameter(sb__('Select one of the options: '), sb__('Invalid selection, please try again.'), function($input) {
 				if ( empty($input) ) return false;
 				return $this->auth_type_valid($input, false, true);
@@ -93,27 +101,27 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 					WP_CLI::line(sprintf('[%s] %s', $key, $value));
 				}
 			});
-
 		}
 
+		// Collect credentials based on authentication type
 		switch ($params['auth_type']) {
 			case 'token':
 			case 'API Token':
-
 				if ( $params['api_token'] ) {
 					WP_CLI::success(sprintf(sb__('API token is already set to "%s"'), $params['api_token']));
 				} else {
 					$params['api_token'] = $this->collect_parameter(sb__('Specify Cloudflare API Token: '), sb__('API cannot be empty.'));
 				}
-
 				if ( ! $params['disable_validation'] ) {
 					// TODO: Test api connection
+					if ( true ) {
+						$api_connection_available = true;
+					}
 				}
 
 				break;
 			case 'key':
 			case 'API Keys':
-
 				if ( $params['email'] ) {
 					WP_CLI::success(sprintf(sb__('E-mail is already set to %s'), $params['email']));
 				} else {
@@ -128,12 +136,61 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 
 				if ( ! $params['disable_validation'] ) {
 					// TODO: Test api connection
+					if ( true ) {
+						$api_connection_available = true;
+					}
 				}
 
 				break;
 			default:
 				WP_CLI::error(sb__('Invalid authentication type, please try again.'));
 				break;
+		}
+
+		if ( $api_connection_available ) {
+			// TODO: Apply credentials to SB_CF-class
+		}
+
+		// Determine which zone to use
+		if ( $api_connection_available && $zones = $this->get_zones() ) {
+
+			sb_e('Choose from the list below or specify your own Zone ID:');
+			$this->list_zones(true);
+
+			$params['zone'] = $this->collect_parameter(sb__('Cloudflare Zone ID: '), sb__('Zone cannot be empty.'), function($input) use ($zones) {
+				if ( empty($input) ) return false;
+				foreach ( $zones as $i => $zone ) {
+					if ( $i+1 == $input || $zone->id == $input || $zone->name == $input ) {
+						return [
+							'id'   => $zone->id,
+							'name' => $zone->name,
+						];
+					}
+				}
+				return [
+					'id'   => $input,
+					'name' => false,
+				];
+			});
+
+			if ( ! $params['disable_validation'] ) {
+				// TODO: Test if zone is valid
+			}
+
+		} else {
+			$zone_id = $this->collect_parameter(sb__('Cloudflare Zone ID: '), sb__('Zone cannot be empty.'));
+			$params['zone'] = [
+				'id'   => $zone_id,
+				'name' => false,
+			];
+		}
+
+		if ( $params['affect_all_sites'] ) {
+			sb_iterate_sites(function($site) use ($params) {
+				// TODO: Apply settings to site
+			});
+		} else {
+			// TODO: Apply settings to site
 		}
 
 		print_r($params);
@@ -297,13 +354,23 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * List Cloudflare zones with/without numbering.
 	 *
 	 * @param bool $include_numbers
+	 * @param bool $output_texts
+	 *
+	 * @return bool
 	 */
-	protected function list_zones($include_numbers = false) {
+	protected function list_zones($include_numbers = false, $output_texts = true) {
 		$zones = $this->get_zones();
 		if ( ! $zones || empty($zones) ) {
-			WP_CLI::error(sb__('Could not retrieve any available zones. Make sure you have configured the Cloudflare API credentials and set an active zone.'));
+			if ( $output_texts ) {
+				return false;
+			} else {
+				WP_CLI::error(sb__('Could not retrieve any available zones. Make sure you have configured the Cloudflare API credentials and set an active zone.'));
+			}
+
 		}
-		WP_CLI::line(sb__('The following zones are available:'));
+		if ( $output_texts ) {
+			WP_CLI::line(sb__('The following zones are available:'));
+		}
 		foreach ($zones as $i => $zone ) {
 			if ( $include_numbers === true ) {
 				WP_CLI::line(sprintf('[%s] %s (%s)', $i+1, $zone->name, $zone->id));
