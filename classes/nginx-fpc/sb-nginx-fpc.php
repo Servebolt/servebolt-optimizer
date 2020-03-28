@@ -93,6 +93,69 @@ class Servebolt_Nginx_FPC {
 	}
 
 	/**
+	 * Set cache headers - Determine and set the type of headers to be used.
+	 *
+	 * @param $posts
+	 *
+	 * @return mixed
+	 */
+	public function set_headers( $posts ) {
+
+		// Abort if cache headers are allready set
+		if ( $this->headers_already_set ) return $posts;
+		$this->headers_already_set = true;
+
+		// No cache if FPC is not active
+		if ( ! $this->fpc_is_active() ) {
+			$this->no_cache_headers();
+			return $posts;
+		}
+
+		global $wp_query;
+		$post_type = get_post_type();
+
+		// Set no-cache for all admin pages
+		if ( is_admin() || is_user_logged_in() ) {
+			return $posts;
+		}
+
+		// We don't have any posts at the time, abort
+		if ( ! isset( $wp_query ) || ! $post_type ) {
+			$this->headers_already_set = false;
+			return $posts;
+		}
+
+		// Only trigger this function once
+		remove_filter( 'posts_results', [$this, 'set_headers'] );
+
+		if ( $this->is_woocommerce_page() ) {
+			$this->no_cache_headers();
+		} elseif ( $this->should_exclude_post_from_cache( get_the_ID() ) ) {
+			$this->no_cache_headers();
+		} elseif ( $this->cache_all_post_types() ) {
+			// Make sure the post type can be cached
+			$this->post_types[] = $post_type;
+			$this->cache_headers();
+		} elseif ( ( is_front_page() || is_singular() || is_page() ) && $this->cache_active_for_post_type($post_type) ) {
+			// Make sure the post type can be cached
+			$this->post_types[] = $post_type;
+			$this->cache_headers();
+		} elseif ( is_archive() && $this->should_cache_archive( $posts ) ) {
+			// Make sure the archive has only cachable posts
+			$this->cache_headers();
+		} elseif( !empty($this->get_post_types_to_cache() ) ) {
+			$this->post_types[] = $post_type;
+			if( in_array( $post_type , $this->get_default_post_types_to_cache() ) ) $this->cache_headers();
+		} elseif( empty($this->get_post_types_to_cache() ) && ( is_front_page() || is_singular() || is_page() ) ) {
+			$this->cache_headers();
+		} else {
+			// Default to no-cache headers
+			$this->no_cache_headers();
+		}
+		return $posts;
+	}
+
+	/**
 	 * Set a header by best effort.
 	 *
 	 * @param $string
@@ -116,69 +179,6 @@ class Servebolt_Nginx_FPC {
 			header($string);
 		});
 
-	}
-
-	/**
-	 * Set cache headers - Determine and set the type of headers to be used.
-	 *
-	 * @param $posts
-	 *
-	 * @return mixed
-	 */
-	public function set_headers( $posts ) {
-
-		// No cache if FPC is not active
-		if ( ! $this->fpc_is_active() ) {
-			$this->no_cache_headers();
-			return $posts;
-		}
-
-		global $wp_query;
-		$post_type = get_post_type();
-
-		// Abort if cache headers are allready set
-		if ( $this->headers_already_set ) return $posts;
-		$this->headers_already_set = true;
-
-		// Set no-cache for all admin pages
-		if ( is_admin() || is_user_logged_in() ) {
-			return $posts;
-		}
-
-		// We don't have any posts at the time, abort
-		if ( ! isset( $wp_query ) || ! $post_type ) {
-			$this->headers_already_set = false;
-			return $posts;
-		}
-
-		// Only trigger this function once
-		remove_filter( 'posts_results', [$this, 'set_headers'] );
-
-        if ( $this->is_woocommerce_page() ) {
-            $this->no_cache_headers();
-        } elseif ( $this->should_exclude_post_from_cache( get_the_ID() ) ) {
-	        $this->no_cache_headers();
-        } elseif ( $this->cache_all_post_types() ) {
-            // Make sure the post type can be cached
-	        $this->post_types[] = $post_type;
-	        $this->cache_headers();
-        } elseif ( ( is_front_page() || is_singular() || is_page() ) && $this->cache_active_for_post_type($post_type) ) {
-			// Make sure the post type can be cached
-			$this->post_types[] = $post_type;
-			$this->cache_headers();
-		} elseif ( is_archive() && $this->should_cache_archive( $posts ) ) {
-			// Make sure the archive has only cachable posts
-			$this->cache_headers();
-		} elseif( !empty($this->get_post_types_to_cache() ) ) {
-            $this->post_types[] = $post_type;
-            if( in_array( $post_type , $this->get_default_post_types_to_cache() ) ) $this->cache_headers();
-        } elseif( empty($this->get_post_types_to_cache() ) && ( is_front_page() || is_singular() || is_page() ) ) {
-	        $this->cache_headers();
-        } else {
-			// Default to no-cache headers
-			$this->no_cache_headers();
-		}
-		return $posts;
 	}
 
 	/**
