@@ -14,6 +14,169 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	protected $zones = null;
 
 	/**
+	 * Allowed authentication types for the Cloudflare API.
+	 *
+	 * @var array
+	 */
+	private $allowed_auth_types = ['token' => 'API token', 'key' => 'API keys'];
+
+	/**
+	 * Check if authentication type for the Cloudflare API is valid or not.
+	 *
+	 * @param $auth_type
+	 * @param bool $strict
+	 * @param bool $return_value
+	 *
+	 * @return bool|string
+	 */
+	private function auth_type_valid($auth_type, $strict = true, $return_value = false) {
+
+		if ( $strict ) {
+			if ( in_array($auth_type, array_keys($this->allowed_auth_types), true) ) {
+				return ( $return_value ? $auth_type : true );
+			}
+			return false;
+		}
+
+		$auth_type = mb_strtolower($auth_type);
+		$values = array_map(function ($item) {
+			return mb_strtolower($item);
+		}, $this->allowed_auth_types);
+		$keys = array_map(function ($item) {
+			return mb_strtolower($item);
+		}, array_keys($this->allowed_auth_types));
+
+		if ( in_array($auth_type, $values, true) ) {
+			$value = array_flip($values)[$auth_type];
+			return ( $return_value ? $value : true );
+		}
+		if ( in_array($auth_type, $keys, true) ) {
+			return ( $return_value ? $auth_type : true );
+		}
+		return false;
+	}
+
+	/**
+	 * Interactive setup for Cloudflare.
+	 *
+	 * @param $params
+	 */
+	protected function cf_setup_interactive($params) {
+
+		WP_CLI::line(sb__('Welcome!'));
+		WP_CLI::line(sb__('This guide will set up the Cloudflare feature on your site.'));
+		WP_CLI::line(sb__('This allows for automatic cache purge when the contents of your site changes.'));
+		if ( $params['affect_all_sites'] ) {
+			WP_CLI::warning(sb__('This will affect all your site in the multisite-network'));
+		}
+		WP_CLI::line();
+
+		WP_CLI::confirm(sb__('Do you want to continue?'));
+
+		WP_CLI::line(PHP_EOL . sb__('Okay, first we need to set up the API connection to Cloudflare.'));
+
+		if ( $params['auth_type'] ) {
+
+			if ( ! $this->auth_type_valid($params['auth_type']) ) {
+				WP_CLI::error(sprintf(sb__('Invalid authentication type: %s'), $params['auth_type']));
+			}
+			WP_CLI::success(sprintf(sb__('Cloudflare API authentication type is already set to %s'), $params['auth_type']));
+
+		} else {
+
+			$params['auth_type'] = $this->collect_parameter(sb__('Select one of the options: '), sb__('Invalid selection, please try again.'), function($input) {
+				if ( empty($input) ) return false;
+				return $this->auth_type_valid($input, false, true);
+			}, function () {
+				WP_CLI::line(sb__('How will you authenticate with the Cloudflare API?'));
+				foreach($this->allowed_auth_types as $key => $value) {
+					WP_CLI::line(sprintf('[%s] %s', $key, $value));
+				}
+			});
+
+		}
+
+		switch ($params['auth_type']) {
+			case 'token':
+			case 'API Token':
+
+				if ( $params['api_token'] ) {
+					WP_CLI::success(sprintf(sb__('API token is already set to "%s"'), $params['api_token']));
+				} else {
+					$params['api_token'] = $this->collect_parameter(sb__('Specify Cloudflare API Token: '), sb__('API cannot be empty.'));
+				}
+
+				if ( ! $params['disable_validation'] ) {
+					// TODO: Test api connection
+				}
+
+				break;
+			case 'key':
+			case 'API Keys':
+
+				if ( $params['email'] ) {
+					WP_CLI::success(sprintf(sb__('E-mail is already set to %s'), $params['email']));
+				} else {
+					$params['email'] = $this->collect_parameter(sb__('Specify Cloudflare username (e-mail): '), sb__('E-mail cannot be empty.'));
+				}
+
+				if ( $params['api_key'] ) {
+					WP_CLI::success(sprintf(sb__('API key is already set to %s'), $params['api_key']));
+				} else {
+					$params['email'] = $this->collect_parameter(sb__('Specify Cloudflare API key: '), sb__('API key cannot be empty.'));
+				}
+
+				if ( ! $params['disable_validation'] ) {
+					// TODO: Test api connection
+				}
+
+				break;
+			default:
+				WP_CLI::error(sb__('Invalid authentication type, please try again.'));
+				break;
+		}
+
+		print_r($params);
+
+	}
+
+	/**
+	 * Collect parameter interactively via CLI prompt.
+	 *
+	 * @param $prompt_message
+	 * @param $error_message
+	 * @param bool $validation
+	 * @param bool $before_input_prompt
+	 * @param bool $quit_on_fail
+	 *
+	 * @return string
+	 */
+	protected function collect_parameter($prompt_message, $error_message, $validation = false, $before_input_prompt = false, $quit_on_fail = false) {
+
+		// Determine validation
+		$default_validation = function($input) {
+			if ( empty($input) ) return false;
+			return $input;
+		};
+		$validation = ( is_callable($validation) ? $validation : $default_validation );
+
+		set_param:
+
+		// Call before prompt-function
+		if ( is_callable($before_input_prompt) ) {
+			$before_input_prompt();
+		}
+
+		echo $prompt_message;
+		$param = $this->user_input($validation);
+		if ( ! $param ) {
+			WP_CLI::error($error_message, $quit_on_fail);
+			goto set_param;
+		}
+		return $param;
+	}
+
+	/**
 	 * Get Cloudflare zones.
 	 *
 	 * @return array|null

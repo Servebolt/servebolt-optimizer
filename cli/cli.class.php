@@ -38,13 +38,13 @@ class Servebolt_CLI {
 	 * Servebolt_CLI constructor.
 	 */
 	private function __construct() {
-		$this->registerCommands();
+		$this->register_commands();
 	}
 
 	/**
 	 * Register WP CLI commands.
 	 */
-	private function registerCommands() {
+	private function register_commands() {
 
 		$general        = new Servebolt_CLI_General;
 		$optimizations  = new Servebolt_CLI_Optimizations;
@@ -73,7 +73,7 @@ class Servebolt_CLI {
 		WP_CLI::add_command( 'servebolt fpc excluded-posts clear',   [$fpc, 'command_nginx_fpc_clear_excluded_posts'] );
 
 		// Cloudflare
-		//WP_CLI::add_command( 'servebolt cf setup',                   [$cf, 'command_cf_setup'] ); // TODO: Make interactive setup command
+		WP_CLI::add_command( 'servebolt cf setup',                   [$cf, 'command_cf_setup'] ); // TODO: Make interactive setup command
 		WP_CLI::add_command( 'servebolt cf status',                  [$cf, 'command_cf_status'] );
 		WP_CLI::add_command( 'servebolt cf activate',                [$cf, 'command_cf_enable'] );
 		WP_CLI::add_command( 'servebolt cf deactivate',              [$cf, 'command_cf_disable'] );

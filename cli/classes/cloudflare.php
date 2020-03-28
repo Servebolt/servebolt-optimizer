@@ -9,18 +9,72 @@ require_once __DIR__ . '/cloudflare-extra.class.php';
 class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 
 	/**
-	 * Interactive setup guide for Cloudflare.
+	 * Setup procedure for Cloudflare feature.
 	 *
-	 * <post_ids>
-	 * : The posts to exclude from cache.
+	 * [--interactive]
+	 * : Whether to run interactive setup guide or not. If present then all the parameters except "all" and "" will be omitted.
+	 *
+	 * [--all]
+	 * : Setup on all sites in multisite.
+	 *
+	 * [--auth-type]
+	 * : The way we want to authenticate with the Cloudflare API.
+	 * ---
+	 * default: token
+	 * options:
+	 *   - token
+	 *   - key
+	 * ---
+	 *
+	 * [--api-token]
+	 * : Cloudflare API token.
+	 *
+	 * [--email]
+	 * : Cloudflare e-mail.
+	 *
+	 * [--api-key]
+	 * : Cloudflare API key.
+	 *
+	 * [--zone-id]
+	 * : Cloudflare Zone.
+	 *
+	 * [--disable-validation]
+	 * : Whether to validate the input data or not.
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     wp servebolt cf setup
+	 *     # Run interactive setup guide
+	 *     wp servebolt cf setup --interactive
+	 *
+	 *     # Run interactive setup guide that will be applied for all sites in a multisite-network
+	 *     wp servebolt cf setup --interactive --all
+	 *
+	 *     # Run setup with only direct arguments using API token
+	 *     wp servebolt cf setup --auth-type=token --api-token="your-api-token" --zone-id="your-zone-id"
+	 *
+	 *     # Run setup with only direct arguments using API keys with no validation
+	 *     wp servebolt cf setup --auth-type=key --email="your@email.com" --api-key="your-api-key" --zone-id="your-zone-id" --disable-validation
 	 *
 	 */
 	// TODO: Finish this
 	public function command_cf_setup($args, $assoc_args) {
+
+		$interactive = array_key_exists( 'interactive', $assoc_args );
+		$affect_all_sites = $this->affect_all_sites( $assoc_args );
+		$auth_type          = sb_array_get('auth-type', $assoc_args);
+		$api_token          = sb_array_get('api-token', $assoc_args);
+		$email              = sb_array_get('email', $assoc_args);
+		$api_key            = sb_array_get('api-key', $assoc_args);
+		$zone_id            = sb_array_get('zone-id', $assoc_args);
+		$disable_validation = array_key_exists( 'disable-validation', $assoc_args );
+		$params             = compact('interactive', 'affect_all_sites', 'auth_type', 'api_token', 'email', 'api_key', 'zone_id', 'disable_validation');
+
+		if ( $interactive ) {
+			$this->cf_setup_interactive($params);
+			return;
+		}
+
+		print_r($params);
 
 	}
 
@@ -305,35 +359,32 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 		}
 
 		$zones = $this->get_zones();
-
 		select_zone:
 		$this->list_zones(true);
 
-		echo 'Select which zone you would like to set up: ';
-		$handle = fopen ('php://stdin', 'r');
-		$line = trim(fgets($handle));
-
-		$found_zone = false;
-		foreach ( $zones as $i => $zone ) {
-			if ( $i+1 == $line || $zone->id == $line || $zone->name == $line ) {
-				$found_zone = $zone;
-				break;
+		sb_e('Select which zone you would like to set up: ');
+		$zone = $this->user_input(function($input) use ($zones) {
+			foreach ( $zones as $i => $zone ) {
+				if ( $i+1 == $input || $zone->id == $input || $zone->name == $input ) {
+					return $zone;
+				}
 			}
-		}
-		fclose($handle);
-		if ( ! $found_zone ) {
+			return false;
+		});
+
+		if ( ! $zone ) {
 			WP_CLI::error(sb__('Invalid selection, please try again.'), false);
 			goto select_zone;
 		}
 
 		// Notify user if the zone domain name does not match in the site URL.
 		$home_url = get_home_url();
-		if ( strpos($home_url, $found_zone->name) === false ) {
-			WP_CLI::warning(sprintf(sb__('Selected zone (%s) does not match with the URL fo the current site (%s). This will most likely inhibit cache purge to work.'), $found_zone->name, $home_url));
+		if ( strpos($home_url, $zone->name) === false ) {
+			WP_CLI::warning(sprintf(sb__('Selected zone (%s) does not match with the URL fo the current site (%s). This will most likely inhibit cache purge to work.'), $zone->name, $home_url));
 		}
 
-		sb_cf()->store_active_zone_id($found_zone->id);
-		WP_CLI::success(sprintf(sb__('Successfully selected zone %s'), $found_zone->name));
+		sb_cf()->store_active_zone_id($zone->id);
+		WP_CLI::success(sprintf(sb__('Successfully selected zone %s'), $zone->name));
 
 	}
 

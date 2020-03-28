@@ -20,4 +20,21 @@ abstract class Servebolt_CLI_Extras {
 		return is_multisite() && array_key_exists('all', $assoc_args);
 	}
 
+	/**
+	 * Handle CLI user input.
+	 *
+	 * @param bool $validation_closure
+	 *
+	 * @return string
+	 */
+	protected function user_input($validation_closure = false) {
+		$handle = fopen ('php://stdin', 'r');
+		$response = trim(fgets($handle));
+		fclose($handle);
+		if ( is_callable($validation_closure) ) {
+			return $validation_closure($response);
+		}
+		return $response;
+	}
+
 }
