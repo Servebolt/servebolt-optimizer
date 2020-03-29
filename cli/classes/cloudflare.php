@@ -153,6 +153,16 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 		}
 	}
 
+	// TODO: Finish this
+	public function command_cf_set_config($args, $assoc_args) {
+
+	}
+
+	// TODO: Finish this
+	public function command_cf_clear_config($args, $assoc_args) {
+
+	}
+
 	/**
 	 * Display all config parameters for Cloudflare.
 	 *
