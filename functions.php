@@ -827,12 +827,13 @@ class SB_Crypto {
 	 * Decrypt string.
 	 *
 	 * @param $input_string
-	 * @param bool $method
+
 	 * @param bool $blog_id
+   * @param bool $method
 	 *
 	 * @return bool|string
 	 */
-	public static function decrypt($input_string, $method = false, $blog_id = false) {
+	public static function decrypt($input_string, $blog_id = false, $method = false) {
 		if ( is_numeric($blog_id) ) {
 			self::$blog_id = $blog_id;
 		}

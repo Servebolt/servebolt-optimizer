@@ -185,11 +185,9 @@ class Cloudflare {
 	 */
 	private function get_key_instance() {
 		switch ( $this->auth_type ) {
-			case 'apiToken':
 			case 'api_token':
 				return new APIToken($this->get_credential('api_token'));
 				break;
-			case 'apiKey':
 			case 'api_key':
 				return new APIKey($this->get_credential('email'), $this->get_credential('api_key'));
 				break;

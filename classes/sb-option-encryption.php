@@ -47,7 +47,8 @@ class SB_Option_Encryption {
 	 * @return bool|string
 	 */
 	public function decrypt_option($value) {
-		$decrypted_value = SB_Crypto::decrypt($value);
+		$blog_id = get_current_blog_id() ?: false;
+		$decrypted_value = SB_Crypto::decrypt($value, $blog_id);
 		return $decrypted_value !== false ? $decrypted_value : $value;
 	}
 
@@ -59,7 +60,7 @@ class SB_Option_Encryption {
 	 * @return bool|string
 	 */
 	public function decrypt_blog_option($value, $blog_id) {
-		$decrypted_value = SB_Crypto::decrypt($value, false, $blog_id);
+		$decrypted_value = SB_Crypto::decrypt($value, $blog_id);
 		return $decrypted_value !== false ? $decrypted_value : $value;
 	}
 
@@ -71,7 +72,8 @@ class SB_Option_Encryption {
 	 * @return bool|string
 	 */
 	public function encrypt_option($value) {
-		$encrypted_value = SB_Crypto::encrypt($value);
+		$blog_id = get_current_blog_id() ?: false;
+		$encrypted_value = SB_Crypto::encrypt($value, $blog_id);
 		return $encrypted_value !== false ? $encrypted_value : $value;
 	}
 

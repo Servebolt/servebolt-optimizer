@@ -143,7 +143,7 @@ class Servebolt_Optimize_DB {
 							WP_CLI::error($value['message'], false);
 							break;
 						case 'table':
-							WP_CLI\Utils\format_items( 'table', $value['table'] , array_keys(current($value['table'])));
+							WP_CLI\Utils\format_items( 'table', $value['table'], array_keys(current($value['table'])));
 							break;
 					}
 				}

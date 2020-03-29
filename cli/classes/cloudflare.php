@@ -74,7 +74,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 		$api_token          = sb_array_get('api-token', $assoc_args);
 		$email              = sb_array_get('email', $assoc_args);
 		$api_key            = sb_array_get('api-key', $assoc_args);
-		$zone               = sb_array_get('zone', $assoc_args);
+		$zone               = sb_array_get('zone-id', $assoc_args);
 		$disable_validation = array_key_exists( 'disable-validation', $assoc_args );
 		$params             = compact('interactive', 'affect_all_sites', 'auth_type', 'api_token', 'email', 'api_key', 'zone', 'disable_validation');
 		if ( $interactive ) {

@@ -60,16 +60,18 @@ class Servebolt_CF {
 	 */
 	public static function get_instance() {
 		if ( self::$instance == null ) {
-			self::$instance = new Servebolt_CF();
+			self::$instance = new Servebolt_CF(true);
 		}
 		return self::$instance;
 	}
 
 	/**
 	 * Servebolt_CF constructor.
+	 *
+	 * @param bool $init
 	 */
-	private function __construct() {
-		$this->cf_init();
+	public function __construct($init = false) {
+		if ($init) $this->cf_init();
 	}
 
 	/**
@@ -164,12 +166,11 @@ class Servebolt_CF {
 	 */
 	public function test_api_connection() {
 		try {
-			switch ( $this->get_authentication_type() ) {
-				case 'apiToken':
+			$auth_type = $this->ensure_auth_type_integrity($this->get_authentication_type());
+			switch ( $auth_type ) {
 				case 'api_token':
 					return $this->verify_token();
 					break;
-				case 'apiKey':
 				case 'api_key':
 					return $this->verify_user();
 					break;
@@ -318,11 +319,16 @@ class Servebolt_CF {
 	 * Store active zone Id.
 	 *
 	 * @param $zone_id
+	 * @param bool $blog_id
 	 *
 	 * @return bool
 	 */
-	public function store_active_zone_id($zone_id) {
-		return sb_update_option('cf_zone_id', $zone_id);
+	public function store_active_zone_id($zone_id, $blog_id = false) {
+		if ( is_numeric($blog_id) ) {
+			return sb_update_blog_option($blog_id, 'cf_zone_id', $zone_id);
+		} else {
+			return sb_update_option('cf_zone_id', $zone_id);
+		}
 	}
 
 	/**
@@ -374,7 +380,7 @@ class Servebolt_CF {
 	 *
 	 * @return bool
 	 */
-	private function set_authentication_type($type, $blog_id = false) {
+	public function set_authentication_type($type, $blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric($blog_id) ) {
 			return sb_update_blog_option($blog_id, 'cf_auth_type', $type);
@@ -420,8 +426,9 @@ class Servebolt_CF {
 	 */
 	public function register_credentials($blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
-		switch ( $this->get_authentication_type($blog_id) ) {
-			case 'apiToken':
+		$auth_type = $this->get_authentication_type($blog_id);
+		$auth_type = $this->ensure_auth_type_integrity($auth_type);
+		switch ( $auth_type ) {
 			case 'api_token':
 				$api_token = $this->get_credential('api_token', $blog_id);
 				if ( ! empty($api_token) ) {
@@ -429,10 +436,39 @@ class Servebolt_CF {
 					$this->credentials_ok = true;
 				}
 				break;
-			case 'apiKey':
 			case 'api_key':
 				$email = $this->get_credential('email', $blog_id);
 				$api_key = $this->get_credential('api_key', $blog_id);
+				if ( ! empty($email) && ! empty($api_key) ) {
+					$this->set_credentials_in_cf_class('api_key', compact('email', 'api_key'));
+					$this->credentials_ok = true;
+				}
+				break;
+		}
+		return $this->credentials_ok;
+	}
+
+	/**
+	 * Register credentials in class.
+	 *
+	 * @param $auth_type
+	 * @param $credentials
+	 *
+	 * @return bool
+	 */
+	public function register_credentials_manually($auth_type, $credentials) {
+		$auth_type = $this->ensure_auth_type_integrity($auth_type);
+		switch ( $auth_type ) {
+			case 'api_token':
+				$api_token = $credentials['api_token'];
+				if ( ! empty($api_token) ) {
+					$this->set_credentials_in_cf_class('api_token', compact('api_token'));
+					$this->credentials_ok = true;
+				}
+				break;
+			case 'api_key':
+				$email = $credentials['email'];
+				$api_key = $credentials['api_key'];
 				if ( ! empty($email) && ! empty($api_key) ) {
 					$this->set_credentials_in_cf_class('api_key', compact('email', 'api_key'));
 					$this->credentials_ok = true;
@@ -464,11 +500,14 @@ class Servebolt_CF {
 		}
 		if ( isset($option_name) ) {
 			$blog_id = $this->get_blog_id($blog_id);
+			if ( $blog_id ) switch_to_blog($blog_id);
 			if ( is_numeric($blog_id) ) {
-				return sb_get_blog_option($blog_id, $option_name);
+				$value = sb_get_blog_option($blog_id, $option_name);
 			} else {
-				return sb_get_option($option_name);
+				$value = sb_get_option($option_name);
 			}
+			if ( $blog_id ) restore_current_blog();
+			return $value;
 		}
 		return false;
 	}
@@ -496,11 +535,14 @@ class Servebolt_CF {
 		}
 		if ( isset($option_name) ) {
 			$blog_id = $this->get_blog_id($blog_id);
+			if ( $blog_id ) switch_to_blog($blog_id);
 			if ( is_numeric($blog_id) ) {
-				return sb_update_blog_option($blog_id, $option_name, $value, true);
+				$result = sb_update_blog_option($blog_id, $option_name, $value, true);
 			} else {
-				return sb_update_option($option_name, $value, true);
+				$result = sb_update_option($option_name, $value, true);
 			}
+			if ( $blog_id ) restore_current_blog();
+			return $result;
 		}
 		return false;
 	}
@@ -509,27 +551,48 @@ class Servebolt_CF {
 	 * Store API credentials in DB.
 	 *
 	 * @param $credentials
-	 * @param $type
+	 * @param $auth_type
 	 * @param bool $blog_id
 	 *
 	 * @return bool
 	 */
-	public function store_credentials($credentials, $type, $blog_id = false) {
+	public function store_credentials($auth_type, $credentials, $blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
-
-		switch ($type) {
+		$auth_type = $this->ensure_auth_type_integrity($auth_type);
+		switch ($auth_type) {
 			case 'api_key':
-				if ( $this->set_authentication_type($type, $blog_id) && $this->store_credential('email', $credentials['email'], $blog_id) && $this->store_credential('api_key', $credentials['api_key'], $blog_id) ) {
-					$this->register_credentials();
+				if ( $this->set_authentication_type($auth_type, $blog_id) && $this->store_credential('email', $credentials['email'], $blog_id) && $this->store_credential('api_key', $credentials['api_key'], $blog_id) ) {
+					$this->register_credentials($blog_id);
 					return true;
 				}
 				break;
 			case 'api_token':
-				if ( $this->set_authentication_type($type, $blog_id) && $this->store_credential('api_token', $credentials['token'], $blog_id) ) {
-					$this->register_credentials();
+				if ( $this->set_authentication_type($auth_type, $blog_id) && $this->store_credential('api_token', $credentials['api_token'], $blog_id) ) {
+					$this->register_credentials($blog_id);
 					return true;
 				}
 				break;
+		}
+		return false;
+	}
+
+	/**
+	 * Make sure auth type is specified correctly.
+	 *
+	 * @param $auth_type
+	 *
+	 * @return bool|string
+	 */
+	private function ensure_auth_type_integrity($auth_type) {
+		switch ( $auth_type ) {
+			case 'token':
+			case 'apiToken':
+			case 'api_token':
+				return 'api_token';
+			case 'key':
+			case 'apiKey':
+			case 'api_key':
+				return 'api_key';
 		}
 		return false;
 	}
