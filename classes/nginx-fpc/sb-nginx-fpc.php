@@ -101,7 +101,7 @@ class Servebolt_Nginx_FPC {
 	 */
 	public function set_headers( $posts ) {
 
-		$debug = false;
+		$debug = true;
 
 		// Abort if cache headers are already set
 		if ( $this->headers_already_set ) return $posts;
@@ -109,8 +109,8 @@ class Servebolt_Nginx_FPC {
 
 		// No cache if FPC is not active, or if we are logged in
 		if ( ! $this->fpc_is_active() || is_admin() || is_user_logged_in() ) {
-			if ( $debug ) $this->header('Cache-trigger: 2');
 			$this->no_cache_headers();
+			if ( $debug ) $this->header('No-cache-trigger: 2');
 			return $posts;
 		}
 
@@ -128,10 +128,10 @@ class Servebolt_Nginx_FPC {
 
 		if ( $this->should_exclude_post_from_cache( get_the_ID() ) ) {
 			$this->no_cache_headers();
-			if ( $debug ) $this->header('Cache-trigger: 3');
+			if ( $debug ) $this->header('No-cache-trigger: 3');
 		} elseif ( $this->should_exclude_post_from_cache( get_the_ID() ) ) {
 			$this->no_cache_headers();
-			if ( $debug ) $this->header('Cache-trigger: 4');
+			if ( $debug ) $this->header('No-cache-trigger: 4');
 		} elseif ( $this->cache_all_post_types() ) {
 			// Make sure the post type can be cached
 			$this->post_types[] = $post_type;
@@ -159,7 +159,7 @@ class Servebolt_Nginx_FPC {
 		} else {
 			// Default to no-cache headers
 			$this->no_cache_headers();
-			if ( $debug ) $this->header('Cache-trigger: 10');
+			if ( $debug ) $this->header('No-cache-trigger: 10');
 		}
 		return $posts;
 	}
