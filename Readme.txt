@@ -1,5 +1,5 @@
 === Servebolt Optimizer ===
-Contributors: audunhus, erlendeide, robsat91
+Contributors: audunhus, erlendeide, robsat91, servebolt
 Tags: performance, optimization, cache, log, multisite, wp-cli, full page cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
@@ -11,7 +11,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 This plugin adds functionality to implement Servebolt WordPress best practices. This includes database optimizations, log review, performance recommendations and support for down stream full page caching.
 
-This project is maintained on Github: https://github.com/Servebolt/servebolt-optimizer
+This project is maintained on [Github](https://servebo.lt/sog).
 
 == Description ==
 = Features =
@@ -29,22 +29,23 @@ Full Page Cache is automatically purged when a single post has been updated. You
 This Cloudflare integration supports both API key and API token authentication.
 
 = Full Page Caching =
-This plugin rewrites HTTP headers of HTML to allow Full Page Caching and the browser to cache HTML. Full Page Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.
+This plugin rewrites HTTP headers of HTML to allow for Full Page Caching, and for the browser to cache HTML. Full Page Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.
 
 == Installation ==
-1. Upload 'servebolt-optimizer' to the '/wp-content/plugins/' directory
+1. Download this plugin and unzip
+1. Upload servebolt-optimizer folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 3. Navigate to Servebolt > Performance Optimizer and run optimizations if necessary
 
 With WP-CLI
 1. Log in to your site with SSH
 2. cd to your sites root wordpress folder
-3. Run 'wp plugin install servebolt-optimizer --activate'
-4. Run optimizations 'wp servebolt db optimize'
+3. Run `wp plugin install servebolt-optimizer --activate`
+4. Run optimizations `wp servebolt db optimize`
 
 == Changelog ==
 = 2.0 =
-* [Added Automatic Cloudflare cache purge feature](https://servebolt.com/articles/servebolt-optimizer-2-0-for-wordpress-with-purge-cloudflare-cache-support/)
+* [Added Automatic Cloudflare cache purge feature](https://servebo.lt/5z7xw)
 * Major code refactor
 
 = 1.6.4 =
@@ -60,7 +61,7 @@ With WP-CLI
 * Removed security from dashboard
 
 = 1.6 =
-* New: Control Full page cache settings with WP CLI (wp servebolt fpc)
+* New: Control Full page cache settings with WP CLI (`wp servebolt fpc`)
 * Improvement: Turn off vulnerable plugins check with `define('SERVEBOLT_VULN_ACTIVATE', false);`
 * Removed: Scanning of plugins for security vulnerabilities. This will be released in a separate plugin.
 * Removed: Transient cleaner
