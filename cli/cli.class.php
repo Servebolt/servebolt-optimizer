@@ -72,14 +72,17 @@ class Servebolt_CLI {
 		WP_CLI::add_command( 'servebolt fpc excluded-posts set',     [$fpc, 'command_nginx_fpc_set_excluded_posts'] );
 		WP_CLI::add_command( 'servebolt fpc excluded-posts clear',   [$fpc, 'command_nginx_fpc_clear_excluded_posts'] );
 
+
 		// Cloudflare
 		WP_CLI::add_command( 'servebolt cf setup',                   [$cf, 'command_cf_setup'] );
+
 		WP_CLI::add_command( 'servebolt cf status',                  [$cf, 'command_cf_status'] );
 		WP_CLI::add_command( 'servebolt cf activate',                [$cf, 'command_cf_enable'] );
 		WP_CLI::add_command( 'servebolt cf deactivate',              [$cf, 'command_cf_disable'] );
+
 		WP_CLI::add_command( 'servebolt cf config get',              [$cf, 'command_cf_get_config'] );
-		//WP_CLI::add_command( 'servebolt cf config set',              [$cf, 'command_cf_set_config'] ); // TODO: Create this
-		//WP_CLI::add_command( 'servebolt cf config set',              [$cf, 'command_cf_clear_config'] ); // TODO: Move non-interactive setup guide here
+		WP_CLI::add_command( 'servebolt cf config set',              [$cf, 'command_cf_set_config'] ); // TODO: Move non-interactive setup guide here
+		WP_CLI::add_command( 'servebolt cf config clear',            [$cf, 'command_cf_clear_config'] );
 
 		WP_CLI::add_command( 'servebolt cf api test',                [$cf, 'command_cf_test_api_connection'] );
 		WP_CLI::add_command( 'servebolt cf api credentials get',     [$cf, 'command_cf_get_credentials'] );

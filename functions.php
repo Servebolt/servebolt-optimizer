@@ -83,6 +83,15 @@ function sb_boolean_to_state_string($state) {
 }
 
 /**
+ * Check if we are running as CLI.
+ * s
+ * @return bool
+ */
+function sb_is_cli() {
+	return ( defined( 'WP_CLI' ) && WP_CLI );
+}
+
+/**
  * Get a link to the Servebolt admin panel.
  *
  * @return bool|string
@@ -90,6 +99,23 @@ function sb_boolean_to_state_string($state) {
 function sb_get_admin_url() {
 	$web_root_path = sb_is_dev_debug() ? '/kunder/serveb_1234/custom_4321/public' : get_home_path();
 	return ( preg_match( "@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $web_root_path, $matches ) ) ? 'https://admin.servebolt.com/siteredirect/?site='. $matches[1] : false;
+}
+
+/**
+ * Add minor improvements to WP.
+ */
+function sb_generic_optimizations() {
+
+  if ( apply_filters('sb_optimizer_skip_generic_optimizations', false) ) return;
+
+	// Disable CONCATENATE_SCRIPTS to get rid of some DDOS-attacks
+	if ( ! defined('CONCATENATE_SCRIPTS') ) {
+		define('CONCATENATE_SCRIPTS', false);
+	}
+
+	// Hide the meta tag generator from head and RSS
+	add_filter('the_generator', '__return_empty_string');
+	remove_action('wp_head', 'wp_generator');
 }
 
 /**
@@ -802,7 +828,7 @@ class SB_Crypto {
 	 * @return bool|string
 	 */
 	public static function encrypt($input_string, $method = false, $blog_id = false) {
-		if ( is_numeric($blog_id) ) {
+		if ( is_multisite() && is_numeric($blog_id) ) {
 			self::$blog_id = $blog_id;
 		}
 		try {
@@ -834,7 +860,7 @@ class SB_Crypto {
 	 * @return bool|string
 	 */
 	public static function decrypt($input_string, $blog_id = false, $method = false) {
-		if ( is_numeric($blog_id) ) {
+		if ( is_multisite() && is_numeric($blog_id) ) {
 			self::$blog_id = $blog_id;
 		}
 		try {
