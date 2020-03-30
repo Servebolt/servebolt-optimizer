@@ -81,7 +81,7 @@ class Servebolt_CLI {
 		WP_CLI::add_command( 'servebolt cf deactivate',              [$cf, 'command_cf_disable'] );
 
 		WP_CLI::add_command( 'servebolt cf config get',              [$cf, 'command_cf_get_config'] );
-		WP_CLI::add_command( 'servebolt cf config set',              [$cf, 'command_cf_set_config'] ); // TODO: Move non-interactive setup guide here
+		WP_CLI::add_command( 'servebolt cf config set',              [$cf, 'command_cf_set_config'] );
 		WP_CLI::add_command( 'servebolt cf config clear',            [$cf, 'command_cf_clear_config'] );
 
 		WP_CLI::add_command( 'servebolt cf api test',                [$cf, 'command_cf_test_api_connection'] );

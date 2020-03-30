@@ -13,15 +13,6 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 *
 	 * ## OPTIONS
 	 *
-	 * [--interactive[=<interactive>]]
-	 * : Whether to run interactive setup guide or not.
-	 * ---
-	 * default: true
-	 * options:
-	 *   - true
-	 *   - false
-	 * ---
-	 *
 	 * [--all]
 	 * : Setup on all sites in multisite.
 	 *
@@ -51,24 +42,18 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     # Run interactive setup guide
+	 *     # Run setup guide
 	 *     wp servebolt cf setup
 	 *
-	 *     # Run interactive setup guide that will be applied for all sites in a multisite-network
+	 *     # Run setup guide that will be applied for all sites in a multisite-network
 	 *     wp servebolt cf setup --all
 	 *
-	 *     # Run interactive setup guide (using token) that will be applied for all sites in a multisite-network
+	 *     # Run setup guide (using token) that will be applied for all sites in a multisite-network
 	 *     wp servebolt cf setup --auth-type=token --api-token="your-api-token" --all
 	 *
-	 *     # Run setup non-interactive with arguments setting up API token and a zone
-	 *     wp servebolt cf setup --interactive=false --auth-type=token --api-token="your-api-token" --zone-id="your-zone-id"
-	 *
-	 *     # Run setup non-interactive with arguments setting up API token and a zone with no validation
-	 *     wp servebolt cf setup --interactive=false --auth-type=key --email="your@email.com" --api-key="your-api-key" --zone-id="your-zone-id" --disable-validation
 	 *
 	 */
-	public function command_cf_setup($args, $assoc_args) {
-		$interactive        = sb_array_get('interactive', $assoc_args) ? filter_var(sb_array_get('interactive', $assoc_args), FILTER_VALIDATE_BOOLEAN) : true;
+	public function command_cf_setup($args, $assoc_args, $interactive = true) {
 		$affect_all_sites   = $this->affect_all_sites( $assoc_args );
 		$auth_type          = sb_array_get('auth-type', $assoc_args);
 		$api_token          = sb_array_get('api-token', $assoc_args);
@@ -153,16 +138,6 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 		}
 	}
 
-	// TODO: Finish this
-	public function command_cf_set_config($args, $assoc_args) {
-
-	}
-
-	// TODO: Finish this
-	public function command_cf_clear_config($args, $assoc_args) {
-
-	}
-
 	/**
 	 * Display all config parameters for Cloudflare.
 	 *
@@ -187,6 +162,74 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 			$arr[] = $this->cf_get_config();
 		}
 		WP_CLI\Utils\format_items('table', $arr, array_keys(current($arr)));
+	}
+
+	/**
+	 * Set config parameters for Cloudflare.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Setup on all sites in multisite.
+	 *
+	 * [--auth-type[=<auth-type>]]
+	 * : The way we want to authenticate with the Cloudflare API.
+	 * ---
+	 * default: token
+	 * options:
+	 *   - token
+	 *   - key
+	 * ---
+	 *
+	 * [--api-token=<api-token>]
+	 * : Cloudflare API token.
+	 *
+	 * [--email=<email>]
+	 * : Cloudflare e-mail.
+	 *
+	 * [--api-key=<api-key>]
+	 * : Cloudflare API key.
+	 *
+	 * [--zone-id=<zone-id>]
+	 * : Cloudflare Zone.
+	 *
+	 * [--disable-validation]
+	 * : Whether to validate the input data or not.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     # Set config using API token and setting a zone a zone
+	 *     wp servebolt cf config set --auth-type=token --api-token="your-api-token" --zone-id="your-zone-id"
+	 *
+	 *     # Set config using API token and setting a zone a zone, no validation applied
+	 *     wp servebolt cf config set --auth-type=key --email="your@email.com" --api-key="your-api-key" --zone-id="your-zone-id" --disable-validation
+	 *
+	 */
+	public function command_cf_set_config($args, $assoc_args) {
+		$this->command_cf_setup($args, $assoc_args, false);
+	}
+
+	/**
+	 * Clear all config parameters for Cloudflare.
+	 *
+	 * ## OPTIONS
+	 *
+	 * [--all]
+	 * : Clear all config for all sites.
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     wp servebolt cf config clear
+	 *
+	 */
+	public function command_cf_clear_config($args, $assoc_args) {
+		if ( $this->affect_all_sites($assoc_args) ) {
+			sb_iterate_sites(function ( $site ) use (&$arr) {
+				$this->cf_clear_config($site->blog_id);
+			});
+		} else {
+			$this->cf_clear_config();
+		}
 	}
 
 	/**

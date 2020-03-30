@@ -35,8 +35,44 @@ class SB_Option_Encryption {
 			$full_option_name = sb_get_option_name($option_name);
 			add_filter( 'pre_update_option_' . $full_option_name, [$this, 'encrypt_option'], 10, 1);
 			add_filter( 'sb_optimizer_get_option_' . $full_option_name, [$this, 'decrypt_option'], 10, 1);
-			add_filter( 'sb_optimizer_get_blog_option_' . $full_option_name, [$this, 'decrypt_blog_option'], 10, 2);
+			if ( is_multisite() ) {
+				add_filter( 'sb_optimizer_get_blog_option_' . $full_option_name, [$this, 'decrypt_blog_option'], 10, 2);
+			}
 		}
+
+		// Multisite options encryption debugging
+		/*
+		$value = 'hallo';
+		$key = 'test10';
+		var_dump('enc str: ' . $value);
+		var_dump('enc key: ' . $key);
+		$x = 1;
+		while($x <= 3) {
+			$this_value = $value . ' ' . $x;
+			echo '---' . PHP_EOL;
+			var_dump('blog id: ' . $x);
+			var_dump('sb_get_blog_option: ' . sb_get_blog_option($x, $key));
+			var_dump('sb_update_blog_option: ' . ( sb_update_blog_option($x, $key, $this_value) ? 'true' : 'false'));
+			var_dump('get_blog_option: ' . get_blog_option($x, sb_get_option_name($key)));
+			var_dump('sb_get_blog_option: ' . sb_get_blog_option($x, $key));
+			$x++;
+		}
+		die;
+		*/
+
+	}
+
+	/**
+	 * Encrypt option value.
+	 *
+	 * @param $value
+	 *
+	 * @return bool|string
+	 */
+	public function encrypt_option($value) {
+		if ( empty($value) ) return $value;
+		$encrypted_value = SB_Crypto::encrypt($value, $this->get_current_blog_id());
+		return $encrypted_value !== false ? $encrypted_value : $value;
 	}
 
 	/**
@@ -47,13 +83,13 @@ class SB_Option_Encryption {
 	 * @return bool|string
 	 */
 	public function decrypt_option($value) {
-		$blog_id = get_current_blog_id() ?: false;
-		$decrypted_value = SB_Crypto::decrypt($value, $blog_id);
+		if ( empty($value) ) return $value;
+		$decrypted_value = SB_Crypto::decrypt($value, $this->get_current_blog_id());
 		return $decrypted_value !== false ? $decrypted_value : $value;
 	}
 
 	/**
-	 * Decrypt option value in context of a blog.
+	 * Decrypt option value on a specific site.
 	 * @param $value
 	 * @param $blog_id
 	 *
@@ -65,16 +101,15 @@ class SB_Option_Encryption {
 	}
 
 	/**
-	 * Encrypt option value.
+	 * Get current blog ID with non-multisite fallback.
 	 *
-	 * @param $value
-	 *
-	 * @return bool|string
+	 * @return bool
 	 */
-	public function encrypt_option($value) {
-		$blog_id = get_current_blog_id() ?: false;
-		$encrypted_value = SB_Crypto::encrypt($value, $blog_id);
-		return $encrypted_value !== false ? $encrypted_value : $value;
+	private function get_current_blog_id() {
+		if ( ! is_multisite() ) {
+			return false;
+		}
+		return get_current_blog_id();
 	}
 
 }

@@ -409,7 +409,8 @@ function sb_update_option($option_name, $value, $assert_update = true) {
 	$full_option_name = sb_get_option_name($option_name);
 	$result = update_option($full_option_name, $value);
 	if ( $assert_update && ! $result ) {
-		return ( sb_get_option($option_name) == $value );
+	  $current_value = sb_get_option($option_name);
+	  return ( $current_value == $value );
 	}
 	return true;
 }
@@ -454,7 +455,8 @@ function sb_update_blog_option($blog_id, $option_name, $value, $assert_update = 
 	$full_option_name = sb_get_option_name($option_name);
 	$result = update_blog_option($blog_id, $full_option_name, $value);
 	if ( $assert_update && ! $result ) {
-		return ( sb_get_blog_option($blog_id, $option_name) == $value );
+	  $current_value = sb_get_blog_option($blog_id, $option_name);
+		return ( $current_value == $value );
 	}
 	return true;
 }
@@ -827,7 +829,7 @@ class SB_Crypto {
 	 *
 	 * @return bool|string
 	 */
-	public static function encrypt($input_string, $method = false, $blog_id = false) {
+	public static function encrypt($input_string, $blog_id = false, $method = false) {
 		if ( is_multisite() && is_numeric($blog_id) ) {
 			self::$blog_id = $blog_id;
 		}
@@ -887,7 +889,9 @@ class SB_Crypto {
 	 * @return string
 	 */
 	public static function mcrypt_key() {
-		return sb_generate_random_permanent_key('mcrypt_key', self::$blog_id);
+		$key = sb_generate_random_permanent_key('mcrypt_key', self::$blog_id);
+	  $key = apply_filters('sb_optimizer_mcrypt_key', $key);
+	  return $key;
 	}
 
 	/**
@@ -934,7 +938,8 @@ class SB_Crypto {
 	public static function openssl_keys() {
 		$key = sb_generate_random_permanent_key('openssl_key', self::$blog_id);
 		$iv = sb_generate_random_permanent_key('openssl_iv', self::$blog_id);
-		return compact('key', 'iv');
+		$keys = apply_filters('sb_optimizer_openssl_keys', compact('key', 'iv'));
+		return $keys;
 	}
 
 	/**
