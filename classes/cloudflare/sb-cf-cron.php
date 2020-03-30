@@ -43,6 +43,9 @@ class Servebolt_CF_Cron_Handle {
 		// Add schedule for execution every minute
 		add_filter( 'cron_schedules', [ $this, 'add_cache_purge_cron_schedule' ] );
 
+		// Bail if we are not CLI or in WP Admin
+		if ( ! sb_is_cli() && ! is_admin() ) return;
+
 		// Update cron state
 		$this->update_cron_state();
 

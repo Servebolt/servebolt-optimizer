@@ -23,27 +23,31 @@ if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
     return;
 }
 
-// Include Composer dependencies
+// Check if we got composer files
 if ( ! file_exists(SERVEBOLT_PATH . 'vendor/autoload.php') ) {
 	require SERVEBOLT_PATH . 'composer-missing.php';
 	return;
 }
-require SERVEBOLT_PATH . 'vendor/autoload.php';
 
 // Include general functions
 require_once SERVEBOLT_PATH . 'functions.php';
 
-// Disable CONCATENATE_SCRIPTS to get rid of some DDOS-attacks
-if ( ! defined('CONCATENATE_SCRIPTS') ) {
-	define('CONCATENATE_SCRIPTS', false);
+// Add minor improvements
+sb_generic_optimizations();
+
+// We don't always need all files
+if ( is_admin() || sb_is_cli() ) {
+
+	// Include Composer dependencies
+	require SERVEBOLT_PATH . 'vendor/autoload.php';
+
+	// Make sure we dont API credentials in clear text.
+	require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
+
+	// Include the Servebolt Cloudflare class
+	require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf.php';
+
 }
-
-// Hide the meta tag generator from head and RSS
-add_filter('the_generator', '__return_empty_string');
-remove_action('wp_head', 'wp_generator');
-
-// Make sure we dont API credentials in clear text.
-require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
 
 // Loads the class that sets the correct cache headers for full page cache
 if ( ! class_exists('Servebolt_Nginx_FPC') ){
@@ -51,15 +55,13 @@ if ( ! class_exists('Servebolt_Nginx_FPC') ){
 	sb_nginx_fpc()->setup();
 }
 
-// Invoke the Servebolt Cloudflare class
-require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf.php';
-sb_cf();
-
-// Register cache actions (cache queue, cache purge trigger)
+// Register cron schedule and cache purge event
 require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf-cron.php';
-require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf-post-save-action.php';
 
 if ( is_admin() ) {
+
+	// Register cache purge event when saving post
+	require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf-post-save-action.php';
 
 	// Load this plugins interface
 	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
@@ -67,7 +69,7 @@ if ( is_admin() ) {
 }
 
 // Initialize CLI-commands
-if ( class_exists( 'WP_CLI' ) ) {
+if ( sb_is_cli() ) {
     require_once SERVEBOLT_PATH . 'cli/cli.class.php';
 	Servebolt_CLI::get_instance();
 }

@@ -83,6 +83,15 @@ function sb_boolean_to_state_string($state) {
 }
 
 /**
+ * Check if we are running as CLI.
+ * s
+ * @return bool
+ */
+function sb_is_cli() {
+	return ( defined( 'WP_CLI' ) && WP_CLI );
+}
+
+/**
  * Get a link to the Servebolt admin panel.
  *
  * @return bool|string
@@ -90,6 +99,23 @@ function sb_boolean_to_state_string($state) {
 function sb_get_admin_url() {
 	$web_root_path = sb_is_dev_debug() ? '/kunder/serveb_1234/custom_4321/public' : get_home_path();
 	return ( preg_match( "@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $web_root_path, $matches ) ) ? 'https://admin.servebolt.com/siteredirect/?site='. $matches[1] : false;
+}
+
+/**
+ * Add minor improvements to WP.
+ */
+function sb_generic_optimizations() {
+
+  if ( apply_filters('sb_optimizer_skip_generic_optimizations', false) ) return;
+
+	// Disable CONCATENATE_SCRIPTS to get rid of some DDOS-attacks
+	if ( ! defined('CONCATENATE_SCRIPTS') ) {
+		define('CONCATENATE_SCRIPTS', false);
+	}
+
+	// Hide the meta tag generator from head and RSS
+	add_filter('the_generator', '__return_empty_string');
+	remove_action('wp_head', 'wp_generator');
 }
 
 /**
@@ -383,7 +409,8 @@ function sb_update_option($option_name, $value, $assert_update = true) {
 	$full_option_name = sb_get_option_name($option_name);
 	$result = update_option($full_option_name, $value);
 	if ( $assert_update && ! $result ) {
-		return ( sb_get_option($option_name) == $value );
+	  $current_value = sb_get_option($option_name);
+	  return ( $current_value == $value );
 	}
 	return true;
 }
@@ -428,7 +455,8 @@ function sb_update_blog_option($blog_id, $option_name, $value, $assert_update = 
 	$full_option_name = sb_get_option_name($option_name);
 	$result = update_blog_option($blog_id, $full_option_name, $value);
 	if ( $assert_update && ! $result ) {
-		return ( sb_get_blog_option($blog_id, $option_name) == $value );
+	  $current_value = sb_get_blog_option($blog_id, $option_name);
+		return ( $current_value == $value );
 	}
 	return true;
 }
@@ -557,8 +585,10 @@ function sb_is_dev_debug() {
 
 /**
  * Delete plugin settings.
+ *
+ * @param bool $all_sites
  */
-function sb_delete_all_settings() {
+function sb_delete_all_settings($all_sites = true) {
 	$option_names = [
 		'ajax_nonce',
 		'mcrypt_key',
@@ -579,7 +609,7 @@ function sb_delete_all_settings() {
 		'fpc_exclude'
 	];
 	foreach ( $option_names as $option_name ) {
-		if ( is_multisite() ) {
+		if ( is_multisite() && $all_sites ) {
 			sb_iterate_sites(function ( $site ) use ($option_name) {
 				sb_delete_blog_option($site->blog_id, $option_name);
 			});
@@ -801,8 +831,8 @@ class SB_Crypto {
 	 *
 	 * @return bool|string
 	 */
-	public static function encrypt($input_string, $method = false, $blog_id = false) {
-		if ( is_numeric($blog_id) ) {
+	public static function encrypt($input_string, $blog_id = false, $method = false) {
+		if ( is_multisite() && is_numeric($blog_id) ) {
 			self::$blog_id = $blog_id;
 		}
 		try {
@@ -834,7 +864,7 @@ class SB_Crypto {
 	 * @return bool|string
 	 */
 	public static function decrypt($input_string, $blog_id = false, $method = false) {
-		if ( is_numeric($blog_id) ) {
+		if ( is_multisite() && is_numeric($blog_id) ) {
 			self::$blog_id = $blog_id;
 		}
 		try {
@@ -861,7 +891,9 @@ class SB_Crypto {
 	 * @return string
 	 */
 	public static function mcrypt_key() {
-		return sb_generate_random_permanent_key('mcrypt_key', self::$blog_id);
+		$key = sb_generate_random_permanent_key('mcrypt_key', self::$blog_id);
+	  $key = apply_filters('sb_optimizer_mcrypt_key', $key);
+	  return $key;
 	}
 
 	/**
@@ -908,7 +940,8 @@ class SB_Crypto {
 	public static function openssl_keys() {
 		$key = sb_generate_random_permanent_key('openssl_key', self::$blog_id);
 		$iv = sb_generate_random_permanent_key('openssl_iv', self::$blog_id);
-		return compact('key', 'iv');
+		$keys = apply_filters('sb_optimizer_openssl_keys', compact('key', 'iv'));
+		return $keys;
 	}
 
 	/**

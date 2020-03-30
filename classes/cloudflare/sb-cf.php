@@ -162,11 +162,16 @@ class Servebolt_CF {
 	/**
 	 * Test API connection.
 	 *
+	 * @param bool $auth_type
+	 *
 	 * @return bool
 	 */
-	public function test_api_connection() {
+	public function test_api_connection($auth_type = false) {
 		try {
-			$auth_type = $this->ensure_auth_type_integrity($this->get_authentication_type());
+			if ( ! $auth_type ) {
+				$auth_type = $this->get_authentication_type();
+			}
+			$auth_type = $this->ensure_auth_type_integrity($auth_type);
 			switch ( $auth_type ) {
 				case 'api_token':
 					return $this->verify_token();

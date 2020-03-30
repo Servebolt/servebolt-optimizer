@@ -87,7 +87,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			}
 			WP_CLI::error($message);
 		} elseif ( ! $params['disable_validation'] ) {
-			if ( $cf->test_api_connection() ) {
+			if ( $cf->test_api_connection($params['auth_type']) ) {
 				if ( ! $return ) {
 					WP_CLI::success(sb__('Cloudflare API test passed.'));
 				}
@@ -199,10 +199,10 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 					}
 					foreach ( $zones as $i => $zone ) {
 						if ( $i + 1 == $input || $zone->id == $input || $zone->name == $input ) {
-							$this->zone_array( $zone->id, $zone->name );
+							return $this->zone_array( $zone->id, $zone->name );
 						}
 					}
-					$this->zone_array( $input );
+					return $this->zone_array( $input );
 				} );
 			}
 
@@ -285,9 +285,16 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * @return bool
 	 */
 	private function store_cf_configuration($auth_type, $credentials, $zone_id, $blog_id = false) {
-		return sb_cf()->set_authentication_type($auth_type, $blog_id) && sb_cf()->store_credentials($auth_type, $credentials, $blog_id) && sb_cf()->store_active_zone_id($zone_id, $blog_id);
+		return sb_cf()->store_credentials($auth_type, $credentials, $blog_id) && sb_cf()->store_active_zone_id($zone_id, $blog_id);
 	}
 
+	/**
+	 * Validate non-interactive Cloudflare setup.
+	 *
+	 * @param $params
+	 *
+	 * @return array|bool
+	 */
 	private function validate_non_interactive_setup_params($params) {
 		$messages = [];
 		$api_connection_available = false;
@@ -909,6 +916,21 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			WP_CLI::success(sprintf(sb__('Successfully cleared zone on site %s.'), get_site_url($blog_id)));
 		} else {
 			WP_CLI::success(sb__('Successfully cleared zone.'));
+		}
+	}
+
+	/**
+	 * Clear all Cloudflare config.
+	 *
+	 * @param bool $blog_id
+	 */
+	protected function cf_clear_config($blog_id = false) {
+		sb_cf()->clear_credentials($blog_id);
+		sb_cf()->clear_active_zone($blog_id);
+		if ( $blog_id ) {
+			WP_CLI::success(sprintf(sb__('Successfully cleared Cloudflare configuration on site %s.'), get_site_url($blog_id)));
+		} else {
+			WP_CLI::success(sb__('Successfully cleared Cloudflare configuration.'));
 		}
 	}
 

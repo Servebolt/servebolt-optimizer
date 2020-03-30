@@ -36,11 +36,21 @@ class Servebolt_Logviewer {
 	private function __construct() {}
 
 	/**
+	 * Get log file path.
+	 *
+	 * @return mixed|void
+	 */
+	private function get_error_log_path() {
+		$log_dir = str_replace('/public', '/logs', $_SERVER['DOCUMENT_ROOT']);
+		$log_file_path = $log_dir. '/ErrorLog';
+		return apply_filters('sb_optimizer_log_file_path', $log_file_path);
+	}
+
+	/**
 	 * Display error log.
 	 */
 	public function view() {
-		$log_dir = str_replace('/public', '/logs', $_SERVER['DOCUMENT_ROOT']);
-		$log_file_path = $log_dir. '/ErrorLog';
+		$log_file_path = $this->get_error_log_path();
 		$log_file_exists = file_exists($log_file_path);
 		$log_file_readable = is_readable($log_file_path);
 		$log = $this->tail($log_file_path, $this->number_of_entries);
