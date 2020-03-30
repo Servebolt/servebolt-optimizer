@@ -24,6 +24,10 @@ This project is maintained on Github: https://github.com/Servebolt/servebolt-opt
 - Multisite support
 - WP CLI support
 
+= Automatic purge of Cloudflare cache =
+Full Page Cache is automatically purged when a single post has been updated. You also have a purge all button in the admin bar.
+This Cloudflare integration supports both API key and API token authentication. 
+
 = Full Page Caching =
 This plugin rewrites HTTP headers of HTML to allow Full Page Caching and the browser to cache HTML. Full Page Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.
 
@@ -39,8 +43,8 @@ With WP-CLI
 4. Run optimizations 'wp servebolt db optimize'
 
 == Changelog ==
-= 2.0-alpha =
-* Added Cloudflare cache busting feature
+= 2.0 =
+* [Added Automatic Cloudflare cache purge feature](https://servebolt.com/articles/servebolt-optimizer-2-0-for-wordpress-with-purge-cloudflare-cache-support/)
 * Major code refactor
 
 = 1.6.4 =
