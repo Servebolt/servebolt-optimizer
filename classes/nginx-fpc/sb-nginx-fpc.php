@@ -101,7 +101,7 @@ class Servebolt_Nginx_FPC {
 	 */
 	public function set_headers( $posts ) {
 
-		$debug = true;
+		$debug = false;
 
 		// Abort if cache headers are already set
 		if ( $this->headers_already_set ) return $posts;

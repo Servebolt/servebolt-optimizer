@@ -296,7 +296,7 @@ class Cloudflare {
 	}
 
 	/**
-	 * Set zone Id.
+	 * Set zone Id (to be used when purging cache).
 	 *
 	 * @param $zone_id
 	 * @param bool $do_zone_check
