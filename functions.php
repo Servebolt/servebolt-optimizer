@@ -585,8 +585,10 @@ function sb_is_dev_debug() {
 
 /**
  * Delete plugin settings.
+ *
+ * @param bool $all_sites
  */
-function sb_delete_all_settings() {
+function sb_delete_all_settings($all_sites = true) {
 	$option_names = [
 		'ajax_nonce',
 		'mcrypt_key',
@@ -607,7 +609,7 @@ function sb_delete_all_settings() {
 		'fpc_exclude'
 	];
 	foreach ( $option_names as $option_name ) {
-		if ( is_multisite() ) {
+		if ( is_multisite() && $all_sites ) {
 			sb_iterate_sites(function ( $site ) use ($option_name) {
 				sb_delete_blog_option($site->blog_id, $option_name);
 			});

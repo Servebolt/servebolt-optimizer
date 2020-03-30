@@ -87,7 +87,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			}
 			WP_CLI::error($message);
 		} elseif ( ! $params['disable_validation'] ) {
-			if ( $cf->test_api_connection() ) {
+			if ( $cf->test_api_connection($params['auth_type']) ) {
 				if ( ! $return ) {
 					WP_CLI::success(sb__('Cloudflare API test passed.'));
 				}
@@ -199,10 +199,10 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 					}
 					foreach ( $zones as $i => $zone ) {
 						if ( $i + 1 == $input || $zone->id == $input || $zone->name == $input ) {
-							$this->zone_array( $zone->id, $zone->name );
+							return $this->zone_array( $zone->id, $zone->name );
 						}
 					}
-					$this->zone_array( $input );
+					return $this->zone_array( $input );
 				} );
 			}
 
