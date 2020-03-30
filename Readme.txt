@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.3.2
 Requires PHP: 7
-Stable tag: 1.6.4
+Stable tag: 2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -26,7 +26,7 @@ This project is maintained on Github: https://github.com/Servebolt/servebolt-opt
 
 = Automatic purge of Cloudflare cache =
 Full Page Cache is automatically purged when a single post has been updated. You also have a purge all button in the admin bar.
-This Cloudflare integration supports both API key and API token authentication. 
+This Cloudflare integration supports both API key and API token authentication.
 
 = Full Page Caching =
 This plugin rewrites HTTP headers of HTML to allow Full Page Caching and the browser to cache HTML. Full Page Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.
