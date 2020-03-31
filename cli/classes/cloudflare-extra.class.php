@@ -571,7 +571,8 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			$error_lines[] = '- ' . sb__('Check that you have configured the Cloudflare API credentials');
 			switch( sb_cf()->get_authentication_type() ) {
 				case 'api_token':
-					$error_lines[] = '- ' .sb__('Your API token might be limited to one or more zones. Listing zones does unfortunately only work when "Zone Resource" is set to "All Zones" (when creating the token in Cloudflare).');
+					$error_lines[] = '- ' . sb__('Your API token might be limited to one or more zones.');
+					$error_lines[] = '  ' . sb__('Listing zones does unfortunately only work when "Zone Resource" is set to "All Zones" (when creating the token in Cloudflare).');
 					break;
 				case 'api_key':
 					$error_lines[] = '- ' . sb__('Your API keys belongs to a user which might lack permissions to list zones.');
