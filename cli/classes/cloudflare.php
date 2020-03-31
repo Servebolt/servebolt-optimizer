@@ -571,6 +571,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 */
 	public function command_cf_purge_url($args) {
 		list($url) = $args;
+		$this->ensure_cache_purge_is_possible();
 		WP_CLI::line(sprintf(sb__('Purging cache for url %s'), $url));
 		if ( sb_cf()->purge_by_url($url) ) {
 			WP_CLI::success(sb__('Cache purged!'));
@@ -594,6 +595,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 */
 	public function command_cf_purge_post($args) {
 		list($post_id) = $args;
+		$this->ensure_cache_purge_is_possible();
 		WP_CLI::line(sprintf(sb__('Purging cache for post %s'), $post_id));
 		if ( sb_cf()->purge_post($post_id) ) {
 			WP_CLI::success(sb__('Cache purged!'));
@@ -616,6 +618,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 *
 	 */
 	public function command_cf_purge_all($args, $assoc_args) {
+		$this->ensure_cache_purge_is_possible();
 		if ( $this->affect_all_sites( $assoc_args ) ) {
 			sb_iterate_sites(function ( $site ) {
 				if ( $this->cf_purge_all($site->blog_id) ) {
