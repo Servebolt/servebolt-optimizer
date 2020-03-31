@@ -65,7 +65,7 @@ class Servebolt_Optimize_DB {
 	 *
 	 * @param bool $cli
 	 *
-	 * @return bool
+	 * @return array
 	 */
 	public function optimize_db($cli = false) {
 		$this->cli = $cli;

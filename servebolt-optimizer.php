@@ -36,7 +36,7 @@ require_once SERVEBOLT_PATH . 'functions.php';
 sb_generic_optimizations();
 
 // We don't always need all files
-if ( is_admin() || sb_is_cli() ) {
+if ( is_admin() || sb_is_cli() || sb_is_cron() ) {
 
 	// Include Composer dependencies
 	require SERVEBOLT_PATH . 'vendor/autoload.php';

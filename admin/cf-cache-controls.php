@@ -460,4 +460,4 @@ class CF_Cache_Controls {
 	}
 
 }
-sb_cf_cache_controls();
+CF_Cache_Controls::get_instance();

@@ -92,6 +92,15 @@ function sb_is_cli() {
 }
 
 /**
+ * Check if execution is initiated by cron.
+ * s
+ * @return bool
+ */
+function sb_is_cron() {
+	return ( defined( 'DOING_CRON' ) && DOING_CRON );
+}
+
+/**
  * Get a link to the Servebolt admin panel.
  *
  * @return bool|string
