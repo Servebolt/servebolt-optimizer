@@ -4,7 +4,7 @@
 	<?php if ( array_key_exists('optimize-now', $_GET) ) : ?>
 		<div class="notice notice-success is-dismissible"><p><?php sb_e('Cache settings saved!'); ?></p></div>
 	<?php endif; ?>
-	<h1><?php sb_e('Servebolt Optimize'); ?></h1>
+	<h1><?php sb_e('Performance Optimizer'); ?></h1>
 
   <?php if ( sb_is_dev_debug() ) : ?>
     <button class="sb-deoptimize-database button" style="margin-top: 10px;">De-optimize database!</button>
