@@ -54,7 +54,7 @@
 
     <?php $cf_settings = sb_cf_cache_controls()->get_settings_items(); ?>
 
-    <?php if ( sb_cf()->should_user_cf_feature() ) : ?>
+    <?php if ( sb_cf()->should_use_cf_feature() ) : ?>
       <?php if ( ! sb_cf()->cf_cache_feature_available() ) : ?>
       <p><?php sb_e('Make sure you have added the API credentials and selected a zone to use this functionality.'); ?></p>
       <?php endif; ?>
