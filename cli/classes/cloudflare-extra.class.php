@@ -971,6 +971,12 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 				WP_CLI::success(sb__('API connection passed!'));
 			}
 
+			// Be sure to notify user if Zone ID is missing
+			$active_zone = sb_cf()->get_active_zone_id();
+			if ( ! $active_zone || empty($active_zone) ) {
+				WP_CLI::warning(sb__('Note that no Zone ID is set, so cache purge feature will not work.'));
+			}
+
 		} else {
 			if ( $blog_id ) {
 				WP_CLI::error(sprintf(sb__('Could not communicate with the API on site %s. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), get_site_url($blog_id), sb_cf()->api_permissions_needed()), false);
