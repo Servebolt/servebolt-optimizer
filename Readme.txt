@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.3.2
 Requires PHP: 7
-Stable tag: 2.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,6 +44,9 @@ With WP-CLI
 4. Run optimizations `wp servebolt db optimize`
 
 == Changelog ==
+= 2.0.1 =
+* Various bugfixes
+
 = 2.0 =
 * [Added Automatic Cloudflare cache purge feature](https://servebo.lt/5z7xw)
 * Major code refactor
