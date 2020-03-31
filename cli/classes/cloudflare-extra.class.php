@@ -191,7 +191,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			} else {
 
 				sb_e( 'Choose from the list below or specify your own Zone ID:' );
-				$this->list_zones( true );
+				$this->list_zones(true);
 
 				$params['zone'] = $this->collect_parameter( sb__( 'Cloudflare Zone ID: ' ), sb__( 'Zone cannot be empty.' ), function ( $input ) use ( $zones ) {
 					if ( empty( $input ) ) {
@@ -566,12 +566,19 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	protected function list_zones($include_numbers = false, $output_texts = true) {
 		$zones = $this->get_zones();
 		if ( ! $zones || empty($zones) ) {
-			if ( $output_texts ) {
-				return false;
-			} else {
-				WP_CLI::error(sb__('Could not retrieve any available zones. Make sure you have configured the Cloudflare API credentials and set an active zone.'));
+			if ( ! $output_texts ) return false;
+			$error_lines = [sb__('Could not retrieve any zones. This might be the reasons:')];
+			$error_lines[] = '- ' . sb__('Check that you have configured the Cloudflare API credentials');
+			switch( sb_cf()->get_authentication_type() ) {
+				case 'api_token':
+					$error_lines[] = '- ' .sb__('Your API token might be limited to one or more zones. Listing zones does unfortunately only work when "Zone Resource" is set to "All Zones" (when creating the token in Cloudflare).');
+					break;
+				case 'api_key':
+					$error_lines[] = '- ' . sb__('Your API keys belongs to a user which might lack permissions to list zones.');
+					break;
 			}
-
+			WP_CLI::error_multi_line($error_lines);
+			return false;
 		}
 		if ( $output_texts ) {
 			WP_CLI::line(sb__('The following zones are available:'));
