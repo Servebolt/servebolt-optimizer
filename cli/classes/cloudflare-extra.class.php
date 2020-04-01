@@ -104,6 +104,27 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	}
 
 	/**
+	 * A confirm-prompt that is customizable and does not necessarily quit after you reply no (unlike WP-CLI's own confirm-prompt...).
+	 * @param $text
+	 *
+	 * @return mixed
+	 */
+	private function confirm($text) {
+		$result = $this->collect_parameter($text . ' ' . sb__('[y/n]') . ' ', sb__('Please reply with either "y" or "n".'), function($input) {
+			switch ($input) {
+				case 'y':
+					return ['boolean' => true];
+					break;
+				case 'n':
+					return ['boolean' => false];
+					break;
+			}
+			return false;
+		});
+		return $result['boolean'];
+	}
+
+	/**
 	 * Interactive setup for Cloudflare.
 	 *
 	 * @param $params
@@ -120,6 +141,13 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		}
 		WP_CLI::line();
 		WP_CLI::confirm(sb__('Do you want to continue?'));
+
+		if ( is_multisite() && ! $params['affect_all_sites'] ) {
+			WP_CLI::line(sb__('It looks like this is a multisite.'));
+			if ( $this->confirm(sb__('Do you want to setup Cloudflare on all sites in multisite-network?')) ) {
+				$params['affect_all_sites'] = true;
+			}
+		}
 
 		WP_CLI::line(PHP_EOL . sb__('Okay, first we need to set up the API connection to Cloudflare.'));
 
@@ -181,6 +209,8 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 				WP_CLI::error(sb__('Invalid authentication type, please try again.'));
 				break;
 		}
+
+		// TODO: If $params['affect_all_sites'], then we should allow for individual setup of Zone ID
 
 		// Determine which zone to use
 		if ( $api_connection_available && $zones = $this->get_zones() ) {
