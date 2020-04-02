@@ -93,7 +93,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 				}
 				return true;
 			} else {
-				$message = sb__('Cloudflare API test failed.');
+				$message = sb__('Cloudflare API test failed. Please check your credentials.');
 				if ( $return ) {
 					return $message;
 				}
@@ -136,6 +136,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		WP_CLI::line(sb__('Welcome!'));
 		WP_CLI::line(sb__('This guide will set up the Cloudflare feature on your site.'));
 		WP_CLI::line(sb__('This allows for automatic cache purge when the contents of your site changes.'));
+		WP_CLI::line(sb__('Note that this will potentially overwrite any already existing configuration.'));
 		if ( $params['affect_all_sites'] ) {
 			WP_CLI::warning(sb__('This will affect all your site in the multisite-network'));
 		}
@@ -211,11 +212,87 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		}
 
 		// TODO: If $params['affect_all_sites'], then we should allow for individual setup of Zone ID
+		if ( $params['affect_all_sites'] ) {
+
+			if ( $params['zone'] ) {
+				WP_CLI::warning(sprintf(sb__('Zone ID is already set to "%s", but since Zone ID is relative to each blog this value will be ignored.'), $params['zone']['id']));
+			}
+
+			WP_CLI::line('Please follow the guide below to set Zone ID for each site:');
+			$params['zone'] = [];
+
+			sb_iterate_sites(function ($site) use ($api_connection_available, &$params) {
+				$params['zone'][$site->blog_id] = $this->select_zone($api_connection_available, $params, $site->blog_id);
+			});
+		} else {
+			$params['zone'] = $this->select_zone($api_connection_available, $params);
+		}
+
+		if ( $params['affect_all_sites'] ) {
+			$result = [];
+			sb_iterate_sites(function($site) use (&$result, $params) {
+				$zone = $params['zone'][$site->blog_id]['id'];
+				$result[$site->blog_id] = $this->store_cf_configuration($params['auth_type'], $params, $zone, $site->blog_id);
+			});
+			$has_failed = in_array(false, $result, true);
+			$all_failed = ! in_array(true, $result, true);
+			if ( $has_failed ) {
+				if ( $all_failed ) {
+					WP_CLI::error(sb__('Could not set config on any sites.'));
+				} else {
+					$table = [];
+					foreach($result as $key => $value) {
+						$table[] = [
+							sb__('Blod ID') => $key,
+							sb__('Configuration') => $value ? sb__('Success') : sb__('Failed'),
+						];
+					}
+					WP_CLI::warning(sb__('Action complete, but we failed to apply config to some sites:'));
+					WP_CLI\Utils\format_items( 'table', $table, array_keys(current($table)));
+				}
+			} else {
+				WP_CLI::success(sb__('Configuration on all sites!'));
+			}
+		} else {
+			if ( $this->store_cf_configuration($params['auth_type'], $params, $params['zone']['id']) ) {
+				WP_CLI::success(sb__('Configuration stored!'));
+			} else {
+				WP_CLI::error(sb__('Hmm, could not store configuration. Please try again and/or contact support.'));
+			}
+		}
+		$this->separator();
+
+		WP_CLI::success(sb__('Cloudflare feature successfully set up!'));
+
+	}
+
+	/**
+	 * Display CLI separator output.
+	 */
+	private function separator() {
+		WP_CLI::line(str_repeat('-', 20));
+	}
+
+	/**
+	 * Display zone selector during interactive Cloudflare setup.
+	 *
+	 * @param $api_connection_available
+	 * @param $params
+	 * @param bool $blog_id
+	 *
+	 * @return array|string
+	 */
+	private function select_zone($api_connection_available, $params, $blog_id = false) {
+
+		$this->separator();
+		if ( $blog_id ) {
+			WP_CLI::line(sprintf(sb__('Select Zone ID for site: %s (%s)'), sb_get_blog_name($blog_id), get_site_url($blog_id)));
+		}
 
 		// Determine which zone to use
 		if ( $api_connection_available && $zones = $this->get_zones() ) {
 
-			if ( $params['zone'] ) {
+			if ( ! $blog_id && $params['zone'] ) {
 				$params['zone'] = $this->zone_array($params['zone']);
 				WP_CLI::success(sprintf(sb__('Zone ID is already set to "%s"'), $params['zone']['id']));
 			} else {
@@ -244,7 +321,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			}
 
 		} else {
-			if ( $params['zone'] ) {
+			if ( ! $blog_id && $params['zone'] ) {
 				$params['zone'] = $this->zone_array($params['zone']);
 				WP_CLI::success(sprintf(sb__('Zone ID is already set to "%s"'), $params['zone']['id']));
 			} else {
@@ -253,40 +330,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			}
 		}
 
-		if ( $params['affect_all_sites'] ) {
-			$result = [];
-			sb_iterate_sites(function($site) use (&$result, $params) {
-				$result[$site->blog_id] = $this->store_cf_configuration($params['auth_type'], $params, $params['zone']['id'], $site->blog_id);
-			});
-			$has_failed = in_array(false, $result, true);
-			$all_failed = ! in_array(true, $result, true);
-			if ( $has_failed ) {
-				if ( $all_failed ) {
-					WP_CLI::error(sb__('Could not set config on any sites.'));
-				} else {
-					$table = [];
-					foreach($result as $key => $value) {
-						$table[] = [
-							sb__('Blod ID') => $key,
-							sb__('Configuration') => $value ? sb__('Success') : sb__('Failed'),
-						];
-					}
-					WP_CLI::warning(sb__('Action complete, but we failed to apply config to some sites:'));
-					WP_CLI\Utils\format_items( 'table', $table, array_keys(current($table)));
-				}
-			} else {
-				WP_CLI::success(sb__('Configuration on all sites!'));
-			}
-		} else {
-			if ( $this->store_cf_configuration($params['auth_type'], $params, $params['zone']['id']) ) {
-				WP_CLI::success(sb__('Configuration stored!'));
-			} else {
-				WP_CLI::error(sb__('Hmm, could not store configuration. Please try again and/or contact support.'));
-			}
-		}
-
-		WP_CLI::success(sb__('Cloudflare feature successfully set up!'));
-
+		return $params['zone'];
 	}
 
 	/**
@@ -764,18 +808,15 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			$arr = [];
 		}
 
+		$zone_id = sb_cf()->get_active_zone_id();
+		$zone_obj = sb_cf()->get_zone_by_id($zone_id);
+		$zone = $zone_obj ? $zone_obj->name . ' (' . $zone_id . ')' : $zone_id;
+
 		$arr = array_merge($arr, [
 			'Status'     => sb_cf()->cf_is_active() ? 'Active' : 'Inactive',
-			'Zone Id'    => sb_cf()->get_active_zone_id(),
-			'Purge type' => $is_cron_purge ? 'Via cron' : 'Immediate purge',
+			'Zone'       => $zone,
+			'Cache purge type' => $is_cron_purge ? 'Via cron' : 'Immediate purge',
 		]);
-
-		if ($is_cron_purge) {
-			$max_items = 50;
-			$items_to_purge = sb_cf()->get_items_to_purge($max_items);
-			$items_to_purge_count = sb_cf()->count_items_to_purge();
-			$arr['Purge queue (cron)'] = $items_to_purge ? sb_format_array_to_csv($items_to_purge) . ( $items_to_purge_count > $max_items ? '...' : '') : null;
-		}
 
 		$arr['API authentication type'] = $auth_type;
 		switch ($auth_type) {

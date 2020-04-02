@@ -539,6 +539,8 @@ function sb_require_superadmin() {
  * Get blog name.
  *
  * @param $blog_id
+ *
+ * @return bool|string
  */
 function sb_get_blog_name($blog_id) {
 	$current_blog_details = get_blog_details( [ 'blog_id' => $blog_id ] );
