@@ -150,7 +150,9 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			}
 		}
 
-		WP_CLI::line(PHP_EOL . sb__('Okay, first we need to set up the API connection to Cloudflare.'));
+		$this->separator();
+
+		WP_CLI::line(sb__('Okay, first we need to set up the API connection to Cloudflare.'));
 
 		// Determine authentication type
 		if ( $params['auth_type'] ) {
@@ -211,7 +213,8 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 				break;
 		}
 
-		// TODO: If $params['affect_all_sites'], then we should allow for individual setup of Zone ID
+		$this->separator();
+
 		if ( $params['affect_all_sites'] ) {
 
 			if ( $params['zone'] ) {
@@ -221,12 +224,17 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			WP_CLI::line('Please follow the guide below to set Zone ID for each site:');
 			$params['zone'] = [];
 
-			sb_iterate_sites(function ($site) use ($api_connection_available, &$params) {
-				$params['zone'][$site->blog_id] = $this->select_zone($api_connection_available, $params, $site->blog_id);
+			$first = true;
+			sb_iterate_sites(function ($site) use ($api_connection_available, &$params, &$first) {
+				$params['zone'][$site->blog_id] = $this->select_zone($api_connection_available, $params, $site->blog_id, ! $first);
+				$first = false;
 			});
+
 		} else {
 			$params['zone'] = $this->select_zone($api_connection_available, $params);
 		}
+
+		$this->separator();
 
 		if ( $params['affect_all_sites'] ) {
 			$result = [];
@@ -260,7 +268,6 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 				WP_CLI::error(sb__('Hmm, could not store configuration. Please try again and/or contact support.'));
 			}
 		}
-		$this->separator();
 
 		WP_CLI::success(sb__('Cloudflare feature successfully set up!'));
 
@@ -268,9 +275,11 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 
 	/**
 	 * Display CLI separator output.
+	 *
+	 * @param int $length
 	 */
-	private function separator() {
-		WP_CLI::line(str_repeat('-', 20));
+	private function separator($length = 20) {
+		WP_CLI::line(str_repeat('-', $length));
 	}
 
 	/**
@@ -279,28 +288,34 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * @param $api_connection_available
 	 * @param $params
 	 * @param bool $blog_id
+	 * @param bool $big_separator
 	 *
-	 * @return array|string
+	 * @return array|bool|string
 	 */
-	private function select_zone($api_connection_available, $params, $blog_id = false) {
-
-		$this->separator();
+	private function select_zone($api_connection_available, $params, $blog_id = false, $big_separator = true) {
+		if ( $big_separator ) {
+			$this->separator();
+		}  else {
+			$this->separator(5);
+		}
+		$selected_zone = false;
 		if ( $blog_id ) {
-			WP_CLI::line(sprintf(sb__('Select Zone ID for site: %s (%s)'), sb_get_blog_name($blog_id), get_site_url($blog_id)));
+			//WP_CLI::line(sprintf(sb__('Select Zone ID for site: %s (%s)'), sb_get_blog_name($blog_id), get_site_url($blog_id)));
+			WP_CLI::line(sprintf(sb__('%s (%s)'), sb_get_blog_name($blog_id), get_site_url($blog_id)));
 		}
 
 		// Determine which zone to use
 		if ( $api_connection_available && $zones = $this->get_zones() ) {
 
 			if ( ! $blog_id && $params['zone'] ) {
-				$params['zone'] = $this->zone_array($params['zone']);
-				WP_CLI::success(sprintf(sb__('Zone ID is already set to "%s"'), $params['zone']['id']));
+				$selected_zone = $this->zone_array($params['zone']);
+				WP_CLI::success(sprintf(sb__('Zone ID is already set to "%s"'), $selected_zone['id']));
 			} else {
 
-				sb_e( 'Choose from the list below or specify your own Zone ID:' );
+				WP_CLI::line(sb__( 'Choose from the list below or specify your own Zone ID.' ));
 				$this->list_zones(true);
 
-				$params['zone'] = $this->collect_parameter( sb__( 'Cloudflare Zone ID: ' ), sb__( 'Zone cannot be empty.' ), function ( $input ) use ( $zones ) {
+				$selected_zone = $this->collect_parameter( sb__( 'Cloudflare Zone ID: ' ), sb__( 'Zone cannot be empty.' ), function ( $input ) use ( $zones ) {
 					if ( empty( $input ) ) {
 						return false;
 					}
@@ -314,7 +329,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			}
 
 			if ( ! $params['disable_validation'] ) {
-				$zone = sb_cf()->get_zone_by_id($params['zone']['id']);
+				$zone = sb_cf()->get_zone_by_id($selected_zone['id']);
 				if ( ! $zone ) {
 					WP_CLI::error(sb__('Could not validate zone. Make sure it exists and that we have access to it.'));
 				}
@@ -322,15 +337,21 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 
 		} else {
 			if ( ! $blog_id && $params['zone'] ) {
-				$params['zone'] = $this->zone_array($params['zone']);
-				WP_CLI::success(sprintf(sb__('Zone ID is already set to "%s"'), $params['zone']['id']));
+				$selected_zone = $this->zone_array($params['zone']);
+				WP_CLI::success(sprintf(sb__('Zone ID is already set to "%s"'), $selected_zone['id']));
 			} else {
 				$zone_id = $this->collect_parameter(sb__('Cloudflare Zone ID: '), sb__('Zone cannot be empty.'));
-				$params['zone'] = $this->zone_array($zone_id);
+				$selected_zone = $this->zone_array($zone_id);
 			}
 		}
 
-		return $params['zone'];
+		if ( $selected_zone['name'] ) {
+			WP_CLI::line(sprintf(sb__('Selected zone %s (%s)'), $selected_zone['name'], $selected_zone['id']));
+		} else {
+			WP_CLI::line(sprintf(sb__('Selected zone %s'), $selected_zone['id']));
+		}
+
+		return $selected_zone;
 	}
 
 	/**
