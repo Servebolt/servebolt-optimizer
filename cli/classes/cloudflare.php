@@ -374,9 +374,11 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 */
 	public function command_cf_get_zone($args, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) {
-				$this->cf_get_zone($site->blog_id);
+			$arr = [];
+			sb_iterate_sites(function ( $site ) use (&$arr) {
+				$arr[] = $this->cf_get_zone($site->blog_id, false);
 			});
+			WP_CLI\Utils\format_items('table', $arr, array_keys(current($arr)));
 		} else {
 			$this->cf_get_zone();
 		}
@@ -472,7 +474,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 
 
 	/**
-	 * Decide how to purge the cache - immediately or via WP cron.
+	 * Decide how to purge the cache - immediately on content update or via WP cron.
 	 *
 	 * ## OPTIONS
 	 *

@@ -729,8 +729,11 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * Get zone for specified site.
 	 *
 	 * @param bool $blog_id
+	 * @param bool $output
+	 *
+	 * @return array
 	 */
-	protected function cf_get_zone($blog_id = false) {
+	protected function cf_get_zone($blog_id = false, $output = true) {
 		$zone_id = sb_cf()->get_active_zone_id($blog_id);
 		if ( $zone_id && $zone_object = sb_cf()->get_zone_by_id($zone_id, $blog_id) ) {
 			$zone = $zone_object ? $zone_object->name . ' (' . $zone_object->id . ')' : $zone_id;
@@ -738,54 +741,38 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			$zone = $zone_id;
 		}
 		if ( empty($zone) ) {
-			if ( $blog_id ) {
-				WP_CLI::warning(sprintf(sb__('Active zone is not set for site %s'), get_site_url($blog_id)));
+			if ( $output ) {
+				if ( $blog_id ) {
+					WP_CLI::warning(sprintf(sb__('Active zone is not set for site %s'), get_site_url($blog_id)));
+				} else {
+					WP_CLI::warning(sb__('Active zone is not set'));
+				}
 			} else {
-				WP_CLI::warning(sb__('Active zone is not set'));
+				$arr = [];
+				if ( $blog_id ) {
+					$arr['Blog'] = sb_get_blog_name($blog_id);
+					$arr['URL'] = get_site_url($blog_id);
+				}
+				$arr['Zone'] = 'Not set';
+				return $arr;
 			}
 		} else {
-			if ( $blog_id ) {
-				WP_CLI::success(sprintf(sb__('Active zone is %s for site %s'), $zone, get_site_url($blog_id)));
+			if ( $output ) {
+				if ( $blog_id ) {
+					WP_CLI::success( sprintf( sb__( 'Active zone is %s for site %s' ), $zone, get_site_url( $blog_id ) ) );
+				} else {
+					WP_CLI::success( sprintf( sb__( 'Active zone is %s' ), $zone ) );
+				}
 			} else {
-				WP_CLI::success(sprintf(sb__('Active zone is %s'), $zone));
+				$arr = [];
+				if ( $blog_id ) {
+					$arr['Blog'] = sb_get_blog_name($blog_id);
+					$arr['URL'] = get_site_url($blog_id);
+				}
+				$arr['Zone'] = $zone;
+				return $arr;
 			}
 		}
-	}
-
-	/**
-	 * Display Cloudflare API credentials for a specified site.
-	 *
-	 * @param bool $blog_id
-	 *
-	 * @return array
-	 */
-	protected function cf_get_credentials($blog_id = false) {
-		$auth_type = sb_cf()->get_authentication_type($blog_id);
-
-		if ( $blog_id ) {
-			$arr = ['Blog' => $blog_id];
-		} else {
-			$arr = [];
-		}
-
-		$arr['Cloudflare feature status'] = sb_cf()->cf_is_active($blog_id) ? 'Active' : 'Inactive';
-
-		$arr['API authentication type'] = $auth_type;
-		switch ($auth_type) {
-			case 'key':
-			case 'apiKey':
-			case 'api_key':
-				$arr['API key/token'] = sb_cf()->get_credential('api_key', $blog_id);
-				$arr['email'] = sb_cf()->get_credential('email', $blog_id);
-				break;
-			case 'token':
-			case 'apiToken':
-			case 'api_token':
-				$arr['API key/token'] = sb_cf()->get_credential('api_token', $blog_id);
-				$arr['email'] = null;
-				break;
-		}
-		return $arr;
 	}
 
 	/**
@@ -835,6 +822,42 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 
 		if ( $blog_id ) sb_cf()->cf_restore_current_blog();
 
+		return $arr;
+	}
+
+	/**
+	 * Display Cloudflare API credentials for a specified site.
+	 *
+	 * @param bool $blog_id
+	 *
+	 * @return array
+	 */
+	protected function cf_get_credentials($blog_id = false) {
+		$auth_type = sb_cf()->get_authentication_type($blog_id);
+
+		if ( $blog_id ) {
+			$arr = ['Blog' => $blog_id];
+		} else {
+			$arr = [];
+		}
+
+		$arr['Cloudflare feature status'] = sb_cf()->cf_is_active($blog_id) ? 'Active' : 'Inactive';
+
+		$arr['API authentication type'] = $auth_type;
+		switch ($auth_type) {
+			case 'key':
+			case 'apiKey':
+			case 'api_key':
+				$arr['API key/token'] = sb_cf()->get_credential('api_key', $blog_id);
+				$arr['email'] = sb_cf()->get_credential('email', $blog_id);
+				break;
+			case 'token':
+			case 'apiToken':
+			case 'api_token':
+				$arr['API key/token'] = sb_cf()->get_credential('api_token', $blog_id);
+				$arr['email'] = null;
+				break;
+		}
 		return $arr;
 	}
 
