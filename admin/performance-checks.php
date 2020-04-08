@@ -1,123 +1,271 @@
 <?php
-if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
+/**
+ * Class Servebolt_Performance_Checks
+ *
+ * This class display the optimization options and handles execution of optimizations.
+ */
+class Servebolt_Performance_Checks {
 
-?>
-<div id="optimizations-loading" class=""><img src="<?PHP echo SERVEBOLT_PATH_URL; ?>admin/assets/img/loading.apng" alt="Spinner design by https://loading.io/spinner/magnify" /></div>
-<div class="wrap sb-content">
-	<?php if (isset($_GET['optimize-now'])) : ?>
-        <div class="notice notice-success is-dismissible"><p><?php _e('Cache settings saved!', 'servebolt-wp'); ?></p></div>
-	<?php endif; ?>
-    <h2>⚡️<?php _e('Servebolt Optimize', 'servebolt-wp'); ?></h2>
-    <h3><?php _e('Database Indexes', 'servebolt-wp'); ?></h3>
-    <table class="wp-list-table widefat fixed striped sb-db-indx">
-        <thead>
-            <tr>
-                <th><?php _e('Optimization', 'servebolt-wp'); ?></th>
-                <th><?php _e('Status', 'servebolt-wp'); ?></th>
-            </tr>
-        </thead>
-        <tfoot>
-            <tr>
-                <th><?php _e('Optimization', 'servebolt-wp'); ?></th>
-                <th><?php _e('Status', 'servebolt-wp'); ?></th>
-            </tr>
-            </tfoot>
-            <tbody>
-            <?php
-            $tables = tables_to_have_index();
-            if($tables === false):
-	            echo '<tr><td>'.__('All the Servebolt recommended indexes exists', 'servebolt-wp').'</td><td></td>';
-            else:
-                foreach ($tables as $table){
-                    echo '<tr>';
-                    echo '<td>'.sprintf(__('Index in the %s table on the %s column', 'servebolt-wp'), $table['name'], $table['index']).'</td>';
-                    echo '<td>';
-                    echo ($table['has_index'] === false)
-                        ? '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/cancel.png" width="20"> '. __('Run Optimize to add the index')
-                        : '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/checked.png" width="20"> '. __('This table has the right indexes');
-                    echo '</td>';
-	                $run_optimizer = true;
-                }
-            endif;
-            ?>
-        </tbody>
-    </table>
-    <h3><?php _e('Database Table Storage Engines'); ?></h3>
-    <table class="wp-list-table widefat fixed striped">
-        <thead>
-        <tr>
-            <th><?php _e('Table', 'servebolt-wp'); ?></th>
-            <th><?php _e('Engine', 'servebolt-wp'); ?></th>
-            <th><?php _e('Convert to', 'servebolt-wp'); ?></th>
-        </tr>
-        </thead>
-        <tfoot>
-        <tr>
-            <th><?php _e('Table', 'servebolt-wp'); ?></th>
-            <th><?php _e('Engine', 'servebolt-wp'); ?></th>
-            <th><?php _e('Convert to', 'servebolt-wp'); ?></th>
-        </tr>
-        </tfoot>
-        <tbody>
-		<?php
-		$myisam_tables = get_myisam_tables();
-		if (empty($myisam_tables)) {
-          echo '<tr>';
-          echo '  <td>' . esc_html__('All tables use modern storage engines','servebolt-wp') . '</td>';
-          echo '  <td></td>';
-          echo '  <td></td>';
-          echo '</tr>';
+	/**
+	* @var null Singleton instance.
+	*/
+	private static $instance = null;
+
+	/**
+	* Singleton instantiation.
+	*
+	* @return Servebolt_Performance_Checks|null
+	*/
+	public static function get_instance() {
+		if ( self::$instance == null ) {
+			self::$instance = new Servebolt_Performance_Checks;
 		}
-		else {
-          foreach ( $myisam_tables as $obj ) {
-            echo '<tr>';
-            echo '<td>' . $obj->TABLE_NAME . '</td>';
-            echo '<td>' . $obj->ENGINE . '</td>';
-            echo '<td><a href="#optimize" class="optimize-now">' . __('Convert to InnoDB', 'servebolt-wp') . '</a></td>';
-            echo '</tr>';
-            $run_optimizer = true;
-          }
-		}
-		?>
-        </tbody>
+		return self::$instance;
+	}
 
-    </table>
-    <div class="optimize">
-        <h3><?php _e('Run the optimizer', 'servebolt-wp'); ?></h3>
-        <p><?php _e('You can run the optimizer below.', 'servebolt-wp'); ?><br>
-        <strong><?php _e('Always backup your database before running optimization!', 'servebolt-wp'); ?></strong>
-        </p>
-        <a <?php if($run_optimizer === true) echo 'href="#optimize-now"'; ?> class="btn button button-primary optimize-now" <?php if($run_optimizer !== true) echo 'disabled'; ?>><?php _e('Optimize!', 'servebolt-wp'); ?></a>
-    </div>
-    <h2><?php _e('Other suggested optimizations'); ?></h2>
-    <p><?php _e('These settings can not be optimized by the plugin, but may be implemented manually.', 'servebolt-wp'); ?></p>
-    <table class="wp-list-table widefat fixed striped">
-        <thead>
-        <tr>
-            <th><?php _e('Optimization', 'servebolt-wp'); ?></th>
-            <th><?php _e('How to', 'servebolt-wp'); ?></th>
-        </tr>
-        </thead>
-        <tfoot>
-        <tr>
-            <th><?php _e('Optimization', 'servebolt-wp'); ?></th>
-            <th><?php _e('How to', 'servebolt-wp'); ?></th>
-        </tr>
-        </tfoot>
-        <tbody>
-        <tr>
-            <td>
-                <?php _e('Disable WP Cron and run it from server cron', 'servebolt-wp'); ?>
-            </td>
-            <td>
-                <?php echo (wp_cron_disabled() === true)
-                    ? '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/checked.png" width="20"> '.__('WP Cron is disabled. Remember to set on cron on the server.', 'servebolt-wp')
-                    : '<img src="' . SERVEBOLT_PATH_URL . 'admin/assets/img/cancel.png" width="20"> '.__('WP Cron is enabled, and may slow down your site and/or degrade the sites ability to scale. This should be disabled and run with server cron.', 'servebolt-wp');
-                ?>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-</div>
+	/**
+	* Servebolt_Performance_Checks constructor.
+	*/
+	private function __construct() {}
+
+	/**
+	* Initialize events.
+	*/
+	public function init() {
+		$this->add_ajax_handling();
+		$this->init_assets();
+	}
+
+	/**
+	 * Init assets.
+	 */
+	private function init_assets() {
+		add_action('admin_enqueue_scripts', [$this, 'plugin_scripts']);
+	}
+
+	/**
+	 * Plugin scripts.
+	 */
+	public function plugin_scripts() {
+		wp_enqueue_script( 'servebolt-optimizer-performance-checks-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/performance-checks.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/performance-checks.js'), true );
+	}
+
+	/**
+	* Add AJAX handling.
+	*/
+	private function add_ajax_handling() {
+		add_action('wp_ajax_servebolt_wreak_havoc', [$this, 'wreak_havoc_callback']);
+		add_action('wp_ajax_servebolt_clear_all_settings', [$this, 'clear_all_settings_callback']);
+		add_action('wp_ajax_servebolt_create_index', [$this, 'create_index_callback']);
+		add_action('wp_ajax_servebolt_optimize_db', [$this, 'optimize_db_callback']);
+		add_action('wp_ajax_servebolt_convert_table_to_innodb', [$this, 'convert_table_to_innodb_callback']);
+	}
+
+	/**
+	 * Trigger database "de-optimization" (to undo our optimization for debugging purposes).
+	 */
+	public function wreak_havoc_callback() {
+		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+		sb_ajax_user_allowed();
+		sb_optimize_db()->deoptimize_indexed_tables();
+		sb_optimize_db()->convert_tables_to_non_innodb();
+		wp_send_json_success();
+	}
+
+	/**
+	 * Clear all plugin settings.
+	 */
+	public function clear_all_settings_callback() {
+		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+		sb_ajax_user_allowed();
+		sb_delete_all_settings();
+		wp_send_json_success();
+	}
+
+	/**
+	 * Add index to single table.
+	 */
+	public function create_index_callback() {
+		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+		sb_ajax_user_allowed();
+
+		$validated_data = $this->validate_index_creation_input();
+		if ( is_wp_error($validated_data) ) wp_send_json_error(['message' => $validated_data->get_error_message()]);
+
+		$method = $validated_data['index_addition_method'];
+		$full_table_name = $validated_data['full_table_name'];
+
+		if ( sb_optimize_db()->table_has_index_on_column($full_table_name, $validated_data['column']) ) {
+			wp_send_json_success([
+				'message' => sprintf(sb__('Table "%s" already has index.'), $full_table_name)
+			]);
+		} elseif ( is_multisite() && sb_optimize_db()->$method($validated_data['blog_id']) ) {
+			wp_send_json_success([
+				'message' => sprintf(sb__('Added index to table "%s".'), $full_table_name)
+			]);
+		} elseif ( ! is_multisite() && sb_optimize_db()->$method() ) {
+			wp_send_json_success([
+				'message' => sprintf(sb__('Added index to table "%s".'), $full_table_name)
+			]);
+		} else {
+			wp_send_json_error([
+				'message' => sprintf(sb__('Could not add index to table "%s".'), $full_table_name)
+			]);
+		}
+
+	}
+
+	/**
+	 * Convert a single table to InnoDB.
+	 */
+	public function convert_table_to_innodb_callback() {
+		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+		sb_ajax_user_allowed();
+
+		$table_name = $this->validate_innodb_conversion_input(false, false);
+		if ( is_wp_error($table_name) ) wp_send_json_error(['message' => $table_name->get_error_message()]);
+
+		if ( sb_optimize_db()->table_is_innodb($table_name) ) {
+			wp_send_json_success([
+				'message' => 'Table is already using InnoDB.',
+			]);
+		} elseif ( ! ( sb_checks() )->table_valid_for_innodb_conversion($table_name) ) {
+			wp_send_json_error([
+				'message' => 'Specified table is either invalid or unavailable.',
+			]);
+		} elseif ( sb_optimize_db()->convert_table_to_innodb($table_name) ) {
+			wp_send_json_success([
+				'message' => 'Table got converted to InnoDB.',
+			]);
+		} else {
+			wp_send_json_error([
+				'message' => 'Unknown error.',
+			]);
+		}
+	}
+
+	/**
+	 * Trigger database optimization.
+	 */
+	public function optimize_db_callback() {
+		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+		sb_ajax_user_allowed();
+		$result = sb_optimize_db()->optimize_db();
+		if ( $result === false || $result['result'] === false ) {
+			wp_send_json_error();
+		} else {
+			wp_send_json_success($result );
+		}
+	}
+
+	/**
+	 * Identify which method we should use to optimize the given table type.
+	 *
+	 * @param $table_name
+	 *
+	 * @return bool|string
+	 */
+	private function get_index_creation_method_by_table_name($table_name) {
+		switch ($table_name) {
+			case 'options':
+				return 'add_options_autoload_index';
+				break;
+			case 'postmeta':
+				return 'add_post_meta_index';
+				break;
+		}
+		return false;
+	}
+
+	/**
+	 * Check if any of the tables in the array needs indexing.
+	 *
+	 * @param $tables
+	 *
+	 * @return bool
+	 */
+	private function tables_need_index($tables) {
+		foreach ( $tables as $table ) {
+			if ( ! $table['has_index'] ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Display performance checks view.
+	 */
+	public function view() {
+		$checks_class = sb_checks();
+		$tables_to_index = $checks_class->tables_to_have_index();
+		sb_view('admin/views/performance-checks', [
+			'index_fix_available' => $this->tables_need_index($tables_to_index),
+			'tables'              => $tables_to_index,
+			'myisam_tables'       => $checks_class->get_myisam_tables(),
+			'wp_cron_disabled'    => $checks_class->wp_cron_disabled(),
+		]);
+	}
+
+	/**
+	 * Validating data when adding an index to a table.
+	 *
+	 * @return array|WP_Error
+	 */
+	private function validate_index_creation_input() {
+
+		// Require table name to be specified
+		$table_name = array_key_exists('table_name', $_POST) ? (string) sanitize_text_field($_POST['table_name']) : false;
+		if ( ! $table_name ) return new WP_Error( 'table_name_not_specified', sb__('Table name not specified') );
+
+		if ( is_multisite() ) {
+
+			// Require blog Id to be specified
+			$blog_id = array_key_exists('blog_id', $_POST) ? (int) sanitize_text_field($_POST['blog_id']) : false;
+			if ( ! $blog_id ) return new WP_Error( 'blog_id_not_specified', sb__('Blog ID not specified') );
+
+			// Require blog to exist
+			$blog = get_blog_details(['blog_id' => $blog_id]);
+			if ( ! $blog ) return new WP_Error( 'invalid_blog_id', sb__('Invalid blog Id') );
+
+		}
+
+		// Make sure we know which column to add index on in the table
+		$column = (sb_checks())->get_index_column_from_table($table_name);
+		if ( ! $column ) return new WP_Error( 'invalid_table_name', sb__('Invalid table name') );
+
+		// Make sure we found the table name to interact with
+		$full_table_name = is_multisite() ? sb_optimize_db()->get_table_name_by_blog_id($blog_id, $table_name) : sb_optimize_db()->get_table_name($table_name);
+		if ( ! $full_table_name ) return new WP_Error( 'could_not_resolve_full_table_name', sb__('Could not resolve full table name') );
+
+		// Make sure we know which method to run to create the index
+		$index_addition_method = $this->get_index_creation_method_by_table_name($table_name);
+		if ( ! $index_addition_method ) return new WP_Error( 'could_not_resolve_index_creation_method_from_table_name', sb__('Could not resolve index creation method from table name') );
+
+		if (  is_multisite() ) {
+			return compact('index_addition_method', 'table_name', 'full_table_name', 'column', 'blog_id');
+		} else {
+			return compact('index_addition_method', 'table_name', 'full_table_name', 'column');
+		}
+
+	}
+
+	/**
+	 * Validate table name when converting a table to InnoDB.
+	 *
+	 * @return array|WP_Error
+	 */
+	private function validate_innodb_conversion_input() {
+
+		// Require table name to be specified
+		$table_name = array_key_exists('table_name', $_POST) ? (string) sanitize_text_field($_POST['table_name']) : false;
+		if ( ! $table_name ) return new WP_Error( 'table_name_not_specified', sb__('Table name not specified') );
+
+		return $table_name;
+
+	}
+
+}
+Servebolt_Performance_Checks::get_instance()->init();
