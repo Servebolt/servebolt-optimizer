@@ -517,6 +517,8 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		};
 		$validation = ( is_callable($validation) ? $validation : $default_validation );
 
+		$failCount = 1;
+		$maxFailCount = 5;
 		set_param:
 
 		// Call before prompt-function
@@ -524,9 +526,17 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			$before_input_prompt();
 		}
 
+		if ( $failCount == $maxFailCount ) {
+			echo '[Last attempt] ';
+		}
+
 		echo $prompt_message;
 		$param = $this->user_input($validation);
 		if ( ! $param ) {
+			if ( $failCount >= $maxFailCount ) {
+				WP_CLI::error('No input received, exiting.');
+			}
+			$failCount++;
 			WP_CLI::error($error_message, $quit_on_fail);
 			goto set_param;
 		}
@@ -662,7 +672,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		$zones = $this->get_zones();
 		if ( ! $zones || empty($zones) ) {
 			if ( ! $output_texts ) return false;
-			$error_lines = [sb__('Could not retrieve any zones. This might be the reasons:')];
+			$error_lines = [sb__('Could not retrieve any zones, please specify Zone ID manually. You can find your Zone ID  This might be the reasons:')];
 			$error_lines[] = '- ' . sb__('Check that you have configured the Cloudflare API credentials');
 			switch( sb_cf()->get_authentication_type() ) {
 				case 'api_token':
