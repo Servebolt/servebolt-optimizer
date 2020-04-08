@@ -891,6 +891,7 @@ if ( ! function_exists('sb_write_log') ) {
    * @param $log
    */
   function sb_write_log($log)  {
+    if ( ! defined('WP_DEBUG') || WP_DEBUG == false ) return;
     if ( is_array( $log ) || is_object( $log ) ) {
       error_log( print_r( $log, true ) );
     } else {
