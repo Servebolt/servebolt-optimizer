@@ -44,6 +44,9 @@ With WP-CLI
 4. Run optimizations `wp servebolt db optimize`
 
 == Changelog ==
+= 2.0.2 =
+* Various bugfixes
+
 = 2.0.1 =
 * Various bugfixes
 

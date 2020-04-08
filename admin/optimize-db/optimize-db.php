@@ -360,7 +360,9 @@ class Servebolt_Optimize_DB {
 	 */
 	private function remove_indexes() {
 		try {
-			return $this->remove_post_meta_index() && $this->remove_options_autoload_index();
+			$remove_post_meta_index = $this->remove_post_meta_index();
+			$remove_options_autoload_index = $this->remove_options_autoload_index();
+			return $remove_post_meta_index && $remove_options_autoload_index;
 		} catch (Exception $e) {
 			return false;
 		}
