@@ -59,7 +59,7 @@ class Servebolt_Nginx_FPC {
 	 *
 	 * @var bool
 	 */
-	private $allow_force_headers = true;
+	private $allow_force_headers = false;
 
 	/**
 	 * Instantiate class.

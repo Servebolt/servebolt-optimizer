@@ -34,47 +34,61 @@ jQuery(document).ready(function($) {
    * Run full optimization.
    */
   function sb_optimize() {
-    window.sb_loading(true);
-    var data = {
-      action: 'servebolt_optimize_db',
-      security: ajax_object.ajax_nonce,
-    };
-    $.ajax({
-      type: 'POST',
-      url: ajaxurl,
-      data: data,
-      success: function(response) {
-        window.sb_loading(false);
-        if ( response.success ) {
-          setTimeout(function () {
-            var message = response.data.message;
-            if ( response.data.tasks ) {
-              message += '<br><br>What was done:<br><ul>';
-              $.each(response.data.tasks, function(i, task) {
-                message += '<li>' + task + '</li>';
-              });
-              message += '</ul>';
-            }
-            Swal.fire({
-              width: 800,
-              icon: 'success',
-              title: 'All good!',
-              html: message,
-              customClass: {
-                confirmButton: 'servebolt-button yellow'
-              },
-              buttonsStyling: false
-            }).then(function () {
-              location.reload();
-            });
-          }, 100);
-        } else {
-          sb_optimization_error()
-        }
+    Swal.fire({
+      title: 'Are you sure?',
+      html: 'This will add any missing indexes and convert all tables to use modern storage engines.',
+      icon: 'warning',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: 'servebolt-button yellow',
+        cancelButton: 'servebolt-button light'
       },
-      error: function() {
-        window.sb_loading(false);
-        sb_optimization_error();
+      buttonsStyling: false
+    }).then((result) => {
+      if (result.value) {
+        window.sb_loading(true);
+        var data = {
+          action: 'servebolt_optimize_db',
+          security: ajax_object.ajax_nonce,
+        };
+        $.ajax({
+          type: 'POST',
+          url: ajaxurl,
+          data: data,
+          success: function (response) {
+            window.sb_loading(false);
+            if (response.success) {
+              setTimeout(function () {
+                var message = response.data.message;
+                if (response.data.tasks) {
+                  message += '<br><br>What was done:<br><ul>';
+                  $.each(response.data.tasks, function (i, task) {
+                    message += '<li>' + task + '</li>';
+                  });
+                  message += '</ul>';
+                }
+                Swal.fire({
+                  width: 800,
+                  icon: 'success',
+                  title: 'All good!',
+                  html: message,
+                  customClass: {
+                    confirmButton: 'servebolt-button yellow'
+                  },
+                  buttonsStyling: false
+                }).then(function () {
+                  location.reload();
+                });
+              }, 100);
+            } else {
+              sb_optimization_error()
+            }
+          },
+          error: function () {
+            window.sb_loading(false);
+            sb_optimization_error();
+          }
+        });
       }
     });
   }
@@ -120,9 +134,29 @@ jQuery(document).ready(function($) {
               success: function (response) {
                 window.sb_loading(false);
                 setTimeout(function () {
-                  alert('Done!');
-                  location.reload();
+                  Swal.fire({
+                    icon: 'success',
+                    title: 'All good!',
+                    customClass: {
+                      confirmButton: 'servebolt-button yellow'
+                    },
+                    buttonsStyling: false
+                  }).then(function () {
+                    location.reload();
+                  });
                 }, 100);
+              },
+              error: function() {
+                window.sb_loading(false);
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Ouch, we got an error',
+                  text: 'Unknown error',
+                  customClass: {
+                    confirmButton: 'servebolt-button yellow'
+                  },
+                  buttonsStyling: false
+                });
               }
             });
           }
