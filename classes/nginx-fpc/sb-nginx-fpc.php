@@ -59,7 +59,7 @@ class Servebolt_Nginx_FPC {
 	 *
 	 * @var bool
 	 */
-	private $allow_force_headers = true;
+	private $allow_force_headers = false;
 
 	/**
 	 * Instantiate class.
@@ -110,7 +110,7 @@ class Servebolt_Nginx_FPC {
 		// No cache if FPC is not active, or if we are logged in
 		if ( ! $this->fpc_is_active() || is_admin() || is_user_logged_in() ) {
 			$this->no_cache_headers();
-			if ( $debug ) $this->header('No-cache-trigger: 2');
+			if ( $debug ) $this->header('No-cache-trigger: 1');
 			return $posts;
 		}
 
@@ -126,32 +126,32 @@ class Servebolt_Nginx_FPC {
 		// Only trigger this function once
 		remove_filter( 'posts_results', [$this, 'set_headers'] );
 
-		if ( $this->should_exclude_post_from_cache( get_the_ID() ) ) {
+		if ( $this->is_woocommerce_page() ) {
 			$this->no_cache_headers();
-			if ( $debug ) $this->header('No-cache-trigger: 3');
+			if ( $debug ) $this->header('No-cache-trigger: 2');
 		} elseif ( $this->should_exclude_post_from_cache( get_the_ID() ) ) {
 			$this->no_cache_headers();
-			if ( $debug ) $this->header('No-cache-trigger: 4');
+			if ( $debug ) $this->header('No-cache-trigger: 3');
 		} elseif ( $this->cache_all_post_types() ) {
 			// Make sure the post type can be cached
 			$this->post_types[] = $post_type;
 			$this->cache_headers();
-			if ( $debug ) $this->header('Cache-trigger: 5');
+			if ( $debug ) $this->header('Cache-trigger: 4');
 		} elseif ( ( is_front_page() || is_singular() || is_page() ) && $this->cache_active_for_post_type($post_type) ) {
 			// Make sure the post type can be cached
 			$this->post_types[] = $post_type;
 			$this->cache_headers();
-			if ( $debug ) $this->header('Cache-trigger: 6');
+			if ( $debug ) $this->header('Cache-trigger: 5');
 		} elseif ( is_archive() && $this->should_cache_archive( $posts ) ) {
 			// Make sure the archive has only cachable posts
 			$this->cache_headers();
-			if ( $debug ) $this->header('Cache-trigger: 7');
+			if ( $debug ) $this->header('Cache-trigger: 6');
 		} elseif( empty($this->get_post_types_to_cache() ) ) {
 			$this->post_types[] = $post_type;
-			if ( $debug ) $this->header('Cache-trigger: 8');
+			if ( $debug ) $this->header('Cache-trigger: 7');
 			if ( in_array( $post_type , $this->get_default_post_types_to_cache() ) ) {
 				$this->cache_headers();
-				if ( $debug ) $this->header('Cache-trigger: 9');
+				if ( $debug ) $this->header('Cache-trigger: 8');
 			}
 		} elseif( empty($this->get_post_types_to_cache() ) && ( is_front_page() || is_singular() || is_page() ) ) {
 			$this->cache_headers();
@@ -220,7 +220,7 @@ class Servebolt_Nginx_FPC {
 	 * @return bool
 	 */
 	private function is_woocommerce_page() {
-		return $this->woocommerce_is_active() && ( is_cart() || is_checkout() );
+		return $this->woocommerce_is_active() && ( is_cart() || is_checkout() || is_account_page() );
 	}
 
 	/**

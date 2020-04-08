@@ -54,7 +54,7 @@
 
     <?php $cf_settings = sb_cf_cache_controls()->get_settings_items(); ?>
 
-    <?php if ( sb_cf()->should_user_cf_feature() ) : ?>
+    <?php if ( sb_cf()->should_use_cf_feature() ) : ?>
       <?php if ( ! sb_cf()->cf_cache_feature_available() ) : ?>
       <p><?php sb_e('Make sure you have added the API credentials and selected a zone to use this functionality.'); ?></p>
       <?php endif; ?>
@@ -70,7 +70,7 @@
     <p><?php sb_e('This feature can be set up using WP CLI or with the form below.'); ?></p>
     <p><?php echo sprintf(sb__('Run %swp servebolt cf --help%s to see available commands.'), '<code>', '</code>'); ?></p>
 
-    <form method="post" autocomplete="off" action="options.php" id="sb-configuration-form" onsubmit="<?php if ( apply_filters('sb_cf_form_validation_active', true) ) echo 'return window.sb_validate_cf_configuration_form(event);'; ?>">
+    <form method="post" autocomplete="off" action="options.php" id="sb-configuration-form">
       <?php settings_fields( 'sb-cf-options-page' ) ?>
       <?php do_settings_sections( 'sb-cf-options-page' ) ?>
 
@@ -310,8 +310,15 @@
         <span class="spinner form-submit-spinner"></span>
       </p>
 
-
     </form>
+
+    <?php if ( apply_filters('sb_cf_form_validation_active', true) ) : ?>
+      <script>
+        document.getElementById('sb-configuration-form').addEventListener('submit', function(event) {
+          return window.sb_validate_cf_configuration_form(event);
+        });
+      </script>
+    <?php endif; ?>
 
     <?php if ( sb_is_debug() ) : ?>
 

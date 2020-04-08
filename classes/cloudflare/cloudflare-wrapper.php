@@ -121,8 +121,10 @@ class Cloudflare {
 	public function purge_urls( array $urls ) {
 		$zone_instance = $this->get_zones_instance();
 		if ( ! $zone_instance ) return false;
+		$zone_id = $this->get_zone_id();
+		if ( ! $zone_id || empty($zone_id) ) return false;
 		try {
-			return $zone_instance->cachePurge( $this->get_zone_id(), $urls );
+			return $zone_instance->cachePurge($zone_id, $urls);
 		} catch (Exception $e) {
 			return sb_cf_error($e);
 		}
@@ -136,8 +138,10 @@ class Cloudflare {
 	public function purge_all() {
 		$zone_instance = $this->get_zones_instance();
 		if ( ! $zone_instance ) return false;
+		$zone_id = $this->get_zone_id();
+		if ( ! $zone_id || empty($zone_id) ) return false;
 		try {
-			return $zone_instance->cachePurgeEverything($this->get_zone_id());
+			return $zone_instance->cachePurgeEverything($zone_id);
 		} catch (Exception $e) {
 			return sb_cf_error($e);
 		}

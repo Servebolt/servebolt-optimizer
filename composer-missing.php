@@ -9,7 +9,7 @@ add_action('admin_notices', function() {
 	?>
 	<div class="notice notice-error is-dismissable ">
 		<h3>Servebolt Optimizer</h3>
-		<p><?php printf('Servebolt Optimizer cannot run since the vendor-filder is missing. Make sure to run the following command in the plugin folder:'); ?></p>
+		<p><?php printf('Servebolt Optimizer cannot run since the vendor-folder is missing. Make sure to run the following command in the plugin folder:'); ?></p>
 		<pre>composer install</pre>
 	</div>
 	<?php
