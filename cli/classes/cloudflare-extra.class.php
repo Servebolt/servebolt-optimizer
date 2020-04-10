@@ -672,7 +672,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		$zones = $this->get_zones();
 		if ( ! $zones || empty($zones) ) {
 			if ( ! $output_texts ) return false;
-			$error_lines = [sb__('Could not retrieve any zones, please specify Zone ID manually. You can find your Zone ID  This might be the reasons:')];
+			$error_lines = [sb__('Could not retrieve any zones. This might be the reasons:')];
 			$error_lines[] = '- ' . sb__('Check that you have configured the Cloudflare API credentials');
 			switch( sb_cf()->get_authentication_type() ) {
 				case 'api_token':
@@ -696,6 +696,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 				WP_CLI::line(sprintf('%s (%s)', $zone->name, $zone->id));
 			}
 		}
+		return true;
 	}
 
 	/**

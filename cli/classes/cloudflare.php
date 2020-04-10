@@ -423,25 +423,35 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 		$failCount = 1;
 		$maxFailCount = 5;
 		select_zone:
-		$this->list_zones(true);
+		$listZones = $this->list_zones(true, false);
 
-		$string = 'Select which zone you would like to set up: ';
+		if ( $listZones ) {
+			$string = 'Select which zone you would like to set up: ';
+		} else {
+			$string = 'Input Zone ID: ';
+		}
+
 		if ( $failCount == $maxFailCount ) {
 			$string = '[Last attempt] ' . $string;
 		}
 
 		sb_e($string);
 		$zone = $this->user_input(function($input) use ($zones) {
-			foreach ( $zones as $i => $zone ) {
-				if ( $i+1 == $input || $zone->id == $input || $zone->name == $input ) {
-					return $zone;
+			if ( $zones ) {
+				foreach ( $zones as $i => $zone ) {
+					if ( $i+1 == $input || $zone->id == $input || $zone->name == $input ) {
+						return $zone;
+					}
+				}
+			} else {
+				if ( ! empty($input) ) {
+					return $input;
 				}
 			}
 			return false;
 		});
 
 		if ( ! $zone ) {
-
 			if ( $failCount >= $maxFailCount ) {
 				WP_CLI::error('No zone selected, exiting.');
 			}
@@ -452,12 +462,15 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 
 		// Notify user if the zone domain name does not match in the site URL.
 		$home_url = get_home_url();
-		if ( strpos($home_url, $zone->name) === false ) {
+		if ( is_object($zone) && strpos($home_url, $zone->name) === false ) {
 			WP_CLI::warning(sprintf(sb__('Selected zone (%s) does not match with the URL fo the current site (%s). This will most likely inhibit cache purge to work.'), $zone->name, $home_url));
 		}
 
-		sb_cf()->store_active_zone_id($zone->id);
-		WP_CLI::success(sprintf(sb__('Successfully selected zone %s'), $zone->name));
+		$zone_id = is_object($zone) ? $zone->id : $zone;
+		$zone_name = is_object($zone) ? $zone->name : $zone_id;
+
+		sb_cf()->store_active_zone_id($zone_id);
+		WP_CLI::success(sprintf(sb__('Successfully selected zone %s'), $zone_name));
 
 	}
 
