@@ -40,6 +40,14 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 * [--disable-validation]
 	 * : Whether to validate the input data or not.
 	 *
+	 * [--individual-zones[=<boolean>]]
+	 * : Whether to set a Zone ID for each site in multisite, or to use one Zone ID for all sites.
+	 * ---
+	 * options:
+	 *   - true
+	 *   - false
+	 * ---
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     # Run setup guide
@@ -61,7 +69,12 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 		$api_key            = sb_array_get('api-key', $assoc_args);
 		$zone               = sb_array_get('zone-id', $assoc_args);
 		$disable_validation = array_key_exists( 'disable-validation', $assoc_args );
-		$params             = compact('interactive', 'affect_all_sites', 'auth_type', 'api_token', 'email', 'api_key', 'zone', 'disable_validation');
+
+		$individual_zones   = sb_array_get('individual-zones', $assoc_args);
+		$individual_zones   = array_key_exists( 'individual-zones', $assoc_args ) ? ( empty($individual_zones) ? true : filter_var($individual_zones, FILTER_VALIDATE_BOOLEAN) ) : null;
+
+		$params             = compact('interactive', 'affect_all_sites', 'auth_type', 'api_token', 'email', 'api_key', 'zone', 'disable_validation', 'individual_zones');
+
 		if ( $interactive ) {
 			$this->cf_setup_interactive($params);
 		} else {
