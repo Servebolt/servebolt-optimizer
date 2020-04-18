@@ -17,6 +17,9 @@ define( 'SERVEBOLT_BASENAME', plugin_basename(__FILE__) );
 define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
 define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
 
+// Include general functions
+require_once SERVEBOLT_PATH . 'functions.php';
+
 // Abort and display admin notice if PHP_MAJOR_VERSION is less than 7
 if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
     require SERVEBOLT_PATH . 'non-php7.php';
@@ -29,17 +32,11 @@ if ( ! file_exists(SERVEBOLT_PATH . 'vendor/autoload.php') ) {
 	return;
 }
 
-// Include general functions
-require_once SERVEBOLT_PATH . 'functions.php';
-
-// Add minor improvements
-sb_generic_optimizations();
-
 // We don't always need all files
 if ( is_admin() || sb_is_cli() || sb_is_cron() ) {
 
 	// Include Composer dependencies
-	require SERVEBOLT_PATH . 'vendor/autoload.php';
+	require_once SERVEBOLT_PATH . 'vendor/autoload.php';
 
 	// Make sure we dont API credentials in clear text.
 	require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
@@ -48,6 +45,9 @@ if ( is_admin() || sb_is_cli() || sb_is_cron() ) {
 	require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf.php';
 
 }
+
+// Add minor improvements
+sb_generic_optimizations();
 
 // Loads the class that sets the correct cache headers for full page cache
 if ( ! class_exists('Servebolt_Nginx_FPC') ){
