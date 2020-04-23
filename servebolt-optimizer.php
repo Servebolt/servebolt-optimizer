@@ -21,7 +21,7 @@ define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
 require_once SERVEBOLT_PATH . 'functions.php';
 
 // Abort and display admin notice if PHP_MAJOR_VERSION is less than 7
-if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
+if ( sb_old_php_version() ) {
     require SERVEBOLT_PATH . 'non-php7.php';
     return;
 }

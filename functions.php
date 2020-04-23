@@ -1,6 +1,11 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+#SB_FPC_Exceptions_Table::get_items($blog_id)
+#SB_FPC_Exceptions_Table::contains_url($url, $blog_id);
+#SB_FPC_Exceptions_Table::create_table();
+#SB_FPC_Exceptions_Table::drop_table();
+
 if ( ! function_exists('sb_performance_checks') ) {
 	/**
 	 * Get Servebolt_Performance_Checks-instance.
@@ -11,6 +16,16 @@ if ( ! function_exists('sb_performance_checks') ) {
 		require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
 		return Servebolt_Performance_Checks::get_instance();
 	}
+}
+
+if ( ! function_exists('sb_optimize_db') ) {
+	/**
+   * Check if PHP is too old (< 7).
+	 * @return bool
+	 */
+  function sb_old_php_version() {
+	  return ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) || ( function_exists('phpversion') && (int) phpversion() < 7 );
+  }
 }
 
 if ( ! function_exists('sb_optimize_db') ) {
@@ -686,6 +701,15 @@ if ( ! function_exists('sb_is_dev_debug') ) {
   }
 }
 
+if ( ! function_exists('sb_delete_tables') ) {
+	/**
+	 * Delete plugin tables.
+	 */
+  function sb_delete_tables() {
+	  SB_FPC_Exceptions_Table::drop_table();
+  }
+}
+
 if ( ! function_exists('sb_delete_all_settings') ) {
   /**
    * Delete plugin settings.
@@ -1102,3 +1126,123 @@ class SB_Crypto {
 	}
 
 }
+
+/**
+ * Class SB_FPC_Exceptions_Table
+ */
+class SB_FPC_Exceptions_Table {
+
+	/**
+	 * SB_FPC_Exceptions_Table constructor.
+	 */
+  public function __construct() {
+	  register_activation_hook( SERVEBOLT_BASENAME, [ 'SB_FPC_Exceptions_Table', 'create_table' ] );
+  }
+
+	public static function add_item() {
+
+	}
+
+	public static function update_item() {
+
+	}
+
+	public static function remove_item() {
+
+	}
+
+	/**
+	 * Check if a URL is present in the table.
+	 *
+	 * @param $url
+	 * @param bool $blog_id
+	 *
+	 * @return string|null
+	 */
+	public static function contains_url($url, $blog_id = false) {
+		global $wpdb;
+		$sql = 'SELECT count(*) FROM ' . self::get_table_name();
+		if ( $blog_id ) {
+			return $wpdb->get_var($wpdb->prepare($sql . ' WHERE url = %s LIMIT 1', $url));
+		} else {
+			return $wpdb->get_var($wpdb->prepare($sql . ' WHERE url = %s AND blog_id = %s LIMIT 1', $url, $blog_id));
+		}
+	}
+
+	/**
+   * Get items to exclude from cache.
+   *
+	 * @param bool $blog_id
+	 *
+	 * @return array|object|null
+	 */
+	public static function get_items($blog_id = false) {
+	  global $wpdb;
+	  $sql = 'SELECT * FROM ' . self::get_table_name();
+	  $order_by = 'ORDER BY created_at';
+	  if ( $blog_id ) {
+	    $sql = $wpdb->prepare($sql . ' WHERE blog_id = %s ', $blog_id);
+	  } else {
+	    $sql = $sql . $order_by;
+	  }
+	  return $wpdb->get_results($sql);
+  }
+
+	/**
+	 * Create table.
+	 *
+	 * @return bool
+	 */
+	public static function create_table() {
+		if ( self::table_exists() ) return true;
+		global $wpdb;
+		$charset_collate = $wpdb->get_charset_collate();
+		$sql = 'CREATE TABLE `' . self::get_table_name() . '` (
+      url varchar(255) NOT NULL,
+      item_type varchar(255) NOT NULL,
+      post_id bigint(20) UNSIGNED DEFAULT NULL,
+      blog_id bigint(20) UNSIGNED DEFAULT NULL,
+      created_at datetime NOT NULL,
+      updated_at datetime NOT NULL,
+      PRIMARY KEY  (post_id)
+    ) ' . $charset_collate . ';';
+		require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+		dbDelta($sql);
+		return true;
+	}
+
+	/**
+	 * Drop table.
+	 *
+	 * @return bool|int
+	 */
+	public static function drop_table() {
+	  if ( ! self::table_exists() ) return true;
+		global $wpdb;
+		$sql = 'DROP TABLE IF EXISTS `' . self::get_table_name() . '`;';
+		return $wpdb->query($sql);
+	}
+
+	/**
+	 * Check if the table exists.
+	 *
+	 * @return bool
+	 */
+	private static function table_exists() {
+		global $wpdb;
+		$table_name = self::get_table_name();
+		return $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name)) == $table_name;
+	}
+
+	/**
+	 * Get table name.
+	 *
+	 * @return string
+	 */
+	private static function get_table_name() {
+		global $wpdb;
+		return $wpdb->base_prefix . 'fpc_exceptions';
+	}
+
+}
+new SB_FPC_Exceptions_Table;

@@ -62,6 +62,13 @@ class Servebolt_Nginx_FPC {
 	private $allow_force_headers = false;
 
 	/**
+	 * Whether to display debug headers.
+	 *
+	 * @var bool
+	 */
+	private $debug = true;
+
+	/**
 	 * Instantiate class.
 	 *
 	 * @return Servebolt_Nginx_FPC|null
@@ -86,10 +93,60 @@ class Servebolt_Nginx_FPC {
 		// Handle "no_cache"-header for authenticated users.
 		new Servebolt_Nginx_FPC_Auth_Handling;
 
-		// Unauthenticated cache handling
-		add_filter( 'posts_results', [ $this, 'set_headers' ] );
-		add_filter( 'template_include', [ $this, 'last_call' ] );
+		#add_filter( 'posts_results', [ $this, 'set_headers' ] );
+		#add_filter( 'template_include', [ $this, 'last_call' ] );
 
+		// Cache headers handling
+		add_filter( 'wp_headers', [ $this, 'wp_headers' ] );
+
+	}
+
+	/**
+	 * Get current request URL.
+	 *
+	 * @return string|void
+	 */
+	private function get_url() {
+		global $wp;
+		return home_url( $wp->request );
+	}
+
+	/**
+	 * @return string|null
+	 */
+	private function resolve_post() {
+		$url = $this->get_url();
+		if ( is_multisite() ) {
+			return SB_FPC_Exceptions_Table::contains_url($url, get_current_blog_id());
+		} else {
+			return SB_FPC_Exceptions_Table::contains_url($url);
+		}
+	}
+
+	private function get_cache_headers() {
+
+		// No cache if FPC is not active, or if we are logged in
+		if ( ! $this->fpc_is_active() || is_admin() || is_user_logged_in() ) {
+			$this->no_cache_headers();
+			if ( $this->debug ) $this->header('No-cache-trigger', 1);
+			return [];
+		}
+
+		$should_not_cache = $this->resolve_post();
+
+		if ( $should_not_cache ) {
+			$this->no_cache_headers();
+		}
+
+		return $this->cache_headers;
+
+	}
+
+	private $cache_headers = [];
+
+	public function wp_headers($headers) {
+		$headers = array_merge($headers, $this->get_cache_headers());
+		return $headers;
 	}
 
 	/**
@@ -101,8 +158,6 @@ class Servebolt_Nginx_FPC {
 	 */
 	public function set_headers( $posts ) {
 
-		$debug = false;
-
 		// Abort if cache headers are already set
 		if ( $this->headers_already_set ) return $posts;
 		$this->headers_already_set = true;
@@ -110,7 +165,7 @@ class Servebolt_Nginx_FPC {
 		// No cache if FPC is not active, or if we are logged in
 		if ( ! $this->fpc_is_active() || is_admin() || is_user_logged_in() ) {
 			$this->no_cache_headers();
-			if ( $debug ) $this->header('No-cache-trigger: 1');
+			if ( $this->debug ) $this->header('No-cache-trigger', 1);
 			return $posts;
 		}
 
@@ -124,70 +179,54 @@ class Servebolt_Nginx_FPC {
 		}
 
 		// Only trigger this function once
-		remove_filter( 'posts_results', [$this, 'set_headers'] );
+		remove_filter( 'posts_results', [ $this, 'set_headers' ] );
 
 		if ( $this->is_woocommerce_page() ) {
 			$this->no_cache_headers();
-			if ( $debug ) $this->header('No-cache-trigger: 2');
+			if ( $this->debug ) $this->header('No-cache-trigger', 2);
 		} elseif ( $this->should_exclude_post_from_cache( get_the_ID() ) ) {
 			$this->no_cache_headers();
-			if ( $debug ) $this->header('No-cache-trigger: 3');
+			if ( $this->debug ) $this->header('No-cache-trigger', 3);
 		} elseif ( $this->cache_all_post_types() ) {
 			// Make sure the post type can be cached
 			$this->post_types[] = $post_type;
 			$this->cache_headers();
-			if ( $debug ) $this->header('Cache-trigger: 4');
+			if ( $this->debug ) $this->header('Cache-trigger', 4);
 		} elseif ( ( is_front_page() || is_singular() || is_page() ) && $this->cache_active_for_post_type($post_type) ) {
 			// Make sure the post type can be cached
 			$this->post_types[] = $post_type;
 			$this->cache_headers();
-			if ( $debug ) $this->header('Cache-trigger: 5');
+			if ( $this->debug ) $this->header('Cache-trigger', 5);
 		} elseif ( is_archive() && $this->should_cache_archive( $posts ) ) {
 			// Make sure the archive has only cachable posts
 			$this->cache_headers();
-			if ( $debug ) $this->header('Cache-trigger: 6');
+			if ( $this->debug ) $this->header('Cache-trigger', 6);
 		} elseif( empty($this->get_post_types_to_cache() ) ) {
 			$this->post_types[] = $post_type;
-			if ( $debug ) $this->header('Cache-trigger: 7');
+			if ( $this->debug ) $this->header('Cache-trigger', 7);
 			if ( in_array( $post_type , $this->get_default_post_types_to_cache() ) ) {
 				$this->cache_headers();
-				if ( $debug ) $this->header('Cache-trigger: 8');
+				if ( $this->debug ) $this->header('Cache-trigger', 8);
 			}
 		} elseif( empty($this->get_post_types_to_cache() ) && ( is_front_page() || is_singular() || is_page() ) ) {
 			$this->cache_headers();
-			if ( $debug ) $this->header('Cache-trigger: 9');
+			if ( $this->debug ) $this->header('Cache-trigger', 9);
 		} else {
 			// Default to no-cache headers
 			$this->no_cache_headers();
-			if ( $debug ) $this->header('No-cache-trigger: 10');
+			if ( $this->debug ) $this->header('No-cache-trigger', 10);
 		}
 		return $posts;
 	}
 
 	/**
-	 * Set a header by best effort.
+	 * Add header.
 	 *
-	 * @param $string
+	 * @param $key
+	 * @param $value
 	 */
-	private function header($string) {
-
-		// Abort if headers are already sent
-		if ( headers_sent() && ! $this->allow_force_headers ) {
-			sb_write_log(sprintf('Servebolt Optimizer attempted to set header "%s", but headers already sent.', $string));
-			return;
-		}
-
-		// WP action already passed but headers are not yet sent
-		if ( did_action('send_headers') ) {
-			header($string);
-			return;
-		}
-
-		// Set headers using WP's "send_headers"-action
-		add_action('send_headers', function () use ($string) {
-			header($string);
-		});
-
+	private function header($key, $value) {
+		$this->cache_headers[$key] = $value;
 	}
 
 	/**
@@ -292,22 +331,22 @@ class Servebolt_Nginx_FPC {
 		header_remove('Expires');
 
 		// Allow browser to cache content for 10 minutes, or the set browser cache time contant
-		$this->header(sprintf('Cache-Control:max-age=%s, public', $this->browser_cache_time));
-		$this->header('Pragma: public');
+		$this->header('Cache-Control', sprintf('max-age=%s, public', $this->browser_cache_time));
+		$this->header('Pragma', 'public');
 
 		// Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
 		$expiryString = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $this->fpc_cache_time) . ' GMT';
-		$this->header(sprintf('Expires: %s', $expiryString));
-		$this->header('X-Servebolt-Plugin: active');
+		$this->header('Expires', $expiryString);
+		$this->header('X-Servebolt-Plugin', 'active');
 	}
 
 	/**
 	 * No cache headers - Print headers that prevent caching.
 	 */
 	private function no_cache_headers() {
-		$this->header( 'Cache-Control: max-age=0,no-cache' );
-		$this->header( 'Pragma: no-cache' );
-		$this->header( 'X-Servebolt-Plugin: active' );
+		$this->header( 'Cache-Control', 'max-age=0,no-cache' );
+		$this->header( 'Pragma', 'no-cache' );
+		$this->header( 'X-Servebolt-Plugin', 'active' );
 	}
 
 	/**

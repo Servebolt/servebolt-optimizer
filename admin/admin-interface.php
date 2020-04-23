@@ -17,8 +17,16 @@ class Servebolt_Admin_Interface {
 	 */
 	public function __construct() {
 	    $this->init_menus();
+	    $this->ensure_tables();
 	    $this->init_assets();
 	    $this->init_plugin_settings_link();
+	}
+
+	/**
+	 * Ensure we got the table.
+	 */
+	private function ensure_tables() {
+		SB_FPC_Exceptions_Table::create_table();
 	}
 
 	/**
