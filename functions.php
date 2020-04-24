@@ -308,7 +308,7 @@ if ( ! function_exists('sb_e') ) {
 
 if ( ! function_exists('host_is_servebolt') ) {
   /**
-   * Check if the site is hosted on Servebolt.com.
+   * Check if the site is hosted at Servebolt.
    *
    * @return bool
    */
@@ -316,8 +316,7 @@ if ( ! function_exists('host_is_servebolt') ) {
     if ( defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE) ) return HOST_IS_SERVEBOLT_OVERRIDE;
     foreach(['SERVER_ADMIN', 'SERVER_NAME'] as $key) {
       if (array_key_exists($key, $_SERVER)) {
-        $check = $_SERVER[$key];
-        if (strpos($check, 'raskesider.no') !== false || strpos($check, 'servebolt.com') !== false ){
+        if ( (boolean) preg_match('/(servebolt|raskesider)\.([\w]{2,63})$/', $_SERVER[$key]) ) {
           return true;
         }
       }
