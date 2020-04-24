@@ -1,6 +1,37 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+if ( ! function_exists('sb_cloudflare_proxy_in_use') ) {
+	/**
+	 * Check if Cloudflare Proxy is used by analyzing the request headers, and if not present then send a request to the front page and analyze the headers again.
+	 *
+	 * @return bool
+	 */
+	function sb_cloudflare_proxy_in_use() {
+
+		$cf_headers_to_look_for = ['cf-request-id', 'cf-ray'];
+
+		$headers = array_keys( array_change_key_case( (array) getallheaders(), CASE_LOWER ) );
+		foreach( $headers as $key ) {
+			if ( in_array($key, $cf_headers_to_look_for) ) {
+				return true;
+			}
+		}
+
+		if ( ! array_key_exists('sb-cf-check', $_GET) ) {
+			$headers = array_keys( array_change_key_case( get_headers( get_site_url('?sb-cf-check'), true ), CASE_LOWER ) );
+			foreach( $headers as $key ) {
+				if ( in_array($key, $cf_headers_to_look_for) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+
+	}
+}
+
 if ( ! function_exists('sb_performance_checks') ) {
 	/**
 	 * Get Servebolt_Performance_Checks-instance.
