@@ -1,10 +1,6 @@
 {
   "name": "servebolt/servebolt-wp-optimize-plugin",
   "type": "wordpress-plugin",
-  "require": {
-    "cloudflare/sdk": "1.1.5",
-    "composer/installers": "^1.0@dev"
-  },
   "description": "",
   "extra": {
     "installer-name": "servebolt-wp-optimize-plugin"

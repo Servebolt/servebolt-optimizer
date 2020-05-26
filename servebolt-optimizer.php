@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 define( 'SERVEBOLT_BASENAME', plugin_basename(__FILE__) );
 define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
 define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
+define( 'SERVEBOLT_OPTIMIZER_USE_COMPOSER', false ); // Currently not in use doe to lack of need for dependencies
 
 // Abort and display admin notice if PHP_MAJOR_VERSION is less than 7
 if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
@@ -24,7 +25,7 @@ if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
 }
 
 // Check if we got composer files
-if ( ! file_exists(SERVEBOLT_PATH . 'vendor/autoload.php') ) {
+if ( SERVEBOLT_OPTIMIZER_USE_COMPOSER === true && ! file_exists(SERVEBOLT_PATH . 'vendor/autoload.php') ) {
 	require SERVEBOLT_PATH . 'composer-missing.php';
 	return;
 }
@@ -38,8 +39,10 @@ sb_generic_optimizations();
 // We don't always need all files
 if ( is_admin() || sb_is_cli() || sb_is_cron() ) {
 
-	// Include Composer dependencies
-	require SERVEBOLT_PATH . 'vendor/autoload.php';
+	if ( SERVEBOLT_OPTIMIZER_USE_COMPOSER === true ) {
+		// Include Composer dependencies
+		require SERVEBOLT_PATH . 'vendor/autoload.php';
+	}
 
 	// Make sure we dont API credentials in clear text.
 	require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
