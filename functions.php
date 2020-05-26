@@ -1,6 +1,60 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+if ( ! function_exists('sb_cloudflare_proxy_in_use') ) {
+	/**
+	 * Check if Cloudflare Proxy is used by analyzing the request headers, and if not present then send a request to the front page and analyze the headers again.
+	 *
+	 * @return bool
+	 */
+	function sb_cloudflare_proxy_in_use() {
+
+		$cf_headers_to_look_for = ['cf-request-id', 'cf-ray'];
+
+		$headers = array_keys( array_change_key_case( (array) getallheaders(), CASE_LOWER ) );
+		foreach( $headers as $key ) {
+			if ( in_array($key, $cf_headers_to_look_for) ) {
+				return true;
+			}
+		}
+
+		if ( ! array_key_exists('sb-cf-check', $_GET) ) {
+			$headers = array_keys( array_change_key_case( get_headers( get_site_url('?sb-cf-check'), true ), CASE_LOWER ) );
+			foreach( $headers as $key ) {
+				if ( in_array($key, $cf_headers_to_look_for) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+
+	}
+}
+
+if ( ! function_exists('sb_feature_active') ) {
+	/**
+   * Check whether a feature is active.
+   *
+	 * @param $feature
+	 *
+	 * @return bool|null
+	 */
+  function sb_feature_active($feature) {
+    switch ($feature) {
+        case 'cf_image_resize':
+          // Only active when defined is set
+          return defined('SB_CF_IMAGE_RESIZE_ACTIVE') && SB_CF_IMAGE_RESIZE_ACTIVE === true;
+          break;
+	    case 'cf_cache':
+		    return true;
+		    break;
+    }
+    return null;
+
+  }
+}
+
 if ( ! function_exists('sb_performance_checks') ) {
 	/**
 	 * Get Servebolt_Performance_Checks-instance.
@@ -10,6 +64,30 @@ if ( ! function_exists('sb_performance_checks') ) {
 	function sb_performance_checks() {
 		require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
 		return Servebolt_Performance_Checks::get_instance();
+	}
+}
+
+if ( ! function_exists('sb_cf_image_resize_control') ) {
+	/**
+	 * Get SB_Image_Resize_Control-instance.
+	 *
+	 * @return SB_Image_Resize_Control|null
+	 */
+	function sb_cf_image_resize_control() {
+	  require_once SERVEBOLT_PATH . 'classes/cloudflare-image-resize/sb-image-resize-control.php';
+		return SB_Image_Resize_Control::get_instance();
+	}
+}
+
+if ( ! function_exists('sb_cf_image_resizing') ) {
+	/**
+	 * Get CF_Image_Resizing-instance.
+	 *
+	 * @return CF_Image_Resizing|null
+	 */
+	function sb_cf_image_resizing() {
+		require_once SERVEBOLT_PATH . 'admin/cf-image-resizing.php';
+		return CF_Image_Resizing::get_instance();
 	}
 }
 
@@ -32,7 +110,7 @@ if ( ! function_exists('sb_cf') ) {
    * @return Servebolt_Checks|null
    */
   function sb_cf() {
-    require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf.php';
+    require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf.php';
     return Servebolt_CF::get_instance();
   }
 }
@@ -308,7 +386,7 @@ if ( ! function_exists('sb_e') ) {
 
 if ( ! function_exists('host_is_servebolt') ) {
   /**
-   * Check if the site is hosted on Servebolt.com.
+   * Check if the site is hosted at Servebolt.
    *
    * @return bool
    */
@@ -316,8 +394,7 @@ if ( ! function_exists('host_is_servebolt') ) {
     if ( defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE) ) return HOST_IS_SERVEBOLT_OVERRIDE;
     foreach(['SERVER_ADMIN', 'SERVER_NAME'] as $key) {
       if (array_key_exists($key, $_SERVER)) {
-        $check = $_SERVER[$key];
-        if (strpos($check, 'raskesider.no') !== false || strpos($check, 'servebolt.com') !== false ){
+        if ( (boolean) preg_match('/(servebolt|raskesider)\.([\w]{2,63})$/', $_SERVER[$key]) ) {
           return true;
         }
       }

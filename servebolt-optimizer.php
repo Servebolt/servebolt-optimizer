@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 2.0.2
+Version: 2.0.4
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that implements Servebolt Security & Performance best practises for WordPress.
@@ -16,6 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 define( 'SERVEBOLT_BASENAME', plugin_basename(__FILE__) );
 define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
 define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
+define( 'SERVEBOLT_OPTIMIZER_USE_COMPOSER', false ); // Currently not in use doe to lack of need for dependencies
 
 // Abort and display admin notice if PHP_MAJOR_VERSION is less than 7
 if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
@@ -24,7 +25,7 @@ if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
 }
 
 // Check if we got composer files
-if ( ! file_exists(SERVEBOLT_PATH . 'vendor/autoload.php') ) {
+if ( SERVEBOLT_OPTIMIZER_USE_COMPOSER === true && ! file_exists(SERVEBOLT_PATH . 'vendor/autoload.php') ) {
 	require SERVEBOLT_PATH . 'composer-missing.php';
 	return;
 }
@@ -38,14 +39,16 @@ sb_generic_optimizations();
 // We don't always need all files
 if ( is_admin() || sb_is_cli() || sb_is_cron() ) {
 
-	// Include Composer dependencies
-	require SERVEBOLT_PATH . 'vendor/autoload.php';
+	if ( SERVEBOLT_OPTIMIZER_USE_COMPOSER === true ) {
+		// Include Composer dependencies
+		require SERVEBOLT_PATH . 'vendor/autoload.php';
+	}
 
 	// Make sure we dont API credentials in clear text.
 	require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
 
 	// Include the Servebolt Cloudflare class
-	require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf.php';
+	require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf.php';
 
 }
 
@@ -55,13 +58,18 @@ if ( ! class_exists('Servebolt_Nginx_FPC') ){
 	sb_nginx_fpc()->setup();
 }
 
+// Initialize image resizing
+if ( sb_feature_active('cf_image_resize') && ( sb_cf_image_resize_control() )->resizing_is_active() ) {
+	require_once SERVEBOLT_PATH . 'classes/cloudflare-image-resize/cloudflare-image-resizing.php';
+}
+
 // Register cron schedule and cache purge event
-require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf-cron.php';
+require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cron.php';
 
 if ( is_admin() ) {
 
 	// Register cache purge event when saving post
-	require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf-post-save-action.php';
+	require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-post-save-action.php';
 
 	// Load this plugins interface
 	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';

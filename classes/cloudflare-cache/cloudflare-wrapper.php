@@ -1,19 +1,15 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-use Cloudflare\API\Auth\APIToken;
-use Cloudflare\API\Auth\APIKey;
-use Cloudflare\API\Adapter\Guzzle;
-use Cloudflare\API\Endpoints\Zones;
-use Cloudflare\API\Endpoints\User;
+require_once __DIR__ . '/sb-cloudflare-sdk.class.php';
 
 /**
  * Class Cloudflare
  * @package Servebolt
  *
- * This class acts as a layer between WordPress and the Cloudflare PHP SDK (setting up SDK, passing along credentials etc.).
+ * This class acts as a layer between our WordPress plugin-code and the Cloudflare PHP SDK. This class facilitates setting up then SDK, passing along credentials etc.
  */
-class Cloudflare {
+class Cloudflare extends SB_CF_SDK {
 
 	/**
 	 * Singleton instance.
@@ -34,7 +30,7 @@ class Cloudflare {
 	 *
 	 * @var null
 	 */
-	private $auth_type = null;
+	protected $auth_type = null;
 
 	/**
 	 * Cloudflare Zone Id.
@@ -67,13 +63,48 @@ class Cloudflare {
 	}
 
 	/**
+	 * Get user details of authenticated user.
+	 *
+	 * @return mixed
+	 */
+	public function get_user_details() {
+		try {
+			$request = $this->request('user');
+			return $request['json']->result;
+		} catch (Exception $e) {
+			return sb_cf_error($e);
+		}
+	}
+
+	/**
 	 * Get user ID of authenticated user.
 	 *
 	 * @return mixed
 	 */
 	public function get_user_id() {
-		$user = $this->get_user_instance();
-		return $user->getUserID();
+		$user = $this->get_user_details();
+		return $user->id;
+	}
+
+	/**
+	 * Verify API token.
+	 *
+	 * @param bool $token
+	 *
+	 * @return bool
+	 */
+	public function verify_token($token = false) {
+		if ( ! $token ) {
+			$token = $this->get_credential('api_token');
+		}
+		try {
+			$request = $this->request('user/tokens/verify', 'GET', [], [
+				'Authorization' => 'Bearer ' . $token,
+			]);
+			return $request['http_code'] === 200;
+		} catch (Exception $e) {
+			return sb_cf_error($e);
+		}
 	}
 
 	/**
@@ -86,32 +117,6 @@ class Cloudflare {
 	}
 
 	/**
-	 * Verify API token.
-	 *
-	 * @param $token
-	 *
-	 * @return bool
-	 */
-	public function verify_token($token = false) {
-		if ( ! $token ) {
-			$token = $this->get_credential('api_token');
-		}
-		$client = new GuzzleHttp\Client([
-			'base_uri' => 'https://api.cloudflare.com',
-			'http_errors' => false,
-		]);
-		$headers = [
-			'Authorization' => 'Bearer ' . $token,
-			'Content-Type'  => 'application/json',
-			'Accept'        => 'application/json',
-		];
-		$response = $client->request('GET', '/client/v4/user/tokens/verify', [
-			'headers' => $headers
-		]);
-		return $response->getStatusCode() === 200;
-	}
-
-	/**
 	 * Purge one or more URL's in a zone.
 	 **
 	 * @param array $urls
@@ -119,12 +124,16 @@ class Cloudflare {
 	 * @return bool|void
 	 */
 	public function purge_urls( array $urls ) {
-		$zone_instance = $this->get_zones_instance();
-		if ( ! $zone_instance ) return false;
 		$zone_id = $this->get_zone_id();
 		if ( ! $zone_id || empty($zone_id) ) return false;
 		try {
-			return $zone_instance->cachePurge($zone_id, $urls);
+			$request = $this->request('zones/' . $zone_id . '/purge_cache', 'DELETE', [
+				'files' => $urls,
+			]);
+			if ( isset($request['json']->result->id) ) {
+				return true;
+			}
+			return false;
 		} catch (Exception $e) {
 			return sb_cf_error($e);
 		}
@@ -136,12 +145,16 @@ class Cloudflare {
 	 * @return bool
 	 */
 	public function purge_all() {
-		$zone_instance = $this->get_zones_instance();
-		if ( ! $zone_instance ) return false;
 		$zone_id = $this->get_zone_id();
 		if ( ! $zone_id || empty($zone_id) ) return false;
 		try {
-			return $zone_instance->cachePurgeEverything($zone_id);
+			$request = $this->request('zones/' . $zone_id . '/purge_cache', 'DELETE', [
+				'purge_everything' => true,
+			]);
+			if ( isset($request['json']->result->id) ) {
+				return true;
+			}
+			return false;
 		} catch (Exception $e) {
 			return sb_cf_error($e);
 		}
@@ -183,69 +196,54 @@ class Cloudflare {
 	}
 
 	/**
-	 * Get Cloudflare authentication instance.
-	 *
-	 * @return bool|\Cloudflare\API\Auth\APIKey
-	 */
-	private function get_key_instance() {
-		switch ( $this->auth_type ) {
-			case 'api_token':
-				return new APIToken($this->get_credential('api_token'));
-				break;
-			case 'api_key':
-				return new APIKey($this->get_credential('email'), $this->get_credential('api_key'));
-				break;
-		}
-		return false;
-	}
-
-	/**
-	 * Get adapter instance.
-	 *
-	 * @param bool $key
-	 *
-	 * @return \Cloudflare\API\Adapter\Guzzle
-	 */
-	private function get_adapter_instance($key = false) {
-		if ( ! $key ) $key = $this->get_key_instance();
-		if ( ! $key ) return false;
-		return new Guzzle( $key );
-	}
-
-	/**
-	 * Get Zones instance.
-	 *
-	 * @return bool|Zones
-	 */
-	private function get_zones_instance() {
-		$adapter = $this->get_adapter_instance();
-		if ( ! $adapter ) return false;
-		return new Zones( $adapter );
-	}
-
-	/**
-	 * Get User instance.
-	 *
-	 * @return bool|Zones
-	 */
-	private function get_user_instance() {
-		$adapter = $this->get_adapter_instance();
-		if ( ! $adapter ) return false;
-		return new User( $adapter );
-	}
-
-	/**
 	 * List zones.
 	 *
 	 * @return bool|stdClass
 	 */
 	public function list_zones() {
-		$zone_instance = $this->get_zones_instance();
-		if ( ! $zone_instance ) return false;
+
+		// Function arguments
+		/*
+		string $name = '',
+		string $status = '',
+		int $page = 1,
+		int $perPage = 20,
+		string $order = '',
+		string $direction = '',
+		string $match = 'all'
+
+		$query = [
+            'page' => $page,
+            'per_page' => $perPage,
+            'match' => $match
+        ];
+
+        if (!empty($name)) {
+            $query['name'] = $name;
+        }
+
+        if (!empty($status)) {
+            $query['status'] = $status;
+        }
+
+        if (!empty($order)) {
+            $query['order'] = $order;
+        }
+
+        if (!empty($direction)) {
+            $query['direction'] = $direction;
+        }
+		*/
+
+		$query = [
+			'page'     => 1,
+			'per_page' => 20,
+			'match'    => 'all'
+		];
+
 		try {
-			$zones = $zone_instance->listZones();
-			if ( ! $zones ) return false;
-			return (array) $zones->result;
+			$request = $this->request('zones', 'GET', $query);
+			return $request['json']->result;
 		} catch (Exception $e) {
 			return sb_cf_error($e);
 		}
@@ -270,14 +268,10 @@ class Cloudflare {
 	 * @return bool|object
 	 */
 	public function get_zone_by_id($zone_id) {
-		$zone_instance = $this->get_zones_instance();
-		if ( ! $zone_instance ) return false;
 		try {
-			$zone = $zone_instance->getZoneById($zone_id);
-			if ( ! $zone ) return false;
-			return (object) $zone->result;
+			$request = $this->request('zones/' . $zone_id);
+			return $request['json']->result;
 		} catch (Exception $e) {
-			return false;
 			return sb_cf_error($e);
 		}
 	}
