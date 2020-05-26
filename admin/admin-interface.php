@@ -5,6 +5,7 @@ require_once SERVEBOLT_PATH . 'admin/log-viewer.php';
 require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
 require_once SERVEBOLT_PATH . 'admin/nginx-fpc-controls.php';
 require_once SERVEBOLT_PATH . 'admin/cf-cache-controls.php';
+require_once SERVEBOLT_PATH . 'admin/cf-image-resizing.php';
 require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
 
 /**
@@ -50,6 +51,10 @@ class Servebolt_Admin_Interface {
 		add_submenu_page('servebolt-wp', sb__('Performance optimizer'), sb__('Performance optimizer'), 'manage_options', 'servebolt-performance-tools', [$this, 'performance_callback']);
 		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf', [$this, 'cf_cache_callback']);
 
+		if ( sb_feature_active('cf_image_resize') ) {
+			add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [$this, 'cf_image_resizing_callback']);
+		}
+
 		if ( host_is_servebolt() === true ) {
 			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
 			add_submenu_page('servebolt-wp', sb__('Error log'), sb__('Error log'), 'manage_options', 'servebolt-logs', [$this, 'error_log_callback']);
@@ -70,6 +75,10 @@ class Servebolt_Admin_Interface {
 		add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'general_page_callback'], SERVEBOLT_PATH_URL . 'admin/assets/img/servebolt-icon.svg' );
 		add_submenu_page('servebolt-wp', sb__('General'), sb__('General'), 'manage_options', 'servebolt-wp');
 		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf', [$this, 'cf_cache_callback']);
+
+		if ( sb_feature_active('cf_image_resize') ) {
+			add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [$this, 'cf_image_resizing_callback']);
+		}
 
 		if ( host_is_servebolt() === true ) {
 			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
@@ -142,10 +151,17 @@ class Servebolt_Admin_Interface {
 	}
 
 	/**
-	 * Display the Full Page Cache control page.
+	 * Display the Cloudflare Cache control page.
 	 */
 	public function cf_cache_callback() {
 		sb_cf_cache_controls()->view();
+	}
+
+	/**
+	 * Display the Cloudflare Image Resizing control pagel.
+	 */
+	public function cf_image_resizing_callback() {
+		sb_cf_image_resizing()->view();
 	}
 
 	/**

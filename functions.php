@@ -32,6 +32,29 @@ if ( ! function_exists('sb_cloudflare_proxy_in_use') ) {
 	}
 }
 
+if ( ! function_exists('sb_feature_active') ) {
+	/**
+   * Check whether a feature is active.
+   *
+	 * @param $feature
+	 *
+	 * @return bool|null
+	 */
+  function sb_feature_active($feature) {
+    switch ($feature) {
+        case 'cf_image_resize':
+          // Only active when defined is set
+          return defined('SB_CF_IMAGE_RESIZE_ACTIVE') && SB_CF_IMAGE_RESIZE_ACTIVE === true;
+          break;
+	    case 'cf_cache':
+		    return true;
+		    break;
+    }
+    return null;
+
+  }
+}
+
 if ( ! function_exists('sb_performance_checks') ) {
 	/**
 	 * Get Servebolt_Performance_Checks-instance.
@@ -41,6 +64,30 @@ if ( ! function_exists('sb_performance_checks') ) {
 	function sb_performance_checks() {
 		require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
 		return Servebolt_Performance_Checks::get_instance();
+	}
+}
+
+if ( ! function_exists('sb_cf_image_resize_control') ) {
+	/**
+	 * Get SB_Image_Resize_Control-instance.
+	 *
+	 * @return SB_Image_Resize_Control|null
+	 */
+	function sb_cf_image_resize_control() {
+	  require_once SERVEBOLT_PATH . 'classes/cloudflare-image-resize/sb-image-resize-control.php';
+		return SB_Image_Resize_Control::get_instance();
+	}
+}
+
+if ( ! function_exists('sb_cf_image_resizing') ) {
+	/**
+	 * Get CF_Image_Resizing-instance.
+	 *
+	 * @return CF_Image_Resizing|null
+	 */
+	function sb_cf_image_resizing() {
+		require_once SERVEBOLT_PATH . 'admin/cf-image-resizing.php';
+		return CF_Image_Resizing::get_instance();
 	}
 }
 
@@ -63,7 +110,7 @@ if ( ! function_exists('sb_cf') ) {
    * @return Servebolt_Checks|null
    */
   function sb_cf() {
-    require_once SERVEBOLT_PATH . 'classes/cloudflare/sb-cf.php';
+    require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf.php';
     return Servebolt_CF::get_instance();
   }
 }

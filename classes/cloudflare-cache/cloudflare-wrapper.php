@@ -11,7 +11,7 @@ use Cloudflare\API\Endpoints\User;
  * Class Cloudflare
  * @package Servebolt
  *
- * This class acts as a layer between WordPress and the Cloudflare PHP SDK (setting up SDK, passing along credentials etc.).
+ * This class acts as a layer between our WordPress plugin-code and the Cloudflare PHP SDK. This class facilitates setting up then SDK, passing along credentials etc.
  */
 class Cloudflare {
 
