@@ -160,6 +160,7 @@
               <input name="<?php echo sb_get_option_name('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID<?php if ( $have_zones ) echo ' or use the choices below'; ?>" value="<?php echo esc_attr($cf_settings['cf_zone_id']); ?>" class="regular-text validate-field validation-group-zone_id">
               <span class="spinner zone-loading-spinner"></span>
               <p class="invalid-message"></p>
+
               <p class="active-zone"<?php if ( ! isset($zone) || ! $zone ) echo ' style="display: none;"'; ?>><?php sb_e('Selected zone:'); ?> <span><?php if ( isset($zone) && $zone ) echo $zone->name; ?></span></p>
 
               <div class="zone-selector-container"<?php if ( ! $have_zones ) echo ' style="display: none;"'; ?>>
