@@ -80,60 +80,51 @@ class Servebolt_Checks {
 	 * @return array
 	 */
 	public function tables_to_have_index() {
-		global $wpdb;
-
-		$tables = $this->get_table_index_setup();
+		$index_table_types = $this->get_table_index_setup();
 		$tables_to_have_index = [];
-
 		if ( is_multisite() ) {
-			$sites = $this->get_all_tables();
-			foreach ( $sites as $key => $value ) {
-				foreach ( $tables as $table => $index ) {
-					switch_to_blog( $key );
-
-					$a_table = [
-						'blog_id' => $key,
-						'table'   => $table,
-						'name'    => implode( [ $wpdb->prefix, $table ] ),
-						'index'   => $index,
-					];
-					$db_table = $wpdb->{$a_table['table']};
-					$indexes  = $wpdb->get_results( "SHOW INDEX FROM {$db_table}" );
-
-					foreach ( $indexes as $index ) {
-						if ( $index->Column_name == $a_table['index'] ) {
-							$a_table['has_index'] = true;
-						} else {
-							$a_table['has_index'] = false;
-						}
-					}
-					$tables_to_have_index[] = $a_table;
-					restore_current_blog();
+			$tables = $this->get_all_tables();
+			foreach ( $tables as $blog_id => $value ) {
+				foreach ( $index_table_types as $table => $index ) {
+					$tables_to_have_index[] = $this->check_if_table_has_index($table, $index, $blog_id);
 				}
 			}
 		} else {
-			foreach ( $tables as $table => $index ) {
-				$a_table = [
-					'name'  => $table,
-					'table' => $table,
-					'index' => $index,
-				];
-
-				$db_table = $wpdb->$table;
-				$indexes  = $wpdb->get_results( "SHOW INDEX FROM {$db_table}" );
-
-				foreach ( $indexes as $index ) {
-					if ( $index->Column_name == $a_table['index'] ) {
-						$a_table['has_index'] = true;
-					} else {
-						$a_table['has_index'] = false;
-					}
-				}
-				$tables_to_have_index[] = $a_table;
+			foreach ( $index_table_types as $table => $index ) {
+				$tables_to_have_index[] = $this->check_if_table_has_index($table, $index);
 			}
 		}
-
 		return $tables_to_have_index;
+	}
+
+	/**
+	 * Check if table has an index.
+	 *
+	 * @param $table_name
+	 * @param $index
+	 * @param bool $blog_id
+	 *
+	 * @return array
+	 */
+	private function check_if_table_has_index($table_name, $index, $blog_id = false) {
+		global $wpdb;
+		if ( $blog_id ) {
+			switch_to_blog( $blog_id );
+			$table = ['blog_id' => $blog_id];
+		} else {
+			$table = [];
+		}
+		$db_table = $wpdb->{$table_name};
+
+		$table['name']  = $db_table;
+		$table['table'] = $table_name;
+		$table['index'] = $index;
+		$indexes  = $wpdb->get_results( "SHOW INDEX FROM {$db_table}" );
+		foreach ( $indexes as $index ) {
+			$table['has_index'] = ( $index->Column_name == $table['index'] );
+		}
+		if ( $blog_id ) restore_current_blog();
+		return $table;
 	}
 
 	/**
@@ -145,7 +136,7 @@ class Servebolt_Checks {
 		global $wpdb;
 		if ( is_multisite() ) {
 			$tables = [];
-			sb_iterate_sites(function($site) use ($wpdb, $tables) {
+			sb_iterate_sites(function($site) use (&$tables, $wpdb) {
 				switch_to_blog($site->blog_id);
 				$tables[$site->blog_id] = array_flip($wpdb->tables);
 				restore_current_blog();

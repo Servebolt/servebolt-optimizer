@@ -363,7 +363,7 @@ class CF_Cache_Controls {
 			}
 
 			// Check if we should use Cloudflare
-			if ( ! sb_cf()->should_user_cf_feature() ) {
+			if ( ! sb_cf()->should_use_cf_feature() ) {
 				$failed[] = [
 					'blog_id' => $site->blog_id,
 					'reason' => sb__('Cloudflare feature not active/available'),
@@ -460,4 +460,4 @@ class CF_Cache_Controls {
 	}
 
 }
-sb_cf_cache_controls();
+CF_Cache_Controls::get_instance();

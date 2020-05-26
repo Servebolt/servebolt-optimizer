@@ -65,7 +65,7 @@ class Servebolt_Optimize_DB {
 	 *
 	 * @param bool $cli
 	 *
-	 * @return bool
+	 * @return array
 	 */
 	public function optimize_db($cli = false) {
 		$this->cli = $cli;
@@ -359,8 +359,13 @@ class Servebolt_Optimize_DB {
 	 * Revert optimizations.
 	 */
 	private function remove_indexes() {
-		$this->remove_post_meta_index();
-		$this->remove_options_autoload_index();
+		try {
+			$remove_post_meta_index = $this->remove_post_meta_index();
+			$remove_options_autoload_index = $this->remove_options_autoload_index();
+			return $remove_post_meta_index && $remove_options_autoload_index;
+		} catch (Exception $e) {
+			return false;
+		}
 	}
 
 	/**
@@ -487,7 +492,7 @@ class Servebolt_Optimize_DB {
 		if ( $blog_id ) {
 			switch_to_blog($blog_id);
 		}
-		$this->wpdb()->query("ALTER TABLE {$this->wpdb()->options} ADD INDEX(autoload)");
+		$this->safe_query("ALTER TABLE {$this->wpdb()->options} ADD INDEX(autoload)");
 		$result = $this->table_has_index($this->wpdb()->options, 'autoload');
 		if ( $blog_id ) {
 			restore_current_blog();
@@ -506,7 +511,7 @@ class Servebolt_Optimize_DB {
 		if ( $blog_id ) {
 			switch_to_blog($blog_id);
 		}
-		$this->wpdb()->query("ALTER TABLE {$this->wpdb()->options} DROP INDEX `autoload`");
+		$this->safe_query("ALTER TABLE {$this->wpdb()->options} DROP INDEX `autoload`");
 		$result = ! $this->table_has_index($this->wpdb()->options, 'autoload');
 		if ( $blog_id ) {
 			restore_current_blog();
@@ -525,7 +530,7 @@ class Servebolt_Optimize_DB {
 		if ( $blog_id ) {
 			switch_to_blog($blog_id);
 		}
-		$this->wpdb()->query("ALTER TABLE {$this->wpdb()->postmeta} ADD INDEX `sbpmv` (`meta_value`(10))");
+		$this->safe_query("ALTER TABLE {$this->wpdb()->postmeta} ADD INDEX `sbpmv` (`meta_value`(10))");
 		$result = $this->table_has_index($this->wpdb()->postmeta, 'sbpmv');
 		if ( $blog_id ) {
 			restore_current_blog();
@@ -544,7 +549,7 @@ class Servebolt_Optimize_DB {
 		if ( $blog_id ) {
 			switch_to_blog($blog_id);
 		}
-		$this->wpdb()->query("ALTER TABLE {$this->wpdb()->postmeta} DROP INDEX `sbpmv`");
+		$this->safe_query("ALTER TABLE {$this->wpdb()->postmeta} DROP INDEX `sbpmv`");
 		$result = ! $this->table_has_index($this->wpdb()->postmeta, 'sbpmv');
 		if ( $blog_id ) {
 			restore_current_blog();
@@ -637,8 +642,22 @@ class Servebolt_Optimize_DB {
 	 * @return bool
 	 */
 	public function convert_table_to_innodb($table_name) {
-		$this->wpdb()->query("ALTER TABLE {$table_name} ENGINE = InnoDB");
+		$this->safe_query("ALTER TABLE {$table_name} ENGINE = InnoDB");
 		return $this->table_is_innodb($table_name);
+	}
+
+	/**
+	 * Run SQL-query and suppress errors (we run queries best effort, and inspect the result after query is done).
+	 *
+	 * @param $query
+	 *
+	 * @return mixed
+	 */
+	private function safe_query($query) {
+		$this->wpdb()->suppress_errors();
+		$query = $this->wpdb()->query($query);
+		$this->wpdb()->suppress_errors(false);
+		return $query;
 	}
 
 	/**
@@ -649,21 +668,38 @@ class Servebolt_Optimize_DB {
 	 * @return bool
 	 */
 	public function convert_table_to_myisam($table_name) {
-		$this->wpdb()->query("ALTER TABLE {$table_name} ENGINE = MyISAM");
-		return $this->table_has_engine($table_name, 'myisam');
+		if ( $this->table_has_engine($table_name, 'myisam') ) return true;
+		try {
+			$this->safe_query("ALTER TABLE " . $table_name . " ENGINE = MyISAM");
+			return $this->table_has_engine($table_name, 'myisam');
+		} catch (Exception $e) {
+			return false;
+		}
 	}
 
 	/**
 	 * Check if a table is using a given engine.
 	 *
 	 * @param $table_name
+	 * @param $engine_to_check
 	 *
 	 * @return bool
 	 */
-	public function table_has_engine($table_name, $engine) {
-		$sql = $this->wpdb()->prepare("SELECT count(*) AS count FROM INFORMATION_SCHEMA.TABLES WHERE LOWER(engine) = %s AND TABLE_NAME = %s AND TABLE_SCHEMA = %s", $engine, $table_name, DB_NAME);
-		$check = $this->wpdb()->get_var($sql);
-		return $check == '1';
+	public function table_has_engine($table_name, $engine_to_check) {
+		$table_engine = $this->get_table_engine($table_name);
+		return $table_engine == $engine_to_check;
+	}
+
+	/**
+	 * Get the database engine of a table.
+	 *
+	 * @param $table_name
+	 *
+	 * @return mixed
+	 */
+	private function get_table_engine($table_name) {
+		$sql = $this->wpdb()->prepare("SELECT LOWER(engine) AS engine FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = %s AND TABLE_SCHEMA = %s LIMIT 1", $table_name, DB_NAME);
+		return $this->wpdb()->get_var($sql);
 	}
 
 	/**
@@ -725,7 +761,7 @@ class Servebolt_Optimize_DB {
 	public function analyze_tables($cli = false) {
 		$this->analyze_tables_query();
 		if ( is_multisite() ) {
-			$this->wpdb()->query( "ANALYZE TABLE {$this->wpdb()->sitemeta}" );
+			$this->analyze_table($this->wpdb()->sitemeta);
 			$site_blog_ids = $this->wpdb()->get_col($this->wpdb()->prepare("SELECT blog_id FROM {$this->wpdb()->blogs} where blog_id > 1"));
 			foreach ($site_blog_ids AS $blog_id) {
 				switch_to_blog( $blog_id );
@@ -738,15 +774,22 @@ class Servebolt_Optimize_DB {
 	/**
 	 * Execute table analysis query.
 	 *
-	 * @param bool $wpdb_instance
+	 * @param bool $wpdb
 	 */
-	private function analyze_tables_query($wpdb_instance = false) {
-		if ( ! $wpdb_instance ) {
-			$wpdb_instance = $this->wpdb();
-		}
-		$wpdb_instance->query( "ANALYZE TABLE {$wpdb_instance->posts}" );
-		$wpdb_instance->query( "ANALYZE TABLE {$wpdb_instance->postmeta}" );
-		$wpdb_instance->query( "ANALYZE TABLE {$wpdb_instance->options}" );
+	private function analyze_tables_query($wpdb = false) {
+		if ( ! $wpdb ) $wpdb = $this->wpdb();
+		$this->analyze_table($wpdb->posts);
+		$this->analyze_table($wpdb->postmeta);
+		$this->analyze_table($wpdb->options);
+	}
+
+	/**
+	 * Analyze table.
+	 *
+	 * @param $table_name
+	 */
+	private function analyze_table($table_name) {
+		$this->wpdb()->query("ANALYZE TABLE {$table_name}");
 	}
 
 	/**

@@ -44,7 +44,7 @@ class Servebolt_CF_Cron_Handle {
 		add_filter( 'cron_schedules', [ $this, 'add_cache_purge_cron_schedule' ] );
 
 		// Bail if we are not CLI or in WP Admin
-		if ( ! sb_is_cli() && ! is_admin() ) return;
+		if ( ! sb_is_cli() && ! is_admin() && ! sb_is_cron() ) return;
 
 		// Update cron state
 		$this->update_cron_state();

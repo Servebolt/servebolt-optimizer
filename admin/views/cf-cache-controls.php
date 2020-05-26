@@ -54,7 +54,7 @@
 
     <?php $cf_settings = sb_cf_cache_controls()->get_settings_items(); ?>
 
-    <?php if ( sb_cf()->should_user_cf_feature() ) : ?>
+    <?php if ( sb_cf()->should_use_cf_feature() ) : ?>
       <?php if ( ! sb_cf()->cf_cache_feature_available() ) : ?>
       <p><?php sb_e('Make sure you have added the API credentials and selected a zone to use this functionality.'); ?></p>
       <?php endif; ?>
@@ -70,7 +70,7 @@
     <p><?php sb_e('This feature can be set up using WP CLI or with the form below.'); ?></p>
     <p><?php echo sprintf(sb__('Run %swp servebolt cf --help%s to see available commands.'), '<code>', '</code>'); ?></p>
 
-    <form method="post" autocomplete="off" action="options.php" id="sb-configuration-form" onsubmit="<?php if ( apply_filters('sb_cf_form_validation_active', true) ) echo 'return window.sb_validate_cf_configuration_form(event);'; ?>">
+    <form method="post" autocomplete="off" action="options.php" id="sb-configuration-form">
       <?php settings_fields( 'sb-cf-options-page' ) ?>
       <?php do_settings_sections( 'sb-cf-options-page' ) ?>
 
@@ -160,6 +160,7 @@
               <input name="<?php echo sb_get_option_name('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID<?php if ( $have_zones ) echo ' or use the choices below'; ?>" value="<?php echo esc_attr($cf_settings['cf_zone_id']); ?>" class="regular-text validate-field validation-group-zone_id">
               <span class="spinner zone-loading-spinner"></span>
               <p class="invalid-message"></p>
+
               <p class="active-zone"<?php if ( ! isset($zone) || ! $zone ) echo ' style="display: none;"'; ?>><?php sb_e('Selected zone:'); ?> <span><?php if ( isset($zone) && $zone ) echo $zone->name; ?></span></p>
 
               <div class="zone-selector-container"<?php if ( ! $have_zones ) echo ' style="display: none;"'; ?>>
@@ -310,8 +311,15 @@
         <span class="spinner form-submit-spinner"></span>
       </p>
 
-
     </form>
+
+    <?php if ( apply_filters('sb_cf_form_validation_active', true) ) : ?>
+      <script>
+        document.getElementById('sb-configuration-form').addEventListener('submit', function(event) {
+          return window.sb_validate_cf_configuration_form(event);
+        });
+      </script>
+    <?php endif; ?>
 
     <?php if ( sb_is_debug() ) : ?>
 

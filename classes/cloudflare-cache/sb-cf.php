@@ -205,7 +205,7 @@ class Servebolt_CF {
 	 *
 	 * @return bool
 	 */
-	public function should_user_cf_feature() {
+	public function should_use_cf_feature() {
 		return $this->cf_is_active() && $this->cf_cache_feature_available();
 	}
 

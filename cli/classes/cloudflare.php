@@ -40,6 +40,14 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 * [--disable-validation]
 	 * : Whether to validate the input data or not.
 	 *
+	 * [--individual-zones[=<boolean>]]
+	 * : Whether to set a Zone ID for each site in multisite, or to use one Zone ID for all sites.
+	 * ---
+	 * options:
+	 *   - true
+	 *   - false
+	 * ---
+	 *
 	 * ## EXAMPLES
 	 *
 	 *     # Run setup guide
@@ -61,7 +69,12 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 		$api_key            = sb_array_get('api-key', $assoc_args);
 		$zone               = sb_array_get('zone-id', $assoc_args);
 		$disable_validation = array_key_exists( 'disable-validation', $assoc_args );
-		$params             = compact('interactive', 'affect_all_sites', 'auth_type', 'api_token', 'email', 'api_key', 'zone', 'disable_validation');
+
+		$individual_zones   = sb_array_get('individual-zones', $assoc_args);
+		$individual_zones   = array_key_exists( 'individual-zones', $assoc_args ) ? ( empty($individual_zones) ? true : filter_var($individual_zones, FILTER_VALIDATE_BOOLEAN) ) : null;
+
+		$params             = compact('interactive', 'affect_all_sites', 'auth_type', 'api_token', 'email', 'api_key', 'zone', 'disable_validation', 'individual_zones');
+
 		if ( $interactive ) {
 			$this->cf_setup_interactive($params);
 		} else {
@@ -374,9 +387,11 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 */
 	public function command_cf_get_zone($args, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) {
-				$this->cf_get_zone($site->blog_id);
+			$arr = [];
+			sb_iterate_sites(function ( $site ) use (&$arr) {
+				$arr[] = $this->cf_get_zone($site->blog_id, false);
 			});
+			WP_CLI\Utils\format_items('table', $arr, array_keys(current($arr)));
 		} else {
 			$this->cf_get_zone();
 		}
@@ -418,32 +433,57 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 		}
 
 		$zones = $this->get_zones();
+		$failCount = 1;
+		$maxFailCount = 5;
 		select_zone:
-		$this->list_zones(true);
+		$listZones = $this->list_zones(true, false);
 
-		sb_e('Select which zone you would like to set up: ');
+		if ( $listZones ) {
+			$string = 'Select which zone you would like to set up: ';
+		} else {
+			$string = 'Input Zone ID: ';
+		}
+
+		if ( $failCount == $maxFailCount ) {
+			$string = '[Last attempt] ' . $string;
+		}
+
+		sb_e($string);
 		$zone = $this->user_input(function($input) use ($zones) {
-			foreach ( $zones as $i => $zone ) {
-				if ( $i+1 == $input || $zone->id == $input || $zone->name == $input ) {
-					return $zone;
+			if ( $zones ) {
+				foreach ( $zones as $i => $zone ) {
+					if ( $i+1 == $input || $zone->id == $input || $zone->name == $input ) {
+						return $zone;
+					}
+				}
+			} else {
+				if ( ! empty($input) ) {
+					return $input;
 				}
 			}
 			return false;
 		});
 
 		if ( ! $zone ) {
+			if ( $failCount >= $maxFailCount ) {
+				WP_CLI::error('No zone selected, exiting.');
+			}
+			$failCount++;
 			WP_CLI::error(sb__('Invalid selection, please try again.'), false);
 			goto select_zone;
 		}
 
 		// Notify user if the zone domain name does not match in the site URL.
 		$home_url = get_home_url();
-		if ( strpos($home_url, $zone->name) === false ) {
+		if ( is_object($zone) && strpos($home_url, $zone->name) === false ) {
 			WP_CLI::warning(sprintf(sb__('Selected zone (%s) does not match with the URL fo the current site (%s). This will most likely inhibit cache purge to work.'), $zone->name, $home_url));
 		}
 
-		sb_cf()->store_active_zone_id($zone->id);
-		WP_CLI::success(sprintf(sb__('Successfully selected zone %s'), $zone->name));
+		$zone_id = is_object($zone) ? $zone->id : $zone;
+		$zone_name = is_object($zone) ? $zone->name : $zone_id;
+
+		sb_cf()->store_active_zone_id($zone_id);
+		WP_CLI::success(sprintf(sb__('Successfully selected zone %s'), $zone_name));
 
 	}
 
@@ -472,7 +512,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 
 
 	/**
-	 * Decide how to purge the cache - immediately or via WP cron.
+	 * Decide how to purge the cache - immediately on content update or via WP cron.
 	 *
 	 * ## OPTIONS
 	 *
@@ -571,6 +611,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 */
 	public function command_cf_purge_url($args) {
 		list($url) = $args;
+		$this->ensure_cache_purge_is_possible();
 		WP_CLI::line(sprintf(sb__('Purging cache for url %s'), $url));
 		if ( sb_cf()->purge_by_url($url) ) {
 			WP_CLI::success(sb__('Cache purged!'));
@@ -594,6 +635,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 */
 	public function command_cf_purge_post($args) {
 		list($post_id) = $args;
+		$this->ensure_cache_purge_is_possible();
 		WP_CLI::line(sprintf(sb__('Purging cache for post %s'), $post_id));
 		if ( sb_cf()->purge_post($post_id) ) {
 			WP_CLI::success(sb__('Cache purged!'));
@@ -616,6 +658,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	 *
 	 */
 	public function command_cf_purge_all($args, $assoc_args) {
+		$this->ensure_cache_purge_is_possible();
 		if ( $this->affect_all_sites( $assoc_args ) ) {
 			sb_iterate_sites(function ( $site ) {
 				if ( $this->cf_purge_all($site->blog_id) ) {

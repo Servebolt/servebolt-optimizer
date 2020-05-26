@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 /**
  * Class WP_CLI_FPC_Extra
  */
-class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
+abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 
 	/**
 	 * Display Nginx status - which post types have cache active.
