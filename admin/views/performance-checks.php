@@ -129,7 +129,7 @@
 				<td>
           <div class="status-indicator-container">
             <?php if ( $wp_cron_disabled === true ) : ?>
-            <div><img src="<?php echo SERVEBOLT_PATH_URL; ?>admin/assets/img/checked.png" width="20"></div> <span><?php sb_e('WP Cron is disabled. Remember to set on cron on the server.'); ?></span>
+            <div><img src="<?php echo SERVEBOLT_PATH_URL; ?>admin/assets/img/checked.png" width="20"></div> <span><?php sb_e('WP Cron is disabled. Remember to activate the cron on the server instead. Read more about this <a href="https://servebo.lt/vkr8-" target="_blank">here</a>.</span>'); ?></span>
             <?php else : ?>
             <div><img src="<?php echo SERVEBOLT_PATH_URL; ?>admin/assets/img/cancel.png" width="20"></div> <span><?php sb_e('WP Cron is enabled, and may slow down your site and/or degrade the sites ability to scale. This should be disabled and run with server cron. Read more about this <a href="https://servebo.lt/vkr8-" target="_blank">here</a>.</span>'); ?>
             <?php endif;?>
