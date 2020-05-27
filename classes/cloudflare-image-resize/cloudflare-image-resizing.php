@@ -42,6 +42,14 @@ class Cloudflare_Image_Resize {
 	private $original_sizes = [];
 
 	/**
+	 * Initialize image resizing.
+	 */
+	public function init() {
+		$this->init_image_resize();
+		$this->init_image_upscale();
+	}
+
+	/**
 	 * Register image resize hooks.
 	 */
 	public function init_image_resize() {
@@ -165,7 +173,6 @@ class Cloudflare_Image_Resize {
 
 		list($url, $width, $height, $is_intermediate) = $image;
 
-		$url = wp_parse_url($url);
 		$cf_params = [];
 
 		// Set max dimensions
@@ -177,7 +184,7 @@ class Cloudflare_Image_Resize {
 		}
 		$cf_params['width'] = $width;
 
-		$url[0] = $this->sb_build_image_url($url, $this->sb_default_cf_params($cf_params));
+		$image[0] = $this->sb_build_image_url($url, $this->sb_default_cf_params($cf_params));
 
 		return $image;
 	}
@@ -191,12 +198,11 @@ class Cloudflare_Image_Resize {
 	 */
 	public function alter_srcset_image_urls($sources) {
 		foreach ( $sources as $key => $value ) {
-			$url = wp_parse_url( $value['url'] );
 			$descriptor = $value['descriptor'] === 'h' ? 'height' : 'width';
 			$cf_params = $this->sb_default_cf_params([
 				$descriptor => $value['value']
 			]);
-			$sources[$key]['url'] = $this->sb_build_image_url($url, $cf_params);
+			$sources[$key]['url'] = $this->sb_build_image_url($value['url'], $cf_params);
 		}
 		return $sources;
 	}
@@ -225,6 +231,7 @@ class Cloudflare_Image_Resize {
 	 * @return string
 	 */
 	private function sb_build_image_url($url, $cf_params = []) {
+		$url = wp_parse_url($url);
 		$cdi_uri = '/cdn-cgi/image/';
 		$cf_parameter_string = $this->implode_parameters($cf_params);
 		$altered_url = $url['scheme'] . '://' . $url['host'] . $cdi_uri . $cf_parameter_string . $url['path'];
