@@ -77,10 +77,12 @@ class SB_CF_SDK {
 			case 'POST':
 				$response = wp_remote_post($request_url, $args);
 				break;
+			/*
 			case 'DELETE':
 				$args['method'] = 'DELETE';
 				$response = wp_remote_request($request_url, $args);
 				break;
+			*/
 			default:
 				return false;
 		}

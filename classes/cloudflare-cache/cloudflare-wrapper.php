@@ -117,7 +117,7 @@ class Cloudflare extends SB_CF_SDK {
 		$zone_id = $this->get_zone_id();
 		if ( ! $zone_id || empty($zone_id) ) return false;
 		try {
-			$request = $this->request('zones/' . $zone_id . '/purge_cache', 'DELETE', [
+			$request = $this->request('zones/' . $zone_id . '/purge_cache', 'POST', [
 				'files' => $urls,
 			]);
 			if ( isset($request['json']->result->id) ) {
@@ -138,7 +138,7 @@ class Cloudflare extends SB_CF_SDK {
 		$zone_id = $this->get_zone_id();
 		if ( ! $zone_id || empty($zone_id) ) return false;
 		try {
-			$request = $this->request('zones/' . $zone_id . '/purge_cache', 'DELETE', [
+			$request = $this->request('zones/' . $zone_id . '/purge_cache', 'POST', [
 				'purge_everything' => true,
 			]);
 			if ( isset($request['json']->result->id) ) {
