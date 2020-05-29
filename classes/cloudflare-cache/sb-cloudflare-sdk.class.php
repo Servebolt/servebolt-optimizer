@@ -9,11 +9,27 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class SB_CF_SDK {
 
 	/**
+	 * Whether to debug requests to log.
+	 *
+	 * @var bool
+	 */
+	protected $request_debug = false;
+
+	/**
 	 * Cloudflare API URL.
 	 *
 	 * @var string
 	 */
 	private $base_uri = 'https://api.cloudflare.com/client/v4/';
+
+	/**
+	 * Whether to debug or not.
+	 *
+	 * @return bool
+	 */
+	private function debug() {
+		return (bool) apply_filters('sb_optimizer_cf_api_request_debug', $this->request_debug);
+	}
 
 	/**
 	 * Prepare request headers.
@@ -91,7 +107,13 @@ class SB_CF_SDK {
 		$body      = wp_remote_retrieve_body($response);
 		$json      = json_decode($body);
 
-		return compact('http_code', 'response', 'body', 'json');
+		$result = compact('http_code', 'response', 'body', 'json');
+
+		if ( $this->debug() ) {
+			error_log(json_encode($result));
+		}
+
+		return $result;
 	}
 
 }
