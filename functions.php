@@ -107,7 +107,7 @@ if ( ! function_exists('sb_cf') ) {
   /**
    * Get Servebolt_Checks-instance.
    *
-   * @return Servebolt_Checks|null
+   * @return Servebolt_CF|null
    */
   function sb_cf() {
     require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf.php';

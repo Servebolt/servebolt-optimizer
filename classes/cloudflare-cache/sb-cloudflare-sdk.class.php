@@ -18,11 +18,11 @@ class SB_CF_SDK {
 	/**
 	 * Prepare request headers.
 	 *
-	 * @param $additional_headers
+	 * @param array $additional_headers
 	 *
 	 * @return array
 	 */
-	private function prepare_request_headers ($additional_headers) {
+	private function prepare_request_headers (array $additional_headers = []): array {
 		$headers = [
 			'Content-Type' => 'application/json',
 			'Accept'       => 'application/json',
@@ -42,7 +42,7 @@ class SB_CF_SDK {
 	/**
 	 * Send request.
 	 *
-	 * @param $uri
+	 * @param string $uri
 	 * @param string $method
 	 * @param array $data
 	 * @param array $headers
@@ -50,17 +50,27 @@ class SB_CF_SDK {
 	 *
 	 * @return array|bool
 	 */
-	protected function request($uri, $method = 'GET', $data = [], $headers = [], $additional_args = []) {
-
-		$headers = $this->prepare_request_headers($headers);
+	protected function request(string $uri, string $method = 'GET', array $data = [], array $headers = [], array $additional_args = []) {
+		$method = strtoupper($method);
 		$request_url = $this->base_uri . $uri;
+		$base_args = [
+			'headers' => $headers = $this->prepare_request_headers($headers)
+		];
 
-		$args = array_merge([
-			'headers'     => $headers = $this->prepare_request_headers($headers),
-			'body'        => json_encode($data),
-		], $additional_args);
+		// Convert data-parameters to JSON for selected request methods
+		if ( in_array($method, ['POST']) ) {
+			$data = json_encode($data);
+		}
 
-		switch (strtoupper($method)) {
+
+		// Add request data only if present
+		if ( ! empty($data) ) {
+			$base_args['body'] = $data;
+		}
+
+		$args = array_merge($base_args, $additional_args);
+
+		switch ( $method ) {
 			case 'GET':
 				$response = wp_remote_get($request_url, $args);
 				break;
