@@ -67,10 +67,10 @@ if ( sb_feature_active('cf_image_resize') && ( sb_cf_image_resize_control() )->r
 // Register cron schedule and cache purge event
 require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cron.php';
 
-if ( is_admin() ) {
+// Register cache purge event for various hooks
+require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-hook-register.php';
 
-	// Register cache purge event when saving post
-	require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-post-save-action.php';
+if ( is_admin() ) {
 
 	// Load this plugins interface
 	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';

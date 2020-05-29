@@ -7,7 +7,7 @@ require_once __DIR__ . '/sb-cloudflare-sdk.class.php';
  * Class Cloudflare
  * @package Servebolt
  *
- * This class acts as a layer between our WordPress plugin-code and the Cloudflare PHP SDK. This class facilitates setting up then SDK, passing along credentials etc.
+ * The class communicates with the Cloudflare API using the WP HTTP API-functions.
  */
 class Cloudflare extends SB_CF_SDK {
 
