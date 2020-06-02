@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 require_once SERVEBOLT_PATH . 'admin/log-viewer.php';
 require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
 require_once SERVEBOLT_PATH . 'admin/nginx-fpc-controls.php';
-require_once SERVEBOLT_PATH . 'admin/cf-cache-controls.php';
+require_once SERVEBOLT_PATH . 'admin/cf-cache-admin-controls.php';
 require_once SERVEBOLT_PATH . 'admin/cf-image-resizing.php';
 require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
 
@@ -49,7 +49,7 @@ class Servebolt_Admin_Interface {
 	 */
 	private function add_sub_menu_items() {
 		add_submenu_page('servebolt-wp', sb__('Performance optimizer'), sb__('Performance optimizer'), 'manage_options', 'servebolt-performance-tools', [$this, 'performance_callback']);
-		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf', [$this, 'cf_cache_callback']);
+		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache-control', [$this, 'cf_cache_callback']);
 
 		if ( sb_feature_active('cf_image_resize') ) {
 			add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [$this, 'cf_image_resizing_callback']);
@@ -74,7 +74,7 @@ class Servebolt_Admin_Interface {
 		if ( ! apply_filters('sb_optimizer_display_menu', true) ) return;
 		add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'general_page_callback'], SERVEBOLT_PATH_URL . 'admin/assets/img/servebolt-icon.svg' );
 		add_submenu_page('servebolt-wp', sb__('General'), sb__('General'), 'manage_options', 'servebolt-wp');
-		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf', [$this, 'cf_cache_callback']);
+		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache-control', [$this, 'cf_cache_callback']);
 
 		if ( sb_feature_active('cf_image_resize') ) {
 			add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [$this, 'cf_image_resizing_callback']);
@@ -154,7 +154,7 @@ class Servebolt_Admin_Interface {
 	 * Display the Cloudflare Cache control page.
 	 */
 	public function cf_cache_callback() {
-		sb_cf_cache_controls()->view();
+		sb_cf_cache_admin_controls()->view();
 	}
 
 	/**

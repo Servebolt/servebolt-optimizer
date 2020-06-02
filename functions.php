@@ -173,9 +173,9 @@ if ( ! function_exists('sb_cf_cache_controls') ) {
    *
    * @return Servebolt_Checks|null
    */
-  function sb_cf_cache_controls() {
-    require_once SERVEBOLT_PATH . 'admin/cf-cache-controls.php';
-    return CF_Cache_Controls::get_instance();
+  function sb_cf_cache_admin_controls() {
+    require_once SERVEBOLT_PATH . 'admin/cf-cache-admin-controls.php';
+    return CF_Cache_Admin_Controls::get_instance();
   }
 }
 

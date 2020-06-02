@@ -24,7 +24,7 @@ class CF_Image_Resizing {
 	}
 
 	/**
-	 * CF_Cache_Controls constructor.
+	 * CF_Image_Resizing constructor.
 	 */
 	private function __construct() {
 		$this->init_settings();

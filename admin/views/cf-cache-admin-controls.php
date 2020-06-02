@@ -52,7 +52,7 @@
 
   <?php else : ?>
 
-    <?php $cf_settings = sb_cf_cache_controls()->get_settings_items(); ?>
+    <?php $cf_settings = sb_cf_cache_admin_controls()->get_settings_items(); ?>
 
     <?php if ( sb_cf()->should_use_cf_feature() ) : ?>
       <?php if ( ! sb_cf()->cf_cache_feature_available() ) : ?>

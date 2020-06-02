@@ -2,9 +2,9 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
- * Class CF_Cache_Controls
+ * Class CF_Cache_Admin_Controls
  */
-class CF_Cache_Controls {
+class CF_Cache_Admin_Controls {
 
 	/**
 	 * @var null Singleton instance.
@@ -14,17 +14,17 @@ class CF_Cache_Controls {
 	/**
 	 * Singleton instantiation.
 	 *
-	 * @return CF_Cache_Controls|null
+	 * @return CF_Cache_Admin_Controls|null
 	 */
 	public static function get_instance() {
 		if ( self::$instance == null ) {
-			self::$instance = new CF_Cache_Controls;
+			self::$instance = new CF_Cache_Admin_Controls;
 		}
 		return self::$instance;
 	}
 
 	/**
-	 * CF_Cache_Controls constructor.
+	 * CF_Cache_Admin_Controls constructor.
 	 */
 	private function __construct() {
 		$this->add_ajax_handling();
@@ -498,8 +498,8 @@ class CF_Cache_Controls {
 	 * Display view.
 	 */
 	public function view() {
-		sb_view('admin/views/cf-cache-controls');
+		sb_view('admin/views/cf-cache-admin-controls');
 	}
 
 }
-CF_Cache_Controls::get_instance();
+CF_Cache_Admin_Controls::get_instance();
