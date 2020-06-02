@@ -59,7 +59,7 @@ class Servebolt_CF_Cache_Cron_Handle {
 	public function update_cron_state($blog_id = false) {
 
 		// Check if we should use cron-based cache purging
-		if ( ! sb_cf()->cf_is_active($blog_id) || ! sb_cf()->cron_purge_is_active(true, $blog_id) || ! sb_cf()->should_purge_cache_queue() ) {
+		if ( ! sb_cf_cache()->cf_is_active($blog_id) || ! sb_cf_cache()->cron_purge_is_active(true, $blog_id) || ! sb_cf_cache()->should_purge_cache_queue() ) {
 
 			// Un-schedule task
 			$this->deregister_cron($blog_id);
@@ -79,7 +79,7 @@ class Servebolt_CF_Cache_Cron_Handle {
 	 */
 	public function deregister_cron($blog_id = false) {
 		if ( $blog_id ) switch_to_blog( $blog_id );
-		$cron_key = sb_cf()->get_cron_key();
+		$cron_key = sb_cf_cache()->get_cron_key();
 		if ( ! wp_next_scheduled($cron_key) ) {
 			wp_clear_scheduled_hook($cron_key);
 		}
@@ -93,8 +93,8 @@ class Servebolt_CF_Cache_Cron_Handle {
 	 */
 	public function register_cron($blog_id = false) {
 		if ( $blog_id ) switch_to_blog( $blog_id );
-		$cron_key = sb_cf()->get_cron_key();
-		add_action( $cron_key, [sb_cf(), 'purge_by_cron'] );
+		$cron_key = sb_cf_cache()->get_cron_key();
+		add_action( $cron_key, [sb_cf_cache(), 'purge_by_cron'] );
 		if ( ! wp_next_scheduled($cron_key) ) {
 			wp_schedule_event( time(), 'every_minute', $cron_key );
 		}

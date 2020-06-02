@@ -161,8 +161,8 @@ if ( ! function_exists('sb_cf') ) {
    *
    * @return Servebolt_CF_Cache|null
    */
-  function sb_cf() {
-    require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf.php';
+  function sb_cf_cache() {
+    require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
     return Servebolt_CF_Cache::get_instance();
   }
 }

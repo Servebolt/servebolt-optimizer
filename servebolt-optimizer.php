@@ -48,7 +48,7 @@ if ( is_admin() || sb_is_cli() || sb_is_cron() ) {
 	require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
 
 	// Include the Servebolt Cloudflare class
-	require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf.php';
+	require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
 
 }
 

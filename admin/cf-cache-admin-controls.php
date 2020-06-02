@@ -95,7 +95,7 @@ class CF_Cache_Admin_Controls {
 			foreach ( $items as $item ) {
 				switch ($item) {
 					case 'cf_switch':
-						$items_with_values[$item] = sb_cf()->cf_is_active();
+						$items_with_values[$item] = sb_cf_cache()->cf_is_active();
 						break;
 					case 'cf_auth_type':
 						$value = sb_get_option($item);
@@ -146,7 +146,7 @@ class CF_Cache_Admin_Controls {
 
 		$items_to_remove = sb_array_get('items', $_POST);
 		if ( $items_to_remove === 'all' ) {
-			sb_cf()->set_items_to_purge([]);
+			sb_cf_cache()->set_items_to_purge([]);
 			wp_send_json_success();
 		}
 		if ( ! $items_to_remove || empty($items_to_remove) ) wp_send_json_error();
@@ -154,12 +154,12 @@ class CF_Cache_Admin_Controls {
 		$items_to_remove = array_filter($items_to_remove, function ($item) {
 			return is_numeric($item) || is_string($item);
 		});
-		$current_items = sb_cf()->get_items_to_purge();
+		$current_items = sb_cf_cache()->get_items_to_purge();
 		if ( ! is_array($current_items) ) $current_items = [];
 		$updated_items = array_filter($current_items, function($item) use ($items_to_remove) {
 			return ! in_array($item, $items_to_remove);
 		});
-		sb_cf()->set_items_to_purge($updated_items);
+		sb_cf_cache()->set_items_to_purge($updated_items);
 		wp_send_json_success();
 	}
 
@@ -179,15 +179,15 @@ class CF_Cache_Admin_Controls {
 		try {
 			switch ($auth_type) {
 				case 'api_token':
-					sb_cf()->cf()->set_credentials('api_token', compact('api_token'));
+					sb_cf_cache()->cf()->set_credentials('api_token', compact('api_token'));
 					break;
 				case 'api_key':
-					sb_cf()->cf()->set_credentials('api_key', compact('email', 'api_key'));
+					sb_cf_cache()->cf()->set_credentials('api_key', compact('email', 'api_key'));
 					break;
 				default:
 					throw new Exception;
 			}
-			$zone = sb_cf()->get_zone_by_id($zone_id);
+			$zone = sb_cf_cache()->get_zone_by_id($zone_id);
 			if ( $zone && isset($zone->name) ) {
 				return wp_send_json_success([
 					'zone' => $zone->name,
@@ -224,8 +224,8 @@ class CF_Cache_Admin_Controls {
 		$auth_type = sanitize_text_field($_POST['auth_type']);
 		$credentials = sb_array_get('credentials', $_POST);
 		try {
-			sb_cf()->cf()->set_credentials($auth_type, $credentials);
-			$zones = sb_cf()->cf()->list_zones();
+			sb_cf_cache()->cf()->set_credentials($auth_type, $credentials);
+			$zones = sb_cf_cache()->cf()->list_zones();
 			if ( ! empty($zones) ) {
 				wp_send_json_success([
 					'markup' => $this->generate_zone_list_markup($zones),
@@ -265,9 +265,9 @@ class CF_Cache_Admin_Controls {
 				if ( empty($api_token) ) {
 					$errors['api_token'] = sb__('You need to provide an API token.');
 				} else {
-					sb_cf()->cf()->set_credentials('api_token', compact('api_token'));
+					sb_cf_cache()->cf()->set_credentials('api_token', compact('api_token'));
 					try {
-						if ( ! sb_cf()->cf()->verify_token() ) {
+						if ( ! sb_cf_cache()->cf()->verify_token() ) {
 							throw new Exception;
 						}
 						$validate_zone = true;
@@ -286,9 +286,9 @@ class CF_Cache_Admin_Controls {
 				}
 
 				if ( ! empty($email) && ! empty($api_key) ) {
-					sb_cf()->cf()->set_credentials('api_key', compact('email', 'api_key'));
+					sb_cf_cache()->cf()->set_credentials('api_key', compact('email', 'api_key'));
 					try {
-						if ( ! sb_cf()->cf()->verify_user() ) {
+						if ( ! sb_cf_cache()->cf()->verify_user() ) {
 							throw new Exception;
 						}
 						$validate_zone = true;
@@ -308,7 +308,7 @@ class CF_Cache_Admin_Controls {
 				$errors['zone_id'] = sb__('You need to provide a zone.');
 			} else {
 				try {
-					if ( ! $zone_id = sb_cf()->cf()->get_zone_by_id($zone_id) ) {
+					if ( ! $zone_id = sb_cf_cache()->cf()->get_zone_by_id($zone_id) ) {
 						throw new Exception;
 					}
 				} catch (Exception $e) {
@@ -359,7 +359,7 @@ class CF_Cache_Admin_Controls {
 		sb_iterate_sites(function($site) use (&$failed, &$has_queue_purge_active) {
 
 			// Switch context to blog
-			if ( sb_cf()->cf_switch_to_blog($site->blog_id) === false ) {
+			if ( sb_cf_cache()->cf_switch_to_blog($site->blog_id) === false ) {
 				$failed[] = [
 					'blog_id' => $site->blog_id,
 					'reason' => false,
@@ -368,12 +368,12 @@ class CF_Cache_Admin_Controls {
 			}
 
 			// Flag that at least one of the blogs has the queue-based cache purge feature active
-			if ( sb_cf()->cron_purge_is_active() ) {
+			if ( sb_cf_cache()->cron_purge_is_active() ) {
 				$has_queue_purge_active = true;
 			}
 
 			// Check if we should use Cloudflare
-			if ( ! sb_cf()->should_use_cf_feature() ) {
+			if ( ! sb_cf_cache()->should_use_cf_feature() ) {
 				$failed[] = [
 					'blog_id' => $site->blog_id,
 					'reason'  => sb__('Cloudflare feature not active/available'),
@@ -382,7 +382,7 @@ class CF_Cache_Admin_Controls {
 			}
 
 			// Purge all cache
-			if ( ! sb_cf()->purge_all() ) {
+			if ( ! sb_cf_cache()->purge_all() ) {
 				$failed[] = [
 					'blog_id' => $site->blog_id,
 					'reason'  => false,
@@ -435,15 +435,15 @@ class CF_Cache_Admin_Controls {
 	public function purge_all_cache_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
 		sb_ajax_user_allowed();
-		if ( ! sb_cf()->cf_cache_feature_available() ) {
+		if ( ! sb_cf_cache()->cf_cache_feature_available() ) {
 			wp_send_json_error( [ 'message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.' ] );
-		} elseif ( sb_cf()->cron_purge_is_active() && sb_cf()->has_purge_all_request_in_queue() ) {
+		} elseif ( sb_cf_cache()->cron_purge_is_active() && sb_cf_cache()->has_purge_all_request_in_queue() ) {
 			wp_send_json_error( [
 				'type'    => 'warning',
 				'message' => 'A purge all-request is already queued.',
 				'title'   => 'Woops!',
 			] );
-		} elseif ( sb_cf()->purge_all() ) {
+		} elseif ( sb_cf_cache()->purge_all() ) {
 			wp_send_json_success();
 		} else {
 			wp_send_json_error();
@@ -463,11 +463,11 @@ class CF_Cache_Admin_Controls {
 			wp_send_json_error( [ 'message' => sprintf( 'This string "%s" is used by the system and is not allowed for post-based cache purge.', sb_purge_all_item_name()) ] );
 		} elseif ( ! sb_post_exists($post_id) ) {
 			wp_send_json_error( [ 'message' => 'The specified post does not exist.' ] );
-		} elseif ( ! sb_cf()->cf_cache_feature_available() ) {
+		} elseif ( ! sb_cf_cache()->cf_cache_feature_available() ) {
 			wp_send_json_error(['message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.']);
-		} elseif ( sb_cf()->purge_by_post($post_id) ) {
+		} elseif ( sb_cf_cache()->purge_by_post($post_id) ) {
 			wp_send_json_success([
-				'message' => sb_cf()->cron_purge_is_active() ? 'A cache purge request was added to the queue.' : 'Post cache was purged.'
+				'message' => sb_cf_cache()->cron_purge_is_active() ? 'A cache purge request was added to the queue.' : 'Post cache was purged.'
 			]);
 		} else {
 			wp_send_json_error();
@@ -485,11 +485,11 @@ class CF_Cache_Admin_Controls {
 			wp_send_json_error( [ 'message' => 'Please specify the URL you would like to purge cache for.' ] );
 		} elseif ( strpos($url, sb_purge_all_item_name()) !== false ) {
 			wp_send_json_error( [ 'message' => sprintf( 'This string "%s" is used by the system and is not allowed for URL-based cache purge.', sb_purge_all_item_name()) ] );
-		} elseif ( ! sb_cf()->cf_cache_feature_available() ) {
+		} elseif ( ! sb_cf_cache()->cf_cache_feature_available() ) {
 			wp_send_json_error(['message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.']);
-		} elseif ( sb_cf()->purge_by_url($url) ) {
+		} elseif ( sb_cf_cache()->purge_by_url($url) ) {
 			wp_send_json_success([
-				'message' => sb_cf()->cron_purge_is_active() ? sprintf('A cache purge request was added to the queue.', ) : sprintf('Cache was purged for URL.', )
+				'message' => sb_cf_cache()->cron_purge_is_active() ? sprintf('A cache purge request was added to the queue.', ) : sprintf('Cache was purged for URL.', )
 			]);
 		} else {
 			wp_send_json_error();

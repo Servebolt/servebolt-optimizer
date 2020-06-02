@@ -4,7 +4,7 @@
 	<h1><?php sb_e('Cloudflare Cache'); ?></h1>
 
 	<?php $max_number_of_cache_purge_queue_items = (int) apply_filters('sb_optimizer_purge_item_list_limit', 500); ?>
-  <?php $number_of_cache_purge_queue_items = sb_cf()->count_items_to_purge(); ?>
+  <?php $number_of_cache_purge_queue_items = sb_cf_cache()->count_items_to_purge(); ?>
 	<?php if ( ! is_network_admin() ) : ?>
 		<?php if ( $number_of_cache_purge_queue_items > $max_number_of_cache_purge_queue_items ) : ?>
         <div class="notice notice-warning">
@@ -43,7 +43,7 @@
         <tr>
           <td><?php echo $site->blog_id; ?></td>
           <td><?php echo $site->domain . $site->path; ?></td>
-          <td><?php echo sb_cf()->cf_is_active($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
+          <td><?php echo sb_cf_cache()->cf_is_active($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
           <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-cf' ); ?>" class="button btn"><?php sb_e('Go to site Cloudflare settings'); ?></a></td>
         </tr>
 	  <?php endforeach; ?>
@@ -54,8 +54,8 @@
 
     <?php $cf_settings = sb_cf_cache_admin_controls()->get_settings_items(); ?>
 
-    <?php if ( sb_cf()->should_use_cf_feature() ) : ?>
-      <?php if ( ! sb_cf()->cf_cache_feature_available() ) : ?>
+    <?php if ( sb_cf_cache()->should_use_cf_feature() ) : ?>
+      <?php if ( ! sb_cf_cache()->cf_cache_feature_available() ) : ?>
       <p><?php sb_e('Make sure you have added the API credentials and selected a zone to use this functionality.'); ?></p>
       <?php endif; ?>
 
@@ -118,7 +118,7 @@
               </div>
 
               <p class="invalid-message"></p>
-              <p><small><?php echo sprintf(sb__('Make sure to add permissions for %s when creating a token.'), sb_cf()->api_permissions_needed()); ?></small></p>
+              <p><small><?php echo sprintf(sb__('Make sure to add permissions for %s when creating a token.'), sb_cf_cache()->api_permissions_needed()); ?></small></p>
             </td>
           </tr>
           <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
@@ -152,9 +152,9 @@
 
               <?php
 
-                $zone = $cf_settings['cf_zone_id'] ? sb_cf()->get_zone_by_id($cf_settings['cf_zone_id']) : false;
+                $zone = $cf_settings['cf_zone_id'] ? sb_cf_cache()->get_zone_by_id($cf_settings['cf_zone_id']) : false;
                 $have_zones = false;
-                $zones = sb_cf()->list_zones();
+                $zones = sb_cf_cache()->list_zones();
                 $have_zones = ( is_array($zones) && ! empty($zones) );
               ?>
 
@@ -204,7 +204,7 @@
           <tr class="sb-toggle-active-cron-item<?php if ( ! $cf_settings['cf_cron_purge'] ) echo ' cf-hidden-cron'; ?>">
             <td colspan="2" style="padding-top:0;padding-left:0;">
 
-              <?php $items_to_purge = sb_cf()->get_items_to_purge($max_number_of_cache_purge_queue_items); ?>
+              <?php $items_to_purge = sb_cf_cache()->get_items_to_purge($max_number_of_cache_purge_queue_items); ?>
 
               <div class="tablenav top">
                 <div class="alignleft actions bulkactions">
@@ -343,17 +343,17 @@
         <h2><?php sb_e('Cron debug'); ?></h2>
         <p><?php sb_e('Cron is active:'); ?> <?php
 
-          $next_run_timestamp = sb_get_next_cron_time(sb_cf()->get_cron_key());
+          $next_run_timestamp = sb_get_next_cron_time(sb_cf_cache()->get_cron_key());
 
-          if ( sb_cf()->cron_purge_is_active(false) ) {
+          if ( sb_cf_cache()->cron_purge_is_active(false) ) {
 
-            if ( sb_cf()->cron_active_state_override() ) {
+            if ( sb_cf_cache()->cron_active_state_override() ) {
               sb_e('Yes, due to constant "SERVEBOLT_CF_PURGE_CRON" being set to "true');
             } else {
               sb_e('Yes');
             }
 
-            if ( sb_cf()->should_purge_cache_queue() ) {
+            if ( sb_cf_cache()->should_purge_cache_queue() ) {
               sb_e('. Note that cache purge requests are only added to the queue, not executed. This is due to the constant "SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE" being set to "false".');
             }
 
@@ -362,7 +362,7 @@
           }
 
         ?></p>
-        <p><?php sb_e('Cron schedule hook:'); ?> <?php echo sb_cf()->get_cron_key(); ?></p>
+        <p><?php sb_e('Cron schedule hook:'); ?> <?php echo sb_cf_cache()->get_cron_key(); ?></p>
         <p><?php sb_e('Next run:'); ?> <?php echo $next_run_timestamp ? date_i18n('Y-m-d H:i:s', $next_run_timestamp) : '-'; ?></p>
 
       </div>

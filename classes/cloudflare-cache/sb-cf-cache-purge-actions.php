@@ -23,7 +23,7 @@ class SB_CF_Cache_Purge_Actions {
 	private function register_actions() {
 
 		// Check if Cloudflare cache purge feature is active
-		if ( ! sb_cf()->cf_is_active() ) return;
+		if ( ! sb_cf_cache()->cf_is_active() ) return;
 
 		// Should skip all automatic cache purge?
 		if ( apply_filters('sb_optimizer_disable_automatic_purge', false) ) return;
@@ -87,7 +87,7 @@ class SB_CF_Cache_Purge_Actions {
 	 */
 	private function maybe_purge_post($post_id) {
 		if ( ! $this->should_purge_post_cache($post_id) ) return;
-		sb_cf()->purge_post($post_id);
+		sb_cf_cache()->purge_post($post_id);
 	}
 
 	/**

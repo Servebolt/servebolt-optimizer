@@ -221,7 +221,7 @@ class Servebolt_Admin_Interface {
 		}
 
 		if ( ! is_network_admin() ) {
-			$cache_purge_available = sb_cf()->should_use_cf_feature();
+			$cache_purge_available = sb_cf_cache()->should_use_cf_feature();
 			if ( $cache_purge_available ) {
 				$nodes[] = [
 					'id'    => 'servebolt-clear-cf-cache',
