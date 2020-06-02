@@ -32,6 +32,58 @@ if ( ! function_exists('sb_cloudflare_proxy_in_use') ) {
 	}
 }
 
+if ( ! function_exists('sb_smart_update_option') ) {
+	/**
+   * A function that will store the option at the right place (in current blog or a specified blog).
+   *
+	 * @param $blog_id
+	 * @param $option_name
+	 * @param $value
+	 * @param bool $assert_update
+	 *
+	 * @return bool|mixed
+	 */
+	function sb_smart_update_option($blog_id, $option_name, $value, $assert_update = true) {
+		if ( is_numeric($blog_id) ) {
+			$result = sb_update_blog_option($blog_id, $option_name, $value, $assert_update);
+		} else {
+			$result = sb_update_option($option_name, $value, $assert_update);
+		}
+		return $result;
+	}
+}
+
+if ( ! function_exists('sb_smart_get_option') ) {
+	/**
+	 * A function that will get the option at the right place (in current blog or a specified blog).
+	 *
+	 * @param $blog_id
+	 * @param $option_name
+	 * @param bool $default
+	 *
+	 * @return mixed|void
+	 */
+	function sb_smart_get_option($blog_id, $option_name, $default = false) {
+		if ( is_numeric($blog_id) ) {
+			$result = sb_get_blog_option($blog_id, $option_name, $default);
+		} else {
+			$result = sb_get_option($option_name, $default);
+		}
+		return $result;
+	}
+}
+
+if ( ! function_exists('sb_purge_all_item_name') ) {
+	/**
+   * The string used to store the purge all request in the purge queue.
+   *
+	 * @return string
+	 */
+  function sb_purge_all_item_name() {
+    return '---purge-all-request---';
+  }
+}
+
 if ( ! function_exists('sb_feature_active') ) {
 	/**
    * Check whether a feature is active.

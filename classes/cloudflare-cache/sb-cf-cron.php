@@ -43,7 +43,7 @@ class Servebolt_CF_Cron_Handle {
 		// Add schedule for execution every minute
 		add_filter( 'cron_schedules', [ $this, 'add_cache_purge_cron_schedule' ] );
 
-		// Bail if we are not CLI or in WP Admin
+		// Bail if we are not CLI or in WP Admin or cron running
 		if ( ! sb_is_cli() && ! is_admin() && ! sb_is_cron() ) return;
 
 		// Update cron state
@@ -88,6 +88,8 @@ class Servebolt_CF_Cron_Handle {
 
 	/**
 	 * Add cron-based cache purge task from schedule.
+	 *
+	 * @param bool $blog_id
 	 */
 	public function register_cron($blog_id = false) {
 		if ( $blog_id ) switch_to_blog( $blog_id );

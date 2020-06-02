@@ -83,7 +83,7 @@ class Cloudflare extends SB_CF_SDK {
 	 *
 	 * @return bool
 	 */
-	public function verify_token(bool $token = false) {
+	public function verify_token($token = false) {
 		if ( ! $token ) {
 			$token = $this->get_credential('api_token');
 		}
@@ -114,8 +114,26 @@ class Cloudflare extends SB_CF_SDK {
 	 * @return bool|void
 	 */
 	public function purge_urls(array $urls) {
+
 		$zone_id = $this->get_zone_id();
 		if ( ! $zone_id || empty($zone_id) ) return false;
+
+		// Check if we should purge all - and remove the 'all'-record from the URL-array which will be sent in a purge-by-url request.
+		$should_purge_all = in_array(sb_purge_all_item_name(), $urls);
+
+		// Only keep the URL's in the cache purge queue array
+		$urls = array_filter( $urls, function($url) {
+			return $url !== sb_purge_all_item_name();
+		} );
+
+		// Purge all, return error if we cannot execute
+		if ( $should_purge_all ) {
+			$purge_all_request = $this->purge_all($zone_id);
+			if ( $purge_all_request !== true ) {
+				return $purge_all_request;
+			}
+		}
+
 		try {
 			$request = $this->request('zones/' . $zone_id . '/purge_cache', 'POST', [
 				'files' => $urls,
@@ -132,10 +150,14 @@ class Cloudflare extends SB_CF_SDK {
 	/**
 	 * Purge all URL's in a zone.
 	 *
+	 * @param bool $zone_id
+	 *
 	 * @return bool
 	 */
-	public function purge_all() {
-		$zone_id = $this->get_zone_id();
+	public function purge_all($zone_id = false) {
+		if ( ! $zone_id ) {
+			$zone_id = $this->get_zone_id();
+		}
 		if ( ! $zone_id || empty($zone_id) ) return false;
 		try {
 			$request = $this->request('zones/' . $zone_id . '/purge_cache', 'POST', [
@@ -179,7 +201,7 @@ class Cloudflare extends SB_CF_SDK {
 	 */
 	public function get_credential(string $key) {
 		$credentials = $this->get_credentials();
-		if ( $credentials && array_key_exists($key, $credentials ) ) {
+		if ( $credentials && array_key_exists($key, $credentials) ) {
 			return $credentials[$key];
 		}
 		return false;

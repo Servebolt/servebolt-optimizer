@@ -239,19 +239,26 @@
 
                 <tbody id="the-list">
                   <tr class="no-items<?php if ( count($items_to_purge) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php sb_e('No purge items found.'); ?></td></tr>
-                  <?php foreach($items_to_purge as $i => $item) : ?>
+                  <?php foreach ( $items_to_purge as $i => $item ) : ?>
                   <?php
+
+	                  $is_purge_all = false;
+	                  $is_post = false;
+	                  $is_url = true;
+
                     if ( is_numeric($item) && $post = get_post($item) ) {
-                      $is_post = true;
-                      $title = get_the_title($item);
-                      $url = get_permalink($item);
-                      $is_url = true;
+                      $is_post  = true;
+                      $title    = get_the_title($item);
+                      $url      = get_permalink($item);
 	                    $edit_url = get_edit_post_link($item);
+                    } elseif( $item == sb_purge_all_item_name() ) {
+	                    $is_url       = false;
+	                    $is_purge_all = true;
                     } else {
-                      $is_post = false;
                       $url = $item;
                       $is_url = filter_var($item, FILTER_VALIDATE_URL) !== false;
                     }
+
                   ?>
                   <tr class="purge-item">
                     <th scope="row" class="check-column">
@@ -271,6 +278,13 @@
                       </div>
                     </td>
                     <td class="purge-item-column"><strong><?php echo $title; ?></strong></td>
+                    <?php elseif ($is_purge_all) : ?>
+                    <td class="column-post-id has-row-actions purge-item-column" colspan="2">
+                      <?php sb_e('Purge all-request') ?>
+                      <div class="row-actions">
+                        <span class="trash"><a href="#" class="remove-purge-item-from-queue"><?php sb_e('Delete'); ?></a><?php if ( $is_url ) : ?> | <?php endif; ?></span>
+                      </div>
+                    </td>
                     <?php else : ?>
                     <td class="column-post-id has-row-actions purge-item-column" colspan="2">
                       <?php sb_e('Purged via URL only, no post object available.') ?>

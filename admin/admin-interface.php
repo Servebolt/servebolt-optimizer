@@ -196,10 +196,10 @@ class Servebolt_Admin_Interface {
 
 		if ( $admin_url = sb_get_admin_url() ) {
 			$nodes[] = [
-				'id'     => 'servebolt-crontrol-panel',
-				'title'  => sb__('Servebolt Control Panel'),
-				'href'   => $admin_url,
-				'meta'   => [
+				'id'    => 'servebolt-crontrol-panel',
+				'title' => sb__('Servebolt Control Panel'),
+				'href'  => $admin_url,
+				'meta'  => [
 					'target' => '_blank',
 					'class' => 'sb-admin-button'
 				]
@@ -208,10 +208,10 @@ class Servebolt_Admin_Interface {
 
 		if ( is_network_admin() ) {
 			$nodes[] = [
-				'id'     => 'servebolt-clear-cf-network-cache',
-				'title'  => sb__('Purge Cloudflare Cache for all sites'),
-				'href'   => '#',
-				'meta'   => [
+				'id'    => 'servebolt-clear-cf-network-cache',
+				'title' => sb__('Purge Cloudflare Cache for all sites'),
+				'href'  => '#',
+				'meta'  => [
 					'target' => '_blank',
 					'class' => 'sb-admin-button sb-purge-network-cache'
 				]
@@ -222,22 +222,33 @@ class Servebolt_Admin_Interface {
 			$cache_purge_available = sb_cf()->should_use_cf_feature();
 			if ( $cache_purge_available ) {
 				$nodes[] = [
-					'id'     => 'servebolt-clear-cf-cache',
-					'title'  => sb__('Purge Cloudflare Cache'),
-					'href'   => '#',
-					'meta'   => [
-						'target' => '_blank',
+					'id'    => 'servebolt-clear-cf-cache',
+					'title' => sb__('Purge All Cache'),
+					'href'  => '#',
+					'meta'  => [
 						'class' => 'sb-admin-button sb-purge-all-cache'
 					]
 				];
+
+				global $post, $pagenow;
+				if ( $pagenow == 'post.php' && $post->ID ) {
+					$nodes[] = [
+						'id'    => 'servebolt-clear-current-cf-cache',
+						'title' => '<span data-id="' . $post->ID . '">' . sb__('Purge Current Post Cache') . '</span>',
+						'href'  => '#',
+						'meta'  => [
+							'class' => 'sb-admin-button sb-purge-current-post-cache'
+						]
+					];
+				}
 			}
 		}
 
 		$nodes[] = [
-			'id'     => 'servebolt-plugin-settings',
-			'title'  => sb__('Settings'),
-			'href'   => $method('admin.php?page=servebolt-wp'),
-			'meta'   => [
+			'id'    => 'servebolt-plugin-settings',
+			'title' => sb__('Settings'),
+			'href'  => $method('admin.php?page=servebolt-wp'),
+			'meta'  => [
 				'target' => '',
 				'class' => 'sb-admin-button'
 			]
@@ -252,9 +263,10 @@ class Servebolt_Admin_Interface {
 	 * @param $wp_admin_bar
 	 */
 	public function admin_bar($wp_admin_bar) {
+
 		if ( ! apply_filters('sb_optimizer_display_admin_bar_menu', true) ) return;
 
-		if ( ! current_user_can('manage_options') ) return;
+		if ( ! apply_filters('sb_optimizer_display_admin_bar_menu_by_user_capabilities', current_user_can('manage_options')) ) return;
 
 		$sb_icon = '<span class="servebolt-icon"></span>';
 		$nodes = $this->get_admin_bar_nodes();
@@ -267,10 +279,10 @@ class Servebolt_Admin_Interface {
 			}, $nodes);
 			$nodes = array_merge([
 				[
-					'id'     => $parent_id,
-					'title'  => sb__('Servebolt Optimizer'),
-					'href'   => false,
-					'meta'   => [
+					'id'    => $parent_id,
+					'title' => sb__('Servebolt Optimizer'),
+					'href'  => false,
+					'meta'  => [
 						'target' => '_blank',
 						'class' => 'sb-admin-button'
 					]
@@ -279,7 +291,9 @@ class Servebolt_Admin_Interface {
 		}
 
 		// Add SB icon to first element
-		$nodes[0]['title'] = $sb_icon . $nodes[0]['title'];
+		if ( isset($nodes[0]) ) {
+			$nodes[0]['title'] = $sb_icon . $nodes[0]['title'];
+		}
 
 		if ( ! empty($nodes) ) {
 			foreach ( $nodes as $node ) {

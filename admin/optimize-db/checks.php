@@ -109,7 +109,7 @@ class Servebolt_Checks {
 	private function check_if_table_has_index($table_name, $index, $blog_id = false) {
 		global $wpdb;
 		if ( $blog_id ) {
-			switch_to_blog( $blog_id );
+			switch_to_blog($blog_id);
 			$table = ['blog_id' => $blog_id];
 		} else {
 			$table = [];

@@ -504,15 +504,7 @@ class Servebolt_CF {
 				break;
 		}
 		if ( isset($option_name) ) {
-			$blog_id = $this->get_blog_id($blog_id);
-			if ( $blog_id ) switch_to_blog($blog_id);
-			if ( is_numeric($blog_id) ) {
-				$value = sb_get_blog_option($blog_id, $option_name);
-			} else {
-				$value = sb_get_option($option_name);
-			}
-			if ( $blog_id ) restore_current_blog();
-			return $value;
+			return sb_smart_get_option($this->get_blog_id($blog_id), $option_name);
 		}
 		return false;
 	}
@@ -539,15 +531,7 @@ class Servebolt_CF {
 				break;
 		}
 		if ( isset($option_name) ) {
-			$blog_id = $this->get_blog_id($blog_id);
-			if ( $blog_id ) switch_to_blog($blog_id);
-			if ( is_numeric($blog_id) ) {
-				$result = sb_update_blog_option($blog_id, $option_name, $value, true);
-			} else {
-				$result = sb_update_option($option_name, $value, true);
-			}
-			if ( $blog_id ) restore_current_blog();
-			return $result;
+			return sb_smart_update_option($this->get_blog_id($blog_id), $option_name, $value, true);
 		}
 		return false;
 	}
@@ -615,6 +599,13 @@ class Servebolt_CF {
 		$items_to_purge_with_cron[] = $item;
 		$items_to_purge_with_cron = array_unique($items_to_purge_with_cron);
 		return $this->set_items_to_purge($items_to_purge_with_cron);
+	}
+
+	/**
+	 * Queue up a request to purge all cache.
+	 */
+	public function add_purge_all_to_purge_queue() {
+		return $this->add_item_to_purge_queue(sb_purge_all_item_name());
 	}
 
 	/**
@@ -694,8 +685,8 @@ class Servebolt_CF {
 		}
 
 		// Archive page
-		if ( $archiveUrl = get_post_type_archive_link( get_post_type( $post_id ) ) ) {
-			array_push( $purge_urls, $archiveUrl );
+		if ( $archive_url = get_post_type_archive_link( get_post_type( $post_id ) ) ) {
+			array_push( $purge_urls, $archive_url );
 		}
 
 		// Prevent duplicates
@@ -722,6 +713,8 @@ class Servebolt_CF {
 		} else if ( $urls_to_purge = $this->get_purge_urls_by_post_id($post_id) ) {
 			return $this->cf()->purge_urls($urls_to_purge);
 		}
+
+		return false;
 	}
 
 	/**
@@ -741,6 +734,30 @@ class Servebolt_CF {
 			} else {
 				return $this->cf()->purge_urls([$url]);
 			}
+		}
+	}
+
+	/**
+	 * Purge Cloudflare by post ID. Also checks for an archive to purge.
+	 *
+	 * @param int $post_id The post ID for the post to be purged.
+	 *
+	 * @return bool|void
+	 */
+	public function purge_by_post( int $post_id ) {
+		return $this->purge_post($post_id);
+	}
+
+	/**
+	 * Purge all.
+	 *
+	 * @return mixed
+	 */
+	public function purge_all() {
+		if ( $this->cron_purge_is_active() ) {
+			return $this->add_purge_all_to_purge_queue();
+		} else {
+			return $this->cf()->purge_all();
 		}
 	}
 
@@ -773,6 +790,16 @@ class Servebolt_CF {
 		if ( defined('SERVEBOLT_CF_PURGE_CRON') && is_bool(SERVEBOLT_CF_PURGE_CRON) ) {
 			return SERVEBOLT_CF_PURGE_CRON;
 		}
+	}
+
+	/**
+	 * Check if a purge all request is queued.
+	 *
+	 * @return bool
+	 */
+	public function has_purge_all_request_in_queue() {
+		$items_to_purge = $this->get_items_to_purge();
+		return in_array(sb_purge_all_item_name(), $items_to_purge);
 	}
 
 	/**
@@ -841,15 +868,6 @@ class Servebolt_CF {
 	 */
 	public function clear_items_to_purge() {
 		$this->set_items_to_purge([]);
-	}
-
-	/**
-	 * Purge all.
-	 *
-	 * @return mixed
-	 */
-	public function purge_all() {
-		return $this->cf()->purge_all();
 	}
 
 }

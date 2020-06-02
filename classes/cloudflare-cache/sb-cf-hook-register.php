@@ -21,10 +21,28 @@ class SB_Post_Save_Action {
 	 * Register action hooks.
 	 */
 	private function register_actions() {
+
+		// Check if Cloudflare cache purge feature is active
 		if ( ! sb_cf()->cf_is_active() ) return;
-		add_action( 'post_updated', [$this, 'purge_post_on_update'], 99, 1 );
-		//add_action( 'comment_post', [$this, 'purge_post_on_comment'], 99, 3 );
-		//add_action( 'transition_comment_status', [$this, 'purge_post_on_comment_approval'], 99, 3 );
+
+		// Should skip all automatic cache purge?
+		if ( apply_filters('sb_optimizer_disable_automatic_purge', false) ) return;
+
+		// Purge post on post update
+		if ( apply_filters('sb_optimizer_automatic_purge_on_post_update', true) ) {
+			add_action( 'post_updated', [$this, 'purge_post_on_update'], 99, 1 );
+		}
+
+		// Purge post on comment post
+		if ( apply_filters('sb_optimizer_automatic_purge_on_comment', true) ) {
+			add_action( 'comment_post', [$this, 'purge_post_on_comment'], 99, 3 );
+		}
+
+		// Purge post when comment is approved
+		if ( apply_filters('sb_optimizer_automatic_purge_on_comment_approval', true) ) {
+			add_action( 'transition_comment_status', [$this, 'purge_post_on_comment_approval'], 99, 3 );
+		}
+
 	}
 
 	/**
@@ -77,13 +95,12 @@ class SB_Post_Save_Action {
 	 *
 	 * @param $comment_ID
 	 * @param $comment_approved
-	 * @param $commentdata
+	 * @param $comment_data
 	 */
-	public function purge_post_on_comment($comment_ID, $comment_approved, $commentdata) {
-		$post_id = $this->get_post_id_from_comment($commentdata);
+	public function purge_post_on_comment($comment_ID, $comment_approved, $comment_data) {
+		$post_id = $this->get_post_id_from_comment($comment_data);
 		if ( ! $post_id ) return;
-		if ( ! $this->should_purge_post_cache($post_id) ) return;
-		sb_cf()->purge_post($post_id);
+		$this->maybe_purge_post($post_id);
 	}
 
 	/**
@@ -91,28 +108,26 @@ class SB_Post_Save_Action {
 	 *
 	 * @param $new_status
 	 * @param $old_status
-	 * @param $comment
+	 * @param $comment_data
 	 */
-	public function purge_post_on_comment_approval($new_status, $old_status, $comment) {
-		if( $old_status != $new_status ) {
-			if ( $new_status == 'approved' ) {
-				$post_id = $this->get_post_id_from_comment($comment);
-				if ( ! $post_id ) return;
-				$this->maybe_purge_post($post_id);
-			}
+	public function purge_post_on_comment_approval($new_status, $old_status, $comment_data) {
+		if ( $old_status != $new_status && $new_status == 'approved' ) {
+			$post_id = $this->get_post_id_from_comment($comment_data);
+			if ( ! $post_id ) return;
+			$this->maybe_purge_post($post_id);
 		}
 	}
 
 	/**
 	 * Get post ID from comment data.
 	 *
-	 * @param $comment
+	 * @param $comment_data
 	 *
 	 * @return bool
 	 */
-	private function get_post_id_from_comment($comment) {
-		if ( ! array_key_exists('comment_post_ID', $comment) ) return false;
-		return $comment['comment_post_ID'];
+	private function get_post_id_from_comment($comment_data) {
+		if ( ! array_key_exists('comment_post_ID', $comment_data) ) return false;
+		return $comment_data['comment_post_ID'];
 	}
 
 }

@@ -489,14 +489,10 @@ class Servebolt_Optimize_DB {
 	 * @return bool
 	 */
 	public function add_options_autoload_index($blog_id = false) {
-		if ( $blog_id ) {
-			switch_to_blog($blog_id);
-		}
+		if ( $blog_id ) switch_to_blog($blog_id);
 		$this->safe_query("ALTER TABLE {$this->wpdb()->options} ADD INDEX(autoload)");
 		$result = $this->table_has_index($this->wpdb()->options, 'autoload');
-		if ( $blog_id ) {
-			restore_current_blog();
-		}
+		if ( $blog_id ) restore_current_blog();
 		return $result;
 	}
 
@@ -508,14 +504,10 @@ class Servebolt_Optimize_DB {
 	 * @return bool
 	 */
 	public function remove_options_autoload_index($blog_id = false) {
-		if ( $blog_id ) {
-			switch_to_blog($blog_id);
-		}
+		if ( $blog_id ) switch_to_blog($blog_id);
 		$this->safe_query("ALTER TABLE {$this->wpdb()->options} DROP INDEX `autoload`");
 		$result = ! $this->table_has_index($this->wpdb()->options, 'autoload');
-		if ( $blog_id ) {
-			restore_current_blog();
-		}
+		if ( $blog_id ) restore_current_blog();
 		return $result;
 	}
 
@@ -527,14 +519,10 @@ class Servebolt_Optimize_DB {
 	 * @return bool
 	 */
 	public function add_post_meta_index($blog_id = false) {
-		if ( $blog_id ) {
-			switch_to_blog($blog_id);
-		}
+		if ( $blog_id ) switch_to_blog($blog_id);
 		$this->safe_query("ALTER TABLE {$this->wpdb()->postmeta} ADD INDEX `sbpmv` (`meta_value`(10))");
 		$result = $this->table_has_index($this->wpdb()->postmeta, 'sbpmv');
-		if ( $blog_id ) {
-			restore_current_blog();
-		}
+		if ( $blog_id ) restore_current_blog();
 		return $result;
 	}
 
@@ -546,14 +534,10 @@ class Servebolt_Optimize_DB {
 	 * @return bool
 	 */
 	public function remove_post_meta_index($blog_id = false) {
-		if ( $blog_id ) {
-			switch_to_blog($blog_id);
-		}
+		if ( $blog_id ) switch_to_blog($blog_id);
 		$this->safe_query("ALTER TABLE {$this->wpdb()->postmeta} DROP INDEX `sbpmv`");
 		$result = ! $this->table_has_index($this->wpdb()->postmeta, 'sbpmv');
-		if ( $blog_id ) {
-			restore_current_blog();
-		}
+		if ( $blog_id ) restore_current_blog();
 		return $result;
 	}
 
@@ -566,7 +550,7 @@ class Servebolt_Optimize_DB {
 	 * @return mixed
 	 */
 	public function get_table_name_by_blog_id($blog_id, $table) {
-		switch_to_blog($blog_id);
+		switch_to_blog( $blog_id );
 		$table_name = $this->wpdb()->{$table};
 		restore_current_blog();
 		return $table_name;
@@ -767,6 +751,7 @@ class Servebolt_Optimize_DB {
 				switch_to_blog( $blog_id );
 				$this->analyze_tables_query();
 			}
+			restore_current_blog();
 		}
 		if ( $cli ) return true;
 	}
