@@ -3,6 +3,8 @@ if( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
  * Class Servebolt_Optimize_DB
+ *
+ * This class facilitates the DB optimizations.
  */
 class Servebolt_Optimize_DB {
 

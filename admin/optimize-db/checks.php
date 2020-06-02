@@ -3,6 +3,10 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
  * Class Servebolt_Checks
+ *
+ * This class will:
+ * - Check the option and postmeta table for missing indexes, and will add them if not present
+ * - Check for tables using the MyISAM DB-engine and convert them to InnoDB.
  */
 class Servebolt_Checks {
 

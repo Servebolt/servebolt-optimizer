@@ -3,6 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
  * Class SB_Image_Resize_Control
+ *
+ * This class handles the CF image resize feature settings (whether the feature is active or not).
  */
 class SB_Image_Resize_Control {
 

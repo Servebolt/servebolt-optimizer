@@ -3,6 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
  * Class CF_Image_Resizing
+ *
+ * This class initiates the admin GUI for the Cloudflare Image Resize feature.
  */
 class CF_Image_Resizing {
 

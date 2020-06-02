@@ -3,6 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
  * Class CF_Cache_Admin_Controls
+ *
+ * This class initiates the admin GUI for the Cloudflare cache feature.
  */
 class CF_Cache_Admin_Controls {
 

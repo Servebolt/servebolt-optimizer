@@ -10,6 +10,8 @@ require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
 
 /**
  * Class Servebolt_Admin_Interface
+ *
+ * This class initiates the admin interface for the plugin.
  */
 class Servebolt_Admin_Interface {
 

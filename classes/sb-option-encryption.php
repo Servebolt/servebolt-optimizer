@@ -3,6 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
  * Class SB_Option_Encryption.
+ *
+ * This class is used to prevent clear-text storage of strings in the options-table.
  */
 class SB_Option_Encryption {
 
