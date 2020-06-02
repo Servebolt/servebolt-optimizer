@@ -1,15 +1,17 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once __DIR__ . '/cloudflare-extra.class.php';
+require_once __DIR__ . '/cloudflare-cache-extra.class.php';
 
 /**
- * Class Servebolt_CLI_Cloudflare
+ * Class Servebolt_CLI_Cloudflare_Cache
+ *
+ * This class contains the Cloudflare-related methods when using the WP CLI.
  */
-class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
+class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extra {
 
 	/**
-	 * Setup procedure for Cloudflare feature.
+	 * Setup procedure for Cloudflare cache-bust feature.
 	 *
 	 * ## OPTIONS
 	 *
@@ -83,7 +85,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	}
 
 	/**
-	 * Check if the Cloudflare-feature is active/inactive.
+	 * Check if the Cloudflare cache bust-feature is active/inactive.
 	 *
 	 * ## OPTIONS
 	 *
@@ -106,7 +108,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	}
 
 	/**
-	 * Activate Cloudflare feature.
+	 * Activate Cloudflare cache-bust feature.
 	 *
 	 * ## OPTIONS
 	 *
@@ -129,7 +131,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	}
 
 	/**
-	 * Deactivate Cloudflare feature.
+	 * Deactivate Cloudflare cache-bust feature.
 	 *
 	 * ## OPTIONS
 	 *
@@ -178,7 +180,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	}
 
 	/**
-	 * Set config parameters for Cloudflare.
+	 * Set config parameters for the Cloudflare cache-bust feature.
 	 *
 	 * ## OPTIONS
 	 *
@@ -223,7 +225,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	}
 
 	/**
-	 * Clear all config parameters for Cloudflare.
+	 * Clear all config parameters for the Cloudflare cache-feature.
 	 *
 	 * ## OPTIONS
 	 *

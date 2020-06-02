@@ -4,9 +4,9 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 /**
  * Class SB_CF_SDK
  *
- * This class lets us communicate with the Cloudflare API using native the native WP HTTP API. Earlier we used Guzzle for this, but it turns out it created conflicts with a lot of plugins due to lack of namespace separation between Guzzle-versions.
+ * The class contains the request-related methods when communicating with the Cloudflare API.
  */
-class SB_CF_SDK {
+abstract class SB_CF_SDK_Request_Methods {
 
 	/**
 	 * Whether to debug requests to log.

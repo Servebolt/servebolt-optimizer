@@ -5,6 +5,8 @@ require_once __DIR__ . '/fpc-extra.class.php';
 
 /**
  * Class Servebolt_CLI_FPC
+ *
+ * This class contains the FPC-related methods when using the WP CLI.
  */
 class Servebolt_CLI_FPC extends Servebolt_CLI_FPC_Extra {
 

@@ -2,12 +2,12 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
- * Class Servebolt_CF_Cron_Handle
+ * Class Servebolt_CF_Cache_Cron_Handle
  * @package Servebolt
  *
- * This class registers WP cron schedule and task.
+ * This class registers adds a new interval to the WP cron and schedules the queue-based cache purge method.
  */
-class Servebolt_CF_Cron_Handle {
+class Servebolt_CF_Cache_Cron_Handle {
 
 	/**
 	 * Singleton instance.
@@ -19,17 +19,17 @@ class Servebolt_CF_Cron_Handle {
 	/**
 	 * Instantiate class.
 	 *
-	 * @return Servebolt_CF_Cron_Handle|null
+	 * @return Servebolt_CF_Cache_Cron_Handle|null
 	 */
 	public static function get_instance() {
 		if ( self::$instance == null ) {
-			self::$instance = new Servebolt_CF_Cron_Handle;
+			self::$instance = new Servebolt_CF_Cache_Cron_Handle;
 		}
 		return self::$instance;
 	}
 
 	/**
-	 * Servebolt_CF_Cron_Handle constructor.
+	 * Servebolt_CF_Cache_Cron_Handle constructor.
 	 */
 	private function __construct() {
 		$this->handle_cron();
@@ -117,4 +117,4 @@ class Servebolt_CF_Cron_Handle {
 	}
 
 }
-Servebolt_CF_Cron_Handle::get_instance();
+Servebolt_CF_Cache_Cron_Handle::get_instance();

@@ -1,16 +1,17 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-// Require the Servebolt Cloudflare SDK
-require_once __DIR__ . '/sb-cloudflare-sdk.class.php';
+// Require the request-method class which our SDK class is dependent on
+require_once __DIR__ . '/sb-cloudflare-sdk-request-methods.class.php';
 
 /**
- * Class Cloudflare
+ * Class SB_CF_SDK
  * @package Servebolt
  *
- * The class communicates with the Cloudflare API using the WP HTTP API-functions.
+ * This class lets us communicate with the Cloudflare API using native the native WP HTTP API.
+ * Earlier we used Guzzle for this, but it turns out it created conflicts with a lot of plugins due to lack of namespace separation between Guzzle-versions.
  */
-class Cloudflare extends SB_CF_SDK {
+class SB_CF_SDK extends SB_CF_SDK_Request_Methods {
 
 	/**
 	 * Singleton instance.
@@ -47,7 +48,7 @@ class Cloudflare extends SB_CF_SDK {
 	 */
 	public static function get_instance() {
 		if ( self::$instance == null ) {
-			self::$instance = new Cloudflare();
+			self::$instance = new SB_CF_SDK();
 		}
 		return self::$instance;
 	}

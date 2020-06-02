@@ -3,15 +3,15 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
- * Class SB_Post_Save_Action
+ * Class SB_CF_Cache_Purge_Actions
  * @package Servebolt
  *
- * This class registers the WP event which purges cache.
+ * This class registers the WP events which purges the cache automatically.
  */
-class SB_Post_Save_Action {
+class SB_CF_Cache_Purge_Actions {
 
 	/**
-	 * SB_Post_Save_Action constructor.
+	 * SB_CF_Cache_Purge_Actions constructor.
 	 */
 	public function __construct() {
 		$this->register_actions();
@@ -131,4 +131,4 @@ class SB_Post_Save_Action {
 	}
 
 }
-new SB_Post_Save_Action;
+new SB_CF_Cache_Purge_Actions;

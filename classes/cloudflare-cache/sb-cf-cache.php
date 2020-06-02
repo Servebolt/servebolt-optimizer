@@ -1,15 +1,15 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once __DIR__ . '/cloudflare-wrapper.php';
+require_once SERVEBOLT_PATH . '/classes/sb-cloudflare-sdk/sb-cloudflare-sdk.class.php';
 
 /**
- * Class Servebolt_CF
+ * Class Servebolt_CF_Cache
  * @package Servebolt
  *
- * This class handles WordPress triggers and actions related to the Cloudflare cache feature.
+ * This class handles works as a bridge between WordPress and the Cloudflare API SDK.
  */
-class Servebolt_CF {
+class Servebolt_CF_Cache {
 
 	/**
 	 * Singleton instance.
@@ -56,17 +56,17 @@ class Servebolt_CF {
 	/**
 	 * Instantiate class.
 	 *
-	 * @return Servebolt_CF|null
+	 * @return Servebolt_CF_Cache|null
 	 */
 	public static function get_instance() {
 		if ( self::$instance == null ) {
-			self::$instance = new Servebolt_CF(true);
+			self::$instance = new Servebolt_CF_Cache(true);
 		}
 		return self::$instance;
 	}
 
 	/**
-	 * Servebolt_CF constructor.
+	 * Servebolt_CF_Cache constructor.
 	 *
 	 * @param bool $init
 	 */
@@ -135,11 +135,11 @@ class Servebolt_CF {
 	/**
 	 * Get Cloudflare instance.
 	 *
-	 * @return Servebolt_CF|null
+	 * @return Servebolt_CF_Cache|null
 	 */
 	public function cf() {
 		if ( is_null($this->cf) ) {
-			$this->cf = Cloudflare::get_instance();
+			$this->cf = SB_CF_SDK::get_instance();
 		}
 		return $this->cf;
 	}

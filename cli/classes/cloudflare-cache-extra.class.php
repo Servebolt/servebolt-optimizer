@@ -2,9 +2,9 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
- * Class Servebolt_CLI_Cloudflare_Extra
+ * Class Servebolt_CLI_Cloudflare_Cache_Extra
  */
-class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
+class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 
 	/**
 	 * Store Cloudflare zones for cache purposes.
@@ -60,10 +60,10 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * Create a new instance of Cloudflare API class with registering credentials manually.
 	 * @param $params
 	 *
-	 * @return bool|Servebolt_CF
+	 * @return bool|Servebolt_CF_Cache
 	 */
-	private function cf_create_cloudflare_instance($params) {
-		$cf = new Servebolt_CF();
+	private function cf_create_cloudflare_cache_instance($params) {
+		$cf = new Servebolt_CF_Cache();
 		if ( $cf->register_credentials_manually($params['auth_type'], $params) ) {
 			return $cf;
 		}
@@ -207,7 +207,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 					$params['api_token'] = $this->collect_parameter(sb__('Specify Cloudflare API Token: '), sb__('API cannot be empty.'));
 				}
 
-				$cf = $this->cf_create_cloudflare_instance($params);
+				$cf = $this->cf_create_cloudflare_cache_instance($params);
 				if ( $this->test_api($cf, $params) ) {
 					$api_connection_available = true;
 				}
@@ -227,7 +227,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 					$params['api_key'] = $this->collect_parameter(sb__('Specify Cloudflare API key: '), sb__('API key cannot be empty.'));
 				}
 
-				$cf = $this->cf_create_cloudflare_instance($params);
+				$cf = $this->cf_create_cloudflare_cache_instance($params);
 				if ( $this->test_api($cf, $params) ) {
 					$api_connection_available = true;
 				}
@@ -452,7 +452,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 					$messages[] = sb__('API key must be specified.');
 				}
 
-				$cf = $this->cf_create_cloudflare_instance($params);
+				$cf = $this->cf_create_cloudflare_cache_instance($params);
 				$cf_check = $this->test_api($cf, $params, true);
 				if ( $cf_check === true ) {
 					$api_connection_available = true;
@@ -468,7 +468,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 					$messages[] = sb__('API token must be specified.');
 				}
 
-				$cf = $this->cf_create_cloudflare_instance($params);
+				$cf = $this->cf_create_cloudflare_cache_instance($params);
 				$cf_check = $this->test_api($cf, $params, true);
 				if ( $cf_check === true ) {
 					$api_connection_available = true;
@@ -1041,7 +1041,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		}
 
 		// Add / remove task from schedule
-		( Servebolt_CF_Cron_Handle::get_instance() )->update_cron_state($blog_id);
+		( Servebolt_CF_Cache_Cron_Handle::get_instance() )->update_cron_state($blog_id);
 	}
 
 	/**
