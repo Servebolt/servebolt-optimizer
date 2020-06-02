@@ -22,7 +22,7 @@ class CF_Cache_Admin_Controls_Ajax {
 		add_action( 'wp_ajax_servebolt_lookup_zones', [ $this, 'lookup_zones_callback' ] );
 		add_action( 'wp_ajax_servebolt_lookup_zone', [ $this, 'lookup_zone_callback' ] );
 		add_action( 'wp_ajax_servebolt_validate_cf_settings', [ $this, 'validate_cf_settings_form_callback' ] );
-		add_action( 'wp_ajax_servebolt_update_cf_cache_purge_queue', [ $this, 'update_cache_purge_queue_callback' ] );
+		add_action( 'wp_ajax_servebolt_delete_cache_purge_queue_items', [ $this, 'delete_cache_purge_queue_items_callback' ] );
 		add_action( 'wp_ajax_servebolt_purge_all_cache', [ $this, 'purge_all_cache_callback' ] );
 		add_action( 'wp_ajax_servebolt_purge_url_cache', [ $this, 'purge_url_cache_callback' ] );
 		add_action( 'wp_ajax_servebolt_purge_post_cache', [ $this, 'purge_post_cache_callback' ] );
@@ -187,13 +187,13 @@ class CF_Cache_Admin_Controls_Ajax {
 	}
 
 	/**
-	 * Update cache purge queue.
+	 * Delete items from cache purge queue.
 	 */
-	public function update_cache_purge_queue_callback() {
+	public function delete_cache_purge_queue_items_callback() {
 		check_ajax_referer( sb_get_ajax_nonce_key(), 'security' );
 		sb_ajax_user_allowed();
 
-		$items_to_remove = sb_array_get('items', $_POST);
+		$items_to_remove = sb_array_get('items_to_remove', $_POST);
 		if ( $items_to_remove === 'all' ) {
 			sb_cf_cache()->set_items_to_purge([]);
 			wp_send_json_success();

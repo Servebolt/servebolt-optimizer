@@ -58,15 +58,15 @@ jQuery(document).ready(function($) {
   });
 
   /**
-   * Update the cache purge queue.
+   * Delete cache purge queue items.
    */
-  function submit_cache_purge_queue(items, success_function) {
+  function delete_cache_purge_queue_items(items_to_remove, success_function) {
     setTimeout(function () {
       var spinner = $('#sb-configuration .purge-queue-loading-spinner'),
           data = {
-            action: 'servebolt_update_cf_cache_purge_queue',
+            action: 'servebolt_delete_cache_purge_queue_items',
             security: ajax_object.ajax_nonce,
-            items: items,
+            items_to_remove: items_to_remove,
           };
       spinner.addClass('is-active');
       $.ajax({
@@ -451,8 +451,8 @@ jQuery(document).ready(function($) {
     }).then((result) => {
       if (result.value) {
         var item = $(obj).closest('.purge-item'),
-          item_value = item.find('.purge-item-input').val();
-        submit_cache_purge_queue([item_value], function() {
+            item_value = item.find('.purge-item-input').val();
+        delete_cache_purge_queue_items([item_value], function() {
           item.remove();
           window.sb_success('All good!', 'The item was deleted.');
           sb_check_for_empty_purge_items_table(false);
@@ -478,14 +478,14 @@ jQuery(document).ready(function($) {
     }).then((result) => {
       if (result.value) {
         var items = $('#sb-configuration #purge-items-table tbody .purge-item input[type="checkbox"]:checked').closest('.purge-item'),
-          input_elements = items.find('.purge-item-input'),
-          ids = [];
+            input_elements = items.find('.purge-item-input'),
+            items_to_remove = [];
         input_elements.each(function (i, el) {
-          ids.push($(el).val());
+          items_to_remove.push($(el).val());
         });
-        submit_cache_purge_queue(ids, function () {
+        delete_cache_purge_queue_items(items_to_remove, function () {
           items.remove();
-          var response = ids.length > 1 ? 'The items were deleted.' : 'The item was deleted.';
+          var response = items_to_remove.length > 1 ? 'The items were deleted.' : 'The item was deleted.';
           window.sb_success('All good!', null, response);
           sb_check_for_empty_purge_items_table(true);
         });
@@ -510,7 +510,7 @@ jQuery(document).ready(function($) {
     }).then((result) => {
       if (result.value) {
         window.sb_loading(true);
-        submit_cache_purge_queue('all', function () {
+        delete_cache_purge_queue_items('all', function () {
           $('#sb-configuration #purge-items-table tbody .purge-item').remove();
           window.sb_loading(false);
           window.sb_success('All good!', 'The queue was emptied.');
