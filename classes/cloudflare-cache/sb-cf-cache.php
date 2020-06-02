@@ -174,30 +174,16 @@ class Servebolt_CF_Cache {
 			$auth_type = $this->ensure_auth_type_integrity($auth_type);
 			switch ( $auth_type ) {
 				case 'api_token':
-					return $this->verify_token();
+					return $this->cf()->verify_token();
 					break;
 				case 'api_key':
-					return $this->verify_user();
+					return $this->cf()->verify_user();
 					break;
 			}
 			return false;
 		} catch (Exception $e) {
 			return false;
 		}
-	}
-
-	/**
-	 * Verify that the API token is valid.
-	 */
-	private function verify_token() {
-		return $this->cf()->verify_token();
-	}
-
-	/**
-	 * Verify that the API key is valid by fetching the user.
-	 */
-	private function verify_user() {
-		return $this->cf()->verify_user();
 	}
 
 	/**
