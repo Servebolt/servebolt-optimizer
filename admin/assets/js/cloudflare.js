@@ -399,7 +399,7 @@ jQuery(document).ready(function($) {
     var spinner = $('#sb-configuration .form-submit-spinner'),
       form = $('#sb-configuration-form'),
       data = {
-        action: 'servebolt_validate_cf_settings',
+        action: 'servebolt_validate_cf_settings_form',
         security: ajax_object.ajax_nonce,
         form: form.serialize(),
       };

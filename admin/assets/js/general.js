@@ -116,13 +116,15 @@ jQuery(document).ready(function($) {
    * Get item from data in jQuery AJAX response object.
    *
    * @param response
+   * @param key
+   * @param default_value
    * @returns {*}
    */
-  window.sb_get_from_response = function(response, key) {
+  window.sb_get_from_response = function(response, key, default_value) {
     if ( typeof response.data !== 'undefined' && typeof response.data[key] !== 'undefined' ) {
       return response.data[key];
     }
-    return false;
+    return default_value ? default_value : false;
   }
 
   /**

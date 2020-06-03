@@ -21,7 +21,7 @@ class CF_Cache_Admin_Controls_Ajax {
 	private function add_ajax_handling() {
 		add_action( 'wp_ajax_servebolt_lookup_zones', [ $this, 'lookup_zones_callback' ] );
 		add_action( 'wp_ajax_servebolt_lookup_zone', [ $this, 'lookup_zone_callback' ] );
-		add_action( 'wp_ajax_servebolt_validate_cf_settings', [ $this, 'validate_cf_settings_form_callback' ] );
+		add_action( 'wp_ajax_servebolt_validate_cf_settings_form', [ $this, 'validate_cf_settings_form_callback' ] );
 		add_action( 'wp_ajax_servebolt_delete_cache_purge_queue_items', [ $this, 'delete_cache_purge_queue_items_callback' ] );
 		add_action( 'wp_ajax_servebolt_purge_all_cache', [ $this, 'purge_all_cache_callback' ] );
 		add_action( 'wp_ajax_servebolt_purge_url_cache', [ $this, 'purge_url_cache_callback' ] );
@@ -181,7 +181,7 @@ class CF_Cache_Admin_Controls_Ajax {
 		} else {
 			wp_send_json_error([
 				'errors' => $errors,
-				'error_html' => $this->generate_error_html($errors),
+				'error_html' => $this->generate_form_error_html($errors),
 			]);
 		}
 	}
@@ -194,17 +194,27 @@ class CF_Cache_Admin_Controls_Ajax {
 		sb_ajax_user_allowed();
 
 		$items_to_remove = sb_array_get('items_to_remove', $_POST);
+
+		// Clear all queue items
 		if ( $items_to_remove === 'all' ) {
 			sb_cf_cache()->set_items_to_purge([]);
 			wp_send_json_success();
 		}
-		if ( ! $items_to_remove || empty($items_to_remove) ) wp_send_json_error();
-		if ( ! is_array($items_to_remove) ) $items_to_remove = [];
+
+		// Invalid queue items
+		if ( ! is_array($items_to_remove) || ! $items_to_remove || empty($items_to_remove) ) {
+			wp_send_json_error();
+		}
+
+		// Prevent invalid items
 		$items_to_remove = array_filter($items_to_remove, function ($item) {
 			return is_numeric($item) || is_string($item);
 		});
+
 		$current_items = sb_cf_cache()->get_items_to_purge();
 		if ( ! is_array($current_items) ) $current_items = [];
+
+		// Filter out items
 		$updated_items = array_filter($current_items, function($item) use ($items_to_remove) {
 			return ! in_array($item, $items_to_remove);
 		});
@@ -218,16 +228,21 @@ class CF_Cache_Admin_Controls_Ajax {
 	public function purge_all_cache_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
 		sb_ajax_user_allowed();
+
+		$cron_purge_is_active = sb_cf_cache()->cron_purge_is_active();
 		if ( ! sb_cf_cache()->cf_cache_feature_available() ) {
 			wp_send_json_error( [ 'message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.' ] );
-		} elseif ( sb_cf_cache()->cron_purge_is_active() && sb_cf_cache()->has_purge_all_request_in_queue() ) {
+		} elseif ( $cron_purge_is_active && sb_cf_cache()->has_purge_all_request_in_queue() ) {
 			wp_send_json_error( [
 				'type'    => 'warning',
-				'message' => 'A purge all-request is already queued.',
 				'title'   => 'Woops!',
+				'message' => 'A purge all-request is already queued. Either delete it or wait until it is executed.',
 			] );
 		} elseif ( sb_cf_cache()->purge_all() ) {
-			wp_send_json_success();
+			wp_send_json_success( [
+				'title'   => $cron_purge_is_active ? 'Just a moment' : false,
+				'message' => $cron_purge_is_active ? 'A purge all-request was added to the queue and will be executed shortly.' : 'All cache was purged.',
+			] );
 		} else {
 			wp_send_json_error();
 		}
@@ -239,17 +254,20 @@ class CF_Cache_Admin_Controls_Ajax {
 	public function purge_url_cache_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
 		sb_ajax_user_allowed();
+
 		$url = (string) $_POST['url'];
-		if ( ! $url || empty($url) ) {
+		if ( ! sb_cf_cache()->cf_cache_feature_available() ) {
+			wp_send_json_error( [ 'message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.' ] );
+		} elseif ( ! $url || empty($url) ) {
 			wp_send_json_error( [ 'message' => 'Please specify the URL you would like to purge cache for.' ] );
 		} elseif ( strpos($url, sb_purge_all_item_name()) !== false ) {
 			wp_send_json_error( [ 'message' => sprintf( 'This string "%s" is used by the system and is not allowed for URL-based cache purge.', sb_purge_all_item_name()) ] );
-		} elseif ( ! sb_cf_cache()->cf_cache_feature_available() ) {
-			wp_send_json_error(['message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.']);
 		} elseif ( sb_cf_cache()->purge_by_url($url) ) {
-			wp_send_json_success([
-				'message' => sb_cf_cache()->cron_purge_is_active() ? sprintf('A cache purge request was added to the queue.', ) : sprintf('Cache was purged for URL.', )
-			]);
+			$cron_purge_is_active = sb_cf_cache()->cron_purge_is_active();
+			wp_send_json_success( [
+				'title'   => $cron_purge_is_active ? 'Just a moment' : false,
+				'message' => $cron_purge_is_active ? sprintf('A cache purge-request for the URL "%s" was added to the queue and will be executed shortly.', $url) : sprintf('Cache was purged for URL "%s".', $url),
+			] );
 		} else {
 			wp_send_json_error();
 		}
@@ -269,11 +287,13 @@ class CF_Cache_Admin_Controls_Ajax {
 		} elseif ( ! sb_post_exists($post_id) ) {
 			wp_send_json_error( [ 'message' => 'The specified post does not exist.' ] );
 		} elseif ( ! sb_cf_cache()->cf_cache_feature_available() ) {
-			wp_send_json_error(['message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.']);
+			wp_send_json_error( [ 'message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.' ] );
 		} elseif ( sb_cf_cache()->purge_by_post($post_id) ) {
-			wp_send_json_success([
-				'message' => sb_cf_cache()->cron_purge_is_active() ? 'A cache purge request was added to the queue.' : 'Post cache was purged.'
-			]);
+			$cron_purge_is_active = sb_cf_cache()->cron_purge_is_active();
+			wp_send_json_success( [
+				'title'   => $cron_purge_is_active ? 'Just a moment' : false,
+				'message' => $cron_purge_is_active ? sprintf('A cache purge-request for the post "%s" was added to the queue and will be executed shortly.', get_the_title($post_id)) : sprintf('Cache was purged for the post post "%s".', get_the_title($post_id)),
+			] );
 		} else {
 			wp_send_json_error();
 		}
@@ -286,37 +306,46 @@ class CF_Cache_Admin_Controls_Ajax {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
 		sb_require_superadmin();
 
-		$failed = [];
-		$has_queue_purge_active = false;
-		$has_queue_purge_active = null;
-		sb_iterate_sites(function($site) use (&$failed, &$has_queue_purge_active) {
+		$failed_purge_attempts = [];
+		$queue_based_cache_purge_sites = [];
+		sb_iterate_sites(function($site) use (&$failed_purge_attempts, &$queue_based_cache_purge_sites) {
 
 			// Switch context to blog
 			if ( sb_cf_cache()->cf_switch_to_blog($site->blog_id) === false ) {
-				$failed[] = [
+				$failed_purge_attempts[] = [
 					'blog_id' => $site->blog_id,
-					'reason' => false,
+					'reason'  => false,
 				];
 				return;
 			}
 
-			// Flag that at least one of the blogs has the queue-based cache purge feature active
-			if ( sb_cf_cache()->cron_purge_is_active() ) {
-				$has_queue_purge_active = true;
+			// Skip if CF cache purge feature is not active
+			if ( ! sb_cf_cache()->cf_is_active() ) {
+				return;
 			}
 
-			// Check if we should use Cloudflare
-			if ( ! sb_cf_cache()->should_use_cf_feature() ) {
-				$failed[] = [
+			// Check if the Cloudflare cache purg feature is avavilable
+			if ( ! sb_cf_cache()->cf_cache_feature_available() ) {
+				$failed_purge_attempts[] = [
 					'blog_id' => $site->blog_id,
-					'reason'  => sb__('Cloudflare feature not active/available'),
+					'reason'  => sb__('Cloudflare feature not available'),
 				];
+				return;
+			}
+
+			// Flag that current site uses queue based cache purge
+			if ( sb_cf_cache()->cron_purge_is_active() ) {
+				$queue_based_cache_purge_sites[] = $site->blog_id;
+			}
+
+			// Check if we already added a purge all-request to queue (if queue based cache purge is used)
+			if ( sb_cf_cache()->cron_purge_is_active() && sb_cf_cache()->has_purge_all_request_in_queue() ) {
 				return;
 			}
 
 			// Purge all cache
 			if ( ! sb_cf_cache()->purge_all() ) {
-				$failed[] = [
+				$failed_purge_attempts[] = [
 					'blog_id' => $site->blog_id,
 					'reason'  => false,
 				];
@@ -324,29 +353,41 @@ class CF_Cache_Admin_Controls_Ajax {
 
 		});
 
-		$failed_count = count($failed);
-		$all_failed   = $failed_count == sb_count_sites();
+		$queue_based_cache_purge_sites_count = count($queue_based_cache_purge_sites);
+		$all_sites_use_queue_based_cache_purge = $queue_based_cache_purge_sites_count == sb_count_sites();
+		$some_sites_has_queue_purge_active = $queue_based_cache_purge_sites_count > 0;
+
+		$failed_purge_attempt_count = count($failed_purge_attempts);
+		$all_failed = $failed_purge_attempt_count == sb_count_sites();
 
 		if ( $all_failed ) {
-			wp_send_json_error([
+			wp_send_json_error( [
 				'message' => sb__('Could not purge cache on any sites.'),
-			]);
+			] );
 		} else {
-			if ( $failed_count > 0 ) {
+			if ( $failed_purge_attempt_count > 0 ) {
 				wp_send_json_success([
 					'type'   => 'warning',
 					'title'  => sb__('Could not clear cache on all sites'),
-					'markup' => $this->purge_network_cache_failed_sites($failed),
+					'markup' => $this->purge_network_cache_failed_sites($failed_purge_attempts),
 				]);
 			} else {
-				wp_send_json_success([
-					'type'  => 'success',
-					'title' => $has_queue_purge_active ? sb__('Cache will be cleared for all sites in a moment ().') : sb__('Cache cleared for all sites'),
-				]);
+
+				if ( $all_sites_use_queue_based_cache_purge ) {
+					$feedback = sb__('Cache will be cleared for all sites in a moment.');
+				} elseif ( $some_sites_has_queue_purge_active ) {
+					$feedback = sb__('Cache cleared for all sites, but note that some sites are using queue based cache purging and will be purged in a moment.');
+				} else {
+					$feedback = sb__('Cache cleared for all sites');
+				}
+
+				wp_send_json_success( [
+					'type'   => 'success',
+					'markup' => $feedback,
+				] );
 			}
 		}
 	}
-
 
 	/**
 	 * Generate li-markup of zones-array.
@@ -370,7 +411,7 @@ class CF_Cache_Admin_Controls_Ajax {
 	 *
 	 * @return string
 	 */
-	private function generate_error_html($errors) {
+	private function generate_form_error_html($errors) {
 		$errors = array_map(function ($error) {
 			return rtrim(trim($error), '.');
 		}, $errors);

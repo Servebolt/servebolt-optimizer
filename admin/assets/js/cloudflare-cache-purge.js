@@ -3,18 +3,21 @@ jQuery(document).ready(function($) {
   // Purge all cache on all sites in a multisite-network
   $('.sb-purge-network-cache').click(function (e) {
     e.preventDefault();
+    sb_close_admin_bar_menu();
     sb_purge_network_cache();
   });
 
   // Purge all cache
   $('.sb-purge-all-cache').click(function (e) {
     e.preventDefault();
+    sb_close_admin_bar_menu();
     sb_purge_all_cache();
   });
 
   // Purge current post cache
   $('.sb-purge-current-post-cache').click(function (e) {
     e.preventDefault();
+    sb_close_admin_bar_menu();
     var post_id = $(this).find('span').data('id');
     sb_purge_post_cache(post_id);
   });
@@ -24,6 +27,13 @@ jQuery(document).ready(function($) {
     e.preventDefault();
     sb_purge_url_cache();
   });
+
+  /**
+   * Close the SB Optimizer admin bar.
+   */
+  function sb_close_admin_bar_menu() {
+    $('#wp-admin-bar-servebolt-optimizer').removeClass('hover');
+  }
 
   /**
    * Purge Cloudflare cache on all sites in multisite.
@@ -54,7 +64,8 @@ jQuery(document).ready(function($) {
             window.sb_loading(false);
             if ( response.success ) {
               setTimeout(function () {
-                window.sb_popup(response.data.type, response.data.title, null, response.data.markup);
+                var title = window.sb_get_from_response(response, 'title', sb_default_success_title())
+                window.sb_popup(response.data.type, title, null, response.data.markup);
               }, 50);
             } else {
               var message = window.sb_get_message_from_response(response);
@@ -219,13 +230,22 @@ jQuery(document).ready(function($) {
   }
 
   /**
+   * Default success title.
+   *
+   * @returns {string}
+   */
+  function sb_default_success_title() {
+    return 'All good!';
+  }
+
+  /**
    * Display cache purge success.
    *
    * @param message
    * @param title
    */
   function sb_cache_purge_success(message, title) {
-    if ( typeof title === 'undefined' || ! title ) title = 'All good!';
+    if ( typeof title === 'undefined' || ! title ) title = sb_default_success_title();
     window.sb_success(title, null, message);
   }
 

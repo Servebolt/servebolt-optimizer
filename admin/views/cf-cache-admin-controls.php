@@ -245,6 +245,7 @@
 	                  $is_purge_all = false;
 	                  $is_post = false;
 	                  $is_url = true;
+	                  $url = false;
 
                     if ( is_numeric($item) && $post = get_post($item) ) {
                       $is_post  = true;
