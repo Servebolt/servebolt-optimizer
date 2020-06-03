@@ -5,7 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * Class Servebolt_CF_Cache_Cron_Handle
  * @package Servebolt
  *
- * This class registers adds a new interval to the WP cron and schedules the queue-based cache purge method.
+ * This class adds a new interval to the WP cron and schedules the queue-based cache purge method.
  */
 class Servebolt_CF_Cache_Cron_Handle {
 
