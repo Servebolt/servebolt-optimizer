@@ -8,13 +8,13 @@
 
 	<h2>Cloudflare</h2>
 
-	<p>Feature is active? - <?php echo sb_cf()->cf_is_active() ? sb__('Yes') : sb__('No'); ?></p>
-	<p>Feature is available? - <?php echo sb_cf()->cf_cache_feature_available() ? sb__('Yes') : sb__('No'); ?></p>
-	<p>Cron purging is active? - <?php echo sb_cf()->cron_purge_is_active() ? sb__('Yes') : sb__('No'); ?> <?php if ( sb_cf()->cron_active_state_override() !== null ) echo ' (overridden with constant)'; ?></p>
-	<p>Cron purge execute is active? - <?php echo sb_cf()->should_purge_cache_queue() ? sb__('Yes') : sb__('No'); ?></p>
+	<p>Feature is active? - <?php echo sb_cf_cache()->cf_is_active() ? sb__('Yes') : sb__('No'); ?></p>
+	<p>Feature is available? - <?php echo sb_cf_cache()->cf_cache_feature_available() ? sb__('Yes') : sb__('No'); ?></p>
+	<p>Cron purging is active? - <?php echo sb_cf_cache()->cron_purge_is_active() ? sb__('Yes') : sb__('No'); ?> <?php if ( sb_cf_cache()->cron_active_state_override() !== null ) echo ' (overridden with constant)'; ?></p>
+	<p>Cron purge execute is active? - <?php echo sb_cf_cache()->should_purge_cache_queue() ? sb__('Yes') : sb__('No'); ?></p>
 
 	<strong>URL's / ID's to purge cache for</strong>
-	<?php foreach ( sb_cf()->get_items_to_purge() as $item ) : ?>
+	<?php foreach ( sb_cf_cache()->get_items_to_purge() as $item ) : ?>
 		<?php if ( is_numeric($item) ) : ?>
 		<pre><a href="<?php echo get_permalink($item); ?>"><?php echo get_the_title($item); ?> (<?php echo $item; ?>)</a></pre>
 		<?php else : ?>

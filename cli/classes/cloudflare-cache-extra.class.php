@@ -2,9 +2,9 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
- * Class Servebolt_CLI_Cloudflare_Extra
+ * Class Servebolt_CLI_Cloudflare_Cache_Extra
  */
-class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
+class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 
 	/**
 	 * Store Cloudflare zones for cache purposes.
@@ -60,10 +60,10 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * Create a new instance of Cloudflare API class with registering credentials manually.
 	 * @param $params
 	 *
-	 * @return bool|Servebolt_CF
+	 * @return bool|Servebolt_CF_Cache
 	 */
-	private function cf_create_cloudflare_instance($params) {
-		$cf = new Servebolt_CF();
+	private function cf_create_cloudflare_cache_instance($params) {
+		$cf = new Servebolt_CF_Cache();
 		if ( $cf->register_credentials_manually($params['auth_type'], $params) ) {
 			return $cf;
 		}
@@ -207,7 +207,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 					$params['api_token'] = $this->collect_parameter(sb__('Specify Cloudflare API Token: '), sb__('API cannot be empty.'));
 				}
 
-				$cf = $this->cf_create_cloudflare_instance($params);
+				$cf = $this->cf_create_cloudflare_cache_instance($params);
 				if ( $this->test_api($cf, $params) ) {
 					$api_connection_available = true;
 				}
@@ -227,7 +227,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 					$params['api_key'] = $this->collect_parameter(sb__('Specify Cloudflare API key: '), sb__('API key cannot be empty.'));
 				}
 
-				$cf = $this->cf_create_cloudflare_instance($params);
+				$cf = $this->cf_create_cloudflare_cache_instance($params);
 				if ( $this->test_api($cf, $params) ) {
 					$api_connection_available = true;
 				}
@@ -281,7 +281,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 				} else {
 					$zone = $params['zone']['id'];
 				}
-				$result[$site->blog_id] = $this->store_cf_configuration($params['auth_type'], $params, $zone, $site->blog_id) && sb_cf()->cf_toggle_active(true, $site->blog_id);
+				$result[$site->blog_id] = $this->store_cf_configuration($params['auth_type'], $params, $zone, $site->blog_id) && sb_cf_cache()->cf_toggle_active(true, $site->blog_id);
 			});
 			$has_failed = in_array(false, $result, true);
 			$all_failed = ! in_array(true, $result, true);
@@ -303,7 +303,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 				WP_CLI::success(sb__('Configuration on all sites!'));
 			}
 		} else {
-			if ( $this->store_cf_configuration($params['auth_type'], $params, $params['zone']['id']) && sb_cf()->cf_toggle_active(true) ) {
+			if ( $this->store_cf_configuration($params['auth_type'], $params, $params['zone']['id']) && sb_cf_cache()->cf_toggle_active(true) ) {
 				WP_CLI::success(sb__('Configuration stored!'));
 			} else {
 				WP_CLI::error(sb__('Hmm, could not store configuration. Please try again and/or contact support.'));
@@ -372,7 +372,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			}
 
 			if ( ! $params['disable_validation'] ) {
-				$zone = sb_cf()->get_zone_by_id($selected_zone['id']);
+				$zone = sb_cf_cache()->get_zone_by_id($selected_zone['id']);
 				if ( ! $zone ) {
 					WP_CLI::error(sb__('Could not validate zone. Make sure it exists and that we have access to it.'));
 				}
@@ -423,7 +423,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * @return bool
 	 */
 	private function store_cf_configuration($auth_type, $credentials, $zone_id, $blog_id = false) {
-		return sb_cf()->store_credentials($auth_type, $credentials, $blog_id) && sb_cf()->store_active_zone_id($zone_id, $blog_id);
+		return sb_cf_cache()->store_credentials($auth_type, $credentials, $blog_id) && sb_cf_cache()->store_active_zone_id($zone_id, $blog_id);
 	}
 
 	/**
@@ -452,7 +452,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 					$messages[] = sb__('API key must be specified.');
 				}
 
-				$cf = $this->cf_create_cloudflare_instance($params);
+				$cf = $this->cf_create_cloudflare_cache_instance($params);
 				$cf_check = $this->test_api($cf, $params, true);
 				if ( $cf_check === true ) {
 					$api_connection_available = true;
@@ -468,7 +468,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 					$messages[] = sb__('API token must be specified.');
 				}
 
-				$cf = $this->cf_create_cloudflare_instance($params);
+				$cf = $this->cf_create_cloudflare_cache_instance($params);
 				$cf_check = $this->test_api($cf, $params, true);
 				if ( $cf_check === true ) {
 					$api_connection_available = true;
@@ -484,7 +484,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		if ( empty($params['zone']) ) {
 			$messages[] = sb__('Zone must be specified.');
 		} elseif ( $api_connection_available && ! $params['disable_validation'] ) {
-			$zone = sb_cf()->get_zone_by_id($params['zone']);
+			$zone = sb_cf_cache()->get_zone_by_id($params['zone']);
 			if ( ! $zone ) {
 				$messages[] = sb__('Zone is invalid. Make sure it exists and that we have access to it.');
 			}
@@ -593,7 +593,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 */
 	protected function get_zones() {
 		if ( is_null($this->zones) ) {
-			$this->zones = sb_cf()->list_zones();
+			$this->zones = sb_cf_cache()->list_zones();
 		}
 		return $this->zones;
 	}
@@ -606,7 +606,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	protected function cf_clear_cache_purge_queue($blog_id = false) {
 
 		// Switch context to blog
-		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
+		if ( sb_cf_cache()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
 			WP_CLI::error(sprintf(sb__('Could not execute cache purge on site %s'), get_site_url($blog_id)), false);
@@ -615,7 +615,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		}
 
 		// Check if cron purge is active
-		if ( ! sb_cf()->cron_purge_is_active() ) {
+		if ( ! sb_cf_cache()->cron_purge_is_active() ) {
 			if ( $blog_id ) {
 				WP_CLI::warning(sprintf(sb__('Note: cache purge via cron is not active on site %s.'), get_site_url($blog_id)));
 			} else {
@@ -624,8 +624,8 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		}
 
 		// Check if we got items to purge, if so we purge them
-		if ( sb_cf()->has_items_to_purge() ) {
-			sb_cf()->clear_items_to_purge();
+		if ( sb_cf_cache()->has_items_to_purge() ) {
+			sb_cf_cache()->clear_items_to_purge();
 			if ( $blog_id ) {
 				WP_CLI::success(sprintf(sb__('Cache purge queue cleared on site %s.'), get_site_url($blog_id)));
 			} else {
@@ -652,11 +652,11 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	protected function cf_purge_all($blog_id = false) {
 
 		// Switch context to blog
-		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) return false;
+		if ( sb_cf_cache()->cf_switch_to_blog($blog_id) === false ) return false;
 
 		// Get zone name
-		$current_zone_id = sb_cf()->get_active_zone_id();
-		$current_zone = sb_cf()->get_zone_by_id($current_zone_id);
+		$current_zone_id = sb_cf_cache()->get_active_zone_id();
+		$current_zone = sb_cf_cache()->get_zone_by_id($current_zone_id);
 
 		// Tell the user what we're doing
 		if ( $blog_id ) {
@@ -666,7 +666,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		}
 
 		// Purge all cache
-		return sb_cf()->purge_all();
+		return sb_cf_cache()->purge_all();
 	}
 
 	/**
@@ -677,7 +677,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 */
 	protected function cf_toggle_active(bool $state, $blog_id = false) {
 		$state_string = sb_boolean_to_state_string($state);
-		$is_active = sb_cf()->cf_is_active($blog_id);
+		$is_active = sb_cf_cache()->cf_is_active($blog_id);
 
 		if ( $is_active === $state ) {
 			if ( $blog_id ) {
@@ -688,7 +688,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			return;
 		}
 
-		if ( sb_cf()->cf_toggle_active($state, $blog_id) ) {
+		if ( sb_cf_cache()->cf_toggle_active($state, $blog_id) ) {
 			if ( $blog_id ) {
 				WP_CLI::success(sprintf(sb__('Cloudflare feature was set to %s on site %s'), $state_string, get_site_url($blog_id)));
 			} else {
@@ -717,7 +717,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			if ( ! $output_texts ) return false;
 			$error_lines = [sb__('Could not retrieve any zones. This might be the reasons:')];
 			$error_lines[] = '- ' . sb__('Check that you have configured the Cloudflare API credentials');
-			switch( sb_cf()->get_authentication_type() ) {
+			switch( sb_cf_cache()->get_authentication_type() ) {
 				case 'api_token':
 					$error_lines[] = '- ' . sb__('Your API token might be limited to one or more zones.');
 					$error_lines[] = '  ' . sb__('Listing zones does unfortunately only work when "Zone Resource" is set to "All Zones" (when creating the token in Cloudflare).');
@@ -748,13 +748,13 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * @param $zone_id
 	 */
 	protected function cf_store_zone_direct($zone_id) {
-		$zone_object = sb_cf()->get_zone_by_id($zone_id);
+		$zone_object = sb_cf_cache()->get_zone_by_id($zone_id);
 		$zone_identification = $zone_object ? $zone_object->name . ' (' . $zone_object->id . ')' : $zone_id;
 		if ( ! $zone_object ) {
 			WP_CLI::error_multi_line(['Could not find zone with the specified ID in Cloudflare. This might indicate:', '- the API connection is not working', '- that the zone does not exists', '- that we lack access to the zone']);
 			WP_CLI::confirm(sb__('Do you still wish to set the zone?'));
 		}
-		sb_cf()->store_active_zone_id($zone_id);
+		sb_cf_cache()->store_active_zone_id($zone_id);
 		WP_CLI::success(sprintf(sb__('Successfully selected zone %s'), $zone_identification));
 	}
 
@@ -767,7 +767,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * @return array
 	 */
 	protected function cf_purge_status($blog_id = false, $extended = false) {
-		$is_cron_purge = sb_cf()->cron_purge_is_active(true, $blog_id);
+		$is_cron_purge = sb_cf_cache()->cron_purge_is_active(true, $blog_id);
 		if ( $blog_id ) {
 			$arr = ['Blog' => $blog_id];
 		} else {
@@ -775,7 +775,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		}
 
 		if ( $extended ) {
-			$arr['Cloudfare feature active'] = sb_cf()->cf_is_active($blog_id) ? 'Active' : 'Inactive';
+			$arr['Cloudfare feature active'] = sb_cf_cache()->cf_is_active($blog_id) ? 'Active' : 'Inactive';
 		}
 
 		$arr['Purge type'] = $is_cron_purge ? 'Via cron' : 'Immediate purge';
@@ -783,8 +783,8 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 
 		if ($is_cron_purge) {
 			$max_items = 50;
-			$items_to_purge = sb_cf()->get_items_to_purge(false, $blog_id);
-			$items_to_purge_count = sb_cf()->count_items_to_purge();
+			$items_to_purge = sb_cf_cache()->get_items_to_purge(false, $blog_id);
+			$items_to_purge_count = sb_cf_cache()->count_items_to_purge();
 
 			if ( $extended ) {
 				$posts = sb_resolve_post_ids($items_to_purge, $blog_id);
@@ -809,8 +809,8 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * @return array
 	 */
 	protected function cf_get_zone($blog_id = false, $output = true) {
-		$zone_id = sb_cf()->get_active_zone_id($blog_id);
-		if ( $zone_id && $zone_object = sb_cf()->get_zone_by_id($zone_id, $blog_id) ) {
+		$zone_id = sb_cf_cache()->get_active_zone_id($blog_id);
+		if ( $zone_id && $zone_object = sb_cf_cache()->get_zone_by_id($zone_id, $blog_id) ) {
 			$zone = $zone_object ? $zone_object->name . ' (' . $zone_object->id . ')' : $zone_id;
 		} else {
 			$zone = $zone_id;
@@ -859,10 +859,10 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 */
 	protected function cf_get_config($blog_id = false) {
 
-		if ( $blog_id ) sb_cf()->cf_switch_to_blog($blog_id);
+		if ( $blog_id ) sb_cf_cache()->cf_switch_to_blog($blog_id);
 
-		$auth_type = sb_cf()->get_authentication_type();
-		$is_cron_purge = sb_cf()->cron_purge_is_active(true);
+		$auth_type = sb_cf_cache()->get_authentication_type();
+		$is_cron_purge = sb_cf_cache()->cron_purge_is_active(true);
 
 		if ( $blog_id ) {
 			$arr = ['Blog' => $blog_id];
@@ -870,12 +870,12 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			$arr = [];
 		}
 
-		$zone_id = sb_cf()->get_active_zone_id();
-		$zone_obj = sb_cf()->get_zone_by_id($zone_id);
+		$zone_id = sb_cf_cache()->get_active_zone_id();
+		$zone_obj = sb_cf_cache()->get_zone_by_id($zone_id);
 		$zone = $zone_obj ? $zone_obj->name . ' (' . $zone_id . ')' : $zone_id;
 
 		$arr = array_merge($arr, [
-			'Status'     => sb_cf()->cf_is_active() ? 'Active' : 'Inactive',
+			'Status'     => sb_cf_cache()->cf_is_active() ? 'Active' : 'Inactive',
 			'Zone'       => $zone,
 			'Cache purge type' => $is_cron_purge ? 'Via cron' : 'Immediate purge',
 		]);
@@ -885,17 +885,17 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			case 'key':
 			case 'apiKey':
 			case 'api_key':
-				$arr['API key/token'] = sb_cf()->get_credential('api_key');
-				$arr['email'] = sb_cf()->get_credential('email');
+				$arr['API key/token'] = sb_cf_cache()->get_credential('api_key');
+				$arr['email'] = sb_cf_cache()->get_credential('email');
 				break;
 			case 'token':
 			case 'apiToken':
 			case 'api_token':
-				$arr['API key/token'] = sb_cf()->get_credential('api_token');
+				$arr['API key/token'] = sb_cf_cache()->get_credential('api_token');
 				break;
 		}
 
-		if ( $blog_id ) sb_cf()->cf_restore_current_blog();
+		if ( $blog_id ) sb_cf_cache()->cf_restore_current_blog();
 
 		return $arr;
 	}
@@ -908,7 +908,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * @return array
 	 */
 	protected function cf_get_credentials($blog_id = false) {
-		$auth_type = sb_cf()->get_authentication_type($blog_id);
+		$auth_type = sb_cf_cache()->get_authentication_type($blog_id);
 
 		if ( $blog_id ) {
 			$arr = ['Blog' => $blog_id];
@@ -916,20 +916,20 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			$arr = [];
 		}
 
-		$arr['Cloudflare feature status'] = sb_cf()->cf_is_active($blog_id) ? 'Active' : 'Inactive';
+		$arr['Cloudflare feature status'] = sb_cf_cache()->cf_is_active($blog_id) ? 'Active' : 'Inactive';
 
 		$arr['API authentication type'] = $auth_type;
 		switch ($auth_type) {
 			case 'key':
 			case 'apiKey':
 			case 'api_key':
-				$arr['API key/token'] = sb_cf()->get_credential('api_key', $blog_id);
-				$arr['email'] = sb_cf()->get_credential('email', $blog_id);
+				$arr['API key/token'] = sb_cf_cache()->get_credential('api_key', $blog_id);
+				$arr['email'] = sb_cf_cache()->get_credential('email', $blog_id);
 				break;
 			case 'token':
 			case 'apiToken':
 			case 'api_token':
-				$arr['API key/token'] = sb_cf()->get_credential('api_token', $blog_id);
+				$arr['API key/token'] = sb_cf_cache()->get_credential('api_token', $blog_id);
 				$arr['email'] = null;
 				break;
 		}
@@ -988,7 +988,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	protected function cf_status($blog_id = false) {
 
 		// Switch context to blog
-		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
+		if ( sb_cf_cache()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
 			WP_CLI::error(sprintf(sb__('Could not get Cloudflare feature status on site %s'), get_site_url($blog_id)), false);
@@ -996,7 +996,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 
 		}
 
-		$current_state = sb_cf()->cf_is_active();
+		$current_state = sb_cf_cache()->cf_is_active();
 		$cron_state_string = sb_boolean_to_state_string($current_state);
 		if ( $blog_id ) {
 			WP_CLI::success(sprintf(sb__('Cloudflare feature is %s for site %s'), $cron_state_string, get_site_url($blog_id)));
@@ -1016,7 +1016,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		$purge_type = $cron_state === true ? 'cron' : 'immediately';
 
 		// Switch context to blog
-		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
+		if ( sb_cf_cache()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
 			WP_CLI::error(sprintf(sb__('Could not set cache purge type to "%s" on site %s'), $purge_type, get_site_url($blog_id)), false);
@@ -1024,7 +1024,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 
 		}
 
-		$current_state = sb_cf()->cron_purge_is_active();
+		$current_state = sb_cf_cache()->cron_purge_is_active();
 		if ( $current_state === $cron_state ) {
 			if ( is_numeric($blog_id) ) {
 				WP_CLI::warning(sprintf(sb__('Cache purge type is already "%s" on site %s'), $purge_type, get_site_url($blog_id)));
@@ -1032,7 +1032,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 				WP_CLI::warning(sprintf(sb__('Cache purge type is already "%s"'), $purge_type));
 			}
 		} else {
-			sb_cf()->cf_toggle_cron_active($cron_state);
+			sb_cf_cache()->cf_toggle_cron_active($cron_state);
 			if ( is_numeric($blog_id) ) {
 				WP_CLI::success(sprintf(sb__('Cache purge type is set to "%s" on site %s'), $purge_type, get_site_url($blog_id)));
 			} else {
@@ -1041,7 +1041,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 		}
 
 		// Add / remove task from schedule
-		( Servebolt_CF_Cron_Handle::get_instance() )->update_cron_state($blog_id);
+		( Servebolt_CF_Cache_Cron_Handle::get_instance() )->update_cron_state($blog_id);
 	}
 
 	/**
@@ -1088,7 +1088,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * @param bool $blog_id
 	 */
 	protected function cf_clear_zone($blog_id = false) {
-		sb_cf()->clear_active_zone($blog_id);
+		sb_cf_cache()->clear_active_zone($blog_id);
 		if ( $blog_id ) {
 			WP_CLI::success(sprintf(sb__('Successfully cleared zone on site %s.'), get_site_url($blog_id)));
 		} else {
@@ -1102,9 +1102,9 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * @param bool $blog_id
 	 */
 	protected function cf_clear_config($blog_id = false) {
-		sb_cf()->clear_credentials($blog_id);
-		sb_cf()->clear_active_zone($blog_id);
-		sb_cf()->cf_toggle_active(false, $blog_id);
+		sb_cf_cache()->clear_credentials($blog_id);
+		sb_cf_cache()->clear_active_zone($blog_id);
+		sb_cf_cache()->cf_toggle_active(false, $blog_id);
 		if ( $blog_id ) {
 			WP_CLI::success(sprintf(sb__('Successfully cleared Cloudflare configuration on site %s.'), get_site_url($blog_id)));
 		} else {
@@ -1118,7 +1118,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * @param bool $blog_id
 	 */
 	protected function cf_clear_credentials($blog_id = false) {
-		sb_cf()->clear_credentials($blog_id);
+		sb_cf_cache()->clear_credentials($blog_id);
 		if ( $blog_id ) {
 			WP_CLI::success(sprintf(sb__('Successfully cleared API credentials on site %s.'), get_site_url($blog_id)));
 		} else {
@@ -1134,7 +1134,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	protected function cf_test_api_connection($blog_id = false) {
 
 		// Switch context to blog
-		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
+		if ( sb_cf_cache()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
 			WP_CLI::error(sprintf(sb__('Could not test Cloudflare API connection on site %s'), get_site_url($blog_id)), false);
@@ -1142,7 +1142,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 
 		}
 
-		if ( sb_cf()->test_api_connection() ) {
+		if ( sb_cf_cache()->test_api_connection() ) {
 			if ( $blog_id ) {
 				WP_CLI::success(sprintf(sb__('API connection passed on site %s'), get_site_url($blog_id)));
 			} else {
@@ -1150,16 +1150,16 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 			}
 
 			// Be sure to notify user if Zone ID is missing
-			$active_zone = sb_cf()->get_active_zone_id();
+			$active_zone = sb_cf_cache()->get_active_zone_id();
 			if ( ! $active_zone || empty($active_zone) ) {
 				WP_CLI::warning(sb__('Note that no Zone ID is set, so cache purge feature will not work.'));
 			}
 
 		} else {
 			if ( $blog_id ) {
-				WP_CLI::error(sprintf(sb__('Could not communicate with the API on site %s. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), get_site_url($blog_id), sb_cf()->api_permissions_needed()), false);
+				WP_CLI::error(sprintf(sb__('Could not communicate with the API on site %s. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), get_site_url($blog_id), sb_cf_cache()->api_permissions_needed()), false);
 			} else {
-				WP_CLI::error(sprintf(sb__('Could not communicate with the API. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), sb_cf()->api_permissions_needed()), false);
+				WP_CLI::error(sprintf(sb__('Could not communicate with the API. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), sb_cf_cache()->api_permissions_needed()), false);
 			}
 		}
 	}
@@ -1173,7 +1173,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	protected function cf_set_credentials($credential_data, $blog_id = false) {
 
 		// Switch context to blog
-		if ( sb_cf()->cf_switch_to_blog($blog_id) === false ) {
+		if ( sb_cf_cache()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
 			WP_CLI::error(sprintf(sb__('Could not set Cloudflare credentials on site %s'), get_site_url($blog_id)), false);
@@ -1181,8 +1181,8 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 
 		}
 
-		if ( sb_cf()->store_credentials($credential_data->type, $credential_data->credentials) ) {
-			if ( sb_cf()->test_api_connection() ) {
+		if ( sb_cf_cache()->store_credentials($credential_data->type, $credential_data->credentials) ) {
+			if ( sb_cf_cache()->test_api_connection() ) {
 				if ( $blog_id ) {
 					WP_CLI::success(sprintf(sb__('Cloudflare credentials set on site %s using %s: %s'), get_site_url($blog_id), $credential_data->verbose_type, $credential_data->verbose_credentials));
 					WP_CLI::success(sprintf(sb__('API connection test passed on site %s'), get_site_url($blog_id)));
@@ -1192,9 +1192,9 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 				}
 			} else {
 				if ( $blog_id ) {
-					WP_CLI::warning(sprintf(sb__('Credentials were stored on site %s but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), get_site_url($blog_id), sb_cf()->api_permissions_needed()), false);
+					WP_CLI::warning(sprintf(sb__('Credentials were stored on site %s but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), get_site_url($blog_id), sb_cf_cache()->api_permissions_needed()), false);
 				} else {
-					WP_CLI::warning(sprintf(sb__('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), sb_cf()->api_permissions_needed()), false);
+					WP_CLI::warning(sprintf(sb__('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), sb_cf_cache()->api_permissions_needed()), false);
 				}
 			}
 		} else {
@@ -1210,7 +1210,7 @@ class Servebolt_CLI_Cloudflare_Extra extends Servebolt_CLI_Extras {
 	 * Ensure that we are able to purge cache.
 	 */
 	protected function ensure_cache_purge_is_possible() {
-		if ( ! sb_cf()->should_use_cf_feature() ) {
+		if ( ! sb_cf_cache()->should_use_cf_feature() ) {
 			WP_CLI::error(sb__('Cannot purge cache since Cloudflare feature is not fully configured. Make sure that you have added your Cloudflare API credentials and specified a Zone ID.'));
 		}
 	}

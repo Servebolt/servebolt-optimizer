@@ -32,6 +32,58 @@ if ( ! function_exists('sb_cloudflare_proxy_in_use') ) {
 	}
 }
 
+if ( ! function_exists('sb_smart_update_option') ) {
+	/**
+   * A function that will store the option at the right place (in current blog or a specified blog).
+   *
+	 * @param $blog_id
+	 * @param $option_name
+	 * @param $value
+	 * @param bool $assert_update
+	 *
+	 * @return bool|mixed
+	 */
+	function sb_smart_update_option($blog_id, $option_name, $value, $assert_update = true) {
+		if ( is_numeric($blog_id) ) {
+			$result = sb_update_blog_option($blog_id, $option_name, $value, $assert_update);
+		} else {
+			$result = sb_update_option($option_name, $value, $assert_update);
+		}
+		return $result;
+	}
+}
+
+if ( ! function_exists('sb_smart_get_option') ) {
+	/**
+	 * A function that will get the option at the right place (in current blog or a specified blog).
+	 *
+	 * @param $blog_id
+	 * @param $option_name
+	 * @param bool $default
+	 *
+	 * @return mixed|void
+	 */
+	function sb_smart_get_option($blog_id, $option_name, $default = false) {
+		if ( is_numeric($blog_id) ) {
+			$result = sb_get_blog_option($blog_id, $option_name, $default);
+		} else {
+			$result = sb_get_option($option_name, $default);
+		}
+		return $result;
+	}
+}
+
+if ( ! function_exists('sb_purge_all_item_name') ) {
+	/**
+   * The string used to store the purge all request in the purge queue.
+   *
+	 * @return string
+	 */
+  function sb_purge_all_item_name() {
+    return '---purge-all-request---';
+  }
+}
+
 if ( ! function_exists('sb_feature_active') ) {
 	/**
    * Check whether a feature is active.
@@ -107,11 +159,11 @@ if ( ! function_exists('sb_cf') ) {
   /**
    * Get Servebolt_Checks-instance.
    *
-   * @return Servebolt_Checks|null
+   * @return Servebolt_CF_Cache|null
    */
-  function sb_cf() {
-    require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf.php';
-    return Servebolt_CF::get_instance();
+  function sb_cf_cache() {
+    require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
+    return Servebolt_CF_Cache::get_instance();
   }
 }
 
@@ -121,9 +173,9 @@ if ( ! function_exists('sb_cf_cache_controls') ) {
    *
    * @return Servebolt_Checks|null
    */
-  function sb_cf_cache_controls() {
-    require_once SERVEBOLT_PATH . 'admin/cf-cache-controls.php';
-    return CF_Cache_Controls::get_instance();
+  function sb_cf_cache_admin_controls() {
+    require_once SERVEBOLT_PATH . 'admin/cf-cache-admin-controls.php';
+    return CF_Cache_Admin_Controls::get_instance();
   }
 }
 

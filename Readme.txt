@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.4
 Requires PHP: 7
-Stable tag: 2.0.5
+Stable tag: 2.0.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,6 +44,11 @@ With WP-CLI
 4. Run optimizations `wp servebolt db optimize`
 
 == Changelog ==
+= 2.0.6 =
+* Improved feedback when purging cache
+* Code cleanup and refactor
+* Various bugfixes
+
 = 2.0.5 =
 * Swapped Guzzle with WP HTTP API to prevent namespace conflicts with other plugins also using Guzzle.
 

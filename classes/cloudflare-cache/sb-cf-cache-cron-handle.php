@@ -2,12 +2,12 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
- * Class Servebolt_CF_Cron_Handle
+ * Class Servebolt_CF_Cache_Cron_Handle
  * @package Servebolt
  *
- * This class registers WP cron schedule and task.
+ * This class adds a new interval to the WP cron and schedules the queue-based cache purge method.
  */
-class Servebolt_CF_Cron_Handle {
+class Servebolt_CF_Cache_Cron_Handle {
 
 	/**
 	 * Singleton instance.
@@ -19,17 +19,17 @@ class Servebolt_CF_Cron_Handle {
 	/**
 	 * Instantiate class.
 	 *
-	 * @return Servebolt_CF_Cron_Handle|null
+	 * @return Servebolt_CF_Cache_Cron_Handle|null
 	 */
 	public static function get_instance() {
 		if ( self::$instance == null ) {
-			self::$instance = new Servebolt_CF_Cron_Handle;
+			self::$instance = new Servebolt_CF_Cache_Cron_Handle;
 		}
 		return self::$instance;
 	}
 
 	/**
-	 * Servebolt_CF_Cron_Handle constructor.
+	 * Servebolt_CF_Cache_Cron_Handle constructor.
 	 */
 	private function __construct() {
 		$this->handle_cron();
@@ -43,7 +43,7 @@ class Servebolt_CF_Cron_Handle {
 		// Add schedule for execution every minute
 		add_filter( 'cron_schedules', [ $this, 'add_cache_purge_cron_schedule' ] );
 
-		// Bail if we are not CLI or in WP Admin
+		// Bail if we are not CLI and not in WP Admin and not running via cron
 		if ( ! sb_is_cli() && ! is_admin() && ! sb_is_cron() ) return;
 
 		// Update cron state
@@ -59,7 +59,7 @@ class Servebolt_CF_Cron_Handle {
 	public function update_cron_state($blog_id = false) {
 
 		// Check if we should use cron-based cache purging
-		if ( ! sb_cf()->cf_is_active($blog_id) || ! sb_cf()->cron_purge_is_active(true, $blog_id) || ! sb_cf()->should_purge_cache_queue() ) {
+		if ( ! sb_cf_cache()->cf_is_active($blog_id) || ! sb_cf_cache()->cron_purge_is_active(true, $blog_id) || ! sb_cf_cache()->should_purge_cache_queue() ) {
 
 			// Un-schedule task
 			$this->deregister_cron($blog_id);
@@ -79,7 +79,7 @@ class Servebolt_CF_Cron_Handle {
 	 */
 	public function deregister_cron($blog_id = false) {
 		if ( $blog_id ) switch_to_blog( $blog_id );
-		$cron_key = sb_cf()->get_cron_key();
+		$cron_key = sb_cf_cache()->get_cron_key();
 		if ( ! wp_next_scheduled($cron_key) ) {
 			wp_clear_scheduled_hook($cron_key);
 		}
@@ -88,11 +88,13 @@ class Servebolt_CF_Cron_Handle {
 
 	/**
 	 * Add cron-based cache purge task from schedule.
+	 *
+	 * @param bool $blog_id
 	 */
 	public function register_cron($blog_id = false) {
 		if ( $blog_id ) switch_to_blog( $blog_id );
-		$cron_key = sb_cf()->get_cron_key();
-		add_action( $cron_key, [sb_cf(), 'purge_by_cron'] );
+		$cron_key = sb_cf_cache()->get_cron_key();
+		add_action( $cron_key, [sb_cf_cache(), 'purge_by_cron'] );
 		if ( ! wp_next_scheduled($cron_key) ) {
 			wp_schedule_event( time(), 'every_minute', $cron_key );
 		}
@@ -115,4 +117,4 @@ class Servebolt_CF_Cron_Handle {
 	}
 
 }
-Servebolt_CF_Cron_Handle::get_instance();
+Servebolt_CF_Cache_Cron_Handle::get_instance();

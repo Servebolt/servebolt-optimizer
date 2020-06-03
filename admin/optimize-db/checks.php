@@ -3,6 +3,10 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
  * Class Servebolt_Checks
+ *
+ * This class will:
+ * - Check the option and postmeta table for missing indexes, and will add them if not present
+ * - Check for tables using the MyISAM DB-engine and convert them to InnoDB.
  */
 class Servebolt_Checks {
 
@@ -109,7 +113,7 @@ class Servebolt_Checks {
 	private function check_if_table_has_index($table_name, $index, $blog_id = false) {
 		global $wpdb;
 		if ( $blog_id ) {
-			switch_to_blog( $blog_id );
+			switch_to_blog($blog_id);
 			$table = ['blog_id' => $blog_id];
 		} else {
 			$table = [];
