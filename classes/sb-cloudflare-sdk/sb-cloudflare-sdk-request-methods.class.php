@@ -70,7 +70,7 @@ abstract class SB_CF_SDK_Request_Methods {
 		$method = strtoupper($method);
 		$request_url = $this->base_uri . $uri;
 		$base_args = [
-			'headers' => $headers = $this->prepare_request_headers($headers)
+			'headers' => $this->prepare_request_headers($headers)
 		];
 
 		// Convert data-parameters to JSON for selected request methods
