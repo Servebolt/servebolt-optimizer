@@ -45,6 +45,8 @@ With WP-CLI
 
 == Changelog ==
 = 2.0.6 =
+* Improved feedback when purging cache
+* Code cleanup and refactor
 * Various bugfixes
 
 = 2.0.5 =
