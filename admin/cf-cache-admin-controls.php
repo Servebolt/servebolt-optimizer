@@ -57,7 +57,7 @@ class CF_Cache_Admin_Controls {
 	public function plugin_scripts() {
 		$screen = get_current_screen();
 		if ( $screen->id != 'servebolt_page_servebolt-cf-cache-control' ) return;
-		wp_enqueue_script( 'servebolt-optimizer-cloudflare-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/cloudflare.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/cloudflare.js'), true );
+		wp_enqueue_script( 'servebolt-optimizer-cloudflare-cache-purge-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/cloudflare-cache-purge.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/cloudflare-cache-purge.js'), true );
 	}
 
 	/**
