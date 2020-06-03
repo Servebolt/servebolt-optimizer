@@ -1,5 +1,7 @@
 jQuery(document).ready(function($) {
 
+  // TODO: Refresh cache purge queue table (if present in DOM) after altering purge queue
+
   // Purge all cache on all sites in a multisite-network
   $('.sb-purge-network-cache').click(function (e) {
     e.preventDefault();
