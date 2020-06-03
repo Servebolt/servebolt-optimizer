@@ -77,7 +77,6 @@ class SB_CF_Cache_Purge_Actions {
 	 */
 	public function purge_post_on_update($post_id) {
 		$this->maybe_purge_post($post_id);
-
 	}
 
 	/**
