@@ -98,7 +98,13 @@ class SB_CF_Cache_Purge_Actions {
 	 */
 	public function purge_post_on_comment($comment_ID, $comment_approved, $comment_data) {
 		$post_id = $this->get_post_id_from_comment($comment_data);
+
+		// Bail on the cache purge if we could not figure out which post was commented on
 		if ( ! $post_id ) return;
+
+		// Bail on the cache purge if the comment needs to be approved first
+		if ( apply_filters('sb_optimizer_prevent_cache_purge_on_unapproved_comments', true) && ! apply_filters('sb_optimizer_comment_approved_cache_purge', $comment_approved, $comment_data) ) return;
+
 		$this->maybe_purge_post($post_id);
 	}
 
