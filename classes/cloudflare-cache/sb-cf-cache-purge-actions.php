@@ -125,6 +125,7 @@ class SB_CF_Cache_Purge_Actions {
 	 * @return bool
 	 */
 	private function get_post_id_from_comment($comment_data) {
+		$comment_data = (array) $comment_data;
 		if ( ! array_key_exists('comment_post_ID', $comment_data) ) return false;
 		return $comment_data['comment_post_ID'];
 	}
