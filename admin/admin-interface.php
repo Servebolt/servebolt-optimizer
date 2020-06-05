@@ -4,12 +4,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 require_once SERVEBOLT_PATH . 'admin/log-viewer.php';
 require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
 require_once SERVEBOLT_PATH . 'admin/nginx-fpc-controls.php';
-require_once SERVEBOLT_PATH . 'admin/cf-cache-controls.php';
+require_once SERVEBOLT_PATH . 'admin/cf-cache-admin-controls.php';
 require_once SERVEBOLT_PATH . 'admin/cf-image-resizing.php';
 require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
 
 /**
  * Class Servebolt_Admin_Interface
+ *
+ * This class initiates the admin interface for the plugin.
  */
 class Servebolt_Admin_Interface {
 
@@ -49,7 +51,7 @@ class Servebolt_Admin_Interface {
 	 */
 	private function add_sub_menu_items() {
 		add_submenu_page('servebolt-wp', sb__('Performance optimizer'), sb__('Performance optimizer'), 'manage_options', 'servebolt-performance-tools', [$this, 'performance_callback']);
-		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf', [$this, 'cf_cache_callback']);
+		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache-control', [$this, 'cf_cache_callback']);
 
 		if ( sb_feature_active('cf_image_resize') ) {
 			add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [$this, 'cf_image_resizing_callback']);
@@ -74,7 +76,7 @@ class Servebolt_Admin_Interface {
 		if ( ! apply_filters('sb_optimizer_display_menu', true) ) return;
 		add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'general_page_callback'], SERVEBOLT_PATH_URL . 'admin/assets/img/servebolt-icon.svg' );
 		add_submenu_page('servebolt-wp', sb__('General'), sb__('General'), 'manage_options', 'servebolt-wp');
-		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf', [$this, 'cf_cache_callback']);
+		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache-control', [$this, 'cf_cache_callback']);
 
 		if ( sb_feature_active('cf_image_resize') ) {
 			add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [$this, 'cf_image_resizing_callback']);
@@ -104,7 +106,7 @@ class Servebolt_Admin_Interface {
 	 */
 	public function plugin_scripts() {
 		wp_enqueue_script( 'servebolt-optimizer-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/general.js', [], filemtime(SERVEBOLT_PATH . 'admin/assets/js/general.js'), true );
-		wp_enqueue_script( 'servebolt-optimizer-cloudflare-cache-purge-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/cloudflare-cache-purge.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/cloudflare-cache-purge.js'), true );
+		wp_enqueue_script( 'servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/cloudflare-cache-purge-trigger.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/cloudflare-cache-purge-trigger.js'), true );
 		wp_enqueue_script( 'sb-sweetalert2', SERVEBOLT_PATH_URL . 'admin/assets/js/sweetalert2.all.min.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/sweetalert2.all.min.js'), true );
 		wp_localize_script( 'servebolt-optimizer-scripts', 'ajax_object', ['ajax_nonce' => sb_get_ajax_nonce()] );
 	}
@@ -154,7 +156,7 @@ class Servebolt_Admin_Interface {
 	 * Display the Cloudflare Cache control page.
 	 */
 	public function cf_cache_callback() {
-		sb_cf_cache_controls()->view();
+		sb_cf_cache_admin_controls()->view();
 	}
 
 	/**
@@ -196,10 +198,10 @@ class Servebolt_Admin_Interface {
 
 		if ( $admin_url = sb_get_admin_url() ) {
 			$nodes[] = [
-				'id'     => 'servebolt-crontrol-panel',
-				'title'  => sb__('Servebolt Control Panel'),
-				'href'   => $admin_url,
-				'meta'   => [
+				'id'    => 'servebolt-crontrol-panel',
+				'title' => sb__('Servebolt Control Panel'),
+				'href'  => $admin_url,
+				'meta'  => [
 					'target' => '_blank',
 					'class' => 'sb-admin-button'
 				]
@@ -208,10 +210,10 @@ class Servebolt_Admin_Interface {
 
 		if ( is_network_admin() ) {
 			$nodes[] = [
-				'id'     => 'servebolt-clear-cf-network-cache',
-				'title'  => sb__('Purge Cloudflare Cache for all sites'),
-				'href'   => '#',
-				'meta'   => [
+				'id'    => 'servebolt-clear-cf-network-cache',
+				'title' => sb__('Purge Cloudflare Cache for all sites'),
+				'href'  => '#',
+				'meta'  => [
 					'target' => '_blank',
 					'class' => 'sb-admin-button sb-purge-network-cache'
 				]
@@ -219,25 +221,36 @@ class Servebolt_Admin_Interface {
 		}
 
 		if ( ! is_network_admin() ) {
-			$cache_purge_available = sb_cf()->should_use_cf_feature();
+			$cache_purge_available = sb_cf_cache()->should_use_cf_feature();
 			if ( $cache_purge_available ) {
 				$nodes[] = [
-					'id'     => 'servebolt-clear-cf-cache',
-					'title'  => sb__('Purge Cloudflare Cache'),
-					'href'   => '#',
-					'meta'   => [
-						'target' => '_blank',
+					'id'    => 'servebolt-clear-cf-cache',
+					'title' => sb__('Purge All Cache'),
+					'href'  => '#',
+					'meta'  => [
 						'class' => 'sb-admin-button sb-purge-all-cache'
 					]
 				];
+
+				global $post, $pagenow;
+				if ( $pagenow == 'post.php' && $post->ID ) {
+					$nodes[] = [
+						'id'    => 'servebolt-clear-current-cf-cache',
+						'title' => '<span data-id="' . $post->ID . '">' . sb__('Purge Current Post Cache') . '</span>',
+						'href'  => '#',
+						'meta'  => [
+							'class' => 'sb-admin-button sb-purge-current-post-cache'
+						]
+					];
+				}
 			}
 		}
 
 		$nodes[] = [
-			'id'     => 'servebolt-plugin-settings',
-			'title'  => sb__('Settings'),
-			'href'   => $method('admin.php?page=servebolt-wp'),
-			'meta'   => [
+			'id'    => 'servebolt-plugin-settings',
+			'title' => sb__('Settings'),
+			'href'  => $method('admin.php?page=servebolt-wp'),
+			'meta'  => [
 				'target' => '',
 				'class' => 'sb-admin-button'
 			]
@@ -252,9 +265,10 @@ class Servebolt_Admin_Interface {
 	 * @param $wp_admin_bar
 	 */
 	public function admin_bar($wp_admin_bar) {
+
 		if ( ! apply_filters('sb_optimizer_display_admin_bar_menu', true) ) return;
 
-		if ( ! current_user_can('manage_options') ) return;
+		if ( ! apply_filters('sb_optimizer_display_admin_bar_menu_by_user_capabilities', current_user_can('manage_options')) ) return;
 
 		$sb_icon = '<span class="servebolt-icon"></span>';
 		$nodes = $this->get_admin_bar_nodes();
@@ -267,10 +281,10 @@ class Servebolt_Admin_Interface {
 			}, $nodes);
 			$nodes = array_merge([
 				[
-					'id'     => $parent_id,
-					'title'  => sb__('Servebolt Optimizer'),
-					'href'   => false,
-					'meta'   => [
+					'id'    => $parent_id,
+					'title' => sb__('Servebolt Optimizer'),
+					'href'  => false,
+					'meta'  => [
 						'target' => '_blank',
 						'class' => 'sb-admin-button'
 					]
@@ -279,7 +293,9 @@ class Servebolt_Admin_Interface {
 		}
 
 		// Add SB icon to first element
-		$nodes[0]['title'] = $sb_icon . $nodes[0]['title'];
+		if ( isset($nodes[0]) ) {
+			$nodes[0]['title'] = $sb_icon . $nodes[0]['title'];
+		}
 
 		if ( ! empty($nodes) ) {
 			foreach ( $nodes as $node ) {

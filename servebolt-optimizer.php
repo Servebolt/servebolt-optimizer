@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 2.0.4
+Version: 2.0.7
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that implements Servebolt Security & Performance best practises for WordPress.
@@ -48,7 +48,7 @@ if ( is_admin() || sb_is_cli() || sb_is_cron() ) {
 	require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
 
 	// Include the Servebolt Cloudflare class
-	require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf.php';
+	require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
 
 }
 
@@ -61,15 +61,16 @@ if ( ! class_exists('Servebolt_Nginx_FPC') ){
 // Initialize image resizing
 if ( sb_feature_active('cf_image_resize') && ( sb_cf_image_resize_control() )->resizing_is_active() ) {
 	require_once SERVEBOLT_PATH . 'classes/cloudflare-image-resize/cloudflare-image-resizing.php';
+	( new Cloudflare_Image_Resize )->init();
 }
 
 // Register cron schedule and cache purge event
-require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cron.php';
+require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache-cron-handle.php';
+
+// Register cache purge event for various hooks
+require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache-purge-actions.php';
 
 if ( is_admin() ) {
-
-	// Register cache purge event when saving post
-	require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-post-save-action.php';
 
 	// Load this plugins interface
 	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';

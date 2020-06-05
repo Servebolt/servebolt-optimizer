@@ -10,7 +10,7 @@
         <?php $method = is_multisite() && is_network_admin() ? 'network_admin_url' : 'admin_url'; ?>
 
         <a href="<?php echo $method('admin.php?page=servebolt-performance-tools'); ?>" class="sb-button yellow"><?php sb_e('Performance Optimizer'); ?></a>
-        <a href="<?php echo $method('admin.php?page=servebolt-cf'); ?>" class="sb-button yellow"><?php sb_e('Cloudflare Cache'); ?></a>
+        <a href="<?php echo $method('admin.php?page=servebolt-cf-cache-control'); ?>" class="sb-button yellow"><?php sb_e('Cloudflare Cache'); ?></a>
 
 	      <?php if ( sb_feature_active('cf_image_resize') ) : ?>
         <a href="<?php echo $method('admin.php?page=servebolt-cf-image-resizing'); ?>" class="sb-button yellow"><span style="position: relative;"><?php sb_e('Cloudflare Image Resizing'); ?> <span style="position: absolute;top: -8px;right: -30px;font-size: 10px;text-transform: uppercase;">Beta</span></span></a>
@@ -23,7 +23,7 @@
 
 	    <?php else : ?>
 
-        <a href="<?php echo admin_url('admin.php?page=servebolt-cf'); ?>" class="sb-button yellow"><?php sb_e('Cloudflare Cache'); ?></a>
+        <a href="<?php echo admin_url('admin.php?page=servebolt-cf-cache-control'); ?>" class="sb-button yellow"><?php sb_e('Cloudflare Cache'); ?></a>
 
         <?php if ( sb_feature_active('cf_image_resize') ) : ?>
         <a href="<?php echo admin_url('admin.php?page=servebolt-cf-image-resizing'); ?>" class="sb-button yellow"><span style="position: relative;"><?php sb_e('Cloudflare Image Resizing'); ?> <span style="position: absolute;top: -8px;right: -30px;font-size: 10px;text-transform: uppercase;">Beta</span></span></a>
