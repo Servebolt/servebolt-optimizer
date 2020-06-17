@@ -110,7 +110,7 @@ abstract class SB_CF_SDK_Request_Methods {
 		$result = compact('http_code', 'response', 'body', 'json');
 
 		if ( $this->debug() ) {
-			error_log(json_encode($result));
+			error_log(json_encode(array_merge($result, compact('request_url', 'args'))));
 		}
 
 		return $result;
