@@ -60,7 +60,7 @@ jQuery(document).ready(function($) {
         };
         $.ajax({
           type: 'POST',
-          url: ajaxurl,
+          url: ajax_object.ajaxurl,
           data: data,
           success: function(response) {
             window.sb_loading(false);
@@ -109,7 +109,7 @@ jQuery(document).ready(function($) {
         };
         $.ajax({
           type: 'POST',
-          url: ajaxurl,
+          url: ajax_object.ajaxurl,
           data: data,
           success: function(response) {
             window.sb_loading(false);
@@ -150,7 +150,7 @@ jQuery(document).ready(function($) {
     };
     $.ajax({
       type: 'POST',
-      url: ajaxurl,
+      url: ajax_object.ajaxurl,
       data: data,
       success: function(response) {
         window.sb_loading(false);
@@ -204,7 +204,7 @@ jQuery(document).ready(function($) {
         };
         $.ajax({
           type: 'POST',
-          url: ajaxurl,
+          url: ajax_object.ajaxurl,
           data: data,
           success: function(response) {
             window.sb_loading(false);

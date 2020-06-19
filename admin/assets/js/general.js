@@ -34,11 +34,21 @@ jQuery(document).ready(function($) {
    * Insert loader markup.
    */
   function sb_insert_loader_markup() {
-    var container = 'div.wrap.sb-content';
+    var container = 'div.wrap.sb-content',
+        markup = '<div id="servebolt-loading" class=""><div class="loader loading-ring"></div></div>';
     if ( ! $(container).length ) {
       container = 'div.wrap'
     }
-    $('<div id="servebolt-loading" class=""><div class="loader loading-ring"></div></div>').insertBefore(container);
+    if ( ! $(container).length ) {
+      container = 'body'
+      if ( $(container).length ) {
+        $(markup).prependTo(container);
+        return true;
+      }
+    }
+    if ( ! $(container).length ) return false;
+    $(markup).insertBefore(container);
+    return true;
   }
 
   /**
@@ -139,8 +149,10 @@ jQuery(document).ready(function($) {
       element = $('#servebolt-loading');
     }
     if ( bool ) {
+      $('body').addClass('sb-loading-spinner-active');
       element.addClass('active');
     } else {
+      $('body').removeClass('sb-loading-spinner-active');
       element.removeClass('active');
     }
   }

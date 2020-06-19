@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 2.0.7
+Version: 2.0.8
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that implements Servebolt Security & Performance best practises for WordPress.
@@ -69,6 +69,12 @@ require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache-cron-handle.
 
 // Register cache purge event for various hooks
 require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache-purge-actions.php';
+
+// Load this admin bar interface
+require_once SERVEBOLT_PATH . 'admin/admin-bar-interface.php';
+
+// Load admin assets
+require_once SERVEBOLT_PATH . 'admin/admin-assets.php';
 
 if ( is_admin() ) {
 
