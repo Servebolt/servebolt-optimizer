@@ -142,36 +142,48 @@ jQuery(document).ready(function($) {
    * Clear cache by post ID in Cloudflare.
    */
   function sb_purge_post_cache(post_id) {
-    window.sb_loading(true);
-    var data = {
-      action: 'servebolt_purge_post_cache',
-      security: ajax_object.ajax_nonce,
-      post_id: post_id,
-    };
-    $.ajax({
-      type: 'POST',
-      url: ajax_object.ajaxurl,
-      data: data,
-      success: function(response) {
-        window.sb_loading(false);
-        var title = window.sb_get_from_response(response, 'title'),
-            message = window.sb_get_message_from_response(response);
-        if ( response.success ) {
-          setTimeout(function () {
-            sb_cache_purge_success(message, title);
-          }, 100);
-        } else {
-          if ( message ) {
-            sb_cache_purge_error(message);
-          } else {
-            sb_cache_purge_error();
-          }
-        }
+    Swal.fire({
+      title: 'Do you want to purge cache for current post?',
+      icon: 'warning',
+      showCancelButton: true,
+      customClass: {
+        confirmButton: 'servebolt-button yellow',
+        cancelButton: 'servebolt-button light'
       },
-      error: function() {
-        window.sb_loading(false);
-        sb_cache_purge_error();
-      }
+      buttonsStyling: false
+    }).then((result) => {
+      if ( ! result.value ) return;
+      window.sb_loading(true);
+      var data = {
+        action: 'servebolt_purge_post_cache',
+        security: ajax_object.ajax_nonce,
+        post_id: post_id,
+      };
+      $.ajax({
+        type: 'POST',
+        url: ajax_object.ajaxurl,
+        data: data,
+        success: function(response) {
+          window.sb_loading(false);
+          var title = window.sb_get_from_response(response, 'title'),
+              message = window.sb_get_message_from_response(response);
+          if ( response.success ) {
+            setTimeout(function () {
+              sb_cache_purge_success(message, title);
+            }, 100);
+          } else {
+            if ( message ) {
+              sb_cache_purge_error(message);
+            } else {
+              sb_cache_purge_error();
+            }
+          }
+        },
+        error: function() {
+          window.sb_loading(false);
+          sb_cache_purge_error();
+        }
+      });
     });
   }
 

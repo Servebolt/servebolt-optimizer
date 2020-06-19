@@ -114,11 +114,11 @@ class Servebolt_Admin_Bar_Interface {
 					]
 				];
 
-				global $post, $pagenow;
-				if ( $pagenow == 'post.php' && $post->ID ) {
+
+				if ( $post_id = $this->is_single_post() ) {
 					$nodes[] = [
 						'id'    => 'servebolt-clear-current-cf-cache',
-						'title' => '<span data-id="' . $post->ID . '">' . sb__('Purge Current Post Cache') . '</span>',
+						'title' => '<span data-id="' . $post_id . '">' . sb__('Purge Current Post Cache') . '</span>',
 						'href'  => '#',
 						'meta'  => [
 							'class' => 'sb-admin-button sb-purge-current-post-cache'
@@ -139,6 +139,22 @@ class Servebolt_Admin_Bar_Interface {
 		];
 
 		return $nodes;
+	}
+
+	/**
+	 * Check whether we should allow post purge of current post (if there is any).
+	 *
+	 * @return bool
+	 */
+	private function is_single_post() {
+		if ( ! is_admin() && is_singular() && $post_id = get_the_ID() ) {
+			return $post_id;
+		}
+		global $post, $pagenow;
+		if ( is_admin() && $pagenow == 'post.php' && $post->ID ) {
+			return $post->ID;
+		}
+		return false;
 	}
 
 }
