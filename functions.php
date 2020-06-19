@@ -32,6 +32,45 @@ if ( ! function_exists('sb_cloudflare_proxy_in_use') ) {
 	}
 }
 
+if ( ! function_exists('sb_paginate_links_as_array') ) {
+	/**
+   * Create an array of paginated links based on URL and number of pages.
+   *
+	 * @param $url
+	 * @param $pages_needed
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	function sb_paginate_links_as_array($url, $pages_needed, $args = []) {
+		$base_args = apply_filters('sb_paginate_links_as_array_args', [
+			'base'      => $url . '%_%',
+			'type'      => 'array',
+			'current'   => false,
+			'total'     => $pages_needed,
+			'show_all'  => true,
+			'prev_next' => false,
+		]);
+
+		$args = wp_parse_args( $args, $base_args );
+
+		$links = paginate_links($args);
+
+		$links = array_map(function($link) {
+			preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $link, $result);
+			if ( array_key_exists('href', $result) && count($result['href']) === 1 ) {
+				return current($result['href']);
+			}
+			return false;
+		}, $links);
+		$links = array_filter($links, function($link) {
+			return $link !== false;
+		});
+
+		return $links;
+	}
+}
+
 if ( ! function_exists('sb_smart_update_option') ) {
 	/**
    * A function that will store the option at the right place (in current blog or a specified blog).
