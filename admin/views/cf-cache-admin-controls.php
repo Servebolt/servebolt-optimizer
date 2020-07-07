@@ -332,7 +332,7 @@
     <?php if ( apply_filters('sb_cf_form_validation_active', true) ) : ?>
       <script>
         document.getElementById('sb-configuration-form').addEventListener('submit', function(event) {
-          return window.sb_validate_cf_configuration_form(event);
+          window.sb_validate_cf_configuration_form(event);
         });
       </script>
     <?php endif; ?>

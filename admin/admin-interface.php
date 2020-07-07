@@ -96,8 +96,6 @@ class Servebolt_Admin_Interface {
 		if ( is_multisite() && sb_is_dev_debug() ) {
 			add_submenu_page('servebolt-wp', sb__('Debug'), sb__('Debug'), 'manage_options', 'servebolt-debug', [$this, 'debug_callback']);
 		}
-
-		add_action('admin_bar_menu', [$this, 'admin_bar'], 100);
 	}
 
 	/**
