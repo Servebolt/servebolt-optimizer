@@ -43,6 +43,29 @@ class SB_CF_Cache_Purge_Actions {
 			add_action( 'transition_comment_status', [$this, 'purge_post_on_comment_approval'], 99, 3 );
 		}
 
+		// Purge post when term is edited (Work in progress)
+        /*
+		if ( apply_filters('sb_optimizer_automatic_purge_on_term_edit', true) ) {
+			add_action( 'edit_term', [ $this, 'purge_post_on_term_edit' ], 99, 3 );
+		}
+        */
+
+	}
+
+	/**
+	 * @param $term_id
+	 * @param $tt_id
+	 * @param $taxonomy
+	 */
+	public function purge_post_on_term_edit($term_id, $tt_id, $taxonomy) {
+		$url = get_term_link($term_id, $taxonomy);
+		$links = sb_paginate_links_as_array($url, 10);
+		// TODO: Find number of pages
+		/*
+		echo '<pre>';
+		print_r($links);
+		die;
+		*/
 	}
 
 	/**

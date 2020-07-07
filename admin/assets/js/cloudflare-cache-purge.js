@@ -71,7 +71,7 @@ jQuery(document).ready(function($) {
       spinner.addClass('is-active');
       $.ajax({
         type: 'POST',
-        url: ajaxurl,
+        url: ajax_object.ajaxurl,
         data: data,
         success: function (response) {
           spinner.removeClass('is-active');
@@ -154,7 +154,7 @@ jQuery(document).ready(function($) {
       spinner.addClass('is-active');
       $.ajax({
         type: 'POST',
-        url: ajaxurl,
+        url: ajax_object.ajaxurl,
         data: data,
         success: function (response) {
           spinner.removeClass('is-active');
@@ -232,7 +232,7 @@ jQuery(document).ready(function($) {
     };
     $.ajax({
       type: 'POST',
-      url: ajaxurl,
+      url: ajax_object.ajaxurl,
       data: data,
       success: function (response) {
         spinner.removeClass('is-active');
@@ -392,10 +392,13 @@ jQuery(document).ready(function($) {
    *
    * @returns {boolean}
    */
-  window.sb_validate_cf_configuration_form_is_running = false;
+  window.sb_validate_cf_configuration_form_validation_is_running = false;
+  window.sb_validate_cf_configuration_form_can_submit = false;
   window.sb_validate_cf_configuration_form = function(event) {
-    if ( window.sb_validate_cf_configuration_form_is_running ) event.preventDefault();
-    window.sb_validate_cf_configuration_form_is_running = true;
+    if ( window.sb_validate_cf_configuration_form_can_submit ) return; // Allow submission
+    event.preventDefault(); // Prevent form from submitting
+    if ( window.sb_validate_cf_configuration_form_validation_is_running ) return; // Validation is already running
+    window.sb_validate_cf_configuration_form_validation_is_running = true;
     var spinner = $('#sb-configuration .form-submit-spinner'),
       form = $('#sb-configuration-form'),
       data = {
@@ -403,33 +406,36 @@ jQuery(document).ready(function($) {
         security: ajax_object.ajax_nonce,
         form: form.serialize(),
       };
+    form.find('input[type="submit"]').prop('disabled', true);
     spinner.addClass('is-active');
     $.ajax({
       type: 'POST',
-      url: ajaxurl,
-      //async: false,
+      url: ajax_object.ajaxurl,
       data: data,
       success: function (response) {
         clear_validation_errors();
         if ( response.success ) {
           sb_cf_revert_values(); // Revert hidden fields back to original value
-          form.removeAttr('onsubmit');
+          window.sb_validate_cf_configuration_form_can_submit = true;
           form.submit();
         } else {
-          window.sb_validate_cf_configuration_form_is_running = false;
+          window.sb_validate_cf_configuration_form_can_submit = false;
+          window.sb_validate_cf_configuration_form_validation_is_running = false;
           spinner.removeClass('is-active');
           indicate_validation_errors(response.data.errors);
           window.sb_warning('Ouch! Validation failed :(', null, response.data.error_html);
+          form.find('input[type="submit"]').prop('disabled', false);
         }
       },
       error: function() {
         clear_validation_errors();
-        window.sb_validate_cf_configuration_form_is_running = false;
+        window.sb_validate_cf_configuration_form_can_submit = false;
+        window.sb_validate_cf_configuration_form_validation_is_running = false;
         spinner.removeClass('is-active');
         window.sb_warning('Ouch!', 'An unkown error occurred. Please try agin or contact support.');
+        form.find('input[type="submit"]').prop('disabled', false);
       }
     });
-    return false;
   }
 
   /**

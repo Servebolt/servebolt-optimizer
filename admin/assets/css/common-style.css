@@ -1,0 +1,108 @@
+/* Styling shared by WP Admin and front end. */
+.sb-content .buttons {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.servebolt-button:focus,
+.sb-content .sb-button:focus {
+    outline: none;
+}
+
+.servebolt-button,
+.sb-content .sb-button {
+    padding: 10px 10px;
+    color: black;
+    text-decoration: none;
+    border: 0;
+    cursor: pointer;
+    outline: none;
+    border-radius: 50px;
+    margin: 0 2rem;
+    font-weight: 700;
+    width: 150px;
+    display: inline-block;
+    text-align: center;
+}
+
+.servebolt-button[disabled],
+.sb-content .sb-button[disabled] {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.servebolt-button.light,
+.sb-content .sb-button.light {
+    border: 2px solid #ffaf00;
+}
+
+.sb-content .sb-button.inline {
+    margin-left: 0;
+    margin-right: 10px;
+}
+
+.servebolt-button.yellow,
+.sb-content .sb-button.yellow {
+    background: #ffaf00;
+}
+
+#servebolt-loading {
+    display: none;
+}
+
+#servebolt-loading.active {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1;
+}
+
+.servebolt-icon {
+    float: left;
+}
+
+.servebolt-icon:before {
+    display: block;
+    content: ' ';
+    background-image:  url('../img/servebolt-icon.svg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 20px 20px;
+    height: 31px;
+    width: 20px;
+    margin-right: 3px;
+    margin-bottom: 1px;
+    margin-left: -3px;
+}
+
+.loading-ring {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+}
+
+.loading-ring:after {
+    content: ' ';
+    display: block;
+    width: 32px;
+    height: 32px;
+    margin: 8px;
+    border-radius: 50%;
+    border: 3px solid #ffaf00;
+    border-color: #ffaf00 transparent #ffaf00 transparent;
+    animation: loading-ring .7s linear infinite;
+}
+
+@keyframes loading-ring {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}

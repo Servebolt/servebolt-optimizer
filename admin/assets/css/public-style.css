@@ -1,0 +1,10 @@
+body.sb-loading-spinner-active > * {
+    opacity: 0.4;
+}
+
+body.sb-loading-spinner-active #wpadminbar,
+body.sb-loading-spinner-active #wpadminbar *,
+body.sb-loading-spinner-active #servebolt-loading,
+body.sb-loading-spinner-active #servebolt-loading * {
+    opacity: 1;
+}
