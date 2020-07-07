@@ -124,7 +124,7 @@
           <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
             <th scope="row"><label for="email"><?php sb_e('Cloudflare e-mail'); ?></label></th>
             <td>
-              <input name="<?php echo sb_get_option_name('cf_email'); ?>" type="email" id="email" data-original-value="<?php echo esc_attr($cf_settings['cf_email']); ?>" value="<?php echo esc_attr($cf_settings['cf_email']); ?>" class="regular-text validate-field validation-input-email validation-group-api_key_credentials validation-group-api_credentials">
+              <input name="<?php echo sb_get_option_name('cf_email'); ?>" type="text" id="email" data-original-value="<?php echo esc_attr($cf_settings['cf_email']); ?>" value="<?php echo esc_attr($cf_settings['cf_email']); ?>" class="regular-text validate-field validation-input-email validation-group-api_key_credentials validation-group-api_credentials">
               <p class="invalid-message"></p>
             </td>
           </tr>
