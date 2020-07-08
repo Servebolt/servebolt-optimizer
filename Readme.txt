@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.4
 Requires PHP: 7
-Stable tag: 2.0.7
+Stable tag: 2.0.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -44,6 +44,10 @@ With WP-CLI
 4. Run optimizations `wp servebolt db optimize`
 
 == Changelog ==
+= 2.0.8 =
+* Improved GUI - now possible to purge cache (via the admin bar menu) for single pages when viewing / editing
+* Fixed minor CF settings page validation bug
+
 = 2.0.7 =
 * Bugfix in comment cache purge
 
