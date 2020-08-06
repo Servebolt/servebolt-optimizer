@@ -88,3 +88,22 @@ if ( sb_is_cli() ) {
     require_once SERVEBOLT_PATH . 'cli/cli.class.php';
 	Servebolt_CLI::get_instance();
 }
+
+// Response for when we query how many pages is needed in an archive.
+if ( array_key_exists('sb_optimizer_record_max_num_pages', $_GET) ) {
+    add_filter('template_redirect', function () {
+        global $wp_the_query;
+        if ( $wp_the_query->is_main_query() ) {
+            echo json_encode(['max_num_pages' => $wp_the_query->max_num_pages]);
+            exit;
+        }
+    });
+}
+
+if ( ! array_key_exists('sb_optimizer_record_max_num_pages', $_GET) && array_key_exists('sb_optimizer_record_max_num_pages_debug', $_GET) ) {
+    add_filter('template_redirect', function() {
+        echo '<pre>';
+        print_r((sb_cf_cache_purge_object(250))->get_urls());
+        die;
+    });
+}

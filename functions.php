@@ -43,6 +43,8 @@ if ( ! function_exists('sb_paginate_links_as_array') ) {
 	 * @return array
 	 */
 	function sb_paginate_links_as_array($url, $pages_needed, $args = []) {
+	    if ( ! is_numeric($pages_needed) || $pages_needed <= 1 ) return [$url];
+
 		$base_args = apply_filters('sb_paginate_links_as_array_args', [
 			'base'      => $url . '%_%',
 			'type'      => 'array',
@@ -53,8 +55,10 @@ if ( ! function_exists('sb_paginate_links_as_array') ) {
 		]);
 
 		$args = wp_parse_args( $args, $base_args );
-
 		$links = paginate_links($args);
+
+		print_r($links);
+		die;
 
 		$links = array_map(function($link) {
 			preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $link, $result);
@@ -63,6 +67,7 @@ if ( ! function_exists('sb_paginate_links_as_array') ) {
 			}
 			return false;
 		}, $links);
+
 		$links = array_filter($links, function($link) {
 			return $link !== false;
 		});
@@ -287,6 +292,20 @@ if ( ! function_exists('sb_is_cron') ) {
   function sb_is_cron() {
     return ( defined( 'DOING_CRON' ) && DOING_CRON );
   }
+}
+
+if ( ! function_exists('sb_cf_cache_purge_object') ) {
+    /**
+     * Create a new instance of SB_CF_Cache_Purge_Object.
+     *
+     * @param bool $id
+     * @param string $type
+     * @return SB_CF_Cache_Purge_Object
+     */
+    function sb_cf_cache_purge_object($id = false, $type = 'post') {
+        require_once __DIR__ . '/classes/cloudflare-cache/sb-cf-cache-purge-object.php';
+        return new SB_CF_Cache_Purge_Object($id, $type);
+    }
 }
 
 if ( ! function_exists('sb_get_admin_url') ) {

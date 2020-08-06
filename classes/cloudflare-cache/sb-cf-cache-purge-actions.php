@@ -44,11 +44,9 @@ class SB_CF_Cache_Purge_Actions {
 		}
 
 		// Purge post when term is edited (Work in progress)
-        /*
 		if ( apply_filters('sb_optimizer_automatic_purge_on_term_edit', true) ) {
 			add_action( 'edit_term', [ $this, 'purge_post_on_term_edit' ], 99, 3 );
 		}
-        */
 
 	}
 
@@ -58,15 +56,41 @@ class SB_CF_Cache_Purge_Actions {
 	 * @param $taxonomy
 	 */
 	public function purge_post_on_term_edit($term_id, $tt_id, $taxonomy) {
-		$url = get_term_link($term_id, $taxonomy);
-		$links = sb_paginate_links_as_array($url, 10);
-		// TODO: Find number of pages
-		/*
-		echo '<pre>';
-		print_r($links);
-		die;
-		*/
+        $this->maybe_purge_term($term_id);
 	}
+
+    /**
+     * @param $term_id
+     */
+    private function maybe_purge_term($term_id) {
+        if ( ! $this->should_purge_term_cache($term_id) ) return;
+        sb_cf_cache()->purge_term($term_id);
+	}
+
+    /**
+     * Check if we should clear cache for post that is being updated.
+     *
+     * @param $term_id
+     *
+     * @return bool|void
+     */
+    private function should_purge_term_cache($term_id) {
+
+        // Let users override the outcome
+        $override = apply_filters('sb_optimizer_should_purge_term_cache', null, $term_id);
+        if ( is_bool($override) ) return $override;
+
+        // Check that the taxonomy is public
+        if ( $term = get_term_by('term_taxonomy_id', $term_id) ) {
+            $taxonomy = get_taxonomy($term->taxonomy);
+            if ( $taxonomy && ( $taxonomy->public !== true || $taxonomy->publicly_queryable !== true ) ) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
 
 	/**
 	 * Check if we should clear cache for post that is being updated.
@@ -84,13 +108,15 @@ class SB_CF_Cache_Purge_Actions {
 		// Check that the post type is public
 		$post_type = get_post_type($post_id);
 		$post_type_object = get_post_type_object($post_type);
-		if ( ! $post_type_object || $post_type_object->public === true || $post_type_object->publicly_queryable === true ) return true;
+		if ( $post_type_object && ( $post_type_object->public !== true || $post_type_object->publicly_queryable !== true ) ) {
+            return false;
+        }
 
 		// Make sure that post is not just a draft
 		$post_status = get_post_status($post_id);
-		if ( in_array($post_status, ['publish']) ) return true;
+		if ( ! in_array($post_status, ['publish']) ) return false;
 
-		return false;
+		return true;
 	}
 
 	/**

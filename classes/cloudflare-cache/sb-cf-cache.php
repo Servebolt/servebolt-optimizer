@@ -572,17 +572,41 @@ class Servebolt_CF_Cache {
 		return false;
 	}
 
+    /**
+     * Add term item to the purge queue.
+     *
+     * @param $item
+     * @return bool
+     */
+    public function add_term_item_to_purge_queue($item) {
+	    return $this->add_item_to_purge_queue($item, 'term');
+    }
+
+    /**
+     * Add post item to the purge queue.
+     *
+     * @param $item
+     * @return bool
+     */
+    public function add_post_item_to_purge_queue($item) {
+        return $this->add_item_to_purge_queue($item, 'post');
+    }
+
 	/**
 	 * Add a post Id to the purge queue (by cron).
 	 *
-	 * @param $item
-	 *
-	 * @return bool
-	 */
-	public function add_item_to_purge_queue($item) {
+     * @param $item
+     * @param $type
+     * @return bool
+     */
+	public function add_item_to_purge_queue($item, $type) {
 		if ( empty($item) ) return false;
 		$items_to_purge_with_cron = $this->get_items_to_purge();
-		$items_to_purge_with_cron[] = $item;
+		$items_to_purge_with_cron[] = [
+		    'item'     => $item,
+            'datetime' => 'Y-m-d H:i:s',
+            'type'     => $type,
+        ];
 		$items_to_purge_with_cron = array_unique($items_to_purge_with_cron);
 		return $this->set_items_to_purge($items_to_purge_with_cron);
 	}
@@ -591,7 +615,8 @@ class Servebolt_CF_Cache {
 	 * Queue up a request to purge all cache.
 	 */
 	public function add_purge_all_to_purge_queue() {
-		return $this->add_item_to_purge_queue(sb_purge_all_item_name());
+        return $this->add_item_to_purge_queue(false, 'all');
+		//return $this->add_item_to_purge_queue(sb_purge_all_item_name());
 	}
 
 	/**
@@ -642,8 +667,20 @@ class Servebolt_CF_Cache {
 		if ( is_numeric($limit) ) {
 			$items = array_reverse(array_slice(array_reverse($items), 0, $limit));
 		}
+		$items = $this->format_items_to_purge($items);
 		return $items;
 	}
+
+	private function format_items_to_purge($items) {
+	    $items = array_map(function ($item) {
+	        return new CF_Cache_Purge_Queue_Item($item);
+        }, $items);
+	    return $items;
+    }
+
+	function get_purge_urls_by_term_id( int $term_id ) {
+        return sb_cf_cache_purge_object($term_id, 'term')->get_urls();
+    }
 
 	/**
 	 * Get all URL's to purge for a post.
@@ -653,12 +690,7 @@ class Servebolt_CF_Cache {
 	 * @return array
 	 */
 	private function get_purge_urls_by_post_id( int $post_id ) {
-		$purge_urls = [];
-
-		// Front page
-		if ( $front_page_id = get_option( 'page_on_front' ) ) {
-			array_push( $purge_urls, get_permalink($front_page_id) );
-		}
+        return sb_cf_cache_purge_object($post_id, 'post')->get_urls();
 
 		// Posts page
 		if ( $page_for_posts = get_option( 'page_for_posts' ) ) {
@@ -681,6 +713,17 @@ class Servebolt_CF_Cache {
 		return $purge_urls;
 	}
 
+	public function purge_term( int $term_id ) {
+
+        // If cron purge is enabled, build the list of ids to purge by cron. If not active, just purge right away.
+        if ( $this->cron_purge_is_active() ) {
+            return $this->add_term_item_to_purge_queue($term_id);
+        } else if ( $urls_to_purge = $this->get_purge_urls_by_term_id($term_id) ) {
+            return $this->cf()->purge_urls($urls_to_purge);
+        }
+
+    }
+
 	/**
 	 * Purging Cloudflare on save.
 	 *
@@ -695,7 +738,7 @@ class Servebolt_CF_Cache {
 
 		// If cron purge is enabled, build the list of ids to purge by cron. If not active, just purge right away.
 		if ( $this->cron_purge_is_active() ) {
-			return $this->add_item_to_purge_queue($post_id);
+			return $this->add_post_item_to_purge_queue($post_id);
 		} else if ( $urls_to_purge = $this->get_purge_urls_by_post_id($post_id) ) {
 			return $this->cf()->purge_urls($urls_to_purge);
 		}
@@ -716,7 +759,7 @@ class Servebolt_CF_Cache {
 			return $this->purge_post($post_id);
 		} else {
 			if ( $this->cron_purge_is_active() ) {
-				return $this->add_item_to_purge_queue($url);
+				return $this->add_item_to_purge_queue($url, 'url');
 			} else {
 				return $this->cf()->purge_urls([$url]);
 			}
