@@ -1,6 +1,9 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+// Include crypto-class
+require __DIR__ . '/classes/sb-crypto.class.php';
+
 if ( ! function_exists('sb_cloudflare_proxy_in_use') ) {
 	/**
 	 * Check if Cloudflare Proxy is used by analyzing the request headers, and if not present then send a request to the front page and analyze the headers again.
@@ -33,47 +36,45 @@ if ( ! function_exists('sb_cloudflare_proxy_in_use') ) {
 }
 
 if ( ! function_exists('sb_paginate_links_as_array') ) {
-	/**
-   * Create an array of paginated links based on URL and number of pages.
-   *
-	 * @param $url
-	 * @param $pages_needed
-	 * @param array $args
-	 *
-	 * @return array
-	 */
-	function sb_paginate_links_as_array($url, $pages_needed, $args = []) {
-	    if ( ! is_numeric($pages_needed) || $pages_needed <= 1 ) return [$url];
+    /**
+     * Create an array of paginated links based on URL and number of pages.
+     *
+     * @param $url
+     * @param $pages_needed
+     * @param array $args
+     * @return array|string|void
+     */
+    function sb_paginate_links_as_array($url, $pages_needed, $args = []) {
+        if ( ! is_numeric($pages_needed) || $pages_needed <= 1 ) return [$url];
 
-		$base_args = apply_filters('sb_paginate_links_as_array_args', [
-			'base'      => $url . '%_%',
-			'type'      => 'array',
-			'current'   => false,
-			'total'     => $pages_needed,
-			'show_all'  => true,
-			'prev_next' => false,
-		]);
+        $base_args = apply_filters('sb_paginate_links_as_array_args', [
+            'base'      => $url . '%_%',
+            'type'      => 'array',
+            'current'   => false,
+            'total'     => $pages_needed,
+            'show_all'  => true,
+            'prev_next' => false,
+        ]);
 
-		$args = wp_parse_args( $args, $base_args );
-		$links = paginate_links($args);
+        $args = wp_parse_args( $args, $base_args );
+        $links = paginate_links($args);
 
-		print_r($links);
-		die;
+        $links = array_map(function($link) {
+            preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $link, $result);
+            if ( array_key_exists('href', $result) && count($result['href']) === 1 && ! empty($result['href']) ) {
+                $url = current($result['href']);
+                $url = strtok($url, '?'); // Remove query string
+                return $url;
+            }
+            return false;
+        }, $links);
 
-		$links = array_map(function($link) {
-			preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $link, $result);
-			if ( array_key_exists('href', $result) && count($result['href']) === 1 ) {
-				return current($result['href']);
-			}
-			return false;
-		}, $links);
+        $links = array_filter($links, function($link) {
+            return $link !== false;
+        });
 
-		$links = array_filter($links, function($link) {
-			return $link !== false;
-		});
-
-		return $links;
-	}
+        return $links;
+    }
 }
 
 if ( ! function_exists('sb_smart_update_option') ) {
@@ -1105,190 +1106,63 @@ if ( ! function_exists('sb_array_get') ) {
   }
 }
 
-/**
- * Class SB_Crypto
- */
-class SB_Crypto {
+if ( ! function_exists('sb_max_num_pages_query_nonce') ) {
+    /**
+     * Get a unique permanent string to authenticate max_num_pages-requests with.
+     * @return mixed|string|void
+     */
+    function sb_max_num_pages_query_nonce() {
+        return sb_generate_random_permanent_key('sb_optimizer_record_max_num_pages');
+    }
+}
 
-	/**
-	 * Blog id - used to retrieve encryption keys for the given blog.
-	 *
-	 * @var bool
-	 */
-	private static $blog_id = false;
+if ( ! function_exists('sb_max_num_pages_query_callback') ) {
+    /**
+     * Listen for max_num_pages-request and return JSON-data.
+     */
+    function sb_max_num_pages_query_callback() {
 
-	/**
-	 * Determine if and which encryption method is available.
-	 *
-	 * @return bool|string
-	 */
-	private static function determine_encryption_method() {
-		if ( function_exists('openssl_encrypt') && function_exists('openssl_decrypt') ) {
-			return 'openssl';
-		}
-		if ( function_exists('mcrypt_encrypt') && function_exists('mcrypt_decrypt') ) {
-			return 'mcrypt';
-		}
-		return false;
-	}
+        // Abort if we're not using the max_num_pages-feature
+        if ( apply_filters('sb_optimizer_skip_pages_needed_request', false) === true ) return;
 
-	/**
-	 * Encrypt string.
-	 *
-	 * @param $input_string
-	 * @param bool $method
-	 * @param bool $blog_id
-	 *
-	 * @return bool|string
-	 */
-	public static function encrypt($input_string, $blog_id = false, $method = false) {
-		if ( is_multisite() && is_numeric($blog_id) ) {
-			self::$blog_id = $blog_id;
-		}
-		try {
-			if ( ! $method ) {
-				$method = self::determine_encryption_method();
-			}
-			switch ( $method ) {
-				case 'openssl':
-					return self::openssl_encrypt($input_string);
-					break;
-				case 'mcrypt':
-					return self::mcrypt_encrypt($input_string);
-					break;
-			}
-		} catch (Exception $e) {
-			return false;
-		}
-		return false;
-	}
+        // Init debug
+        if ( defined('WP_DEBUG') && WP_DEBUG ) sb_max_num_pages_debug();
 
-	/**
-	 * Decrypt string.
-	 *
-	 * @param $input_string
+        // Abort if this is not a max_num_pages-request
+        if ( ! array_key_exists('sb_optimizer_record_max_num_pages', $_GET) ) return;
 
-	 * @param bool $blog_id
-   * @param bool $method
-	 *
-	 * @return bool|string
-	 */
-	public static function decrypt($input_string, $blog_id = false, $method = false) {
-		if ( is_multisite() && is_numeric($blog_id) ) {
-			self::$blog_id = $blog_id;
-		}
-		try {
-			if ( ! $method ) {
-				$method = self::determine_encryption_method();
-			}
-			switch ( $method ) {
-				case 'openssl':
-					return self::openssl_decrypt($input_string);
-					break;
-				case 'mcrypt':
-						return self::mcrypt_decrypt($input_string);
-					break;
-			}
-		} catch (Exception $e) {
-			return false;
-		}
-		return false;
-	}
+        // Ignore unauthorized request
+        if ( sb_max_num_pages_query_nonce() !== $_GET['sb_optimizer_record_max_num_pages'] ) return;
 
-	/**
-	 * Mcrypt key.
-	 *
-	 * @return string
-	 */
-	public static function mcrypt_key() {
-		$key = sb_generate_random_permanent_key('mcrypt_key', self::$blog_id);
-	  $key = apply_filters('sb_optimizer_mcrypt_key', $key);
-	  return $key;
-	}
+        // Hook into right before the output comes, then record the number of pages needed and display it as a JSON-response
+        add_filter(apply_filters('sb_optimizer_record_max_num_pages_filter_hook', 'template_redirect'), function () {
+            global $wp_the_query;
+            if ($wp_the_query->is_main_query()) {
+                echo json_encode(['max_num_pages' => $wp_the_query->max_num_pages]);
+                exit;
+            }
+        });
 
-	/**
-	 * Initiate mcrypt encryption/decryption.
-	 *
-	 * @return array
-	 */
-	public static function mcrypt_init() {
-		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
-		$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-		$h_key = hash('sha256', self::mcrypt_key(), TRUE);
-		return compact('iv', 'h_key');
-	}
+    }
+}
 
-	/**
-	 * Encrypt string using mcrypt.
-	 *
-	 * @param $input_string
-	 *
-	 * @return string
-	 */
-	public static function mcrypt_encrypt($input_string) {
-		$init = self::mcrypt_init();
-		return base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $init['h_key'], $input_string, MCRYPT_MODE_ECB, $init['iv']));
-	}
-
-	/**
-	 * Decrypt string using mcrypt.
-	 *
-	 * @param $encrypted_input_string
-	 *
-	 * @return string
-	 */
-	public static function mcrypt_decrypt($encrypted_input_string) {
-		$init = self::mcrypt_init();
-		return trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $init['h_key'], base64_decode($encrypted_input_string), MCRYPT_MODE_ECB, $init['iv']));
-	}
-
-	/**
-	 * OpenSSL encryption keys.
-	 *
-	 * @return array
-	 */
-	public static function openssl_keys() {
-		$key = sb_generate_random_permanent_key('openssl_key', self::$blog_id);
-		$iv = sb_generate_random_permanent_key('openssl_iv', self::$blog_id);
-		$keys = apply_filters('sb_optimizer_openssl_keys', compact('key', 'iv'));
-		return $keys;
-	}
-
-	/**
-	 * Init OpenSSL.
-	 *
-	 * @return array
-	 */
-	public static function openssl_init() {
-		$encrypt_method = 'AES-256-CBC';
-		$secret = self::openssl_keys();
-		$key = hash('sha256', $secret['key']);
-		$iv = substr(hash('sha256', $secret['iv']), 0, 16);
-		return compact('encrypt_method', 'key', 'iv');
-	}
-
-	/**
-	 * Encrypt string using mcrypt.
-	 *
-	 * @param $input_string
-	 *
-	 * @return string
-	 */
-	public static function openssl_encrypt($input_string) {
-		$init = self::openssl_init();
-		return base64_encode(openssl_encrypt($input_string, $init['encrypt_method'], $init['key'], 0, $init['iv']));
-	}
-
-	/**
-	 * Decrypt string using OpenSSL.
-	 *
-	 * @param $encrypted_input_string
-	 *
-	 * @return string
-	 */
-	public static function openssl_decrypt($encrypted_input_string) {
-		$init = self::openssl_init();
-		return openssl_decrypt(base64_decode($encrypted_input_string), $init['encrypt_method'], $init['key'], 0, $init['iv']);
-	}
-
+if ( ! function_exists('sb_max_num_pages_debug') ) {
+    /**
+     * Debug tool for max_num_pages-request feature.
+     */
+    function sb_max_num_pages_debug() {
+        if ( ! array_key_exists('sb_optimizer_record_max_num_pages', $_GET) && array_key_exists('sb_optimizer_record_max_num_pages_debug', $_GET) ) {
+            add_filter('template_redirect', function () {
+                $sb_cf_cache_purge_object = sb_cf_cache_purge_object($_GET['id'], $_GET['type'] ?: 'post');
+                if ($sb_cf_cache_purge_object->success()) {
+                    echo '<pre>';
+                    print_r($sb_cf_cache_purge_object->get_urls());
+                    echo '</pre>';
+                } else {
+                    echo 'Could not resolve object.';
+                }
+                exit;
+            });
+        }
+    }
 }

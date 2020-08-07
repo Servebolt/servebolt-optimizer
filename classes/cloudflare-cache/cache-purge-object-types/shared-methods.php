@@ -23,13 +23,49 @@ abstract class SB_CF_Cache_Purge_Object_Shared {
     private $urls = [];
 
     /**
+     * Whether we could resolve the purge object from the ID (post/term lookup).
+     *
+     * @var null
+     */
+    private $success = false;
+
+    /**
      * SB_CF_Cache_Purge_Object_Shared constructor.
      *
      * @param $id
      */
     protected function __construct($id) {
         $this->set_id($id);
-        $this->init_object();
+        if ( $this->init_object() ) { // Check if we could find the object first
+            if ( apply_filters('sb_optimizer_should_generate_other_urls', true ) ) { // Check if we should generate all other related URLs for object
+                $this->generate_other_urls();
+            }
+        }
+        $this->post_url_generate_actions();
+    }
+
+    /**
+     * Do stuff after we have generated URLs.
+     */
+    private function post_url_generate_actions() {
+
+        // Let other manipulate URLs
+        $this->set_urls(apply_filters('sb_optimizer_alter_urls_for_cache_purge_object', $this->get_urls(), $this->get_id(), $this->object_type));
+
+    }
+
+    /**
+     * Set/get whether we could resolve the purge object from the ID (post/term lookup).
+     *
+     * @param null $bool
+     * @return bool|void
+     */
+    public function success($bool = null) {
+        if ( is_bool($bool) ) {
+            $this->success = $bool;
+            return;
+        }
+        return $this->success === true;
     }
 
     /**
@@ -47,6 +83,9 @@ abstract class SB_CF_Cache_Purge_Object_Shared {
      * @return mixed
      */
     public function get_id() {
+        if ( is_numeric($this->id) ) {
+            return (int) $this->id; // Make sure to return ID as int if it is numerical
+        }
         return $this->id;
     }
 
@@ -56,9 +95,11 @@ abstract class SB_CF_Cache_Purge_Object_Shared {
      * @param $url
      * @return bool
      */
-    protected function add_url($url) {
-        if ( ! in_array($url, $this->urls) ) {
-            $this->urls[] = $url;
+    public function add_url($url) {
+        $urls = $this->get_urls();
+        if ( ! in_array($url, $urls) ) {
+            $urls[] = $url;
+            $this->set_urls($urls);
             return true;
         }
         return false;
@@ -69,10 +110,22 @@ abstract class SB_CF_Cache_Purge_Object_Shared {
      *
      * @param $urls
      */
-    protected function add_urls($urls) {
+    public function add_urls($urls) {
+        if ( ! is_array($urls) ) return;
         array_map(function ($url) {
             $this->add_url($url);
         }, $urls);
+    }
+
+    /**
+     * Set the URLs to purge cache for.
+     *
+     * @param $urls
+     */
+    public function set_urls($urls) {
+        if ( ! is_array($urls) ) return false;
+        $this->urls = $urls;
+        return true;
     }
 
     /**
@@ -97,15 +150,22 @@ abstract class SB_CF_Cache_Purge_Object_Shared {
     }
 
     /**
-     * Query and find out how many pages a given archive URL has.
+     * Query and find out how many pages needed for a given archive URL.
      *
      * @param $url
      * @return bool
      */
     protected function get_pages_needed($url) {
+
+        // Give the option to skip this, and return fixed override value instead
+        if ( apply_filters('sb_optimizer_skip_pages_needed_request', false) === true ) {
+            return apply_filters('sb_optimizer_pages_needed_override', 250); // Fixed override value
+        }
+
+        // TODO: This can be quite heavy for some sites, maybe consider to cache this in some way?
         $url .= '?' . http_build_query([
-            'sb_optimizer_record_max_num_pages' => '',
-            'cachebust' => microtime(true),
+            'sb_optimizer_record_max_num_pages' => sb_max_num_pages_query_nonce(),
+            'cachebust'                         => microtime(true),
         ]);
         $response = wp_remote_get($url, [
             'httpversion' => '1.1',

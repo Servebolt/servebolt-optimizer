@@ -9,6 +9,13 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
 
     /**
+     * Define the type of this object in WP context.
+     *
+     * @var string
+     */
+    protected $object_type = 'post';
+
+    /**
      * SB_CF_Cache_Purge_Post_Object constructor.
      * @param $post_id
      */
@@ -21,11 +28,23 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
      */
     protected function init_object() {
 
+        // The URL to the post itself
+        if ($this->add_post_url()) {
+            $this->success(true); // Flag that found the post
+            return true;
+        } else {
+            return false; // Could not find the post, stop execution
+        }
+
+    }
+
+    /**
+     * Generate URLs related to the object.
+     */
+    protected function generate_other_urls() {
+
         // The URL to the front page
         $this->add_front_page();
-
-        // The URL to the post itself
-        $this->add_post_url();
 
         // The URL to the post type archive for the post type of the post
         $this->add_post_type_archive();
@@ -43,22 +62,27 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
             $this->add_date_archive();
 
         }
+
     }
 
     /**
      * Add the URL of a post to be purged.
      */
     private function add_post_url() {
-        if ( $post_permalink = get_permalink( $this->get_id() ) ) {
+        $post_permalink = get_permalink( $this->get_id() );
+        if ( $post_permalink && ! is_wp_error($post_permalink) ) {
             $this->add_url($post_permalink);
+            return true;
         }
+        return false;
     }
 
     /**
      *
      */
     private function add_post_type_archive() {
-        if ( $post_type_archive_url = get_post_type_archive_link($this->get_post_type()) ) {
+        $post_type_archive_url = get_post_type_archive_link($this->get_post_type());
+        if ( $post_type_archive_url && ! is_wp_error($post_type_archive_url) ) {
             $this->add_urls(sb_paginate_links_as_array($post_type_archive_url, $this->get_pages_needed($post_type_archive_url)));
         }
     }
@@ -67,9 +91,10 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
      * Add author URL to be purged.
      */
     private function add_author_archive() {
-        if ( $author = $this->get_post_author() ) {
+        $author = $this->get_post_author();
+        if ( $author && ! is_wp_error($author) ) {
             $author_url = get_author_posts_url($author);
-            if ( $author_url ) {
+            if ( $author_url && ! is_wp_error($author_url) ) {
                 $this->add_urls(sb_paginate_links_as_array($author_url, $this->get_pages_needed($author_url)));
             }
         }
@@ -80,11 +105,16 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
      */
     private function add_taxonomy_archives() {
         $taxonomies = get_taxonomies( [ 'object_type' => [ $this->get_post_type() ] ] );
-        foreach ( $taxonomies as $taxonomy_slug => $taxonomy_name ) {
-            $terms = wp_get_post_terms($this->object_id, $taxonomy_slug);
-            foreach ( $terms as $term ) {
-                if ( $term_link = get_term_link($term, $taxonomy_slug) ) {
-                    $this->add_urls(sb_paginate_links_as_array($term_link, $this->get_pages_needed($term_link)));
+        if ( is_array($taxonomies) ) {
+            foreach ( $taxonomies as $taxonomy_slug => $taxonomy_name ) {
+                $terms = wp_get_post_terms($this->get_id(), $taxonomy_slug);
+                if ( is_array($terms) ) {
+                    foreach ( $terms as $term ) {
+                        $term_link = get_term_link($term, $taxonomy_slug);
+                        if ( $term_link && ! is_wp_error($term_link) ) {
+                            $this->add_urls(sb_paginate_links_as_array($term_link, $this->get_pages_needed($term_link)));
+                        }
+                    }
                 }
             }
         }
@@ -94,10 +124,11 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
      *
      */
     private function add_date_archive() {
-        $year  = get_the_time('Y', $this->object_id);
-        $month = get_the_time('m', $this->object_id);
-        $day   = get_the_time('d', $this->object_id);
-        if ( $date_archive = get_day_link($year, $month, $day) ) {
+        $year  = get_the_time('Y', $this->get_id());
+        $month = get_the_time('m', $this->get_id());
+        $day   = get_the_time('d', $this->get_id());
+        $date_archive = get_day_link($year, $month, $day);
+        if ( $date_archive && ! is_wp_error($date_archive) ) {
             $this->add_urls(sb_paginate_links_as_array($date_archive, $this->get_pages_needed($date_archive)));
         }
     }
@@ -108,9 +139,8 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
      * @return mixed
      */
     private function get_post_author() {
-        if ( $this->object_type !== 'post' ) return false;
-        $post = get_post( $this->object_id );
-        return $post->post_author;
+        $post = get_post( $this->get_id() );
+        return isset($post->post_author) ? $post->post_author : false;
     }
 
     /**

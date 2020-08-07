@@ -22,11 +22,23 @@ class SB_CF_Cache_Purge_Object {
     /**
      * SB_CF_Cache_Purge_Object constructor.
      *
-     * @param bool $id
+     * @param $id
      * @param string $type
      */
     public function __construct($id = false, $type = 'post') {
-        return $this->add_object($id, $type);
+        if ( $id ) {
+            $this->add_object($id, $type);
+        }
+    }
+
+    /**
+     * Check whether we could resolve the object to be purged.
+     *
+     * @return mixed
+     */
+    public function success() {
+        if ( ! $this->purge_object ) return false;
+        return $this->purge_object->success();
     }
 
     /**
@@ -35,6 +47,7 @@ class SB_CF_Cache_Purge_Object {
      * @return mixed
      */
     public function get_urls() {
+        if ( ! $this->purge_object ) return false;
         return $this->purge_object->get_urls();
     }
 
@@ -62,18 +75,19 @@ class SB_CF_Cache_Purge_Object {
     }
 
     /**
-     * Add the object to be purged.
+     * Try to find the object to be purged, and if so create an object for it.
      *
      * @param $id
      * @param string $type
      * @return bool
      */
-    private function add_object($id, $type = 'post') {
-        if ( ! $purge_object = $this->resolve_purge_object($id, $type) ) {
-            return false;
+    public function add_object($id, $type = 'post') {
+        $purge_object = $this->resolve_purge_object($id, $type);
+        if ( $purge_object && ! is_wp_error($purge_object) ) {
+            $this->purge_object = $purge_object;
+            return $this->purge_object;
         }
-        $this->purge_object = $purge_object;
-        return $purge_object;
+        return false;
     }
 
 }
