@@ -885,11 +885,17 @@ if ( ! function_exists('sb_delete_all_settings') ) {
    */
   function sb_delete_all_settings($all_sites = true) {
     $option_names = [
+
+      // Wipe nonce
       'ajax_nonce',
+      'record_max_num_pages_nonce',
+
+      // Wipe encryption keys
       'mcrypt_key',
       'openssl_key',
       'openssl_iv',
 
+      // Wipe Cloudflare-related options
       'cf_switch',
       'cf_zone_id',
       'cf_auth_type',
@@ -899,9 +905,10 @@ if ( ! function_exists('sb_delete_all_settings') ) {
       'cf_items_to_purge',
       'cf_cron_purge',
 
+      // Wipe SB FPC-relateds options
       'fpc_switch',
       'fpc_settings',
-      'fpc_exclude'
+      'fpc_exclude',
     ];
     foreach ( $option_names as $option_name ) {
       if ( is_multisite() && $all_sites ) {
@@ -1112,7 +1119,7 @@ if ( ! function_exists('sb_max_num_pages_query_nonce') ) {
      * @return mixed|string|void
      */
     function sb_max_num_pages_query_nonce() {
-        return sb_generate_random_permanent_key('sb_optimizer_record_max_num_pages');
+        return sb_generate_random_permanent_key('record_max_num_pages_nonce');
     }
 }
 
