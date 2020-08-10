@@ -93,6 +93,24 @@ class Servebolt_Nginx_FPC {
 	}
 
 	/**
+	 * Check if we are in a WooCommerce-context and check if we should not cache.
+	 *
+	 * @return bool
+	 */
+	private function is_woocommerce_no_cache_page() {
+		return apply_filters('sb_optimizer_woocommerce_pages_no_cache_bool', ( $this->woocommerce_is_active() && ( is_cart() || is_checkout() || is_account_page() ) ) );
+	}
+
+	/**
+	 * Check if we are in a WooCommerce-context and check if we should cache.
+	 *
+	 * @return bool
+	 */
+	private function is_woocommerce_cache_page() {
+		return apply_filters('sb_optimizer_woocommerce_pages_cache_bool', ( $this->woocommerce_is_active() && ( is_shop() || is_product_category() || is_product_tag() || is_product() ) ) );
+	}
+
+	/**
 	 * Set cache headers - Determine and set the type of headers to be used.
 	 *
 	 * @param $posts
@@ -126,9 +144,12 @@ class Servebolt_Nginx_FPC {
 		// Only trigger this function once
 		remove_filter( 'posts_results', [$this, 'set_headers'] );
 
-		if ( $this->is_woocommerce_page() ) {
+		if ( $this->is_woocommerce_no_cache_page() ) {
 			$this->no_cache_headers();
 			if ( $debug ) $this->header('No-cache-trigger: 2');
+		} elseif ( $this->is_woocommerce_cache_page() ) {
+			$this->cache_headers();
+			if ( $debug ) $this->header('Cache-trigger: 11');
 		} elseif ( $this->should_exclude_post_from_cache( get_the_ID() ) ) {
 			$this->no_cache_headers();
 			if ( $debug ) $this->header('No-cache-trigger: 3');
@@ -212,15 +233,6 @@ class Servebolt_Nginx_FPC {
 	public function should_exclude_post_from_cache($post_id) {
 		$ids_to_exclude = $this->get_ids_to_exclude_from_cache();
 		return is_array($ids_to_exclude) && in_array($post_id, $ids_to_exclude);
-	}
-
-	/**
-	 * Check if we are in a WooCommerce-context.
-	 *
-	 * @return bool
-	 */
-	private function is_woocommerce_page() {
-		return $this->woocommerce_is_active() && ( is_cart() || is_checkout() || is_account_page() );
 	}
 
 	/**
