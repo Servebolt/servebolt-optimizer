@@ -4,7 +4,7 @@
 	<h1><?php sb_e('Cloudflare Cache'); ?></h1>
 
 	<?php $max_number_of_cache_purge_queue_items = (int) apply_filters('sb_optimizer_purge_item_list_limit', 500); ?>
-  <?php $number_of_cache_purge_queue_items = sb_cf()->count_items_to_purge(); ?>
+  <?php $number_of_cache_purge_queue_items = sb_cf_cache()->count_items_to_purge(); ?>
 	<?php if ( ! is_network_admin() ) : ?>
 		<?php if ( $number_of_cache_purge_queue_items > $max_number_of_cache_purge_queue_items ) : ?>
         <div class="notice notice-warning">
@@ -43,8 +43,8 @@
         <tr>
           <td><?php echo $site->blog_id; ?></td>
           <td><?php echo $site->domain . $site->path; ?></td>
-          <td><?php echo sb_cf()->cf_is_active($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
-          <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-cf' ); ?>" class="button btn"><?php sb_e('Go to site Cloudflare settings'); ?></a></td>
+          <td><?php echo sb_cf_cache()->cf_is_active($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
+          <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-cf-cache-control' ); ?>" class="button btn"><?php sb_e('Go to site Cloudflare settings'); ?></a></td>
         </tr>
 	  <?php endforeach; ?>
       </tbody>
@@ -52,18 +52,18 @@
 
   <?php else : ?>
 
-    <?php $cf_settings = sb_cf_cache_controls()->get_settings_items(); ?>
+    <?php $cf_settings = sb_cf_cache_admin_controls()->get_settings_items(); ?>
 
-    <?php if ( sb_cf()->should_use_cf_feature() ) : ?>
-      <?php if ( ! sb_cf()->cf_cache_feature_available() ) : ?>
+    <?php if ( sb_cf_cache()->cf_is_active() ) : ?>
+      <?php if ( ! sb_cf_cache()->cf_cache_feature_available() ) : ?>
       <p><?php sb_e('Make sure you have added the API credentials and selected a zone to use this functionality.'); ?></p>
-      <?php endif; ?>
-
+      <?php else: ?>
       <p>
         <button class="sb-purge-all-cache sb-button yellow inline"><?php sb_e('Purge all cache'); ?></button>
         <button class="sb-purge-url sb-button yellow inline"><?php sb_e('Purge a URL'); ?></button>
       </p>
       <br>
+      <?php endif; ?>
     <?php endif; ?>
 
     <h1><?php sb_e('Configuration'); ?></h1>
@@ -118,13 +118,13 @@
               </div>
 
               <p class="invalid-message"></p>
-              <p><small><?php echo sprintf(sb__('Make sure to add permissions for %s when creating a token.'), sb_cf()->api_permissions_needed()); ?></small></p>
+              <p><small><?php echo sprintf(sb__('Make sure to add permissions for %s when creating a token.'), sb_cf_cache()->api_permissions_needed()); ?></small></p>
             </td>
           </tr>
           <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
             <th scope="row"><label for="email"><?php sb_e('Cloudflare e-mail'); ?></label></th>
             <td>
-              <input name="<?php echo sb_get_option_name('cf_email'); ?>" type="email" id="email" data-original-value="<?php echo esc_attr($cf_settings['cf_email']); ?>" value="<?php echo esc_attr($cf_settings['cf_email']); ?>" class="regular-text validate-field validation-input-email validation-group-api_key_credentials validation-group-api_credentials">
+              <input name="<?php echo sb_get_option_name('cf_email'); ?>" type="text" id="email" data-original-value="<?php echo esc_attr($cf_settings['cf_email']); ?>" value="<?php echo esc_attr($cf_settings['cf_email']); ?>" class="regular-text validate-field validation-input-email validation-group-api_key_credentials validation-group-api_credentials">
               <p class="invalid-message"></p>
             </td>
           </tr>
@@ -151,9 +151,10 @@
             <td>
 
               <?php
-                $zone = $cf_settings['cf_zone_id'] ? sb_cf()->get_zone_by_id($cf_settings['cf_zone_id']) : false;
+
+                $zone = $cf_settings['cf_zone_id'] ? sb_cf_cache()->get_zone_by_id($cf_settings['cf_zone_id']) : false;
                 $have_zones = false;
-                $zones = sb_cf()->list_zones();
+                $zones = sb_cf_cache()->list_zones();
                 $have_zones = ( is_array($zones) && ! empty($zones) );
               ?>
 
@@ -203,7 +204,7 @@
           <tr class="sb-toggle-active-cron-item<?php if ( ! $cf_settings['cf_cron_purge'] ) echo ' cf-hidden-cron'; ?>">
             <td colspan="2" style="padding-top:0;padding-left:0;">
 
-              <?php $items_to_purge = sb_cf()->get_items_to_purge($max_number_of_cache_purge_queue_items); ?>
+              <?php $items_to_purge = sb_cf_cache()->get_items_to_purge($max_number_of_cache_purge_queue_items); ?>
 
               <div class="tablenav top">
                 <div class="alignleft actions bulkactions">
@@ -238,19 +239,27 @@
 
                 <tbody id="the-list">
                   <tr class="no-items<?php if ( count($items_to_purge) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php sb_e('No purge items found.'); ?></td></tr>
-                  <?php foreach($items_to_purge as $i => $item) : ?>
+                  <?php foreach ( $items_to_purge as $i => $item ) : ?>
                   <?php
+
+	                  $is_purge_all = false;
+	                  $is_post = false;
+	                  $is_url = true;
+	                  $url = false;
+
                     if ( is_numeric($item) && $post = get_post($item) ) {
-                      $is_post = true;
-                      $title = get_the_title($item);
-                      $url = get_permalink($item);
-                      $is_url = true;
+                      $is_post  = true;
+                      $title    = get_the_title($item);
+                      $url      = get_permalink($item);
 	                    $edit_url = get_edit_post_link($item);
+                    } elseif( $item == sb_purge_all_item_name() ) {
+	                    $is_url       = false;
+	                    $is_purge_all = true;
                     } else {
-                      $is_post = false;
                       $url = $item;
                       $is_url = filter_var($item, FILTER_VALIDATE_URL) !== false;
                     }
+
                   ?>
                   <tr class="purge-item">
                     <th scope="row" class="check-column">
@@ -270,6 +279,13 @@
                       </div>
                     </td>
                     <td class="purge-item-column"><strong><?php echo $title; ?></strong></td>
+                    <?php elseif ($is_purge_all) : ?>
+                    <td class="column-post-id has-row-actions purge-item-column" colspan="2">
+                      <?php sb_e('Purge all-request') ?>
+                      <div class="row-actions">
+                        <span class="trash"><a href="#" class="remove-purge-item-from-queue"><?php sb_e('Delete'); ?></a><?php if ( $is_url ) : ?> | <?php endif; ?></span>
+                      </div>
+                    </td>
                     <?php else : ?>
                     <td class="column-post-id has-row-actions purge-item-column" colspan="2">
                       <?php sb_e('Purged via URL only, no post object available.') ?>
@@ -316,7 +332,7 @@
     <?php if ( apply_filters('sb_cf_form_validation_active', true) ) : ?>
       <script>
         document.getElementById('sb-configuration-form').addEventListener('submit', function(event) {
-          return window.sb_validate_cf_configuration_form(event);
+          window.sb_validate_cf_configuration_form(event);
         });
       </script>
     <?php endif; ?>
@@ -328,17 +344,17 @@
         <h2><?php sb_e('Cron debug'); ?></h2>
         <p><?php sb_e('Cron is active:'); ?> <?php
 
-          $next_run_timestamp = sb_get_next_cron_time(sb_cf()->get_cron_key());
+          $next_run_timestamp = sb_get_next_cron_time(sb_cf_cache()->get_cron_key());
 
-          if ( sb_cf()->cron_purge_is_active(false) ) {
+          if ( sb_cf_cache()->cron_purge_is_active(false) ) {
 
-            if ( sb_cf()->cron_active_state_override() ) {
+            if ( sb_cf_cache()->cron_active_state_override() ) {
               sb_e('Yes, due to constant "SERVEBOLT_CF_PURGE_CRON" being set to "true');
             } else {
               sb_e('Yes');
             }
 
-            if ( sb_cf()->should_purge_cache_queue() ) {
+            if ( sb_cf_cache()->should_purge_cache_queue() ) {
               sb_e('. Note that cache purge requests are only added to the queue, not executed. This is due to the constant "SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE" being set to "false".');
             }
 
@@ -347,7 +363,7 @@
           }
 
         ?></p>
-        <p><?php sb_e('Cron schedule hook:'); ?> <?php echo sb_cf()->get_cron_key(); ?></p>
+        <p><?php sb_e('Cron schedule hook:'); ?> <?php echo sb_cf_cache()->get_cron_key(); ?></p>
         <p><?php sb_e('Next run:'); ?> <?php echo $next_run_timestamp ? date_i18n('Y-m-d H:i:s', $next_run_timestamp) : '-'; ?></p>
 
       </div>

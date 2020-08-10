@@ -34,11 +34,21 @@ jQuery(document).ready(function($) {
    * Insert loader markup.
    */
   function sb_insert_loader_markup() {
-    var container = 'div.wrap.sb-content';
+    var container = 'div.wrap.sb-content',
+        markup = '<div id="servebolt-loading" class=""><div class="loader loading-ring"></div></div>';
     if ( ! $(container).length ) {
       container = 'div.wrap'
     }
-    $('<div id="servebolt-loading" class=""><div class="loader loading-ring"></div></div>').insertBefore(container);
+    if ( ! $(container).length ) {
+      container = 'body'
+      if ( $(container).length ) {
+        $(markup).prependTo(container);
+        return true;
+      }
+    }
+    if ( ! $(container).length ) return false;
+    $(markup).insertBefore(container);
+    return true;
   }
 
   /**
@@ -116,13 +126,15 @@ jQuery(document).ready(function($) {
    * Get item from data in jQuery AJAX response object.
    *
    * @param response
+   * @param key
+   * @param default_value
    * @returns {*}
    */
-  window.sb_get_from_response = function(response, key) {
+  window.sb_get_from_response = function(response, key, default_value) {
     if ( typeof response.data !== 'undefined' && typeof response.data[key] !== 'undefined' ) {
       return response.data[key];
     }
-    return false;
+    return default_value ? default_value : false;
   }
 
   /**
@@ -137,8 +149,10 @@ jQuery(document).ready(function($) {
       element = $('#servebolt-loading');
     }
     if ( bool ) {
+      $('body').addClass('sb-loading-spinner-active');
       element.addClass('active');
     } else {
+      $('body').removeClass('sb-loading-spinner-active');
       element.removeClass('active');
     }
   }

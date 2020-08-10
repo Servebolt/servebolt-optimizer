@@ -32,6 +32,97 @@ if ( ! function_exists('sb_cloudflare_proxy_in_use') ) {
 	}
 }
 
+if ( ! function_exists('sb_paginate_links_as_array') ) {
+	/**
+   * Create an array of paginated links based on URL and number of pages.
+   *
+	 * @param $url
+	 * @param $pages_needed
+	 * @param array $args
+	 *
+	 * @return array
+	 */
+	function sb_paginate_links_as_array($url, $pages_needed, $args = []) {
+		$base_args = apply_filters('sb_paginate_links_as_array_args', [
+			'base'      => $url . '%_%',
+			'type'      => 'array',
+			'current'   => false,
+			'total'     => $pages_needed,
+			'show_all'  => true,
+			'prev_next' => false,
+		]);
+
+		$args = wp_parse_args( $args, $base_args );
+
+		$links = paginate_links($args);
+
+		$links = array_map(function($link) {
+			preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $link, $result);
+			if ( array_key_exists('href', $result) && count($result['href']) === 1 ) {
+				return current($result['href']);
+			}
+			return false;
+		}, $links);
+		$links = array_filter($links, function($link) {
+			return $link !== false;
+		});
+
+		return $links;
+	}
+}
+
+if ( ! function_exists('sb_smart_update_option') ) {
+	/**
+   * A function that will store the option at the right place (in current blog or a specified blog).
+   *
+	 * @param $blog_id
+	 * @param $option_name
+	 * @param $value
+	 * @param bool $assert_update
+	 *
+	 * @return bool|mixed
+	 */
+	function sb_smart_update_option($blog_id, $option_name, $value, $assert_update = true) {
+		if ( is_numeric($blog_id) ) {
+			$result = sb_update_blog_option($blog_id, $option_name, $value, $assert_update);
+		} else {
+			$result = sb_update_option($option_name, $value, $assert_update);
+		}
+		return $result;
+	}
+}
+
+if ( ! function_exists('sb_smart_get_option') ) {
+	/**
+	 * A function that will get the option at the right place (in current blog or a specified blog).
+	 *
+	 * @param $blog_id
+	 * @param $option_name
+	 * @param bool $default
+	 *
+	 * @return mixed|void
+	 */
+	function sb_smart_get_option($blog_id, $option_name, $default = false) {
+		if ( is_numeric($blog_id) ) {
+			$result = sb_get_blog_option($blog_id, $option_name, $default);
+		} else {
+			$result = sb_get_option($option_name, $default);
+		}
+		return $result;
+	}
+}
+
+if ( ! function_exists('sb_purge_all_item_name') ) {
+	/**
+   * The string used to store the purge all request in the purge queue.
+   *
+	 * @return string
+	 */
+  function sb_purge_all_item_name() {
+    return '---purge-all-request---';
+  }
+}
+
 if ( ! function_exists('sb_feature_active') ) {
 	/**
    * Check whether a feature is active.
@@ -107,11 +198,11 @@ if ( ! function_exists('sb_cf') ) {
   /**
    * Get Servebolt_Checks-instance.
    *
-   * @return Servebolt_Checks|null
+   * @return Servebolt_CF_Cache|null
    */
-  function sb_cf() {
-    require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf.php';
-    return Servebolt_CF::get_instance();
+  function sb_cf_cache() {
+    require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
+    return Servebolt_CF_Cache::get_instance();
   }
 }
 
@@ -121,9 +212,9 @@ if ( ! function_exists('sb_cf_cache_controls') ) {
    *
    * @return Servebolt_Checks|null
    */
-  function sb_cf_cache_controls() {
-    require_once SERVEBOLT_PATH . 'admin/cf-cache-controls.php';
-    return CF_Cache_Controls::get_instance();
+  function sb_cf_cache_admin_controls() {
+    require_once SERVEBOLT_PATH . 'admin/cf-cache-admin-controls.php';
+    return CF_Cache_Admin_Controls::get_instance();
   }
 }
 
@@ -205,6 +296,9 @@ if ( ! function_exists('sb_get_admin_url') ) {
    * @return bool|string
    */
   function sb_get_admin_url() {
+    if ( ! function_exists( 'get_home_path' ) ) {
+        require_once( ABSPATH . 'wp-admin/includes/file.php' );
+    }
     $web_root_path = sb_is_dev_debug() ? '/kunder/serveb_1234/custom_4321/public' : get_home_path();
     return ( preg_match( "@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $web_root_path, $matches ) ) ? 'https://admin.servebolt.com/siteredirect/?site='. $matches[1] : false;
   }

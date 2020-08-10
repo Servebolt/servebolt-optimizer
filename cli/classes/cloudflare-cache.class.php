@@ -1,15 +1,17 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once __DIR__ . '/cloudflare-extra.class.php';
+require_once __DIR__ . '/cloudflare-cache-extra.class.php';
 
 /**
- * Class Servebolt_CLI_Cloudflare
+ * Class Servebolt_CLI_Cloudflare_Cache
+ *
+ * This class contains the Cloudflare-related methods when using the WP CLI.
  */
-class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
+class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extra {
 
 	/**
-	 * Setup procedure for Cloudflare feature.
+	 * Setup procedure for Cloudflare cache-bust feature.
 	 *
 	 * ## OPTIONS
 	 *
@@ -83,7 +85,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	}
 
 	/**
-	 * Check if the Cloudflare-feature is active/inactive.
+	 * Check if the Cloudflare cache bust-feature is active/inactive.
 	 *
 	 * ## OPTIONS
 	 *
@@ -106,7 +108,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	}
 
 	/**
-	 * Activate Cloudflare feature.
+	 * Activate Cloudflare cache-bust feature.
 	 *
 	 * ## OPTIONS
 	 *
@@ -129,7 +131,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	}
 
 	/**
-	 * Deactivate Cloudflare feature.
+	 * Deactivate Cloudflare cache-bust feature.
 	 *
 	 * ## OPTIONS
 	 *
@@ -178,7 +180,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	}
 
 	/**
-	 * Set config parameters for Cloudflare.
+	 * Set config parameters for the Cloudflare cache-bust feature.
 	 *
 	 * ## OPTIONS
 	 *
@@ -223,7 +225,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 	}
 
 	/**
-	 * Clear all config parameters for Cloudflare.
+	 * Clear all config parameters for the Cloudflare cache-feature.
 	 *
 	 * ## OPTIONS
 	 *
@@ -425,8 +427,8 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 
 		WP_CLI::line(sb__('This will set/update which Cloudflare zone we are interacting with.'));
 
-		if ( $current_zone_id = sb_cf()->get_active_zone_id() ) {
-			$current_zone = sb_cf()->get_zone_by_id($current_zone_id);
+		if ( $current_zone_id = sb_cf_cache()->get_active_zone_id() ) {
+			$current_zone = sb_cf_cache()->get_zone_by_id($current_zone_id);
 			if ( $current_zone ) {
 				WP_CLI::line(sprintf(sb__('Current zone is set to %s (%s)'), $current_zone->name, $current_zone->id));
 			}
@@ -482,7 +484,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 		$zone_id = is_object($zone) ? $zone->id : $zone;
 		$zone_name = is_object($zone) ? $zone->name : $zone_id;
 
-		sb_cf()->store_active_zone_id($zone_id);
+		sb_cf_cache()->store_active_zone_id($zone_id);
 		WP_CLI::success(sprintf(sb__('Successfully selected zone %s'), $zone_name));
 
 	}
@@ -613,7 +615,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 		list($url) = $args;
 		$this->ensure_cache_purge_is_possible();
 		WP_CLI::line(sprintf(sb__('Purging cache for url %s'), $url));
-		if ( sb_cf()->purge_by_url($url) ) {
+		if ( sb_cf_cache()->purge_by_url($url) ) {
 			WP_CLI::success(sb__('Cache purged!'));
 		} else {
 			WP_CLI::error(sb__('Could not purge cache.'));
@@ -637,7 +639,7 @@ class Servebolt_CLI_Cloudflare extends Servebolt_CLI_Cloudflare_Extra {
 		list($post_id) = $args;
 		$this->ensure_cache_purge_is_possible();
 		WP_CLI::line(sprintf(sb__('Purging cache for post %s'), $post_id));
-		if ( sb_cf()->purge_post($post_id) ) {
+		if ( sb_cf_cache()->purge_post($post_id) ) {
 			WP_CLI::success(sb__('Cache purged!'));
 		} else {
 			WP_CLI::error(sb__('Could not purge cache.'));

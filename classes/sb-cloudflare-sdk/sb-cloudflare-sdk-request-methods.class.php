@@ -4,9 +4,16 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 /**
  * Class SB_CF_SDK
  *
- * This class lets us communicate with the Cloudflare API using native the native WP HTTP API. Earlier we used Guzzle for this, but it turns out it created conflicts with a lot of plugins due to lack of namespace separation between Guzzle-versions.
+ * The class contains the request-related methods when communicating with the Cloudflare API.
  */
-class SB_CF_SDK {
+abstract class SB_CF_SDK_Request_Methods {
+
+	/**
+	 * Whether to debug requests to log.
+	 *
+	 * @var bool
+	 */
+	protected $request_debug = false;
 
 	/**
 	 * Cloudflare API URL.
@@ -16,13 +23,22 @@ class SB_CF_SDK {
 	private $base_uri = 'https://api.cloudflare.com/client/v4/';
 
 	/**
+	 * Whether to debug or not.
+	 *
+	 * @return bool
+	 */
+	private function debug() {
+		return (bool) apply_filters('sb_optimizer_cf_api_request_debug', $this->request_debug);
+	}
+
+	/**
 	 * Prepare request headers.
 	 *
-	 * @param $additional_headers
+	 * @param array $additional_headers
 	 *
 	 * @return array
 	 */
-	private function prepare_request_headers ($additional_headers) {
+	private function prepare_request_headers (array $additional_headers = []): array {
 		$headers = [
 			'Content-Type' => 'application/json',
 			'Accept'       => 'application/json',
@@ -42,7 +58,7 @@ class SB_CF_SDK {
 	/**
 	 * Send request.
 	 *
-	 * @param $uri
+	 * @param string $uri
 	 * @param string $method
 	 * @param array $data
 	 * @param array $headers
@@ -50,27 +66,39 @@ class SB_CF_SDK {
 	 *
 	 * @return array|bool
 	 */
-	protected function request($uri, $method = 'GET', $data = [], $headers = [], $additional_args = []) {
-
-		$headers = $this->prepare_request_headers($headers);
+	protected function request(string $uri, string $method = 'GET', array $data = [], array $headers = [], array $additional_args = []) {
+		$method = strtoupper($method);
 		$request_url = $this->base_uri . $uri;
+		$base_args = [
+			'headers' => $this->prepare_request_headers($headers)
+		];
 
-		$args = array_merge([
-			'headers'     => $headers = $this->prepare_request_headers($headers),
-			'body'        => json_encode($data),
-		], $additional_args);
+		// Convert data-parameters to JSON for selected request methods
+		if ( in_array($method, ['POST']) ) {
+			$data = json_encode($data);
+		}
 
-		switch (strtoupper($method)) {
+
+		// Add request data only if present
+		if ( ! empty($data) ) {
+			$base_args['body'] = $data;
+		}
+
+		$args = array_merge($base_args, $additional_args);
+
+		switch ( $method ) {
 			case 'GET':
 				$response = wp_remote_get($request_url, $args);
 				break;
 			case 'POST':
 				$response = wp_remote_post($request_url, $args);
 				break;
+			/*
 			case 'DELETE':
 				$args['method'] = 'DELETE';
 				$response = wp_remote_request($request_url, $args);
 				break;
+			*/
 			default:
 				return false;
 		}
@@ -79,7 +107,13 @@ class SB_CF_SDK {
 		$body      = wp_remote_retrieve_body($response);
 		$json      = json_decode($body);
 
-		return compact('http_code', 'response', 'body', 'json');
+		$result = compact('http_code', 'response', 'body', 'json');
+
+		if ( $this->debug() ) {
+			error_log(json_encode(array_merge($result, compact('request_url', 'args'))));
+		}
+
+		return $result;
 	}
 
 }

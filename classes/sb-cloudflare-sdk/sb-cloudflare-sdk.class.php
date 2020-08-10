@@ -1,15 +1,17 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once __DIR__ . '/sb-cloudflare-sdk.class.php';
+// Require the request-method class which our SDK class is dependent on
+require_once __DIR__ . '/sb-cloudflare-sdk-request-methods.class.php';
 
 /**
- * Class Cloudflare
+ * Class SB_CF_SDK
  * @package Servebolt
  *
- * This class acts as a layer between our WordPress plugin-code and the Cloudflare PHP SDK. This class facilitates setting up then SDK, passing along credentials etc.
+ * This class lets us communicate with the Cloudflare API using native the native WP HTTP API.
+ * Earlier we used Guzzle for this, but it turns out it created conflicts with a lot of plugins due to lack of namespace separation between Guzzle-versions.
  */
-class Cloudflare extends SB_CF_SDK {
+class SB_CF_SDK extends SB_CF_SDK_Request_Methods {
 
 	/**
 	 * Singleton instance.
@@ -42,24 +44,13 @@ class Cloudflare extends SB_CF_SDK {
 	/**
 	 * Instantiate class.
 	 *
-	 * @param bool $credentials
-	 *
 	 * @return Cloudflare|null
 	 */
-	public static function get_instance($credentials = false) {
+	public static function get_instance() {
 		if ( self::$instance == null ) {
-			self::$instance = new Cloudflare($credentials);
+			self::$instance = new SB_CF_SDK();
 		}
 		return self::$instance;
-	}
-
-	/**
-	 * Cloudflare constructor.
-	 *
-	 * @param $credentials
-	 */
-	private function __construct($credentials = false) {
-		if ( $credentials ) $this->set_credentials($credentials);
 	}
 
 	/**
@@ -83,7 +74,7 @@ class Cloudflare extends SB_CF_SDK {
 	 */
 	public function get_user_id() {
 		$user = $this->get_user_details();
-		return $user->id;
+		return isset($user->id) ? $user->id : false;
 	}
 
 	/**
@@ -112,7 +103,7 @@ class Cloudflare extends SB_CF_SDK {
 	 *
 	 * @return bool
 	 */
-	public function verify_user() {
+	public function verify_user(): bool {
 		return is_string($this->get_user_id());
 	}
 
@@ -123,11 +114,32 @@ class Cloudflare extends SB_CF_SDK {
 	 *
 	 * @return bool|void
 	 */
-	public function purge_urls( array $urls ) {
+	public function purge_urls(array $urls) {
+
 		$zone_id = $this->get_zone_id();
 		if ( ! $zone_id || empty($zone_id) ) return false;
+
+		// Check if we should purge all - and remove the 'all'-record from the URL-array which will be sent in a purge-by-url request.
+		$should_purge_all = in_array(sb_purge_all_item_name(), $urls);
+
+		// Maybe alter URL's before sending to CF?
+		$urls = apply_filters('sb_optimizer_urls_to_be_purged', $urls);
+
+		// Only keep the URL's in the cache purge queue array
+		$urls = array_filter( $urls, function($url) {
+			return $url !== sb_purge_all_item_name();
+		} );
+
+		// Purge all, return error if we cannot execute
+		if ( $should_purge_all ) {
+			$purge_all_request = $this->purge_all($zone_id);
+			if ( $purge_all_request !== true ) {
+				return $purge_all_request;
+			}
+		}
+
 		try {
-			$request = $this->request('zones/' . $zone_id . '/purge_cache', 'DELETE', [
+			$request = $this->request('zones/' . $zone_id . '/purge_cache', 'POST', [
 				'files' => $urls,
 			]);
 			if ( isset($request['json']->result->id) ) {
@@ -142,13 +154,17 @@ class Cloudflare extends SB_CF_SDK {
 	/**
 	 * Purge all URL's in a zone.
 	 *
+	 * @param bool $zone_id
+	 *
 	 * @return bool
 	 */
-	public function purge_all() {
-		$zone_id = $this->get_zone_id();
+	public function purge_all($zone_id = false) {
+		if ( ! $zone_id ) {
+			$zone_id = $this->get_zone_id();
+		}
 		if ( ! $zone_id || empty($zone_id) ) return false;
 		try {
-			$request = $this->request('zones/' . $zone_id . '/purge_cache', 'DELETE', [
+			$request = $this->request('zones/' . $zone_id . '/purge_cache', 'POST', [
 				'purge_everything' => true,
 			]);
 			if ( isset($request['json']->result->id) ) {
@@ -163,10 +179,10 @@ class Cloudflare extends SB_CF_SDK {
 	/**
 	 * Set credentials. Can handle both API key-setup and API token-setup.
 	 *
-	 * @param $auth_type
-	 * @param $credentials
+	 * @param string $auth_type
+	 * @param array $credentials
 	 */
-	public function set_credentials($auth_type, $credentials) {
+	public function set_credentials(string $auth_type, array $credentials) {
 		$this->auth_type = $auth_type;
 		$this->credentials = $credentials;
 	}
@@ -183,13 +199,13 @@ class Cloudflare extends SB_CF_SDK {
 	/**
 	 * Get specific credential from credentials.
 	 *
-	 * @param bool $key
+	 * @param string $key
 	 *
 	 * @return array|bool|mixed
 	 */
-	public function get_credential($key) {
+	public function get_credential(string $key) {
 		$credentials = $this->get_credentials();
-		if ( $credentials && array_key_exists($key, $credentials ) ) {
+		if ( $credentials && array_key_exists($key, $credentials) ) {
 			return $credentials[$key];
 		}
 		return false;
@@ -252,22 +268,22 @@ class Cloudflare extends SB_CF_SDK {
 	/**
 	 * Check if zone exists.
 	 *
-	 * @param $zone_id
+	 * @param string $zone_id
 	 *
 	 * @return bool
 	 */
-	private function zone_exists($zone_id) {
+	private function zone_exists(string $zone_id): bool {
 		return $this->get_zone_by_key($zone_id, 'id') !== false;
 	}
 
 	/**
 	 * Get zone by Id.
 	 *
-	 * @param $zone_id
+	 * @param string $zone_id
 	 *
 	 * @return bool|object
 	 */
-	public function get_zone_by_id($zone_id) {
+	public function get_zone_by_id(string $zone_id) {
 		try {
 			$request = $this->request('zones/' . $zone_id);
 			return $request['json']->result;
@@ -279,12 +295,12 @@ class Cloudflare extends SB_CF_SDK {
 	/**
 	 * Get zone from Cloudflare by given key.
 	 *
-	 * @param $zone_name
+	 * @param string $zone_name
 	 * @param string $key
 	 *
 	 * @return bool
 	 */
-	public function get_zone_by_key($zone_name, $key = 'name') {
+	public function get_zone_by_key(string $zone_name, string $key = 'name') {
 		foreach ( $this->list_zones() as $zone ) {
 			if ( isset($zone->{ $key }) && $zone->{ $key } === $zone_name ) {
 				return $zone;
@@ -296,12 +312,12 @@ class Cloudflare extends SB_CF_SDK {
 	/**
 	 * Set zone Id (to be used when purging cache).
 	 *
-	 * @param $zone_id
+	 * @param string $zone_id
 	 * @param bool $do_zone_check
 	 *
 	 * @return bool
 	 */
-	public function set_zone_id($zone_id, $do_zone_check = true) {
+	public function set_zone_id(string $zone_id, bool $do_zone_check = true): bool {
 		if ( ! $zone_id || ( $do_zone_check && ! $this->zone_exists($zone_id) ) ) return false;
 		$this->zone_id = $zone_id;
 		return true;

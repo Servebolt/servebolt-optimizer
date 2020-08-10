@@ -3,6 +3,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
  * Class WP_CLI_FPC_Extra
+ *
+ * This class contains the FPC-related helper methods when using the WP CLI.
  */
 abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 
