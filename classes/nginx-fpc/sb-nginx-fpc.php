@@ -93,6 +93,21 @@ class Servebolt_Nginx_FPC {
 	}
 
 	/**
+	 * Check if full page caching is active with optional blog check.
+	 *
+	 * @param bool $blog_id
+	 *
+	 * @return bool
+	 */
+	public function fpc_is_active($blog_id = false) {
+		if ( is_numeric($blog_id) ) {
+			return sb_checkbox_true(sb_get_blog_option($blog_id, $this->fpc_active_option_key()));
+		} else {
+			return sb_checkbox_true(sb_get_option($this->fpc_active_option_key()));
+		}
+	}
+
+	/**
 	 * Set cache headers - Determine and set the type of headers to be used.
 	 *
 	 * @param $posts
@@ -101,7 +116,7 @@ class Servebolt_Nginx_FPC {
 	 */
 	public function set_headers( $posts ) {
 
-		$debug = false;
+		$debug = $this->shoud_debug();
 
 		// Abort if cache headers are already set
 		if ( $this->headers_already_set ) return $posts;
@@ -126,9 +141,12 @@ class Servebolt_Nginx_FPC {
 		// Only trigger this function once
 		remove_filter( 'posts_results', [$this, 'set_headers'] );
 
-		if ( $this->is_woocommerce_page() ) {
+		if ( $this->is_woocommerce_no_cache_page() ) {
 			$this->no_cache_headers();
 			if ( $debug ) $this->header('No-cache-trigger: 2');
+		} elseif ( $this->is_woocommerce_cache_page() ) {
+			$this->cache_headers();
+			if ( $debug ) $this->header('Cache-trigger: 11');
 		} elseif ( $this->should_exclude_post_from_cache( get_the_ID() ) ) {
 			$this->no_cache_headers();
 			if ( $debug ) $this->header('No-cache-trigger: 3');
@@ -162,6 +180,15 @@ class Servebolt_Nginx_FPC {
 			if ( $debug ) $this->header('No-cache-trigger: 10');
 		}
 		return $posts;
+	}
+
+	/**
+	 * Whether we should debug headers or not.
+	 *
+	 * @return mixed
+	 */
+	private function shoud_debug() {
+		return apply_filters('sb_optimizer_fpc_should_debug_headers', true);
 	}
 
 	/**
@@ -212,15 +239,6 @@ class Servebolt_Nginx_FPC {
 	public function should_exclude_post_from_cache($post_id) {
 		$ids_to_exclude = $this->get_ids_to_exclude_from_cache();
 		return is_array($ids_to_exclude) && in_array($post_id, $ids_to_exclude);
-	}
-
-	/**
-	 * Check if we are in a WooCommerce-context.
-	 *
-	 * @return bool
-	 */
-	private function is_woocommerce_page() {
-		return $this->woocommerce_is_active() && ( is_cart() || is_checkout() || is_account_page() );
 	}
 
 	/**
@@ -512,21 +530,6 @@ class Servebolt_Nginx_FPC {
 	}
 
 	/**
-	 * Check if full page caching is active with optional blog check.
-	 *
-	 * @param bool $blog_id
-	 *
-	 * @return bool
-	 */
-	public function fpc_is_active($blog_id = false) {
-		if ( is_numeric($blog_id) ) {
-			return sb_checkbox_true(sb_get_blog_option($blog_id, $this->fpc_active_option_key()));
-		} else {
-			return sb_checkbox_true(sb_get_option($this->fpc_active_option_key()));
-		}
-	}
-
-	/**
 	 * Set full page caching is active/inactive, either for current blog or specified blog.
 	 *
 	 * @param bool $state
@@ -540,5 +543,23 @@ class Servebolt_Nginx_FPC {
 		} else {
 			return sb_update_option($this->fpc_active_option_key(), $state);
 		}
+	}
+
+	/**
+	 * Check if we are in a WooCommerce-context and check if we should not cache.
+	 *
+	 * @return bool
+	 */
+	private function is_woocommerce_no_cache_page() {
+		return apply_filters('sb_optimizer_fpc_woocommerce_pages_no_cache_bool', ( $this->woocommerce_is_active() && ( is_cart() || is_checkout() || is_account_page() ) ) );
+	}
+
+	/**
+	 * Check if we are in a WooCommerce-context and check if we should cache.
+	 *
+	 * @return bool
+	 */
+	private function is_woocommerce_cache_page() {
+		return apply_filters('sb_optimizer_fpc_woocommerce_pages_cache_bool', ( $this->woocommerce_is_active() && ( is_shop() || is_product_category() || is_product_tag() || is_product() ) ) );
 	}
 }
