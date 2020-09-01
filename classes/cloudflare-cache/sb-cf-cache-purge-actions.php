@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * Class SB_CF_Cache_Purge_Actions
  * @package Servebolt
  *
- * This class registers the WP events which purges the cache automatically.
+ * This class registers the WP events which purges the cache automatically (updating/create posts, terms etc.).
  */
 class SB_CF_Cache_Purge_Actions {
 
