@@ -31,6 +31,15 @@ jQuery(document).ready(function($) {
 (function($) {
 
   /**
+   * Whether we should use native JS for alert, prompt, confirm etc.
+   *
+   * @returns {boolean}
+   */
+  window.sb_use_native_js_fallback = function() {
+    return sb_ajax_object.use_native_js_fallback == 'true';
+  }
+
+  /**
    * Insert loader markup.
    */
   function sb_insert_loader_markup() {
@@ -93,23 +102,45 @@ jQuery(document).ready(function($) {
    * @param html
    */
   window.sb_popup = function(type, title, text, html) {
-    var config = {
-      icon: type,
-      customClass: {
-        confirmButton: 'servebolt-button yellow'
-      },
-      buttonsStyling: false
-    };
-    if ( title ) {
-      config.title = title;
+    if ( window.sb_use_native_js_fallback() ) {
+      var verboseType = type.charAt(0).toUpperCase() + type.slice(1);
+      var message = html ? window.sb_strip(html, true) : window.sb_strip(text);
+      alert(verboseType + ': ' + window.sb_strip(title) + "\n" + message);
+    } else {
+      var config = {
+        icon: type,
+        customClass: {
+          confirmButton: 'servebolt-button yellow'
+        },
+        buttonsStyling: false
+      };
+      if ( title ) {
+        config.title = title;
+      }
+      if ( text ) {
+        config.text = text;
+      }
+      if ( html ) {
+        config.html = html;
+      }
+      Swal.fire(config);
     }
-    if ( text ) {
-      config.text = text;
+  }
+
+  /**
+   * Strip HTML from a string.
+   *
+   * @param html
+   * @returns {string | string}
+   */
+  window.sb_strip = function(html, br2nl) {
+    if ( br2nl === true ) {
+      html = html.replace('<br>', "\n");
+      html = html.replace('<ul><li>', "<ul><li>\n");
+      html = html.replace('</li><li>', "</li><li>\n");
     }
-    if ( html ) {
-      config.html = html;
-    }
-    Swal.fire(config);
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || '';
   }
 
   /**

@@ -433,6 +433,20 @@ if ( ! function_exists('sb_cf_error') ) {
   }
 }
 
+if ( ! function_exists('sb_use_native_js_fallback') ) {
+    /**
+     * Whether to fall back to native JS when using alerts and prompts etc.
+     *
+     * @return mixed
+     */
+    function sb_use_native_js_fallback() {
+        if ( defined('SERVEBOLT_USE_NATIVE_JS_FALLBACK') && is_bool(SERVEBOLT_USE_NATIVE_JS_FALLBACK) ) {
+            return SERVEBOLT_USE_NATIVE_JS_FALLBACK;
+        }
+        return apply_filters('sb_optimizer_use_native_js_fallback', false);
+    }
+}
+
 if ( ! function_exists('sb_get_text_domain') ) {
   /**
    * Get plugin text domain.

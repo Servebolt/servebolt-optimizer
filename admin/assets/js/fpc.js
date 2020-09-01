@@ -46,28 +46,41 @@ jQuery(document).ready(function($) {
    * @param obj
    */
   function sb_remove_exclude_item(obj) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you really want to remove the item?',
-      icon: 'warning',
-      showCancelButton: true,
-      customClass: {
-        confirmButton: 'servebolt-button yellow',
-        cancelButton: 'servebolt-button light'
-      },
-      buttonsStyling: false
-    }).then((result) => {
-      if (result.value) {
-        window.sb_loading(true);
-        var item = $(obj).closest('.exclude-item'),
-          item_value = item.find('.exclude-item-input').val();
-        sb_submit_fpc_exclude_list([item_value], function() {
-          item.remove();
-          window.sb_loading(false);
-          window.sb_success('All good!', 'The item was deleted.');
-          sb_check_for_empty_fpc_exclude_table(false);
-        });
+    if ( window.sb_use_native_js_fallback() ) {
+      if ( confirm('Are you sure?' + "\n" + 'Do you really want to remove the item?') ) {
+        sb_remove_exclude_item_confirmed(obj);
       }
+    } else {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you really want to remove the item?',
+        icon: 'warning',
+        showCancelButton: true,
+        customClass: {
+          confirmButton: 'servebolt-button yellow',
+          cancelButton: 'servebolt-button light'
+        },
+        buttonsStyling: false
+      }).then((result) => {
+        if (result.value) {
+          sb_remove_exclude_item_confirmed(obj);
+        }
+      });
+    }
+  }
+
+  /**
+   * Confirm callback for function "sb_remove_exclude_item".
+   */
+  function sb_remove_exclude_item_confirmed() {
+    window.sb_loading(true);
+    var item = $(obj).closest('.exclude-item'),
+        item_value = item.find('.exclude-item-input').val();
+    sb_submit_fpc_exclude_list([item_value], function() {
+      item.remove();
+      window.sb_loading(false);
+      window.sb_success('All good!', 'The item was deleted.');
+      sb_check_for_empty_fpc_exclude_table(false);
     });
   }
 
@@ -75,24 +88,37 @@ jQuery(document).ready(function($) {
    * Flush FPC post exclude list.
    */
   function sb_flush_fpc_exclude_list() {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you really want to remove all posts from exclude list?',
-      icon: 'warning',
-      showCancelButton: true,
-      customClass: {
-        confirmButton: 'servebolt-button yellow',
-        cancelButton: 'servebolt-button light'
-      },
-      buttonsStyling: false
-    }).then((result) => {
-      if (result.value) {
-        sb_submit_fpc_exclude_list('all', function () {
-          $('#sb-nginx-fpc-form #nginx-fpc-ids-to-exclude-table tbody .exclude-item').remove();
-          window.sb_success('All good!', 'The list was emptied.');
-          sb_check_for_empty_fpc_exclude_table(false);
-        });
+    if ( window.sb_use_native_js_fallback() ) {
+      if ( confirm('Are you sure?' + "\n" + 'Do you really want to remove all posts from exclude list?') ) {
+        sb_flush_fpc_exclude_list_confirmed();
       }
+    } else {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you really want to remove all posts from exclude list?',
+        icon: 'warning',
+        showCancelButton: true,
+        customClass: {
+          confirmButton: 'servebolt-button yellow',
+          cancelButton: 'servebolt-button light'
+        },
+        buttonsStyling: false
+      }).then((result) => {
+        if (result.value) {
+          sb_flush_fpc_exclude_list_confirmed();
+        }
+      });
+    }
+  }
+
+  /**
+   * Confirm callback for function "sb_flush_fpc_exclude_list".
+   */
+  function sb_flush_fpc_exclude_list_confirmed() {
+    sb_submit_fpc_exclude_list('all', function () {
+      $('#sb-nginx-fpc-form #nginx-fpc-ids-to-exclude-table tbody .exclude-item').remove();
+      window.sb_success('All good!', 'The list was emptied.');
+      sb_check_for_empty_fpc_exclude_table(false);
     });
   }
 
@@ -100,31 +126,44 @@ jQuery(document).ready(function($) {
    * Remove selected post from FPC exclude list.
    */
   function sb_remove_selected_exclude_items() {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'Do you really want remove the selected items?',
-      icon: 'warning',
-      showCancelButton: true,
-      customClass: {
-        confirmButton: 'servebolt-button yellow',
-        cancelButton: 'servebolt-button light'
-      },
-      buttonsStyling: false
-    }).then((result) => {
-      if (result.value) {
-        var items = $('#sb-nginx-fpc-form #nginx-fpc-ids-to-exclude-table tbody .exclude-item input[type="checkbox"]:checked').closest('.exclude-item'),
-          input_elements = items.find('.exclude-item-input'),
-          ids = [];
-        input_elements.each(function (i, el) {
-          ids.push($(el).val());
-        });
-        sb_submit_fpc_exclude_list(ids, function () {
-          items.remove();
-          var response = ids.length > 1 ? 'The items were deleted.' : 'The item was deleted.';
-          window.sb_success('All good!', response);
-          sb_check_for_empty_fpc_exclude_table(true);
-        });
+    if ( window.sb_use_native_js_fallback() ) {
+      if ( confirm('Are you sure?' + "\n" + 'Do you really want remove the selected items?') ) {
+        sb_remove_selected_exclude_items_confirmed();
       }
+    } else {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you really want remove the selected items?',
+        icon: 'warning',
+        showCancelButton: true,
+        customClass: {
+          confirmButton: 'servebolt-button yellow',
+          cancelButton: 'servebolt-button light'
+        },
+        buttonsStyling: false
+      }).then((result) => {
+        if (result.value) {
+          sb_remove_selected_exclude_items_confirmed();
+        }
+      });
+    }
+  }
+
+  /**
+   * Confirm callback for function "sb_remove_selected_exclude_items".
+   */
+  function sb_remove_selected_exclude_items_confirmed() {
+    var items = $('#sb-nginx-fpc-form #nginx-fpc-ids-to-exclude-table tbody .exclude-item input[type="checkbox"]:checked').closest('.exclude-item'),
+        input_elements = items.find('.exclude-item-input'),
+        ids = [];
+    input_elements.each(function (i, el) {
+      ids.push($(el).val());
+    });
+    sb_submit_fpc_exclude_list(ids, function () {
+      items.remove();
+      var response = ids.length > 1 ? 'The items were deleted.' : 'The item was deleted.';
+      window.sb_success('All good!', response);
+      sb_check_for_empty_fpc_exclude_table(true);
     });
   }
 
@@ -132,53 +171,69 @@ jQuery(document).ready(function($) {
    * Add posts to FPC exclude list.
    */
   function sb_add_posts_to_fpc_exclude() {
-    Swal.fire({
-      title: 'Add posts to list',
-      text: 'Insert the IDs (comma separated) of the post you would like to exclude from the cache',
-      input: 'text',
-      customClass: {
-        confirmButton: 'servebolt-button yellow',
-        cancelButton: 'servebolt-button light'
-      },
-      buttonsStyling: false,
-      inputValidator: (value) => {
-        if ( ! value ) {
-          return 'Please enter a post ID.'
+    if ( window.sb_use_native_js_fallback() ) {
+      var value = prompt('Add posts to list' + "\n" + 'Insert the IDs (comma separated) of the post you would like to exclude from the cache');
+      if ( ! value ) {
+        alert('Please enter a post ID.');
+        return;
+      }
+      sb_add_posts_to_fpc_exclude_confirmed(value);
+    } else {
+      Swal.fire({
+        title: 'Add posts to list',
+        text: 'Insert the IDs (comma separated) of the post you would like to exclude from the cache',
+        input: 'text',
+        customClass: {
+          confirmButton: 'servebolt-button yellow',
+          cancelButton: 'servebolt-button light'
+        },
+        buttonsStyling: false,
+        inputValidator: (value) => {
+          if ( ! value ) {
+            return 'Please enter a post ID.'
+          }
+        },
+        showCancelButton: true
+      }).then((result) => {
+        if ( result.value ) {
+          sb_add_posts_to_fpc_exclude_confirmed(result.value);
+        }
+      });
+    }
+  }
+
+  /**
+   * Prompt callback for function "sb_add_posts_to_fpc_exclude".
+   */
+  function sb_add_posts_to_fpc_exclude_confirmed(value) {
+    window.sb_loading(true);
+    var data = {
+      action: 'servebolt_fpc_exclude_post',
+      security: sb_ajax_object.ajax_nonce,
+      post_ids: value,
+    };
+    $.ajax({
+      type: 'POST',
+      url: sb_ajax_object.ajaxurl,
+      data: data,
+      success: function(response) {
+        window.sb_loading(false);
+        var message = window.sb_get_message_from_response(response),
+            type = window.sb_get_from_response(response, 'type'),
+            title = window.sb_get_from_response(response, 'title'),
+            row_markup = window.sb_get_from_response(response, 'row_markup');
+        if ( row_markup ) {
+          sb_add_row_to_exclude_list(row_markup);
+          setTimeout(function () {
+            window.sb_popup(type, title, null, message);
+          }, 100);
+        } else {
+          window.sb_popup(type, title, null, message);
         }
       },
-      showCancelButton: true
-    }).then((result) => {
-      if (result.value) {
-        window.sb_loading(true);
-        var data = {
-          action: 'servebolt_fpc_exclude_post',
-          security: ajax_object.ajax_nonce,
-          post_ids: result.value,
-        };
-        $.ajax({
-          type: 'POST',
-          url: ajax_object.ajaxurl,
-          data: data,
-          success: function(response) {
-            window.sb_loading(false);
-            var message = window.sb_get_message_from_response(response),
-                type = window.sb_get_from_response(response, 'type'),
-                title = window.sb_get_from_response(response, 'title'),
-                row_markup = window.sb_get_from_response(response, 'row_markup');
-            if ( row_markup ) {
-              sb_add_row_to_exclude_list(row_markup);
-              setTimeout(function () {
-                window.sb_popup(type, title, null, message);
-              }, 100);
-            } else {
-              window.sb_popup(type, title, null, message);
-            }
-          },
-          error: function() {
-            window.sb_loading(false);
-            window.sb_warning('Ouch...', 'Something went wrong. Please check your data, try again and/or contact support.');
-          }
-        });
+      error: function() {
+        window.sb_loading(false);
+        window.sb_warning('Ouch...', 'Something went wrong. Please check your data, try again and/or contact support.');
       }
     });
   }
@@ -201,13 +256,13 @@ jQuery(document).ready(function($) {
       var spinner = $('#sb-nginx-fpc-form .flush-fpc-exlcude-list-loading-spinner'),
         data = {
           action: 'servebolt_update_fpc_exclude_posts_list',
-          security: ajax_object.ajax_nonce,
+          security: sb_ajax_object.ajax_nonce,
           items: items,
         };
       spinner.addClass('is-active');
       $.ajax({
         type: 'POST',
-        url: ajax_object.ajaxurl,
+        url: sb_ajax_object.ajaxurl,
         data: data,
         success: function (response) {
           spinner.removeClass('is-active');
