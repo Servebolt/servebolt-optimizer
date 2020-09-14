@@ -116,7 +116,7 @@ class Servebolt_Nginx_FPC {
 	 */
 	public function set_headers( $posts ) {
 
-		$debug = $this->shoud_debug();
+		$debug = $this->should_debug();
 
 		// Abort if cache headers are already set
 		if ( $this->headers_already_set ) return $posts;
@@ -187,7 +187,7 @@ class Servebolt_Nginx_FPC {
 	 *
 	 * @return mixed
 	 */
-	private function shoud_debug() {
+	private function should_debug() {
 		return apply_filters('sb_optimizer_fpc_should_debug_headers', true);
 	}
 

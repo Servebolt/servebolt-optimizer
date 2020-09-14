@@ -249,7 +249,7 @@
 
     </form>
 
-    <?php if ( apply_filters('sb_cf_form_validation_active', true) ) : ?>
+    <?php if ( apply_filters('sb_optimizer_cf_cache_form_validation_active', true) ) : ?>
       <script>
         document.getElementById('sb-configuration-form').addEventListener('submit', function(event) {
           window.sb_validate_cf_configuration_form(event);
