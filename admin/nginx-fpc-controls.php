@@ -4,7 +4,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 /**
  * Class Nginx_FPC_Controls
  *
- * This class displays the Nginx Full Page Cache control GUI.
+ * This class displays the Nginx Full Page Cache control GUI  - only works for sites hosted at Servebolt.
  */
 class Nginx_FPC_Controls {
 
@@ -149,27 +149,27 @@ class Nginx_FPC_Controls {
 		if ( $has_invalid ) {
 			$type = 'warning';
 			$title = sb__('We made progress, but...');
-			$invalid_message = sprintf(sb__('The following %s were invalid:'), ( $only_one_post_id ? sb__('post ID') : sb__('post IDs') ) ) . create_li_tags_from_array($invalid);
+			$invalid_message = sprintf(sb__('The following %s were invalid:'), ( $only_one_post_id ? sb__('post ID') : sb__('post IDs') ) ) . sb_create_li_tags_from_array($invalid);
 		}
 
 		if ( $has_failed ) {
 			$type = 'warning';
 			$title = sb__('We made progress, but...');
-			$failed_message = sb__('Could not exclude the following posts from cache:') . create_li_tags_from_array($failed, function($post_id) {
+			$failed_message = sb__('Could not exclude the following posts from cache:') . sb_create_li_tags_from_array($failed, function($post_id) {
 				$title = get_the_title($post_id);
 				return $title ? $title . ' (' . $post_id . ')' : $post_id;
 			});
 		}
 
 		if ( count($already_excluded) > 0 ) {
-			$already_excluded_message = sb__('The following posts are already excluded from cache:') . create_li_tags_from_array($already_excluded, function($post_id) {
+			$already_excluded_message = sb__('The following posts are already excluded from cache:') . sb_create_li_tags_from_array($already_excluded, function($post_id) {
 				$title = get_the_title($post_id);
 				return $title ? $title . ' (' . $post_id . ')' : $post_id;
 			});
 		}
 
 		if ( count($added) > 0 ) {
-			$added_message = sb__('The following posts were excluded from cache:') . create_li_tags_from_array($added, function($post_id) {
+			$added_message = sb__('The following posts were excluded from cache:') . sb_create_li_tags_from_array($added, function($post_id) {
 				$title = get_the_title($post_id);
 				return $title ? $title . ' (ID ' . $post_id . ')' : $post_id;
 			});

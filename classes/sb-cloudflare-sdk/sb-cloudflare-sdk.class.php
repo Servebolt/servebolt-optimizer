@@ -119,15 +119,15 @@ class SB_CF_SDK extends SB_CF_SDK_Request_Methods {
 		$zone_id = $this->get_zone_id();
 		if ( ! $zone_id || empty($zone_id) ) return false;
 
-		// Check if we should purge all - and remove the 'all'-record from the URL-array which will be sent in a purge-by-url request.
-		$should_purge_all = in_array(sb_purge_all_item_name(), $urls);
+        // Check whether we should purge all
+        $should_purge_all = in_array('all', $urls);
 
 		// Maybe alter URL's before sending to CF?
 		$urls = apply_filters('sb_optimizer_urls_to_be_purged', $urls);
 
 		// Only keep the URL's in the cache purge queue array
 		$urls = array_filter( $urls, function($url) {
-			return $url !== sb_purge_all_item_name();
+			return $url !== 'all';
 		} );
 
 		// Purge all, return error if we cannot execute

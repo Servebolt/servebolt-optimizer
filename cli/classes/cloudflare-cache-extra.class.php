@@ -1088,7 +1088,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	 * @param bool $blog_id
 	 */
 	protected function cf_clear_zone($blog_id = false) {
-		sb_cf_cache()->clear_active_zone($blog_id);
+		sb_cf_cache()->clear_active_zone_id($blog_id);
 		if ( $blog_id ) {
 			WP_CLI::success(sprintf(sb__('Successfully cleared zone on site %s.'), get_site_url($blog_id)));
 		} else {
@@ -1103,7 +1103,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	 */
 	protected function cf_clear_config($blog_id = false) {
 		sb_cf_cache()->clear_credentials($blog_id);
-		sb_cf_cache()->clear_active_zone($blog_id);
+		sb_cf_cache()->clear_active_zone_id($blog_id);
 		sb_cf_cache()->cf_toggle_active(false, $blog_id);
 		if ( $blog_id ) {
 			WP_CLI::success(sprintf(sb__('Successfully cleared Cloudflare configuration on site %s.'), get_site_url($blog_id)));

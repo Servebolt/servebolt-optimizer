@@ -24,6 +24,37 @@ class SB_CF_Cache_Purge_Term_Object extends SB_CF_Cache_Purge_Object_Shared {
     }
 
     /**
+     * Get the term URL.
+     *
+     * @return mixed
+     */
+    public function get_base_url() {
+        return get_term_link( $this->get_id() );
+    }
+
+    /**
+     * Get the term edit URL.
+     *
+     * @return mixed
+     */
+    public function get_edit_url() {
+        return get_edit_term_link( $this->get_id() );
+    }
+
+    /**
+     * Get the term title.
+     *
+     * @return mixed
+     */
+    public function get_title() {
+        $term = get_term( $this->get_id() );
+        if ( isset($term->name) ) {
+            return $term->name;
+        }
+        return false;
+    }
+
+    /**
      * Add URLs related to a term object.
      */
     protected function init_object() {
@@ -52,7 +83,7 @@ class SB_CF_Cache_Purge_Term_Object extends SB_CF_Cache_Purge_Object_Shared {
      * Add the term URL.
      */
     private function add_term_url() {
-        $term_url = get_term_link( $this->get_id() );
+        $term_url = $this->get_base_url();
         if ( $term_url && ! is_wp_error($term_url) ) {
             $this->add_urls(sb_paginate_links_as_array($term_url, $this->get_pages_needed($term_url)));
             return true;

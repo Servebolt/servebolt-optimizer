@@ -24,12 +24,39 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
     }
 
     /**
+     * Get the post URL.
+     *
+     * @return mixed
+     */
+    public function get_base_url() {
+        return get_permalink( $this->get_id() );
+    }
+
+    /**
+     * Get the post edit URL.
+     *
+     * @return mixed
+     */
+    public function get_edit_url() {
+        return get_edit_post_link( $this->get_id() );
+    }
+
+    /**
+     * Get the post title.
+     *
+     * @return mixed
+     */
+    public function get_title() {
+        return get_the_title( $this->get_id() );
+    }
+
+    /**
      * Add URLs related to a post object.
      */
     protected function init_object() {
 
         // The URL to the post itself
-        if ($this->add_post_url()) {
+        if ( $this->add_post_url() ) {
             $this->success(true); // Flag that found the post
             return true;
         } else {
@@ -69,7 +96,7 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
      * Add the URL of a post to be purged.
      */
     private function add_post_url() {
-        $post_permalink = get_permalink( $this->get_id() );
+        $post_permalink = $this->get_base_url();
         if ( $post_permalink && ! is_wp_error($post_permalink) ) {
             $this->add_url($post_permalink);
             return true;

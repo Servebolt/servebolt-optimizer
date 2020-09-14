@@ -10,7 +10,7 @@ jQuery(document).ready(function($) {
   });
 
   // Purge all cache
-  $('.sb-purge-all-cache').click(function (e) {
+  $('#sb-configuration .sb-purge-all-cache, #wpadminbar .sb-purge-all-cache').click(function (e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
     sb_purge_all_cache();
@@ -25,7 +25,7 @@ jQuery(document).ready(function($) {
   });
 
   // Purge URL cache
-  $('#sb-configuration .sb-purge-url').click(function(e) {
+  $('#sb-configuration .sb-purge-url, #wpadminbar .sb-purge-url').click(function(e) {
     e.preventDefault();
     sb_purge_url_cache();
   });
@@ -35,6 +35,33 @@ jQuery(document).ready(function($) {
    */
   function sb_close_admin_bar_menu() {
     $('#wp-admin-bar-servebolt-optimizer').removeClass('hover');
+  }
+
+  /**
+   * Update cache purge queue list table.
+   */
+  window.update_cache_purge_list = function() {
+    if ( ! sb_ajax_object.cron_purge_is_active ) return;
+    var table = $('.sb-content #purge-items-table');
+    if ( ! table.length ) return;
+    var spinner = $('#sb-configuration .purge-queue-loading-spinner');
+    spinner.addClass('is-active');
+    setTimeout(function () {
+      var data = {
+        action: 'servebolt_load_cache_purge_queue_list',
+        security: sb_ajax_object.ajax_nonce,
+      };
+      $.ajax({
+        type: 'POST',
+        url: sb_ajax_object.ajaxurl,
+        data: data,
+        success: function(response) {
+          table.html(response.data.html);
+          spinner.removeClass('is-active');
+          window.sb_check_for_empty_purge_items_table(false);
+        }
+      });
+    }, 500);
   }
 
   /**
@@ -146,6 +173,7 @@ jQuery(document).ready(function($) {
         if ( response.success ) {
           setTimeout(function () {
             sb_cache_purge_success(message, title);
+            window.update_cache_purge_list();
           }, 100);
         } else {
           var type = window.sb_get_from_response(response, 'type');
@@ -212,10 +240,15 @@ jQuery(document).ready(function($) {
         if ( response.success ) {
           setTimeout(function () {
             sb_cache_purge_success(message, title);
+            window.update_cache_purge_list();
           }, 100);
         } else {
           if ( message ) {
-            sb_cache_purge_error(message);
+            if ( response.data.type == 'warning' ) {
+              window.sb_warning(title, null, message);
+            } else {
+              sb_cache_purge_error(message);
+            }
           } else {
             sb_cache_purge_error();
           }
@@ -286,10 +319,15 @@ jQuery(document).ready(function($) {
         if ( response.success ) {
           setTimeout(function () {
             sb_cache_purge_success(message, title);
+            window.update_cache_purge_list();
           }, 100);
         } else {
           if ( message ) {
-            sb_cache_purge_error(message);
+            if ( response.data.type == 'warning' ) {
+              window.sb_warning(title, null, message);
+            } else {
+              sb_cache_purge_error(message);
+            }
           } else {
             sb_cache_purge_error();
           }

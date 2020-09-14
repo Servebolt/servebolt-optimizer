@@ -34,13 +34,13 @@ jQuery(document).ready(function($) {
   });
 
   // Remove purge item from purge queue
-  $('#sb-configuration .remove-purge-item-from-queue').click(function(e) {
+  $('#sb-configuration').on('click', '.remove-purge-item-from-queue', function(e) {
     e.preventDefault();
     remove_purge_item(this);
   });
 
   // Select purge item
-  $('#sb-configuration #purge-items-table input[type="checkbox"]').change(function() {
+  $('#sb-configuration #purge-items-table').on('change', 'input[type="checkbox"]', function() {
     var checkboxCount = $('#sb-configuration #purge-items-table input[type="checkbox"]:checked').length,
         itemCount = $('#sb-configuration #purge-items-table tbody .purge-item').length,
         buttons = $('#sb-configuration .remove-selected-purge-items');
@@ -55,6 +55,11 @@ jQuery(document).ready(function($) {
   // Flush cache purge queue
   $('#sb-configuration .flush-purge-items-queue').click(function() {
     flush_purge_queue();
+  });
+
+  // Flush cache purge queue
+  $('#sb-configuration .refresh-purge-items-queue').click(function() {
+    refresh_purge_queue();
   });
 
   /**
@@ -332,7 +337,7 @@ jQuery(document).ready(function($) {
   /**
    * Check if the cache purge queue table is empty or not.
    */
-  function sb_check_for_empty_purge_items_table(uncheck_all) {
+  window.sb_check_for_empty_purge_items_table = function(uncheck_all) {
     var checkboxItems = $('#sb-configuration #purge-items-table input[type="checkbox"]');
     if ( uncheck_all ) {
       checkboxItems.prop('checked', false);
@@ -476,7 +481,7 @@ jQuery(document).ready(function($) {
     delete_cache_purge_queue_items([item_value], function() {
       item.remove();
       window.sb_success('All good!', 'The item was deleted.');
-      sb_check_for_empty_purge_items_table(false);
+      window.sb_check_for_empty_purge_items_table(false);
     });
   }
 
@@ -521,8 +526,15 @@ jQuery(document).ready(function($) {
       items.remove();
       var response = items_to_remove.length > 1 ? 'The items were deleted.' : 'The item was deleted.';
       window.sb_success('All good!', null, response);
-      sb_check_for_empty_purge_items_table(true);
+      window.sb_check_for_empty_purge_items_table(true);
     });
+  }
+
+  /**
+   * Manuel refresh of cache purge queue.
+   */
+  function refresh_purge_queue() {
+    window.update_cache_purge_list();
   }
 
   /**
@@ -557,11 +569,11 @@ jQuery(document).ready(function($) {
    */
   function flush_purge_queue_confirmed() {
     window.sb_loading(true);
-    delete_cache_purge_queue_items('all', function () {
+    delete_cache_purge_queue_items('flush', function () {
       $('#sb-configuration #purge-items-table tbody .purge-item').remove();
       window.sb_loading(false);
       window.sb_success('All good!', 'The queue was emptied.');
-      sb_check_for_empty_purge_items_table(false);
+      window.sb_check_for_empty_purge_items_table(false);
     });
   }
 

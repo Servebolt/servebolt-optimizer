@@ -3,7 +3,9 @@
 
 	<h1><?php sb_e('Cloudflare Cache'); ?></h1>
 
-	<?php $max_number_of_cache_purge_queue_items = (int) apply_filters('sb_optimizer_purge_item_list_limit', 500); ?>
+    <?php settings_errors(); ?>
+
+	<?php $max_number_of_cache_purge_queue_items = sb_cf_cache_admin_controls()->max_number_of_cache_purge_queue_items(); ?>
   <?php $number_of_cache_purge_queue_items = sb_cf_cache()->count_items_to_purge(); ?>
 	<?php if ( ! is_network_admin() ) : ?>
 		<?php if ( $number_of_cache_purge_queue_items > $max_number_of_cache_purge_queue_items ) : ?>
@@ -12,8 +14,6 @@
         </div>
 		<?php endif; ?>
 	<?php endif; ?>
-
-	<?php settings_errors(); ?>
 
   <p><?php sb_e('This feature will automatically purge the Cloudflare cache whenever you do an update in WordPress. Neat right?'); ?></p>
 
@@ -189,19 +189,25 @@
               <fieldset>
                 <legend class="screen-reader-text"><span><?php sb_e('Cache purge via cron'); ?></span></legend>
                 <label for="cf_cron_purge">
-                  <input name="<?php echo sb_get_option_name('cf_cron_purge'); ?>" type="checkbox" id="cf_cron_purge" value="1" <?php checked($cf_settings['cf_cron_purge']); ?>>
+                  <input name="<?php if ( ! sb_cf_cache()->cron_state_is_overridden() ) echo sb_get_option_name('cf_cron_purge'); ?>" type="checkbox" id="cf_cron_purge" value="1"<?php if ( sb_cf_cache()->cron_state_is_overridden() ) echo ' disabled'; ?> <?php checked($cf_settings['cf_cron_purge']); ?>>
+                    <?php if ( sb_cf_cache()->cron_state_is_overridden() ) : ?>
+                    <input type="hidden" name="<?php echo sb_get_option_name('cf_cron_purge'); ?>" value="<?php echo $cf_settings['cf_cron_purge'] ? '1' : '0'; ?>">
+                    <?php endif; ?>
                   <?php sb_e('Use cron to purge cache?'); ?>
+                    <?php if ( sb_cf_cache()->cron_state_is_overridden() ) : ?>
+                        <p><em>This value is overriden by the constant "SERVEBOLT_CF_PURGE_CRON" which is currently set to "<?php echo sb_boolean_to_string(sb_cf_cache()->cron_purge_is_active()); ?>".</em></p>
+                    <?php endif; ?>
                 </label>
               </fieldset>
             </td>
           </tr>
-          <tr class="feature_cf_cron_purge sb-toggle-active-cron-item<?php if ( ! $cf_settings['cf_cron_purge'] ) echo ' cf-hidden-cron'; ?>">
+          <tr class="feature_cf_cron_purge sb-toggle-active-cron-item<?php if ( ! sb_cf_cache()->cron_purge_is_active() ) echo ' cf-hidden-cron'; ?>">
             <th scope="row" colspan="2" style="padding-bottom: 5px;">
               <label for="items_to_purge"><?php sb_e('Cache purge queue'); ?></label>
               <p style="font-weight: normal;"><?php echo sprintf(sb__('The list below contains all the posts/URLs that are scheduled for cache purge. The max number of items in the list is %s, the rest will be unavailable for display. The most recently added item can be seen at the bottom of the list.%s Note: If you have more than %s items in the list then that would indicate that there is something wrong with the cron-setup. If so please investigate and/or contact support.'), $max_number_of_cache_purge_queue_items, '<br>', $max_number_of_cache_purge_queue_items); ?></p>
             </th>
           </tr>
-          <tr class="sb-toggle-active-cron-item<?php if ( ! $cf_settings['cf_cron_purge'] ) echo ' cf-hidden-cron'; ?>">
+          <tr class="sb-toggle-active-cron-item<?php if ( ! sb_cf_cache()->cron_purge_is_active() ) echo ' cf-hidden-cron'; ?>">
             <td colspan="2" style="padding-top:0;padding-left:0;">
 
               <?php $items_to_purge = sb_cf_cache()->get_items_to_purge($max_number_of_cache_purge_queue_items); ?>
@@ -213,102 +219,16 @@
                 <div class="alignleft actions bulkactions">
                   <button type="button" style="float:left;" class="button action flush-purge-items-queue"<?php if ( count($items_to_purge) === 0 ) echo ' disabled'; ?>><?php sb_e('Flush queue'); ?></button>
                 </div>
+                <div class="alignleft actions bulkactions">
+                  <button type="button" style="float:left;" class="button action refresh-purge-items-queue"><?php sb_e('Refresh queue'); ?></button>
+                </div>
+
                 <span class="spinner purge-queue-loading-spinner"></span>
                 <br class="clear">
               </div>
 
               <table class="wp-list-table widefat striped" id="purge-items-table">
-
-                <thead>
-                  <tr>
-                    <td id="cb" class="manage-column column-cb check-column"><label class="screen-reader-text" for="cb-select-all-1"><?php sb_e('Select All'); ?></label><input id="cb-select-all-1" type="checkbox"></td>
-                    <th scope="col" id="post_id" class="manage-column column-post-id"><?php sb_e('Post ID'); ?></th>
-                    <th scope="col" id="post_id" class="manage-column column-post-id"><?php sb_e('Post title'); ?></th>
-                    <th scope="col" id="url" class="manage-column column-url"><?php sb_e('URL'); ?></th>
-                  </tr>
-                </thead>
-
-                <tfoot>
-                <tr>
-                  <td class="manage-column column-cb check-column"><label class="screen-reader-text" for="cb-select-all-2"><?php sb_e('Select All'); ?></label><input id="cb-select-all-2" type="checkbox"></td>
-                  <th scope="col" class="manage-column column-title column-primary"><?php sb_e('Post ID'); ?></th>
-                  <th scope="col" class="manage-column column-title column-primary"><?php sb_e('Post title'); ?></th>
-                  <th scope="col" class="manage-column column-author"><?php sb_e('URL'); ?></th>
-                </tr>
-                </tfoot>
-
-                <tbody id="the-list">
-                  <tr class="no-items<?php if ( count($items_to_purge) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php sb_e('No purge items found.'); ?></td></tr>
-                  <?php foreach ( $items_to_purge as $i => $item ) : ?>
-                  <?php
-
-	                  $is_purge_all = false;
-	                  $is_post = false;
-	                  $is_url = true;
-	                  $url = false;
-
-                    if ( is_numeric($item) && $post = get_post($item) ) {
-                      $is_post  = true;
-                      $title    = get_the_title($item);
-                      $url      = get_permalink($item);
-	                    $edit_url = get_edit_post_link($item);
-                    } elseif( $item == sb_purge_all_item_name() ) {
-	                    $is_url       = false;
-	                    $is_purge_all = true;
-                    } else {
-                      $url = $item;
-                      $is_url = filter_var($item, FILTER_VALIDATE_URL) !== false;
-                    }
-
-                  ?>
-                  <tr class="purge-item">
-                    <th scope="row" class="check-column">
-                      <label class="screen-reader-text" for="cb-select-<?php echo $i; ?>">Select "<?php echo $is_post ? $title : $url; ?>"</label>
-                      <input type="hidden" class="purge-item-input" value="<?php echo esc_attr($item); ?>">
-                      <input id="cb-select-<?php echo $i; ?>" type="checkbox">
-                    </th>
-                    <?php if ( $is_post ) : ?>
-                    <td class="column-post-id has-row-actions purge-item-column">
-                      <?php echo $item; ?>
-                      <div class="row-actions">
-                        <span class="trash"><a href="#" class="remove-purge-item-from-queue"><?php sb_e('Delete'); ?></a> | </span>
-                        <span class="view"><a href="<?php echo esc_attr($url); ?>" target="_blank"><?php sb_e('View'); ?></a><?php if ( $edit_url ) echo ' | '; ?></span>
-                        <?php if ( $edit_url ) : ?>
-                        <span class="view"><a href="<?php echo $edit_url; ?>" target="_blank"><?php sb_e('Edit'); ?></a></span>
-                        <?php endif; ?>
-                      </div>
-                    </td>
-                    <td class="purge-item-column"><strong><?php echo $title; ?></strong></td>
-                    <?php elseif ($is_purge_all) : ?>
-                    <td class="column-post-id has-row-actions purge-item-column" colspan="2">
-                      <?php sb_e('Purge all-request') ?>
-                      <div class="row-actions">
-                        <span class="trash"><a href="#" class="remove-purge-item-from-queue"><?php sb_e('Delete'); ?></a><?php if ( $is_url ) : ?> | <?php endif; ?></span>
-                      </div>
-                    </td>
-                    <?php else : ?>
-                    <td class="column-post-id has-row-actions purge-item-column" colspan="2">
-                      <?php sb_e('Purged via URL only, no post object available.') ?>
-                      <div class="row-actions">
-                        <span class="trash"><a href="#" class="remove-purge-item-from-queue"><?php sb_e('Delete'); ?></a><?php if ( $is_url ) : ?> | <?php endif; ?></span>
-                        <?php if ( $is_url ) : ?>
-                            <span class="view"><a href="<?php echo esc_attr($url); ?>" target="_blank"><?php sb_e('View'); ?></a></span>
-                        <?php endif; ?>
-                      </div>
-                    </td>
-                    <?php endif; ?>
-                    <td class="column-url" style="padding-left: 0;padding-top: 10px;padding-bottom: 10px;">
-                      <?php if ( $is_url ) : ?>
-                        <a href="<?php echo esc_attr($url); ?>" target="_blank"><?php echo $url; ?></a>
-                      <?php else: ?>
-                        <?php echo $url; ?>
-                      <?php endif; ?>
-
-                    </td>
-                  </tr>
-                  <?php endforeach; ?>
-                </tbody>
-
+                <?php sb_cf_cache_admin_controls()->purge_queue_list($items_to_purge); ?>
               </table>
 
               <div class="tablenav bottom">
@@ -339,32 +259,34 @@
 
     <?php if ( sb_is_debug() ) : ?>
 
-      <div class="sb-toggle-active-cf-item sb-toggle-active-cron-item<?php if ( ! $cf_settings['cf_cron_purge'] ) echo ' cf-hidden-cron'; ?>">
+      <div class="sb-toggle-active-cf-item sb-toggle-active-cron-item<?php if ( ! sb_cf_cache()->cron_purge_is_active() ) echo ' cf-hidden-cron'; ?>">
 
         <h2><?php sb_e('Cron debug'); ?></h2>
         <p><?php sb_e('Cron is active:'); ?> <?php
 
-          $next_run_timestamp = sb_get_next_cron_time(sb_cf_cache()->get_cron_key());
+          $next_run_timestamp = sb_get_next_cron_time(sb_cf_cache()->get_purge_cron_key());
 
-          if ( sb_cf_cache()->cron_purge_is_active(false) ) {
+          if ( sb_cf_cache()->cron_purge_is_active() ) {
 
-            if ( sb_cf_cache()->cron_active_state_override() ) {
-              sb_e('Yes, due to constant "SERVEBOLT_CF_PURGE_CRON" being set to "true');
-            } else {
               sb_e('Yes');
-            }
+              if ( sb_cf_cache()->cron_state_is_overridden() ) {
+                sb_e(', due to constant "SERVEBOLT_CF_PURGE_CRON" being set to "true".');
+              }
 
-            if ( sb_cf_cache()->should_purge_cache_queue() ) {
+            if ( ! sb_cf_cache()->should_purge_cache_queue() ) {
               sb_e('. Note that cache purge requests are only added to the queue, not executed. This is due to the constant "SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE" being set to "false".');
             }
 
           } else {
-            sb_e('No');
+              sb_e('No');
+              if ( sb_cf_cache()->cron_state_is_overridden() ) {
+                  sb_e(', due to constant "SERVEBOLT_CF_PURGE_CRON" being set to "false".');
+              }
           }
 
         ?></p>
-        <p><?php sb_e('Cron schedule hook:'); ?> <?php echo sb_cf_cache()->get_cron_key(); ?></p>
-        <p><?php sb_e('Next run:'); ?> <?php echo $next_run_timestamp ? date_i18n('Y-m-d H:i:s', $next_run_timestamp) : '-'; ?></p>
+        <p><?php sb_e('Cron schedule hook:'); ?> <?php echo sb_cf_cache()->get_purge_cron_key(); ?></p>
+        <p><?php sb_e('Next run:'); ?> <?php echo $next_run_timestamp ? get_date_from_gmt( date_i18n('Y-m-d H:i:s', $next_run_timestamp) ) : '-'; ?></p>
 
       </div>
 

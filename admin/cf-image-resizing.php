@@ -43,7 +43,7 @@ class CF_Image_Resizing {
 	 * Register custom option.
 	 */
 	public function register_settings() {
-		foreach(['cf_image_resizing', 'cf_image_upscale'] as $key) {
+		foreach(['cf_image_resizing'] as $key) {
 			register_setting('sb-cf-image-resizing-options-page', sb_get_option_name($key));
 		}
 	}

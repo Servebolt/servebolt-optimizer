@@ -1,9 +1,7 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
 
 <div class="wrap sb-content">
-	<?php if ( array_key_exists('optimize-now', $_GET) ) : ?>
-		<div class="notice notice-success is-dismissible"><p><?php sb_e('Cache settings saved!'); ?></p></div>
-	<?php endif; ?>
+
 	<h1><?php sb_e('Performance Optimizer'); ?></h1>
 
   <?php if ( sb_is_dev_debug() ) : ?>

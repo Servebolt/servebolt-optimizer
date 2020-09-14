@@ -74,6 +74,14 @@
 }
 */
 
+.sb-content #purge-items-table .column-datetime-added,
+.sb-content #purge-items-table .column-type,
+.sb-content #purge-items-table .column-url {
+    padding-left: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
 .sb-content .promo-box {
     margin-top: 20px;
     width: 100%;

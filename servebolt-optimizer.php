@@ -59,7 +59,7 @@ if ( ! class_exists('Servebolt_Nginx_FPC') ){
 }
 
 // Initialize image resizing
-if ( sb_feature_active('cf_image_resize') && ( sb_cf_image_resize_control() )->resizing_is_active() ) {
+if ( sb_feature_active('cf_image_resize') ) {
 	require_once SERVEBOLT_PATH . 'classes/cloudflare-image-resize/cloudflare-image-resizing.php';
 	( new Cloudflare_Image_Resize )->init();
 }
