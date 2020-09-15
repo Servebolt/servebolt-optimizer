@@ -183,10 +183,10 @@ When checking if a multisite contains multiple domains, use this filter to alter
 `sb_optimizer_evaluate_multidomain_setup_conclusion` (boolean)
 A boolean value concluding whether the multisite-setup contains multiple domains.
 
-`sb_optimizer_get_option_%s` (string)
+`sb_optimizer_get_option_[option name]` (string)
 Filter for value of option.
 
-`sb_optimizer_get_blog_option_%s` (string)
+`sb_optimizer_get_blog_option_[option name]` (string)
 Filter for value of blog option.
 
 `sb_paginate_links_as_array_args` (array)
@@ -210,6 +210,33 @@ The filter used to "record" the number of pages-number when generating paginated
 `sb_optimizer_site_iteration` (array)
 Filter for when fetching all the sites in the multisite-network.
 
+`sb_optimizer_add_version_parameter_to_asset_src` (boolean)
+Whether to add version parameter to assets URLs.
+
+`sb_optimizer_asset_base_path` (string)
+The base path used when converting an asset URL to asset path.
+
+`sb_optimizer_asset_parsed_url_path` (string)
+The URL path used when converting an asset URL to asset path.
+
+`sb_optimizer_add_version_parameter_to_script_src` (boolean)
+Whether to add version parameter to asset script URLs.
+
+`sb_optimizer_add_version_parameter_to_style_src` (boolean)
+Whether to add version parameter to asset style URLs.
+
+`sb_optimizer_add_version_parameter_to_script_src_[handle]` (boolean)
+Whether to add version parameter to the asset script URL for a certain handle.
+
+`sb_optimizer_add_version_parameter_to_style_src_[handle]` (boolean)
+Whether to add version parameter to the asset style URL for a certain handle.
+
+`sb_optimizer_asset_url_to_path_conversion` (string)
+The converted path of an asset URL.
+
+`sb_optimizer_asset_url_to_path_conversion_[handle]` (string)
+The converted path of an asset URL for a certain handle.
+
 === Constant overview ===
 The plugin also has various php constants that allows third-party developers to alter the behaviour of the plugin. See the list below:
 
@@ -218,6 +245,9 @@ Used to set the "Expires"-header. Defaults to 600 seconds. Only active for Serve
 
 `SERVEBOLT_BROWSER_CACHE_TIME` (integer)
 Used to set the "max-age"-parameter in the "Cache-Control"-header. Defaults to 600 seconds. Only active for Servebolt-customers when using full page cache.
+
+`SB_CF_REQUEST_DEBUG` (boolean)
+Whether to debug Cloudflare API request data to the error log.
 
 `SERVEBOLT_CF_PURGE_CRON` (boolean)
 Whether to use the WP cron to purge the cache (the alternative is that the cache purge happens immediately, without any queue).

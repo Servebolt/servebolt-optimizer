@@ -76,12 +76,14 @@ class SB_Automatic_Asset_Versioning {
      * @param $handle
      * @return string
      */
+    /*
     public function style_loader_src($src, $handle) {
         if ( $this->should_skip($handle, 'style') ) {
             return $src;
         }
         return $this->alter_src($src, $handle);
     }
+    */
 
     /**
      * Alter the src-attribute on the script-tags.
@@ -90,12 +92,14 @@ class SB_Automatic_Asset_Versioning {
      * @param $handle
      * @return mixed
      */
+    /*
     public function script_loader_src($src, $handle) {
         if ( $this->should_skip($handle, 'script') ) {
             return $src;
         }
         return $this->alter_src($src, $handle);
     }
+    */
 
     /**
      * Check whether we should alter the src-attribute.
@@ -156,10 +160,11 @@ class SB_Automatic_Asset_Versioning {
      */
     private function get_asset_path($src, $handle) {
         $parsed_url = parse_url($src);
-        $src = rtrim(ABSPATH, '/') . $parsed_url['path'];
         // Use these filters too correct any mistakes related to the asset path
-        $src = apply_filters('sb_optimizer_asset_url_to_path_conversion', $src);
-        $src = apply_filters('sb_optimizer_asset_url_to_path_conversion_' . $handle, $src);
+        $base_path = apply_filters('sb_optimizer_asset_base_path', rtrim(ABSPATH, '/'), $src, $parsed_url);
+        $src = $base_path . '/' . apply_filters('sb_optimizer_asset_parsed_url_path', ltrim($parsed_url['path'], '/'));
+        $src = apply_filters('sb_optimizer_asset_url_to_path_conversion', $src, $parsed_url);
+        $src = apply_filters('sb_optimizer_asset_url_to_path_conversion_' . $handle, $src, $parsed_url);
         return $src;
     }
 
