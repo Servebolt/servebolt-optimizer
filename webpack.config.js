@@ -108,6 +108,8 @@ const config = {
 
 		// Copy CSS-files
 		new CopyWebpackPlugin( [ { from: '*.css', to: 'css', 'context': 'assets/src/css/' } ] ),
+
+		// Copy JS-files
 		new CopyWebpackPlugin( [ { from: '*.js', to: 'js', 'context': 'assets/src/js/' } ] ),
 
 		// Copy images and SVGs
@@ -115,6 +117,7 @@ const config = {
 
 		// Copy index.php to all dist directories.
 		new CopyWebpackPlugin( [ { from: 'index.php', to: '.' } ] ),
+		new CopyWebpackPlugin( [ { from: 'index.php', to: './images' } ] ),
 		new CopyWebpackPlugin( [ { from: 'index.php', to: './js' } ] ),
 		new CopyWebpackPlugin( [ { from: 'index.php', to: './css' } ] ),
 
