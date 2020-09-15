@@ -133,7 +133,7 @@ if ( ! function_exists('sb_feature_active') ) {
           return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || ( sb_cf_image_resize_control() )->resizing_is_active();
           break;
         case 'sb_asset_auto_version':
-            return true;
+            return sb_general_settings()->asset_auto_version();
             break;
 	    case 'cf_cache':
 		    return true;
@@ -918,6 +918,7 @@ if ( ! function_exists('sb_delete_all_settings') ) {
     $option_names = [
 
       // General settings
+      'asset_auto_version',
       'use_native_js_fallback',
 
       // Wipe nonce

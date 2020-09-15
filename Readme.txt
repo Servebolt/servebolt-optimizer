@@ -168,6 +168,9 @@ Whether the system should parse the cache purge queue and execute the cache purg
 Whether to debug the request to the Cloudflare API.
 `sb_optimizer_cf_api_request_debug` (boolean)
 
+`sb_optimizer_max_number_of_urls_to_be_purged` (integer)
+Limit the number of URLs being sent for purging in the Cloudflare API. This is due to limitations in the Cloudflare API - maximum 30 URLs per purge request. Using this filter is recommended, but it will prevent an error until a better solution is implemented.
+
 `sb_optimizer_urls_to_be_purged` (array)
 The array of URLs to be purged in Cloudflare.
 
@@ -212,6 +215,9 @@ Filter for when fetching all the sites in the multisite-network.
 
 `sb_optimizer_add_version_parameter_to_asset_src` (boolean)
 Whether to add version parameter to assets URLs.
+
+`sb_optimizer_version_parameter_name` (string)
+The string used to create the version parameter for asset URLs.
 
 `sb_optimizer_asset_base_path` (string)
 The base path used when converting an asset URL to asset path.

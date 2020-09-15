@@ -16,10 +16,6 @@ class SB_Automatic_Asset_Versioning {
     public function __construct() {
         add_filter('style_loader_tag', [$this, 'style_loader_tag'], 10, 4);
         add_filter('script_loader_tag', [$this, 'script_loader_tag'], 10, 3);
-
-        // Does not work because of a "esc_url" that prevents us from adding "?" or "&" to the URL.
-        //add_filter('style_loader_src', [$this, 'style_loader_src'], 10, 2);
-        //add_filter('script_loader_src', [$this, 'script_loader_src'], 10, 2);
     }
 
     /**
@@ -70,38 +66,6 @@ class SB_Automatic_Asset_Versioning {
     }
 
     /**
-     * Alter the src-attribute on the style-tags.
-     *
-     * @param $src
-     * @param $handle
-     * @return string
-     */
-    /*
-    public function style_loader_src($src, $handle) {
-        if ( $this->should_skip($handle, 'style') ) {
-            return $src;
-        }
-        return $this->alter_src($src, $handle);
-    }
-    */
-
-    /**
-     * Alter the src-attribute on the script-tags.
-     *
-     * @param $src
-     * @param $handle
-     * @return mixed
-     */
-    /*
-    public function script_loader_src($src, $handle) {
-        if ( $this->should_skip($handle, 'script') ) {
-            return $src;
-        }
-        return $this->alter_src($src, $handle);
-    }
-    */
-
-    /**
      * Check whether we should alter the src-attribute.
      *
      * @param $handle
@@ -145,7 +109,7 @@ class SB_Automatic_Asset_Versioning {
             return false;
         }
         try {
-            return $this->parameter_name . '=' . filemtime($file_path);
+            return apply_filters('sb_optimizer_version_parameter_name', $this->parameter_name, $file_path) . '=' . filemtime($file_path);
         } catch (Exception $e) {
             return false;
         }
