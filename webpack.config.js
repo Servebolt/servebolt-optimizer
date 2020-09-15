@@ -4,7 +4,7 @@ const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
 const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ImageminPlugin = require( 'imagemin-webpack-plugin' ).default;
-const WebpackRTLPlugin = require( 'webpack-rtl-plugin' );
+//const WebpackRTLPlugin = require( 'webpack-rtl-plugin' );
 const ProgressBarPlugin = require( 'progress-bar-webpack-plugin' );
 const { exec } = require( 'child_process' );
 
@@ -106,8 +106,9 @@ const config = {
 
 		new MiniCssExtractPlugin( {filename:'css/[name].css'} ),
 
-		// Create RTL css.
-		new WebpackRTLPlugin(),
+		// Copy CSS-files
+		new CopyWebpackPlugin( [ { from: '*.css', to: 'css', 'context': 'assets/src/css/' } ] ),
+		new CopyWebpackPlugin( [ { from: '*.js', to: 'js', 'context': 'assets/src/js/' } ] ),
 
 		// Copy images and SVGs
 		new CopyWebpackPlugin( [ { from: 'assets/src/images', to: 'images' } ] ),
@@ -142,7 +143,7 @@ module.exports = [
 
 	Object.assign( {
 		entry: {
-			plugin: [ './assets/src/js/admin/plugin.js' ],
+			plugin: [ './assets/src/js/gutenberg/plugin.js' ],
 		},
 		output: {
 			path: path.resolve( __dirname, './assets/dist/' ),
@@ -155,7 +156,7 @@ module.exports = [
 // inProd?
 if ( inProduction ) {
 
-	//exec( 'wp i18n make-pot . languages/wp-beb.pot --exclude=assets/dist' );
+	//exec( 'wp i18n make-pot . languages/servebolt-optimizer.pot --exclude=assets/dist' );
 
 	// Uglify JS.
 	config.optimization = {

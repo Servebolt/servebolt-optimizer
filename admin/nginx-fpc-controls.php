@@ -55,7 +55,7 @@ class Nginx_FPC_Controls {
 	public function plugin_scripts() {
 		$screen = get_current_screen();
 		if ( $screen->id != 'servebolt_page_servebolt-nginx-cache' ) return;
-		wp_enqueue_script( 'servebolt-optimizer-fpc-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/fpc.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/fpc.js'), true );
+		wp_enqueue_script( 'servebolt-optimizer-fpc-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/fpc.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'assets/dist/js/fpc.js'), true );
 	}
 
 	/**

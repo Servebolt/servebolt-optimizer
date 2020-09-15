@@ -13,21 +13,21 @@ jQuery(document).ready(function($) {
   $('#sb-configuration .sb-purge-all-cache, #wpadminbar .sb-purge-all-cache').click(function (e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
-    sb_purge_all_cache();
+    window.sb_purge_all_cache();
   });
 
   // Purge current post cache
-  $('.sb-purge-current-post-cache').click(function (e) {
+  $('#wpadminbar .sb-purge-current-post-cache').click(function (e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
     var post_id = $(this).find('span').data('id');
-    sb_purge_post_cache(post_id);
+    window.sb_purge_post_cache(post_id);
   });
 
   // Purge URL cache
   $('#sb-configuration .sb-purge-url, #wpadminbar .sb-purge-url').click(function(e) {
     e.preventDefault();
-    sb_purge_url_cache();
+    window.sb_purge_url_cache();
   });
 
   /**
@@ -130,7 +130,7 @@ jQuery(document).ready(function($) {
   /**
    * Clear all cache in Cloudflare.
    */
-  function sb_purge_all_cache() {
+  window.sb_purge_all_cache = function() {
     if ( window.sb_use_native_js_fallback() ) {
       if ( confirm('Do you want to purge all cache?') ) {
         sb_purge_all_cache_confirmed();
@@ -192,9 +192,21 @@ jQuery(document).ready(function($) {
   }
 
   /**
+   * Clear cache for the current post.
+   *
+   * @param post_id
+   */
+  window.sb_purge_post_cache_with_auto_resolve = function(post_id) {
+    var post_id = document.getElementById('post_ID').value;
+    if ( post_id ) {
+      window.sb_purge_post_cache(post_id);
+    }
+  }
+
+  /**
    * Clear cache by post ID in Cloudflare.
    */
-  function sb_purge_post_cache(post_id) {
+  window.sb_purge_post_cache = function(post_id) {
     if ( window.sb_use_native_js_fallback() ) {
       if ( confirm('Do you want to purge cache for current post?') ) {
         sb_purge_post_cache_confirmed(post_id);
@@ -264,7 +276,7 @@ jQuery(document).ready(function($) {
   /**
    * Clear cache by URL in Cloudflare.
    */
-  function sb_purge_url_cache() {
+  window.sb_purge_url_cache = function() {
     if ( window.sb_use_native_js_fallback() ) {
       var value = prompt('Which URL do you wish to purge?' + "\n" + 'Please use full URL including "http://"');
       if ( ! value ) {

@@ -51,6 +51,9 @@ This plugin can be controlled via WP Admin, WP CLI, various filters and PHP cons
 === Filter overviews ===
 The plugin uses various filters to allow third-party developers to alter the behaviour of the plugin. See the list below:
 
+`sb_optimizer_add_gutenberg_plugin_menu` (boolean)
+Whether to display the plugin menu in the Gutenberg editor.
+
 `sb_optimizer_fpc_should_debug_headers` (boolean)
 Whether to print debug headers related to the full page cache (only for Servebolt-hosted sites).
 

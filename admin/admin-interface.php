@@ -114,7 +114,7 @@ class Servebolt_Admin_Interface {
      * Register Servebolt menu page.
      */
     private function sb_general_page_menu_page() {
-        add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'general_page_callback'], SERVEBOLT_PATH_URL . 'admin/assets/img/servebolt-icon.svg' );
+        add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'general_page_callback'], SERVEBOLT_PATH_URL . 'assets/dist/images/servebolt-icon.svg' );
     }
 
     /**

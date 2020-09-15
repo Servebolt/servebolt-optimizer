@@ -69,7 +69,7 @@
 .servebolt-icon:before {
     display: block;
     content: ' ';
-    background-image:  url('../img/servebolt-icon.svg');
+    background-image:  url('../images/servebolt-icon.svg');
     background-position: center;
     background-repeat: no-repeat;
     background-size: 20px 20px;
