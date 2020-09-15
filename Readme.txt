@@ -96,7 +96,7 @@ Use this filter to alter the URLs when purging Cloudflare cache.
 `sb_optimizer_disable_automatic_purge` (boolean)
 Whether to disable the automatic Cloudflare cache purge feature (for example when saving a post etc.).
 
-`sb_optimizer_automatic_purge_on_post_update` (boolean)
+`sb_optimizer_automatic_purge_on_post_save` (boolean)
 Whether to purge Cloudflare purge automatically on post update.
 
 `sb_optimizer_automatic_purge_on_comment` (boolean)
@@ -105,7 +105,7 @@ Whether to purge Cloudflare purge automatically on comment post.
 `sb_optimizer_automatic_purge_on_comment_approval` (boolean)
 Whether to purge Cloudflare purge automatically on comment approval.
 
-`sb_optimizer_automatic_purge_on_term_edit` (boolean)
+`sb_optimizer_automatic_purge_on_term_save` (boolean)
 Whether to purge Cloudflare purge automatically on term update.
 
 `sb_optimizer_should_purge_term_cache` (boolean)

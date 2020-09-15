@@ -29,8 +29,8 @@ class SB_CF_Cache_Purge_Actions {
 		if ( apply_filters('sb_optimizer_disable_automatic_purge', false) ) return;
 
 		// Purge post on post update
-		if ( apply_filters('sb_optimizer_automatic_purge_on_post_update', true) ) {
-			add_action( 'post_updated', [$this, 'purge_post_on_update'], 99, 1 );
+		if ( apply_filters('sb_optimizer_automatic_purge_on_post_save', true) ) {
+			add_action( 'post_updated', [$this, 'purge_post_on_save'], 99, 3 );
 		}
 
 		// Purge post on comment post
@@ -44,8 +44,8 @@ class SB_CF_Cache_Purge_Actions {
 		}
 
 		// Purge post when term is edited (Work in progress)
-		if ( apply_filters('sb_optimizer_automatic_purge_on_term_edit', true) ) {
-			add_action( 'edit_term', [ $this, 'purge_post_on_term_edit' ], 99, 3 );
+		if ( apply_filters('sb_optimizer_automatic_purge_on_term_save', true) ) {
+			add_action( 'edit_term', [ $this, 'purge_post_on_term_save' ], 99, 3 );
 		}
 
 	}
@@ -55,7 +55,7 @@ class SB_CF_Cache_Purge_Actions {
 	 * @param $tt_id
 	 * @param $taxonomy
 	 */
-	public function purge_post_on_term_edit($term_id, $tt_id, $taxonomy) {
+	public function purge_post_on_term_save($term_id, $tt_id, $taxonomy) {
         $this->maybe_purge_term($term_id);
 	}
 
@@ -124,8 +124,10 @@ class SB_CF_Cache_Purge_Actions {
 	 *
 	 * @param $post_id
 	 */
-	public function purge_post_on_update($post_id) {
-		$this->maybe_purge_post($post_id);
+	public function purge_post_on_save($post_id, $post_after, $post_before) {
+        $permalink_changed = $post_before->post_name != $post_after->post_name;
+        dd($permalink_changed);
+        $this->maybe_purge_post($post_id);
 	}
 
 	/**

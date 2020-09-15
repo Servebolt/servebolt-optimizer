@@ -132,6 +132,9 @@ if ( ! function_exists('sb_feature_active') ) {
           // Only active when defined is set, or if already active - this is to keep it beta for now (slightly hidden).
           return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || ( sb_cf_image_resize_control() )->resizing_is_active();
           break;
+        case 'sb_asset_auto_version':
+            return true;
+            break;
 	    case 'cf_cache':
 		    return true;
 		    break;
