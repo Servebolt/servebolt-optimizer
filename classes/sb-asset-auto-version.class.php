@@ -87,9 +87,9 @@ class SB_Automatic_Asset_Versioning {
      * @return string
      */
     private function alter_src($src, $handle) {
-        $has_query = parse_url($src, PHP_URL_QUERY);
         $version_parameter = $this->generate_version_parameter($src, $handle);
         if ( $version_parameter ) {
+            $has_query = parse_url($src, PHP_URL_QUERY);
             return $src . ( $has_query ? '&' : '?') . $version_parameter;
         }
         return $src;
