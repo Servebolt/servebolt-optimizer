@@ -38,18 +38,21 @@ class Servebolt_Admin_Assets {
 	 * Plugin styling (public only).
 	 */
 	public function plugin_public_styling() {
-		wp_enqueue_style( 'servebolt-optimizer-public-styling', SERVEBOLT_PATH_URL . 'admin/assets/css/public-style.css', [], filemtime(SERVEBOLT_PATH . 'admin/assets/css/public-style.css') );
+		wp_enqueue_style( 'servebolt-optimizer-public-styling', SERVEBOLT_PATH_URL . 'assets/dist/css/public-style.css', [], filemtime(SERVEBOLT_PATH . 'assets/dist/css/public-style.css') );
 	}
 
 	/**
 	 * Plugin common scripts (scripts for both WP Admin and front end).
 	 */
 	public function plugin_common_styling() {
-		wp_enqueue_style( 'servebolt-optimizer-styling', SERVEBOLT_PATH_URL . 'admin/assets/css/admin-style.css', [], filemtime(SERVEBOLT_PATH . 'admin/assets/css/admin-style.css') );
+		wp_enqueue_style( 'servebolt-optimizer-styling', SERVEBOLT_PATH_URL . 'assets/dist/css/admin-style.css', [], filemtime(SERVEBOLT_PATH . 'assets/dist/css/admin-style.css') );
 		if ( ! sb_general_settings()->use_native_js_fallback() ) {
-            wp_enqueue_style( 'sb-sweetalert2', SERVEBOLT_PATH_URL . 'admin/assets/css/sweetalert2.min.css', [], filemtime(SERVEBOLT_PATH . 'admin/assets/css/sweetalert2.min.css') );
+            wp_enqueue_style( 'sb-sweetalert2', SERVEBOLT_PATH_URL . 'assets/dist/css/sweetalert2.min.css', [], filemtime(SERVEBOLT_PATH . 'assets/dist/css/sweetalert2.min.css') );
         }
-		wp_enqueue_style( 'servebolt-optimizer-common-styling', SERVEBOLT_PATH_URL . 'admin/assets/css/common-style.css', [], filemtime(SERVEBOLT_PATH . 'admin/assets/css/common-style.css') );
+        if ( apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true) ) {
+            wp_enqueue_style( 'servebolt-optimizer-gutenberg', SERVEBOLT_PATH_URL . 'assets/dist/css/plugin.css', [], filemtime(SERVEBOLT_PATH . 'assets/dist/css/plugin.css') );
+        }
+		wp_enqueue_style( 'servebolt-optimizer-common-styling', SERVEBOLT_PATH_URL . 'assets/dist/css/common-style.css', [], filemtime(SERVEBOLT_PATH . 'assets/dist/css/common-style.css') );
 	}
 
 	/**
@@ -57,16 +60,20 @@ class Servebolt_Admin_Assets {
 	 */
 	public function plugin_common_scripts() {
         if ( ! sb_general_settings()->use_native_js_fallback() ) {
-            wp_enqueue_script('sb-sweetalert2', SERVEBOLT_PATH_URL . 'admin/assets/js/sweetalert2.all.min.js', [], filemtime(SERVEBOLT_PATH . 'admin/assets/js/sweetalert2.all.min.js'), true);
+            wp_enqueue_script('sb-sweetalert2', SERVEBOLT_PATH_URL . 'assets/dist/js/sweetalert2.all.min.js', [], filemtime(SERVEBOLT_PATH . 'assets/dist/js/sweetalert2.all.min.js'), true);
         }
-		wp_enqueue_script( 'servebolt-optimizer-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/general.js', [], filemtime(SERVEBOLT_PATH . 'admin/assets/js/general.js'), true );
-		wp_enqueue_script( 'servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/cloudflare-cache-purge-trigger.js', [], filemtime(SERVEBOLT_PATH . 'admin/assets/js/cloudflare-cache-purge-trigger.js'), true );
+        if ( apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true) ) {
+            wp_enqueue_script( 'servebolt-optimizer-gutenberg', SERVEBOLT_PATH_URL . 'assets/dist/js/plugin.js', [], filemtime(SERVEBOLT_PATH . 'assets/dist/js/plugin.js'), true );
+        }
+		wp_enqueue_script( 'servebolt-optimizer-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/general.js', [], filemtime(SERVEBOLT_PATH . 'assets/dist/js/general.js'), true );
+		wp_enqueue_script( 'servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/cloudflare-cache-purge-trigger.js', [], filemtime(SERVEBOLT_PATH . 'assets/dist/js/cloudflare-cache-purge-trigger.js'), true );
 		wp_localize_script( 'servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', 'sb_ajax_object', [
-			'ajax_nonce'             => sb_get_ajax_nonce(),
-			'use_native_js_fallback' => sb_boolean_to_string( sb_general_settings()->use_native_js_fallback() ),
-			'cron_purge_is_active'   => sb_cf_cache()->cron_purge_is_active(),
-			'ajaxurl'                => admin_url( 'admin-ajax.php' ),
+			'ajax_nonce'                         => sb_get_ajax_nonce(),
+			'use_native_js_fallback'             => sb_boolean_to_string( sb_general_settings()->use_native_js_fallback() ),
+			'cron_purge_is_active'               => sb_cf_cache()->cron_purge_is_active(),
+			'ajaxurl'                            => admin_url( 'admin-ajax.php' ),
 		] );
+
 	}
 
 }

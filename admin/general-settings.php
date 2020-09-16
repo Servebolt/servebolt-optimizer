@@ -56,6 +56,7 @@ class SB_General_Settings {
     public function registered_settings_items() {
         return [
             'use_native_js_fallback' => 'boolean',
+            'asset_auto_version'     => 'boolean',
         ];
     }
 
@@ -104,8 +105,8 @@ class SB_General_Settings {
     public function __call($name, $arguments)
     {
         if ( in_array($name, array_keys($this->registered_settings_items())) ) {
-            $settings_items = $this->get_all_settings_items();
-            return $settings_items[$name];
+            $blog_id = sb_array_get(0, $arguments, false);
+            return $this->get_settings_item($name, $blog_id);
         }
 
         // Trigger error for call to undefined method

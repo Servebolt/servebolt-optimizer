@@ -44,7 +44,7 @@
 }
 
 .sb-content .sb-logo {
-    background-image: url('../img/servebolt-logo.png');
+    background-image: url('../images/servebolt-logo.png');
     height: 50px;
     width: 200px;
     margin-top: 20px;
@@ -98,6 +98,10 @@
     width: 50%;
     max-width: 450px;
     margin: 0 auto;
+}
+
+.swal2-title {
+    line-height: normal;
 }
 
 .sb-content .nginx_switch {

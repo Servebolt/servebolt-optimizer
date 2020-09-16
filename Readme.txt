@@ -51,6 +51,9 @@ This plugin can be controlled via WP Admin, WP CLI, various filters and PHP cons
 === Filter overviews ===
 The plugin uses various filters to allow third-party developers to alter the behaviour of the plugin. See the list below:
 
+`sb_optimizer_add_gutenberg_plugin_menu` (boolean)
+Whether to display the plugin menu in the Gutenberg editor.
+
 `sb_optimizer_fpc_should_debug_headers` (boolean)
 Whether to print debug headers related to the full page cache (only for Servebolt-hosted sites).
 
@@ -93,7 +96,7 @@ Use this filter to alter the URLs when purging Cloudflare cache.
 `sb_optimizer_disable_automatic_purge` (boolean)
 Whether to disable the automatic Cloudflare cache purge feature (for example when saving a post etc.).
 
-`sb_optimizer_automatic_purge_on_post_update` (boolean)
+`sb_optimizer_automatic_purge_on_post_save` (boolean)
 Whether to purge Cloudflare purge automatically on post update.
 
 `sb_optimizer_automatic_purge_on_comment` (boolean)
@@ -102,7 +105,7 @@ Whether to purge Cloudflare purge automatically on comment post.
 `sb_optimizer_automatic_purge_on_comment_approval` (boolean)
 Whether to purge Cloudflare purge automatically on comment approval.
 
-`sb_optimizer_automatic_purge_on_term_edit` (boolean)
+`sb_optimizer_automatic_purge_on_term_save` (boolean)
 Whether to purge Cloudflare purge automatically on term update.
 
 `sb_optimizer_should_purge_term_cache` (boolean)
@@ -165,6 +168,9 @@ Whether the system should parse the cache purge queue and execute the cache purg
 Whether to debug the request to the Cloudflare API.
 `sb_optimizer_cf_api_request_debug` (boolean)
 
+`sb_optimizer_max_number_of_urls_to_be_purged` (integer)
+Limit the number of URLs being sent for purging in the Cloudflare API. This is due to limitations in the Cloudflare API - maximum 30 URLs per purge request. Using this filter is recommended, but it will prevent an error until a better solution is implemented.
+
 `sb_optimizer_urls_to_be_purged` (array)
 The array of URLs to be purged in Cloudflare.
 
@@ -180,10 +186,10 @@ When checking if a multisite contains multiple domains, use this filter to alter
 `sb_optimizer_evaluate_multidomain_setup_conclusion` (boolean)
 A boolean value concluding whether the multisite-setup contains multiple domains.
 
-`sb_optimizer_get_option_%s` (string)
+`sb_optimizer_get_option_[option name]` (string)
 Filter for value of option.
 
-`sb_optimizer_get_blog_option_%s` (string)
+`sb_optimizer_get_blog_option_[option name]` (string)
 Filter for value of blog option.
 
 `sb_paginate_links_as_array_args` (array)
@@ -207,6 +213,36 @@ The filter used to "record" the number of pages-number when generating paginated
 `sb_optimizer_site_iteration` (array)
 Filter for when fetching all the sites in the multisite-network.
 
+`sb_optimizer_add_version_parameter_to_asset_src` (boolean)
+Whether to add version parameter to assets URLs.
+
+`sb_optimizer_version_parameter_name` (string)
+The string used to create the version parameter for asset URLs.
+
+`sb_optimizer_asset_base_path` (string)
+The base path used when converting an asset URL to asset path.
+
+`sb_optimizer_asset_parsed_url_path` (string)
+The URL path used when converting an asset URL to asset path.
+
+`sb_optimizer_add_version_parameter_to_script_src` (boolean)
+Whether to add version parameter to asset script URLs.
+
+`sb_optimizer_add_version_parameter_to_style_src` (boolean)
+Whether to add version parameter to asset style URLs.
+
+`sb_optimizer_add_version_parameter_to_script_src_[handle]` (boolean)
+Whether to add version parameter to the asset script URL for a certain handle.
+
+`sb_optimizer_add_version_parameter_to_style_src_[handle]` (boolean)
+Whether to add version parameter to the asset style URL for a certain handle.
+
+`sb_optimizer_asset_url_to_path_conversion` (string)
+The converted path of an asset URL.
+
+`sb_optimizer_asset_url_to_path_conversion_[handle]` (string)
+The converted path of an asset URL for a certain handle.
+
 === Constant overview ===
 The plugin also has various php constants that allows third-party developers to alter the behaviour of the plugin. See the list below:
 
@@ -215,6 +251,9 @@ Used to set the "Expires"-header. Defaults to 600 seconds. Only active for Serve
 
 `SERVEBOLT_BROWSER_CACHE_TIME` (integer)
 Used to set the "max-age"-parameter in the "Cache-Control"-header. Defaults to 600 seconds. Only active for Servebolt-customers when using full page cache.
+
+`SB_CF_REQUEST_DEBUG` (boolean)
+Whether to debug Cloudflare API request data to the error log.
 
 `SERVEBOLT_CF_PURGE_CRON` (boolean)
 Whether to use the WP cron to purge the cache (the alternative is that the cache purge happens immediately, without any queue).

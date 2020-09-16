@@ -125,6 +125,13 @@ class SB_CF_SDK extends SB_CF_SDK_Request_Methods {
 		// Maybe alter URL's before sending to CF?
 		$urls = apply_filters('sb_optimizer_urls_to_be_purged', $urls);
 
+		// A hacky way of limiting so that we don't get an error from the Cloudflare API about too many URLs in purge request.
+        // Future solution will be to queue up all URLs and purge them in chunks the size of 30 each.
+        $max_number = apply_filters('sb_optimizer_max_number_of_urls_to_be_purged', false);
+        if ( is_int($max_number) ) {
+            $urls = array_slice($urls, 0, $max_number);
+        }
+
 		// Only keep the URL's in the cache purge queue array
 		$urls = array_filter( $urls, function($url) {
 			return $url !== 'all';

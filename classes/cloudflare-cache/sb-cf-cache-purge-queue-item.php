@@ -70,7 +70,10 @@ class CF_Cache_Purge_Queue_Item {
      * @return mixed|null
      */
     public function get_datetime_added() {
-        return date_i18n('Y-m-d H:i:s', $this->get_time_added());
+        if ( $this->get_time_added() ) {
+            return date_i18n('Y-m-d H:i:s', $this->get_time_added());
+        }
+        return null;
     }
 
     /**

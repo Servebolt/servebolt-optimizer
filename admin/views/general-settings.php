@@ -14,6 +14,7 @@
                 <th><?php sb_e('Blog ID'); ?></th>
                 <th><?php sb_e('URL'); ?></th>
                 <th><?php sb_e('Use native JS fallback'); ?></th>
+                <th><?php sb_e('Automatic version parameter'); ?></th>
                 <th><?php sb_e('Controls'); ?></th>
             </tr>
             </thead>
@@ -22,6 +23,7 @@
                 <th><?php sb_e('Blog ID'); ?></th>
                 <th><?php sb_e('URL'); ?></th>
                 <th><?php sb_e('Use native JS fallback'); ?></th>
+                <th><?php sb_e('Automatic version parameter'); ?></th>
                 <th><?php sb_e('Controls'); ?></th>
             </tr>
             </tfoot>
@@ -30,7 +32,8 @@
                 <tr>
                     <td><?php echo $site->blog_id; ?></td>
                     <td><?php echo $site->domain . $site->path; ?></td>
-                    <td><?php echo sb_nginx_fpc()->fpc_is_active($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
+                    <td><?php echo sb_general_settings()->use_native_js_fallback($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
+                    <td><?php echo sb_general_settings()->asset_auto_version($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
                     <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-general-settings' ); ?>" class="button btn"><?php sb_e('Go to site settings'); ?></a></td>
                 </tr>
             <?php endforeach; ?>
@@ -46,24 +49,37 @@
             <?php do_settings_sections( 'sb-general-settings-options-page' ) ?>
             <table class="form-table" id="sb-nginx-fpc-form">
                 <tr>
-                    <th scope="row">Use native JS fallback</th>
+                    <th scope="row"><?php sb_e('Use native JS fallback'); ?></th>
                     <td>
                         <fieldset>
                             <?php
                                 $overridden = sb_general_settings()->setting_is_overridden('use_native_js_fallback');
                                 $checked = sb_general_settings()->use_native_js_fallback();
                             ?>
-                            <legend class="screen-reader-text"><span>Use native JS fallback</span></legend>
+                            <legend class="screen-reader-text"><span><?php sb_e('Use native JS fallback'); ?></span></legend>
                             <label for="use_native_js_fallback">
                                 <input name="<?php echo sb_get_option_name('use_native_js_fallback'); ?>" type="checkbox"<?php if ( $overridden ) echo ' disabled'; ?> id="use_native_js_fallback" value="1"<?php echo $checked ? ' checked' : ''; ?>>
-                                Using native JS for alerts, prompts and confirmations which would otherwise use third party library SweetAlert <em>(prone to cause conflicts if SweetAlert is already used in the theme or in other plugins)</em>.
+                                <?php sb_e(sprintf('Using native JS for alerts, prompts and confirmations which would otherwise use third party library SweetAlert %s(prone to cause conflicts if SweetAlert is already used in the theme or in other plugins)%s.', '<em>', '</em>')); ?>
                                 <?php if ( $overridden ): ?>
-                                    <p><strong>Note: this setting is overridden by the constant "SERVEBOLT_USE_NATIVE_JS_FALLBACK" which is set to <?php sb_display_value($checked); ?>.</strong></p>
+                                    <p><strong><?php sb_e(sprintf('Note: this setting is overridden by the constant "SERVEBOLT_USE_NATIVE_JS_FALLBACK" which is set to %s.', sb_display_value($checked))); ?></strong></p>
                                 <?php endif; ?>
                             </label>
                         </fieldset>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row"><?php sb_e('Add automatic version parameter to asset URLs'); ?></th>
+                    <td>
+                        <fieldset>
+                            <legend class="screen-reader-text"><span><?php sb_e('Add automatic version parameter to asset URLs'); ?></span></legend>
+                            <label for="asset_auto_version">
+                                <input name="<?php echo sb_get_option_name('asset_auto_version'); ?>" type="checkbox" id="asset_auto_version" value="1"<?php echo sb_general_settings()->asset_auto_version() ? ' checked' : ''; ?>>
+                                <?php sb_e('Check this if you want to add an automatic version parameter (used for automatic cache busting) to the URLs of the script and style-files on this site. This is useful when dealing with issues related to cache.'); ?>
+                            </label>
+                        </fieldset>
+                    </td>
+                </tr>
+
             </table>
             <?php submit_button(); ?>
 
