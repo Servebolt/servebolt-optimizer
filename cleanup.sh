@@ -1,4 +1,5 @@
 #!/bin/bash
+rm -rf assets/src 2> /dev/null
 rm -rf node_modules 2> /dev/null
 rm -rf vendor 2> /dev/null
 rm -rf .babelrc 2> /dev/null
