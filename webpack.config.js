@@ -39,6 +39,7 @@ const config = {
 			},
 
 			// Create RTL styles.
+			/*
 			{
 				test: /\.css$/,
 				use: [
@@ -53,8 +54,8 @@ const config = {
 		          },
 		          'css-loader',
 		        ],
-				//*/
 			},
+			*/
 
 			// SASS to CSS.
 			{

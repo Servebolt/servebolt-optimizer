@@ -68,11 +68,12 @@ class Servebolt_Admin_Assets {
 		wp_enqueue_script( 'servebolt-optimizer-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/general.js', [], filemtime(SERVEBOLT_PATH . 'assets/dist/js/general.js'), true );
 		wp_enqueue_script( 'servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/cloudflare-cache-purge-trigger.js', [], filemtime(SERVEBOLT_PATH . 'assets/dist/js/cloudflare-cache-purge-trigger.js'), true );
 		wp_localize_script( 'servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', 'sb_ajax_object', [
-			'ajax_nonce'             => sb_get_ajax_nonce(),
-			'use_native_js_fallback' => sb_boolean_to_string( sb_general_settings()->use_native_js_fallback() ),
-			'cron_purge_is_active'   => sb_cf_cache()->cron_purge_is_active(),
-			'ajaxurl'                => admin_url( 'admin-ajax.php' ),
+			'ajax_nonce'                         => sb_get_ajax_nonce(),
+			'use_native_js_fallback'             => sb_boolean_to_string( sb_general_settings()->use_native_js_fallback() ),
+			'cron_purge_is_active'               => sb_cf_cache()->cron_purge_is_active(),
+			'ajaxurl'                            => admin_url( 'admin-ajax.php' ),
 		] );
+
 	}
 
 }

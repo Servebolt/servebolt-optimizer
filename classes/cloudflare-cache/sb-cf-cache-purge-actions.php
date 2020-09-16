@@ -45,7 +45,7 @@ class SB_CF_Cache_Purge_Actions {
 
 		// Purge post when term is edited (Work in progress)
 		if ( apply_filters('sb_optimizer_automatic_purge_on_term_save', true) ) {
-			add_action( 'edit_term', [ $this, 'purge_post_on_term_save' ], 99, 3 );
+			add_action( 'edit_term', [ $this, 'purge_term_on_save' ], 99, 3 );
 		}
 
 	}
@@ -55,9 +55,18 @@ class SB_CF_Cache_Purge_Actions {
 	 * @param $tt_id
 	 * @param $taxonomy
 	 */
-	public function purge_post_on_term_save($term_id, $tt_id, $taxonomy) {
+	public function purge_term_on_save($term_id, $tt_id, $taxonomy) {
+        $this->maybe_purge_term_slug_if_slug_changed($term_id);
         $this->maybe_purge_term($term_id);
 	}
+
+    /**
+     *
+     */
+	private function maybe_purge_term_slug_if_slug_changed() {
+	    // TODO: We might need to use a different filter to try to catch the old slug before the term is being updated. Take a look at the function wp-includes/taxonomy.php:2922 for available filters/actions.
+        // TODO: When a term is updated, check if the term slug is being changed and purge the cache on the old URL.
+    }
 
     /**
      * @param $term_id
@@ -125,10 +134,22 @@ class SB_CF_Cache_Purge_Actions {
 	 * @param $post_id
 	 */
 	public function purge_post_on_save($post_id, $post_after, $post_before) {
-        $permalink_changed = $post_before->post_name != $post_after->post_name;
-        dd($permalink_changed);
+	    $this->maybe_purge_post_permalink_if_slug_changed($post_id, $post_after, $post_before);
         $this->maybe_purge_post($post_id);
 	}
+
+    /**
+     * Purge the cache for the old URL if the permalink was changed.
+     *
+     * @param $post_id
+     * @param $post_after
+     * @param $post_before
+     */
+	private function maybe_purge_post_permalink_if_slug_changed($post_id, $post_after, $post_before) {
+        //$permalink_changed = $post_before->post_name != $post_after->post_name;
+        //dd($permalink_changed);
+        // TODO: Check if permalink has changed, and if so then purge cache for the old URL.
+    }
 
 	/**
 	 * Maybe purge post by post ID.
