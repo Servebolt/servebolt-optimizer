@@ -243,6 +243,12 @@ The converted path of an asset URL.
 `sb_optimizer_asset_url_to_path_conversion_[handle]` (string)
 The converted path of an asset URL for a certain handle.
 
+`sb_optimizer_throttle_queue_items_on_cron_purge` (boolean)
+When using the cache purge cron feature - set this to true to throttle the amount of items that gets parsed at a time.
+
+`sb_optimizer_throttle_queue_max_items` (integer)
+Use this filter in relation to the filter "sb_optimizer_throttle_queue_items_on_cron_purge" to control the amount of items to be included in each purge request.
+
 === Constant overview ===
 The plugin also has various php constants that allows third-party developers to alter the behaviour of the plugin. See the list below:
 

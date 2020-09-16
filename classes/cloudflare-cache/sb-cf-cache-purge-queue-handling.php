@@ -163,6 +163,48 @@ class Servebolt_CF_Cache_Purge_Queue_Handling {
     }
 
     /**
+     * Reformat and filter out items from the cache purge queue.
+     *
+     * @param $items_to_remove
+     * @param bool $do_save
+     * @return array|CF_Cache_Purge_Queue_Item[]
+     */
+    public function filter_out_items_from_queue($items_to_remove, $do_save = true) {
+
+        // Get current items
+        $current_items = sb_cf_cache()->get_items_to_purge_unformatted();
+        if ( ! is_array($current_items) ) $current_items = [];
+
+        // Filter out items
+        $updated_items = array_filter($current_items, function($item) use ($items_to_remove) {
+            foreach ( $items_to_remove as $item_to_remove ) {
+                $identifier_1 = $item['type'] . '-' . $item['item'];
+                $identifier_2 = is_a($item_to_remove, 'CF_Cache_Purge_Queue_Item') ? $item_to_remove->get_identifier() : $item_to_remove['type'] . '-' . $item_to_remove['item']; // Handles queue items in both array and object-form
+                if ( $identifier_1 == $identifier_2 ) {
+                    return false; // We want to remove this item
+                }
+            }
+            return true;
+        });
+
+        if ( $do_save ) {
+            sb_cf_cache()->set_items_to_purge($updated_items);
+        }
+
+        return $updated_items;
+
+    }
+
+    /**
+     * Delete items from the purge queue.
+     *
+     * @param $items_to_delete
+     */
+    public function delete_items_to_purge($items_to_delete) {
+        $this->filter_out_items_from_queue($items_to_delete);
+    }
+
+    /**
      * Add term item to the purge queue.
      *
      * @param $item

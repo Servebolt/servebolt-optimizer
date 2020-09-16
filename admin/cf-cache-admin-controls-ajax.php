@@ -217,23 +217,6 @@ class CF_Cache_Admin_Controls_Ajax {
             return is_string($item);
         });
 
-        $updated_items = $this->filter_out_items_from_queue($items_to_remove);
-
-		sb_cf_cache()->set_items_to_purge($updated_items);
-		wp_send_json_success();
-	}
-
-    /**
-     * Reformat and filter out items from the cache purge queue.
-     *
-     * @param $items_to_remove
-     * @return array|CF_Cache_Purge_Queue_Item[]
-     */
-	private function filter_out_items_from_queue($items_to_remove) {
-        // Get current items
-        $current_items = sb_cf_cache()->get_items_to_purge_unformatted();
-        if ( ! is_array($current_items) ) $current_items = [];
-
         // Reformat items to remove
         $items_to_remove = array_map(function($item) {
             $parts = explode('-', $item, 2);
@@ -247,17 +230,10 @@ class CF_Cache_Admin_Controls_Ajax {
             return $item !== false;
         });
 
-        // Filter out items
-        return array_filter($current_items, function($item) use ($items_to_remove) {
-            foreach ( $items_to_remove as $item_to_remove ) {
-                if ( $item_to_remove['type'] == $item['type'] && $item_to_remove['item'] == $item['item'] ) {
-                    return false;
-                }
-            }
-            return true;
-        });
+        sb_cf_cache()->filter_out_items_from_queue($items_to_remove);
 
-    }
+		wp_send_json_success();
+	}
 
 	/**
 	 * Purge all cache in Cloudflare cache.

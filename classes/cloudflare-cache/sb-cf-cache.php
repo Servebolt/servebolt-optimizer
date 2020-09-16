@@ -652,17 +652,48 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 		return $this->purge_post($post_id);
 	}
 
+    /**
+     * Sort and limit the cache purge queue by a max amount.
+     *
+     * @param $items
+     * @param $limit
+     * @return array
+     */
+	private function limit_items_to_purge($items, $limit) {
+        // Make sure items are sorted by date
+        usort($items, function ($item1, $item2){
+            if ( $item1->get_time_added() == $item2->get_time_added() ) return 0;
+            return ( $item1->get_time_added() < $item2->get_time_added() ) ? -1 : 1;
+        });
+
+        // Only return the oldest ones
+        return array_slice($items, 0, $limit);
+    }
+
 	/**
 	 * Purging Cloudflare cache by cron using a list of IDs updated.
 	 */
 	public function purge_by_cron() {
-		$urls = $this->get_purge_urls_from_purge_items( $this->get_items_to_purge() );
-		if ( ! empty( $urls ) ) {
-			$this->cf()->purge_urls( $urls );
-			$this->clear_items_to_purge();
-			return true;
-		}
-		return false;
+	    if ( apply_filters('sb_optimizer_throttle_queue_items_on_cron_purge', false) ) {
+            $max_items_per_request = apply_filters('sb_optimizer_throttle_queue_max_items', 1);
+            $all_items = $this->get_items_to_purge();
+            $items = $this->limit_items_to_purge($all_items, $max_items_per_request);
+            $urls = $this->get_purge_urls_from_purge_items( $items );
+            if ( ! empty( $urls ) ) {
+                $this->cf()->purge_urls( $urls );
+                $this->delete_items_to_purge($items); // Remove items from queue
+                return true;
+            }
+            return false;
+        } else {
+            $urls = $this->get_purge_urls_from_purge_items( $this->get_items_to_purge() );
+            if ( ! empty( $urls ) ) {
+                $this->cf()->purge_urls( $urls );
+                $this->clear_items_to_purge();
+                return true;
+            }
+            return false;
+        }
 	}
 
     /**
