@@ -14,6 +14,8 @@ jobs:
           composer install
           yarn install
           yarn production
+          ./cleanup.sh
+          rm cleanup.sh
       - name: WordPress Plugin Deploy
         uses: 10up/action-wordpress-plugin-deploy@master
         env:
