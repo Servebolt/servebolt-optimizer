@@ -66,9 +66,5 @@
   "dependencies": {
     "npm": "^6.9.0",
     "rimraf": "^2.6.3"
-  },
-  "engines": {
-    "node": "14.11.0",
-    "npm": "6.14.8"
   }
 }
