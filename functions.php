@@ -192,7 +192,7 @@ if ( ! function_exists('sb_optimize_db') ) {
   }
 }
 
-if ( ! function_exists('sb_cf') ) {
+if ( ! function_exists('sb_cf_cache') ) {
   /**
    * Get Servebolt_Checks-instance.
    *
