@@ -27,6 +27,7 @@ nbproject
 *.sublime-workspace
 .vscode
 *.swp
+wp-sources
 
 # Dreamweaver added files
 _notes

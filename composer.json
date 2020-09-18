@@ -10,7 +10,8 @@
   "require-dev": {
     "squizlabs/php_codesniffer": "*",
     "wp-coding-standards/wpcs": "*",
-    "phpcompatibility/php-compatibility": "*"
+    "phpcompatibility/php-compatibility": "*",
+    "phan/phan": "dev-master"
   },
   "extra": {
     "installer-name": "servebolt-wp-optimize-plugin"
@@ -23,6 +24,9 @@
     "wordpress"
   ],
   "scripts": {
+    "test": [
+      "./vendor/bin/phan"
+    ],
     "post-install-cmd": [
       "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true"
     ],
