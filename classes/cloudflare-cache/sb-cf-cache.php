@@ -2,6 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 require_once SERVEBOLT_PATH . '/classes/sb-cloudflare-sdk/sb-cloudflare-sdk.class.php';
+require_once __DIR__ . '/sb-cf-cache-purge-queue-handling.php';
 
 /**
  * Class Servebolt_CF_Cache
@@ -9,7 +10,7 @@ require_once SERVEBOLT_PATH . '/classes/sb-cloudflare-sdk/sb-cloudflare-sdk.clas
  *
  * This class handles works as a bridge between WordPress and the Cloudflare API SDK.
  */
-class Servebolt_CF_Cache {
+class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 
 	/**
 	 * Singleton instance.
@@ -24,13 +25,6 @@ class Servebolt_CF_Cache {
 	 * @var null
 	 */
 	private $cf = null;
-
-	/**
-	 * The key to be used when scheduling CF cache purge.
-	 *
-	 * @var string
-	 */
-	private $cron_key = 'servebolt_cron_hook_purge_by_cron';
 
 	/**
 	 * The default API authentication type.
@@ -111,25 +105,6 @@ class Servebolt_CF_Cache {
 	 */
 	public function cf_restore_current_blog() {
 		return $this->cf_init(false);
-	}
-
-	/**
-	 * Get cron key used for scheduling Cloudflare cache purge.
-	 *
-	 * @return string
-	 */
-	public function get_cron_key() {
-		return $this->cron_key;
-	}
-
-	/**
-	 * Check whether we should execute cron purge with cron or not. This can be used to only schedule purges but not execute them in a system.
-	 *
-	 * @return bool
-	 */
-	public function should_purge_cache_queue() {
-		if ( defined('SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE') && SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE === false ) return false;
-		return true;
 	}
 
 	/**
@@ -220,7 +195,7 @@ class Servebolt_CF_Cache {
 	 *
 	 * @return bool
 	 */
-	private function get_blog_id($override = false) {
+	protected function get_blog_id($override = false) {
 		if ( is_numeric($override) ) return $override;
 		return $this->blog_id;
 	}
@@ -293,11 +268,11 @@ class Servebolt_CF_Cache {
 	}
 
 	/**
-	 * Clear the active zone.
+	 * Clear the active zone Id.
 	 *
 	 * @param bool $blog_id
 	 */
-	public function clear_active_zone($blog_id = false) {
+	public function clear_active_zone_id($blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric( $blog_id ) ) {
 			sb_delete_blog_option($blog_id,'cf_zone_id');
@@ -397,19 +372,19 @@ class Servebolt_CF_Cache {
 	}
 
 	/**
-	 * Set credentials in Cloudflare class.
+	 * Register credentials in Cloudflare class.
 	 *
 	 * @param $auth_type
 	 * @param $credentials
 	 *
 	 * @return mixed
 	 */
-	public function set_credentials_in_cf_class($auth_type, $credentials) {
+	public function register_credentials_in_cf_class($auth_type, $credentials) {
 		return $this->cf()->set_credentials($auth_type, $credentials);
 	}
 
 	/**
-	 * Register credentials in class.
+	 * Register credentials in this class.
 	 *
 	 * @param bool $blog_id
 	 *
@@ -423,7 +398,7 @@ class Servebolt_CF_Cache {
 			case 'api_token':
 				$api_token = $this->get_credential('api_token', $blog_id);
 				if ( ! empty($api_token) ) {
-					$this->set_credentials_in_cf_class('api_token', compact('api_token'));
+					$this->register_credentials_in_cf_class('api_token', compact('api_token'));
 					$this->credentials_ok = true;
 				}
 				break;
@@ -431,7 +406,7 @@ class Servebolt_CF_Cache {
 				$email = $this->get_credential('email', $blog_id);
 				$api_key = $this->get_credential('api_key', $blog_id);
 				if ( ! empty($email) && ! empty($api_key) ) {
-					$this->set_credentials_in_cf_class('api_key', compact('email', 'api_key'));
+					$this->register_credentials_in_cf_class('api_key', compact('email', 'api_key'));
 					$this->credentials_ok = true;
 				}
 				break;
@@ -440,7 +415,7 @@ class Servebolt_CF_Cache {
 	}
 
 	/**
-	 * Register credentials in class.
+	 * Register credentials in this class, but passing in credentials manually.
 	 *
 	 * @param $auth_type
 	 * @param $credentials
@@ -453,7 +428,7 @@ class Servebolt_CF_Cache {
 			case 'api_token':
 				$api_token = $credentials['api_token'];
 				if ( ! empty($api_token) ) {
-					$this->set_credentials_in_cf_class('api_token', compact('api_token'));
+					$this->register_credentials_in_cf_class('api_token', compact('api_token'));
 					$this->credentials_ok = true;
 				}
 				break;
@@ -461,7 +436,7 @@ class Servebolt_CF_Cache {
 				$email = $credentials['email'];
 				$api_key = $credentials['api_key'];
 				if ( ! empty($email) && ! empty($api_key) ) {
-					$this->set_credentials_in_cf_class('api_key', compact('email', 'api_key'));
+					$this->register_credentials_in_cf_class('api_key', compact('email', 'api_key'));
 					$this->credentials_ok = true;
 				}
 				break;
@@ -573,112 +548,10 @@ class Servebolt_CF_Cache {
 	}
 
     /**
-     * Add term item to the purge queue.
-     *
-     * @param $item
-     * @return bool
+     * @param int $term_id
+     * @return bool|mixed
      */
-    public function add_term_item_to_purge_queue($item) {
-	    return $this->add_item_to_purge_queue($item, 'term');
-    }
-
-    /**
-     * Add post item to the purge queue.
-     *
-     * @param $item
-     * @return bool
-     */
-    public function add_post_item_to_purge_queue($item) {
-        return $this->add_item_to_purge_queue($item, 'post');
-    }
-
-	/**
-	 * Add a post Id to the purge queue (by cron).
-	 *
-     * @param $item
-     * @param $type
-     * @return bool
-     */
-	public function add_item_to_purge_queue($item, $type) {
-		if ( empty($item) ) return false;
-		$items_to_purge_with_cron = $this->get_items_to_purge();
-		$items_to_purge_with_cron[] = [
-		    'item'     => $item,
-            'datetime' => 'Y-m-d H:i:s',
-            'type'     => $type,
-        ];
-		$items_to_purge_with_cron = array_unique($items_to_purge_with_cron);
-		return $this->set_items_to_purge($items_to_purge_with_cron);
-	}
-
-	/**
-	 * Queue up a request to purge all cache.
-	 */
-	public function add_purge_all_to_purge_queue() {
-        return $this->add_item_to_purge_queue(false, 'all');
-		//return $this->add_item_to_purge_queue(sb_purge_all_item_name());
-	}
-
-	/**
-	 * Set the items to purge.
-	 *
-	 * @param array $items_to_purge
-	 *
-	 * @return bool
-	 */
-	public function set_items_to_purge( array $items_to_purge ) {
-		return sb_update_option( 'cf_items_to_purge', $items_to_purge, false );
-	}
-
-	/**
-	 * Count the items to purge.
-	 *
-	 * @return int
-	 */
-	public function count_items_to_purge() {
-		return count($this->get_items_to_purge());
-	}
-
-	/**
-	 * Check if we have items to purge.
-	 *
-	 * @return bool
-	 */
-	public function has_items_to_purge() {
-		return $this->count_items_to_purge() > 0;
-	}
-
-	/**
-	 * Get the items to purge.
-	 *
-	 * @param bool $limit
-	 * @param bool $blog_id
-	 *
-	 * @return array|mixed|void
-	 */
-	public function get_items_to_purge($limit = false, $blog_id = false) {
-		$blog_id = $this->get_blog_id($blog_id);
-		if ( is_numeric($blog_id) ) {
-			$items = sb_get_blog_option($blog_id, 'cf_items_to_purge');
-		} else {
-			$items = sb_get_option('cf_items_to_purge');
-		}
-		if ( ! is_array($items) ) return [];
-		if ( is_numeric($limit) ) {
-			$items = array_reverse(array_slice(array_reverse($items), 0, $limit));
-		}
-		$items = $this->format_items_to_purge($items);
-		return $items;
-	}
-
-	private function format_items_to_purge($items) {
-	    $items = array_map(function ($item) {
-	        return new CF_Cache_Purge_Queue_Item($item);
-        }, $items);
-	    return $items;
-    }
-
-	function get_purge_urls_by_term_id( int $term_id ) {
+	private function get_purge_urls_by_term_id( int $term_id ) {
         return sb_cf_cache_purge_object($term_id, 'term')->get_urls();
     }
 
@@ -691,28 +564,30 @@ class Servebolt_CF_Cache {
 	 */
 	private function get_purge_urls_by_post_id( int $post_id ) {
         return sb_cf_cache_purge_object($post_id, 'post')->get_urls();
-
-		// Posts page
-		if ( $page_for_posts = get_option( 'page_for_posts' ) ) {
-			array_push( $purge_urls, get_permalink($page_for_posts) );
-		}
-
-		// The post
-		if ( $permalink = get_permalink( $post_id ) ) {
-			array_push( $purge_urls, $permalink );
-		}
-
-		// Archive page
-		if ( $archive_url = get_post_type_archive_link( get_post_type( $post_id ) ) ) {
-			array_push( $purge_urls, $archive_url );
-		}
-
-		// Prevent duplicates
-		$purge_urls = array_unique($purge_urls);
-
-		return $purge_urls;
 	}
 
+    /**
+     * Get all urls that are queued up for purging.
+     *
+     * @param $items
+     *
+     * @return array
+     */
+    private function get_purge_urls_from_purge_items(array $items) {
+        $urls = [];
+        foreach ( $items as $item ) {
+            $urls = array_merge($urls, $item->get_purge_urls());
+        }
+        $urls = array_unique($urls);
+        return $urls;
+    }
+
+    /**
+     * Purging Cloudflare cache on term save.
+     *
+     * @param int $term_id
+     * @return bool
+     */
 	public function purge_term( int $term_id ) {
 
         // If cron purge is enabled, build the list of ids to purge by cron. If not active, just purge right away.
@@ -725,7 +600,7 @@ class Servebolt_CF_Cache {
     }
 
 	/**
-	 * Purging Cloudflare on save.
+	 * Purging Cloudflare cache on post save.
 	 *
 	 * @param int $post_id The post ID.
 	 *
@@ -738,7 +613,7 @@ class Servebolt_CF_Cache {
 
 		// If cron purge is enabled, build the list of ids to purge by cron. If not active, just purge right away.
 		if ( $this->cron_purge_is_active() ) {
-			return $this->add_post_item_to_purge_queue($post_id);
+		    return $this->add_post_item_to_purge_queue($post_id);
 		} else if ( $urls_to_purge = $this->get_purge_urls_by_post_id($post_id) ) {
 			return $this->cf()->purge_urls($urls_to_purge);
 		}
@@ -777,126 +652,93 @@ class Servebolt_CF_Cache {
 		return $this->purge_post($post_id);
 	}
 
-	/**
-	 * Purge all.
-	 *
-	 * @return mixed
-	 */
-	public function purge_all() {
-		if ( $this->cron_purge_is_active() ) {
-			return $this->add_purge_all_to_purge_queue();
-		} else {
-			return $this->cf()->purge_all();
-		}
-	}
+    /**
+     * Sort and limit the cache purge queue by a max amount.
+     *
+     * @param $items
+     * @param $limit
+     * @return array
+     */
+	private function limit_items_to_purge($items, $limit) {
+        // Make sure items are sorted by date
+        usort($items, function ($item1, $item2){
+            if ( $item1->get_time_added() == $item2->get_time_added() ) return 0;
+            return ( $item1->get_time_added() < $item2->get_time_added() ) ? -1 : 1;
+        });
 
-	/**
-	 * Get all urls that are queued up for purging.
-	 *
-	 * @param $items
-	 *
-	 * @return array
-	 */
-	private function get_purge_urls_by_post_ids(array $items) {
-		$urls = [];
-		foreach ( $items as $item ) {
-			if ( is_int($item) ) {
-				$urls = array_merge($urls, $this->get_purge_urls_by_post_id($item));
-			} else {
-				$urls[] = $item;
-			}
-		}
-		$urls = array_unique($urls);
-		return $urls;
-	}
-
-	/**
-	 * Check if we have overridden whether the Cron purge should be active or not.
-	 *
-	 * @return mixed
-	 */
-	public function cron_active_state_override() {
-		if ( defined('SERVEBOLT_CF_PURGE_CRON') && is_bool(SERVEBOLT_CF_PURGE_CRON) ) {
-			return SERVEBOLT_CF_PURGE_CRON;
-		}
-	}
-
-	/**
-	 * Check if a purge all request is queued.
-	 *
-	 * @return bool
-	 */
-	public function has_purge_all_request_in_queue() {
-		$items_to_purge = $this->get_items_to_purge();
-		return in_array(sb_purge_all_item_name(), $items_to_purge);
-	}
-
-	/**
-	 * Check whether the Cron-based cache purger should be active.
-	 *
-	 * @param bool $respect_override
-	 * @param bool $blog_id
-	 *
-	 * @return bool|mixed
-	 */
-	public function cron_purge_is_active($respect_override = true, $blog_id = false) {
-		$blog_id = $this->get_blog_id($blog_id);
-		$active_state_override = $this->cron_active_state_override();
-		if ( $respect_override && is_bool($active_state_override) ) {
-			return $active_state_override;
-		}
-		if ( is_numeric($blog_id) ) {
-			$value = sb_get_blog_option($blog_id, $this->cf_cron_active_option_key());
-		} else {
-			$value = sb_get_option($this->cf_cron_active_option_key());
-		}
-		return sb_checkbox_true($value);
-	}
-
-	/**
-	 * The option name/key we use to store the active state for the Cloudflare cache cron purge feature.
-	 *
-	 * @return string
-	 */
-	private function cf_cron_active_option_key() {
-		return 'cf_cron_purge';
-	}
-
-	/**
-	 * Toggle whether Cloudflare cache purge cron should be active or not.
-	 *
-	 * @param bool $state
-	 * @param bool $blog_id
-	 *
-	 * @return bool|mixed
-	 */
-	public function cf_toggle_cron_active(bool $state, $blog_id = false) {
-		$blog_id = $this->get_blog_id($blog_id);
-		if ( is_numeric($blog_id) ) {
-			return sb_update_blog_option($blog_id, $this->cf_cron_active_option_key(), $state);
-		} else {
-			return sb_update_option($this->cf_cron_active_option_key(), $state);
-		}
-	}
+        // Only return the oldest ones
+        return array_slice($items, 0, $limit);
+    }
 
 	/**
 	 * Purging Cloudflare cache by cron using a list of IDs updated.
 	 */
 	public function purge_by_cron() {
-		$urls = $this->get_purge_urls_by_post_ids( $this->get_items_to_purge() );
-		if ( ! empty( $urls ) ) {
-			$this->cf()->purge_urls( $urls );
-			$this->clear_items_to_purge();
-			return true;
-		}
-		return false;
+	    if ( apply_filters('sb_optimizer_throttle_queue_items_on_cron_purge', false) ) {
+            $max_items_per_request = apply_filters('sb_optimizer_throttle_queue_max_items', 1);
+            $all_items = $this->get_items_to_purge();
+            $items = $this->limit_items_to_purge($all_items, $max_items_per_request);
+            $urls = $this->get_purge_urls_from_purge_items( $items );
+            if ( ! empty( $urls ) ) {
+                $this->cf()->purge_urls( $urls );
+                $this->delete_items_to_purge($items); // Remove items from queue
+                return true;
+            }
+            return false;
+        } else {
+            $urls = $this->get_purge_urls_from_purge_items( $this->get_items_to_purge() );
+            if ( ! empty( $urls ) ) {
+                $this->cf()->purge_urls( $urls );
+                $this->clear_items_to_purge();
+                return true;
+            }
+            return false;
+        }
 	}
 
-	/**
-	 * Clear items to purge.
-	 */
-	public function clear_items_to_purge() {
-		$this->set_items_to_purge([]);
-	}
+    /**
+     * Generate the timestamp to use when cleaning the cache purge queue.
+     *
+     * @return bool|string
+     */
+    private function clean_cache_purge_queue_time_threshold() {
+        return apply_filters('sb_optimizer_clean_cache_purge_queue_time_threshold', ( current_time('timestamp') - WEEK_IN_SECONDS ));
+    }
+
+    /**
+     * Clean the cache purge queue of items that are older than the defined threshold.
+     */
+    public function clean_cache_purge_queue() {
+        $threshold = $this->clean_cache_purge_queue_time_threshold();
+        if ( is_numeric($threshold) ) {
+            $items = $this->get_items_to_purge_unformatted();
+            $init_item_count = count($items);
+            $items = array_filter($items, function($item) use ($threshold) {
+                if ( ! $item['timestamp'] ) { // Remove items that has no creation datetime
+                    return false;
+                }
+                if ( $threshold > $item['timestamp'] ) { // Remove items that are older than the threshold
+                    return false;
+                }
+                return true;
+            });
+            $this->set_items_to_purge($items);
+            return $init_item_count !== count($items) ? true : null; // Indicate whether something changed
+        }
+        return false;
+    }
+
+    /**
+     * Purge all.
+     *
+     * @return mixed
+     */
+    public function purge_all() {
+        if ( $this->cron_purge_is_active() ) {
+            return $this->add_purge_all_to_purge_queue();
+        } else {
+            return $this->cf()->purge_all();
+        }
+    }
 
 }

@@ -37,7 +37,7 @@ abstract class SB_CF_Cache_Purge_Object_Shared {
     protected function __construct($id) {
         $this->set_id($id);
         if ( $this->init_object() ) { // Check if we could find the object first
-            if ( apply_filters('sb_optimizer_should_generate_other_urls', true ) ) { // Check if we should generate all other related URLs for object
+            if ( apply_filters('sb_optimizer_should_generate_other_urls', true) ) { // Check if we should generate all other related URLs for object
                 $this->generate_other_urls();
             }
         }

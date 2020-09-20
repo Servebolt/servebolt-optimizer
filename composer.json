@@ -1,9 +1,37 @@
 {
   "name": "servebolt/servebolt-wp-optimize-plugin",
   "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
   "description": "",
+  "minimum-stability": "dev",
+  "require": {
+    "composer/installers": "~1.2"
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "*",
+    "wp-coding-standards/wpcs": "*",
+    "phpcompatibility/php-compatibility": "*",
+    "phan/phan": "dev-master"
+  },
   "extra": {
     "installer-name": "servebolt-wp-optimize-plugin"
   },
-  "minimum-stability": "dev"
+  "keywords": [
+    "blocks",
+    "editor",
+    "gutenberg",
+    "plugin",
+    "wordpress"
+  ],
+  "scripts": {
+    "test": [
+      "./vendor/bin/phan"
+    ],
+    "post-install-cmd": [
+      "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true"
+    ],
+    "post-update-cmd": [
+      "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true"
+    ]
+  }
 }

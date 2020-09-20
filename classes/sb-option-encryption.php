@@ -45,8 +45,8 @@ class SB_Option_Encryption {
 
 		// Multisite options encryption debugging
 		/*
-		$value = 'hallo';
-		$key = 'test10';
+		$value = 'test-value';
+		$key = 'test-key';
 		var_dump('enc str: ' . $value);
 		var_dump('enc key: ' . $key);
 		$x = 1;
@@ -55,7 +55,7 @@ class SB_Option_Encryption {
 			echo '---' . PHP_EOL;
 			var_dump('blog id: ' . $x);
 			var_dump('sb_get_blog_option: ' . sb_get_blog_option($x, $key));
-			var_dump('sb_update_blog_option: ' . ( sb_update_blog_option($x, $key, $this_value) ? 'true' : 'false'));
+			var_dump('sb_update_blog_option: ' . sb_boolean_to_string( sb_update_blog_option($x, $key, $this_value) ));
 			var_dump('get_blog_option: ' . get_blog_option($x, sb_get_option_name($key)));
 			var_dump('sb_get_blog_option: ' . sb_get_blog_option($x, $key));
 			$x++;

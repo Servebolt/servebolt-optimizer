@@ -118,17 +118,6 @@ if ( ! function_exists('sb_smart_get_option') ) {
 	}
 }
 
-if ( ! function_exists('sb_purge_all_item_name') ) {
-	/**
-   * The string used to store the purge all request in the purge queue.
-   *
-	 * @return string
-	 */
-  function sb_purge_all_item_name() {
-    return '---purge-all-request---';
-  }
-}
-
 if ( ! function_exists('sb_feature_active') ) {
 	/**
    * Check whether a feature is active.
@@ -140,9 +129,12 @@ if ( ! function_exists('sb_feature_active') ) {
   function sb_feature_active($feature) {
     switch ($feature) {
         case 'cf_image_resize':
-          // Only active when defined is set
-          return defined('SB_CF_IMAGE_RESIZE_ACTIVE') && SB_CF_IMAGE_RESIZE_ACTIVE === true;
+          // Only active when defined is set, or if already active - this is to keep it beta for now (slightly hidden).
+          return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || ( sb_cf_image_resize_control() )->resizing_is_active();
           break;
+        case 'sb_asset_auto_version':
+            return sb_general_settings()->asset_auto_version();
+            break;
 	    case 'cf_cache':
 		    return true;
 		    break;
@@ -200,7 +192,7 @@ if ( ! function_exists('sb_optimize_db') ) {
   }
 }
 
-if ( ! function_exists('sb_cf') ) {
+if ( ! function_exists('sb_cf_cache') ) {
   /**
    * Get Servebolt_Checks-instance.
    *
@@ -235,6 +227,20 @@ if ( ! function_exists('sb_nginx_fpc_controls') ) {
     return Nginx_FPC_Controls::get_instance();
   }
 }
+
+if ( ! function_exists('sb_general_settings') ) {
+    /**
+     * Get SB_General_Settings-instance.
+     *
+     * @return SB_General_Settings|null
+     */
+    function sb_general_settings() {
+        require_once SERVEBOLT_PATH . 'admin/general-settings.php';
+        return SB_General_Settings::get_instance();
+    }
+}
+
+
 
 if ( ! function_exists('sb_nginx_fpc') ) {
   /**
@@ -271,6 +277,19 @@ if ( ! function_exists('sb_boolean_to_state_string') ) {
   function sb_boolean_to_state_string($state) {
     return $state === true ? 'active' : 'inactive';
   }
+}
+
+if ( ! function_exists('sb_boolean_to_string') ) {
+    /**
+     * Convert a type boolean to a verbose boolean string.
+     *
+     * @param $state
+     *
+     * @return bool|null
+     */
+    function sb_boolean_to_string($state) {
+        return $state === true ? 'true' : 'false';
+    }
 }
 
 if ( ! function_exists('sb_is_cli') ) {
@@ -602,6 +621,18 @@ if ( ! function_exists('sb_generate_random_string') ) {
   }
 }
 
+if ( ! function_exists('sb_is_url') ) {
+    /**
+     * Whether a string contains a valid URL.
+     *
+     * @param $url
+     * @return bool
+     */
+    function sb_is_url($url) {
+        return filter_var($url, FILTER_VALIDATE_URL) !== false;
+    }
+}
+
 if ( ! function_exists('sb_view') ) {
   /**
    * Display view.
@@ -886,6 +917,10 @@ if ( ! function_exists('sb_delete_all_settings') ) {
   function sb_delete_all_settings($all_sites = true) {
     $option_names = [
 
+      // General settings
+      'asset_auto_version',
+      'use_native_js_fallback',
+
       // Wipe nonce
       'ajax_nonce',
       'record_max_num_pages_nonce',
@@ -1038,7 +1073,7 @@ if ( ! function_exists('fpc_exclude_post_table_row_markup') ) {
   }
 }
 
-if ( ! function_exists('create_li_tags_from_array') ) {
+if ( ! function_exists('sb_create_li_tags_from_array') ) {
   /**
    * Create li-tags from array.
    *
@@ -1048,7 +1083,7 @@ if ( ! function_exists('create_li_tags_from_array') ) {
    *
    * @return string
    */
-  function create_li_tags_from_array($iterator, $closure = false, $include_ul = true) {
+  function sb_create_li_tags_from_array($iterator, $closure = false, $include_ul = true) {
     $markup = '';
     if ( $include_ul ) $markup .= '<ul>';
     array_map(function($item) use (&$markup, $closure) {
@@ -1057,6 +1092,32 @@ if ( ! function_exists('create_li_tags_from_array') ) {
     if ( $include_ul ) $markup .= '</ul>';
     return $markup;
   }
+}
+
+if ( ! function_exists('sb_display_value') ) {
+    /**
+     * Display value, regardless of type.
+     *
+     * @param $value
+     * @param bool $return
+     * @return bool|false|string|null
+     */
+    function sb_display_value($value, $return = false) {
+        if ( is_bool($value) ) {
+            $value = sb_boolean_to_string($value);
+        } elseif ( is_string($value) ) {
+            $value = $value;
+        } else {
+            ob_start();
+            var_dump($value);
+            $value = ob_get_contents();
+            ob_end_clean();
+        }
+        if ( $return ) {
+            return $value;
+        }
+        echo $value;
+    }
 }
 
 if ( ! function_exists('sb_format_comma_string') ) {

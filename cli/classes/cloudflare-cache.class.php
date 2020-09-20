@@ -326,11 +326,8 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	 */
 	public function command_cf_set_credentials($args, $assoc_args) {
 		list($auth_type) = $args;
-
-		$affect_all_sites = $this->affect_all_sites($assoc_args);
 		$credential_data = $this->cf_prepare_credentials($auth_type, $assoc_args);
-
-		if ( $affect_all_sites ) {
+		if ( $this->affect_all_sites($assoc_args) ) {
 			sb_iterate_sites(function ( $site ) use ($credential_data) {
 				$this->cf_set_credentials($credential_data, $site->blog_id);
 			});
@@ -615,7 +612,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 		list($url) = $args;
 		$this->ensure_cache_purge_is_possible();
 		WP_CLI::line(sprintf(sb__('Purging cache for url %s'), $url));
-		if ( sb_cf_cache()->purge_by_url($url) ) {
+		if ( sb_cf_cache()->purge_by_url($url) === true ) {
 			WP_CLI::success(sb__('Cache purged!'));
 		} else {
 			WP_CLI::error(sb__('Could not purge cache.'));

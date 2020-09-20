@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * This class integrates WordPress with Cloudflare Image Resizing service.
  * Note that you need to use Cloudflare Proxy for this to work. This is so that Cloudflare can "capture" the image, resize, cache and serve it to be displayed.
  *
- * Note that this will prevent certain image sizes from being created during an upload. The exceptions for this is cropped images (image sizes where the proportions have changed) or image sizes that have been specified with the filter "sb_cf_image_resize_always_create_sizes".
+ * Note that this will prevent certain image sizes from being created during an upload. The exceptions for this is cropped images (image sizes where the proportions have changed) or image sizes that have been specified with the filter "sb_optimizer_cf_image_resize_always_create_sizes".
  *
  * If you are adding this feature to your site with existing media files the you might want to regenerate all image files. A good plugin for this: https://wordpress.org/plugins/regenerate-thumbnails/
  */
@@ -55,17 +55,17 @@ class Cloudflare_Image_Resize {
 	public function init_image_resize() {
 
 		// Alter srcset-attribute URLs
-		if ( apply_filters('sb_cf_image_resize_alter_srcset', true ) ) {
+		if ( apply_filters('sb_optimizer_cf_image_resize_alter_srcset', true ) ) {
 			add_filter( 'wp_calculate_image_srcset', [ $this, 'alter_srcset_image_urls' ] );
 		}
 
 		// Alter image src-attribute URL
-		if ( apply_filters('sb_cf_image_resize_alter_src', true ) ) {
+		if ( apply_filters('sb_optimizer_cf_image_resize_alter_src', true ) ) {
 			add_filter( 'wp_get_attachment_image_src', [ $this, 'alter_single_image_url' ] );
 		}
 
 		// Prevent certain image sizes to be created since we are using Cloudflare for resizing
-		if ( apply_filters('sb_cf_image_resize_alter_intermediate_sizes', true ) ) {
+		if ( apply_filters('sb_optimizer_cf_image_resize_alter_intermediate_sizes', true ) ) {
 			add_filter( 'intermediate_image_sizes_advanced', [ $this, 'override_image_size_creation' ], 10, 2 );
 		}
 
@@ -79,7 +79,7 @@ class Cloudflare_Image_Resize {
 	public function init_image_upscale() {
 
 		// Whether we should upscale images that are too small to fill the proportions of an image size
-		if ( apply_filters('sb_cf_image_resize_upscale_images', true ) ) {
+		if ( apply_filters('sb_optimizer_cf_image_resize_upscale_images', true ) ) {
 			add_filter( 'image_resize_dimensions', [ $this, 'image_upscale' ], 10, 6 );
 		}
 
@@ -107,7 +107,7 @@ class Cloudflare_Image_Resize {
 		$image_sizes_to_create = array_filter($sizes, function ($size, $key) use ($image_meta, $uploaded_image_ratio) {
 
 			// Check if this is a size that we should always generate
-			if ( in_array($key, (array) apply_filters('sb_cf_image_resize_always_create_sizes', $this->always_create_sizes) ) ) {
+			if ( in_array($key, (array) apply_filters('sb_optimizer_cf_image_resize_always_create_sizes', $this->always_create_sizes) ) ) {
 				return true;
 			}
 
@@ -150,7 +150,7 @@ class Cloudflare_Image_Resize {
 	 * @return mixed|void
 	 */
 	private function max_width() {
-		return apply_filters('sb_cf_image_resize_max_width', $this->max_width);
+		return apply_filters('sb_optimizer_cf_image_resize_max_width', $this->max_width);
 	}
 
 	/**
@@ -159,7 +159,7 @@ class Cloudflare_Image_Resize {
 	 * @return mixed|void
 	 */
 	private function max_height() {
-		return apply_filters('sb_cf_image_resize_max_height', $this->max_height);
+		return apply_filters('sb_optimizer_cf_image_resize_max_height', $this->max_height);
 	}
 
 	/**
@@ -235,7 +235,7 @@ class Cloudflare_Image_Resize {
 		$cdi_uri = '/cdn-cgi/image/';
 		$cf_parameter_string = $this->implode_parameters($cf_params);
 		$altered_url = $url['scheme'] . '://' . $url['host'] . $cdi_uri . $cf_parameter_string . $url['path'];
-		return apply_filters('sb_cf_image_resize_url', $altered_url, $url, $cdi_uri, $cf_params, $cf_parameter_string);
+		return apply_filters('sb_optimizer_cf_image_resize_url', $altered_url, $url, $cdi_uri, $cf_params, $cf_parameter_string);
 	}
 
 	/**
@@ -246,13 +246,13 @@ class Cloudflare_Image_Resize {
 	 * @return array
 	 */
 	private function sb_default_cf_params($additional_params = []) {
-		$additional_params = apply_filters('sb_cf_image_resize_default_params_additional', $additional_params);
-		$default_params = apply_filters('sb_cf_image_resize_default_params', [
+		$additional_params = apply_filters('sb_optimizer_cf_image_resize_default_params_additional', $additional_params);
+		$default_params = apply_filters('sb_optimizer_cf_image_resize_default_params', [
 			'quality' => '60',
 			'format'  => 'auto',
 			'onerror' => 'redirect',
 		] );
-		return apply_filters('sb_cf_image_resize_default_params_concatenated', wp_parse_args($additional_params, $default_params) );
+		return apply_filters('sb_optimizer_cf_image_resize_default_params_concatenated', wp_parse_args($additional_params, $default_params) );
 	}
 
 	/**
@@ -278,7 +278,7 @@ class Cloudflare_Image_Resize {
 		$s_x = floor( ($orig_w - $crop_w) / 2 );
 		$s_y = floor( ($orig_h - $crop_h) / 2 );
 
-		return apply_filters('sb_cf_image_resize_upscale_dimensions', [ 0, 0, (int) $s_x, (int) $s_y, (int) $new_w, (int) $new_h, (int) $crop_w, (int) $crop_h ] );
+		return apply_filters('sb_optimizer_cf_image_resize_upscale_dimensions', [ 0, 0, (int) $s_x, (int) $s_y, (int) $new_w, (int) $new_h, (int) $crop_w, (int) $crop_h ] );
 	}
 
 }

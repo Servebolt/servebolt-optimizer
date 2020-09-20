@@ -32,6 +32,56 @@ class SB_CF_Cache_Purge_Object {
     }
 
     /**
+     * Get all the URLs to purge for this purge object.
+     *
+     * @return array|bool|bool[]|mixed
+     */
+    public function get_purge_urls() {
+        if ( ! $this->purge_object ) return false;
+        return $this->purge_object->get_urls();
+    }
+
+    /**
+     * Get the base URL of the purge object.
+     *
+     * @return bool
+     */
+    public function get_base_url() {
+        if ( ! $this->purge_object ) return false;
+        return $this->purge_object->get_base_url();
+    }
+
+    /**
+     * Get the edit URL of the purge object.
+     *
+     * @return bool
+     */
+    public function get_edit_url() {
+        if ( ! $this->purge_object ) return false;
+        return $this->purge_object->get_edit_url();
+    }
+
+    /**
+     * Get the title of the purge object.
+     *
+     * @return bool
+     */
+    public function get_title() {
+        if ( ! $this->purge_object ) return false;
+        return $this->purge_object->get_title();
+    }
+
+    /**
+     * Get the ID of the purge object.
+     *
+     * @return bool
+     */
+    public function get_id() {
+        if ( ! $this->purge_object ) return false;
+        return $this->purge_object->get_id();
+    }
+
+    /**
      * Check whether we could resolve the object to be purged.
      *
      * @return mixed

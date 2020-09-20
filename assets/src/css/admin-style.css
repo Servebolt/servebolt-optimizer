@@ -44,7 +44,7 @@
 }
 
 .sb-content .sb-logo {
-    background-image: url('../img/servebolt-logo.png');
+    background-image: url('../images/servebolt-logo.png');
     height: 50px;
     width: 200px;
     margin-top: 20px;
@@ -74,6 +74,14 @@
 }
 */
 
+.sb-content #purge-items-table .column-datetime-added,
+.sb-content #purge-items-table .column-type,
+.sb-content #purge-items-table .column-url {
+    padding-left: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
 .sb-content .promo-box {
     margin-top: 20px;
     width: 100%;
@@ -90,6 +98,10 @@
     width: 50%;
     max-width: 450px;
     margin: 0 auto;
+}
+
+.swal2-title {
+    line-height: normal;
 }
 
 .sb-content .nginx_switch {

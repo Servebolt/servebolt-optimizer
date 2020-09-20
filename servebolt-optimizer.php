@@ -5,7 +5,7 @@ Version: 2.0.9
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that implements Servebolt Security & Performance best practises for WordPress.
-License: GPLv2 or later
+License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: servebolt-wp
 */
@@ -59,7 +59,7 @@ if ( ! class_exists('Servebolt_Nginx_FPC') ){
 }
 
 // Initialize image resizing
-if ( sb_feature_active('cf_image_resize') && ( sb_cf_image_resize_control() )->resizing_is_active() ) {
+if ( sb_feature_active('cf_image_resize') ) {
 	require_once SERVEBOLT_PATH . 'classes/cloudflare-image-resize/cloudflare-image-resizing.php';
 	( new Cloudflare_Image_Resize )->init();
 }
@@ -89,6 +89,11 @@ if ( ! is_admin() ) {
 
     // Response for when we query how many pages is needed in an archive.
     sb_max_num_pages_query_callback();
+
+    // Feature to automatically version all enqueued script/style-tags
+    if ( sb_feature_active('sb_asset_auto_version') ) {
+        require_once SERVEBOLT_PATH . 'classes/sb-asset-auto-version.class.php';
+    }
 
 }
 

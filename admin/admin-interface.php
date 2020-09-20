@@ -2,6 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit;
 
 require_once SERVEBOLT_PATH . 'admin/log-viewer.php';
+require_once SERVEBOLT_PATH . 'admin/general-settings.php';
 require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
 require_once SERVEBOLT_PATH . 'admin/nginx-fpc-controls.php';
 require_once SERVEBOLT_PATH . 'admin/cf-cache-admin-controls.php';
@@ -27,76 +28,152 @@ class Servebolt_Admin_Interface {
 	 */
 	public function admin_init() {
 		if ( ! is_user_logged_in() ) return;
-		$this->init_menus();
+		$this->init_admin_menus();
 		$this->init_plugin_settings_link();
-	}
-
-	/**
-	 * Init menus.
-	 */
-	private function init_menus() {
-		if ( is_multisite() ) {
-			add_action('network_admin_menu', [$this, 'admin_menu']);
-			add_action('admin_menu', [$this, 'subsite_menu']);
-		} else {
-			add_action('admin_menu', [$this, 'admin_menu']);
-		}
 	}
 
 	/**
 	 * Init admin menus.
 	 */
-	public function admin_menu() {
-		if ( ! apply_filters('sb_optimizer_display_menu', true) ) return;
-		add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'general_page_callback'], SERVEBOLT_PATH_URL . 'admin/assets/img/servebolt-icon.svg' );
-		add_submenu_page('servebolt-wp', sb__('General'), sb__('General'), 'manage_options', 'servebolt-wp');
-		$this->add_sub_menu_items();
+	private function init_admin_menus() {
+
+        // Multisite setup
+        if ( is_multisite() ) {
+
+            // Network admin menu setup
+            if ( is_network_admin() && is_super_admin() ) { // Only allow super admins to access network context settings
+                add_action('network_admin_menu', [$this, 'network_admin_menu']);
+            }
+
+            // Sub-site admin menu setup
+            add_action('admin_menu', [$this, 'sub_site_menu']);
+
+		} else {
+
+            // Single-site admin menu setup
+			add_action('admin_menu', [$this, 'single_site_admin_menu']);
+
+		}
 	}
+
+    /**
+     * Network admin menu.
+     */
+	public function network_admin_menu() {
+        if ( ! apply_filters('sb_optimizer_display_network_super_admin_menu', true) ) return;
+
+        $this->sb_general_page_menu_page(); // Register menu page
+
+        $this->general_menu();
+        $this->performance_optimizer_menu();
+        $this->add_sub_menu_items();
+    }
 
 	/**
-	 * Add sub menu items.
+	 * Admin menu for sub sites (in multisite context).
 	 */
-	private function add_sub_menu_items() {
-		add_submenu_page('servebolt-wp', sb__('Performance optimizer'), sb__('Performance optimizer'), 'manage_options', 'servebolt-performance-tools', [$this, 'performance_callback']);
-		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache-control', [$this, 'cf_cache_callback']);
+	public function sub_site_menu() {
+		if ( ! apply_filters('sb_optimizer_display_subsite_menu', true) ) return;
 
-		if ( sb_feature_active('cf_image_resize') ) {
-			add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [$this, 'cf_image_resizing_callback']);
-		}
+		$this->sb_general_page_menu_page(); // Register menu page
 
-		if ( host_is_servebolt() === true ) {
-			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
-			add_submenu_page('servebolt-wp', sb__('Error log'), sb__('Error log'), 'manage_options', 'servebolt-logs', [$this, 'error_log_callback']);
-		}
-
-		if ( ! is_multisite() && sb_is_dev_debug() ) {
-			add_submenu_page('servebolt-wp', sb__('Debug'), sb__('Debug'), 'manage_options', 'servebolt-debug', [$this, 'debug_callback']);
-		}
-
-
+        $this->general_menu();
+        $this->add_sub_menu_items();
 	}
 
-	/**
-	 * Init subsite menus.
-	 */
-	public function subsite_menu() {
-		if ( ! apply_filters('sb_optimizer_display_menu', true) ) return;
-		add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'general_page_callback'], SERVEBOLT_PATH_URL . 'admin/assets/img/servebolt-icon.svg' );
-		add_submenu_page('servebolt-wp', sb__('General'), sb__('General'), 'manage_options', 'servebolt-wp');
-		add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache-control', [$this, 'cf_cache_callback']);
+    /**
+     * Admin menu (in non-multisite context).
+     */
+    public function single_site_admin_menu() {
+        if ( ! apply_filters('sb_optimizer_display_single_site_admin_menu', true) ) return;
 
-		if ( sb_feature_active('cf_image_resize') ) {
-			add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [$this, 'cf_image_resizing_callback']);
-		}
+        $this->sb_general_page_menu_page(); // Register menu page
 
-		if ( host_is_servebolt() === true ) {
-			add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
-		}
+        $this->general_menu();
+        $this->performance_optimizer_menu();
+        $this->add_sub_menu_items();
+    }
 
-		if ( is_multisite() && sb_is_dev_debug() ) {
-			add_submenu_page('servebolt-wp', sb__('Debug'), sb__('Debug'), 'manage_options', 'servebolt-debug', [$this, 'debug_callback']);
-		}
-	}
+    /**
+     * Shared menu items.
+     */
+    private function add_sub_menu_items() {
+        $this->cf_cache_menu();
+        $this->cf_image_resize_menu();
+        if ( host_is_servebolt() ) {
+            $this->fpc_cache_menu();
+            $this->error_log_menu();
+        }
+        $this->general_settings_menu();
+        if ( ! is_network_admin() && sb_is_dev_debug() ) {
+            $this->debug_menu();
+        }
+    }
+
+    /**
+     * Register Servebolt menu page.
+     */
+    private function sb_general_page_menu_page() {
+        add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'general_page_callback'], SERVEBOLT_PATH_URL . 'assets/dist/images/servebolt-icon.svg' );
+    }
+
+    /**
+     * Register CF cache menu item.
+     */
+    private function cf_cache_menu() {
+        add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache-control', [$this, 'cf_cache_callback']);
+    }
+
+    /**
+     * Register CF image resize menu item.
+     */
+    private function cf_image_resize_menu() {
+        if ( sb_feature_active('cf_image_resize') ) {
+            add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [$this, 'cf_image_resizing_callback']);
+        }
+    }
+
+    /**
+     * Register full page cache menu item.
+     */
+    private function fpc_cache_menu() {
+        add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginx_cache_callback']);
+    }
+
+    /**
+     * Register error log menu item.
+     */
+    private function error_log_menu() {
+        add_submenu_page('servebolt-wp', sb__('Error log'), sb__('Error log'), 'manage_options', 'servebolt-logs', [$this, 'error_log_callback']);
+    }
+
+    /**
+     * Register debug menu item.
+     */
+    private function debug_menu() {
+        add_submenu_page('servebolt-wp', sb__('Debug'), sb__('Debug'), 'manage_options', 'servebolt-debug', [$this, 'debug_callback']);
+    }
+
+    /**
+     * Register performance optimizer menu item.
+     */
+    private function performance_optimizer_menu() {
+        add_submenu_page('servebolt-wp', sb__('Performance optimizer'), sb__('Performance optimizer'), 'manage_options', 'servebolt-performance-tools', [$this, 'performance_callback']);
+    }
+
+    /**
+     * Register general/dashboard menu item.
+     */
+    private function general_menu() {
+        add_submenu_page('servebolt-wp', sb__('General'), sb__('General'), 'manage_options', 'servebolt-wp');
+    }
+
+    /**
+     * Register general settings menu item.
+     */
+    private function general_settings_menu() {
+        add_submenu_page('servebolt-wp', sb__('Settings'), sb__('Settings'), 'manage_options', 'servebolt-general-settings', [$this, 'general_settings_callback']);
+    }
 
 	/**
 	 * Initialize plugin settings link hook.
@@ -121,7 +198,7 @@ class Servebolt_Admin_Interface {
 	 * Display Servebolt dashboard.
 	 */
 	public function general_page_callback() {
-		sb_view('admin/views/servebolt-dashboard');
+		sb_view('admin/views/dashboard/dashboard');
 	}
 
 	/**
@@ -151,6 +228,14 @@ class Servebolt_Admin_Interface {
 	public function nginx_cache_callback() {
 		sb_nginx_fpc_controls()->view();
 	}
+
+    /**
+     * Display the general settings control page.
+     */
+    public function general_settings_callback() {
+        sb_general_settings()->view();
+    }
+
 
 	/**
 	 * Display error log page.

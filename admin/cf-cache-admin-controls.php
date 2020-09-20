@@ -44,6 +44,15 @@ class CF_Cache_Admin_Controls {
 		new CF_Cache_Admin_Controls_Ajax;
 	}
 
+    /**
+     * The maximum number of queue items to display in the list.
+     *
+     * @return int
+     */
+	public function max_number_of_cache_purge_queue_items() {
+        return (int) apply_filters('sb_optimizer_purge_item_list_limit', 500);
+    }
+
 	/**
 	 * Init assets.
 	 */
@@ -57,7 +66,7 @@ class CF_Cache_Admin_Controls {
 	public function plugin_scripts() {
 		$screen = get_current_screen();
 		if ( $screen->id != 'servebolt_page_servebolt-cf-cache-control' ) return;
-		wp_enqueue_script( 'servebolt-optimizer-cloudflare-cache-purge-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/cloudflare-cache-purge.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/cloudflare-cache-purge.js'), true );
+		wp_enqueue_script( 'servebolt-optimizer-cloudflare-cache-purge-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/cloudflare-cache-purge.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'assets/dist/js/cloudflare-cache-purge.js'), true );
 	}
 
 	/**
@@ -68,6 +77,8 @@ class CF_Cache_Admin_Controls {
 	}
 
 	/**
+     * Settings items for CF cache.
+     *
 	 * @return array
 	 */
 	private function settings_items() {
@@ -78,8 +89,8 @@ class CF_Cache_Admin_Controls {
 			'cf_email',
 			'cf_api_key',
 			'cf_api_token',
-			//'cf_items_to_purge', // No longer managed from the options page, only via AJAX
-			'cf_cron_purge'];
+			'cf_cron_purge',
+        ];
 	}
 
 	/**
@@ -134,7 +145,22 @@ class CF_Cache_Admin_Controls {
 	 * Display view.
 	 */
 	public function view() {
-		sb_view('admin/views/cf-cache-admin-controls');
+		sb_view('admin/views/cf-cache-admin-controls/cf-cache-admin-controls');
+	}
+
+    /**
+     * Display header columns for purge queue table.
+     *
+     * @param $items_to_purge
+     * @param bool $echo
+     * @return bool|false|string|void
+     */
+	public function purge_queue_list($items_to_purge, $echo = true) {
+	    $view_path = 'admin/views/cf-cache-admin-controls/cache-purge-queue-list-table';
+	    if ( ! $echo ) {
+            return sb_view($view_path, compact('items_to_purge'), false);
+        }
+		sb_view($view_path, compact('items_to_purge'));
 	}
 
 }
