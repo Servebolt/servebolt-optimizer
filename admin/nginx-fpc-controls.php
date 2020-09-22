@@ -157,14 +157,14 @@ class Nginx_FPC_Controls {
 			$title = sb__('We made progress, but...');
 			$failed_message = sb__('Could not exclude the following posts from cache:') . sb_create_li_tags_from_array($failed, function($post_id) {
 				$title = get_the_title($post_id);
-				return $title ? $title . ' (' . $post_id . ')' : $post_id;
+				return $title ? $title . ' (ID' . $post_id . ')' : $post_id;
 			});
 		}
 
 		if ( count($already_excluded) > 0 ) {
 			$already_excluded_message = sb__('The following posts are already excluded from cache:') . sb_create_li_tags_from_array($already_excluded, function($post_id) {
 				$title = get_the_title($post_id);
-				return $title ? $title . ' (' . $post_id . ')' : $post_id;
+				return $title ? $title . ' (ID' . $post_id . ')' : $post_id;
 			});
 		}
 
