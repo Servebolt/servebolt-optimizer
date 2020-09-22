@@ -72,7 +72,7 @@ jQuery(document).ready(function($) {
   /**
    * Confirm callback for function "sb_remove_exclude_item".
    */
-  function sb_remove_exclude_item_confirmed() {
+  function sb_remove_exclude_item_confirmed(obj) {
     window.sb_loading(true);
     var item = $(obj).closest('.exclude-item'),
         item_value = item.find('.exclude-item-input').val();
