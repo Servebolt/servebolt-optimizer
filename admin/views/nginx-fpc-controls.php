@@ -2,6 +2,8 @@
 <div class="wrap sb-content">
 	<h1><?php sb_e('Full Page Cache'); ?></h1>
 
+    <?php settings_errors(); ?>
+
 	<div>
 	  <?php $sb_admin_button = $sb_admin_url ? sprintf('<a href="%s" target="_blank">%s</a>', $sb_admin_url, sb__('Servebolt Control Panel dashboard')) : sb__('Servebolt Control Panel dashboard'); ?>
 		<p><?php sb_e('Servebolt Full Page Cache is easy to set up, but should always be tested before activating it on production environments.'); ?></p>
@@ -10,10 +12,6 @@
 		<p><a href="<?php echo $sb_admin_url; ?>" target="_blank" class="button"><?php sb_e('Servebolt Control Panel dashboard') ?></a></p>
     <?php endif; ?>
 	</div>
-
-	<?php if ( array_key_exists('settings-updated', $_GET) ) : ?>
-		<div class="notice notice-success is-dismissible"><p><?php sb_e('Cache settings saved!'); ?></p></div>
-	<?php endif; ?>
 
 	<?php if ( is_network_admin() ) : ?>
 

@@ -1,6 +1,9 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+// Include crypto-class
+require __DIR__ . '/classes/sb-crypto.class.php';
+
 if ( ! function_exists('sb_cloudflare_proxy_in_use') ) {
 	/**
 	 * Check if Cloudflare Proxy is used by analyzing the request headers, and if not present then send a request to the front page and analyze the headers again.
@@ -33,42 +36,45 @@ if ( ! function_exists('sb_cloudflare_proxy_in_use') ) {
 }
 
 if ( ! function_exists('sb_paginate_links_as_array') ) {
-	/**
-   * Create an array of paginated links based on URL and number of pages.
-   *
-	 * @param $url
-	 * @param $pages_needed
-	 * @param array $args
-	 *
-	 * @return array
-	 */
-	function sb_paginate_links_as_array($url, $pages_needed, $args = []) {
-		$base_args = apply_filters('sb_paginate_links_as_array_args', [
-			'base'      => $url . '%_%',
-			'type'      => 'array',
-			'current'   => false,
-			'total'     => $pages_needed,
-			'show_all'  => true,
-			'prev_next' => false,
-		]);
+    /**
+     * Create an array of paginated links based on URL and number of pages.
+     *
+     * @param $url
+     * @param $pages_needed
+     * @param array $args
+     * @return array|string|void
+     */
+    function sb_paginate_links_as_array($url, $pages_needed, $args = []) {
+        if ( ! is_numeric($pages_needed) || $pages_needed <= 1 ) return [$url];
 
-		$args = wp_parse_args( $args, $base_args );
+        $base_args = apply_filters('sb_paginate_links_as_array_args', [
+            'base'      => $url . '%_%',
+            'type'      => 'array',
+            'current'   => false,
+            'total'     => $pages_needed,
+            'show_all'  => true,
+            'prev_next' => false,
+        ]);
 
-		$links = paginate_links($args);
+        $args = wp_parse_args( $args, $base_args );
+        $links = paginate_links($args);
 
-		$links = array_map(function($link) {
-			preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $link, $result);
-			if ( array_key_exists('href', $result) && count($result['href']) === 1 ) {
-				return current($result['href']);
-			}
-			return false;
-		}, $links);
-		$links = array_filter($links, function($link) {
-			return $link !== false;
-		});
+        $links = array_map(function($link) {
+            preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $link, $result);
+            if ( array_key_exists('href', $result) && count($result['href']) === 1 && ! empty($result['href']) ) {
+                $url = current($result['href']);
+                $url = strtok($url, '?'); // Remove query string
+                return $url;
+            }
+            return false;
+        }, $links);
 
-		return $links;
-	}
+        $links = array_filter($links, function($link) {
+            return $link !== false;
+        });
+
+        return $links;
+    }
 }
 
 if ( ! function_exists('sb_smart_update_option') ) {
@@ -112,17 +118,6 @@ if ( ! function_exists('sb_smart_get_option') ) {
 	}
 }
 
-if ( ! function_exists('sb_purge_all_item_name') ) {
-	/**
-   * The string used to store the purge all request in the purge queue.
-   *
-	 * @return string
-	 */
-  function sb_purge_all_item_name() {
-    return '---purge-all-request---';
-  }
-}
-
 if ( ! function_exists('sb_feature_active') ) {
 	/**
    * Check whether a feature is active.
@@ -134,9 +129,12 @@ if ( ! function_exists('sb_feature_active') ) {
   function sb_feature_active($feature) {
     switch ($feature) {
         case 'cf_image_resize':
-          // Only active when defined is set
-          return defined('SB_CF_IMAGE_RESIZE_ACTIVE') && SB_CF_IMAGE_RESIZE_ACTIVE === true;
+          // Only active when defined is set, or if already active - this is to keep it beta for now (slightly hidden).
+          return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || ( sb_cf_image_resize_control() )->resizing_is_active();
           break;
+        case 'sb_asset_auto_version':
+            return sb_general_settings()->asset_auto_version();
+            break;
 	    case 'cf_cache':
 		    return true;
 		    break;
@@ -194,7 +192,7 @@ if ( ! function_exists('sb_optimize_db') ) {
   }
 }
 
-if ( ! function_exists('sb_cf') ) {
+if ( ! function_exists('sb_cf_cache') ) {
   /**
    * Get Servebolt_Checks-instance.
    *
@@ -229,6 +227,20 @@ if ( ! function_exists('sb_nginx_fpc_controls') ) {
     return Nginx_FPC_Controls::get_instance();
   }
 }
+
+if ( ! function_exists('sb_general_settings') ) {
+    /**
+     * Get SB_General_Settings-instance.
+     *
+     * @return SB_General_Settings|null
+     */
+    function sb_general_settings() {
+        require_once SERVEBOLT_PATH . 'admin/general-settings.php';
+        return SB_General_Settings::get_instance();
+    }
+}
+
+
 
 if ( ! function_exists('sb_nginx_fpc') ) {
   /**
@@ -267,6 +279,19 @@ if ( ! function_exists('sb_boolean_to_state_string') ) {
   }
 }
 
+if ( ! function_exists('sb_boolean_to_string') ) {
+    /**
+     * Convert a type boolean to a verbose boolean string.
+     *
+     * @param $state
+     *
+     * @return bool|null
+     */
+    function sb_boolean_to_string($state) {
+        return $state === true ? 'true' : 'false';
+    }
+}
+
 if ( ! function_exists('sb_is_cli') ) {
   /**
    * Check if we are running as CLI.
@@ -287,6 +312,20 @@ if ( ! function_exists('sb_is_cron') ) {
   function sb_is_cron() {
     return ( defined( 'DOING_CRON' ) && DOING_CRON );
   }
+}
+
+if ( ! function_exists('sb_cf_cache_purge_object') ) {
+    /**
+     * Create a new instance of SB_CF_Cache_Purge_Object.
+     *
+     * @param bool $id
+     * @param string $type
+     * @return SB_CF_Cache_Purge_Object
+     */
+    function sb_cf_cache_purge_object($id = false, $type = 'post') {
+        require_once __DIR__ . '/classes/cloudflare-cache/sb-cf-cache-purge-object.php';
+        return new SB_CF_Cache_Purge_Object($id, $type);
+    }
 }
 
 if ( ! function_exists('sb_get_admin_url') ) {
@@ -516,6 +555,17 @@ if ( ! function_exists('sb_remove_keys_from_array') ) {
   }
 }
 
+if ( ! function_exists('sb_is_ajax') ) {
+    /**
+     * Check whether this is an AJAX-request.
+     *
+     * @return bool
+     */
+    function sb_is_ajax() {
+        return defined('DOING_AJAX') && DOING_AJAX;
+    }
+}
+
 if ( ! function_exists('sb_get_ajax_nonce') ) {
   /**
    * Get ajax nonce.
@@ -580,6 +630,18 @@ if ( ! function_exists('sb_generate_random_string') ) {
     }
     return $random_string;
   }
+}
+
+if ( ! function_exists('sb_is_url') ) {
+    /**
+     * Whether a string contains a valid URL.
+     *
+     * @param $url
+     * @return bool
+     */
+    function sb_is_url($url) {
+        return filter_var($url, FILTER_VALIDATE_URL) !== false;
+    }
 }
 
 if ( ! function_exists('sb_view') ) {
@@ -857,6 +919,48 @@ if ( ! function_exists('sb_is_dev_debug') ) {
   }
 }
 
+if ( ! function_exists('sb_deactivate_plugin') ) {
+    /**
+     * Plugin deactivation.
+     */
+    function sb_deactivate_plugin() {
+        sb_clear_all_cookies();
+    }
+}
+
+if ( ! function_exists('sb_activate_plugin') ) {
+    /**
+     * Plugin activation.
+     */
+    function sb_activate_plugin() {
+        sb_check_all_cookies();
+    }
+}
+
+if ( ! function_exists('sb_check_all_cookies') ) {
+    /**
+     * Check the cookies we have been set.
+     */
+    function sb_check_all_cookies() {
+        if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
+            require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
+        }
+        ( new Servebolt_Nginx_FPC_Auth_Handling )->cache_cookie_check();
+    }
+}
+
+if ( ! function_exists('sb_clear_all_cookies') ) {
+    /**
+     * Clean the cookies we have been settin'.
+     */
+    function sb_clear_all_cookies() {
+        if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
+            require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
+        }
+        ( new Servebolt_Nginx_FPC_Auth_Handling )->clear_no_cache_cookie();
+    }
+}
+
 if ( ! function_exists('sb_delete_all_settings') ) {
   /**
    * Delete plugin settings.
@@ -865,11 +969,21 @@ if ( ! function_exists('sb_delete_all_settings') ) {
    */
   function sb_delete_all_settings($all_sites = true) {
     $option_names = [
+
+      // General settings
+      'asset_auto_version',
+      'use_native_js_fallback',
+
+      // Wipe nonce
       'ajax_nonce',
+      'record_max_num_pages_nonce',
+
+      // Wipe encryption keys
       'mcrypt_key',
       'openssl_key',
       'openssl_iv',
 
+      // Wipe Cloudflare-related options
       'cf_switch',
       'cf_zone_id',
       'cf_auth_type',
@@ -879,9 +993,10 @@ if ( ! function_exists('sb_delete_all_settings') ) {
       'cf_items_to_purge',
       'cf_cron_purge',
 
+      // Wipe SB FPC-relateds options
       'fpc_switch',
       'fpc_settings',
-      'fpc_exclude'
+      'fpc_exclude',
     ];
     foreach ( $option_names as $option_name ) {
       if ( is_multisite() && $all_sites ) {
@@ -1011,7 +1126,7 @@ if ( ! function_exists('fpc_exclude_post_table_row_markup') ) {
   }
 }
 
-if ( ! function_exists('create_li_tags_from_array') ) {
+if ( ! function_exists('sb_create_li_tags_from_array') ) {
   /**
    * Create li-tags from array.
    *
@@ -1021,7 +1136,7 @@ if ( ! function_exists('create_li_tags_from_array') ) {
    *
    * @return string
    */
-  function create_li_tags_from_array($iterator, $closure = false, $include_ul = true) {
+  function sb_create_li_tags_from_array($iterator, $closure = false, $include_ul = true) {
     $markup = '';
     if ( $include_ul ) $markup .= '<ul>';
     array_map(function($item) use (&$markup, $closure) {
@@ -1030,6 +1145,32 @@ if ( ! function_exists('create_li_tags_from_array') ) {
     if ( $include_ul ) $markup .= '</ul>';
     return $markup;
   }
+}
+
+if ( ! function_exists('sb_display_value') ) {
+    /**
+     * Display value, regardless of type.
+     *
+     * @param $value
+     * @param bool $return
+     * @return bool|false|string|null
+     */
+    function sb_display_value($value, $return = false) {
+        if ( is_bool($value) ) {
+            $value = sb_boolean_to_string($value);
+        } elseif ( is_string($value) ) {
+            $value = $value;
+        } else {
+            ob_start();
+            var_dump($value);
+            $value = ob_get_contents();
+            ob_end_clean();
+        }
+        if ( $return ) {
+            return $value;
+        }
+        echo $value;
+    }
 }
 
 if ( ! function_exists('sb_format_comma_string') ) {
@@ -1086,190 +1227,63 @@ if ( ! function_exists('sb_array_get') ) {
   }
 }
 
-/**
- * Class SB_Crypto
- */
-class SB_Crypto {
+if ( ! function_exists('sb_max_num_pages_query_nonce') ) {
+    /**
+     * Get a unique permanent string to authenticate max_num_pages-requests with.
+     * @return mixed|string|void
+     */
+    function sb_max_num_pages_query_nonce() {
+        return sb_generate_random_permanent_key('record_max_num_pages_nonce');
+    }
+}
 
-	/**
-	 * Blog id - used to retrieve encryption keys for the given blog.
-	 *
-	 * @var bool
-	 */
-	private static $blog_id = false;
+if ( ! function_exists('sb_max_num_pages_query_callback') ) {
+    /**
+     * Listen for max_num_pages-request and return JSON-data.
+     */
+    function sb_max_num_pages_query_callback() {
 
-	/**
-	 * Determine if and which encryption method is available.
-	 *
-	 * @return bool|string
-	 */
-	private static function determine_encryption_method() {
-		if ( function_exists('openssl_encrypt') && function_exists('openssl_decrypt') ) {
-			return 'openssl';
-		}
-		if ( function_exists('mcrypt_encrypt') && function_exists('mcrypt_decrypt') ) {
-			return 'mcrypt';
-		}
-		return false;
-	}
+        // Abort if we're not using the max_num_pages-feature
+        if ( apply_filters('sb_optimizer_skip_pages_needed_request', false) === true ) return;
 
-	/**
-	 * Encrypt string.
-	 *
-	 * @param $input_string
-	 * @param bool $method
-	 * @param bool $blog_id
-	 *
-	 * @return bool|string
-	 */
-	public static function encrypt($input_string, $blog_id = false, $method = false) {
-		if ( is_multisite() && is_numeric($blog_id) ) {
-			self::$blog_id = $blog_id;
-		}
-		try {
-			if ( ! $method ) {
-				$method = self::determine_encryption_method();
-			}
-			switch ( $method ) {
-				case 'openssl':
-					return self::openssl_encrypt($input_string);
-					break;
-				case 'mcrypt':
-					return self::mcrypt_encrypt($input_string);
-					break;
-			}
-		} catch (Exception $e) {
-			return false;
-		}
-		return false;
-	}
+        // Init debug
+        if ( defined('WP_DEBUG') && WP_DEBUG ) sb_max_num_pages_debug();
 
-	/**
-	 * Decrypt string.
-	 *
-	 * @param $input_string
+        // Abort if this is not a max_num_pages-request
+        if ( ! array_key_exists('sb_optimizer_record_max_num_pages', $_GET) ) return;
 
-	 * @param bool $blog_id
-   * @param bool $method
-	 *
-	 * @return bool|string
-	 */
-	public static function decrypt($input_string, $blog_id = false, $method = false) {
-		if ( is_multisite() && is_numeric($blog_id) ) {
-			self::$blog_id = $blog_id;
-		}
-		try {
-			if ( ! $method ) {
-				$method = self::determine_encryption_method();
-			}
-			switch ( $method ) {
-				case 'openssl':
-					return self::openssl_decrypt($input_string);
-					break;
-				case 'mcrypt':
-						return self::mcrypt_decrypt($input_string);
-					break;
-			}
-		} catch (Exception $e) {
-			return false;
-		}
-		return false;
-	}
+        // Ignore unauthorized request
+        if ( sb_max_num_pages_query_nonce() !== $_GET['sb_optimizer_record_max_num_pages'] ) return;
 
-	/**
-	 * Mcrypt key.
-	 *
-	 * @return string
-	 */
-	public static function mcrypt_key() {
-		$key = sb_generate_random_permanent_key('mcrypt_key', self::$blog_id);
-	  $key = apply_filters('sb_optimizer_mcrypt_key', $key);
-	  return $key;
-	}
+        // Hook into right before the output comes, then record the number of pages needed and display it as a JSON-response
+        add_filter(apply_filters('sb_optimizer_record_max_num_pages_filter_hook', 'template_redirect'), function () {
+            global $wp_the_query;
+            if ($wp_the_query->is_main_query()) {
+                echo json_encode(['max_num_pages' => $wp_the_query->max_num_pages]);
+                exit;
+            }
+        });
 
-	/**
-	 * Initiate mcrypt encryption/decryption.
-	 *
-	 * @return array
-	 */
-	public static function mcrypt_init() {
-		$iv_size = mcrypt_get_iv_size(MCRYPT_RIJNDAEL_256, MCRYPT_MODE_ECB);
-		$iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-		$h_key = hash('sha256', self::mcrypt_key(), TRUE);
-		return compact('iv', 'h_key');
-	}
+    }
+}
 
-	/**
-	 * Encrypt string using mcrypt.
-	 *
-	 * @param $input_string
-	 *
-	 * @return string
-	 */
-	public static function mcrypt_encrypt($input_string) {
-		$init = self::mcrypt_init();
-		return base64_encode(mcrypt_encrypt(MCRYPT_RIJNDAEL_256, $init['h_key'], $input_string, MCRYPT_MODE_ECB, $init['iv']));
-	}
-
-	/**
-	 * Decrypt string using mcrypt.
-	 *
-	 * @param $encrypted_input_string
-	 *
-	 * @return string
-	 */
-	public static function mcrypt_decrypt($encrypted_input_string) {
-		$init = self::mcrypt_init();
-		return trim(mcrypt_decrypt(MCRYPT_RIJNDAEL_256, $init['h_key'], base64_decode($encrypted_input_string), MCRYPT_MODE_ECB, $init['iv']));
-	}
-
-	/**
-	 * OpenSSL encryption keys.
-	 *
-	 * @return array
-	 */
-	public static function openssl_keys() {
-		$key = sb_generate_random_permanent_key('openssl_key', self::$blog_id);
-		$iv = sb_generate_random_permanent_key('openssl_iv', self::$blog_id);
-		$keys = apply_filters('sb_optimizer_openssl_keys', compact('key', 'iv'));
-		return $keys;
-	}
-
-	/**
-	 * Init OpenSSL.
-	 *
-	 * @return array
-	 */
-	public static function openssl_init() {
-		$encrypt_method = 'AES-256-CBC';
-		$secret = self::openssl_keys();
-		$key = hash('sha256', $secret['key']);
-		$iv = substr(hash('sha256', $secret['iv']), 0, 16);
-		return compact('encrypt_method', 'key', 'iv');
-	}
-
-	/**
-	 * Encrypt string using mcrypt.
-	 *
-	 * @param $input_string
-	 *
-	 * @return string
-	 */
-	public static function openssl_encrypt($input_string) {
-		$init = self::openssl_init();
-		return base64_encode(openssl_encrypt($input_string, $init['encrypt_method'], $init['key'], 0, $init['iv']));
-	}
-
-	/**
-	 * Decrypt string using OpenSSL.
-	 *
-	 * @param $encrypted_input_string
-	 *
-	 * @return string
-	 */
-	public static function openssl_decrypt($encrypted_input_string) {
-		$init = self::openssl_init();
-		return openssl_decrypt(base64_decode($encrypted_input_string), $init['encrypt_method'], $init['key'], 0, $init['iv']);
-	}
-
+if ( ! function_exists('sb_max_num_pages_debug') ) {
+    /**
+     * Debug tool for max_num_pages-request feature.
+     */
+    function sb_max_num_pages_debug() {
+        if ( ! array_key_exists('sb_optimizer_record_max_num_pages', $_GET) && array_key_exists('sb_optimizer_record_max_num_pages_debug', $_GET) ) {
+            add_filter('template_redirect', function () {
+                $sb_cf_cache_purge_object = sb_cf_cache_purge_object($_GET['id'], $_GET['type'] ?: 'post');
+                if ($sb_cf_cache_purge_object->success()) {
+                    echo '<pre>';
+                    print_r($sb_cf_cache_purge_object->get_urls());
+                    echo '</pre>';
+                } else {
+                    echo 'Could not resolve object.';
+                }
+                exit;
+            });
+        }
+    }
 }

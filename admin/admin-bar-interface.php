@@ -102,23 +102,38 @@ class Servebolt_Admin_Bar_Interface {
 			];
 		}
 
+        $cache_purge_available = sb_cf_cache()->should_use_cf_feature();
+
 		if ( ! is_network_admin() ) {
-			$cache_purge_available = sb_cf_cache()->should_use_cf_feature();
-			if ( $cache_purge_available ) {
-				$nodes[] = [
-					'id'    => 'servebolt-clear-cf-cache',
-					'title' => sb__('Purge All Cache'),
-					'href'  => '#',
-					'meta'  => [
-						'class' => 'sb-admin-button sb-purge-all-cache'
-					]
-				];
+            if ( $cache_purge_available ) {
+                $nodes[] = [
+                    'id' => 'servebolt-clear-all-cf-cache',
+                    'title' => sb__('Purge all cache'),
+                    'href' => '#',
+                    'meta' => [
+                        'class' => 'sb-admin-button sb-purge-all-cache'
+                    ]
+                ];
+            }
+        }
 
+        if ( $cache_purge_available ) {
+            $nodes[] = [
+                'id' => 'servebolt-clear-cf-cache-url',
+                'title' => sb__('Purge a URL'),
+                'href' => '#',
+                'meta' => [
+                    'class' => 'sb-admin-button sb-purge-url'
+                ]
+            ];
+        }
 
+        if ( ! is_network_admin() ) {
+            if ($cache_purge_available) {
 				if ( $post_id = $this->is_single_post() ) {
 					$nodes[] = [
 						'id'    => 'servebolt-clear-current-cf-cache',
-						'title' => '<span data-id="' . $post_id . '">' . sb__('Purge Current Post Cache') . '</span>',
+						'title' => '<span data-id="' . $post_id . '">' . sb__('Purge current post cache') . '</span>',
 						'href'  => '#',
 						'meta'  => [
 							'class' => 'sb-admin-button sb-purge-current-post-cache'

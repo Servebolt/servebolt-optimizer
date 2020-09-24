@@ -1,15 +1,15 @@
 === Servebolt Optimizer ===
 Contributors: audunhus, erlendeide, robsat91, servebolt
-Tags: performance, optimization, cache, log, multisite, wp-cli, full page cache
+Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, full page cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 5.4
+Tested up to: 5.5.1
 Requires PHP: 7
-Stable tag: 2.0.9
+Stable tag: 2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-This plugin adds functionality to implement Servebolt WordPress best practices. This includes database optimizations, log review, performance recommendations and support for down stream full page caching.
+This plugin adds functionality to implement Servebolt WordPress best practices. This includes database optimizations, log review, automatic cache purging, automatic image optimization/resizing, performance recommendations and support for down stream full page caching.
 
 This project is maintained on [Github](https://servebo.lt/sog).
 
@@ -18,15 +18,17 @@ This project is maintained on [Github](https://servebo.lt/sog).
 - Database optimization - Convert tables to InnoDB
 - Database optimization - Add performance improving indexes
 - Automatic Cloudflare cache purge
+- Cloudflare Image Resize-support (beta feature)
 - Recommendations on additional performance improvements
 - Rewrite headers to allow down stream full page caching (Servebolt clients only)
 - View Apache/PHP error log (Servebolt clients only)
 - Multisite support
 - WP CLI support
 
+Read more about the plugin and its features in our [help center](https://servebo.lt/servebolt-optimize-documentation).
+
 = Automatic purge of Cloudflare cache =
-Full Page Cache is automatically purged when a single post has been updated. You also have a purge all button in the admin bar.
-This Cloudflare integration supports both API key and API token authentication.
+Full Page Cache is automatically purged when a post/term has been updated. You also have a purge-feature in the admin bar. This Cloudflare integration supports both the use of API key and API token authentication when communicating with the Cloudflare API.
 
 = Full Page Caching =
 This plugin rewrites HTTP headers of HTML to allow for Full Page Caching, and for the browser to cache HTML. Full Page Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.
@@ -43,7 +45,26 @@ With WP-CLI
 3. Run `wp plugin install servebolt-optimizer --activate`
 4. Run optimizations `wp servebolt db optimize`
 
+Run `wp help servebolt` to see all the available commands that can configure the plugin.
+
+== Configuration ==
+This plugin can be controlled via WP Admin, WP CLI, various filters and PHP constants.
+
+=== Filter and constant reference ===
+The plugin has various filters and PHP constants that allows third-party developers to alter the behaviour of the plugin. Please read the article [Filters and PHP constants](https://servebo.lt/servebolt-optimizer-filters-and-php-constants) in our help center to learn more.
+
 == Changelog ==
+= 2.1 =
+* Added extended cache invalidation for Cloudflare cache - archives and other related URLs will also be purged.
+* Added a SweetAlert-fallback so that native JavaScript alerts, prompts, confirmations will be used instead. This is due to SweetAlert being prone to conflicts with themes and other plugins.
+* Made the Cloudflare Image Resize-feature available (through WP CLI and PHP constant).
+* Completed the WP CLI with more configuration commands.
+* Added more meta-data to the cache purge queue when using the Cloudflare cache purge feature + added a cleaner that will remove old elements if not automatically purged.
+* Added full overview over available PHP constants and filters.
+* Various bug fixes
+* Various GUI improvements
+* Bug fix for WooCommerce-implementations (corrected cache headers for WooCommerce-pages).
+
 = 2.0.9 =
 * Hotfix related to the admin bar
 

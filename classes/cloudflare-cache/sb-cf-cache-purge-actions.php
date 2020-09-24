@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * Class SB_CF_Cache_Purge_Actions
  * @package Servebolt
  *
- * This class registers the WP events which purges the cache automatically.
+ * This class registers the WP events which purges the cache automatically (updating/create posts, terms etc.).
  */
 class SB_CF_Cache_Purge_Actions {
 
@@ -29,8 +29,8 @@ class SB_CF_Cache_Purge_Actions {
 		if ( apply_filters('sb_optimizer_disable_automatic_purge', false) ) return;
 
 		// Purge post on post update
-		if ( apply_filters('sb_optimizer_automatic_purge_on_post_update', true) ) {
-			add_action( 'post_updated', [$this, 'purge_post_on_update'], 99, 1 );
+		if ( apply_filters('sb_optimizer_automatic_purge_on_post_save', true) ) {
+			add_action( 'post_updated', [$this, 'purge_post_on_save'], 99, 3 );
 		}
 
 		// Purge post on comment post
@@ -44,11 +44,9 @@ class SB_CF_Cache_Purge_Actions {
 		}
 
 		// Purge post when term is edited (Work in progress)
-        /*
-		if ( apply_filters('sb_optimizer_automatic_purge_on_term_edit', true) ) {
-			add_action( 'edit_term', [ $this, 'purge_post_on_term_edit' ], 99, 3 );
+		if ( apply_filters('sb_optimizer_automatic_purge_on_term_save', true) ) {
+			add_action( 'edit_term', [ $this, 'purge_term_on_save' ], 99, 3 );
 		}
-        */
 
 	}
 
@@ -57,16 +55,51 @@ class SB_CF_Cache_Purge_Actions {
 	 * @param $tt_id
 	 * @param $taxonomy
 	 */
-	public function purge_post_on_term_edit($term_id, $tt_id, $taxonomy) {
-		$url = get_term_link($term_id, $taxonomy);
-		$links = sb_paginate_links_as_array($url, 10);
-		// TODO: Find number of pages
-		/*
-		echo '<pre>';
-		print_r($links);
-		die;
-		*/
+	public function purge_term_on_save($term_id, $tt_id, $taxonomy) {
+        $this->maybe_purge_term_slug_if_slug_changed($term_id);
+        $this->maybe_purge_term($term_id);
 	}
+
+    /**
+     *
+     */
+	private function maybe_purge_term_slug_if_slug_changed() {
+	    // TODO: We might need to use a different filter to try to catch the old slug before the term is being updated. Take a look at the function wp-includes/taxonomy.php:2922 for available filters/actions.
+        // TODO: When a term is updated, check if the term slug is being changed and purge the cache on the old URL.
+    }
+
+    /**
+     * @param $term_id
+     */
+    private function maybe_purge_term($term_id) {
+        if ( ! $this->should_purge_term_cache($term_id) ) return;
+        sb_cf_cache()->purge_term($term_id);
+	}
+
+    /**
+     * Check if we should clear cache for post that is being updated.
+     *
+     * @param $term_id
+     *
+     * @return bool|void
+     */
+    private function should_purge_term_cache($term_id) {
+
+        // Let users override the outcome
+        $override = apply_filters('sb_optimizer_should_purge_term_cache', null, $term_id);
+        if ( is_bool($override) ) return $override;
+
+        // Check that the taxonomy is public
+        if ( $term = get_term_by('term_taxonomy_id', $term_id) ) {
+            $taxonomy = get_taxonomy($term->taxonomy);
+            if ( $taxonomy && ( $taxonomy->public !== true || $taxonomy->publicly_queryable !== true ) ) {
+                return false;
+            }
+        }
+
+        return true;
+
+    }
 
 	/**
 	 * Check if we should clear cache for post that is being updated.
@@ -84,13 +117,15 @@ class SB_CF_Cache_Purge_Actions {
 		// Check that the post type is public
 		$post_type = get_post_type($post_id);
 		$post_type_object = get_post_type_object($post_type);
-		if ( ! $post_type_object || $post_type_object->public === true || $post_type_object->publicly_queryable === true ) return true;
+		if ( $post_type_object && ( $post_type_object->public !== true || $post_type_object->publicly_queryable !== true ) ) {
+            return false;
+        }
 
 		// Make sure that post is not just a draft
 		$post_status = get_post_status($post_id);
-		if ( in_array($post_status, ['publish']) ) return true;
+		if ( ! in_array($post_status, ['publish']) ) return false;
 
-		return false;
+		return true;
 	}
 
 	/**
@@ -98,9 +133,23 @@ class SB_CF_Cache_Purge_Actions {
 	 *
 	 * @param $post_id
 	 */
-	public function purge_post_on_update($post_id) {
-		$this->maybe_purge_post($post_id);
+	public function purge_post_on_save($post_id, $post_after, $post_before) {
+	    $this->maybe_purge_post_permalink_if_slug_changed($post_id, $post_after, $post_before);
+        $this->maybe_purge_post($post_id);
 	}
+
+    /**
+     * Purge the cache for the old URL if the permalink was changed.
+     *
+     * @param $post_id
+     * @param $post_after
+     * @param $post_before
+     */
+	private function maybe_purge_post_permalink_if_slug_changed($post_id, $post_after, $post_before) {
+        //$permalink_changed = $post_before->post_name != $post_after->post_name;
+        //dd($permalink_changed);
+        // TODO: Check if permalink has changed, and if so then purge cache for the old URL.
+    }
 
 	/**
 	 * Maybe purge post by post ID.

@@ -49,7 +49,7 @@ class Servebolt_Performance_Checks {
 	 * Plugin scripts.
 	 */
 	public function plugin_scripts() {
-		wp_enqueue_script( 'servebolt-optimizer-performance-checks-scripts', SERVEBOLT_PATH_URL . 'admin/assets/js/performance-checks.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'admin/assets/js/performance-checks.js'), true );
+		wp_enqueue_script( 'servebolt-optimizer-performance-checks-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/performance-checks.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'assets/dist/js/performance-checks.js'), true );
 	}
 
 	/**
