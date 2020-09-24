@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.5.1
 Requires PHP: 7
-Stable tag: 2.0.9
+Stable tag: 2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,7 +54,7 @@ This plugin can be controlled via WP Admin, WP CLI, various filters and PHP cons
 The plugin has various filters and PHP constants that allows third-party developers to alter the behaviour of the plugin. Please read the article [Filters and PHP constants](https://servebo.lt/servebolt-optimizer-filters-and-php-constants) in our help center to learn more.
 
 == Changelog ==
-= 2.0.10 =
+= 2.1 =
 * Added extended cache invalidation for Cloudflare cache - archives and other related URLs will also be purged.
 * Added a SweetAlert-fallback so that native JavaScript alerts, prompts, confirmations will be used instead. This is due to SweetAlert being prone to conflicts with themes and other plugins.
 * Made the Cloudflare Image Resize-feature available (through WP CLI and PHP constant).
