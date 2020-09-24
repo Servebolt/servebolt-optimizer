@@ -908,6 +908,35 @@ if ( ! function_exists('sb_is_dev_debug') ) {
   }
 }
 
+if ( ! function_exists('sb_deactivate_plugin') ) {
+    /**
+     * Plugin deactivation.
+     */
+    function sb_deactivate_plugin() {
+        sb_clear_all_cookies();
+    }
+}
+
+if ( ! function_exists('sb_activate_plugin') ) {
+    /**
+     * Plugin activation.
+     */
+    function sb_activate_plugin() {
+    }
+}
+
+if ( ! function_exists('sb_delete_all_settings') ) {
+    /**
+     * Clearn the cookies we have been settin'.
+     */
+    function sb_clear_all_cookies() {
+        if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
+            require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
+        }
+        ( new Servebolt_Nginx_FPC_Auth_Handling )->clear_no_cache_cookie();
+    }
+}
+
 if ( ! function_exists('sb_delete_all_settings') ) {
   /**
    * Delete plugin settings.

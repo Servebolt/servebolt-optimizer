@@ -33,6 +33,10 @@ if ( SERVEBOLT_OPTIMIZER_USE_COMPOSER === true && ! file_exists(SERVEBOLT_PATH .
 // Include general functions
 require_once SERVEBOLT_PATH . 'functions.php';
 
+// Register events for activation and deactivation of this plugin
+register_activation_hook(__FILE__, 'sb_activate_plugin');
+register_deactivation_hook(__FILE__, 'sb_deactivate_plugin');
+
 // Add various improvements/optimizations
 sb_generic_optimizations();
 

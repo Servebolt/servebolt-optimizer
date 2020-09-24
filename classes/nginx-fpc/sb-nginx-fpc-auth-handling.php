@@ -5,6 +5,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  * Class Servebolt_Nginx_FPC_Auth_Handling
  *
  * This class will handle the "no_cache"-cookie. The cookie will be set when logged in and will result in Nginx cache being disabled for the authenticated user.
+ *
+ * Note: Cloudflare seems to respect this header also - so yeah, nice to know about when debugging.
  */
 class Servebolt_Nginx_FPC_Auth_Handling {
 
@@ -25,7 +27,7 @@ class Servebolt_Nginx_FPC_Auth_Handling {
 	/**
 	 * Servebolt_Nginx_FPC_No_Cache constructor.
 	 */
-	public function __construct() {
+	public function setup() {
 
 		// When logging in then capture cookie secure state to use with the "no-cache"-cookie
 		add_filter( 'secure_logged_in_cookie', [ $this, 'fetch_secure_logged_in_cookie_value' ], PHP_INT_MAX, 1 );
@@ -65,7 +67,9 @@ class Servebolt_Nginx_FPC_Auth_Handling {
 	public function no_cache_cookie_check() {
 		if ( ! is_user_logged_in() ) {
 			$this->clear_no_cache_cookie();
-		}
+		} else {
+		    $this->set_no_cache_cookie();
+        }
 	}
 
 	/**

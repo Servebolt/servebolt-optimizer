@@ -84,7 +84,7 @@ class Servebolt_Nginx_FPC {
 	public function setup() {
 
 		// Handle "no_cache"-header for authenticated users.
-		new Servebolt_Nginx_FPC_Auth_Handling;
+        ( new Servebolt_Nginx_FPC_Auth_Handling )->setup();
 
 		// Unauthenticated cache handling
 		add_filter( 'posts_results', [ $this, 'set_headers' ] );
