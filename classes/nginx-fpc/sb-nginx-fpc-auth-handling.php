@@ -65,12 +65,19 @@ class Servebolt_Nginx_FPC_Auth_Handling {
 	 * Make sure the cookie is set according to login state.
 	 */
 	public function no_cache_cookie_check() {
-		if ( ! is_user_logged_in() ) {
+		if ( $this->cookie_is_set() && ! is_user_logged_in() ) {
 			$this->clear_no_cache_cookie();
-		} else {
-		    $this->set_no_cache_cookie();
-        }
+		}
 	}
+
+    /**
+     * Make sure the cookie is set according to login state.
+     */
+    public function cache_cookie_check() {
+        if ( ! $this->cookie_is_set() && is_user_logged_in() ) {
+            $this->set_no_cache_cookie();
+        }
+    }
 
 	/**
 	 * Clear no-cache cookie.

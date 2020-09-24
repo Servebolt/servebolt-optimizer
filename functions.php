@@ -922,12 +922,25 @@ if ( ! function_exists('sb_activate_plugin') ) {
      * Plugin activation.
      */
     function sb_activate_plugin() {
+        sb_check_all_cookies();
     }
 }
 
-if ( ! function_exists('sb_delete_all_settings') ) {
+if ( ! function_exists('sb_check_all_cookies') ) {
     /**
-     * Clearn the cookies we have been settin'.
+     * Check the cookies we have been set.
+     */
+    function sb_check_all_cookies() {
+        if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
+            require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
+        }
+        ( new Servebolt_Nginx_FPC_Auth_Handling )->cache_cookie_check();
+    }
+}
+
+if ( ! function_exists('sb_clear_all_cookies') ) {
+    /**
+     * Clean the cookies we have been settin'.
      */
     function sb_clear_all_cookies() {
         if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
