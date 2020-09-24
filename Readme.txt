@@ -55,6 +55,7 @@ The plugin has various filters and PHP constants that allows third-party develop
 
 == Changelog ==
 = 2.1 =
+* Added feature for automatic cache purge of static assets (timestamp in query string)
 * Added extended cache invalidation for Cloudflare cache - archives and other related URLs will also be purged.
 * Added a SweetAlert-fallback so that native JavaScript alerts, prompts, confirmations will be used instead. This is due to SweetAlert being prone to conflicts with themes and other plugins.
 * Made the Cloudflare Image Resize-feature available (through WP CLI and PHP constant).
