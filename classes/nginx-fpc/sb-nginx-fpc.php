@@ -122,12 +122,12 @@ class Servebolt_Nginx_FPC {
 		if ( $this->headers_already_set ) return $posts;
 		$this->headers_already_set = true;
 
-		// No cache if FPC is not active, or if we are logged in
-		if ( ! $this->fpc_is_active() || is_admin() || is_user_logged_in() ) {
-			$this->no_cache_headers();
-			if ( $debug ) $this->header('No-cache-trigger: 1');
-			return $posts;
-		}
+        // No cache if FPC is not active, or if we are logged in
+        if ( ! $this->fpc_is_active() || is_admin() || sb_is_ajax() || is_user_logged_in() ) {
+            $this->no_cache_headers();
+            if ( $debug ) $this->header('No-cache-trigger: 1');
+            return $posts;
+        }
 
 		global $wp_query;
 		$post_type = get_post_type();

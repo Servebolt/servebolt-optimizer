@@ -555,6 +555,17 @@ if ( ! function_exists('sb_remove_keys_from_array') ) {
   }
 }
 
+if ( ! function_exists('sb_is_ajax') ) {
+    /**
+     * Check whether this is an AJAX-request.
+     *
+     * @return bool
+     */
+    function sb_is_ajax() {
+        return defined('DOING_AJAX') && DOING_AJAX;
+    }
+}
+
 if ( ! function_exists('sb_get_ajax_nonce') ) {
   /**
    * Get ajax nonce.
