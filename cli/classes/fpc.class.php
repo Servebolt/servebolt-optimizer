@@ -46,6 +46,9 @@ class Servebolt_CLI_FPC extends Servebolt_CLI_FPC_Extra {
 	 *
 	 * ## OPTIONS
 	 *
+     * [--all]
+     * : Activate on all sites in multisite.
+     *
 	 * [--status]
 	 * : Display status after command is executed.
 	 *
