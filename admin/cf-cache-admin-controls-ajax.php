@@ -241,7 +241,6 @@ class CF_Cache_Admin_Controls_Ajax {
 	public function purge_all_cache_callback() {
 		check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
 		sb_ajax_user_allowed();
-;
 		$cron_purge_is_active = sb_cf_cache()->cron_purge_is_active();
 		if ( ! sb_cf_cache()->cf_cache_feature_available() ) {
 			wp_send_json_error( [ 'message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.' ] );

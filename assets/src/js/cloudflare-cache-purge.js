@@ -1,6 +1,7 @@
 jQuery(document).ready(function($) {
 
   // Toggle Cloudflare feature active/inactive
+  // Toggle Cloudflare feature active/inactive
   $('#sb-configuration #cloudflare_switch').change(function() {
     sb_toggle_cf_feature_active($(this).is(':checked'));
   });

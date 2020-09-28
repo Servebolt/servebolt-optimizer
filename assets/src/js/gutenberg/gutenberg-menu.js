@@ -1,6 +1,6 @@
-import '../../css/plugin.scss';
+import '../../css/gutenberg-menu.scss';
 
-import PluginComponent from './plugin-component.js';
+import GutenbergMenuComponent from './gutenberg-menu-component.js';
 import ElementIcon from '../../images/servebolt-icon.svg';
 
 const { registerPlugin } = wp.plugins;
@@ -9,5 +9,5 @@ const { registerPlugin } = wp.plugins;
 // https://wordpress.org/gutenberg/handbook/designers-developers/developers/packages/packages-plugins/
 registerPlugin( 'servebolt-optimizer', {
 	icon: <ElementIcon />,
-	render: PluginComponent,
+	render: GutenbergMenuComponent,
 } );

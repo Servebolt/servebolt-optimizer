@@ -46,7 +46,7 @@ wp.data.subscribe(function () {
 	isPublic = statusIsPublic(getCurrentPostStatus());
 });
 
-const PluginComponent = () => (
+const GutenbergMenuComponent = () => (
 
 	// Every component must have only one parent element.
 	// In this case, the parent element is a Fragment.
@@ -72,4 +72,4 @@ const PluginComponent = () => (
 		</PluginSidebar>
 	</Fragment>
 );
-export default PluginComponent;
+export default GutenbergMenuComponent;

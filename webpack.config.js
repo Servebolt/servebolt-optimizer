@@ -105,7 +105,7 @@ const config = {
 
 		new ProgressBarPlugin( { clear: false } ),
 
-		new MiniCssExtractPlugin( {filename:'css/[name].css'} ),
+		new MiniCssExtractPlugin( {filename:'css/gutenberg-menu.css'} ),
 
 		// Copy CSS-files
 		new CopyWebpackPlugin( [ { from: '*.css', to: 'css', 'context': 'assets/src/css/' } ] ),
@@ -147,11 +147,11 @@ module.exports = [
 
 	Object.assign( {
 		entry: {
-			plugin: [ './assets/src/js/gutenberg/plugin.js' ],
+			plugin: [ './assets/src/js/gutenberg/gutenberg-menu.js' ],
 		},
 		output: {
 			path: path.resolve( __dirname, './assets/dist/' ),
-			filename: 'js/[name].js',
+			filename: 'js/gutenberg-menu.js',
 		},
 	}, config ),
 

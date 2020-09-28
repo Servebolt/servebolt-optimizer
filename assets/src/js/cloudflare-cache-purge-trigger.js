@@ -1,7 +1,5 @@
 jQuery(document).ready(function($) {
 
-  // TODO: Refresh cache purge queue table (if present in DOM) after altering purge queue
-
   // Purge all cache on all sites in a multisite-network
   $('.sb-purge-network-cache').click(function (e) {
     e.preventDefault();
@@ -58,7 +56,9 @@ jQuery(document).ready(function($) {
         success: function(response) {
           table.html(response.data.html);
           spinner.removeClass('is-active');
-          window.sb_check_for_empty_purge_items_table(false);
+          if (typeof window.sb_check_for_empty_purge_items_table == 'function') {
+            window.sb_check_for_empty_purge_items_table(false);
+          }
         }
       });
     }, 500);
