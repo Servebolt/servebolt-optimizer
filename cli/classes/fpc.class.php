@@ -56,6 +56,9 @@ class Servebolt_CLI_FPC extends Servebolt_CLI_FPC_Extra {
 	 *
 	 *     # Deactivate Servebolt Full Page Cache
 	 *     wp servebolt fpc deactivate
+     *
+     *     # Deactivate Servebolt Full Page Cache for all sites in multisite-network
+     *     wp servebolt fpc deactivate --all
 	 *
 	 */
 	public function command_nginx_fpc_disable($args, $assoc_args) {
