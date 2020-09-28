@@ -56,6 +56,7 @@ The plugin has various filters and PHP constants that allows third-party develop
 == Changelog ==
 = 2.1.1 =
 * Fixed issue with script inclusion causing errors
+* Added missing CLI argument for FPC deactivation
 
 = 2.1 =
 * Added extended cache invalidation for Cloudflare cache - archives and other related URLs will also be purged.
