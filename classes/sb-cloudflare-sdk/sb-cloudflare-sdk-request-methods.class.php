@@ -23,12 +23,15 @@ abstract class SB_CF_SDK_Request_Methods {
 	private $base_uri = 'https://api.cloudflare.com/client/v4/';
 
 	/**
-	 * Whether to debug or not.
+	 * Whether to debug the requests or not.
 	 *
 	 * @return bool
 	 */
 	private function debug() {
-		return (bool) apply_filters('sb_optimizer_cf_api_request_debug', $this->request_debug);
+        if ( defined('SB_CF_REQUEST_DEBUG') && is_bool(SB_CF_REQUEST_DEBUG) ) {
+            return SB_CF_REQUEST_DEBUG;
+        }
+        return (bool) apply_filters('sb_optimizer_cf_api_request_debug', $this->request_debug);
 	}
 
 	/**
@@ -110,7 +113,7 @@ abstract class SB_CF_SDK_Request_Methods {
 		$result = compact('http_code', 'response', 'body', 'json');
 
 		if ( $this->debug() ) {
-			error_log(json_encode($result));
+			error_log(json_encode(array_merge($result, compact('request_url', 'args'))));
 		}
 
 		return $result;
