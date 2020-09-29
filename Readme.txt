@@ -55,7 +55,7 @@ The plugin has various filters and PHP constants that allows third-party develop
 
 == Changelog ==
 = 2.1.2 =
-* 
+* Fixed JavaScript error related to the Gutenberg-editor
 
 = 2.1.1 =
 * Fixed issue with script inclusion causing errors
