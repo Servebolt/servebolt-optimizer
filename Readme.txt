@@ -6,7 +6,7 @@ Requires at least: 4.9.2
 Tested up to: 5.5.1
 Requires PHP: 7
 Stable tag: 2.1.1
-License: GPLv2 or later
+License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
 This plugin adds functionality to implement Servebolt WordPress best practices. This includes database optimizations, log review, automatic cache purging, automatic image optimization/resizing, performance recommendations and support for down stream full page caching.
