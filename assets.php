@@ -50,7 +50,7 @@ class Servebolt_Optimizer_Assets {
      */
     public function plugin_admin_styling() {
         wp_enqueue_style( 'servebolt-optimizer-styling', SERVEBOLT_PATH_URL . 'assets/dist/css/admin-style.css', [], filemtime(SERVEBOLT_PATH . 'assets/dist/css/admin-style.css') );
-        if ( apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true) ) {
+        if ( $this->is_gutenberg() && apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true) ) {
             wp_enqueue_style( 'servebolt-optimizer-gutenberg-menu-styling', SERVEBOLT_PATH_URL . 'assets/dist/css/gutenberg-menu.css', [], filemtime(SERVEBOLT_PATH . 'assets/dist/css/gutenberg-menu.css') );
         }
     }
@@ -76,7 +76,7 @@ class Servebolt_Optimizer_Assets {
      * Plugin scripts (admin only).
      */
 	public function plugin_admin_scripts() {
-        if ( apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true) ) {
+        if ( $this->is_gutenberg() && apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true) ) {
             wp_enqueue_script( 'servebolt-optimizer-gutenberg-menu-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/gutenberg-menu.js', [], filemtime(SERVEBOLT_PATH . 'assets/dist/js/gutenberg-menu.js'), true );
         }
     }
@@ -99,6 +99,16 @@ class Servebolt_Optimizer_Assets {
             ] );
         }
 	}
+
+    /**
+     * Check whether current screen is Gutenberg-editor.
+     *
+     * @return bool
+     */
+    private function is_gutenberg() {
+        $current_screen = get_current_screen();
+        return $current_screen && method_exists($current_screen, 'is_block_editor') && $current_screen->is_block_editor();
+    }
 
     /**
      * Check whether we need common scripts present.
