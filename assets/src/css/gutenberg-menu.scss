@@ -3,27 +3,27 @@ svg#servebolt-svg-icon {
   height: 24px;
 }
 
-.interface-interface-skeleton__sidebar .components-panel {
+.interface-interface-skeleton__sidebar .components-panel.servebolt-optimizer-cache-bust-panel {
   text-align: center;
-}
 
-.interface-interface-skeleton__sidebar .sb-button:last-of-type {
-  margin-bottom: 1rem;
-}
+  .sb-button:last-of-type {
+    margin-bottom: 1rem;
+  }
 
-.interface-interface-skeleton__sidebar .sb-button {
-  background: #ffaf00;
-  padding: 10px 10px;
-  color: black;
-  text-decoration: none;
-  border: 0;
-  cursor: pointer;
-  outline: none;
-  border-radius: 50px;
-  margin-top: 1rem;
-  font-weight: 700;
-  width: 90%;
-  height: auto;
-  display: inline-block;
-  text-align: center;
+  .sb-button {
+    background: #ffaf00;
+    padding: 10px 10px;
+    color: black;
+    text-decoration: none;
+    border: 0;
+    cursor: pointer;
+    outline: none;
+    border-radius: 50px;
+    margin-top: 1rem;
+    font-weight: 700;
+    width: 90%;
+    height: auto;
+    display: inline-block;
+    text-align: center;
+  }
 }
