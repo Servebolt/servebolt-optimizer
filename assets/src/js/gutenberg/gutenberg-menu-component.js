@@ -54,7 +54,7 @@ const GutenbergMenuComponent = () => (
 		<PluginSidebarMoreMenuItem target="sidebar-name">
 			{ _x( 'Servebbolt Optimizer', 'text', 'sb-optimizer' ) }
 		</PluginSidebarMoreMenuItem>
-		<PluginSidebar name="sidebar-name" title="Servebolt Optimizer">
+		<PluginSidebar name="sidebar-name" className="servebolt-optimizer-cache-bust-panel" title="Servebolt Optimizer">
 
 			{ isPublic &&
 				<Button className="sb-button yellow" onClick={ () => window.sb_purge_post_cache_with_auto_resolve() }>
