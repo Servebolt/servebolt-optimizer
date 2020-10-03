@@ -1,5 +1,5 @@
 #!/bin/bash
-rm -rf .phar 2> /dev/null
+rm -rf .phan 2> /dev/null
 rm -rf README.md 2> /dev/null
 rm -rf assets/src 2> /dev/null
 rm -rf node_modules 2> /dev/null
