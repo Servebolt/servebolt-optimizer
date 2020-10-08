@@ -334,7 +334,7 @@ class Servebolt_Nginx_FPC {
 		header_remove('Expires');
 
 		// Allow browser to cache content for 10 minutes, or the set browser cache time contant
-		$this->header(sprintf('Cache-Control:max-age=%s, public', $this->browser_cache_time));
+		$this->header(sprintf('Cache-Control: max-age=%s, public, s-maxage=%s', $this->browser_cache_time, $this->fpc_cache_time));
 		$this->header('Pragma: public');
 
 		// Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
@@ -347,7 +347,7 @@ class Servebolt_Nginx_FPC {
 	 * No cache headers - Print headers that prevent caching.
 	 */
 	private function no_cache_headers() {
-		$this->header( 'Cache-Control: max-age=0,no-cache' );
+		$this->header( 'Cache-Control: max-age=0,no-cache,s-maxage=0' );
 		$this->header( 'Pragma: no-cache' );
 		$this->header( 'X-Servebolt-Plugin: active' );
 
