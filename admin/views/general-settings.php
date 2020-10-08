@@ -80,7 +80,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php sb_e('Cloudflare APO activated?'); ?></th>
+                    <th scope="row"><?php sb_e('Enable Cloudflare APO support?'); ?></th>
                     <td>
                         <fieldset>
                             <legend class="screen-reader-text"><span><?php sb_e('Whether Cloudflare APO-feature should be active for this site. Note that you need to use the Cloudflare proxy for this to work.'); ?></span></legend>
