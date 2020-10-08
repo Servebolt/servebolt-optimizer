@@ -61,6 +61,13 @@ class Servebolt_Nginx_FPC {
 	 */
 	private $allow_force_headers = false;
 
+    /**
+     * Whether to use the Cloudflare APO-feature.
+     *
+     * @var bool
+     */
+    private $cf_apo_active = false;
+
 	/**
 	 * Instantiate class.
 	 *
@@ -290,6 +297,18 @@ class Servebolt_Nginx_FPC {
 		return true;
 	}
 
+    /**
+     * Whether to use the Cloudflare APO-feature.
+     *
+     * @return bool
+     */
+	private function cf_apo_active() {
+	    if ( is_null($this->cf_apo_active) ) {
+            $this->cf_apo_active = sb_general_settings()->use_cloudflare_apo();
+        }
+	    return $this->cf_apo_active;
+    }
+
 	/**
 	 * Cache headers - Print headers that encourage caching.
 	 */
@@ -303,6 +322,11 @@ class Servebolt_Nginx_FPC {
         // Check if the constant SERVEBOLT_BROWSER_CACHE_TIME is set, and override $servebolt_browser_cache_time if it is
         if ( defined('SERVEBOLT_BROWSER_CACHE_TIME') ) {
 	        $this->browser_cache_time = SERVEBOLT_BROWSER_CACHE_TIME;
+        }
+
+        // Cloudflare APO-support
+        if ( $this->cf_apo_active() ) {
+            $this->header( 'cf-edge-cache: cache, platform=wordpress' );
         }
 
 		header_remove('Cache-Control');
@@ -326,6 +350,9 @@ class Servebolt_Nginx_FPC {
 		$this->header( 'Cache-Control: max-age=0,no-cache' );
 		$this->header( 'Pragma: no-cache' );
 		$this->header( 'X-Servebolt-Plugin: active' );
+
+		// Cloudflare APO-support
+        $this->header( 'cf-edge-cache: no-cache, platform=wordpress' );
 	}
 
 	/**

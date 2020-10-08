@@ -57,6 +57,7 @@ class SB_General_Settings {
         return [
             'use_native_js_fallback' => 'boolean',
             'asset_auto_version'     => 'boolean',
+            'use_cloudflare_apo'     => 'boolean',
         ];
     }
 
