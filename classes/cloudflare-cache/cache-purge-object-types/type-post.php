@@ -152,8 +152,8 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
             $author_url = get_author_posts_url($author);
             if ( $author_url && ! is_wp_error($author_url) ) {
                 $pages_needed = $this->get_pages_needed([
+                    'post_type' => apply_filters('sb_optimizer_cf_cache_purge_author_archive_post_type', 'post'),
                     'author'    => $author,
-                    'post_type' => 'post',
                 ], 'post');
                 $this->add_urls(sb_paginate_links_as_array($author_url, $pages_needed));
             }
@@ -212,7 +212,7 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
         $date_archive = get_day_link($year, $month, $day);
         if ( $date_archive && ! is_wp_error($date_archive) ) {
             $pages_needed = $this->get_pages_needed([
-                'post_type'  => 'post',
+                'post_type'  => apply_filters('sb_optimizer_cf_cache_purge_date_archive_post_type', 'post'),
                 'date_query' => [
                     compact('year', 'month', 'day')
                 ]
