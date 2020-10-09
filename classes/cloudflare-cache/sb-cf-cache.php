@@ -587,10 +587,10 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
      * Purging Cloudflare cache on term save.
      *
      * @param int $term_id
-     * @param int $taxonomy
+     * @param string $taxonomy
      * @return bool
      */
-	public function purge_term( int $term_id, $taxonomy ) {
+	public function purge_term( int $term_id, string $taxonomy ) {
 
         // If cron purge is enabled, build the list of ids to purge by cron. If not active, just purge right away.
         if ( $this->cron_purge_is_active() ) {
