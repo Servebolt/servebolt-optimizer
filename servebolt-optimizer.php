@@ -91,9 +91,6 @@ if ( is_admin() ) {
 // Only front-end
 if ( ! is_admin() ) {
 
-    // Response for when we query how many pages is needed in an archive.
-    sb_max_num_pages_query_callback();
-
     // Feature to automatically version all enqueued script/style-tags
     if ( sb_feature_active('sb_asset_auto_version') ) {
         require_once SERVEBOLT_PATH . 'classes/sb-asset-auto-version.class.php';

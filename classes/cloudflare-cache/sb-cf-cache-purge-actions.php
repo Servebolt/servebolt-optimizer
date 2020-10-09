@@ -56,8 +56,8 @@ class SB_CF_Cache_Purge_Actions {
 	 * @param $taxonomy
 	 */
 	public function purge_term_on_save($term_id, $tt_id, $taxonomy) {
-        $this->maybe_purge_term_slug_if_slug_changed($term_id);
-        $this->maybe_purge_term($term_id);
+        $this->maybe_purge_term_slug_if_slug_changed($term_id, $taxonomy);
+        $this->maybe_purge_term($term_id, $taxonomy);
 	}
 
     /**
@@ -69,32 +69,34 @@ class SB_CF_Cache_Purge_Actions {
     }
 
     /**
+     * Check whether we should purge cache for given term.
+     *
      * @param $term_id
+     * @param $taxonomy
      */
-    private function maybe_purge_term($term_id) {
-        if ( ! $this->should_purge_term_cache($term_id) ) return;
-        sb_cf_cache()->purge_term($term_id);
+    private function maybe_purge_term($term_id, $taxonomy) {
+        if ( ! $this->should_purge_term_cache($term_id, $taxonomy) ) return;
+        sb_cf_cache()->purge_term($term_id, $taxonomy);
 	}
 
     /**
      * Check if we should clear cache for post that is being updated.
      *
      * @param $term_id
+     * @param $taxonomy
      *
      * @return bool|void
      */
-    private function should_purge_term_cache($term_id) {
+    private function should_purge_term_cache($term_id, $taxonomy) {
 
         // Let users override the outcome
-        $override = apply_filters('sb_optimizer_should_purge_term_cache', null, $term_id);
+        $override = apply_filters('sb_optimizer_should_purge_term_cache', null, $term_id, $taxonomy);
         if ( is_bool($override) ) return $override;
 
         // Check that the taxonomy is public
-        if ( $term = get_term_by('term_taxonomy_id', $term_id) ) {
-            $taxonomy = get_taxonomy($term->taxonomy);
-            if ( $taxonomy && ( $taxonomy->public !== true || $taxonomy->publicly_queryable !== true ) ) {
-                return false;
-            }
+        $taxonomy_object = get_taxonomy($taxonomy);
+        if ( $taxonomy_object && ( $taxonomy_object->public !== true || $taxonomy_object->publicly_queryable !== true ) ) {
+            return false;
         }
 
         return true;

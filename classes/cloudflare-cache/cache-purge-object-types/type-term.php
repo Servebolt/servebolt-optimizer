@@ -18,9 +18,10 @@ class SB_CF_Cache_Purge_Term_Object extends SB_CF_Cache_Purge_Object_Shared {
     /**
      * SB_CF_Cache_Purge_Term_Object constructor.
      * @param $term_id
+     * @param $args
      */
-    public function __construct($term_id) {
-        parent::__construct($term_id);
+    public function __construct($term_id, $args) {
+        parent::__construct($term_id, $args);
     }
 
     /**
@@ -85,7 +86,16 @@ class SB_CF_Cache_Purge_Term_Object extends SB_CF_Cache_Purge_Object_Shared {
     private function add_term_url() {
         $term_url = $this->get_base_url();
         if ( $term_url && ! is_wp_error($term_url) ) {
-            $this->add_urls(sb_paginate_links_as_array($term_url, $this->get_pages_needed($term_url)));
+            $pages_needed = $this->get_pages_needed([
+                'tax_query' => [
+                    [
+                        'taxonomy' => $this->get_argument('taxonomy_slug'),
+                        'field'    => 'term_id',
+                        'terms'    => $this->get_id(),
+                    ]
+                ],
+            ], 'term');
+            $this->add_urls(sb_paginate_links_as_array($term_url, $pages_needed));
             return true;
         }
         return false;

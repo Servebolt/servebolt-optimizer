@@ -23,6 +23,13 @@ abstract class SB_CF_Cache_Purge_Object_Shared {
     private $urls = [];
 
     /**
+     * Array of additional arguments for the object to be purged.
+     *
+     * @var array
+     */
+    private $args = [];
+
+    /**
      * Whether we could resolve the purge object from the ID (post/term lookup).
      *
      * @var null
@@ -33,9 +40,11 @@ abstract class SB_CF_Cache_Purge_Object_Shared {
      * SB_CF_Cache_Purge_Object_Shared constructor.
      *
      * @param $id
+     * @param $args
      */
-    protected function __construct($id) {
+    protected function __construct($id, $args) {
         $this->set_id($id);
+        $this->set_arguments($args);
         if ( $this->init_object() ) { // Check if we could find the object first
             if ( apply_filters('sb_optimizer_should_generate_other_urls', true) ) { // Check if we should generate all other related URLs for object
                 $this->generate_other_urls();
@@ -75,6 +84,28 @@ abstract class SB_CF_Cache_Purge_Object_Shared {
      */
     protected function set_id($id) {
         $this->id = $id;
+    }
+
+    /**
+     * Set the arguments of the object to be pured.
+     *
+     * @param $args
+     */
+    protected function set_arguments($args) {
+        $this->args = $args;
+    }
+
+    /**
+     * Get and argument for the object to be purged.
+     *
+     * @param $key
+     * @return bool
+     */
+    protected function get_argument($key) {
+        if ( array_key_exists($key, $this->args) ) {
+            return $this->args[$key];
+        }
+        return false;
     }
 
     /**
@@ -150,34 +181,23 @@ abstract class SB_CF_Cache_Purge_Object_Shared {
     }
 
     /**
-     * Query and find out how many pages needed for a given archive URL.
+     * Find out how many pages needed for an archive.
      *
-     * @param $url
-     * @return bool
+     * @param $query_args
+     * @param $type
+     * @return mixed
      */
-    protected function get_pages_needed($url) {
-
-        // Give the option to skip this, and return fixed override value instead
-        if ( apply_filters('sb_optimizer_skip_pages_needed_request', false) === true ) {
-            return apply_filters('sb_optimizer_pages_needed_override', 250); // Fixed override value
-        }
-
-        // TODO: This can be quite heavy for some sites, maybe consider to cache this in some way?
-        $url .= '?' . http_build_query([
-            'sb_optimizer_record_max_num_pages' => sb_max_num_pages_query_nonce(),
-            'cachebust'                         => microtime(true),
+    protected function get_pages_needed($query_args, $type) {
+        $query_args = wp_parse_args($query_args, [
+            'post_type'   => 'any',
+            'post_status' => 'publish',
         ]);
-        $response = wp_remote_get($url, [
-            'httpversion' => '1.1',
-            'blocking'    => true,
-            'timeout'     => 10,
-            'sslverify'   => false,
-        ]);
-        $json = json_decode(wp_remote_retrieve_body($response)) ?: [];
-        if ( isset($json->max_num_pages) ) {
-            return $json->max_num_pages;
+        $query_args = (array) apply_filters('sb_optimizer_cf_cache_purge_pages_needed_post_query_arguments', $query_args, $type, $this->get_id());
+        $query = new WP_Query($query_args);
+        if ( ! $query->have_posts() ) {
+            return apply_filters('sb_optimizer_cf_cache_purge_pages_needed_no_posts', 0, $type, $this->get_id());
         }
-        return false;
+        return apply_filters('sb_optimizer_cf_cache_purge_pages_needed', $query->max_num_pages, $type, $this->get_id());
     }
 
 }
