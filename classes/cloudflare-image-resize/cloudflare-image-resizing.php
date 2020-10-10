@@ -217,9 +217,9 @@ class Cloudflare_Image_Resize {
 	private function implode_parameters($cf_params) {
 		$cf_param_array = [];
 		foreach ( $cf_params as $key => $value ) {
-			$cf_param_array[] = $key . '=' . $value;
+            $cf_param_array[] = $key . '=' . $value;
 		}
-		return implode(',', $cf_params);
+		return implode(',', $cf_param_array);
 	}
 
 	/**
