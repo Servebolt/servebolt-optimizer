@@ -66,7 +66,7 @@ class Servebolt_Nginx_FPC {
      *
      * @var bool
      */
-    private $cf_apo_active = false;
+    private $cf_apo_active = null;
 
 	/**
 	 * Instantiate class.
