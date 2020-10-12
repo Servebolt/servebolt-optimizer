@@ -281,7 +281,7 @@ class Servebolt_Nginx_FPC {
 	 */
 	private function should_cache_archive( $posts ) {
 		foreach ( $posts as $post ) {
-			if ( ! array_key_exists( $post->post_type, $this->get_post_types_to_cache() ) ) {
+            if ( ! in_array( $post->post_type, $this->get_post_types_to_cache() ) ) {
 				return false;
 			} elseif ( ! in_array( $post->post_type, (array) $this->post_types ) ) {
 				$this->post_types[] = $post->post_type;
