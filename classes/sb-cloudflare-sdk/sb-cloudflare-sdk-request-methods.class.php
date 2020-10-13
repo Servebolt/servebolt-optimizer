@@ -81,7 +81,6 @@ abstract class SB_CF_SDK_Request_Methods {
 			$data = json_encode($data);
 		}
 
-
 		// Add request data only if present
 		if ( ! empty($data) ) {
 			$base_args['body'] = $data;

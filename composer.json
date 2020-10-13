@@ -1,9 +1,23 @@
 {
   "name": "servebolt/servebolt-wp-optimize-plugin",
   "type": "wordpress-plugin",
-  "license": "GPL-2.0-or-later",
-  "description": "",
+  "license": "GPLv3 or later",
+  "description": "A plugin that implements Servebolt Security & Performance best practises for WordPress.",
   "minimum-stability": "dev",
+  "authors": [
+    {
+      "name": "Robert Sæther",
+      "email": "robert@servebolt.com"
+    },
+    {
+      "name": "Erlend Eide",
+      "email": "erlend@servebolt.com"
+    },
+    {
+      "name": "Thomas Audunhus",
+      "email": "thomas@servebolt.com"
+    }
+  ],
   "require": {
     "composer/installers": "~1.2"
   },

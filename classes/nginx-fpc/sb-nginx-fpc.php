@@ -61,6 +61,13 @@ class Servebolt_Nginx_FPC {
 	 */
 	private $allow_force_headers = false;
 
+    /**
+     * Whether to use the Cloudflare APO-feature.
+     *
+     * @var bool
+     */
+    private $cf_apo_active = null;
+
 	/**
 	 * Instantiate class.
 	 *
@@ -290,6 +297,18 @@ class Servebolt_Nginx_FPC {
 		return true;
 	}
 
+    /**
+     * Whether to use the Cloudflare APO-feature.
+     *
+     * @return bool
+     */
+	private function cf_apo_active() {
+	    if ( is_null($this->cf_apo_active) ) {
+            $this->cf_apo_active = sb_general_settings()->use_cloudflare_apo();
+        }
+	    return $this->cf_apo_active;
+    }
+
 	/**
 	 * Cache headers - Print headers that encourage caching.
 	 */
@@ -305,12 +324,17 @@ class Servebolt_Nginx_FPC {
 	        $this->browser_cache_time = SERVEBOLT_BROWSER_CACHE_TIME;
         }
 
+        // Cloudflare APO-support
+        if ( $this->cf_apo_active() ) {
+            $this->header( 'cf-edge-cache: cache, platform=wordpress' );
+        }
+
 		header_remove('Cache-Control');
 		header_remove('Pragma');
 		header_remove('Expires');
 
 		// Allow browser to cache content for 10 minutes, or the set browser cache time contant
-		$this->header(sprintf('Cache-Control:max-age=%s, public', $this->browser_cache_time));
+		$this->header(sprintf('Cache-Control: max-age=%s, public, s-maxage=%s', $this->browser_cache_time, $this->fpc_cache_time));
 		$this->header('Pragma: public');
 
 		// Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
@@ -323,9 +347,12 @@ class Servebolt_Nginx_FPC {
 	 * No cache headers - Print headers that prevent caching.
 	 */
 	private function no_cache_headers() {
-		$this->header( 'Cache-Control: max-age=0,no-cache' );
+		$this->header( 'Cache-Control: max-age=0,no-cache,s-maxage=0' );
 		$this->header( 'Pragma: no-cache' );
 		$this->header( 'X-Servebolt-Plugin: active' );
+
+		// Cloudflare APO-support
+        $this->header( 'cf-edge-cache: no-cache, platform=wordpress' );
 	}
 
 	/**
