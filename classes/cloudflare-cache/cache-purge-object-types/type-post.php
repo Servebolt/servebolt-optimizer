@@ -73,14 +73,14 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
         // The URL to the front page
         $this->add_front_page();
 
+        // The URLs for categories, tags, post formats + any custom taxonomies for post type
+        $this->add_taxonomy_archives();
+
         // The URL to the post type archive for the post type of the post
         $this->add_post_type_archive();
 
         // The URL to the author archive
         $this->add_author_archive();
-
-        // The URLs for categories, tags, post formats + any custom taxonomies for post type
-        $this->add_taxonomy_archives();
 
         // Only for post type "post"
         if ( $this->post_type_is('post') ) {
