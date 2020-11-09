@@ -320,11 +320,12 @@ if ( ! function_exists('sb_cf_cache_purge_object') ) {
      *
      * @param bool $id
      * @param string $type
+     * @param array $args
      * @return SB_CF_Cache_Purge_Object
      */
-    function sb_cf_cache_purge_object($id = false, $type = 'post') {
+    function sb_cf_cache_purge_object($id = false, $type = 'post', $args = []) {
         require_once __DIR__ . '/classes/cloudflare-cache/sb-cf-cache-purge-object.php';
-        return new SB_CF_Cache_Purge_Object($id, $type);
+        return new SB_CF_Cache_Purge_Object($id, $type, $args);
     }
 }
 
@@ -1225,65 +1226,4 @@ if ( ! function_exists('sb_array_get') ) {
   function sb_array_get($key, $array, $default_value = false) {
     return array_key_exists($key, $array) ? $array[$key] : $default_value;
   }
-}
-
-if ( ! function_exists('sb_max_num_pages_query_nonce') ) {
-    /**
-     * Get a unique permanent string to authenticate max_num_pages-requests with.
-     * @return mixed|string|void
-     */
-    function sb_max_num_pages_query_nonce() {
-        return sb_generate_random_permanent_key('record_max_num_pages_nonce');
-    }
-}
-
-if ( ! function_exists('sb_max_num_pages_query_callback') ) {
-    /**
-     * Listen for max_num_pages-request and return JSON-data.
-     */
-    function sb_max_num_pages_query_callback() {
-
-        // Abort if we're not using the max_num_pages-feature
-        if ( apply_filters('sb_optimizer_skip_pages_needed_request', false) === true ) return;
-
-        // Init debug
-        if ( defined('WP_DEBUG') && WP_DEBUG ) sb_max_num_pages_debug();
-
-        // Abort if this is not a max_num_pages-request
-        if ( ! array_key_exists('sb_optimizer_record_max_num_pages', $_GET) ) return;
-
-        // Ignore unauthorized request
-        if ( sb_max_num_pages_query_nonce() !== $_GET['sb_optimizer_record_max_num_pages'] ) return;
-
-        // Hook into right before the output comes, then record the number of pages needed and display it as a JSON-response
-        add_filter(apply_filters('sb_optimizer_record_max_num_pages_filter_hook', 'template_redirect'), function () {
-            global $wp_the_query;
-            if ($wp_the_query->is_main_query()) {
-                echo json_encode(['max_num_pages' => $wp_the_query->max_num_pages]);
-                exit;
-            }
-        });
-
-    }
-}
-
-if ( ! function_exists('sb_max_num_pages_debug') ) {
-    /**
-     * Debug tool for max_num_pages-request feature.
-     */
-    function sb_max_num_pages_debug() {
-        if ( ! array_key_exists('sb_optimizer_record_max_num_pages', $_GET) && array_key_exists('sb_optimizer_record_max_num_pages_debug', $_GET) ) {
-            add_filter('template_redirect', function () {
-                $sb_cf_cache_purge_object = sb_cf_cache_purge_object($_GET['id'], $_GET['type'] ?: 'post');
-                if ($sb_cf_cache_purge_object->success()) {
-                    echo '<pre>';
-                    print_r($sb_cf_cache_purge_object->get_urls());
-                    echo '</pre>';
-                } else {
-                    echo 'Could not resolve object.';
-                }
-                exit;
-            });
-        }
-    }
 }
