@@ -79,6 +79,18 @@
                         </fieldset>
                     </td>
                 </tr>
+                <tr>
+                    <th scope="row"><?php sb_e('Enable Cloudflare APO support?'); ?></th>
+                    <td>
+                        <fieldset>
+                            <legend class="screen-reader-text"><span><?php sb_e('Whether Cloudflare APO-feature should be active for this site. Note that you need to use the Cloudflare proxy for this to work.'); ?></span></legend>
+                            <label for="use_cloudflare_apo">
+                                <input name="<?php echo sb_get_option_name('use_cloudflare_apo'); ?>" type="checkbox" id="use_cloudflare_apo" value="1"<?php echo sb_general_settings()->use_cloudflare_apo() ? ' checked' : ''; ?>>
+                                <?php sb_e('Check this if you want the Cloudflare APO-feature to be active for this site. Note that you need to use the Cloudflare proxy for this to work.'); ?>
+                            </label>
+                        </fieldset>
+                    </td>
+                </tr>
 
             </table>
             <?php submit_button(); ?>

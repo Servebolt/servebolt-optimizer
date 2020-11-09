@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.5.1
 Requires PHP: 7
-Stable tag: 2.1.3
+Stable tag: 2.1.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,6 +54,15 @@ This plugin can be controlled via WP Admin, WP CLI, various filters and PHP cons
 The plugin has various filters and PHP constants that allows third-party developers to alter the behaviour of the plugin. Please read the article [Filters and PHP constants](https://servebo.lt/servebolt-optimizer-filters-and-php-constants) in our help center to learn more.
 
 == Changelog ==
+= 2.1.4 =
+* Added basic Cloudflare APO-support
+* Changed order of URLs when purging cache for a post in Cloudflare
+* Fixed bug in Full Page Cache-logic for archives
+* Fixed bug in Cloudflare Image Resize
+
+= 2.1.3 =
+* Fixed styling issue in Gutenberg-editor sidebar menu
+
 = 2.1.2 =
 * Fixed styling issue in Gutenberg-editor sidebar menu
 
