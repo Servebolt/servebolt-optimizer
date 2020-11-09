@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, robsat91, servebolt
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, full page cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 5.5.1
+Tested up to: 5.5.3
 Requires PHP: 7
-Stable tag: 2.1.4
+Stable tag: 2.1.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,6 +54,9 @@ This plugin can be controlled via WP Admin, WP CLI, various filters and PHP cons
 The plugin has various filters and PHP constants that allows third-party developers to alter the behaviour of the plugin. Please read the article [Filters and PHP constants](https://servebo.lt/servebolt-optimizer-filters-and-php-constants) in our help center to learn more.
 
 == Changelog ==
+= 2.1.5 =
+* Hotfix in Cloudflare cache purge feature
+
 = 2.1.4 =
 * Added basic Cloudflare APO-support
 * Changed order of URLs when purging cache for a post in Cloudflare
