@@ -58,7 +58,7 @@ class SB_CF_Cache_Purge_Permalink_Change {
         if ( $term_slug_did_change ) {
             $previous_term_permalink = get_term_link($term);
             if ( $previous_term_permalink ) {
-                sb_cf_cache()->purge_by_url($previous_term_permalink);
+                sb_cf_cache()->purge_by_url($previous_term_permalink, false);
             }
         }
         return $update_data;
@@ -94,7 +94,7 @@ class SB_CF_Cache_Purge_Permalink_Change {
      */
     public function check_previous_post_permalink($post_id) {
         if ( $this->post_permalink_did_change($post_id) ) {
-            sb_cf_cache()->purge_by_url($this->previous_post_permalink);
+            sb_cf_cache()->purge_by_url($this->previous_post_permalink, false);
         }
     }
 
