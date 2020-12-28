@@ -626,21 +626,22 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	/**
 	 * Purge Cloudflare by URL. Also checks for an archive to purge.
 	 *
-	 * @param string $url The URL to be purged.
-	 *
-	 * @return bool|void
-	 */
-	public function purge_by_url( string $url ) {
-		$post_id = url_to_postid( $url );
-		if ( $post_id ) {
-			return $this->purge_post($post_id);
-		} else {
-			if ( $this->cron_purge_is_active() ) {
-				return $this->add_item_to_purge_queue($url, 'url');
-			} else {
-				return $this->cf()->purge_urls([$url]);
-			}
-		}
+     * @param string $url The URL to be purged.
+     * @param bool $do_lookup
+     * @return bool|void|WP_Error
+     */
+	public function purge_by_url( string $url, bool $do_lookup = true ) {
+	    if ( $do_lookup ) {
+            $post_id = url_to_postid( $url );
+            if ( $post_id ) {
+                return $this->purge_post($post_id);
+            }
+        }
+        if ( $this->cron_purge_is_active() ) {
+            return $this->add_item_to_purge_queue($url, 'url');
+        } else {
+            return $this->cf()->purge_urls([$url]);
+        }
 	}
 
 	/**

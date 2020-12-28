@@ -73,6 +73,7 @@ require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache-cron-handle.
 
 // Register cache purge event for various hooks
 require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache-purge-actions.php';
+require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache-purge-permalink-change.php';
 
 // Load this admin bar interface
 require_once SERVEBOLT_PATH . 'admin/admin-bar-interface.php';
