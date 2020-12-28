@@ -59,6 +59,7 @@ class SB_CF_Cache_Purge_Permalink_Change {
             $previous_term_permalink = get_term_link($term);
             if ( $previous_term_permalink ) {
                 sb_cf_cache()->purge_by_url($previous_term_permalink, false);
+                // TODO: Consider whether we should add pagination-support to this cache purge
             }
         }
         return $update_data;
