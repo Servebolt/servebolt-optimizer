@@ -12,7 +12,7 @@ class SB_CF_Cache_Purge_Permalink_Change {
      *
      * @var null
      */
-    private $previous_permalink = null;
+    private $previous_post_permalink = null;
 
     /**
      * SB_CF_Cache_Purge_Permalink_Change constructor.
@@ -70,7 +70,7 @@ class SB_CF_Cache_Purge_Permalink_Change {
      * @param $post_id
      */
     public function record_post_permalink($post_id) {
-        $this->previous_permalink = get_permalink($post_id);
+        $this->previous_post_permalink = get_permalink($post_id);
     }
 
     /**
@@ -81,7 +81,7 @@ class SB_CF_Cache_Purge_Permalink_Change {
      */
     public function post_permalink_did_change($post_id)
     {
-        if ( ! is_null($this->previous_permalink) && get_permalink($post_id) !== $this->previous_permalink ) {
+        if ( ! is_null($this->previous_post_permalink) && get_permalink($post_id) !== $this->previous_post_permalink ) {
             return true;
         }
         return false;
@@ -94,7 +94,7 @@ class SB_CF_Cache_Purge_Permalink_Change {
      */
     public function check_previous_post_permalink($post_id) {
         if ( $this->post_permalink_did_change($post_id) ) {
-            sb_cf_cache()->purge_by_url($this->previous_permalink);
+            sb_cf_cache()->purge_by_url($this->previous_post_permalink);
         }
     }
 
