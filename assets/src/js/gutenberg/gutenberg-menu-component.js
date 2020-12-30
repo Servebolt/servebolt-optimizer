@@ -52,7 +52,7 @@ const GutenbergMenuComponent = () => (
 	// In this case, the parent element is a Fragment.
 	<Fragment>
 		<PluginSidebarMoreMenuItem target="sidebar-name">
-			{ _x( 'Servebbolt Optimizer', 'text', 'sb-optimizer' ) }
+			{ _x( 'Servebolt Optimizer', 'text', 'sb-optimizer' ) }
 		</PluginSidebarMoreMenuItem>
 		<PluginSidebar name="sidebar-name" className="servebolt-optimizer-cache-bust-panel" title="Servebolt Optimizer">
 

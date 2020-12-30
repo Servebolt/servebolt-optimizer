@@ -39,7 +39,7 @@
   ],
   "scripts": {
     "test": [
-      "./vendor/bin/phan"
+      "./vendor/bin/phan --allow-polyfill-parser"
     ],
     "post-install-cmd": [
       "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true"

@@ -549,10 +549,11 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 
     /**
      * @param int $term_id
+     * @param string $taxonomy_slug
      * @return bool|mixed
      */
-	private function get_purge_urls_by_term_id( int $term_id ) {
-        return sb_cf_cache_purge_object($term_id, 'term')->get_urls();
+	private function get_purge_urls_by_term_id( int $term_id, string $taxonomy_slug ) {
+        return sb_cf_cache_purge_object($term_id, 'term', ['taxonomy_slug' => $taxonomy_slug])->get_urls();
     }
 
 	/**
@@ -586,14 +587,15 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
      * Purging Cloudflare cache on term save.
      *
      * @param int $term_id
+     * @param string $taxonomy
      * @return bool
      */
-	public function purge_term( int $term_id ) {
+	public function purge_term( int $term_id, string $taxonomy ) {
 
         // If cron purge is enabled, build the list of ids to purge by cron. If not active, just purge right away.
         if ( $this->cron_purge_is_active() ) {
             return $this->add_term_item_to_purge_queue($term_id);
-        } else if ( $urls_to_purge = $this->get_purge_urls_by_term_id($term_id) ) {
+        } else if ( $urls_to_purge = $this->get_purge_urls_by_term_id($term_id, $taxonomy) ) {
             return $this->cf()->purge_urls($urls_to_purge);
         }
 
@@ -624,21 +626,22 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	/**
 	 * Purge Cloudflare by URL. Also checks for an archive to purge.
 	 *
-	 * @param string $url The URL to be purged.
-	 *
-	 * @return bool|void
-	 */
-	public function purge_by_url( string $url ) {
-		$post_id = url_to_postid( $url );
-		if ( $post_id ) {
-			return $this->purge_post($post_id);
-		} else {
-			if ( $this->cron_purge_is_active() ) {
-				return $this->add_item_to_purge_queue($url, 'url');
-			} else {
-				return $this->cf()->purge_urls([$url]);
-			}
-		}
+     * @param string $url The URL to be purged.
+     * @param bool $do_lookup
+     * @return bool|void|WP_Error
+     */
+	public function purge_by_url( string $url, bool $do_lookup = true ) {
+	    if ( $do_lookup ) {
+            $post_id = url_to_postid( $url );
+            if ( $post_id ) {
+                return $this->purge_post($post_id);
+            }
+        }
+        if ( $this->cron_purge_is_active() ) {
+            return $this->add_item_to_purge_queue($url, 'url');
+        } else {
+            return $this->cf()->purge_urls([$url]);
+        }
 	}
 
 	/**
