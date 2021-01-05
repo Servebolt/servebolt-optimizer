@@ -595,6 +595,24 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 		}
 	}
 
+    /**
+     * Clear Cloudflare cache queue.
+     *
+     * ## EXAMPLES
+     *
+     *     wp servebolt cf purge queue
+     *
+     */
+    public function command_cf_purge_queue() {
+        if ( ! sb_cf_cache()->cron_purge_is_active() ) {
+            WP_CLI::error(sb__('Queue-based cached purge is not active.'));
+            return;
+        }
+        WP_CLI::line(sb__('Purging cache for items in the cache queue.'));
+        sb_cf_cache()->purge_by_cron();
+        WP_CLI::success(sb__('Cache queue purged!'));
+    }
+
 	/**
 	 * Clear Cloudflare cache by URL.
 	 *

@@ -235,6 +235,7 @@ class Servebolt_CF_Cache_Purge_Queue_Handling {
         if ( $type !== 'all' && empty($item) ) return false;
         $items_to_purge_with_cron = $this->get_items_to_purge_unformatted();
         if ( $this->purge_item_already_in_queue($item, $type, $items_to_purge_with_cron) ) {
+            // TODO: Maybe just update the timestamp on the item instead?
             return new WP_Error($type . '_purge_item_already_in_queue');
         }
         $items_to_purge_with_cron[] = $this->purge_queue_item_template($item, $type);

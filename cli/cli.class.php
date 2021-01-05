@@ -55,12 +55,12 @@ class Servebolt_CLI {
      * Initialize the classes that executes the different CLI commands.
      */
 	private function initialize_cli_classes() {
-        $this->general         = new Servebolt_CLI_General;
-        $this->optimizations   = new Servebolt_CLI_Optimizations;
-        $this->fpc             = new Servebolt_CLI_FPC;
-        $this->cf_cache        = new Servebolt_CLI_Cloudflare_Cache;
+        $this->general          = new Servebolt_CLI_General;
+        $this->optimizations    = new Servebolt_CLI_Optimizations;
+        $this->fpc              = new Servebolt_CLI_FPC;
+        $this->cf_cache         = new Servebolt_CLI_Cloudflare_Cache;
         $this->general_settings = new Servebolt_CLI_General_Settings;
-        $this->cf_image_resize = new Servebolt_CLI_Cloudflare_Image_Resize;
+        $this->cf_image_resize  = new Servebolt_CLI_Cloudflare_Image_Resize;
     }
 
 	/**
@@ -114,6 +114,7 @@ class Servebolt_CLI {
 		WP_CLI::add_command( 'servebolt cf purge type',              [$this->cf_cache, 'command_cf_set_purge_type'] );
 		WP_CLI::add_command( 'servebolt cf purge status',            [$this->cf_cache, 'command_cf_purge_status'] );
 
+		WP_CLI::add_command( 'servebolt cf purge queue',             [$this->cf_cache, 'command_cf_purge_queue'] );
 		WP_CLI::add_command( 'servebolt cf purge clear-queue',       [$this->cf_cache, 'command_cf_clear_cache_purge_queue'] );
 		WP_CLI::add_command( 'servebolt cf purge url',               [$this->cf_cache, 'command_cf_purge_url'] );
 		WP_CLI::add_command( 'servebolt cf purge post',              [$this->cf_cache, 'command_cf_purge_post'] );
