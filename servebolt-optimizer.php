@@ -89,7 +89,7 @@ if ( is_admin() ) {
 }
 
 // Only front-end
-if ( ! is_admin() ) {
+if ( ! is_admin() && ! sb_is_cli() ) {
 
     // Feature to automatically version all enqueued script/style-tags
     if ( sb_feature_active('sb_asset_auto_version') ) {

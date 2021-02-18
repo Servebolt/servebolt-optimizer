@@ -23,7 +23,8 @@ class Servebolt_CLI_General_Settings_Extra extends Servebolt_CLI_Extras {
      * @return bool|mixed|void
      */
     protected function get_setting($setting_key, $blog_id = false) {
-        $value = sb_display_value(sb_general_settings()->get_settings_item($setting_key, $blog_id), true);
+        $raw_value = sb_general_settings()->get_settings_item($setting_key, $blog_id);
+        $value = sb_display_value($raw_value, true);
         $array = [];
         if ( $blog_id ) {
             $array['URL'] = get_site_url($blog_id);
@@ -41,7 +42,7 @@ class Servebolt_CLI_General_Settings_Extra extends Servebolt_CLI_Extras {
      * @return bool|mixed|void
      */
     protected function set_setting($setting_key, $value, $blog_id = false) {
-        $result = sb_display_value(sb_general_settings()->set_settings_item($setting_key, $value, $blog_id), true);
+        $result = sb_general_settings()->set_settings_item($setting_key, $value, $blog_id);
         if ( ! $result ) {
             if ( $blog_id ) {
                 WP_CLI::error(sprintf(sb__('Could not set setting "%s" to value "%s" on site %s'), $setting_key, $value, get_site_url($blog_id)), false);

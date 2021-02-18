@@ -192,10 +192,11 @@ class SB_General_Settings {
                 break;
         }
         if ( is_numeric($blog_id) ) {
-            return sb_update_blog_option($blog_id, $item, $value, true);
+            sb_update_blog_option($blog_id, $item, $value);
         } else {
-            return sb_update_option($item, $value, true);
+            sb_update_option($item, $value);
         }
+        return true;
     }
 
     /**
