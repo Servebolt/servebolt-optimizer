@@ -5,6 +5,7 @@ require_once __DIR__ . '/cli-extras.class.php';
 require_once __DIR__ . '/classes/general.class.php';
 require_once __DIR__ . '/classes/optimizations.class.php';
 require_once __DIR__ . '/classes/fpc.class.php';
+require_once __DIR__ . '/classes/cron-control.class.php';
 require_once __DIR__ . '/classes/cloudflare-cache.class.php';
 require_once __DIR__ . '/classes/general-settings.class.php';
 require_once __DIR__ . '/classes/cloudflare-image-resize.class.php';
@@ -56,6 +57,7 @@ class Servebolt_CLI {
      */
 	private function initialize_cli_classes() {
         $this->general          = new Servebolt_CLI_General;
+        $this->cron_control     = new Servebolt_CLI_Cron_Control;
         $this->optimizations    = new Servebolt_CLI_Optimizations;
         $this->fpc              = new Servebolt_CLI_FPC;
         $this->cf_cache         = new Servebolt_CLI_Cloudflare_Cache;
@@ -119,6 +121,10 @@ class Servebolt_CLI {
 		WP_CLI::add_command( 'servebolt cf purge url',               [$this->cf_cache, 'command_cf_purge_url'] );
 		WP_CLI::add_command( 'servebolt cf purge post',              [$this->cf_cache, 'command_cf_purge_post'] );
 		WP_CLI::add_command( 'servebolt cf purge all',               [$this->cf_cache, 'command_cf_purge_all'] );
+
+        WP_CLI::add_command( 'servebolt cron status',                [$this->cron_control, 'command_cron_control_status'] );
+        WP_CLI::add_command( 'servebolt cron activate',              [$this->cron_control, 'command_cron_control_activate'] );
+        WP_CLI::add_command( 'servebolt cron deactivate',            [$this->cron_control, 'command_cron_control_deactivate'] );
 
         // General settings
         WP_CLI::add_command( 'servebolt general-settings list',      [$this->general_settings, 'command_general_settings_list'] );
