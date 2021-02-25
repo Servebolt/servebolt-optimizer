@@ -107,11 +107,11 @@
             </td>
           </tr>
           <tr class="feature_cf_auth_type-api_token"<?php if ( $cf_settings['cf_auth_type'] != 'api_token' ) echo ' style="display: none;"' ?>>
-            <th scope="row"><label for="api_token"><?php sb_e('API token'); ?></label></th>
+            <th scope="row"><label for="sb_api_token"><?php sb_e('API token'); ?></label></th>
             <td>
 
               <div class="sb-pwd">
-                <input name="<?php echo sb_get_option_name('cf_api_token'); ?>" type="password" id="api_token" data-original-value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" class="regular-text validate-field validation-group-api_token validation-group-api_credentials">
+                <input name="<?php echo sb_get_option_name('cf_api_token'); ?>" type="password" id="sb_api_token" autocomplete="off" data-original-value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_token']); ?>" class="regular-text validate-field validation-group-api_token validation-group-api_credentials">
                 <button type="button" class="button button-secondary wp-hide-pw sb-hide-pwd hide-if-no-js" data-toggle="0" aria-label="Show password">
                   <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
                 </button>
@@ -122,17 +122,17 @@
             </td>
           </tr>
           <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
-            <th scope="row"><label for="email"><?php sb_e('Cloudflare e-mail'); ?></label></th>
+            <th scope="row"><label for="sb_email"><?php sb_e('Cloudflare e-mail'); ?></label></th>
             <td>
-              <input name="<?php echo sb_get_option_name('cf_email'); ?>" type="text" id="email" data-original-value="<?php echo esc_attr($cf_settings['cf_email']); ?>" value="<?php echo esc_attr($cf_settings['cf_email']); ?>" class="regular-text validate-field validation-input-email validation-group-api_key_credentials validation-group-api_credentials">
+              <input name="<?php echo sb_get_option_name('cf_email'); ?>" type="text" id="sb_email" autocomplete="off" data-original-value="<?php echo esc_attr($cf_settings['cf_email']); ?>" value="<?php echo esc_attr($cf_settings['cf_email']); ?>" class="regular-text validate-field validation-input-email validation-group-api_key_credentials validation-group-api_credentials">
               <p class="invalid-message"></p>
             </td>
           </tr>
           <tr class="feature_cf_auth_type-api_key"<?php if ( $cf_settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
-            <th scope="row"><label for="api_key"><?php sb_e('API key'); ?></label></th>
+            <th scope="row"><label for="sb_api_key"><?php sb_e('API key'); ?></label></th>
             <td>
               <div class="sb-pwd">
-                <input name="<?php echo sb_get_option_name('cf_api_key'); ?>" type="password" id="api_key" data-original-value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" class="regular-text validate-field validation-input-api_key validation-group-api_key_credentials validation-group-api_credentials">
+                <input name="<?php echo sb_get_option_name('cf_api_key'); ?>" type="password" id="sb_api_key" autocomplete="off" data-original-value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" value="<?php echo esc_attr($cf_settings['cf_api_key']); ?>" class="regular-text validate-field validation-input-api_key validation-group-api_key_credentials validation-group-api_credentials">
                 <button type="button" class="button button-secondary wp-hide-pw sb-hide-pwd hide-if-no-js" data-toggle="0" aria-label="Show password">
                   <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
                 </button>

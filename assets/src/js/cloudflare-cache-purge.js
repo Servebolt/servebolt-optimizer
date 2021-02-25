@@ -120,12 +120,12 @@ jQuery(document).ready(function($) {
     var auth_type = $('#sb-configuration input[name="servebolt_cf_auth_type"]:checked').val();
     switch (auth_type) {
       case 'api_token':
-        var api_token = $('#sb-configuration #api_token').val();
+        var api_token = $('#sb-configuration #sb_api_token').val();
         return api_token != '';
         break;
       case 'api_key':
-        var email = $('#sb-configuration #email').val(),
-          api_key = $('#sb-configuration #api_key').val();
+        var email = $('#sb-configuration #sb_email').val(),
+          api_key = $('#sb-configuration #sb_api_key').val();
         return email != '' && api_key != '';
         break;
     }
@@ -261,7 +261,7 @@ jQuery(document).ready(function($) {
     var auth_type = $('#sb-configuration input[name="servebolt_cf_auth_type"]:checked').val();
     switch (auth_type) {
       case 'api_token':
-        var api_token = $('#sb-configuration #api_token').val();
+        var api_token = $('#sb-configuration #sb_api_token').val();
         if ( api_token ) {
           api_credentials_zone_lookup_type_wait_timeout = setTimeout(function () {
             fetch_and_display_available_zones(auth_type, { api_token: api_token });
@@ -271,8 +271,8 @@ jQuery(document).ready(function($) {
         }
         break;
       case 'api_key':
-        var email = $('#sb-configuration #email').val(),
-          api_key = $('#sb-configuration #api_key').val();
+        var email = $('#sb-configuration #sb_email').val(),
+          api_key = $('#sb-configuration #sb_api_key').val();
         if ( email && api_key ) {
           api_credentials_zone_lookup_type_wait_timeout = setTimeout(function () {
             fetch_and_display_available_zones(auth_type, { email: email, api_key: api_key });
@@ -299,15 +299,15 @@ jQuery(document).ready(function($) {
       case 'api_key':
         api_token_container.hide();
         api_key_container.show();
-        var email = $('#sb-configuration #email').val(),
-          api_key = $('#sb-configuration #api_key').val();
+        var email = $('#sb-configuration #sb_email').val(),
+          api_key = $('#sb-configuration #sb_api_key').val();
         fetch_and_display_available_zones(auth_type, { email: email, api_key: api_key });
         break;
       case 'api_token':
         api_token_container.show();
         api_key_container.hide();
         zone_selector_container.hide();
-        var api_token = $('#sb-configuration #api_token').val();
+        var api_token = $('#sb-configuration #sb_api_token').val();
         fetch_and_display_available_zones(auth_type, { api_token: api_token });
     }
     sb_resolve_zone_name();
@@ -322,13 +322,13 @@ jQuery(document).ready(function($) {
     var auth_type = $('#sb-configuration input[name="servebolt_cf_auth_type"]:checked').val();
     switch (auth_type) {
       case 'api_key':
-        var api_token_element = $('#sb-configuration .feature_cf_auth_type-api_token #api_token');
+        var api_token_element = $('#sb-configuration .feature_cf_auth_type-api_token #sb_api_token');
         api_token_element.val(api_token_element.data('original-value'));
         break;
       case 'api_token':
         var api_key_container = $('#sb-configuration .feature_cf_auth_type-api_key'),
-          api_key_element = api_key_container.find('#api_key'),
-          email_element = api_key_container.find('#email');
+          api_key_element = api_key_container.find('#sb_api_key'),
+          email_element = api_key_container.find('#sb_email');
         api_key_element.val(api_key_element.data('original-value'));
         email_element.val(email_element.data('original-value'));
         break;
