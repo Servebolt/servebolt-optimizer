@@ -25,7 +25,8 @@
     "squizlabs/php_codesniffer": "*",
     "wp-coding-standards/wpcs": "*",
     "phpcompatibility/php-compatibility": "*",
-    "phan/phan": "dev-master"
+    "phan/phan": "dev-master",
+    "phpunit/phpunit": "7.5.20"
   },
   "extra": {
     "installer-name": "servebolt-wp-optimize-plugin"
@@ -38,8 +39,11 @@
     "wordpress"
   ],
   "scripts": {
-    "test": [
+    "phan": [
       "./vendor/bin/phan --allow-polyfill-parser"
+    ],
+    "phpunit": [
+      "./vendor/phpunit/phpunit/phpunit"
     ],
     "post-install-cmd": [
       "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true"
