@@ -1,0 +1,189 @@
+<?php
+
+namespace Servebolt\Optimizer\EnvFile;
+
+use Servebolt\Optimizer\Traits\Multiton;
+
+class Reader
+{
+
+    use Multiton;
+
+    /**
+     * The possible file extensions of the environment files.
+     *
+     * @var array|string[]
+     */
+    private array $fileExtensions = ['json', 'ini'];
+
+    /**
+     * Array containing the extracted data.
+     *
+     * @var array
+     */
+    private array $extractedData = [];
+
+    /**
+     * Whether we could read the file or not.
+     *
+     * @var bool
+     */
+    private bool $success = false;
+
+    /**
+     * The basename of the environment file.
+     *
+     * @var string
+     */
+    private string $basename = 'environment';
+
+    private string $fileType;
+    private string $folderPath;
+
+    public function __construct($folderPath = null, $fileType = 'auto', $basename = null)
+    {
+        $this->setBasename($basename);
+        $this->setFileType($fileType);
+        $this->resolvePath($folderPath);
+        if ($filePath = $this->resolveFile()) {
+            $this->readFile($filePath);
+        }
+    }
+
+    public function getExtractedData() : array
+    {
+        return $this->extractedData;
+    }
+
+    private function setBasename($basename)
+    {
+        if (!is_null($basename)) {
+            $this->basename = $basename;
+        }
+    }
+
+    public function isSuccess(): bool
+    {
+        return $this->success === true;
+    }
+
+    private function readJsonFile($filePath) : bool
+    {
+        $fileContent = file_get_contents($filePath);
+        $decoded = json_decode($fileContent, true);
+        if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
+            return false;
+        }
+        $this->extractedData = $decoded;
+        $this->success = true;
+        return true;
+    }
+
+    private function readIniFile($filePath) : bool
+    {
+        try {
+            if (($parsedData = @parse_ini_file($filePath)) == false) {
+                throw new Exception('Invalid INI file');
+            }
+            $this->extractedData = $parsedData;
+            $this->success = true;
+            return true;
+        }
+        catch (Exception $e) {
+            return false;
+        }
+    }
+
+    private function readFile($filePath) : bool
+    {
+        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+        switch ($ext) {
+            case 'json':
+                return $this->readJsonFile($filePath);
+            case 'ini':
+                return $this->readIniFile($filePath);
+        }
+        return false;
+    }
+
+    /**
+     * @param $name
+     * @return mixed|null
+     */
+    public function __get($name)
+    {
+        if (array_key_exists($name, $this->extractedData)) {
+            return $this->extractedData[$name];
+        }
+        return null;
+    }
+
+    private function setFileType($fileType) : bool
+    {
+        if ($fileType === 'auto' || in_array($fileType, $this->fileExtensions)) {
+            $this->fileType = $fileType;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check whether we should skip a certain file type when looking for the environment file.
+     *
+     * @param $type
+     * @return bool
+     */
+    private function shouldSkipFileType($type) : bool
+    {
+        if ($this->fileType === 'auto') {
+            return false;
+        }
+        return $type !== $this->fileType;
+    }
+
+    /**
+     * Resolve the environment file, in prioritized order.
+     *
+     * @return false|string
+     */
+    private function resolveFile()
+    {
+        foreach ($this->fileExtensions as $type) {
+            $envFileName = $this->basename . '.' . $type;
+            if ($this->shouldSkipFileType($type)) {
+                continue; // Skip this if we're only looking for a certain type of env file
+            }
+            $path = $this->folderPath . $envFileName;
+            if (file_exists($path) && is_readable($path)) {
+                return $path;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Resolve the path to the folder where the environment files are stored.
+     *
+     * @param $folderPath
+     * @return string
+     */
+    private function resolvePath($folderPath) : string
+    {
+        if (is_null($folderPath)) {
+            $this->folderPath = $this->getDefaultFolderPath();
+        } else {
+            $this->folderPath = $folderPath;
+        }
+        return $this->folderPath;
+    }
+
+    /**
+     * Get default folder path to the environment files.
+     *
+     * @return string
+     */
+    private function getDefaultFolderPath() : string
+    {
+        return defined('ABSPATH') ? dirname(ABSPATH) : '';
+    }
+}
