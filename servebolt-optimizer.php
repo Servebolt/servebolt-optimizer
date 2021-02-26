@@ -24,7 +24,7 @@ if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
 }
 
 // Make sure we got the composer-files
-if (file_exists(SERVEBOLT_PATH . 'vendor/autoload.php')) {
+if (!file_exists(SERVEBOLT_PATH . 'vendor/autoload.php')) {
 	require SERVEBOLT_PATH . 'composer-missing.php';
 	return;
 }
