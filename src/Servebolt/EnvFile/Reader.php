@@ -44,9 +44,9 @@ class Reader
     {
         $this->setBasename($basename);
         $this->setFileType($fileType);
-        $this->resolvePath($folderPath);
-        if ($filePath = $this->resolveFile()) {
-            $this->readFile($filePath);
+        $this->resolveFolderPath($folderPath);
+        if ($filePath = $this->resolveEnvironmentFilePath()) {
+            $this->readEnvironmentFile($filePath);
         }
     }
 
@@ -94,7 +94,7 @@ class Reader
         }
     }
 
-    private function readFile($filePath) : bool
+    private function readEnvironmentFile($filePath) : bool
     {
         $ext = pathinfo($filePath, PATHINFO_EXTENSION);
         switch ($ext) {
@@ -146,7 +146,7 @@ class Reader
      *
      * @return false|string
      */
-    private function resolveFile()
+    private function resolveEnvironmentFilePath()
     {
         foreach ($this->fileExtensions as $type) {
             $envFileName = $this->basename . '.' . $type;
@@ -167,7 +167,7 @@ class Reader
      * @param $folderPath
      * @return string
      */
-    private function resolvePath($folderPath) : string
+    private function resolveFolderPath($folderPath) : string
     {
         if (is_null($folderPath)) {
             $this->folderPath = $this->getDefaultFolderPath();
