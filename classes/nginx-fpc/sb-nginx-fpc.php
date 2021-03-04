@@ -265,10 +265,13 @@ class Servebolt_Nginx_FPC {
 	 * @return bool
 	 */
 	private function cache_active_for_post_type($post_type) {
-		if ( in_array( $post_type, (array) $this->get_post_types_to_cache()) ) {
-			return true;
-		}
-		return false;
+        if ( $post_type === 'all' ) {
+            return true;
+        }
+        elseif ( in_array( $post_type, (array) $this->get_post_types_to_cache()) ) {
+            return true;
+        }
+        return false;
 	}
 
 	/**
