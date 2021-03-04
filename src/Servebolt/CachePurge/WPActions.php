@@ -7,8 +7,7 @@ namespace Servebolt\Optimizer\CachePurge;
  *
  * This class registers the WP events which purges the cache automatically (updating/create posts, terms etc.).
  */
-// TODO: Initialize this properly
-class CachePurgeWPActions
+class WPActions
 {
     /**
      * CachePurgeWPActions constructor.
@@ -23,7 +22,7 @@ class CachePurgeWPActions
     private function registerActions() {
 
         // Check if Cloudflare cache purge feature is active
-        if ( ! sb_cf_cache()->cf_is_active() ) return;
+        if ( ! sb_cf_cache()->cf_is_active() ) return; // TODO: Change this to be "agnostic"
 
         // Should skip all automatic cache purge?
         if ( apply_filters('sb_optimizer_disable_automatic_purge', false) ) return;
@@ -54,6 +53,7 @@ class CachePurgeWPActions
      * @param $termId
      * @param $termTaxonomyId
      * @param $taxonomy
+     * @throws \ReflectionException
      */
     public function purgeTermOnSave($termId, $termTaxonomyId, $taxonomy) {
         $this->maybePurgeTermSlugIfSlugChanged($termId, $taxonomy);
@@ -73,10 +73,13 @@ class CachePurgeWPActions
      *
      * @param $termId
      * @param $taxonomy
+     * @throws \ReflectionException
      */
     private function maybePurgeTerm($termId, $taxonomy) {
         if ( ! $this->shouldPurgeTermCache($termId, $taxonomy) ) return;
-        sb_cf_cache()->purge_term($termId, $taxonomy);
+        //sb_cf_cache()->purge_term($termId, $taxonomy);
+        $driver = CachePurge::getInstance();
+        return $driver->purgeCacheForTerm($termId);
     }
 
     /**
@@ -162,7 +165,9 @@ class CachePurgeWPActions
      */
     private function maybePurgePost($postId) {
         if ( ! $this->shouldPurgePostCache($postId) ) return;
-        sb_cf_cache()->purge_post($postId);
+        //sb_cf_cache()->purge_post($postId);
+        $driver = CachePurge::getInstance();
+        $driver->purgeCacheForPost($postId);
     }
 
     /**

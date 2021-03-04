@@ -2,12 +2,12 @@
 
 namespace Servebolt\Optimizer\EnvFile;
 
-use Servebolt\Optimizer\Traits\Multiton;
+use Servebolt\Optimizer\Traits\Singleton;
 
 class Reader
 {
 
-    use Multiton;
+    use Singleton;
 
     /**
      * The possible file extensions of the environment files.
@@ -37,17 +37,23 @@ class Reader
      */
     private string $basename = 'environment';
 
-    private string $fileType;
+    private string $desiredFileType;
+    private string $resolvedFileType;
     private string $folderPath;
 
-    public function __construct($folderPath = null, $fileType = 'auto', $basename = null)
+    public function __construct($folderPath = null, $desiredFileType = 'auto', $basename = null)
     {
         $this->setBasename($basename);
-        $this->setFileType($fileType);
+        $this->setDesiredFileType($desiredFileType);
         $this->resolveFolderPath($folderPath);
         if ($filePath = $this->resolveEnvironmentFilePath()) {
             $this->readEnvironmentFile($filePath);
         }
+    }
+
+    public function isFileType($type) : bool
+    {
+        return $type === $this->resolvedFileType;
     }
 
     public function getExtractedData() : array
@@ -118,10 +124,10 @@ class Reader
         return null;
     }
 
-    private function setFileType($fileType) : bool
+    private function setDesiredFileType($desiredFileType) : bool
     {
-        if ($fileType === 'auto' || in_array($fileType, $this->fileExtensions)) {
-            $this->fileType = $fileType;
+        if ($desiredFileType === 'auto' || in_array($desiredFileType, $this->fileExtensions)) {
+            $this->desiredFileType = $desiredFileType;
             return true;
         }
         return false;
@@ -135,10 +141,10 @@ class Reader
      */
     private function shouldSkipFileType($type) : bool
     {
-        if ($this->fileType === 'auto') {
+        if ($this->desiredFileType === 'auto') {
             return false;
         }
-        return $type !== $this->fileType;
+        return $type !== $this->desiredFileType;
     }
 
     /**
@@ -155,6 +161,7 @@ class Reader
             }
             $path = $this->folderPath . $envFileName;
             if (file_exists($path) && is_readable($path)) {
+                $this->resolvedFileType = $type;
                 return $path;
             }
         }

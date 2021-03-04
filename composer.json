@@ -49,13 +49,14 @@
   "autoload": {
     "psr-4": {
       "Servebolt\\Optimizer\\": "src/Servebolt"
-    }
+    },
+    "files": ["src/Servebolt/CachePurge/ThirdPartyFunctions.php"]
   },
-
   "scripts": {
     "phpunit": [
       "./vendor/phpunit/phpunit/phpunit"
     ],
+    "install-wp-test": ["ci/install-wp-tests.sh"],
     "test": ["ci/phpcs.sh","ci/phplint.sh","ci/phan.sh"],
     "post-install-cmd": [
       "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true"

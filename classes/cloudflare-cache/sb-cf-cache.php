@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-require_once SERVEBOLT_PATH . '/classes/sb-cloudflare-sdk/sb-cloudflare-sdk.class.php';
+#require_once SERVEBOLT_PATH . '/classes/sb-cloudflare-sdk/sb-cloudflare-sdk.class.php';
 require_once __DIR__ . '/sb-cf-cache-purge-queue-handling.php';
 
 /**
@@ -65,6 +65,7 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	 * @param bool $init
 	 */
 	public function __construct($init = false) {
+	    return;
 		if ($init) $this->cf_init();
 	}
 

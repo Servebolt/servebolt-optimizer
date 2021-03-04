@@ -67,8 +67,7 @@ if ( sb_feature_active('cf_image_resize') ) {
 // Register cron schedule and cache purge event
 require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache-cron-handle.php';
 
-new Servebolt\Optimizer\CachePurge\CachePurgeWPActions; // Register cache purge event for various hooks
-//require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache-purge-actions.php';
+new Servebolt\Optimizer\CachePurge\WPActions; // Register cache purge event for various hooks
 
 // Load this admin bar interface
 require_once SERVEBOLT_PATH . 'admin/admin-bar-interface.php';

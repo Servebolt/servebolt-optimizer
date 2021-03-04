@@ -5,7 +5,8 @@ require_once SERVEBOLT_PATH . 'admin/log-viewer.php';
 require_once SERVEBOLT_PATH . 'admin/general-settings.php';
 require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
 require_once SERVEBOLT_PATH . 'admin/nginx-fpc-controls.php';
-require_once SERVEBOLT_PATH . 'admin/cf-cache-admin-controls.php';
+//require_once SERVEBOLT_PATH . 'admin/cf-cache-admin-controls.php';
+new Servebolt\Optimizer\Admin\CachePurge\CachePurge;
 require_once SERVEBOLT_PATH . 'admin/cf-image-resizing.php';
 require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
 

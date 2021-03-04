@@ -8,8 +8,14 @@
 	convertWarningsToExceptions="true"
 	>
 	<testsuites>
-		<testsuite name="WPTests">
-			<directory suffix="Test.php">./tests/</directory>
+		<testsuite name="Unit">
+			<directory suffix="Test.php">./tests/Unit</directory>
+		</testsuite>
+		<testsuite name="Feature">
+			<directory suffix="Test.php">./tests/Feature</directory>
 		</testsuite>
 	</testsuites>
+	<php>
+		<env name="WP_TESTS_DIR" value=""/>
+	</php>
 </phpunit>

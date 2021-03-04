@@ -11,6 +11,7 @@ class EnvironmentFileReaderTest extends WP_UnitTestCase
     {
         $reader = new Reader(__DIR__ . '/');
         $this->assertTrue($reader->isSuccess());
+        $this->assertTrue($reader->isFileType('json'));
         $this->assertEquals($reader->bolt_id, 123456);
         $this->assertEquals($reader->id, 56789);
         $this->assertEquals($reader->name, 'Testbolt-robert');
@@ -21,6 +22,7 @@ class EnvironmentFileReaderTest extends WP_UnitTestCase
     {
         $reader = new Reader(__DIR__ . '/', 'json');
         $this->assertTrue($reader->isSuccess());
+        $this->assertTrue($reader->isFileType('json'));
         $this->assertEquals($reader->bolt_id, 123456);
         $this->assertEquals($reader->id, 56789);
         $this->assertEquals($reader->name, 'Testbolt-robert');
@@ -31,6 +33,7 @@ class EnvironmentFileReaderTest extends WP_UnitTestCase
     {
         $reader = new Reader(__DIR__ . '/', 'ini');
         $this->assertTrue($reader->isSuccess());
+        $this->assertTrue($reader->isFileType('ini'));
         $this->assertEquals($reader->bolt_id, 123456);
         $this->assertEquals($reader->id, 56789);
         $this->assertEquals($reader->name, 'Testbolt-robert');

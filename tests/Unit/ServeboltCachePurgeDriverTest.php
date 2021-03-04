@@ -3,13 +3,23 @@
 namespace Unit;
 
 use WP_UnitTestCase;
-use Servebolt\Optimizer\Api\CachePurge\Drivers\Servebolt;
+use Servebolt\Optimizer\CachePurge\Drivers\Servebolt as ServeboltSdk;
 
 class ServeboltCachePurgeDriverTest extends WP_UnitTestCase
 {
-    public function testServeboltCachePurgeDriverInit()
+
+    private $client;
+
+    public function setUp()
     {
-        $client = Servebolt::getInstance();
-        $this->assertTrue(true);
+        parent::setUp();
+        $this->client = ServeboltSdk::getInstance();
+    }
+
+    public function testThatSdkClientContainsPurgeMethods()
+    {
+        $this->assertTrue(method_exists($this->client, 'purgeByUrl'));
+        $this->assertTrue(method_exists($this->client, 'purgeByUrls'));
+        $this->assertTrue(method_exists($this->client, 'purgeAll'));
     }
 }

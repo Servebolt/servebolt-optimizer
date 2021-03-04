@@ -4,7 +4,7 @@ Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, full
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.5.3
-Requires PHP: 7
+Requires PHP: 7.1
 Stable tag: 2.1.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html

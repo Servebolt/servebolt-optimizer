@@ -2,7 +2,7 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 //
-require __DIR__ . '/cf-cache-admin-controls-ajax.php';
+//require __DIR__ . '/cf-cache-admin-controls-ajax.php';
 
 /**
  * Class CF_Cache_Admin_Controls
@@ -41,7 +41,7 @@ class CF_Cache_Admin_Controls {
 	 * Initialize AJAX callbacks.
 	 */
 	private function init_ajax() {
-		new CF_Cache_Admin_Controls_Ajax;
+		//new CF_Cache_Admin_Controls_Ajax;
 	}
 
     /**
