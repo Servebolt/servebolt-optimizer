@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\CachePurge\Drivers;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Api\Cloudflare\Cloudflare as CloudflareApi;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeInterface;

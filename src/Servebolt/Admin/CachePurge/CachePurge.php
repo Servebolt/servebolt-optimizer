@@ -2,10 +2,13 @@
 
 namespace Servebolt\Optimizer\Admin\CachePurge;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Admin\Ajax\CachePurge\Configuration;
 use Servebolt\Optimizer\Admin\Ajax\CachePurge\PurgeActions;
 use Servebolt\Optimizer\Admin\Ajax\CachePurge\QueueHandling;
 use Servebolt\Optimizer\Traits\Singleton;
+use Servebolt\Optimizer\Helpers as Helpers;
 
 class CachePurge
 {
@@ -20,6 +23,11 @@ class CachePurge
         $this->initAjax();
         $this->initAssets();
         $this->initSettings();
+    }
+
+    public function render()
+    {
+        Helpers\view('cache-purge/cache-purge');
     }
 
     private function initAjax(): void

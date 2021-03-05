@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Api\Cloudflare;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Traits\Multiton;
 use Servebolt\Optimizer\Traits\ClientMethodProxy;
 use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;

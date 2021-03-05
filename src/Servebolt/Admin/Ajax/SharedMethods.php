@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Admin\Ajax;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 abstract class SharedMethods
 {
     protected function checkAjaxReferer() : void

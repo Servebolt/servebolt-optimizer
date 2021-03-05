@@ -13,9 +13,10 @@ Text Domain: servebolt-wp
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 // Defines plugin paths and URLs
-define( 'SERVEBOLT_BASENAME', plugin_basename(__FILE__) );
-define( 'SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ) );
-define( 'SERVEBOLT_PATH', plugin_dir_path( __FILE__ ) );
+define('SERVEBOLT_BASENAME', plugin_basename(__FILE__));
+define('SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ));
+define('SERVEBOLT_PATH', plugin_dir_path( __FILE__ ));
+define('SERVEBOLT_PSR4_PATH', SERVEBOLT_PATH . 'src/Servebolt/');
 
 // Abort and display WP admin notice if PHP_MAJOR_VERSION is less than 7
 if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
@@ -79,7 +80,8 @@ require_once SERVEBOLT_PATH . 'assets.php';
 if ( is_admin() ) {
 
 	// Load this plugins interface
-	require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
+    new Servebolt\Optimizer\Admin\AdminGui;
+	//require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
 
 }
 

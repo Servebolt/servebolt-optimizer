@@ -50,7 +50,10 @@
     "psr-4": {
       "Servebolt\\Optimizer\\": "src/Servebolt"
     },
-    "files": ["src/Servebolt/CachePurge/ThirdPartyFunctions.php"]
+    "files": [
+      "src/Servebolt/CachePurge/ThirdPartyFunctions.php",
+      "src/Servebolt/Helpers/General.php"
+    ]
   },
   "scripts": {
     "phpunit": [
