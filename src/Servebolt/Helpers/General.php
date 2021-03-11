@@ -5,21 +5,28 @@ namespace Servebolt\Optimizer\Helpers;
 /**
  * Display a view, Laravel style.
  *
- * @param $path
+ * @param string $templatePath
  * @param array $arguments
- * @return bool
+ * @param bool $echo
+ * @return string|null
  */
-function view($path, $arguments = []) : bool
+function view(string $templatePath, $arguments = [], $echo = true): ?string
 {
-    $path = str_replace('.', '/', $path);
-    $filePath = SERVEBOLT_PSR4_PATH . 'Views/' . $path . '.php';
+    $templatePath = str_replace('.', '/', $templatePath);
+    $suffix = '.php';
+    $basePath = SERVEBOLT_PSR4_PATH . 'Views/';
+    $filePath = $basePath . $templatePath . $suffix;
     if (file_exists($filePath) && is_readable($filePath)) {
-        if (array_key_exists('filePath', $arguments)) {
-            unset($arguments['filePath']);
+        extract($arguments, EXTR_SKIP);
+        if (!$echo) {
+            ob_start();
         }
-        extract($arguments);
-        require $filePath;
-        return true;
+        include $filePath;
+        if (!$echo) {
+            $output = ob_get_contents();
+            ob_end_clean();
+            return $output;
+        }
     }
-    return false;
+    return null;
 }

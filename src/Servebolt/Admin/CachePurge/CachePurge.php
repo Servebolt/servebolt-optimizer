@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Admin\CachePurge;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Admin\AdminGuiController;
 use Servebolt\Optimizer\Admin\Ajax\CachePurge\Configuration;
 use Servebolt\Optimizer\Admin\Ajax\CachePurge\PurgeActions;
 use Servebolt\Optimizer\Admin\Ajax\CachePurge\QueueHandling;
@@ -16,6 +17,14 @@ class CachePurge
     use Singleton;
 
     /**
+     * @throws \ReflectionException
+     */
+    public static function init(): void
+    {
+        self::getInstance();
+    }
+
+    /**
      * CachePurge constructor.
      */
     public function __construct()
@@ -25,9 +34,36 @@ class CachePurge
         $this->initSettings();
     }
 
-    public function render()
+    /**
+     * Render the options page.
+     *
+     * @throws \ReflectionException
+     */
+    public function render(): void
     {
-        Helpers\view('cache-purge/cache-purge');
+        $adminGuiController = AdminGuiController::getInstance();
+        $settings = $adminGuiController->getSettingsItemsWithValues();
+        $cachePurge = $this;
+
+        Helpers\view('cache-purge/cache-purge', compact('settings', 'cachePurge'));
+        /*
+        $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
+        $numberOfCachePurgeQueueItems = sb_cf_cache()->count_items_to_purge();
+        Helpers\view('cache-purge/cache-purge', compact(
+            'maxNumberOfCachePurgeQueueItems',
+            'numberOfCachePurgeQueueItems'
+        ));
+        */
+    }
+
+    /**
+     * The maximum number of queue items to display in the list.
+     *
+     * @return int
+     */
+    private function maxNumberOfCachePurgeQueueItems() : int
+    {
+        return (int) apply_filters('sb_optimizer_purge_item_list_limit', 500);
     }
 
     private function initAjax(): void
@@ -48,7 +84,7 @@ class CachePurge
     public function enqueueScripts(): void
     {
         $screen = get_current_screen();
-        if ($screen->id != 'servebolt_page_servebolt-cf-cache-control') {
+        if ($screen->id != 'servebolt_page_servebolt-cache-purge-control') {
             return;
         }
         wp_enqueue_script(

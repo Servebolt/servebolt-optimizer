@@ -39,6 +39,22 @@ class Cloudflare
     }
 
     /**
+     * The Cloudflare API permissions required for this plugin.
+     *
+     * @param bool $humanReadable
+     *
+     * @return array|string
+     */
+    public function apiPermissionsNeeded($humanReadable = true)
+    {
+        $permissions = ['Zone.Zone', 'Zone.Cache Purge'];
+        if ( $humanReadable ) {
+            return sb_natural_language_join($permissions);
+        }
+        return $permissions;
+    }
+
+    /**
      * Get active zone Id.
      *
      * @param null|int $blogId

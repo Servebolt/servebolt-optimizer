@@ -3,11 +3,15 @@
 namespace Servebolt\Optimizer\Admin;
 
 use Servebolt\Optimizer\Admin\CachePurge\CachePurge;
+use Servebolt\Optimizer\Traits\Singleton;
 
-class AdminGui
+class AdminGuiController
 {
+
+    use Singleton;
+
     /**
-     * AdminGui constructor.
+     * AdminGuiController constructor.
      */
     public function __construct()
     {
@@ -24,6 +28,93 @@ class AdminGui
         }
         $this->initAdminMenus();
         $this->initPluginSettingsLink();
+        $this->initSettings();
+
+        CachePurge::init();
+    }
+
+    /**
+     * Initialize settings.
+     */
+    private function initSettings() {
+        add_action( 'admin_init', [$this, 'registerSettings'] );
+    }
+
+    /**
+     * Register custom options.
+     */
+    public function registerSettings(): void
+    {
+        foreach($this->getSettingsItems() as $key) {
+            register_setting('sb-cf-options-page', sb_get_option_name($key));
+        }
+    }
+
+    /**
+     * Get all plugin settings in array.
+     *
+     * @return array
+     */
+    public function getSettingsItemsWithValues(): array
+    {
+        $items = $this->getSettingsItems();
+        $itemsWithValues = [];
+        foreach ( $items as $item ) {
+            switch ($item) {
+                /*
+                case 'cf_switch':
+                    $itemsWithValues[$item] = sb_cf_cache()->cf_is_active();
+                    break;
+                */
+                case 'cache_purge_driver':
+                    $value = sb_get_option($item);
+                    $itemsWithValues['cache_purge_driver'] = $value ?: $this->getDefaultCachePurgeDriver();
+                    break;
+                case 'cf_auth_type':
+                    $value = sb_get_option($item);
+                    $itemsWithValues['cf_auth_type'] = $value ?: $this->getDefaultCfAuthType();
+                    break;
+                default:
+                    $itemsWithValues[$item] = sb_get_option($item);
+                    break;
+            }
+        }
+        return $itemsWithValues;
+    }
+
+    /**
+     * @return string
+     */
+    private function getDefaultCfAuthType(): string
+    {
+        return 'api_token';
+    }
+
+    /**
+     * @return string
+     */
+    private function getDefaultCachePurgeDriver(): string
+    {
+        return 'cloudflare';
+    }
+
+    /**
+     * Settings items for CF cache.
+     *
+     * @return array
+     */
+    private function getSettingsItems(): array
+    {
+        return [
+            'cache_purge_switch',
+            'cache_purge_driver',
+            'cf_zone_id',
+            'cf_auth_type',
+            'cf_email',
+            'cf_api_key',
+            'cf_api_token',
+            'cf_cron_purge',
+        ];
     }
 
     /**
@@ -99,7 +190,7 @@ class AdminGui
      */
     private function addSubMenuItems(): void
     {
-        $this->cfCacheMenu();
+        $this->cachePurgeMenu();
         $this->cfImageResizeMenu();
         if ( host_is_servebolt() ) {
             $this->fpcCacheMenu();
@@ -122,9 +213,20 @@ class AdminGui
     /**
      * Register CF cache menu item.
      */
-    private function cfCacheMenu(): void
+    private function cachePurgeMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('Cloudflare Cache'), sb__('Cloudflare Cache'), 'manage_options', 'servebolt-cf-cache-control', [CachePurge::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', sb__('Cache purging'), sb__('Cache purging'), 'manage_options', 'servebolt-cache-purge-control', [CachePurge::getInstance(), 'render']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-cf-cache-control', [$this, 'cachePurgeLegacyRedirect']);
+    }
+
+    /**
+     * Redirect from old cache purge control page to the new one.
+     */
+    public function cachePurgeLegacyRedirect(): void
+    {
+        wp_redirect(
+            admin_url('admin.php?page=servebolt-cache-purge-control')
+        );
     }
 
     /**
@@ -200,7 +302,7 @@ class AdminGui
      *
      * @return array
      */
-    public function addSettingsLinkToPlugin($links): string
+    public function addSettingsLinkToPlugin($links): array
     {
         $links[] = sprintf('<a href="%s">%s</a>', admin_url( 'options-general.php?page=servebolt-wp' ), sb__('Settings'));
         return $links;
@@ -220,14 +322,6 @@ class AdminGui
     public function performanceCallback(): void
     {
         sb_performance_checks()->view();
-    }
-
-    /**
-     * Display the Cloudflare Cache control page.
-     */
-    public function cfCacheCallback(): void
-    {
-        sb_cf_cache_admin_controls()->view();
     }
 
     /**

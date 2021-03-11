@@ -177,9 +177,9 @@ class Reader
     private function resolveFolderPath($folderPath) : string
     {
         if (is_null($folderPath)) {
-            $this->folderPath = $this->getDefaultFolderPath();
+            $this->folderPath = rtrim($this->getDefaultFolderPath(), '/')  . '/';
         } else {
-            $this->folderPath = $folderPath;
+            $this->folderPath = rtrim($folderPath, '/') . '/';
         }
         return $this->folderPath;
     }

@@ -1,6 +1,3 @@
-<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
-<p><?php sb_e('Please navigate to each blog to control settings regarding Cloudflare cache purging.'); ?></p>
-
 <table class="wp-list-table widefat striped">
     <thead>
     <tr>
@@ -19,7 +16,7 @@
     </tr>
     </tfoot>
     <tbody>
-    <?php foreach ( get_sites() as $site ) : ?>
+    <?php foreach (get_sites() as $site) : ?>
         <tr>
             <td><?php echo $site->blog_id; ?></td>
             <td><?php echo $site->domain . $site->path; ?></td>

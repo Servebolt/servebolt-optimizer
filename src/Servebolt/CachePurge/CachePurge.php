@@ -74,7 +74,7 @@ class CachePurge
      * @param null $blogId
      * @return bool
      */
-    private function cachePurgeIsActive($blogId = null): bool
+    public function cachePurgeIsActive($blogId = null): bool
     {
         $key = 'cache_purge_active';
         if (is_numeric($blogId)) {

@@ -80,7 +80,7 @@ require_once SERVEBOLT_PATH . 'assets.php';
 if ( is_admin() ) {
 
 	// Load this plugins interface
-    new Servebolt\Optimizer\Admin\AdminGui;
+    Servebolt\Optimizer\Admin\AdminGuiController::getInstance();
 	//require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
 
 }
