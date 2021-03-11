@@ -13,6 +13,6 @@ class Queue
 
     public function __construct($queueName)
     {
+        $this->queueName = $queueName;
     }
-
 }
