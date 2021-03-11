@@ -12,7 +12,21 @@ class PluginTables
         'queue' => 'sb_queue',
     ];
 
-    public function __construct()
+    /**
+     * PluginTables constructor.
+     * @param bool $initializeOnConstruct
+     */
+    public function __construct(bool $initializeOnConstruct = true)
+    {
+        if ($initializeOnConstruct) {
+            $this->checkTables();
+        }
+    }
+
+    /**
+     * Check that tables exists, if not create them.
+     */
+    public function checkTables(): void
     {
         foreach($this->migrations as $migration => $baseTableName) {
             $tableName = $this->generateTableNameFromMigration($baseTableName);
@@ -22,10 +36,18 @@ class PluginTables
         }
     }
 
-    public function deleteTable($tableName): void
+    public function deleteTables(): void
+    {
+        foreach($this->migrations as $migration => $baseTableName) {
+            $tableName = $this->generateTableNameFromMigration($baseTableName);
+            $this->deleteTable($tableName);
+        }
+    }
+
+    public function deleteTable(string $tableName): void
     {
         global $wpdb;
-        $sql = "DROP TABLE IF EXISTS $tableName;";
+        $sql = "DROP TABLE IF EXISTS `{$tableName}`";
         $wpdb->query($sql);
     }
 
@@ -44,13 +66,26 @@ class PluginTables
      * @param string $tableName
      * @return bool
      */
-    private function tableExists(string $tableName): bool
+    public function tableExists(string $tableName): bool
     {
         global $wpdb;
-        $row = $wpdb->get_row("SELECT table_name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{$tableName}'");
-        return is_object($row)
-            && isset($row->table_name)
-            && $row->table_name === $tableName;
+        return in_array($tableName, $wpdb->get_col($wpdb->prepare('SHOW TABLES LIKE %s', $tableName), 0), true);
+    }
+
+    /**
+     * Check whether all tables are created like they should.
+     *
+     * @return bool
+     */
+    public function tablesExist(): bool
+    {
+        foreach($this->migrations as $migration => $baseTableName) {
+            $tableName = $this->generateTableNameFromMigration($baseTableName);
+            if (!$this->tableExists($tableName)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -67,15 +102,14 @@ class PluginTables
     /**
      * @param string $migration
      * @param string $tableName
-     * @return bool
+     * @return void
      */
-    private function createTable(string $migration, string $tableName): bool
+    private function createTable(string $migration, string $tableName): void
     {
         $migrationFilePath = __DIR__ . '/migrations/' . $migration . '-migration.sql';
         $rawMigration = file_get_contents($migrationFilePath);
         $populatedMigration = $this->populateMigration($rawMigration, compact('tableName'));
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
         dbDelta($populatedMigration);
-        return $this->tableExists($tableName);
     }
 }

@@ -1,4 +1,4 @@
-CREATE TABLE `%table-name%` (
+CREATE TABLE IF NOT EXISTS `%table-name%` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` bigint(20) unsigned DEFAULT NULL,
   `queue` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,

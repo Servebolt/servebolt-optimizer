@@ -1,5 +1,5 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
-<?php use Servebolt\Optimizer\Helpers as Helpers; ?>
+<?php use function Servebolt\Optimizer\Helpers\view; ?>
 
 <?php settings_errors(); ?>
 
@@ -68,13 +68,13 @@
                 </td>
             </tr>
 
-            <?php Helpers\view('cache-purge.configuration.acd-configuration', $arguments); ?>
+            <?php view('cache-purge.configuration.acd-configuration', $arguments); ?>
 
-            <?php Helpers\view('cache-purge.configuration.cloudflare-configuration', $arguments); ?>
+            <?php view('cache-purge.configuration.cloudflare-configuration', $arguments); ?>
 
-            <?php Helpers\view('cache-purge.configuration.cron-configuration', $arguments); ?>
+            <?php view('cache-purge.configuration.cron-configuration', $arguments); ?>
 
-            <?php //Helpers\view('cache-purge.queue.list', $arguments); ?>
+            <?php //view('cache-purge.queue.list', $arguments); ?>
 
 
             <!--</tbody>-->

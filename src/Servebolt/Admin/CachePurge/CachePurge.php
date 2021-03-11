@@ -9,7 +9,7 @@ use Servebolt\Optimizer\Admin\Ajax\CachePurge\Configuration;
 use Servebolt\Optimizer\Admin\Ajax\CachePurge\PurgeActions;
 use Servebolt\Optimizer\Admin\Ajax\CachePurge\QueueHandling;
 use Servebolt\Optimizer\Traits\Singleton;
-use Servebolt\Optimizer\Helpers as Helpers;
+use function Servebolt\Optimizer\Helpers\view;
 
 class CachePurge
 {
@@ -45,7 +45,7 @@ class CachePurge
         $settings = $adminGuiController->getSettingsItemsWithValues();
         $cachePurge = $this;
 
-        Helpers\view('cache-purge/cache-purge', compact('settings', 'cachePurge'));
+        view('cache-purge/cache-purge', compact('settings', 'cachePurge'));
         /*
         $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
         $numberOfCachePurgeQueueItems = sb_cf_cache()->count_items_to_purge();

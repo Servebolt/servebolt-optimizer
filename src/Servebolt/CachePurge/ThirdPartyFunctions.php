@@ -1,9 +1,5 @@
 <?php
 
-// Third party developer-friendly functions for purging cache
-
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
-
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 
 /**

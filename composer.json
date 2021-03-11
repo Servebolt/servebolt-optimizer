@@ -48,13 +48,13 @@
     "wordpress"
   ],
   "autoload": {
+    "files": [
+      "src/Servebolt/Helpers/General.php",
+      "src/Servebolt/CachePurge/ThirdPartyFunctions.php"
+    ],
     "psr-4": {
       "Servebolt\\Optimizer\\": "src/Servebolt"
-    },
-    "files": [
-      "src/Servebolt/CachePurge/ThirdPartyFunctions.php",
-      "src/Servebolt/Helpers/General.php"
-    ]
+    }
   },
   "scripts": {
     "phpunit": [

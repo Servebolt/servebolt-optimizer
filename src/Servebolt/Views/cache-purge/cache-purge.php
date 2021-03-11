@@ -1,5 +1,5 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
-<?php use Servebolt\Optimizer\Helpers as Helpers; ?>
+<?php use function Servebolt\Optimizer\Helpers\view; ?>
 
 <div class="wrap sb-content" id="sb-configuration">
 
@@ -7,11 +7,11 @@
 
     <?php if ( is_network_admin() ) : ?>
 
-        <?php Helpers\view('cache-purge.network-admin.network-admin', $arguments); ?>
+        <?php view('cache-purge.network-admin.network-admin', $arguments); ?>
 
     <?php else : ?>
 
-        <?php Helpers\view('cache-purge.configuration.configuration', $arguments); ?>
+        <?php view('cache-purge.configuration.configuration', $arguments); ?>
 
     <?php endif; ?>
 
