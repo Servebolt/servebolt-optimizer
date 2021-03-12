@@ -9,10 +9,15 @@ use ServeboltWPUnitTestCase;
 
 class QueueTest extends ServeboltWPUnitTestCase
 {
+
+    public function setUp()
+    {
+        parent::setUp();
+        new PluginTables; // Ensure we got database table
+    }
+
     public function testThatQueueCanBeCreatedAndThatWeCanAddToTheQueue()
     {
-        new PluginTables; // Ensure we got database table
-
         $itemData = [
             'foo' => 'bar',
             'bar' => 'foo',

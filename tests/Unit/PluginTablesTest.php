@@ -13,6 +13,14 @@ class PluginTablesTest extends ServeboltWPUnitTestCase
 {
     private $instance;
 
+    public function testThatMigrationsResultInDatabasesBeingCreatedAndDeleted(): void
+    {
+        $this->assertTrue($this->instance->checkTable('queue'));
+        $this->assertTrue($this->instance->tableExists('queue'));
+        $this->assertTrue($this->instance->deleteTable('queue'));
+        $this->assertFalse($this->instance->tableExists('queue'));
+    }
+
     public function tearDown(): void
     {
         parent::tearDown();
@@ -33,17 +41,5 @@ class PluginTablesTest extends ServeboltWPUnitTestCase
         if ($this->instance->tablesExist()) {
             $this->instance->deleteTables();
         }
-    }
-
-    public function testThatMigrationsResultInDatabasesBeingCreated(): void
-    {
-        $this->instance->checkTables();
-        $this->assertTrue($this->instance->tablesExist());
-    }
-
-    public function testThatMigrationsResultInDatabasesBeingDeleted(): void
-    {
-        $this->instance->deleteTables();
-        $this->assertFalse($this->instance->tablesExist());
     }
 }

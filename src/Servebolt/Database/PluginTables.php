@@ -29,33 +29,55 @@ class PluginTables
     public function checkTables(): void
     {
         foreach($this->migrations as $migration => $baseTableName) {
-            $tableName = $this->generateTableNameFromMigration($baseTableName);
-            if (!$this->tableExists($tableName)) {
-                $this->createTable($migration, $tableName);
-            }
+            $this->checkTable($migration);
         }
+    }
+
+    /**
+     * Check if a table exist, if not create it.
+     *
+     * @param string $migration
+     * @return bool|null
+     */
+    public function checkTable(string $migration): ?bool
+    {
+        if (!$baseTableName = $this->getBaseTableNameFromMigration($migration)) {
+            return false;
+        }
+        $tableName = $this->generateTableNameWithPrefix($baseTableName);
+        if (!$this->tableExists($tableName)) {
+            $this->createTable($migration, $tableName);
+        }
+        return true;
     }
 
     public function deleteTables(): void
     {
-        foreach($this->migrations as $migration => $baseTableName) {
-            $tableName = $this->generateTableNameFromMigration($baseTableName);
-            $this->deleteTable($tableName);
+        foreach($this->migrations as $migration) {
+            $this->deleteTable($migration);
         }
     }
 
-    public function deleteTable(string $tableName): void
+    /**
+     * @param string $migration
+     * @return bool|null
+     */
+    public function deleteTable(string $migration): ?bool
     {
+        if (!$baseTableName = $this->getBaseTableNameFromMigration($migration)) {
+            return false;
+        }
+        $tableName = $this->generateTableNameWithPrefix($baseTableName);
         global $wpdb;
         $sql = "DROP TABLE IF EXISTS `{$tableName}`";
-        $wpdb->query($sql);
+        return $wpdb->query($sql);
     }
 
     /**
      * @param string $baseTableName
      * @return string
      */
-    private function generateTableNameFromMigration(string $baseTableName): string
+    private function generateTableNameWithPrefix(string $baseTableName): string
     {
         global $wpdb;
         return $wpdb->prefix . $baseTableName;
@@ -63,13 +85,35 @@ class PluginTables
     }
 
     /**
-     * @param string $tableName
+     * @param string $migration
+     * @return false|mixed|string
+     */
+    private function getBaseTableNameFromMigration(string $migration)
+    {
+        if (!array_key_exists($migration, $this->migrations)) {
+            return false;
+        }
+        return $this->migrations[$migration];
+    }
+
+    /**
+     * Check if a table exists.
+     *
+     * @param string $migration
      * @return bool
      */
-    public function tableExists(string $tableName): bool
+    public function tableExists(string $migration): bool
     {
         global $wpdb;
-        return in_array($tableName, $wpdb->get_col($wpdb->prepare('SHOW TABLES LIKE %s', $tableName), 0), true);
+        if (!$baseTableName = $this->getBaseTableNameFromMigration($migration)) {
+            return false;
+        }
+        $tableName = $this->generateTableNameWithPrefix($baseTableName);
+        return in_array($tableName,
+            $wpdb->get_col(
+                $wpdb->prepare('SHOW TABLES LIKE %s', $tableName),
+            0),
+        true);
     }
 
     /**
@@ -80,8 +124,7 @@ class PluginTables
     public function tablesExist(): bool
     {
         foreach($this->migrations as $migration => $baseTableName) {
-            $tableName = $this->generateTableNameFromMigration($baseTableName);
-            if (!$this->tableExists($tableName)) {
+            if (!$this->tableExists($migration)) {
                 return false;
             }
         }
@@ -89,6 +132,8 @@ class PluginTables
     }
 
     /**
+     * Populate migration with real table name etc.
+     *
      * @param string $migrationString
      * @param array $arguments
      * @return string
