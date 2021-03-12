@@ -9,9 +9,9 @@ class Queue
 
     use Multiton;
 
-    private string $tableName;
+    private $tableName;
 
-    private string $queueName;
+    private $queueName;
 
     public function __construct($queueName)
     {

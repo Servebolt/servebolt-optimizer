@@ -14,14 +14,14 @@ class Reader
      *
      * @var array|string[]
      */
-    private array $fileExtensions = ['json', 'ini'];
+    private $fileExtensions = ['json', 'ini'];
 
     /**
      * Array containing the extracted data.
      *
      * @var array
      */
-    private array $extractedData = [];
+    private $extractedData = [];
 
     /**
      * Whether we could read the file or not.
@@ -35,11 +35,11 @@ class Reader
      *
      * @var string
      */
-    private string $basename = 'environment';
+    private $basename = 'environment';
 
-    private string $desiredFileType;
-    private string $resolvedFileType;
-    private string $folderPath;
+    private $desiredFileType;
+    private $resolvedFileType;
+    private $folderPath;
 
     public function __construct($folderPath = null, $desiredFileType = 'auto', $basename = null)
     {

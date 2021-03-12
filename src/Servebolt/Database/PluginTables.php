@@ -8,7 +8,7 @@ class PluginTables
     /**
      * @var array|string[] Array of migrations.
      */
-    private array $migrations = [
+    private $migrations = [
         'queue' => 'sb_queue',
     ];
 
