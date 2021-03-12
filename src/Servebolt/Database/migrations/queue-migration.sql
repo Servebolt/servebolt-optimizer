@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS `%table-name%` (
   `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `attempts` tinyint(3) unsigned NOT NULL,
   `reserved_at_gmt` int(10) unsigned DEFAULT NULL,
-  `available_at_gmt` int(10) unsigned NOT NULL,
   `created_at_gmt` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `jobs_queue_index` (`queue`)

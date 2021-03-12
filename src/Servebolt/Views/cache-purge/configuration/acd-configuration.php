@@ -28,7 +28,7 @@
             <p class="invalid-message"></p>
         </td>
     </tr>
-    <tr class="feature_cf_auth_type-api_key">
+    <tr>
         <th scope="row"><label for="sb_environment_id"><?php sb_e('Environment ID'); ?></label></th>
         <td>
             <input type="text" id="sb_environment_id" value="<?php echo esc_attr($env->id); ?>" class="regular-text validate-field validation-input-email" readonly>

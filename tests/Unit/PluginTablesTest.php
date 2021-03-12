@@ -39,6 +39,10 @@ class PluginTablesTest extends ServeboltWPUnitTestCase
     {
         $this->instance->checkTables();
         $this->assertTrue($this->instance->tablesExist());
+    }
+
+    public function testThatMigrationsResultInDatabasesBeingDeleted(): void
+    {
         $this->instance->deleteTables();
         $this->assertFalse($this->instance->tablesExist());
     }

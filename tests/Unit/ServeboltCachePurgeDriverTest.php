@@ -18,8 +18,16 @@ class ServeboltCachePurgeDriverTest extends WP_UnitTestCase
 
     public function testThatSdkClientContainsPurgeMethods()
     {
+        var_dump($this->client);
+        //var_dump($this->client->getPurgeAllPrefixes());
+        die;
+
+        /*
         $this->assertTrue(method_exists($this->client, 'purgeByUrl'));
         $this->assertTrue(method_exists($this->client, 'purgeByUrls'));
         $this->assertTrue(method_exists($this->client, 'purgeAll'));
+        */
+
+        $this->assertEquals();
     }
 }
