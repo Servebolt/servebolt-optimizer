@@ -7,17 +7,23 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 
 class CachePurgeDriverTest extends WP_UnitTestCase
 {
-    private $client;
+    private $driver;
 
     public function setUp()
     {
         parent::setUp();
-        $this->client = CachePurge::getInstance();
+        $this->driver = CachePurge::getInstance();
     }
 
     public function testThatCachePurgeDriverContainsPurgeMethods()
     {
-        $this->assertTrue(true);
-        // TODO: Add tests to check that we get the correct driver etc.
+        if ($this->driver->getDriverObject()) { // Check if we can resolve the cache purge driver
+            $this->assertTrue(method_exists($this->driver->getDriverObject(), 'purgeByUrl'));
+            $this->assertTrue(method_exists($this->driver->getDriverObject(), 'purgeByUrls'));
+            $this->assertTrue(method_exists($this->driver->getDriverObject(), 'purgeAll'));
+        } else {
+            $this->assertNull($this->driver->getDriverObject()); // No driver available since cache purge is not configured
+        }
+
     }
 }

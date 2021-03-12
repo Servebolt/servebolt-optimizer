@@ -40,7 +40,7 @@ class CachePurge
     /**
      * @return mixed
      */
-    public function getDriver()
+    public function getDriverObject()
     {
         return $this->driver;
     }
