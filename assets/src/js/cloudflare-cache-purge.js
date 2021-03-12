@@ -1,9 +1,13 @@
 jQuery(document).ready(function($) {
 
-  // Toggle Cloudflare feature active/inactive
-  // Toggle Cloudflare feature active/inactive
-  $('#sb-configuration #cloudflare_switch').change(function() {
-    sb_toggle_cf_feature_active($(this).is(':checked'));
+  // Toggle cache purge feature active/inactive
+  $('#sb-configuration #cache_purge_switch').change(function() {
+    sbToggleCachePurgeFeatureActive($(this).is(':checked'));
+  });
+
+  // Toggle cache purge driver
+  $('#sb-configuration input[name="servebolt_cache_purge_driver"]').change(function() {
+    sbToggleCachePurgeDriver($(this).val());
   });
 
   // Toggle between API key and API token authentication
@@ -43,8 +47,8 @@ jQuery(document).ready(function($) {
   // Select purge item
   $('#sb-configuration #purge-items-table').on('change', 'input[type="checkbox"]', function() {
     var checkboxCount = $('#sb-configuration #purge-items-table input[type="checkbox"]:checked').length,
-        itemCount = $('#sb-configuration #purge-items-table tbody .purge-item').length,
-        buttons = $('#sb-configuration .remove-selected-purge-items');
+      itemCount = $('#sb-configuration #purge-items-table tbody .purge-item').length,
+      buttons = $('#sb-configuration .remove-selected-purge-items');
     buttons.prop('disabled', (checkboxCount === 0 || itemCount === 0));
   });
 
@@ -179,16 +183,39 @@ jQuery(document).ready(function($) {
   }
 
   /**
-   * Toggle CF-related form elements to show/hide based on active state.
+   * Toggle visibility of certain fields on or off.
    *
-   * @param boolean
+   * @param {string} itemName - The suffix of the field(s).
+   * @param {boolean} isVisible - Whether the field should be visible or not.
    */
-  function sb_toggle_cf_feature_active(boolean) {
-    var items = $('#sb-configuration .sb-toggle-active-cf-item');
-    if ( boolean ) {
-      items.removeClass('cf-hidden');
+  function sbToggleConfigItemVisibility(itemName, isVisible) {
+    var items = $('#sb-configuration .sb-config-field-' + itemName);
+    if (isVisible) {
+      items.removeClass('sb-config-field-hidden');
     } else {
-      items.addClass('cf-hidden');
+      items.addClass('sb-config-field-hidden');
+    }
+  }
+
+  /**
+   * Toggle cache purge-related form elements to show/hide based on active state.
+   *
+   * @param {boolean} isVisible - Whether the fields should be visible or not.
+   */
+  function sbToggleCachePurgeFeatureActive(isVisible) {
+    sbToggleConfigItemVisibility('general', isVisible);
+  }
+
+  function sbToggleCachePurgeDriver(driver) {
+    switch (driver) {
+    case 'acd':
+      sbToggleConfigItemVisibility('acd', true);
+      sbToggleConfigItemVisibility('cloudflare', false);
+      break;
+    case 'cloudflare':
+      sbToggleConfigItemVisibility('acd', false);
+      sbToggleConfigItemVisibility('cloudflare', true);
+      break;
     }
   }
 

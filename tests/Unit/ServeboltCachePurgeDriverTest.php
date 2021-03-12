@@ -22,4 +22,9 @@ class ServeboltCachePurgeDriverTest extends WP_UnitTestCase
         $this->assertTrue(method_exists($this->client, 'purgeByUrls'));
         $this->assertTrue(method_exists($this->client, 'purgeAll'));
     }
+
+    public function testThatPurgeAllPrefixesAreCorrect()
+    {
+        $this->assertEquals($this->client->getPurgeAllPrefixes(), ['example.org', 'www.example.org']);
+    }
 }

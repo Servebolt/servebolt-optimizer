@@ -25,6 +25,7 @@
     }
   ],
   "require": {
+    "php": "^7.1",
     "composer/installers": "~1.2",
     "servebolt/php-sdk": "1.0.0-beta"
   },
@@ -47,10 +48,13 @@
     "wordpress"
   ],
   "autoload": {
+    "files": [
+      "src/Servebolt/Helpers/General.php",
+      "src/Servebolt/CachePurge/ThirdPartyFunctions.php"
+    ],
     "psr-4": {
       "Servebolt\\Optimizer\\": "src/Servebolt"
-    },
-    "files": ["src/Servebolt/CachePurge/ThirdPartyFunctions.php"]
+    }
   },
   "scripts": {
     "phpunit": [

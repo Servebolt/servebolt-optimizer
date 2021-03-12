@@ -1,7 +1,5 @@
 <?php
 
-// Third party developer-friendly functions for purging cache
-
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 
 /**

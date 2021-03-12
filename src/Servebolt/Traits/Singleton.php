@@ -17,18 +17,40 @@ trait Singleton
     protected function __wakeup() { }
 
     /**
+     * @param $class
+     * @return bool
+     */
+    private static function hasPublicConstructor($class): bool
+    {
+        try {
+            $constructMethod = new \ReflectionMethod($class, '__construct');
+            if ($constructMethod->isPublic()) {
+                return true;
+            }
+        } catch (ReflectionException $e) {}
+        return false;
+    }
+
+    /**
      * @return mixed
      * @throws ReflectionException
      */
-    public static function getInstance() {
+    public static function getInstance()
+    {
         if (!self::$instance) {
             $args = func_get_args();
             $static = get_called_class();
-            $ref = new \ReflectionClass($static);
-            $ctor = is_callable($ref, '__construct');
-            static::$instance = (!!count($args) && $ctor)
-                ? $ref->newInstanceArgs($args)
-                : $ref->newInstanceWithoutConstructor();
+            $reflectionClass = new \ReflectionClass($static);
+            $constructorIsCallable = self::hasPublicConstructor($static);
+            if ($constructorIsCallable) {
+                if (count($args) > 0) {
+                    static::$instance = $reflectionClass->newInstanceArgs($args);
+                } else {
+                    static::$instance = $reflectionClass->newInstance();
+                }
+            } else {
+                static::$instance = $reflectionClass->newInstanceWithoutConstructor();
+            }
         }
         return self::$instance;
     }

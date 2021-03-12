@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Api\Cloudflare;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Traits\Multiton;
 use Servebolt\Optimizer\Traits\ClientMethodProxy;
 use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;
@@ -34,6 +36,22 @@ class Cloudflare
             'credentials' => $this->getCredentialsForAuthType($authType, $blogId),
             'zoneId' => $this->getZoneId($blogId),
         ]);
+    }
+
+    /**
+     * The Cloudflare API permissions required for this plugin.
+     *
+     * @param bool $humanReadable
+     *
+     * @return array|string
+     */
+    public function apiPermissionsNeeded($humanReadable = true)
+    {
+        $permissions = ['Zone.Zone', 'Zone.Cache Purge'];
+        if ( $humanReadable ) {
+            return sb_natural_language_join($permissions);
+        }
+        return $permissions;
     }
 
     /**

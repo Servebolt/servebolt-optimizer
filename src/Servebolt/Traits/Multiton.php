@@ -17,6 +17,21 @@ trait Multiton
     protected function __wakeup() { }
 
     /**
+     * @param $class
+     * @return bool
+     */
+    private static function hasPublicConstructor($class): bool
+    {
+        try {
+            $constructMethod = new \ReflectionMethod($class, '__construct');
+            if ($constructMethod->isPublic()) {
+                return true;
+            }
+        } catch (ReflectionException $e) {}
+        return false;
+    }
+
+    /**
      * @param null|string $name
      * @return mixed
      * @throws ReflectionException
@@ -28,11 +43,17 @@ trait Multiton
         $static = get_called_class();
         $key = sprintf('%s::%s', $static, $name);
         if (!array_key_exists($key, static::$instances)) {
-            $ref = new \ReflectionClass($static);
-            $ctor = is_callable($ref, '__construct');
-            static::$instances[$key] = (!!count($args) && $ctor)
-                ? $ref->newInstanceArgs($args)
-                : $ref->newInstanceWithoutConstructor();
+            $reflectionClass = new \ReflectionClass($static);
+            $constructorIsCallable = self::hasPublicConstructor($static);
+            if ($constructorIsCallable) {
+                if (count($args) > 0) {
+                    static::$instances[$key] = $reflectionClass->newInstanceArgs($args);
+                } else {
+                    static::$instances[$key] = $reflectionClass->newInstance();
+                }
+            } else {
+                static::$instances[$key] = $reflectionClass->newInstanceWithoutConstructor();
+            }
         }
         return static::$instances[$key];
     }

@@ -1,5 +1,5 @@
-<a href="<?php echo admin_url('admin.php?page=servebolt-cf-cache-control'); ?>" class="sb-button yellow">
-    <?php sb_e('Cloudflare Cache'); ?>
+<a href="<?php echo admin_url('admin.php?page=servebolt-cache-purge-control'); ?>" class="sb-button yellow">
+    <?php sb_e('Cache Purging'); ?>
 </a>
 
 <?php if ( sb_feature_active('cf_image_resize') ) : ?>

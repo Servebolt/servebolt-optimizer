@@ -143,10 +143,12 @@
     margin-left: 0;
 }
 
+/*
 #sb-configuration .cf-hidden-cron,
 #sb-configuration .cf-hidden {
     display: none;
 }
+*/
 
 #sb-nginx-fpc-form #nginx-fpc-ids-to-exclude-table .fpc-exclude-item-column,
 #sb-configuration #purge-items-table .purge-item-column {

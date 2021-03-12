@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Admin\Ajax\CachePurge;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Admin\Ajax\SharedMethods;
 
 class PurgeActions extends SharedMethods

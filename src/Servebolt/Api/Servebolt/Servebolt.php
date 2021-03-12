@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Api\Servebolt;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Traits\Multiton;
 use Servebolt\Optimizer\Traits\ClientMethodProxy;
 use Servebolt\Sdk\Client as ServeboltSdk;
@@ -42,34 +44,40 @@ class Servebolt
     }
 
     /**
-     * @param null|int $blogId
-     * @return mixed|void
+     * @return string
      */
-    private function getApiToken($blogId = null) : string
+    private function getApiToken(): string
     {
+        $env = Servebolt\Optimizer\EnvFile\Reader::getInstance();
+        return $env->api_key;
+        /*
+        $key = 'sb_api_token';
         if ( is_numeric($blogId) ) {
-            return sb_get_blog_option($blogId, 'sb_api_token');
+            return sb_get_blog_option($blogId, $key);
         } else {
-            return sb_get_option('sb_api_token');
+            return sb_get_option($key);
         }
+        */
     }
 
-    /**
-     * @param null|int $blogId
-     */
-    private function setEnvironmentId($blogId = null) : void
+    private function setEnvironmentId(): void
     {
+        $env = Servebolt\Optimizer\EnvFile\Reader::getInstance();
+        $this->environmentId = $env->id;
+        /*
+        $key = 'sb_environment_id';
         if (is_numeric($blogId)) {
-            $this->environmentId = sb_get_blog_option($blogId, 'sb_api_environment_id');
+            $this->environmentId = sb_get_blog_option($blogId, $key);
         } else {
-            $this->environmentId = sb_get_option('sb_api_environment_id');
+            $this->environmentId = sb_get_option($key);
         }
+        */
     }
 
     /**
      * @return int
      */
-    public function getEnvironmentId() : int
+    public function getEnvironmentId(): int
     {
         return $this->environmentId;
     }

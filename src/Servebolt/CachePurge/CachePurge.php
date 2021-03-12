@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\CachePurge;
 
+if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\CachePurge\Drivers\Servebolt as ServeboltDriver;
 use Servebolt\Optimizer\CachePurge\Drivers\Cloudflare as CloudflareDriver;
@@ -72,7 +74,7 @@ class CachePurge
      * @param null $blogId
      * @return bool
      */
-    private function cachePurgeIsActive($blogId = null): bool
+    public function cachePurgeIsActive($blogId = null): bool
     {
         $key = 'cache_purge_active';
         if (is_numeric($blogId)) {
