@@ -53,10 +53,38 @@ class Cloudflare extends HttpClient
      */
     public function __construct($args = null)
     {
-        if (is_array($args)) {
+        if ($this->credentialsOk($args)) {
             $this->setCredentials($args['authType'], $args['credentials']);
-            $this->setZone($args['ZoneId']);
+            if ($this->zoneOk($args)) {
+                $this->setZoneId($args['ZoneId']);
+            }
         }
+    }
+
+    /**
+     * Check that we got zone Id.
+     *
+     * @param $args
+     * @return bool
+     */
+    private function zoneOk($args): bool
+    {
+        return is_array($args)
+            && array_key_exists('ZoneId', $args);
+    }
+
+    /**
+     * Check that we got sufficient arguments to initialize the SDK.
+     *
+     * @param $args
+     * @return bool
+     */
+    private function credentialsOk($args): bool
+    {
+        return is_array($args)
+            && array_key_exists('authType', $args)
+            && array_key_exists('credentials', $args)
+            && is_array($args['credentials']);
     }
 
     /**

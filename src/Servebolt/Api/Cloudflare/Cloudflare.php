@@ -25,17 +25,83 @@ class Cloudflare
     private $client;
 
     /**
+     * Credential type - "api_key" or "api_token".
+     *
+     * @var string|void
+     */
+    private $authType;
+
+    /**
+     * Array with credentials.
+     *
+     * @var array|null
+     */
+    private $credentials;
+
+    /**
+     * Zone Id.
+     *
+     * @var string|void
+     */
+    private $zoneId;
+
+    /**
      * Cloudflare constructor.
      * @param null|int $blogId
      */
-    private function __construct($blogId = null)
+    public function __construct(?int $blogId = null)
     {
-        $authType = $this->getAuthType($blogId);
-        $this->client = new CloudflareSdk([
-            'authType' => $authType,
-            'credentials' => $this->getCredentialsForAuthType($authType, $blogId),
-            'zoneId' => $this->getZoneId($blogId),
-        ]);
+        $this->authType = $this->getAuthType($blogId);
+        $this->credentials = $this->getCredentialsForAuthType($this->authType, $blogId);
+        $this->zoneId = $this->getZoneId($blogId);
+        if ($this->isConfigured()) {
+            $this->client = new CloudflareSdk([
+                'authType' => $this->authType,
+                'credentials' => $this->credentials,
+                'zoneId' => $this->zoneId,
+            ]);
+        }
+    }
+
+    /**
+     * Check whether we have correct configuration.
+     *
+     * @return bool
+     */
+    public function isConfigured(): bool
+    {
+        return $this->authTypeIsSet()
+            && $this->credentialsAreSet()
+            && $this->zoneIsSet();
+    }
+
+    /**
+     * Check that auth type is set.
+     *
+     * @return bool
+     */
+    private function authTypeIsSet(): bool
+    {
+        return !is_null($this->authType);
+    }
+
+    /**
+     * Check that credentials are valid.
+     *
+     * @return bool
+     */
+    private function credentialsAreSet(): bool
+    {
+        return !is_null($this->credentials); // Credentials will be null if not valid
+    }
+
+    /**
+     * Check that zone is val
+     * @return bool
+     */
+    private function zoneIsSet(): bool
+    {
+        return is_string($this->zoneId);
     }
 
     /**
@@ -92,7 +158,7 @@ class Cloudflare
                 break;
         }
         if ( isset($optionName) ) {
-            return sb_smart_get_option($this->getBlogId($blogId), $optionName);
+            return sb_smart_get_option($blogId, $optionName);
         }
         return false;
     }
@@ -102,9 +168,9 @@ class Cloudflare
      *
      * @param $authType
      * @param null|int $blogId
-     * @return array|void
+     * @return array|null
      */
-    private function getCredentialsForAuthType($authType, $blogId = null)
+    private function getCredentialsForAuthType($authType, $blogId = null): ?array
     {
         switch ( $authType ) {
             case 'api_token':
@@ -121,6 +187,17 @@ class Cloudflare
                 }
                 break;
         }
+        return null;
+    }
+
+    /**
+     * The default auth type if none is selected.
+     *
+     * @return string
+     */
+    private function getDefaultAuthType(): string
+    {
+        return 'api_token';
     }
 
     /**
@@ -128,19 +205,20 @@ class Cloudflare
      *
      * @param null|int $blogId
      *
-     * @return string|void
+     * @return string|null
      */
-    private function getAuthType($blogId = null)
+    private function getAuthType($blogId = null): ?string
     {
         if ( is_numeric($blogId) ) {
             return $this->ensureAuthTypeIntegrity(
-                sb_get_blog_option($blogId, 'cf_auth_type',  $this->defaultAuthType)
+                sb_get_blog_option($blogId, 'cf_auth_type',  $this->getDefaultAuthType())
             );
         } else {
             return $this->ensureAuthTypeIntegrity(
-                sb_get_option('cf_auth_type',  $this->defaultAuthType)
+                sb_get_option('cf_auth_type',  $this->getDefaultAuthType())
             );
         }
+        return null;
     }
 
     /**
@@ -161,6 +239,6 @@ class Cloudflare
             case 'api_key':
                 return 'api_key';
         }
-        return false;
+        return $this->getDefaultAuthType();
     }
 }

@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Admin\Ajax\CachePurge;
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\Ajax\SharedMethods;
+use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;
 
 class Configuration extends SharedMethods
 {
@@ -22,16 +23,16 @@ class Configuration extends SharedMethods
     /**
      * Try to fetch available zones based on given API credentials.
      */
-    public function lookupZonesCallback()
+    public function lookupZonesCallback(): void
     {
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
 
-        $auth_type = sanitize_text_field($_POST['auth_type']);
+        $authType = sanitize_text_field($_POST['auth_type']);
         $credentials = sb_array_get('credentials', $_POST);
         try {
-            sb_cf_cache()->cf()->set_credentials($auth_type, $credentials);
-            $zones = sb_cf_cache()->cf()->list_zones();
+            $cfSdk = new CloudflareSdk(compact('authType', 'credentials'));
+            $zones = $cfSdk->listZones();
             if ( ! empty($zones) ) {
                 wp_send_json_success([
                     'markup' => $this->generateZoneListMarkup($zones),
@@ -47,34 +48,42 @@ class Configuration extends SharedMethods
     /**
      * Try to resolve the zone name by zone ID.
      */
-    public function lookupZoneCallback() {
+    public function lookupZoneCallback(): void
+    {
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
 
         parse_str($_POST['form'], $form_data);
-        $auth_type = sanitize_text_field($form_data['servebolt_cf_auth_type']);
-        $api_token = sanitize_text_field($form_data['servebolt_cf_api_token']);
-        $email     = sanitize_text_field($form_data['servebolt_cf_email']);
-        $api_key   = sanitize_text_field($form_data['servebolt_cf_api_key']);
-        $zone_id   = sanitize_text_field($form_data['servebolt_cf_zone_id']);
+        $authType = sanitize_text_field($form_data['servebolt_cf_auth_type']);
+        $apiToken = sanitize_text_field($form_data['servebolt_cf_api_token']);
+        $email = sanitize_text_field($form_data['servebolt_cf_email']);
+        $apiKey = sanitize_text_field($form_data['servebolt_cf_api_key']);
+        $zoneId = sanitize_text_field($form_data['servebolt_cf_zone_id']);
         try {
-            switch ($auth_type) {
+            switch ($authType) {
                 case 'api_token':
-                    sb_cf_cache()->cf()->set_credentials('api_token', compact('api_token'));
+                    $cfSdk = new CloudflareSdk([
+                        'authType' => 'api_token',
+                        'credentials' => compact('apiToken'),
+                    ]);
                     break;
                 case 'api_key':
-                    sb_cf_cache()->cf()->set_credentials('api_key', compact('email', 'api_key'));
+                    $cfSdk = new CloudflareSdk([
+                        'authType' => 'api_key',
+                        'credentials' => compact('email', 'apiKey'),
+                    ]);
                     break;
                 default:
                     throw new Exception;
             }
-            $zone = sb_cf_cache()->get_zone_by_id($zone_id);
+            $zone = $cfSdk->getZoneById($zoneId);
             if ( $zone && isset($zone->name) ) {
-                return wp_send_json_success([
+                wp_send_json_success([
                     'zone' => $zone->name,
                 ]);
+            } else {
+                throw new Exception;
             }
-            throw new Exception;
         } catch (Exception $e) {
             wp_send_json_error();
         }
@@ -83,36 +92,43 @@ class Configuration extends SharedMethods
     /**
      * Validate Cloudflare settings form.
      */
-    public function validateCfSettingsFormCallback() {
+    public function validateCfSettingsFormCallback(): void
+    {
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
 
         parse_str($_POST['form'], $form_data);
         $errors = [];
 
-        $is_active = array_key_exists('servebolt_cf_switch', $form_data) && filter_var($form_data['servebolt_cf_switch'], FILTER_VALIDATE_BOOLEAN) === true;
-        $auth_type = sanitize_text_field($form_data['servebolt_cf_auth_type']);
-        $api_token = sanitize_text_field($form_data['servebolt_cf_api_token']);
-        $email     = sanitize_text_field($form_data['servebolt_cf_email']);
-        $api_key   = sanitize_text_field($form_data['servebolt_cf_api_key']);
-        $zone_id   = sanitize_text_field($form_data['servebolt_cf_zone_id']);
-        $validate_zone = false;
+        $featureIsActive = array_key_exists('cache_purge_switch', $form_data)
+            && filter_var($form_data['cache_purge_switch'], FILTER_VALIDATE_BOOLEAN) === true;
+        $cfIsActive = array_key_exists('cache_purge_driver', $form_data)
+            && $form_data['cache_purge_driver'] == 'cloudflare';
+        $authType = sanitize_text_field($form_data['servebolt_cf_auth_type']);
+        $apiToken = sanitize_text_field($form_data['servebolt_cf_api_token']);
+        $email = sanitize_text_field($form_data['servebolt_cf_email']);
+        $apiKey = sanitize_text_field($form_data['servebolt_cf_api_key']);
+        $zoneId = sanitize_text_field($form_data['servebolt_cf_zone_id']);
+        $shouldCheckZone = false;
 
-        if ( ! $is_active ) {
+        if (!$featureIsActive || !$cfIsActive) {
             wp_send_json_success();
         }
 
-        switch ($auth_type) {
+        switch ($authType) {
             case 'api_token':
-                if ( empty($api_token) ) {
+                if ( empty($apiToken) ) {
                     $errors['api_token'] = sb__('You need to provide an API token.');
                 } else {
-                    sb_cf_cache()->cf()->set_credentials('api_token', compact('api_token'));
+                    $cfSdk = new CloudflareSdk([
+                        'authType' => 'api_token',
+                        'credentials' => compact('apiToken')
+                    ]);
                     try {
-                        if ( ! sb_cf_cache()->cf()->verify_token() ) {
+                        if ( ! $cfSdk->verifyToken() ) {
                             throw new Exception;
                         }
-                        $validate_zone = true;
+                        $shouldCheckZone = true;
                     } catch (Exception $e) {
                         $errors['api_token'] = sb__('Invalid API token.');
                     }
@@ -123,17 +139,20 @@ class Configuration extends SharedMethods
                     $errors['email'] = sb__('You need to provide an email address.');
                 }
 
-                if ( empty($api_key) ) {
+                if ( empty($apiKey) ) {
                     $errors['api_key'] = sb__('You need to provide an API key.');
                 }
 
-                if ( ! empty($email) && ! empty($api_key) ) {
-                    sb_cf_cache()->cf()->set_credentials('api_key', compact('email', 'api_key'));
+                if ( ! empty($email) && ! empty($apiKey) ) {
+                    $cfSdk = new CloudflareSdk([
+                        'authType' => 'api_key',
+                        'credentials' => compact('email', 'apiKey')
+                    ]);
                     try {
-                        if ( ! sb_cf_cache()->cf()->verify_user() ) {
+                        if ( ! $cfSdk->verifyUser() ) {
                             throw new Exception;
                         }
-                        $validate_zone = true;
+                        $shouldCheckZone = true;
                     } catch (Exception $e) {
                         $errors['api_key_credentials'] = sb__( 'Invalid API credentials.' );
                     }
@@ -142,15 +161,14 @@ class Configuration extends SharedMethods
                 break;
             default:
                 $errors[] = sb__('Invalid authentication type.');
-
         }
 
-        if ( $validate_zone ) {
-            if ( empty($zone_id) ) {
+        if ( $shouldCheckZone ) {
+            if ( empty($zoneId) ) {
                 $errors['zone_id'] = sb__('You need to provide a zone.');
             } else {
                 try {
-                    if ( ! $zone_id = sb_cf_cache()->cf()->get_zone_by_id($zone_id) ) {
+                    if ( ! $zoneId = $cfSdk->getZoneById($zoneId) ) {
                         throw new Exception;
                     }
                 } catch (Exception $e) {
@@ -159,7 +177,7 @@ class Configuration extends SharedMethods
             }
         } else {
             /*
-            $string = $auth_type == 'api_token' ? 'token' : 'credentials';
+            $string = $authType == 'api_token' ? 'token' : 'credentials';
             $errors[] = sprintf(sb__('Cannot validate zone due to insufficient/invalid API %s'), $string);
             */
         }
@@ -181,7 +199,7 @@ class Configuration extends SharedMethods
      *
      * @return string
      */
-    private function generateZoneListMarkup(array $zones) : string
+    private function generateZoneListMarkup(array $zones): string
     {
         $markup = '';
         foreach($zones as $zone) {
@@ -197,7 +215,8 @@ class Configuration extends SharedMethods
      *
      * @return string
      */
-    private function generateFormErrorHtml($errors) {
+    private function generateFormErrorHtml($errors): string
+    {
         $errors = array_map(function ($error) {
             return rtrim(trim($error), '.');
         }, $errors);

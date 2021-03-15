@@ -67,7 +67,11 @@ class AdminGuiController
                     break;
                 */
                 case 'cache_purge_driver':
-                    $value = sb_get_option($item);
+                    if (!host_is_servebolt()) {
+                        $value = $this->getDefaultCachePurgeDriver(); // Only allow Cloudflare when not hosted at Servebolt
+                    } else {
+                        $value = sb_get_option($item);
+                    }
                     $itemsWithValues['cache_purge_driver'] = $value ?: $this->getDefaultCachePurgeDriver();
                     break;
                 case 'cf_auth_type':
@@ -224,9 +228,11 @@ class AdminGuiController
      */
     public function cachePurgeLegacyRedirect(): void
     {
-        wp_redirect(
-            admin_url('admin.php?page=servebolt-cache-purge-control')
-        );
+        ?>
+        <script>
+            window.location = '<?php echo admin_url('admin.php?page=servebolt-cache-purge-control') ?>';
+        </script>
+        <?php
     }
 
     /**

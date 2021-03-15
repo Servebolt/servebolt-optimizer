@@ -3,6 +3,9 @@ jQuery(document).ready(function($) {
   // Toggle cache purge feature active/inactive
   $('#sb-configuration #cache_purge_switch').change(function() {
     sbToggleCachePurgeFeatureActive($(this).is(':checked'));
+    if ($(this).is(':checked')) {
+      $('#sb-configuration input[name="servebolt_cache_purge_driver"]:checked').change();
+    }
   });
 
   // Toggle cache purge driver
@@ -291,7 +294,7 @@ jQuery(document).ready(function($) {
         var api_token = $('#sb-configuration #sb_api_token').val();
         if ( api_token ) {
           api_credentials_zone_lookup_type_wait_timeout = setTimeout(function () {
-            fetch_and_display_available_zones(auth_type, { api_token: api_token });
+            fetch_and_display_available_zones(auth_type, { apiToken: api_token });
           }, 1000);
         } else {
           toggle_available_zones(false);
@@ -302,7 +305,7 @@ jQuery(document).ready(function($) {
           api_key = $('#sb-configuration #sb_api_key').val();
         if ( email && api_key ) {
           api_credentials_zone_lookup_type_wait_timeout = setTimeout(function () {
-            fetch_and_display_available_zones(auth_type, { email: email, api_key: api_key });
+            fetch_and_display_available_zones(auth_type, { email: email, apiKey: api_key });
           }, 1000);
         } else {
           toggle_available_zones(false);

@@ -510,10 +510,12 @@ if ( ! function_exists('host_is_servebolt') ) {
    * @return bool
    */
   function host_is_servebolt() {
-    if ( defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE) ) return HOST_IS_SERVEBOLT_OVERRIDE;
-    foreach(['SERVER_ADMIN', 'SERVER_NAME'] as $key) {
+    if ( defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE) ) {
+        return HOST_IS_SERVEBOLT_OVERRIDE;
+    }
+    foreach (['SERVER_ADMIN', 'SERVER_NAME'] as $key) {
       if (array_key_exists($key, $_SERVER)) {
-        if ( (boolean) preg_match('/(servebolt|raskesider)\.([\w]{2,63})$/', $_SERVER[$key]) ) {
+        if ((boolean) preg_match('/(servebolt|raskesider)\.([\w]{2,63})$/', $_SERVER[$key])) {
           return true;
         }
       }

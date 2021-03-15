@@ -65,7 +65,7 @@ class CF_Cache_Admin_Controls {
 	 */
 	public function plugin_scripts() {
 		$screen = get_current_screen();
-		if ( $screen->id != 'servebolt_page_servebolt-cf-cache-control' ) return;
+		if ( $screen->id != 'servebolt_page_servebolt-servebolt-cache-purge-control' ) return;
 		wp_enqueue_script( 'servebolt-optimizer-cloudflare-cache-purge-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/cloudflare-cache-purge.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'assets/dist/js/cloudflare-cache-purge.js'), true );
 	}
 

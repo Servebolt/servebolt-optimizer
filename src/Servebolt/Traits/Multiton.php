@@ -21,7 +21,7 @@ trait Multiton
         $key = sprintf('%s::%s', $static, $name);
         if (!array_key_exists($key, static::$instances)) {
             if (count($args) > 0 && method_exists($static, '__construct')) {
-                static::$instances[$key] = new $static($args);
+                static::$instances[$key] = new $static(...$args);
             } else {
                 static::$instances[$key] = new $static;
             }

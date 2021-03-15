@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\CachePurge\Drivers;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltSdk;
+use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeInterface;
 
@@ -12,14 +12,14 @@ class Servebolt implements CachePurgeInterface
 {
     use Singleton;
 
-    private $sdkInstance;
+    private $apiInstance;
 
     /**
      * Servebolt constructor.
      */
     public function __construct()
     {
-        $this->sdkInstance = ServeboltSdk::getInstance();
+        $this->apiInstance = ServeboltApi::getInstance();
     }
 
     /**
@@ -28,7 +28,7 @@ class Servebolt implements CachePurgeInterface
      */
     public function purgeByUrl(string $url)
     {
-        return $this->sdkInstance->environment()->purgeCache([$url]);
+        return $this->apiInstance->environment()->purgeCache([$url]);
     }
 
     /**
@@ -37,8 +37,8 @@ class Servebolt implements CachePurgeInterface
      */
     public function purgeByUrls(array $urls)
     {
-        return $this->sdkInstance->environment->purgeCache(
-            $this->sdkInstance->getEnvironmentId(),
+        return $this->apiInstance->environment->purgeCache(
+            $this->apiInstance->getEnvironmentId(),
             $urls
         );
     }
@@ -50,8 +50,7 @@ class Servebolt implements CachePurgeInterface
      */
     public function configurationOk(): bool
     {
-        return !is_null($this->sdkInstance->getApiToken())
-            && !is_null($this->sdkInstance->getEnvironmentId());
+        return $this->apiInstance->isConfigured();
     }
 
     /**
@@ -59,9 +58,8 @@ class Servebolt implements CachePurgeInterface
      */
     public function purgeAll()
     {
-        $instance = ServeboltSdk::getInstance();
-        return $instance->environment->purgeCache(
-            $instance->getEnvironmentId(),
+        return $this->apiInstance->environment->purgeCache(
+            $this->apiInstance->getEnvironmentId(),
             [],
             $this->getPurgeAllPrefixes()
         );
