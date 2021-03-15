@@ -8,12 +8,11 @@
             <h3 style="margin-bottom: 0;"><?php sb_e('API credentials'); ?></h3>
             <p style="font-weight: normal;"><?php sb_e('The information below is read from the environment file in the Servebolt hosting environment.'); ?></p>
             <?php if (!$serveboltCachePurge->configurationOk()) : ?>
-                <p style="font-weight: normal;color: red;"><?php sb_e('We could not seem to load the information from the environment file and therefore the cache purge feature is disabled.'); ?></p>
+                <p style="font-weight: normal;color: red;"><?php sb_e('We could not seem to load the configuration from the environment file and therefore the cache purge feature is disabled.'); ?></p>
             <?php endif; ?>
         </th>
     </tr>
 
-    <?php if ($serveboltCachePurge->configurationOk()) : ?>
     <tr>
         <th scope="row"><label for="sb_api_key"><?php sb_e('API key'); ?></label></th>
         <td>
@@ -35,6 +34,5 @@
             <p class="invalid-message"></p>
         </td>
     </tr>
-    <?php endif; ?>
 
 </tbody>

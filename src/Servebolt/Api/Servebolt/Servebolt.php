@@ -38,9 +38,42 @@ class Servebolt
     private function __construct()
     {
         $this->setEnvironmentId();
-        $this->client = new ServeboltSdk([
-            'apiToken' => $this->getApiToken()
-        ]);
+        if ($this->hasApiToken()) {
+            $this->client = new ServeboltSdk([
+                'apiToken' => $this->getApiToken()
+            ]);
+        }
+    }
+
+    /**
+     * Check whether we have an API token.
+     *
+     * @return bool
+     */
+    private function hasApiToken(): bool
+    {
+        return !is_null($this->getApiToken());
+    }
+
+    /**
+     * Check whether we have an environment Id.
+     *
+     * @return bool
+     */
+    private function hasEnvironmentId(): bool
+    {
+        return !is_null($this->getEnvironmentId());
+    }
+
+    /**
+     * Check whether the API is configured.
+     *
+     * @return bool
+     */
+    public function isConfigured(): bool
+    {
+        return $this->hasApiToken()
+            && $this->hasEnvironmentId();
     }
 
     private function setEnvironmentId(): void

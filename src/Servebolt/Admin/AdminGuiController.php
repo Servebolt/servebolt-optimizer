@@ -228,9 +228,11 @@ class AdminGuiController
      */
     public function cachePurgeLegacyRedirect(): void
     {
-        wp_redirect(
-            admin_url('admin.php?page=servebolt-cache-purge-control')
-        );
+        ?>
+        <script>
+            window.location = '<?php echo admin_url('admin.php?page=servebolt-cache-purge-control') ?>';
+        </script>
+        <?php
     }
 
     /**

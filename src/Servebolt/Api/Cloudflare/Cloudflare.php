@@ -25,17 +25,83 @@ class Cloudflare
     private $client;
 
     /**
+     * Credential type - "api_key" or "api_token".
+     *
+     * @var string|void
+     */
+    private $authType;
+
+    /**
+     * Array with credentials.
+     *
+     * @var array|null
+     */
+    private $credentials;
+
+    /**
+     * Zone Id.
+     *
+     * @var string|void
+     */
+    private $zoneId;
+
+    /**
      * Cloudflare constructor.
      * @param null|int $blogId
      */
-    private function __construct($blogId = null)
+    public function __construct(?int $blogId = null)
     {
-        $authType = $this->getAuthType($blogId);
-        $this->client = new CloudflareSdk([
-            'authType' => $authType,
-            'credentials' => $this->getCredentialsForAuthType($authType, $blogId),
-            'zoneId' => $this->getZoneId($blogId),
-        ]);
+        $this->authType = $this->getAuthType($blogId);
+        $this->credentials = $this->getCredentialsForAuthType($this->authType, $blogId);
+        $this->zoneId = $this->getZoneId($blogId);
+        if ($this->isConfigured()) {
+            $this->client = new CloudflareSdk([
+                'authType' => $this->authType,
+                'credentials' => $this->credentials,
+                'zoneId' => $this->zoneId,
+            ]);
+        }
+    }
+
+    /**
+     * Check whether we have correct configuration.
+     *
+     * @return bool
+     */
+    public function isConfigured(): bool
+    {
+        return $this->authTypeIsSet()
+            && $this->credentialsAreSet()
+            && $this->zoneIsSet();
+    }
+
+    /**
+     * Check that auth type is set.
+     *
+     * @return bool
+     */
+    private function authTypeIsSet(): bool
+    {
+        return !is_null($this->authType);
+    }
+
+    /**
+     * Check that credentials are valid.
+     *
+     * @return bool
+     */
+    private function credentialsAreSet(): bool
+    {
+        return !is_null($this->credentials); // Credentials will be null if not valid
+    }
+
+    /**
+     * Check that zone is val
+     * @return bool
+     */
+    private function zoneIsSet(): bool
+    {
+        return is_string($this->zoneId);
     }
 
     /**
@@ -109,7 +175,6 @@ class Cloudflare
         switch ( $authType ) {
             case 'api_token':
                 $apiToken = $this->getCredential('api_token', $blogId);
-
                 if ( ! empty($apiToken) ) {
                     return compact('apiToken');
                 }
@@ -140,9 +205,9 @@ class Cloudflare
      *
      * @param null|int $blogId
      *
-     * @return string|void
+     * @return string|null
      */
-    private function getAuthType($blogId = null)
+    private function getAuthType($blogId = null): ?string
     {
         if ( is_numeric($blogId) ) {
             return $this->ensureAuthTypeIntegrity(
@@ -153,6 +218,7 @@ class Cloudflare
                 sb_get_option('cf_auth_type',  $this->getDefaultAuthType())
             );
         }
+        return null;
     }
 
     /**

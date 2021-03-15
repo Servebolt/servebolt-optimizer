@@ -18,7 +18,7 @@ trait Singleton
             $args = func_get_args();
             $static = get_called_class();
             if (count($args) > 0 && method_exists($static, '__construct')) {
-                static::$instance = new $static($args);
+                static::$instance = new $static(...$args);
             } else {
                 static::$instance = new $static;
             }

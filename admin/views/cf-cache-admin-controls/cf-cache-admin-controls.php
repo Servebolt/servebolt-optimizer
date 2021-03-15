@@ -44,7 +44,7 @@
           <td><?php echo $site->blog_id; ?></td>
           <td><?php echo $site->domain . $site->path; ?></td>
           <td><?php echo sb_cf_cache()->cf_is_active($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
-          <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-cf-cache-control' ); ?>" class="button btn"><?php sb_e('Go to site Cloudflare settings'); ?></a></td>
+          <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-cache-purge-control' ); ?>" class="button btn"><?php sb_e('Go to site Cloudflare settings'); ?></a></td>
         </tr>
 	  <?php endforeach; ?>
       </tbody>

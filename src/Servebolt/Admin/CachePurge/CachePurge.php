@@ -16,9 +16,6 @@ class CachePurge
 
     use Singleton;
 
-    /**
-     * @throws \ReflectionException
-     */
     public static function init(): void
     {
         self::getInstance();

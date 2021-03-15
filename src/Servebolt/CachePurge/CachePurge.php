@@ -5,6 +5,8 @@ namespace Servebolt\Optimizer\CachePurge;
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
+use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
+use Servebolt\Optimizer\Api\Cloudflare\Cloudflare as CloudflareApi;
 use Servebolt\Optimizer\CachePurge\Drivers\Servebolt as ServeboltDriver;
 use Servebolt\Optimizer\CachePurge\Drivers\Cloudflare as CloudflareDriver;
 
@@ -29,12 +31,12 @@ class CachePurge
 
     /**
      * CachePurge constructor.
-     * @param null|int $blogId
+     * @param int|null $blogId
      * @throws \ReflectionException
      */
-    private function __construct($blogId = null)
+    private function __construct(?int $blogId = null)
     {
-        $this->driver = $this->resolveDriver($blogId);
+        $this->driver = $this->resolveDriverObject($blogId);
     }
 
     /**
@@ -46,37 +48,78 @@ class CachePurge
     }
 
     /**
-     * @param null|int $blogId
-     * @return mixed
-     * @throws \ReflectionException
+     * @param int|null $blogId
+     * @param bool $verbose
+     * @return string
      */
-    private function resolveDriver($blogId = null)
+    public static function resolveDriver(?int $blogId = null, bool $verbose = false): ?string
     {
         if (
-            $this->cachePurgeIsActive($blogId)
-            && $this->cloudflareIsSelected($blogId)
-            && $this->cloudflareIsConfigured($blogId)
+            self::cachePurgeIsActive($blogId)
+            && self::cloudflareIsSelected($blogId)
+            && self::cloudflareIsConfigured($blogId)
         ) {
-            return CloudflareDriver::getInstance();
+            return $verbose ? 'Cloudflare' : 'cloudflare';
         }
         if (
-            $this->isHostedAtServebolt($blogId)
-            && $this->cachePurgeIsActive($blogId)
-            && $this->acdIsSelected($blogId)
-            && $this->acdIsConfigured($blogId)
+            self::isHostedAtServebolt()
+            && self::cachePurgeIsActive($blogId)
+            && self::acdIsSelected($blogId)
+            && self::acdIsConfigured()
         ) {
+            return $verbose ? 'Accelerated domains' : 'acd';
+        }
+        return null;
+    }
+
+    /**
+     * @param null|int $blogId
+     * @return mixed
+     */
+    private function resolveDriverObject(?int $blogId = null)
+    {
+        $driver = $this->resolveDriver($blogId);
+        if ($driver === 'cloudflare') {
+            return CloudflareDriver::getInstance();
+        }
+        if ($driver === 'acd') {
             return ServeboltDriver::getInstance();
         }
         // Handle when no driver is given?
     }
 
     /**
-     * @param null $blogId
+     * Check whether cache purge feature is configured correctly and ready to use.
+     *
+     * @param int|null $blogId
      * @return bool
      */
-    public function cachePurgeIsActive($blogId = null): bool
+    public static function featureIsConfigured(?int $blogId = null): bool
     {
-        $key = 'cache_purge_active';
+        if (
+            self::cloudflareIsSelected($blogId)
+            && self::cloudflareIsConfigured($blogId)
+        ) {
+            return true;
+        }
+        if (
+            self::acdIsSelected($blogId)
+            && self::acdIsConfigured($blogId)
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Check whether the cache purge feature is active.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function cachePurgeIsActive(?int $blogId = null): bool
+    {
+        $key = 'cache_purge_switch';
         if (is_numeric($blogId)) {
             return sb_checkbox_true(sb_get_blog_option($blogId, $key));
         } else {
@@ -84,14 +127,26 @@ class CachePurge
         }
     }
 
-    private function cloudflareIsSelected($blogId = null): bool
+    /**
+     * Check whether Cloudflare is selected as cache purge driver.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    private static function cloudflareIsSelected(?int $blogId = null): bool
     {
-        return $this->getSelectedCachePurgeDriver($blogId) == 'cloudflare';
+        return self::getSelectedCachePurgeDriver($blogId) == 'cloudflare';
     }
 
-    private function getSelectedCachePurgeDriver($blogId)
+    /**
+     * Get the selected cache purge driver.
+     *
+     * @param int|null $blogId
+     * @return mixed|void
+     */
+    private static function getSelectedCachePurgeDriver(?int $blogId = null)
     {
-        $key = 'cache_purge_selector';
+        $key = 'cache_purge_driver';
         if (is_numeric($blogId)) {
             return sb_get_blog_option($blogId, $key);
         } else {
@@ -99,24 +154,48 @@ class CachePurge
         }
     }
 
-    private function cloudflareIsConfigured($blogId = null) : bool
+    /**
+     * Check that site is hosted at Servebolt.
+     *
+     * @return bool
+     */
+    private static function isHostedAtServebolt(): bool
     {
-        // TODO: Add checks to see if Cloudflare is configured
+        return host_is_servebolt();
     }
 
-    private function isHostedAtServebolt($blogId = null) : bool
+    /**
+     * Check whether ACD is selected as cache purge driver.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    private static function acdIsSelected(?int $blogId = null): bool
     {
-        // TODO: Make sure that site is hosted at servebolt
+        return self::getSelectedCachePurgeDriver($blogId) == 'acd';
     }
 
-    private function acdIsSelected($blogId = null) : bool
+    /**
+     * @param int|null $blogId
+     * @return bool
+     */
+    private static function cloudflareIsConfigured(?int $blogId = null): bool
     {
-        return $this->getSelectedCachePurgeDriver($blogId) == 'acd';
+        if (is_int($blogId)) {
+            $cfApi = new CloudflareApi($blogId);
+        } else {
+            $cfApi = CloudflareApi::getInstance();
+        }
+        return $cfApi->isConfigured();
     }
 
-    private function acdIsConfigured($blogId = null) : bool
+    /**
+     * @return bool
+     */
+    private static function acdIsConfigured(): bool
     {
-        // TODO: Add checks to see if Cloudflare is configured
+        $sbApi = ServeboltApi::getInstance();
+        return $sbApi->isConfigured();
     }
 
     /**

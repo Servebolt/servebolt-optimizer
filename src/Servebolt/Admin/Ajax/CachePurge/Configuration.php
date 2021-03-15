@@ -78,11 +78,12 @@ class Configuration extends SharedMethods
             }
             $zone = $cfSdk->getZoneById($zoneId);
             if ( $zone && isset($zone->name) ) {
-                return wp_send_json_success([
+                wp_send_json_success([
                     'zone' => $zone->name,
                 ]);
+            } else {
+                throw new Exception;
             }
-            throw new Exception;
         } catch (Exception $e) {
             wp_send_json_error();
         }
@@ -108,7 +109,7 @@ class Configuration extends SharedMethods
         $email = sanitize_text_field($form_data['servebolt_cf_email']);
         $apiKey = sanitize_text_field($form_data['servebolt_cf_api_key']);
         $zoneId = sanitize_text_field($form_data['servebolt_cf_zone_id']);
-        $zoneIsValid = false;
+        $shouldCheckZone = false;
 
         if (!$featureIsActive || !$cfIsActive) {
             wp_send_json_success();
@@ -127,7 +128,7 @@ class Configuration extends SharedMethods
                         if ( ! $cfSdk->verifyToken() ) {
                             throw new Exception;
                         }
-                        $zoneIsValid = true;
+                        $shouldCheckZone = true;
                     } catch (Exception $e) {
                         $errors['api_token'] = sb__('Invalid API token.');
                     }
@@ -151,7 +152,7 @@ class Configuration extends SharedMethods
                         if ( ! $cfSdk->verifyUser() ) {
                             throw new Exception;
                         }
-                        $zoneIsValid = true;
+                        $shouldCheckZone = true;
                     } catch (Exception $e) {
                         $errors['api_key_credentials'] = sb__( 'Invalid API credentials.' );
                     }
@@ -162,7 +163,7 @@ class Configuration extends SharedMethods
                 $errors[] = sb__('Invalid authentication type.');
         }
 
-        if ( $zoneIsValid ) {
+        if ( $shouldCheckZone ) {
             if ( empty($zoneId) ) {
                 $errors['zone_id'] = sb__('You need to provide a zone.');
             } else {
