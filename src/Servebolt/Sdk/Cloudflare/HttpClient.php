@@ -39,11 +39,11 @@ abstract class HttpClient
         ];
         switch ( $this->authType ) {
             case 'api_token':
-                $headers['Authorization'] = 'Bearer ' . $this->getCredential('api_token');
+                $headers['Authorization'] = 'Bearer ' . $this->getCredential('apiToken');
                 break;
             case 'api_key':
                 $headers['X-Auth-Email'] = $this->getCredential('email');
-                $headers['X-Auth-Key'] = $this->getCredential('api_key');
+                $headers['X-Auth-Key'] = $this->getCredential('apiKey');
                 break;
         }
         return array_merge($headers, $additionalHeaders);

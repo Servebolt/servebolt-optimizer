@@ -53,10 +53,24 @@ class Cloudflare extends HttpClient
      */
     public function __construct($args = null)
     {
-        if ($this->argumentsOkay($args)) {
+        if ($this->credentialsOk($args)) {
             $this->setCredentials($args['authType'], $args['credentials']);
-            $this->setZone($args['ZoneId']);
+            if ($this->zoneOk($args)) {
+                $this->setZoneId($args['ZoneId']);
+            }
         }
+    }
+
+    /**
+     * Check that we got zone Id.
+     *
+     * @param $args
+     * @return bool
+     */
+    private function zoneOk($args): bool
+    {
+        return is_array($args)
+            && array_key_exists('ZoneId', $args);
     }
 
     /**
@@ -65,12 +79,12 @@ class Cloudflare extends HttpClient
      * @param $args
      * @return bool
      */
-    private function argumentsOkay($args): bool
+    private function credentialsOk($args): bool
     {
         return is_array($args)
             && array_key_exists('authType', $args)
             && array_key_exists('credentials', $args)
-            && array_key_exists('ZoneId', $args);
+            && is_array($args['credentials']);
     }
 
     /**

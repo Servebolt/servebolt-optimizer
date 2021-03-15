@@ -109,6 +109,7 @@ class Cloudflare
         switch ( $authType ) {
             case 'api_token':
                 $apiToken = $this->getCredential('api_token', $blogId);
+
                 if ( ! empty($apiToken) ) {
                     return compact('apiToken');
                 }
