@@ -12,31 +12,50 @@ class Servebolt implements CachePurgeInterface
 {
     use Singleton;
 
+    private $sdkInstance;
+
+    /**
+     * Servebolt constructor.
+     */
+    public function __construct()
+    {
+        $this->sdkInstance = ServeboltSdk::getInstance();
+    }
+
     /**
      * @param string $url
      * @return mixed
-     * @throws \ReflectionException
      */
     public function purgeByUrl(string $url)
     {
-        $instance = ServeboltSdk::getInstance();
-        return $instance->environment()->purgeCache([$url]);
+        return $this->sdkInstance->environment()->purgeCache([$url]);
     }
 
     /**
      * @param array $urls
      * @return mixed
-     * @throws \ReflectionException
      */
     public function purgeByUrls(array $urls)
     {
-        $instance = ServeboltSdk::getInstance();
-        return $instance->environment->purgeCache($instance->getEnvironmentId(), $urls);
+        return $this->sdkInstance->environment->purgeCache(
+            $this->sdkInstance->getEnvironmentId(),
+            $urls
+        );
+    }
+
+    /**
+     * Check whether the Servebolt SDK is configured correctly.
+     *
+     * @return bool
+     */
+    public function configurationOk(): bool
+    {
+        return !is_null($this->sdkInstance->getApiToken())
+            && !is_null($this->sdkInstance->getEnvironmentId());
     }
 
     /**
      * @return mixed
-     * @throws \ReflectionException
      */
     public function purgeAll()
     {

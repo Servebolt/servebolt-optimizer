@@ -218,7 +218,7 @@ class SB_General_Settings {
      */
     public function view() {
         sb_view('admin/views/general-settings', [
-            'sb_admin_url' => sb_get_admin_url(),
+            'sb_admin_url' => Servebolt\Optimizer\Helpers\sbGetAdminUrl(),
         ]);
     }
 

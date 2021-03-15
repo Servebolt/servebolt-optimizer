@@ -329,21 +329,6 @@ if ( ! function_exists('sb_cf_cache_purge_object') ) {
     }
 }
 
-if ( ! function_exists('sb_get_admin_url') ) {
-  /**
-   * Get a link to the Servebolt admin panel.
-   *
-   * @return bool|string
-   */
-  function sb_get_admin_url() {
-    if ( ! function_exists( 'get_home_path' ) ) {
-        require_once( ABSPATH . 'wp-admin/includes/file.php' );
-    }
-    $web_root_path = sb_is_dev_debug() ? '/kunder/serveb_1234/custom_4321/public' : get_home_path();
-    return ( preg_match( "@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $web_root_path, $matches ) ) ? 'https://admin.servebolt.com/siteredirect/?site='. $matches[1] : false;
-  }
-}
-
 if ( ! function_exists('sb_generic_optimizations') ) {
   /**
    * Add minor improvements to WP.

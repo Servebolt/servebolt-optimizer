@@ -78,7 +78,7 @@ class Servebolt_Admin_Bar_Interface {
 		$nodes = [];
 		$method = is_multisite() && is_network_admin() ? 'network_admin_url' : 'admin_url';
 
-		if ( $admin_url = sb_get_admin_url() ) {
+		if ( $admin_url = Servebolt\Optimizer\Helpers\sbGetAdminUrl() ) {
 			$nodes[] = [
 				'id'    => 'servebolt-crontrol-panel',
 				'title' => sb__('Servebolt Control Panel'),

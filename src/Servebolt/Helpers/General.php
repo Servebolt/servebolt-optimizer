@@ -30,3 +30,20 @@ function view(string $templatePath, $arguments = [], $echo = true): ?string
     }
     return null;
 }
+
+/**
+ * Get a link to the Servebolt admin panel.
+ *
+ * @return string
+ */
+function sbGetAdminUrl() :string
+{
+    if (!function_exists('get_home_path')) {
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+    }
+    $webRootPath = sb_is_dev_debug() ? '/kunder/serveb_1234/custom_4321/public' : get_home_path();
+    if (preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $webRootPath, $matches) && isset($matches[1])) {
+        return 'https://admin.servebolt.com/siteredirect/?site='. $matches[1];
+    }
+    return false;
+}

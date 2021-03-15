@@ -4,7 +4,8 @@ namespace Servebolt\Optimizer\Api\Servebolt;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Traits\Multiton;
+use Servebolt\Optimizer\EnvFile\Reader as EnvFileReader;
+use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Traits\ClientMethodProxy;
 use Servebolt\Sdk\Client as ServeboltSdk;
 use Servebolt\Sdk\Exceptions\ServeboltInvalidOrMissingAuthDriverException;
@@ -18,10 +19,10 @@ use Servebolt\Sdk\Exceptions\ServeboltInvalidOrMissingAuthDriverException;
  */
 class Servebolt
 {
-    use Multiton, ClientMethodProxy;
+    use Singleton, ClientMethodProxy;
 
     /**
-     * @var ServeboltSdk Sdk instance.
+     * @var ServeboltSdk SDK instance.
      */
     private $client;
 
@@ -32,53 +33,36 @@ class Servebolt
 
     /**
      * Servebolt constructor.
-     * @param null|int $blogId
      * @throws ServeboltInvalidOrMissingAuthDriverException
      */
-    private function __construct($blogId = null)
+    private function __construct()
     {
-        $this->setEnvironmentId($blogId);
+        $this->setEnvironmentId();
         $this->client = new ServeboltSdk([
-            'apiToken' => $this->getApiToken($blogId)
+            'apiToken' => $this->getApiToken()
         ]);
-    }
-
-    /**
-     * @return string
-     */
-    private function getApiToken(): string
-    {
-        $env = Servebolt\Optimizer\EnvFile\Reader::getInstance();
-        return $env->api_key;
-        /*
-        $key = 'sb_api_token';
-        if ( is_numeric($blogId) ) {
-            return sb_get_blog_option($blogId, $key);
-        } else {
-            return sb_get_option($key);
-        }
-        */
     }
 
     private function setEnvironmentId(): void
     {
-        $env = Servebolt\Optimizer\EnvFile\Reader::getInstance();
+        $env = EnvFileReader::getInstance();
         $this->environmentId = $env->id;
-        /*
-        $key = 'sb_environment_id';
-        if (is_numeric($blogId)) {
-            $this->environmentId = sb_get_blog_option($blogId, $key);
-        } else {
-            $this->environmentId = sb_get_option($key);
-        }
-        */
     }
 
     /**
      * @return int
      */
-    public function getEnvironmentId(): int
+    public function getEnvironmentId(): ?int
     {
         return $this->environmentId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApiToken(): ?string
+    {
+        $env = EnvFileReader::getInstance();
+        return $env->api_key;
     }
 }
