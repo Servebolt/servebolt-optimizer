@@ -90,7 +90,9 @@ class Servebolt_Admin_Bar_Interface {
 			];
 		}
 
-		if ( is_network_admin() ) {
+		if (is_network_admin() ) {
+		    // TODO: Re-introduce this feature
+		    /*
 			$nodes[] = [
 				'id'    => 'servebolt-clear-cf-network-cache',
 				'title' => sb__('Purge Cloudflare Cache for all sites'),
@@ -100,6 +102,7 @@ class Servebolt_Admin_Bar_Interface {
 					'class' => 'sb-admin-button sb-purge-network-cache'
 				]
 			];
+		    */
 		}
 
         $cache_purge_available = sb_cf_cache()->should_use_cf_feature();
