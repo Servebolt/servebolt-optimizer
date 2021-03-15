@@ -92,7 +92,7 @@ class Cloudflare
                 break;
         }
         if ( isset($optionName) ) {
-            return sb_smart_get_option($this->getBlogId($blogId), $optionName);
+            return sb_smart_get_option($blogId, $optionName);
         }
         return false;
     }
@@ -102,9 +102,9 @@ class Cloudflare
      *
      * @param $authType
      * @param null|int $blogId
-     * @return array|void
+     * @return array|null
      */
-    private function getCredentialsForAuthType($authType, $blogId = null)
+    private function getCredentialsForAuthType($authType, $blogId = null): ?array
     {
         switch ( $authType ) {
             case 'api_token':
@@ -121,6 +121,17 @@ class Cloudflare
                 }
                 break;
         }
+        return null;
+    }
+
+    /**
+     * The default auth type if none is selected.
+     *
+     * @return string
+     */
+    private function getDefaultAuthType(): string
+    {
+        return 'api_token';
     }
 
     /**
@@ -134,11 +145,11 @@ class Cloudflare
     {
         if ( is_numeric($blogId) ) {
             return $this->ensureAuthTypeIntegrity(
-                sb_get_blog_option($blogId, 'cf_auth_type',  $this->defaultAuthType)
+                sb_get_blog_option($blogId, 'cf_auth_type',  $this->getDefaultAuthType())
             );
         } else {
             return $this->ensureAuthTypeIntegrity(
-                sb_get_option('cf_auth_type',  $this->defaultAuthType)
+                sb_get_option('cf_auth_type',  $this->getDefaultAuthType())
             );
         }
     }
@@ -161,6 +172,6 @@ class Cloudflare
             case 'api_key':
                 return 'api_key';
         }
-        return false;
+        return $this->getDefaultAuthType();
     }
 }

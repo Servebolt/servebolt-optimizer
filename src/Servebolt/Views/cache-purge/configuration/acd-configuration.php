@@ -1,4 +1,5 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+<?php $serveboltApi = Servebolt\Optimizer\Api\Servebolt\Servebolt::getInstance(); ?>
 <?php $serveboltCachePurge = Servebolt\Optimizer\CachePurge\Drivers\Servebolt::getInstance(); ?>
 
 <tbody class="sb-config-field-general sb-config-field-acd <?php if ( ! $settings['cache_purge_switch'] || $settings['cache_purge_driver'] !== 'acd' ) echo 'sb-config-field-hidden'; ?>">
@@ -18,7 +19,7 @@
         <td>
 
             <div class="sb-pwd">
-                <input type="password" id="sb_api_key" value="<?php echo esc_attr($serveboltCachePurge->getApiToken()); ?>" class="regular-text validate-field" readonly>
+                <input type="password" id="sb_api_key" value="<?php echo esc_attr($serveboltApi->getApiToken()); ?>" class="regular-text validate-field" readonly>
                 <button type="button" class="button button-secondary wp-hide-pw sb-hide-pwd hide-if-no-js" data-toggle="0" aria-label="Show password">
                     <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
                 </button>
@@ -30,7 +31,7 @@
     <tr>
         <th scope="row"><label for="sb_environment_id"><?php sb_e('Environment ID'); ?></label></th>
         <td>
-            <input type="text" id="sb_environment_id" value="<?php echo esc_attr($serveboltCachePurge->getEnvironmentId()); ?>" class="regular-text validate-field validation-input-email" readonly>
+            <input type="text" id="sb_environment_id" value="<?php echo esc_attr($serveboltApi->getEnvironmentId()); ?>" class="regular-text validate-field validation-input-email" readonly>
             <p class="invalid-message"></p>
         </td>
     </tr>

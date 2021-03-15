@@ -29,7 +29,7 @@
  */ ?>
 
     <h1><?php sb_e('Configuration'); ?></h1>
-    <p><?php sb_e('This feature can be set up using WP CLI or with the form below.'); ?></p>
+    <!--<p><?php sb_e('This feature can be set up using WP CLI or with the form below.'); ?></p>-->
     <!--<p><?php echo sprintf(sb__('Run %swp servebolt cache-purge --help%s to see available commands.'), '<code>', '</code>'); ?></p>-->
 
     <style type="text/css">
@@ -62,8 +62,14 @@
                 <td>
                     <fieldset>
                         <legend class="screen-reader-text"><span><?php sb_e('Cache purge driver'); ?></span></legend>
-                        <label><input type="radio" name="<?php echo sb_get_option_name('cache_purge_driver'); ?>" value="cloudflare" <?php checked($settings['cache_purge_driver'] == 'cloudflare'); ?>> <code><?php sb_e('Cloudflare'); ?></code></label><br>
-                        <label><input type="radio" name="<?php echo sb_get_option_name('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?>> <code><?php sb_e('Accelerated Domains'); ?></code></label>
+                        <label>
+                            <input type="radio" name="<?php echo sb_get_option_name('cache_purge_driver'); ?>" value="cloudflare" <?php checked($settings['cache_purge_driver'] == 'cloudflare'); ?>> <code><?php sb_e('Cloudflare'); ?></code>
+                        </label>
+                        <br>
+                        <label<?php if (!$isHostedAtServebolt) echo ' style="opacity: 0.5;pointer-events:none;"'; ?>>
+                            <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo sb_get_option_name('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?>> <code><?php sb_e('Accelerated Domains'); ?></code>
+                            <em>For Servebolt-customers only</em>
+                        </label>
                     </fieldset>
                 </td>
             </tr>

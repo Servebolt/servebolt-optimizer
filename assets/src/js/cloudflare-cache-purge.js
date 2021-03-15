@@ -3,6 +3,9 @@ jQuery(document).ready(function($) {
   // Toggle cache purge feature active/inactive
   $('#sb-configuration #cache_purge_switch').change(function() {
     sbToggleCachePurgeFeatureActive($(this).is(':checked'));
+    if ($(this).is(':checked')) {
+      $('#sb-configuration input[name="servebolt_cache_purge_driver"]:checked').change();
+    }
   });
 
   // Toggle cache purge driver

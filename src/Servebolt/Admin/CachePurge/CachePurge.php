@@ -44,8 +44,9 @@ class CachePurge
         $adminGuiController = AdminGuiController::getInstance();
         $settings = $adminGuiController->getSettingsItemsWithValues();
         $cachePurge = $this;
+        $isHostedAtServebolt = host_is_servebolt();
 
-        view('cache-purge/cache-purge', compact('settings', 'cachePurge'));
+        view('cache-purge/cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt'));
         /*
         $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
         $numberOfCachePurgeQueueItems = sb_cf_cache()->count_items_to_purge();
