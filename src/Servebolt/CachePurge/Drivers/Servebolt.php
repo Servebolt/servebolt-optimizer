@@ -72,6 +72,12 @@ class Servebolt implements CachePurgeInterface
      */
     public function getPurgeAllPrefixes(): array
     {
+
+        $override = apply_filters('sb_optimizer_acd_purge_all_prefixes_early_override', false); // Let user skip the method and deal with it themselves
+        if (is_array($override)) {
+            return $override;
+        }
+
         $prefixes = [];
         if (is_multisite()) {
             $prefixes = $this->getDomainsWithThirdPartySupport(); // All domains in a multisite-setup

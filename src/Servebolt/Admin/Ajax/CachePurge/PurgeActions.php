@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Admin\Ajax\CachePurge;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Admin\Ajax\SharedMethods;
 
 class PurgeActions extends SharedMethods
@@ -23,25 +24,26 @@ class PurgeActions extends SharedMethods
     }
 
     /**
-     * Purge all cache in Cloudflare cache.
+     * Purge all cache cache.
      */
     public function purgeAllCacheCallback() : void
     {
         $this->checkAjaxReferer();
-
         sb_ajax_user_allowed();
-        $cron_purge_is_active = sb_cf_cache()->cron_purge_is_active();
-        if ( ! sb_cf_cache()->cf_cache_feature_available() ) {
-            wp_send_json_error( [ 'message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.' ] );
-        } elseif ( $cron_purge_is_active && sb_cf_cache()->has_purge_all_request_in_queue() ) {
+        $cronPurgeIsActive = CachePurge::cronPurgeIsActive();
+        $i = CachePurge::getInstance();
+        $hasPurgeAllRequestInQueue = false; // TODO: Check if there is already a purge all request in the queue, if the cron feature is active.
+        if (!CachePurge::cachePurgeIsActive()) {
+            wp_send_json_error( [ 'message' => 'The cache purge feature is not active so we could not purge cache. Make sure you the configuration is correct.' ] );
+        } elseif ($cronPurgeIsActive && $hasPurgeAllRequestInQueue) {
             wp_send_json_success([
                 'title' => 'All good!',
                 'message' => 'A purge all-request is already queued and should be executed shortly.',
             ]);
-        } elseif ( sb_cf_cache()->purge_all() ) {
+        } elseif ($i->purgeAll()) {
             wp_send_json_success( [
-                'title'   => $cron_purge_is_active ? 'Just a moment' : false,
-                'message' => $cron_purge_is_active ? 'A purge all-request was added to the queue and will be executed shortly.' : 'All cache was purged.',
+                'title'   => $cronPurgeIsActive ? 'Just a moment' : false,
+                'message' => $cronPurgeIsActive ? 'A purge all-request was added to the queue and will be executed shortly.' : 'All cache was purged.',
             ] );
         } else {
             wp_send_json_error();
@@ -49,7 +51,7 @@ class PurgeActions extends SharedMethods
     }
 
     /**
-     * Purge specific URL in Cloudflare cache.
+     * Purge specific URL cache.
      */
     public function purgeUrlCacheCallback() : void
     {
@@ -58,29 +60,30 @@ class PurgeActions extends SharedMethods
 
         $url = (string) sb_array_get('url', $_POST);
 
-        if ( ! sb_cf_cache()->cf_cache_feature_available() ) {
-            wp_send_json_error( [ 'message' => sb__('Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.') ] );
+        if (!CachePurge::cachePurgeIsActive()) {
+            wp_send_json_error( [ 'message' => sb__('The cache purge feature is not active so we could not purge cache. Make sure you the configuration is correct.') ] );
             return;
         }
 
-        if ( ! $url || empty($url) ) {
+        if (!$url || empty($url)) {
             wp_send_json_error( [ 'message' => sb__('Please specify the URL you would like to purge cache for.') ] );
             return;
         }
 
-        $cron_purge_is_active = sb_cf_cache()->cron_purge_is_active();
-        $purge_result = sb_cf_cache()->purge_by_url($url);
+        $cronPurgeIsActive = CachePurge::cronPurgeIsActive();
+        $i = CachePurge::getInstance();
+        $purgeResult = $i->purgeByUrl($url);
 
-        if ( $purge_result === false ) {
+        if ($purgeResult === false) {
             wp_send_json_error(); // Unspecified error
             return;
-        } elseif ( is_wp_error($purge_result) ) {
-            $this->handlePurgeItemAlreadyInQueue($purge_result);
+        } elseif (is_wp_error($purgeResult)) {
+            $this->handlePurgeItemAlreadyInQueue($purgeResult);
             return;
         }
 
         // Success
-        if ( $cron_purge_is_active ) {
+        if ( $cronPurgeIsActive ) {
             wp_send_json_success( [
                 'title'   => 'Just a moment',
                 'message' => sprintf(sb__('A cache purge-request for the URL "%s" was added to the queue and will be executed shortly.'), $url),
@@ -97,38 +100,39 @@ class PurgeActions extends SharedMethods
     {
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
-        $post_id = intval( sb_array_get('post_id', $_POST) );
+        $postId = intval( sb_array_get('post_id', $_POST) );
 
-        if ( ! sb_cf_cache()->cf_cache_feature_available() ) {
-            wp_send_json_error( [ 'message' => 'Cloudflare cache feature is not active so we could not purge cache. Make sure you have added Cloudflare API credentials and selected zone.' ] );
+        if (!CachePurge::cachePurgeIsActive()) {
+            wp_send_json_error( [ 'message' => 'The cache purge feature is not active so we could not purge cache. Make sure you the configuration is correct.' ] );
             return;
-        } elseif ( ! $post_id || empty($post_id) ) {
+        } elseif (!$postId || empty($postId)) {
             wp_send_json_error( [ 'message' => 'Please specify the post you would like to purge cache for.' ] );
             return;
-        } elseif ( ! sb_post_exists($post_id) ) {
+        } elseif (!sb_post_exists($postId)) {
             wp_send_json_error( [ 'message' => 'The specified post does not exist.' ] );
             return;
         }
 
-        $cron_purge_is_active = sb_cf_cache()->cron_purge_is_active();
-        $purge_result = sb_cf_cache()->purge_by_post($post_id);
+        $cronPurgeIsActive = CachePurge::cronPurgeIsActive();
+        $i = CachePurge::getInstance();
+        $purgeResult = $i->purgeByPost($postId);
 
-        if ( $purge_result === false ) {
+        if ($purgeResult === false) {
             wp_send_json_error(); // Unspecified error
             return;
-        } elseif ( is_wp_error($purge_result) ) {
-            $this->handlePurgeItemAlreadyInQueue($purge_result);
+        } elseif ( is_wp_error($purgeResult) ) {
+            $this->handlePurgeItemAlreadyInQueue($purgeResult);
             return;
         }
 
         // Success
-        if ( $cron_purge_is_active ) {
+        if ($cronPurgeIsActive) {
             wp_send_json_success( [
                 'title'   => 'Just a moment',
-                'message' => sprintf(sb__('A cache purge-request for the post "%s" was added to the queue and will be executed shortly.'), get_the_title($post_id)),
+                'message' => sprintf(sb__('A cache purge-request for the post "%s" was added to the queue and will be executed shortly.'), get_the_title($postId)),
             ] );
         } else {
-            wp_send_json_success( [ 'message' => sprintf(sb__('Cache was purged for the post post "%s".'), get_the_title($post_id) ) ] );
+            wp_send_json_success( [ 'message' => sprintf(sb__('Cache was purged for the post post "%s".'), get_the_title($postId) ) ] );
         }
     }
 
@@ -228,7 +232,7 @@ class PurgeActions extends SharedMethods
      *
      * @param $purgeResult
      */
-    private function handlePurgeItemAlreadyInQueue($purgeResult)
+    private function handlePurgeItemAlreadyInQueue($purgeResult): void
     {
         switch ( $purgeResult->get_error_code() ) {
             case 'url_purge_item_already_in_queue':
@@ -257,7 +261,7 @@ class PurgeActions extends SharedMethods
      *
      * @return string
      */
-    private function purgeNetworkCacheFailedSites($failed)
+    private function purgeNetworkCacheFailedSites($failed): string
     {
         $markup = '<strong>' . sb__('The cache was cleared on all sites except the following:') . '</strong>';
         $markup .= sb_create_li_tags_from_array($failed, function ($item) {

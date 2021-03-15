@@ -32,11 +32,26 @@ class CachePurge
     /**
      * CachePurge constructor.
      * @param int|null $blogId
-     * @throws \ReflectionException
      */
     private function __construct(?int $blogId = null)
     {
         $this->driver = $this->resolveDriverObject($blogId);
+    }
+
+    /**
+     * Proxy call to cache purge driver.
+     *
+     * @param $name
+     * @param $arguments
+     * @return false|mixed
+     */
+    public function __call($name, $arguments)
+    {
+        if (is_object($this->driver) && is_callable([$this->driver, $name])) {
+            return call_user_func_array([$this->driver, $name], $arguments);
+        } else {
+            trigger_error(sprintf('Call to undefined method %s', $name));
+        }
     }
 
     /**
@@ -86,6 +101,17 @@ class CachePurge
             return ServeboltDriver::getInstance();
         }
         // Handle when no driver is given?
+    }
+
+    /**
+     * Check whether the cache purge feature is activated and configured (available for use).
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function featureIsActive(?int $blogId = null): bool
+    {
+        return self::cachePurgeIsActive($blogId) && self::featureIsConfigured($blogId);
     }
 
     /**
@@ -199,19 +225,47 @@ class CachePurge
     }
 
     /**
-     * Proxy call to cache purge driver.
+     * Check whether we have set a boolean override value for the cron.
      *
-     * @param $name
-     * @param $arguments
-     * @return false|mixed
+     * @return bool
      */
-    public function __call($name, $arguments)
+    public static function cronStateIsOverridden(): bool
     {
-        if (is_object($this->driver) && is_callable([$this->driver, $name])) {
-            return call_user_func_array([$this->driver, $name], $arguments);
-        } else {
-            trigger_error(sprintf('Call to undefined method %s', $name));
-        }
+        return defined('SERVEBOLT_CF_PURGE_CRON') && is_bool(SERVEBOLT_CF_PURGE_CRON);
     }
 
+    /**
+     * Check if we have overridden whether the Cron purge should be active or not.
+     *
+     * @return mixed
+     */
+    public static function cronActiveStateOverride(): ?bool
+    {
+        if ( self::cronStateIsOverridden() ) {
+            return SERVEBOLT_CF_PURGE_CRON;
+        }
+        return null;
+    }
+
+    /**
+     * Check whether the Cron-based cache purger should be active.
+     *
+     * @param bool $respectOverride
+     * @param int|null $blogId
+     *
+     * @return bool
+     */
+    public static function cronPurgeIsActive(bool $respectOverride = true, ?int $blogId = null): bool
+    {
+        $activeStateOverride = self::cronActiveStateOverride();
+        if ( $respectOverride && is_bool($activeStateOverride) ) {
+            return $activeStateOverride;
+        }
+        $key = 'cf_cron_purge';
+        if ( is_numeric($blogId) ) {
+            return sb_checkbox_true(sb_get_blog_option($blogId, $key));
+        } else {
+            return sb_checkbox_true(sb_get_option($key));
+        }
+    }
 }

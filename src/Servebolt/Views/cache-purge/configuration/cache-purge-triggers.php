@@ -1,8 +1,8 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
-<?php $cachePurge = Servebolt\Optimizer\CachePurge\CachePurge::getInstance(); ?>
+<?php use Servebolt\Optimizer\CachePurge\CachePurge; ?>
 
-<?php if ( $cachePurge->cachePurgeIsActive() ) : ?>
-    <?php if ( ! $cachePurge->featureIsConfigured() ) : ?>
+<?php if (CachePurge::cachePurgeIsActive()) : ?>
+    <?php if (!CachePurge::featureIsConfigured()) : ?>
         <p><?php sb_e('Make sure you have added the API credentials and selected a zone to use this functionality.'); ?></p>
     <?php else: ?>
         <p>
