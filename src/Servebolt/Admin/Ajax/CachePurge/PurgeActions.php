@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Admin\Ajax\CachePurge;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\CachePurge\WordPressCachePurge;
+use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Admin\Ajax\SharedMethods;
 
@@ -34,7 +34,6 @@ class PurgeActions extends SharedMethods
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
         $cronPurgeIsActive = CachePurge::cronPurgeIsActive();
-
         $hasPurgeAllRequestInQueue = false; // TODO: Check if there is already a purge all request in the queue, if the cron feature is active.
         if (!CachePurge::cachePurgeIsActive()) {
             wp_send_json_error( [ 'message' => 'The cache purge feature is not active so we could not purge cache. Make sure you the configuration is correct.' ] );
@@ -116,13 +115,12 @@ class PurgeActions extends SharedMethods
         }
 
         $cronPurgeIsActive = CachePurge::cronPurgeIsActive();
-        $i = CachePurge::getInstance();
-        $purgeResult = $i->purgeByPost($postId);
+        $purgeResult = WordPressCachePurge::purgeByPost($postId);
 
         if ($purgeResult === false) {
             wp_send_json_error(); // Unspecified error
             return;
-        } elseif ( is_wp_error($purgeResult) ) {
+        } elseif (is_wp_error($purgeResult)) {
             $this->handlePurgeItemAlreadyInQueue($purgeResult);
             return;
         }

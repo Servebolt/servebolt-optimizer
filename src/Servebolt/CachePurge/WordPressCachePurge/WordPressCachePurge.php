@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 
+use Servebolt\Optimizer\CachePurge\CachePurge;
+
 /**
  * Class WordPressCachePurge
  * @package Servebolt\Optimizer\CachePurge
@@ -19,8 +21,7 @@ class WordPressCachePurge
      */
     public static function purgeByUrl(string $url): bool
     {
-        $postId = url_to_postid($url);
-        if ($postId) {
+        if ($postId = url_to_postid($url)) {
             return self::purgePostCache($postId);
         } else {
             // TODO: Add queue handling here
