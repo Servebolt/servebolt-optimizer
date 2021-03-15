@@ -1,18 +1,27 @@
 <?php
 
-use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
+use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
+
+/**
+ * Purge cache for URL.
+ *
+ * @param string $url
+ * @return bool
+ */
+function sb_purge_url(string $url): bool
+{
+    return WordPressCachePurge::purgeByUrl($url);
+}
 
 /**
  * Purge cache for post.
  *
  * @param $post_id
  * @return bool
- * @throws ReflectionException
  */
 function sb_purge_post_cache($post_id) : bool
 {
-    $driver = CachePurgeDriver::getInstance();
-    return $driver->purgeCacheForPost($post_id);
+    return WordPressCachePurge::purgeByPostId((int) $post_id);
 }
 
 /**
@@ -20,27 +29,18 @@ function sb_purge_post_cache($post_id) : bool
  *
  * @param $term_id
  * @return bool
- * @throws ReflectionException
  */
 function sb_purge_post_term($term_id) : bool
 {
-    $driver = CachePurgeDriver::getInstance();
-    return $driver->purgeCacheForTerm($term_id);
+    return WordPressCachePurge::purgeByTermId((int) $term_id);
 }
 
 /**
  * Purge all cache.
  *
- * NOTE: Only available when using Cloudflare cache purging.
- *
  * @return bool
- * @throws ReflectionException
  */
 function sb_purge_all() : bool
 {
-    $driver = CachePurgeDriver::getInstance();
-    if (method_exists($driver, 'purgeAll')) {
-        return $driver->purgeAll();
-    }
-    return false;
+    return WordPressCachePurge::purgeAll();
 }

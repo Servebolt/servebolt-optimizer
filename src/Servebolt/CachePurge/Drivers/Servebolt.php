@@ -54,6 +54,8 @@ class Servebolt implements CachePurgeInterface
     }
 
     /**
+     * Purge all cache (for a single site).
+     *
      * @return mixed
      */
     public function purgeAll()
@@ -66,30 +68,75 @@ class Servebolt implements CachePurgeInterface
     }
 
     /**
+     * Purge cache for all sites in multisite-network.
+     *
+     * @return mixed
+     */
+    public function purgeAllNetwork()
+    {
+        return $this->apiInstance->environment->purgeCache(
+            $this->apiInstance->getEnvironmentId(),
+            [],
+            $this->getPurgeAllPrefixesWithMultisiteSupport()
+        );
+    }
+
+    /**
+     * Allow for custom handling of prefixes when purging all cache.
+     *
+     * @param bool $isMultisite
+     * @return array|bool
+     */
+    private function purgeAllPrefixOverride(bool $isMultisite = false)
+    {
+        $override = apply_filters('sb_optimizer_acd_purge_all_prefixes_early_override', [], $isMultisite);
+        if (is_array($override) && !empty($override)) {
+            return $override;
+        }
+        return false;
+    }
+
+    /**
      * Build array of prefix URLs when purging all cache for a site.
      *
      * @return array
      */
     public function getPurgeAllPrefixes(): array
     {
-
-        $override = apply_filters('sb_optimizer_acd_purge_all_prefixes_early_override', false); // Let user skip the method and deal with it themselves
-        if (is_array($override)) {
+        if ($override = $this->purgeAllPrefixOverride(false)) {
             return $override;
         }
-
-        $prefixes = [];
-        if (is_multisite()) {
-            $prefixes = $this->getDomainsWithThirdPartySupport(); // All domains in a multisite-setup
-        } elseif ($domain = $this->extractDomainFromUrl(get_site_url())) {
-            $prefixes = [$domain]; // Single site domain
-        }
-
+        $siteUrl = get_site_url();
+        $siteDomain = $this->extractDomainFromUrl($siteUrl);
+        $prefixes = [$siteDomain];
         if (apply_filters('sb_optimizer_add_www_domains_on_acd_purge_all', true)) {
             $prefixes = $this->addWwwDomains($prefixes);
         }
+        $prefixes = apply_filters('sb_optimizer_acd_purge_all_prefixes', $prefixes);
+        $prefixes = apply_filters('sb_optimizer_acd_purge_all_prefixes_single_site', $prefixes);
+        return $prefixes;
+    }
 
-        return apply_filters('sb_optimizer_acd_purge_all_prefixes', $prefixes);
+    /**
+     * Build array of prefix URLs when purging all cache for a site.
+     *
+     * @return array
+     */
+    public function getPurgeAllPrefixesWithMultisiteSupport(): array
+    {
+        if ($override = $this->purgeAllPrefixOverride(true)) {
+            return $override;
+        }
+        if (!is_multisite()) {
+            return [];
+        }
+        $prefixes = $this->getDomainsWithThirdPartySupport(); // All domains in a multisite-setup
+        if (apply_filters('sb_optimizer_add_www_domains_on_acd_purge_all', true)) {
+            $prefixes = $this->addWwwDomains($prefixes);
+        }
+        $prefixes = apply_filters('sb_optimizer_acd_purge_all_prefixes', $prefixes);
+        $prefixes = apply_filters('sb_optimizer_acd_purge_all_prefixes_multisite', $prefixes);
+        return $prefixes;
     }
 
     /**

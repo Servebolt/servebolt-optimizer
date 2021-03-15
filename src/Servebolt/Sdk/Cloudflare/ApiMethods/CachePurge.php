@@ -20,7 +20,7 @@ trait CachePurge
         }
 
         // Check whether we should purge all
-        $should_purge_all = in_array('all', $urls);
+        $shouldPurgeAll = in_array('all', $urls);
 
         // Maybe alter URL's before sending to CF?
         $urls = apply_filters('sb_optimizer_urls_to_be_purged', $urls);
@@ -38,10 +38,10 @@ trait CachePurge
         } );
 
         // Purge all, return error if we cannot execute
-        if ( $should_purge_all ) {
-            $purge_all_request = $this->purgeAll($zoneId);
-            if ( $purge_all_request !== true ) {
-                return $purge_all_request;
+        if ($shouldPurgeAll) {
+            $purgeAllRequest = $this->purgeAll($zoneId);
+            if ( $purgeAllRequest !== true ) {
+                return $purgeAllRequest;
             }
         }
 
