@@ -18,9 +18,11 @@ class PurgeActions extends SharedMethods
         add_action('wp_ajax_servebolt_purge_all_cache', [$this, 'purgeAllCacheCallback']);
         add_action('wp_ajax_servebolt_purge_url_cache', [$this, 'purgeUrlCacheCallback']);
         add_action('wp_ajax_servebolt_purge_post_cache', [$this, 'purgePostCacheCallback']);
+        /*
         if ( is_multisite() ) {
             add_action('wp_ajax_servebolt_purge_network_cache', [$this, 'purgeNetworkCacheCallback']);
         }
+        */
     }
 
     /**
@@ -139,6 +141,7 @@ class PurgeActions extends SharedMethods
     /**
      * Purge all Cloudflare cache in all sites in multisite-network.
      */
+    /*
     public function purgeNetworkCacheCallback() : void
     {
         $this->checkAjaxReferer();
@@ -226,6 +229,7 @@ class PurgeActions extends SharedMethods
             }
         }
     }
+    */
 
     /**
      * Handle the "item already in the queue".
@@ -261,6 +265,7 @@ class PurgeActions extends SharedMethods
      *
      * @return string
      */
+    /*
     private function purgeNetworkCacheFailedSites($failed): string
     {
         $markup = '<strong>' . sb__('The cache was cleared on all sites except the following:') . '</strong>';
@@ -269,4 +274,5 @@ class PurgeActions extends SharedMethods
         });
         return $markup;
     }
+    */
 }
