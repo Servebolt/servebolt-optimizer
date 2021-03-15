@@ -4,8 +4,10 @@ namespace Servebolt\Optimizer\Admin\Ajax\CachePurge;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Admin\Ajax\SharedMethods;
+use Exception;
 
 class PurgeActions extends SharedMethods
 {
@@ -28,26 +30,36 @@ class PurgeActions extends SharedMethods
     /**
      * Purge all cache cache.
      */
-    public function purgeAllCacheCallback() : void
+    public function purgeAllCacheCallback()
     {
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
         $cronPurgeIsActive = CachePurge::cronPurgeIsActive();
-        $i = CachePurge::getInstance();
         $hasPurgeAllRequestInQueue = false; // TODO: Check if there is already a purge all request in the queue, if the cron feature is active.
+
         if (!CachePurge::cachePurgeIsActive()) {
             wp_send_json_error( [ 'message' => 'The cache purge feature is not active so we could not purge cache. Make sure you the configuration is correct.' ] );
-        } elseif ($cronPurgeIsActive && $hasPurgeAllRequestInQueue) {
+            return;
+        }
+
+        if ($cronPurgeIsActive && $hasPurgeAllRequestInQueue) {
             wp_send_json_success([
                 'title' => 'All good!',
                 'message' => 'A purge all-request is already queued and should be executed shortly.',
             ]);
-        } elseif ($i->purgeAll()) {
-            wp_send_json_success( [
-                'title'   => $cronPurgeIsActive ? 'Just a moment' : false,
-                'message' => $cronPurgeIsActive ? 'A purge all-request was added to the queue and will be executed shortly.' : 'All cache was purged.',
-            ] );
-        } else {
+            return;
+        }
+
+        try {
+            if (WordPressCachePurge::purgeAll()) {
+                wp_send_json_success( [
+                    'title'   => $cronPurgeIsActive ? 'Just a moment' : false,
+                    'message' => $cronPurgeIsActive ? 'A purge all-request was added to the queue and will be executed shortly.' : 'All cache was purged.',
+                ] );
+                return;
+            }
+        } catch (Exception $e) {
+            // TODO: Get error messages
             wp_send_json_error();
         }
     }
@@ -73,8 +85,7 @@ class PurgeActions extends SharedMethods
         }
 
         $cronPurgeIsActive = CachePurge::cronPurgeIsActive();
-        $i = CachePurge::getInstance();
-        $purgeResult = $i->purgeByUrl($url);
+        $purgeResult = WordPressCachePurge::purgeByUrl($url);
 
         if ($purgeResult === false) {
             wp_send_json_error(); // Unspecified error
@@ -116,13 +127,12 @@ class PurgeActions extends SharedMethods
         }
 
         $cronPurgeIsActive = CachePurge::cronPurgeIsActive();
-        $i = CachePurge::getInstance();
-        $purgeResult = $i->purgeByPost($postId);
+        $purgeResult = WordPressCachePurge::purgeByPost($postId);
 
         if ($purgeResult === false) {
             wp_send_json_error(); // Unspecified error
             return;
-        } elseif ( is_wp_error($purgeResult) ) {
+        } elseif (is_wp_error($purgeResult)) {
             $this->handlePurgeItemAlreadyInQueue($purgeResult);
             return;
         }

@@ -40,7 +40,7 @@ class Servebolt
         $this->setEnvironmentId();
         if ($this->hasApiToken()) {
             $this->client = new ServeboltSdk([
-                'apiToken' => $this->getApiToken()
+                'apiToken' => $this->getApiToken(),
             ]);
         }
     }
