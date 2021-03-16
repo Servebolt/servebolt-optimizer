@@ -8,6 +8,7 @@ use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Admin\Ajax\SharedMethods;
 use Exception;
+use Servebolt\Optimizer\Exceptions\ApiError;
 
 class PurgeActions extends SharedMethods
 {
@@ -21,6 +22,7 @@ class PurgeActions extends SharedMethods
         add_action('wp_ajax_servebolt_purge_url_cache', [$this, 'purgeUrlCacheCallback']);
         add_action('wp_ajax_servebolt_purge_post_cache', [$this, 'purgePostCacheCallback']);
         /*
+        // TODO: Make this feature work with the new cache purge driver
         if ( is_multisite() ) {
             add_action('wp_ajax_servebolt_purge_network_cache', [$this, 'purgeNetworkCacheCallback']);
         }
@@ -60,6 +62,8 @@ class PurgeActions extends SharedMethods
             } else {
                 wp_send_json_error();
             }
+        } catch (ApiError $e) {
+
         } catch (Exception $e) {
             // TODO: Catch client errors from HTTP client
             // TODO: Catch exceptions from API errors
@@ -99,10 +103,14 @@ class PurgeActions extends SharedMethods
                     wp_send_json_success( [ 'message' => sprintf(sb__('Cache was purged for URL "%s".'), $url) ] );
                 }
             } else {
-
+                wp_send_json_error();
             }
+        } catch (ApiError $e) {
+            // TODO: Populate with error message(s)
+            wp_send_json_error();
         } catch (Exception $e) {
-
+            // TODO: Populate with error message(s)
+            wp_send_json_error();
         }
 
         /*
