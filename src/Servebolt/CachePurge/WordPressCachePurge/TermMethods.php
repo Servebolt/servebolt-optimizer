@@ -33,24 +33,9 @@ trait TermMethods
      */
     public static function purgeTermCache(int $termId, string $taxonomySlug, bool $returnWpError = false): bool
     {
-        try {
-            // TODO: Add queue handling here
-            $urlsToPurge = self::getUrlsToPurgeByTermId($termId, $taxonomySlug);
-            $cachePurgeDriver = CachePurge::getInstance();
-            return $cachePurgeDriver->purgeByUrls($urlsToPurge);
-        } catch (ApiError $e) {
-            // TODO: Handle API error message
-            if ($returnWpError) {
-                // TODO: Return WP Error object
-            }
-            return false;
-        } catch (Exception $e) {
-            // TODO: Handle general error
-            if ($returnWpError) {
-                // TODO: Return WP Error object
-            }
-            return false;
-        }
-        return false;
+        // TODO: Add queue handling here
+        $urlsToPurge = self::getUrlsToPurgeByTermId($termId, $taxonomySlug);
+        $cachePurgeDriver = CachePurge::getInstance();
+        return $cachePurgeDriver->purgeByUrls($urlsToPurge);
     }
 }
