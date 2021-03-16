@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeInterface;
-use Servebolt\Optimizer\Exceptions\ApiError;
+use Servebolt\Optimizer\Exceptions\ServeboltApiError;
 
 class Servebolt implements CachePurgeInterface
 {
@@ -24,29 +24,6 @@ class Servebolt implements CachePurgeInterface
     }
 
     /**
-     * @param string $url
-     * @return bool
-     */
-    public function purgeByUrl(string $url): bool
-    {
-        $response = $this->apiInstance->environment()->purgeCache([$url]);
-        return $response->wasSuccessful();
-    }
-
-    /**
-     * @param array $urls
-     * @return bool
-     */
-    public function purgeByUrls(array $urls): bool
-    {
-        $response = $this->apiInstance->environment->purgeCache(
-            $this->apiInstance->getEnvironmentId(),
-            $urls
-        );
-        return $response->wasSuccessful();
-    }
-
-    /**
      * Check whether the Servebolt SDK is configured correctly.
      *
      * @return bool
@@ -57,11 +34,45 @@ class Servebolt implements CachePurgeInterface
     }
 
     /**
+     * @param string $url
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeByUrl(string $url): bool
+    {
+        $response = $this->apiInstance->environment()->purgeCache([$url]);
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
+
+    /**
+     * @param array $urls
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeByUrls(array $urls): bool
+    {
+        $response = $this->apiInstance->environment->purgeCache(
+            $this->apiInstance->getEnvironmentId(),
+            $urls
+        );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
+
+    /**
      * Purge all cache (for a single site).
      *
-     * @return mixed
+     * @return bool
+     * @throws ServeboltApiError
      */
-    public function purgeAll()
+    public function purgeAll(): bool
     {
         $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
@@ -71,23 +82,28 @@ class Servebolt implements CachePurgeInterface
         if ($response->wasSuccessful()) {
             return true;
         } else {
-           throw new ApiError($response->getErrors(), $response);
+           throw new ServeboltApiError($response->getErrors(), $response);
         }
     }
 
     /**
      * Purge cache for all sites in multisite-network.
      *
-     * @return mixed
+     * @return bool
+     * @throws ServeboltApiError
      */
-    public function purgeAllNetwork()
+    public function purgeAllNetwork(): bool
     {
         $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
             [],
             $this->getPurgeAllPrefixesWithMultisiteSupport()
         );
-        return $response->wasSuccessful();
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
     }
 
     /**

@@ -17,7 +17,7 @@ use Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods\User as UserMethods;
 class Cloudflare extends HttpClient
 {
 
-    use CachePurgeMethods, ZoneMethods, UserMethods, ApiRequestHelpers;
+    use CachePurgeMethods, ZoneMethods, UserMethods;
 
     /**
      * Cloudflare API credentials.
