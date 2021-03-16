@@ -2,10 +2,7 @@
 
 namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 
-use WP_Error;
-use Exception;
-use Servebolt\Optimizer\CachePurge\CachePurge;
-use Servebolt\Optimizer\Exceptions\ApiError;
+use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 
 /**
  * Class WordPressCachePurge
@@ -24,30 +21,16 @@ class WordPressCachePurge
      *
      * @param string $url
      * @param bool $returnWpError
-     * @return bool|WP_Error
+     * @return bool
      */
     public static function purgeByUrl(string $url, bool $returnWpError = false)
     {
         if ($postId = url_to_postid($url)) {
             return self::purgePostCache($postId);
         } else {
-            try {
-                // TODO: Add queue handling here
-                $cachePurgeDriver = CachePurge::getInstance();
-                return $cachePurgeDriver->purgeByUrl($url);
-            } catch (ApiError $e) {
-                // TODO: Handle API error message
-                if ($returnWpError) {
-                    // TODO: Return WP Error object
-                }
-                return false;
-            } catch (Exception $e) {
-                // TODO: Handle general error
-                if ($returnWpError) {
-                    // TODO: Return WP Error object
-                }
-                return false;
-            }
+            // TODO: Add queue handling here
+            $cachePurgeDriver = CachePurgeDriver::getInstance();
+            return $cachePurgeDriver->purgeByUrl($url);
         }
     }
 
@@ -57,7 +40,7 @@ class WordPressCachePurge
      * @param int $termId
      * @param string $taxonomySlug
      * @param bool $returnWpError
-     * @return bool|WP_Error
+     * @return bool
      */
     public function purgeByTermId(int $termId, string $taxonomySlug, bool $returnWpError = false)
     {
@@ -69,7 +52,7 @@ class WordPressCachePurge
      *
      * @param int $postId
      * @param bool $returnWpError
-     * @return bool|WP_Error
+     * @return bool
      */
     public static function purgeByPostId(int $postId, bool $returnWpError = false)
     {
@@ -80,27 +63,13 @@ class WordPressCachePurge
      * Purge all cache on the site.
      *
      * @param bool $returnWpError
-     * @return bool|WP_Error
+     * @return bool
      */
     public static function purgeAll(bool $returnWpError = false)
     {
         // TODO: Add queue handling here
-        try {
-            $cachePurgeDriver = CachePurge::getInstance();
-            return $cachePurgeDriver->purgeAll();
-        } catch (ApiError $e) {
-            // TODO: Handle API error message
-            if ($returnWpError) {
-                // TODO: Return WP Error object
-            }
-            return false;
-        } catch (Exception $e) {
-            // TODO: Handle general error
-            if ($returnWpError) {
-                // TODO: Return WP Error object
-            }
-            return false;
-        }
+        $cachePurgeDriver = CachePurgeDriver::getInstance();
+        return $cachePurgeDriver->purgeAll();
     }
 
     /**
@@ -108,7 +77,7 @@ class WordPressCachePurge
      *
      * @param int $blogId
      * @param bool $returnWpError
-     * @return false|WP_Error
+     * @return bool
      */
     public static function purgeAllByBlogId(int $blogId, bool $returnWpError = false)
     {
@@ -117,29 +86,16 @@ class WordPressCachePurge
         }
         // TODO: Add switch to blog-logic here
         // TODO: Add queue handling here
-        try {
-            $cachePurgeDriver = CachePurge::getInstance();
-            return $cachePurgeDriver->purgeAll();
-        } catch (ApiError $e) {
-            // TODO: Handle API error message
-            if ($returnWpError) {
-                // TODO: Return WP Error object
-            }
-            return false;
-        } catch (Exception $e) {
-            // TODO: Handle general error
-            if ($returnWpError) {
-                // TODO: Return WP Error object
-            }
-            return false;
-        }
+        $cachePurgeDriver = CachePurgeDriver::getInstance();
+        return $cachePurgeDriver->purgeAll();
+
     }
 
     /**
      * Purge all cache in network (only for multisites).
      *
      * @param bool $returnWpError
-     * @return bool|WP_Error
+     * @return bool
      */
     public function purgeAllNetwork(bool $returnWpError = false)
     {

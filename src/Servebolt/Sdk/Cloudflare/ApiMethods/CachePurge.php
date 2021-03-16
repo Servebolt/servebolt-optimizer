@@ -2,8 +2,8 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods;
 
-use Servebolt\Optimizer\Exceptions\ApiError;
-use Exception;
+use Servebolt\Optimizer\Sdk\Cloudflare\Exceptions\ApiError;
+use Servebolt\Optimizer\Sdk\Cloudflare\ApiRequestHelpers;
 
 /**
  * Trait CachePurge
@@ -15,11 +15,23 @@ trait CachePurge
     /**
      * Purge one or more URL's in a zone.
      *
+     * @param string $url
+     * @return bool
+     * @throws ApiError
+     */
+    public function purgeUrl(string $url): bool
+    {
+        return $this->purgeUrls([$url]);
+    }
+
+    /**
+     * Purge one or more URL's in a zone.
+     *
      * @param array $urls
      * @return bool
      * @throws ApiError
      */
-    public function purgeUrls(array $urls)
+    public function purgeUrls(array $urls): bool
     {
 
         $zoneId = $this->getZoneId();
@@ -53,18 +65,15 @@ trait CachePurge
             }
         }
 
-        try {
-            $request = $this->request('zones/' . $zoneId . '/purge_cache', 'POST', [
-                'files' => $urls,
-            ]);
-            if ( isset($request['json']->result->id) ) {
-                return true;
-            }
-            return false;
-        } catch (Exception $e) {
+        $response = $this->request('zones/' . $zoneId . '/purge_cache', 'POST', [
+            'files' => $urls,
+        ]);
+        if ($this->wasSuccessful($response)) {
+            return true;
+        } else {
             throw new ApiError(
-                $this->getErrorsFromRequest($request),
-                $request
+                ApiRequestHelpers::getErrorsFromRequest($response),
+                $response
             );
         }
     }
@@ -76,7 +85,7 @@ trait CachePurge
      * @return bool
      * @throws ApiError
      */
-    public function purgeAll($zoneId = false)
+    public function purgeAll($zoneId = false): bool
     {
         if ( ! $zoneId ) {
             $zoneId = $this->getZoneId();
@@ -84,20 +93,37 @@ trait CachePurge
         if ( ! $zoneId ) {
             return false;
         }
-        try {
-            $request = $this->request('zones/' . $zoneId . '/purge_cache', 'POST', [
-                //'purge_everything' => true,
-            ]);
-            print_r($request['json']);die;
-            if ( isset($request['json']->result->id) ) {
-                return true;
-            }
-            return false;
-        } catch (Exception $e) {
+
+        $response = $this->request(
+            'zones/' . $zoneId . '/purge_cache',
+            'POST',
+            [
+                'purge_everything' => true,
+            ]
+        );
+        if ($this->wasSuccessful($response)) {
+            return true;
+        } else {
             throw new ApiError(
-                $this->getErrorsFromRequest($request),
-                $request
+                ApiRequestHelpers::getErrorsFromRequest($response),
+                $response
             );
         }
+    }
+
+    /**
+     * Check whether the request was succesful.
+     *
+     * @param $response
+     * @return bool
+     */
+    private function wasSuccessful($response): bool
+    {
+        if (!array_key_exists('json', $response)) {
+            return false;
+        }
+        $jsonResponse = $response['json'];
+        return isset($jsonResponse->success)
+            && $jsonResponse->success;
     }
 }

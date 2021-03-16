@@ -2,16 +2,35 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare;
 
-trait ApiRequestHelpers
+class ApiRequestHelpers
 {
     /**
+     * Extract the errors from the request.
+     *
      * @param $request
      * @return array
      */
-    protected function getErrorsFromRequest($request): array
+    public static function getErrorsFromRequest($request): array
     {
-        // TODO: Parse errors from request into array compatible with the ApiError-exception
-        var_dump($request);die;
+        $response = $request['json'];
+        if (isset($response->errors) && is_array($response->errors)) {
+            return $response->errors;
+        }
+        return [];
+    }
+
+    /**
+     * Extract the messages from the request.
+     *
+     * @param $request
+     * @return array
+     */
+    public static function getMessagesFromRequest($request): array
+    {
+        $response = $request['json'];
+        if (isset($response->errors) && is_array($response->errors)) {
+            return $response->errors;
+        }
         return [];
     }
 }

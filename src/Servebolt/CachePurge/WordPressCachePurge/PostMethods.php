@@ -36,24 +36,9 @@ trait PostMethods
             return false;
         }
 
-        try {
-            // TODO: Add queue handling here
-            $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
-            $cachePurgeDriver = CachePurge::getInstance();
-            return $cachePurgeDriver->purgeByUrls($urlsToPurge);
-        } catch (ApiError $e) {
-            // TODO: Handle API error message
-            if ($returnWpError) {
-                // TODO: Return WP Error object
-            }
-            return false;
-        } catch (Exception $e) {
-            // TODO: Handle general error
-            if ($returnWpError) {
-                // TODO: Return WP Error object
-            }
-            return false;
-        }
-        return false;
+        // TODO: Add queue handling here
+        $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
+        $cachePurgeDriver = CachePurge::getInstance();
+        return $cachePurgeDriver->purgeByUrls($urlsToPurge);
     }
 }
