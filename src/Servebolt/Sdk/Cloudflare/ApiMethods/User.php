@@ -2,14 +2,22 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods;
 
+use Servebolt\Optimizer\Exceptions\ApiError;
+use Exception;
+
+/**
+ * Trait User
+ * @package Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods
+ */
 trait User
 {
+
     /**
      * Verify API token.
      *
-     * @param bool $token
-     *
+     * @param false $token
      * @return bool
+     * @throws ApiError
      */
     public function verifyApiToken($token = false) {
         if ( ! $token ) {
@@ -21,14 +29,18 @@ trait User
             ]);
             return $request['httpCode'] === 200;
         } catch (Exception $e) {
-            return sb_cf_error($e);
+            throw new ApiError(
+                $this->getErrorsFromRequest($request),
+                $request
+            );
         }
     }
 
     /**
      * Get user ID of authenticated user.
      *
-     * @return mixed
+     * @return false
+     * @throws ApiError
      */
     public function getUserId()
     {
@@ -40,6 +52,7 @@ trait User
      * Get user details of authenticated user.
      *
      * @return mixed
+     * @throws ApiError
      */
     public function getUserDetails()
     {
@@ -47,7 +60,10 @@ trait User
             $request = $this->request('user');
             return $request['json']->result;
         } catch (Exception $e) {
-            return sb_cf_error($e);
+            throw new ApiError(
+                $this->getErrorsFromRequest($request),
+                $request
+            );
         }
     }
 
@@ -55,6 +71,7 @@ trait User
      * Verify that we can fetch the user.
      *
      * @return bool
+     * @throws ApiError
      */
     public function verifyUser() : bool
     {

@@ -57,9 +57,12 @@ class PurgeActions extends SharedMethods
                     'message' => $cronPurgeIsActive ? 'A purge all-request was added to the queue and will be executed shortly.' : 'All cache was purged.',
                 ] );
                 return;
+            } else {
+                wp_send_json_error();
             }
         } catch (Exception $e) {
-            // TODO: Get error messages
+            // TODO: Catch client errors from HTTP client
+            // TODO: Catch exceptions from API errors
             wp_send_json_error();
         }
     }
@@ -67,7 +70,7 @@ class PurgeActions extends SharedMethods
     /**
      * Purge specific URL cache.
      */
-    public function purgeUrlCacheCallback() : void
+    public function purgeUrlCacheCallback()
     {
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
@@ -85,7 +88,25 @@ class PurgeActions extends SharedMethods
         }
 
         $cronPurgeIsActive = CachePurge::cronPurgeIsActive();
-        $purgeResult = WordPressCachePurge::purgeByUrl($url);
+        try {
+            if (WordPressCachePurge::purgeByUrl($url)) {
+                if ($cronPurgeIsActive) {
+                    wp_send_json_success( [
+                        'title'   => 'Just a moment',
+                        'message' => sprintf(sb__('A cache purge-request for the URL "%s" was added to the queue and will be executed shortly.'), $url),
+                    ] );
+                } else {
+                    wp_send_json_success( [ 'message' => sprintf(sb__('Cache was purged for URL "%s".'), $url) ] );
+                }
+            } else {
+
+            }
+        } catch (Exception $e) {
+
+        }
+
+        /*
+        $purgeResult = ;
 
         if ($purgeResult === false) {
             wp_send_json_error(); // Unspecified error
@@ -94,16 +115,10 @@ class PurgeActions extends SharedMethods
             $this->handlePurgeItemAlreadyInQueue($purgeResult);
             return;
         }
+        */
 
         // Success
-        if ( $cronPurgeIsActive ) {
-            wp_send_json_success( [
-                'title'   => 'Just a moment',
-                'message' => sprintf(sb__('A cache purge-request for the URL "%s" was added to the queue and will be executed shortly.'), $url),
-            ] );
-        } else {
-            wp_send_json_success( [ 'message' => sprintf(sb__('Cache was purged for URL "%s".'), $url) ] );
-        }
+
     }
 
     /**

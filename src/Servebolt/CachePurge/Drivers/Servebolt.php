@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeInterface;
-use Exception;
+use Servebolt\Optimizer\Exceptions\ApiError;
 
 class Servebolt implements CachePurgeInterface
 {
@@ -25,23 +25,25 @@ class Servebolt implements CachePurgeInterface
 
     /**
      * @param string $url
-     * @return mixed
+     * @return bool
      */
-    public function purgeByUrl(string $url)
+    public function purgeByUrl(string $url): bool
     {
-        return $this->apiInstance->environment()->purgeCache([$url]);
+        $response = $this->apiInstance->environment()->purgeCache([$url]);
+        return $response->wasSuccessful();
     }
 
     /**
      * @param array $urls
-     * @return mixed
+     * @return bool
      */
-    public function purgeByUrls(array $urls)
+    public function purgeByUrls(array $urls): bool
     {
-        return $this->apiInstance->environment->purgeCache(
+        $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
             $urls
         );
+        return $response->wasSuccessful();
     }
 
     /**
@@ -61,11 +63,16 @@ class Servebolt implements CachePurgeInterface
      */
     public function purgeAll()
     {
-        return $this->apiInstance->environment->purgeCache(
+        $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
             [],
             $this->getPurgeAllPrefixes()
         );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+           throw new ApiError($response->getErrors(), $response);
+        }
     }
 
     /**
@@ -75,11 +82,12 @@ class Servebolt implements CachePurgeInterface
      */
     public function purgeAllNetwork()
     {
-        return $this->apiInstance->environment->purgeCache(
+        $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
             [],
             $this->getPurgeAllPrefixesWithMultisiteSupport()
         );
+        return $response->wasSuccessful();
     }
 
     /**

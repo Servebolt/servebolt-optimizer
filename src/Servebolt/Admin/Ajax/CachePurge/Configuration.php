@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\Ajax\SharedMethods;
 use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;
+use Exception;
 
 class Configuration extends SharedMethods
 {

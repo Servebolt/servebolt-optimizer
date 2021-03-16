@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 
+use WP_Error;
+
 trait PostMethods
 {
 
@@ -23,9 +25,10 @@ trait PostMethods
      * Purge post cache by post Id.
      *
      * @param int $postId
-     * @return bool
+     * @param bool $returnWpError
+     * @return bool|WP_Error
      */
-    public static function purgePostCache(int $postId): bool
+    public static function purgePostCache(int $postId, bool $returnWpError = false): bool
     {
 
         // If this is just a revision, don't purge anything.
@@ -33,10 +36,24 @@ trait PostMethods
             return false;
         }
 
-        // TODO: Add queue handling here
-
-        $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
-        $cachePurgeDriver = CachePurge::getInstance();
-        return $cachePurgeDriver->purgeByUrls($urlsToPurge);
+        try {
+            // TODO: Add queue handling here
+            $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
+            $cachePurgeDriver = CachePurge::getInstance();
+            return $cachePurgeDriver->purgeByUrls($urlsToPurge);
+        } catch (ApiError $e) {
+            // TODO: Handle API error message
+            if ($returnWpError) {
+                // TODO: Return WP Error object
+            }
+            return false;
+        } catch (Exception $e) {
+            // TODO: Handle general error
+            if ($returnWpError) {
+                // TODO: Return WP Error object
+            }
+            return false;
+        }
+        return false;
     }
 }

@@ -2,12 +2,21 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods;
 
+use Servebolt\Optimizer\Exceptions\ApiError;
+use Exception;
+
+/**
+ * Trait Zone
+ * @package Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods
+ */
 trait Zone
 {
+
     /**
      * List zones.
      *
-     * @return bool|stdClass
+     * @return mixed
+     * @throws ApiError
      */
     public function listZones()
     {
@@ -20,7 +29,10 @@ trait Zone
             $request = $this->request('zones', 'GET', $query);
             return $request['json']->result;
         } catch (Exception $e) {
-            return sb_cf_error($e);
+            throw new ApiError(
+                $this->getErrorsFromRequest($request),
+                $request
+            );
         }
     }
 
@@ -28,8 +40,8 @@ trait Zone
      * Check if zone exists.
      *
      * @param string $zoneId
-     *
      * @return bool
+     * @throws ApiError
      */
     protected function zoneExists(string $zoneId) : bool
     {
@@ -40,8 +52,8 @@ trait Zone
      * Get zone by Id.
      *
      * @param string $zoneId
-     *
-     * @return bool|object
+     * @return mixed
+     * @throws ApiError
      */
     public function getZoneById(string $zoneId)
     {
@@ -49,7 +61,10 @@ trait Zone
             $request = $this->request('zones/' . $zoneId);
             return $request['json']->result;
         } catch (Exception $e) {
-            return sb_cf_error($e);
+            throw new ApiError(
+                $this->getErrorsFromRequest($request),
+                $request
+            );
         }
     }
 
@@ -58,8 +73,8 @@ trait Zone
      *
      * @param string $zoneName
      * @param string $key
-     *
-     * @return bool
+     * @return bool|mixed
+     * @throws ApiError
      */
     public function getZoneByKey(string $zoneName, string $key = 'name')
     {

@@ -2,14 +2,22 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods;
 
+use Servebolt\Optimizer\Exceptions\ApiError;
+use Exception;
+
+/**
+ * Trait CachePurge
+ * @package Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods
+ */
 trait CachePurge
 {
+
     /**
      * Purge one or more URL's in a zone.
-     **
-     * @param array $urls
      *
-     * @return bool|void
+     * @param array $urls
+     * @return bool
+     * @throws ApiError
      */
     public function purgeUrls(array $urls)
     {
@@ -54,16 +62,19 @@ trait CachePurge
             }
             return false;
         } catch (Exception $e) {
-            return sb_cf_error($e);
+            throw new ApiError(
+                $this->getErrorsFromRequest($request),
+                $request
+            );
         }
     }
 
     /**
      * Purge all URL's in a zone.
      *
-     * @param bool $zoneId
-     *
+     * @param false $zoneId
      * @return bool
+     * @throws ApiError
      */
     public function purgeAll($zoneId = false)
     {
@@ -75,14 +86,18 @@ trait CachePurge
         }
         try {
             $request = $this->request('zones/' . $zoneId . '/purge_cache', 'POST', [
-                'purge_everything' => true,
+                //'purge_everything' => true,
             ]);
+            print_r($request['json']);die;
             if ( isset($request['json']->result->id) ) {
                 return true;
             }
             return false;
         } catch (Exception $e) {
-            return sb_cf_error($e);
+            throw new ApiError(
+                $this->getErrorsFromRequest($request),
+                $request
+            );
         }
     }
 }
