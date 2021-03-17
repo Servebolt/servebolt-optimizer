@@ -14,6 +14,6 @@ class ServeboltErrorTranslation extends ErrorTranslator
      * @var array
      */
     protected $definitions = [
-        '1012' => 'This is a translated error',
+        //'1012' => 'This is a translated error',
     ];
 }

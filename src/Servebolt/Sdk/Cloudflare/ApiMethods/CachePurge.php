@@ -98,7 +98,7 @@ trait CachePurge
             'zones/' . $zoneId . '/purge_cache',
             'POST',
             [
-                //'purge_everything' => true,
+                'purge_everything' => true,
             ]
         );
         if ($this->wasSuccessful($response)) {

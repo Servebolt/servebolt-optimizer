@@ -1,11 +1,13 @@
 jQuery(document).ready(function($) {
 
   // Purge all cache on all sites in a multisite-network
+  /*
   $('.sb-purge-network-cache').click(function (e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
     sb_purge_network_cache();
   });
+  */
 
   // Purge all cache
   $('#sb-configuration .sb-purge-all-cache, #wpadminbar .sb-purge-all-cache').click(function (e) {
@@ -178,7 +180,9 @@ jQuery(document).ready(function($) {
           }, 100);
           return;
         }
-        window.handle_unsuccessful_cache_purge(response);
+        sb_cache_purge_error();
+        // TODO: Display errors to the user
+        //window.handle_unsuccessful_cache_purge(response);
       },
       error: function() {
         window.sb_loading(false);
@@ -188,23 +192,33 @@ jQuery(document).ready(function($) {
   };
 
   window.handle_unsuccessful_cache_purge = function(response) {
-    sb_cache_purge_error();
-    return;
     var type = window.sb_get_from_response(response, 'type', 'error'),
         message = window.sb_get_message_from_response(response);
     if (message) {
       // TODO: Display single message
       return;
+      switch(type) {
+        case 'error':
+          sb_cache_purge_error();
+          break;
+        case 'warning':
+          sb_cache_purge_warning();
+          break;
+      }
     }
     var messages = window.sb_get_messages_from_response(response);
     if (messages) {
       // TODO: Handle multiple messages
       return;
+      switch(type) {
+        case 'error':
+          sb_cache_purge_error();
+          break;
+        case 'warning':
+          sb_cache_purge_warning();
+          break;
+      }
     }
-
-
-
-    alert('Fail');
     /*
     var type = window.sb_get_from_response(response, 'type');
     if ( type == 'warning' ) {
@@ -271,24 +285,29 @@ jQuery(document).ready(function($) {
       data: data,
       success: function(response) {
         window.sb_loading(false);
-        var title = window.sb_get_from_response(response, 'title'),
-            message = window.sb_get_message_from_response(response);
         if ( response.success ) {
           setTimeout(function () {
-            sb_cache_purge_success(message, title);
+            sb_cache_purge_success(
+                window.sb_get_message_from_response(response),
+                window.sb_get_from_response(response, 'title')
+            );
             window.update_cache_purge_list();
           }, 100);
-        } else {
-          if ( message ) {
-            if ( response.data.type == 'warning' ) {
-              window.sb_warning(title, null, message);
-            } else {
-              sb_cache_purge_error(message);
-            }
-          } else {
-            sb_cache_purge_error();
-          }
+          return;
         }
+        sb_cache_purge_error();
+        // TODO: Display errors to the user
+        /*
+        if ( message ) {
+          if ( response.data.type == 'warning' ) {
+            window.sb_warning(title, null, message);
+          } else {
+            sb_cache_purge_error(message);
+          }
+        } else {
+
+        }
+        */
       },
       error: function() {
         window.sb_loading(false);
@@ -350,20 +369,19 @@ jQuery(document).ready(function($) {
       data: data,
       success: function(response) {
         window.sb_loading(false);
-
-        var title = window.sb_get_from_response(response, 'title'),
-            message = window.sb_get_message_from_response(response);
-
         if (response.success) {
           setTimeout(function() {
+            var title = window.sb_get_from_response(response, 'title'),
+                message = window.sb_get_message_from_response(response);
             sb_cache_purge_success(message, title);
             window.update_cache_purge_list();
           }, 100);
           return;
         }
-
+        sb_cache_purge_error();
+        // TODO: Display errors to the user
+        /*
         return;
-
         if ( message ) {
           if ( response.data.type == 'warning' ) {
             window.sb_warning(title, null, message);
@@ -373,6 +391,7 @@ jQuery(document).ready(function($) {
         } else {
           sb_cache_purge_error();
         }
+        */
       },
       error: function() {
         window.sb_loading(false);
@@ -419,10 +438,16 @@ jQuery(document).ready(function($) {
    * @param title
    */
   function sb_cache_purge_error(message, include_url_message, title) {
-    if ( typeof include_url_message === 'undefined' ) include_url_message = true;
-    if ( typeof title === 'undefined' || ! title ) title = 'Unknown error';
-    var generic_message = 'Something went wrong. Please check that you:<br><ul style="text-align: left;max-width:350px;margin: 20px auto;">' + ( include_url_message ? '<li>- Specified a valid URL</li>' : '' ) + '<li>- Have added valid API credentials</li><li>- Have selected an active zone</li></ul> If the error still persist then please check the error logs and/or contact support.';
-    window.sb_error(title, null, ( message ? message : generic_message ));
+    if ( typeof include_url_message === 'undefined' ) {
+      include_url_message = true;
+    }
+    if ( typeof title === 'undefined' || ! title ) {
+      title = 'Unknown error';
+    }
+    if (!message) {
+      var message = 'Something went wrong. Please check that you:<br><ul style="text-align: left;max-width:350px;margin: 20px auto;">' + ( include_url_message ? '<li>- Specified a valid URL</li>' : '' ) + '<li>- Have configured the cache purge feature</li></ul> If the error still persist then please check the error logs and/or contact support.';
+    }
+    window.sb_error(title, null, message);
   }
 
 });

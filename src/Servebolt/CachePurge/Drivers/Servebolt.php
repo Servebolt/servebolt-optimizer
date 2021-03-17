@@ -77,7 +77,7 @@ class Servebolt implements CachePurgeInterface
         $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
             [],
-            []//$this->getPurgeAllPrefixes()
+            $this->getPurgeAllPrefixes()
         );
         if ($response->wasSuccessful()) {
             return true;
