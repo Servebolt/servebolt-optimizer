@@ -9,6 +9,8 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Admin\Ajax\SharedMethods;
 use Exception;
 use Servebolt\Optimizer\Exceptions\ApiError;
+use Servebolt\Optimizer\Exceptions\ApiMessage;
+use Servebolt\Optimizer\Exceptions\QueueError;
 
 class PurgeActions extends SharedMethods
 {
@@ -35,7 +37,11 @@ class PurgeActions extends SharedMethods
     private function ensureCachePurgeFeatureIsActive(): void
     {
         if (!CachePurge::cachePurgeIsActive()) {
-            wp_send_json_error(['message' => 'The cache purge feature is not active so we could not purge cache. Make sure you the configuration is correct.']);
+            wp_send_json_error(
+                [
+                    'message' => 'The cache purge feature is not active so we could not purge cache. Make sure you the configuration is correct.'
+                ]
+            );
         }
     }
 
@@ -70,14 +76,26 @@ class PurgeActions extends SharedMethods
             } else {
                 wp_send_json_success(['message' => 'All cache was purged.']);
             }
-        } catch (ApiError $e) {
-            if ($e->hasMultipleErrors()) {
-                wp_send_json_error($e->getErrors());
-            } else {
-                wp_send_json_error(['message' => $e->getMessage()]);
-            }
-        } catch (Exception $e) {
-            wp_send_json_error(['message' => $e->getMessage()]);
+        } catch (QueueError $e) {
+            // TODO: Handle response from queue system
+        } catch (ApiMessage $e) {
+            // TODO: Handle messages from API.
+        } catch (ApiError|Exception $e) {
+            $this->handleErrors($e);
+        }
+    }
+
+    /**
+     * Get errors and return in JSON-format.
+     *
+     * @param $exception
+     */
+    private function handleErrors($exception): void
+    {
+        if (method_exists($exception, 'hasMultipleErrors') && $exception->hasMultipleErrors()) {
+            wp_send_json_error($exception->getErrors());
+        } else {
+            wp_send_json_error(['message' => $exception->getMessage()]);
         }
     }
 
@@ -108,14 +126,18 @@ class PurgeActions extends SharedMethods
             } else {
                 wp_send_json_success(['message' => sprintf(sb__('Cache was purged for URL "%s".'), $url)]);
             }
+        } catch (QueueError $e) {
+            // TODO: Handle response from queue system
+        } catch (ApiMessage $e) {
+            // TODO: Handle messages from API.
         } catch (ApiError $e) {
             if ($e->hasMultipleErrors()) {
-                wp_send_json_error($e->getErrors());
+                wp_send_json_error(['type' => 'error', 'messages' => $e->getErrors()]);
             } else {
-                wp_send_json_error(['message' => $e->getMessage()]);
+                wp_send_json_error(['type' => 'error', 'message' => $e->getMessage()]);
             }
         } catch (Exception $e) {
-            wp_send_json_error(['message' => $e->getMessage()]);
+            wp_send_json_error(['type' => 'error', 'message' => $e->getMessage()]);
         }
     }
 
@@ -149,6 +171,10 @@ class PurgeActions extends SharedMethods
             } else {
                 wp_send_json_success(['message' => sprintf(sb__('Cache was purged for the post post "%s".'), get_the_title($postId))]);
             }
+        } catch (QueueError $e) {
+            // TODO: Handle response from queue system
+        } catch (ApiMessage $e) {
+            // TODO: Handle messages from API.
         } catch (ApiError $e) {
             if ($e->hasMultipleErrors()) {
                 wp_send_json_error($e->getErrors());

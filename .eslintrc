@@ -48,7 +48,6 @@
     "key-spacing": "error",
     "keyword-spacing": "error",
     "lines-around-comment": "off",
-    "no-alert": "error",
     "no-bitwise": "error",
     "no-caller": "error",
     "no-console": "off",

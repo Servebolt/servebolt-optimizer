@@ -3,6 +3,8 @@
 namespace Servebolt\Optimizer\Exceptions;
 
 use Exception;
+use Servebolt\Optimizer\Exceptions\ErrorTranslator\ServeboltErrorTranslation;
+use Servebolt\Optimizer\Exceptions\ErrorTranslator\CloudflareErrorTranslation;
 
 /**
  * Class ApiError
@@ -40,10 +42,30 @@ abstract class ApiError extends Exception
      */
     public function __construct(array $errors, string $driver, $response)
     {
-        $this->errors = $errors;
+        $this->errors = $this->translateErrors($errors, $driver);
         $this->driver = $driver;
         $this->response = $response;
         $this->initializeParent();
+    }
+
+    /**
+     * Translate API-errors to something that gives more sense to the end user.
+     *
+     * @param array $errors
+     * @param string $driver
+     * @return array
+     */
+    public function translateErrors(array $errors, string $driver): array
+    {
+        switch ($driver) {
+            case 'acd':
+                $i = new ServeboltErrorTranslation($errors);
+                return $i->translate();
+            case 'cloudflare':
+                $i = new CloudflareErrorTranslation($errors);
+                return $i->translate();
+        }
+        return $errors;
     }
 
     private function initializeParent(): void

@@ -17,7 +17,7 @@ trait User
      */
     public function verifyApiToken($token = false) {
         if ( ! $token ) {
-            $token = $this->getCredential('api_token');
+            $token = $this->getCredential('apiToken');
         }
         $response = $this->request('user/tokens/verify', 'GET', [], [
             'Authorization' => 'Bearer ' . $token,
