@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "983988351ad499cfd550e899d1b4d505",
+    "content-hash": "b130cb981415755acaa8d60a43aa7c76",
     "packages": [
         {
             "name": "composer/installers",
@@ -583,8 +583,14 @@
             "version": "v1.0.0-beta.1",
             "source": {
                 "type": "git",
-                "url": "git@gitlab.r99.no:tools/php-sdk.git",
+                "url": "https://github.com/Servebolt/php-sdk.git",
                 "reference": "27bb6fe0500dc46987aad27c3b962680d321e3d5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/27bb6fe0500dc46987aad27c3b962680d321e3d5",
+                "reference": "27bb6fe0500dc46987aad27c3b962680d321e3d5",
+                "shasum": ""
             },
             "require": {
                 "ext-json": "*",
@@ -630,6 +636,10 @@
             ],
             "description": "A PHP SDK for communicating with the Servebolt API.",
             "homepage": "https://servebolt.com",
+            "support": {
+                "source": "https://github.com/Servebolt/php-sdk/tree/v1.0.0-beta.1",
+                "issues": "https://github.com/Servebolt/php-sdk/issues"
+            },
             "time": "2021-03-17T13:03:26+00:00"
         }
     ],

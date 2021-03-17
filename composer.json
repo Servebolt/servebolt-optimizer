@@ -7,7 +7,7 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "git@gitlab.r99.no:tools/php-sdk.git"
+      "url": "git@github.com:Servebolt/php-sdk.git"
     }
   ],
   "authors": [
