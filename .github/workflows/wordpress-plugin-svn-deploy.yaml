@@ -11,8 +11,6 @@ jobs:
       - uses: actions/checkout@master
       - name: Build
         run: |
-          which php
-          php -v
           composer install --no-dev
           yarn install
           yarn production
