@@ -2,33 +2,44 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods;
 
+/**
+ * Trait Zone
+ * @package Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods
+ */
 trait Zone
 {
+
     /**
      * List zones.
      *
-     * @return bool|stdClass
+     * @param array|null $filterColumns
+     * @return mixed
      */
-    public function listZones()
+    public function listZones(?array $filterColumns = null)
     {
         $query = [
             'page'     => 1,
             'per_page' => 20,
             'match'    => 'all'
         ];
-        try {
-            $request = $this->request('zones', 'GET', $query);
-            return $request['json']->result;
-        } catch (Exception $e) {
-            return sb_cf_error($e);
+        $request = $this->request('zones', 'GET', $query);
+        $zones = $request['json']->result;
+        if ($filterColumns) {
+            $zones = array_map(function($zone) use($filterColumns) {
+                $filteredZone = [];
+                foreach($filterColumns as $column) {
+                    $filteredZone[$column] = isset($zone->{$column}) ? $zone->{$column} : null;
+                }
+                return (object) $filteredZone;
+            }, $zones);
         }
+        return $zones;
     }
 
     /**
      * Check if zone exists.
      *
      * @param string $zoneId
-     *
      * @return bool
      */
     protected function zoneExists(string $zoneId) : bool
@@ -40,17 +51,12 @@ trait Zone
      * Get zone by Id.
      *
      * @param string $zoneId
-     *
-     * @return bool|object
+     * @return mixed
      */
     public function getZoneById(string $zoneId)
     {
-        try {
-            $request = $this->request('zones/' . $zoneId);
-            return $request['json']->result;
-        } catch (Exception $e) {
-            return sb_cf_error($e);
-        }
+        $request = $this->request('zones/' . $zoneId);
+        return $request['json']->result;
     }
 
     /**
@@ -58,8 +64,7 @@ trait Zone
      *
      * @param string $zoneName
      * @param string $key
-     *
-     * @return bool
+     * @return bool|mixed
      */
     public function getZoneByKey(string $zoneName, string $key = 'name')
     {

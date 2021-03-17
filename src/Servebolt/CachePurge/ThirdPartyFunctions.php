@@ -1,46 +1,168 @@
 <?php
 
-use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
+use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
+use Servebolt\Optimizer\Exceptions\ApiError;
+
+/**
+ * Purge cache for URL.
+ *
+ * @param string $url
+ * @param bool $return_wp_error_object
+ * @return bool|WP_Error
+ */
+function sb_purge_url(string $url, bool $return_wp_error_object = false)
+{
+    try {
+        return WordPressCachePurge::purgeByUrl($url);
+    } catch (ApiError $e) {
+        // TODO: Handle API error message
+        if ($return_wp_error_object) {
+            // TODO: Return WP Error object
+        }
+        return false;
+    } catch (Exception $e) {
+        // TODO: Handle general error
+        if ($return_wp_error_object) {
+            // TODO: Return WP Error object
+        }
+        return false;
+    }
+}
 
 /**
  * Purge cache for post.
  *
  * @param $post_id
- * @return bool
- * @throws ReflectionException
+ * @param bool $return_wp_error_object
+ * @return bool|WP_Error
  */
-function sb_purge_post_cache($post_id) : bool
+function sb_purge_post_cache($post_id, bool $return_wp_error_object = false)
 {
-    $driver = CachePurgeDriver::getInstance();
-    return $driver->purgeCacheForPost($post_id);
+    try {
+        return WordPressCachePurge::purgeByPostId(
+            (int) $post_id
+        );
+    } catch (ApiError $e) {
+        // TODO: Handle API error message
+        if ($return_wp_error_object) {
+            // TODO: Return WP Error object
+        }
+        return false;
+    } catch (Exception $e) {
+        // TODO: Handle general error
+        if ($return_wp_error_object) {
+            // TODO: Return WP Error object
+        }
+        return false;
+    }
+    return false;
 }
 
 /**
  * Purge cache for term.
  *
  * @param $term_id
- * @return bool
- * @throws ReflectionException
+ * @param $taxonomy_slug
+ * @param bool $return_wp_error_object
+ * @return bool|WP_Error
  */
-function sb_purge_post_term($term_id) : bool
+function sb_purge_term_cache($term_id, $taxonomy_slug, bool $return_wp_error_object = false)
 {
-    $driver = CachePurgeDriver::getInstance();
-    return $driver->purgeCacheForTerm($term_id);
+    try {
+        return WordPressCachePurge::purgeByTermId(
+            (int) $term_id
+        );
+    } catch (ApiError $e) {
+        // TODO: Handle API error message
+        if ($return_wp_error_object) {
+            // TODO: Return WP Error object
+        }
+        return false;
+    } catch (Exception $e) {
+        // TODO: Handle general error
+        if ($return_wp_error_object) {
+            // TODO: Return WP Error object
+        }
+        return false;
+    }
+    return false;
 }
 
 /**
  * Purge all cache.
  *
- * NOTE: Only available when using Cloudflare cache purging.
- *
- * @return bool
- * @throws ReflectionException
+ * @param bool $return_wp_error_object
+ * @return bool|WP_Error
  */
-function sb_purge_all() : bool
+function sb_purge_all(bool $return_wp_error_object = false)
 {
-    $driver = CachePurgeDriver::getInstance();
-    if (method_exists($driver, 'purgeAll')) {
-        return $driver->purgeAll();
+    try {
+        return WordPressCachePurge::purgeAll();
+    } catch (ApiError $e) {
+        // TODO: Handle API error message
+        if ($return_wp_error_object) {
+            // TODO: Return WP Error object
+        }
+        return false;
+    } catch (Exception $e) {
+        // TODO: Handle general error
+        if ($return_wp_error_object) {
+            // TODO: Return WP Error object
+        }
+        return false;
     }
-    return false;
+}
+
+/**
+ * Purge all cache by blog Id (multisite only).
+ *
+ * @param $blog_id
+ * @param bool $return_wp_error_object
+ * @return false|WP_Error
+ */
+function sb_purge_all_by_blog_id($blog_id, bool $return_wp_error_object = false)
+{
+    try {
+        return WordPressCachePurge::purgeAllByBlogId(
+            (int) $blog_id
+        );
+    } catch (ApiError $e) {
+        // TODO: Handle API error message
+        if ($return_wp_error_object) {
+            // TODO: Return WP Error object
+        }
+        return false;
+    } catch (Exception $e) {
+        // TODO: Handle general error
+        if ($return_wp_error_object) {
+            // TODO: Return WP Error object
+        }
+        return false;
+    }
+}
+
+/**
+ * Purge all cache in network (multisite only).
+ *
+ * @param bool $return_wp_error_object
+ * @return bool|WP_Error
+ */
+function sb_purge_all_network(bool $return_wp_error_object = false)
+{
+    try {
+        return WordPressCachePurge::purgeAllNetwork();
+    } catch (ApiError $e) {
+        // TODO: Handle API error message
+        if ($return_wp_error_object) {
+            // TODO: Return WP Error object
+        }
+        return false;
+    } catch (Exception $e) {
+        // TODO: Handle general error
+        if ($return_wp_error_object) {
+            // TODO: Return WP Error object
+        }
+        return false;
+    }
+
 }

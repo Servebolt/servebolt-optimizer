@@ -56,7 +56,7 @@ class Cloudflare extends HttpClient
         if ($this->credentialsOk($args)) {
             $this->setCredentials($args['authType'], $args['credentials']);
             if ($this->zoneOk($args)) {
-                $this->setZoneId($args['ZoneId']);
+                $this->setZoneId($args['zoneId']);
             }
         }
     }
@@ -70,7 +70,7 @@ class Cloudflare extends HttpClient
     private function zoneOk($args): bool
     {
         return is_array($args)
-            && array_key_exists('ZoneId', $args);
+            && array_key_exists('zoneId', $args);
     }
 
     /**

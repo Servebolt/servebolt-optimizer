@@ -5,42 +5,74 @@ namespace Servebolt\Optimizer\CachePurge\Drivers;
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Api\Cloudflare\Cloudflare as CloudflareApi;
+use Servebolt\Optimizer\Exceptions\CloudflareApiError;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeInterface;
+use Servebolt\Optimizer\Sdk\Cloudflare\Exceptions\ApiError as CloudflareSdkApiError;
 
 class Cloudflare implements CachePurgeInterface
 {
     use Singleton;
 
     /**
+     * Purge a URL.
+     *
      * @param string $url
-     * @return mixed
-     * @throws \ReflectionException
+     * @return bool
+     * @throws CloudflareApiError
      */
-    public function purgeByUrl(string $url)
+    public function purgeByUrl(string $url): bool
     {
-        $instance = CloudflareApi::getInstance();
-        return $instance->purgeUrl([$url]);
+        try {
+            $instance = CloudflareApi::getInstance();
+            $instance->purgeUrl($url);
+            return true;
+        } catch (CloudflareSdkApiError $e) {
+            $response = $e->getResponse();
+            throw new CloudflareApiError(
+                $response->getErrors(),
+                $response
+            );
+        }
     }
 
     /**
+     * Purge an array of URLs.
+     *
      * @param array $urls
-     * @return mixed
-     * @throws \ReflectionException
+     * @return bool
+     * @throws CloudflareApiError
      */
-    public function purgeByUrls(array $urls)
+    public function purgeByUrls(array $urls): bool
     {
-        $instance = CloudflareApi::getInstance();
-        return $instance->purgeUrl($urls);
+        try {
+            $instance = CloudflareApi::getInstance();
+            $instance->purgeUrls($urls);
+            return true;
+        } catch (CloudflareSdkApiError $e) {
+            throw new CloudflareApiError(
+                $e->getErrors(),
+                $e->getResponse()
+            );
+        }
     }
 
     /**
-     * @return mixed
-     * @throws \ReflectionException
+     * Purge all URL's (in the current zone).
+     * @return bool
+     * @throws CloudflareApiError
      */
-    public function purgeAll()
+    public function purgeAll(): bool
     {
-        $instance = CloudflareApi::getInstance();
-        return $instance->purgeAll();
+        try {
+            $instance = CloudflareApi::getInstance();
+            $instance->purgeAll();
+            return true;
+        } catch (CloudflareSdkApiError $e) {
+            throw new CloudflareApiError(
+                $e->getErrors(),
+                $e->getResponse()
+            );
+        }
     }
 }

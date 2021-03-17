@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Traits;
 
+use Exception;
+
 trait ClientMethodProxy
 {
     /**
@@ -15,6 +17,23 @@ trait ClientMethodProxy
             return call_user_func_array([$this->client, $name], $arguments);
         } else {
             trigger_error(sprintf('Call to undefined method %s', $name));
+        }
+    }
+
+    /**
+     * @param $name
+     * @return false|mixed
+     */
+    public function __get($name)
+    {
+        if (is_object($this->client)) {
+            try {
+                return $this->client->{$name};
+            } catch (Exception $e) {
+                trigger_error(sprintf('Call to undefined property %s', $name));
+            }
+        } else {
+            trigger_error(sprintf('Call to undefined property %s', $name));
         }
     }
 }

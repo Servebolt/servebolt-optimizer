@@ -2,33 +2,33 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods;
 
+/**
+ * Trait User
+ * @package Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods
+ */
 trait User
 {
+
     /**
      * Verify API token.
      *
-     * @param bool $token
-     *
+     * @param false $token
      * @return bool
      */
     public function verifyApiToken($token = false) {
         if ( ! $token ) {
-            $token = $this->getCredential('api_token');
+            $token = $this->getCredential('apiToken');
         }
-        try {
-            $request = $this->request('user/tokens/verify', 'GET', [], [
-                'Authorization' => 'Bearer ' . $token,
-            ]);
-            return $request['httpCode'] === 200;
-        } catch (Exception $e) {
-            return sb_cf_error($e);
-        }
+        $response = $this->request('user/tokens/verify', 'GET', [], [
+            'Authorization' => 'Bearer ' . $token,
+        ]);
+        return $response['httpCode'] === 200;
     }
 
     /**
      * Get user ID of authenticated user.
      *
-     * @return mixed
+     * @return false
      */
     public function getUserId()
     {
@@ -43,12 +43,8 @@ trait User
      */
     public function getUserDetails()
     {
-        try {
-            $request = $this->request('user');
-            return $request['json']->result;
-        } catch (Exception $e) {
-            return sb_cf_error($e);
-        }
+        $request = $this->request('user');
+        return $request['json']->result;
     }
 
     /**

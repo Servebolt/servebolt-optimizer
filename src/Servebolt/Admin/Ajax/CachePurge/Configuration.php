@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\Ajax\SharedMethods;
 use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;
+use Exception;
 
 class Configuration extends SharedMethods
 {
@@ -100,10 +101,10 @@ class Configuration extends SharedMethods
         parse_str($_POST['form'], $form_data);
         $errors = [];
 
-        $featureIsActive = array_key_exists('cache_purge_switch', $form_data)
-            && filter_var($form_data['cache_purge_switch'], FILTER_VALIDATE_BOOLEAN) === true;
-        $cfIsActive = array_key_exists('cache_purge_driver', $form_data)
-            && $form_data['cache_purge_driver'] == 'cloudflare';
+        $featureIsActive = array_key_exists('servebolt_cache_purge_switch', $form_data)
+            && filter_var($form_data['servebolt_cache_purge_switch'], FILTER_VALIDATE_BOOLEAN) === true;
+        $cfIsActive = array_key_exists('servebolt_cache_purge_driver', $form_data)
+            && $form_data['servebolt_cache_purge_driver'] == 'cloudflare';
         $authType = sanitize_text_field($form_data['servebolt_cf_auth_type']);
         $apiToken = sanitize_text_field($form_data['servebolt_cf_api_token']);
         $email = sanitize_text_field($form_data['servebolt_cf_email']);
@@ -125,7 +126,7 @@ class Configuration extends SharedMethods
                         'credentials' => compact('apiToken')
                     ]);
                     try {
-                        if ( ! $cfSdk->verifyToken() ) {
+                        if (!$cfSdk->verifyApiToken()) {
                             throw new Exception;
                         }
                         $shouldCheckZone = true;
@@ -135,15 +136,15 @@ class Configuration extends SharedMethods
                 }
                 break;
             case 'api_key':
-                if ( empty($email) ) {
+                if (empty($email)) {
                     $errors['email'] = sb__('You need to provide an email address.');
                 }
 
-                if ( empty($apiKey) ) {
+                if (empty($apiKey)) {
                     $errors['api_key'] = sb__('You need to provide an API key.');
                 }
 
-                if ( ! empty($email) && ! empty($apiKey) ) {
+                if (!empty($email) && !empty($apiKey)) {
                     $cfSdk = new CloudflareSdk([
                         'authType' => 'api_key',
                         'credentials' => compact('email', 'apiKey')

@@ -46,8 +46,8 @@ jQuery(document).ready(function($) {
    * @param obj
    */
   function sb_remove_exclude_item(obj) {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Are you sure?' + "\n" + 'Do you really want to remove the item?') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Are you sure?' + "\n" + 'Do you really want to remove the item?')) {
         sb_remove_exclude_item_confirmed(obj);
       }
     } else {
@@ -88,8 +88,8 @@ jQuery(document).ready(function($) {
    * Flush FPC post exclude list.
    */
   function sb_flush_fpc_exclude_list() {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Are you sure?' + "\n" + 'Do you really want to remove all posts from exclude list?') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Are you sure?' + "\n" + 'Do you really want to remove all posts from exclude list?')) {
         sb_flush_fpc_exclude_list_confirmed();
       }
     } else {
@@ -126,8 +126,8 @@ jQuery(document).ready(function($) {
    * Remove selected post from FPC exclude list.
    */
   function sb_remove_selected_exclude_items() {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Are you sure?' + "\n" + 'Do you really want remove the selected items?') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Are you sure?' + "\n" + 'Do you really want remove the selected items?')) {
         sb_remove_selected_exclude_items_confirmed();
       }
     } else {
@@ -172,9 +172,9 @@ jQuery(document).ready(function($) {
    */
   function sb_add_posts_to_fpc_exclude() {
     if ( window.sb_use_native_js_fallback() ) {
-      var value = prompt('Add posts to list' + "\n" + 'Insert the IDs (comma separated) of the post you would like to exclude from the cache');
+      var value = window.prompt('Add posts to list' + "\n" + 'Insert the IDs (comma separated) of the post you would like to exclude from the cache');
       if ( ! value ) {
-        alert('Please enter a post ID.');
+        window.alert('Please enter a post ID.');
         return;
       }
       sb_add_posts_to_fpc_exclude_confirmed(value);

@@ -105,7 +105,7 @@ jQuery(document).ready(function($) {
     if ( window.sb_use_native_js_fallback() ) {
       var verboseType = type.charAt(0).toUpperCase() + type.slice(1);
       var message = html ? window.sb_strip(html, true) : window.sb_strip(text);
-      alert(verboseType + ': ' + window.sb_strip(title) + "\n" + message);
+      window.alert(verboseType + ': ' + window.sb_strip(title) + "\n" + message);
     } else {
       var config = {
         icon: type,
@@ -141,7 +141,7 @@ jQuery(document).ready(function($) {
     }
     var doc = new DOMParser().parseFromString(html, 'text/html');
     return doc.body.textContent || '';
-  }
+  };
 
   /**
    * Get message from jQuery AJAX response object.
@@ -150,7 +150,17 @@ jQuery(document).ready(function($) {
    * @returns {*}
    */
   window.sb_get_message_from_response = function(response) {
-    return window.sb_get_from_response(response, 'message')
+    return window.sb_get_from_response(response, 'message');
+  };
+
+  /**
+   * Get message from jQuery AJAX response object.
+   *
+   * @param response
+   * @returns {*}
+   */
+  window.sb_get_messages_from_response = function(response) {
+    return window.sb_get_from_response(response, 'messages');
   }
 
   /**
@@ -158,14 +168,14 @@ jQuery(document).ready(function($) {
    *
    * @param response
    * @param key
-   * @param default_value
+   * @param defaultValue
    * @returns {*}
    */
-  window.sb_get_from_response = function(response, key, default_value) {
+  window.sb_get_from_response = function(response, key, defaultValue) {
     if ( typeof response.data !== 'undefined' && typeof response.data[key] !== 'undefined' ) {
       return response.data[key];
     }
-    return default_value ? default_value : false;
+    return defaultValue ? defaultValue : false;
   }
 
   /**

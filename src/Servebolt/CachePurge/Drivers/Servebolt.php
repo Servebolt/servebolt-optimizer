@@ -7,6 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeInterface;
+use Servebolt\Optimizer\Exceptions\ServeboltApiError;
 
 class Servebolt implements CachePurgeInterface
 {
@@ -23,27 +24,6 @@ class Servebolt implements CachePurgeInterface
     }
 
     /**
-     * @param string $url
-     * @return mixed
-     */
-    public function purgeByUrl(string $url)
-    {
-        return $this->apiInstance->environment()->purgeCache([$url]);
-    }
-
-    /**
-     * @param array $urls
-     * @return mixed
-     */
-    public function purgeByUrls(array $urls)
-    {
-        return $this->apiInstance->environment->purgeCache(
-            $this->apiInstance->getEnvironmentId(),
-            $urls
-        );
-    }
-
-    /**
      * Check whether the Servebolt SDK is configured correctly.
      *
      * @return bool
@@ -54,15 +34,91 @@ class Servebolt implements CachePurgeInterface
     }
 
     /**
-     * @return mixed
+     * @param string $url
+     * @return bool
+     * @throws ServeboltApiError
      */
-    public function purgeAll()
+    public function purgeByUrl(string $url): bool
     {
-        return $this->apiInstance->environment->purgeCache(
+        $response = $this->apiInstance->environment()->purgeCache([$url]);
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
+
+    /**
+     * @param array $urls
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeByUrls(array $urls): bool
+    {
+        $response = $this->apiInstance->environment->purgeCache(
+            $this->apiInstance->getEnvironmentId(),
+            $urls
+        );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
+
+    /**
+     * Purge all cache (for a single site).
+     *
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeAll(): bool
+    {
+        $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
             [],
             $this->getPurgeAllPrefixes()
         );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+           throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
+
+    /**
+     * Purge cache for all sites in multisite-network.
+     *
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeAllNetwork(): bool
+    {
+        $response = $this->apiInstance->environment->purgeCache(
+            $this->apiInstance->getEnvironmentId(),
+            [],
+            $this->getPurgeAllPrefixesWithMultisiteSupport()
+        );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
+
+    /**
+     * Allow for custom handling of prefixes when purging all cache.
+     *
+     * @param bool $isMultisite
+     * @return array|bool
+     */
+    private function purgeAllPrefixOverride(bool $isMultisite = false)
+    {
+        $override = apply_filters('sb_optimizer_acd_purge_all_prefixes_early_override', [], $isMultisite);
+        if (is_array($override) && !empty($override)) {
+            return $override;
+        }
+        return false;
     }
 
     /**
@@ -72,18 +128,40 @@ class Servebolt implements CachePurgeInterface
      */
     public function getPurgeAllPrefixes(): array
     {
-        $prefixes = [];
-        if (is_multisite()) {
-            $prefixes = $this->getDomainsWithThirdPartySupport(); // All domains in a multisite-setup
-        } elseif ($domain = $this->extractDomainFromUrl(get_site_url())) {
-            $prefixes = [$domain]; // Single site domain
+        if ($override = $this->purgeAllPrefixOverride(false)) {
+            return $override;
         }
-
+        $siteUrl = get_site_url();
+        $siteDomain = $this->extractDomainFromUrl($siteUrl);
+        $prefixes = [$siteDomain];
         if (apply_filters('sb_optimizer_add_www_domains_on_acd_purge_all', true)) {
             $prefixes = $this->addWwwDomains($prefixes);
         }
+        $prefixes = apply_filters('sb_optimizer_acd_purge_all_prefixes', $prefixes);
+        $prefixes = apply_filters('sb_optimizer_acd_purge_all_prefixes_single_site', $prefixes);
+        return $prefixes;
+    }
 
-        return apply_filters('sb_optimizer_acd_purge_all_prefixes', $prefixes);
+    /**
+     * Build array of prefix URLs when purging all cache for a site.
+     *
+     * @return array
+     */
+    public function getPurgeAllPrefixesWithMultisiteSupport(): array
+    {
+        if ($override = $this->purgeAllPrefixOverride(true)) {
+            return $override;
+        }
+        if (!is_multisite()) {
+            return [];
+        }
+        $prefixes = $this->getDomainsWithThirdPartySupport(); // All domains in a multisite-setup
+        if (apply_filters('sb_optimizer_add_www_domains_on_acd_purge_all', true)) {
+            $prefixes = $this->addWwwDomains($prefixes);
+        }
+        $prefixes = apply_filters('sb_optimizer_acd_purge_all_prefixes', $prefixes);
+        $prefixes = apply_filters('sb_optimizer_acd_purge_all_prefixes_multisite', $prefixes);
+        return $prefixes;
     }
 
     /**
