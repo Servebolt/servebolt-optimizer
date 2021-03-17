@@ -2,8 +2,12 @@
 
 namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 
-use WP_Error;
+use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 
+/**
+ * Trait PostMethods
+ * @package Servebolt\Optimizer\CachePurge\WordPressCachePurge
+ */
 trait PostMethods
 {
 
@@ -25,10 +29,9 @@ trait PostMethods
      * Purge post cache by post Id.
      *
      * @param int $postId
-     * @param bool $returnWpError
      * @return bool|WP_Error
      */
-    public static function purgePostCache(int $postId, bool $returnWpError = false): bool
+    public static function purgePostCache(int $postId): bool
     {
 
         // If this is just a revision, don't purge anything.
@@ -38,7 +41,7 @@ trait PostMethods
 
         // TODO: Add queue handling here
         $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
-        $cachePurgeDriver = CachePurge::getInstance();
+        $cachePurgeDriver = CachePurgeDriver::getInstance();
         return $cachePurgeDriver->purgeByUrls($urlsToPurge);
     }
 }

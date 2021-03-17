@@ -18,8 +18,8 @@ jQuery(document).ready(function($) {
   $('#wpadminbar .sb-purge-current-post-cache').click(function (e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
-    var post_id = $(this).find('span').data('id');
-    window.sb_purge_post_cache(post_id);
+    var postId = $(this).find('span').data('id');
+    window.sb_purge_post_cache(postId);
   });
 
   // Purge URL cache
@@ -68,8 +68,8 @@ jQuery(document).ready(function($) {
    * Purge Cloudflare cache on all sites in multisite.
    */
   function sb_purge_network_cache() {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Do you want to purge all cache?' + "\n" + 'This includes all your sites in the network') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Do you want to purge all cache?' + "\n" + 'This includes all your sites in the network')) {
         sb_purge_network_cache_confirmed();
       }
     } else {
@@ -131,8 +131,8 @@ jQuery(document).ready(function($) {
    * Clear all cache in Cloudflare.
    */
   window.sb_purge_all_cache = function() {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Do you want to purge all cache?') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Do you want to purge all cache?')) {
         sb_purge_all_cache_confirmed();
       }
     } else {
@@ -168,48 +168,72 @@ jQuery(document).ready(function($) {
       data: data,
       success: function(response) {
         window.sb_loading(false);
-        var title = window.sb_get_from_response(response, 'title'),
-            message = window.sb_get_message_from_response(response);
-        if ( response.success ) {
+        if (response.success) {
           setTimeout(function () {
-            sb_cache_purge_success(message, title);
-            window.update_cache_purge_list();
+            sb_cache_purge_success(
+              window.sb_get_message_from_response(response),
+              window.sb_get_from_response(response, 'title')
+            );
+            //window.update_cache_purge_list();
           }, 100);
-        } else {
-          var type = window.sb_get_from_response(response, 'type');
-          if ( type == 'warning' ) {
-            sb_cache_purge_warning(message, title);
-          } else {
-            sb_cache_purge_error(message, false, title);
-          }
+          return;
         }
+        window.handle_unsuccessful_cache_purge(response);
       },
       error: function() {
         window.sb_loading(false);
-        sb_cache_purge_error(null, false);
+        sb_cache_purge_error(); // General error
       }
     });
-  }
+  };
+
+  window.handle_unsuccessful_cache_purge = function(response) {
+    sb_cache_purge_error();
+    return;
+    var type = window.sb_get_from_response(response, 'type', 'error'),
+        message = window.sb_get_message_from_response(response);
+    if (message) {
+      // TODO: Display single message
+      return;
+    }
+    var messages = window.sb_get_messages_from_response(response);
+    if (messages) {
+      // TODO: Handle multiple messages
+      return;
+    }
+
+
+
+    alert('Fail');
+    /*
+    var type = window.sb_get_from_response(response, 'type');
+    if ( type == 'warning' ) {
+      sb_cache_purge_warning(message, title);
+    } else {
+      sb_cache_purge_error(message, false, title);
+    }
+    */
+  };
 
   /**
    * Clear cache for the current post.
-   *
-   * @param post_id
    */
-  window.sb_purge_post_cache_with_auto_resolve = function(post_id) {
-    var post_id = document.getElementById('post_ID').value;
-    if ( post_id ) {
-      window.sb_purge_post_cache(post_id);
+  window.sb_purge_post_cache_with_auto_resolve = function() {
+    var postId = document.getElementById('post_ID').value;
+    if (postId) {
+      window.sb_purge_post_cache(postId);
     }
-  }
+  };
 
   /**
    * Clear cache by post ID in Cloudflare.
+   *
+   * @param postId
    */
-  window.sb_purge_post_cache = function(post_id) {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Do you want to purge cache for current post?') ) {
-        sb_purge_post_cache_confirmed(post_id);
+  window.sb_purge_post_cache = function(postId) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Do you want to purge cache for current post?')) {
+        sb_purge_post_cache_confirmed(postId);
       }
     } else {
       Swal.fire({
@@ -223,11 +247,11 @@ jQuery(document).ready(function($) {
         buttonsStyling: false
       }).then((result) => {
         if ( result.value ) {
-          sb_purge_post_cache_confirmed(post_id);
+          sb_purge_post_cache_confirmed(postId);
         }
       });
     }
-  }
+  };
 
   /**
    * Confirm callback for function "sb_purge_post_cache".
@@ -278,9 +302,9 @@ jQuery(document).ready(function($) {
    */
   window.sb_purge_url_cache = function() {
     if ( window.sb_use_native_js_fallback() ) {
-      var value = prompt('Which URL do you wish to purge?' + "\n" + 'Please use full URL including "http://"');
+      var value = window.prompt('Which URL do you wish to purge?' + "\n" + 'Please use full URL including "http://"');
       if ( ! value ) {
-        alert('Please enter a URL.');
+        window.alert('Please enter a URL.');
         return;
       }
       sb_purge_url_cache_confirmed(value);
@@ -326,23 +350,28 @@ jQuery(document).ready(function($) {
       data: data,
       success: function(response) {
         window.sb_loading(false);
+
         var title = window.sb_get_from_response(response, 'title'),
             message = window.sb_get_message_from_response(response);
-        if ( response.success ) {
-          setTimeout(function () {
+
+        if (response.success) {
+          setTimeout(function() {
             sb_cache_purge_success(message, title);
             window.update_cache_purge_list();
           }, 100);
-        } else {
-          if ( message ) {
-            if ( response.data.type == 'warning' ) {
-              window.sb_warning(title, null, message);
-            } else {
-              sb_cache_purge_error(message);
-            }
+          return;
+        }
+
+        return;
+
+        if ( message ) {
+          if ( response.data.type == 'warning' ) {
+            window.sb_warning(title, null, message);
           } else {
-            sb_cache_purge_error();
+            sb_cache_purge_error(message);
           }
+        } else {
+          sb_cache_purge_error();
         }
       },
       error: function() {

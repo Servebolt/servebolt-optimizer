@@ -2,8 +2,12 @@
 
 namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 
-use WP_Error;
+use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 
+/**
+ * Trait TermMethods
+ * @package Servebolt\Optimizer\CachePurge\WordPressCachePurge
+ */
 trait TermMethods
 {
 
@@ -28,14 +32,13 @@ trait TermMethods
      *
      * @param int $termId
      * @param string $taxonomySlug
-     * @param bool $returnWpError
      * @return bool
      */
-    public static function purgeTermCache(int $termId, string $taxonomySlug, bool $returnWpError = false): bool
+    public static function purgeTermCache(int $termId, string $taxonomySlug): bool
     {
         // TODO: Add queue handling here
         $urlsToPurge = self::getUrlsToPurgeByTermId($termId, $taxonomySlug);
-        $cachePurgeDriver = CachePurge::getInstance();
+        $cachePurgeDriver = CachePurgeDriver::getInstance();
         return $cachePurgeDriver->purgeByUrls($urlsToPurge);
     }
 }
