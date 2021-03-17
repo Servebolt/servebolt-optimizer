@@ -13,7 +13,7 @@ jobs:
         run: |
           which php
           php -v
-          composer install
+          composer install --no-dev
           yarn install
           yarn production
           ./cleanup.sh
