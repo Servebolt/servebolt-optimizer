@@ -12,9 +12,10 @@ trait Zone
     /**
      * List zones.
      *
+     * @param array|null $filterColumns
      * @return mixed
      */
-    public function listZones()
+    public function listZones(?array $filterColumns = null)
     {
         $query = [
             'page'     => 1,
@@ -22,7 +23,17 @@ trait Zone
             'match'    => 'all'
         ];
         $request = $this->request('zones', 'GET', $query);
-        return $request['json']->result;
+        $zones = $request['json']->result;
+        if ($filterColumns) {
+            $zones = array_map(function($zone) use($filterColumns) {
+                $filteredZone = [];
+                foreach($filterColumns as $column) {
+                    $filteredZone[$column] = isset($zone->{$column}) ? $zone->{$column} : null;
+                }
+                return (object) $filteredZone;
+            }, $zones);
+        }
+        return $zones;
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Admin\CachePurge;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Api\Cloudflare\Cloudflare;
 use Servebolt\Optimizer\Admin\AdminGuiController;
 use Servebolt\Optimizer\Admin\Ajax\CachePurge\Configuration;
 use Servebolt\Optimizer\Admin\Ajax\CachePurge\PurgeActions;
@@ -32,9 +33,61 @@ class CachePurge
     }
 
     /**
-     * Render the options page.
+     * Get available CF zones.
      *
-     * @throws \ReflectionException
+     * @param $settings
+     * @return array
+     */
+    private function getCfZones($settings): array
+    {
+        $listZonesTransientKey = 'sb_cf_list_zones_';
+        switch ($settings['cf_auth_type']) {
+            case 'api_token':
+                $listZonesTransientKey .= hash('SHA512', $settings['cf_api_token']);
+                break;
+            case 'api_key':
+                $listZonesTransientKey .= $settings['cf_email'] . '_' . hash('SHA512', $settings['cf_api_key']);
+                break;
+        }
+        if (isset($listZonesTransientKey)) {
+            $zones = get_transient($listZonesTransientKey);
+            if (!$zones) {
+                $cfApi = Cloudflare::getInstance();
+                $zones = $cfApi->listZones(['name', 'id']);
+                if (is_array($zones)) {
+                    set_transient($listZonesTransientKey, $zones, 60);
+                }
+            }
+            return $zones;
+        }
+        return [];
+    }
+
+    /**
+     * Get the selected zone object.
+     *
+     * @param $settings
+     * @return object|null
+     */
+    private function getSelectedCfZone($settings): ?object
+    {
+        if ($settings['cf_zone_id']) {
+            $zoneTransientKey = 'sb_cf_current_zone_' . $settings['cf_zone_id'];
+            $selectedZone = get_transient($zoneTransientKey);
+            if (!$selectedZone) {
+                $cfApi = Cloudflare::getInstance();
+                $selectedZone = $cfApi->getZoneById($settings['cf_zone_id']);
+                if (is_object($selectedZone)) {
+                    set_transient($zoneTransientKey, $selectedZone, DAY_IN_SECONDS);
+                }
+            }
+            return $selectedZone;
+        }
+        return null;
+    }
+
+    /**
+     * Render the options page.
      */
     public function render(): void
     {
@@ -43,7 +96,10 @@ class CachePurge
         $cachePurge = $this;
         $isHostedAtServebolt = host_is_servebolt();
 
-        view('cache-purge/cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt'));
+        $selectedCfZone = $this->getSelectedCfZone($settings);
+        $cfZones = $this->getCfZones($settings);
+
+        view('cache-purge/cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones'));
         /*
         $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
         $numberOfCachePurgeQueueItems = sb_cf_cache()->count_items_to_purge();

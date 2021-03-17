@@ -62,25 +62,19 @@
         <th scope="row"><label for="zone_id"><?php sb_e('Zone ID'); ?></label></th>
         <td>
 
-            <?php
-                $zone = $settings['cf_zone_id'] ? $cfApi->getZoneById($settings['cf_zone_id']) : false;
-                $have_zones = false;
-                $zones = [];//sb_cf_cache()->list_zones();
-                $have_zones = ( is_array($zones) && ! empty($zones) );
-            ?>
-
-            <input name="<?php echo sb_get_option_name('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID<?php if ( $have_zones ) echo ' or use the choices below'; ?>" value="<?php echo esc_attr($settings['cf_zone_id']); ?>" class="regular-text validate-field validation-group-zone_id">
+            <?php $haveZones = (is_array($cfZones) && !empty($cfZones)); ?>
+            <input name="<?php echo sb_get_option_name('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID<?php if ($haveZones) echo ' or use the choices below'; ?>" value="<?php echo esc_attr($settings['cf_zone_id']); ?>" class="regular-text validate-field validation-group-zone_id">
             <span class="spinner zone-loading-spinner"></span>
             <p class="invalid-message"></p>
 
-            <p class="active-zone"<?php if ( ! isset($zone) || ! $zone ) echo ' style="display: none;"'; ?>><?php sb_e('Selected zone:'); ?> <span><?php if ( isset($zone) && $zone ) echo $zone->name; ?></span></p>
+            <p class="active-zone"<?php if ( ! isset($selectedCfZone) || ! $selectedCfZone ) echo ' style="display: none;"'; ?>><?php sb_e('Selected zone:'); ?> <span><?php if ( isset($selectedCfZone) && $selectedCfZone ) echo $selectedCfZone->name; ?></span></p>
 
-            <div class="zone-selector-container"<?php if ( ! $have_zones ) echo ' style="display: none;"'; ?>>
+            <div class="zone-selector-container"<?php if ( ! $haveZones ) echo ' style="display: none;"'; ?>>
                 <p style="margin-top: 10px;"><?php sb_e('Available zones:'); ?></p>
                 <ul class="zone-selector" style="margin: 5px 0;">
-                    <?php if ( $have_zones ) : ?>
-                        <?php foreach($zones as $zone) : ?>
-                            <li><a href="#" data-name="<?php echo esc_attr($zone->name); ?>" data-id="<?php echo esc_attr($zone->id); ?>"><?php echo $zone->name; ?> (<?php echo $zone->id; ?>)</a></li>
+                    <?php if ($haveZones) : ?>
+                        <?php foreach($cfZones as $cfZone) : ?>
+                            <li><a href="#" data-name="<?php echo esc_attr($cfZone->name); ?>" data-id="<?php echo esc_attr($cfZone->id); ?>"><?php echo $cfZone->name; ?> (<?php echo $cfZone->id; ?>)</a></li>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 </ul>
