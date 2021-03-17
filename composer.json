@@ -7,7 +7,7 @@
   "repositories": [
     {
       "type": "vcs",
-      "url": "git@gitlab.r99.no:tools/php-sdk.git"
+      "url": "git@github.com:Servebolt/php-sdk.git"
     }
   ],
   "authors": [
@@ -25,9 +25,9 @@
     }
   ],
   "require": {
-    "php": "^7.1",
+    "php": "^7.3",
     "composer/installers": "~1.2",
-    "servebolt/php-sdk": "1.0.0-beta"
+    "servebolt/php-sdk": "1.0.0-beta.1"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "*",
@@ -54,6 +54,11 @@
     ],
     "psr-4": {
       "Servebolt\\Optimizer\\": "src/Servebolt"
+    }
+  },
+  "config": {
+    "platform": {
+      "php": "7.3"
     }
   },
   "scripts": {

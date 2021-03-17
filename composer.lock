@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e0435481f192ee7ed608832bea2b0d35",
+    "content-hash": "b130cb981415755acaa8d60a43aa7c76",
     "packages": [
         {
             "name": "composer/installers",
@@ -158,16 +158,16 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.2.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "0aa74dfb41ae110835923ef10a9d803a22d50e79"
+                "reference": "01129f635f45659fd4764a533777d069a978bc9d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/0aa74dfb41ae110835923ef10a9d803a22d50e79",
-                "reference": "0aa74dfb41ae110835923ef10a9d803a22d50e79",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/01129f635f45659fd4764a533777d069a978bc9d",
+                "reference": "01129f635f45659fd4764a533777d069a978bc9d",
                 "shasum": ""
             },
             "require": {
@@ -191,10 +191,11 @@
                 "ext-intl": "Required for Internationalized Domain Name (IDN) support",
                 "psr/log": "Required for using the Log middleware"
             },
+            "default-branch": true,
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "7.1-dev"
+                    "dev-master": "7.3-dev"
                 }
             },
             "autoload": {
@@ -236,7 +237,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.2.0"
+                "source": "https://github.com/guzzle/guzzle/tree/master"
             },
             "funding": [
                 {
@@ -256,7 +257,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2020-10-10T11:47:56+00:00"
+            "time": "2021-03-15T07:56:29+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -320,12 +321,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "d7fe0a0eabc266c3dcf2f20aa12121044ff196a4"
+                "reference": "a67cdbf85690e54a7b92fe91c297b20d2607c0b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/d7fe0a0eabc266c3dcf2f20aa12121044ff196a4",
-                "reference": "d7fe0a0eabc266c3dcf2f20aa12121044ff196a4",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/a67cdbf85690e54a7b92fe91c297b20d2607c0b2",
+                "reference": "a67cdbf85690e54a7b92fe91c297b20d2607c0b2",
                 "shasum": ""
             },
             "require": {
@@ -387,7 +388,7 @@
                 "issues": "https://github.com/guzzle/psr7/issues",
                 "source": "https://github.com/guzzle/psr7/tree/1.x"
             },
-            "time": "2021-03-09T14:42:40+00:00"
+            "time": "2021-03-15T11:15:53+00:00"
         },
         {
             "name": "jakeasmith/http_build_url",
@@ -579,18 +580,24 @@
         },
         {
             "name": "servebolt/php-sdk",
-            "version": "1.0.0-beta",
+            "version": "v1.0.0-beta.1",
             "source": {
                 "type": "git",
-                "url": "git@gitlab.r99.no:tools/php-sdk.git",
-                "reference": "d3f5b731093949ae7b8b61893c7c92ccff9d75dd"
+                "url": "https://github.com/Servebolt/php-sdk.git",
+                "reference": "27bb6fe0500dc46987aad27c3b962680d321e3d5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/27bb6fe0500dc46987aad27c3b962680d321e3d5",
+                "reference": "27bb6fe0500dc46987aad27c3b962680d321e3d5",
+                "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "ext-pdo": "*",
                 "guzzlehttp/guzzle": "^7.0",
                 "jakeasmith/http_build_url": "^1",
-                "php": "^7.4"
+                "php": "^7.3"
             },
             "require-dev": {
                 "dms/phpunit-arraysubset-asserts": "^0.2.1",
@@ -629,7 +636,11 @@
             ],
             "description": "A PHP SDK for communicating with the Servebolt API.",
             "homepage": "https://servebolt.com",
-            "time": "2021-02-19T08:25:49+00:00"
+            "support": {
+                "source": "https://github.com/Servebolt/php-sdk/tree/v1.0.0-beta.1",
+                "issues": "https://github.com/Servebolt/php-sdk/issues"
+            },
+            "time": "2021-03-17T13:03:26+00:00"
         }
     ],
     "packages-dev": [
@@ -1234,12 +1245,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phan/phan.git",
-                "reference": "8f99c55afe89da39b1597a994246c2541db76fe4"
+                "reference": "385dcefd4096d772a23e0c62b09351a4c38f675a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phan/phan/zipball/8f99c55afe89da39b1597a994246c2541db76fe4",
-                "reference": "8f99c55afe89da39b1597a994246c2541db76fe4",
+                "url": "https://api.github.com/repos/phan/phan/zipball/385dcefd4096d772a23e0c62b09351a4c38f675a",
+                "reference": "385dcefd4096d772a23e0c62b09351a4c38f675a",
                 "shasum": ""
             },
             "require": {
@@ -1304,7 +1315,7 @@
                 "issues": "https://github.com/phan/phan/issues",
                 "source": "https://github.com/phan/phan/tree/v4"
             },
-            "time": "2021-02-28T20:49:01+00:00"
+            "time": "2021-03-13T15:41:30+00:00"
         },
         {
             "name": "phar-io/manifest",
@@ -3071,12 +3082,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/squizlabs/PHP_CodeSniffer.git",
-                "reference": "f1390c561703d93d9e7fb97b63f6ee12e5b48efd"
+                "reference": "ef0273ae10a2e32a8a43f4e2ef4a5cc051da040b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/f1390c561703d93d9e7fb97b63f6ee12e5b48efd",
-                "reference": "f1390c561703d93d9e7fb97b63f6ee12e5b48efd",
+                "url": "https://api.github.com/repos/squizlabs/PHP_CodeSniffer/zipball/ef0273ae10a2e32a8a43f4e2ef4a5cc051da040b",
+                "reference": "ef0273ae10a2e32a8a43f4e2ef4a5cc051da040b",
                 "shasum": ""
             },
             "require": {
@@ -3120,7 +3131,7 @@
                 "source": "https://github.com/squizlabs/PHP_CodeSniffer",
                 "wiki": "https://github.com/squizlabs/PHP_CodeSniffer/wiki"
             },
-            "time": "2021-03-10T22:00:04+00:00"
+            "time": "2021-03-17T05:29:09+00:00"
         },
         {
             "name": "symfony/console",
@@ -3128,16 +3139,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "4e102e4de39852a1dcd3b2169d263b88afee7fff"
+                "reference": "72999246c5c8fa3cc4a80441e5837132f1f10360"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/4e102e4de39852a1dcd3b2169d263b88afee7fff",
-                "reference": "4e102e4de39852a1dcd3b2169d263b88afee7fff",
+                "url": "https://api.github.com/repos/symfony/console/zipball/72999246c5c8fa3cc4a80441e5837132f1f10360",
+                "reference": "72999246c5c8fa3cc4a80441e5837132f1f10360",
                 "shasum": ""
             },
             "require": {
                 "php": ">=7.2.5",
+                "symfony/deprecation-contracts": "^2.1",
                 "symfony/polyfill-mbstring": "~1.0",
                 "symfony/polyfill-php73": "^1.8",
                 "symfony/polyfill-php80": "^1.15",
@@ -3218,7 +3230,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-03-08T21:52:55+00:00"
+            "time": "2021-03-16T09:12:04+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -3911,12 +3923,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/service-contracts.git",
-                "reference": "96cd360b9f03a22a30cf5354e630c557bd3aac33"
+                "reference": "3d72b4bfab3e991aa66906aa301aa479de4ca6ee"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/96cd360b9f03a22a30cf5354e630c557bd3aac33",
-                "reference": "96cd360b9f03a22a30cf5354e630c557bd3aac33",
+                "url": "https://api.github.com/repos/symfony/service-contracts/zipball/3d72b4bfab3e991aa66906aa301aa479de4ca6ee",
+                "reference": "3d72b4bfab3e991aa66906aa301aa479de4ca6ee",
                 "shasum": ""
             },
             "require": {
@@ -3983,7 +3995,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-03-05T22:51:52+00:00"
+            "time": "2021-03-16T09:10:58+00:00"
         },
         {
             "name": "symfony/string",
@@ -4315,8 +4327,11 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.1"
+        "php": "^7.3"
     },
     "platform-dev": [],
+    "platform-overrides": {
+        "php": "7.3"
+    },
     "plugin-api-version": "2.0.0"
 }
