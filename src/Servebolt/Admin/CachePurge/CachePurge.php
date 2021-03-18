@@ -43,15 +43,20 @@ class CachePurge
         $listZonesTransientKey = 'sb_cf_list_zones_';
         switch ($settings['cf_auth_type']) {
             case 'api_token':
-                $listZonesTransientKey .= hash('SHA512', $settings['cf_api_token']);
+                if (!empty($settings['cf_api_token'])) {
+                    $listZonesTransientKey .= hash('SHA512', $settings['cf_api_token']);
+                }
                 break;
             case 'api_key':
-                $listZonesTransientKey .= $settings['cf_email'] . '_' . hash('SHA512', $settings['cf_api_key']);
+                if (!empty($settings['cf_email']) && !empty($settings['cf_api_key'])) {
+                    $listZonesTransientKey .= $settings['cf_email'] . '_' . hash('SHA512', $settings['cf_api_key']);
+                }
+
                 break;
         }
         if (isset($listZonesTransientKey)) {
-            $zones = get_transient($listZonesTransientKey);
-            if (!$zones) {
+            $zones = get_transient($listZonesTransientKey) ?? [];
+            if (empty($zones)) {
                 $cfApi = Cloudflare::getInstance();
                 $zones = $cfApi->listZones(['name', 'id']);
                 if (is_array($zones)) {

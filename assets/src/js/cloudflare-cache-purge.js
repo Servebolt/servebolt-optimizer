@@ -266,6 +266,7 @@ jQuery(document).ready(function($) {
       auth_type: auth_type,
       credentials: credentials
     };
+    // TODO: Abort any current requests
     $.ajax({
       type: 'POST',
       url: sb_ajax_object.ajaxurl,

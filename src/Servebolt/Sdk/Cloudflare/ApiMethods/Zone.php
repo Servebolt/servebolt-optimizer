@@ -15,7 +15,7 @@ trait Zone
      * @param array|null $filterColumns
      * @return mixed
      */
-    public function listZones(?array $filterColumns = null)
+    public function listZones(?array $filterColumns = null): ?array
     {
         $query = [
             'page'     => 1,
@@ -24,16 +24,19 @@ trait Zone
         ];
         $request = $this->request('zones', 'GET', $query);
         $zones = $request['json']->result;
-        if ($filterColumns) {
-            $zones = array_map(function($zone) use($filterColumns) {
-                $filteredZone = [];
-                foreach($filterColumns as $column) {
-                    $filteredZone[$column] = isset($zone->{$column}) ? $zone->{$column} : null;
-                }
-                return (object) $filteredZone;
-            }, $zones);
+        if (is_array($zones)) {
+            if ($filterColumns) {
+                $zones = array_map(function($zone) use($filterColumns) {
+                    $filteredZone = [];
+                    foreach($filterColumns as $column) {
+                        $filteredZone[$column] = isset($zone->{$column}) ? $zone->{$column} : null;
+                    }
+                    return (object) $filteredZone;
+                }, $zones);
+            }
+            return $zones;
         }
-        return $zones;
+        return null;
     }
 
     /**
