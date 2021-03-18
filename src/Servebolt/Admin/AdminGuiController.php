@@ -136,7 +136,7 @@ class AdminGuiController
      */
     private function generalPageMenuPage(): void
     {
-        add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'generalPageCallback'], SERVEBOLT_PATH_URL . 'assets/dist/images/servebolt-icon.svg' );
+        add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'generalPageCallback'], SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/images/servebolt-icon.svg' );
     }
 
     /**
@@ -223,7 +223,7 @@ class AdminGuiController
      */
     private function initPluginSettingsLink(): void
     {
-        add_filter('plugin_action_links_' . SERVEBOLT_BASENAME, [$this, 'addSettingsLinkToPlugin']);
+        add_filter('plugin_action_links_' . SERVEBOLT_PLUGIN_BASENAME, [$this, 'addSettingsLinkToPlugin']);
     }
 
     /**

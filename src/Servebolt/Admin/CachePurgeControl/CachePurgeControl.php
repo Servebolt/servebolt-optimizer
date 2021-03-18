@@ -158,9 +158,9 @@ class CachePurgeControl
         }
         wp_enqueue_script(
             'servebolt-optimizer-cloudflare-cache-purge-scripts',
-            SERVEBOLT_PATH_URL . 'assets/dist/js/cloudflare-cache-purge.js',
+            SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/cloudflare-cache-purge.js',
             ['servebolt-optimizer-scripts'],
-            filemtime(SERVEBOLT_PATH . 'assets/dist/js/cloudflare-cache-purge.js'),
+            filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/cloudflare-cache-purge.js'),
             true
         );
     }

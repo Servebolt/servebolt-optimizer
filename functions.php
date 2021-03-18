@@ -129,7 +129,7 @@ if ( ! function_exists('sb_cf_image_resize_control') ) {
 	 * @return SB_Image_Resize_Control|null
 	 */
 	function sb_cf_image_resize_control() {
-	    require_once SERVEBOLT_PATH . 'classes/cloudflare-image-resize/sb-image-resize-control.php';
+	    require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-image-resize/sb-image-resize-control.php';
 		return SB_Image_Resize_Control::get_instance();
 	}
 }
@@ -165,7 +165,7 @@ if ( ! function_exists('sb_optimize_db') ) {
    */
   /*
   function sb_cf_cache() {
-    require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
+    require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
     return Servebolt_CF_Cache::get_instance();
   }
   */
@@ -179,7 +179,7 @@ if ( ! function_exists('sb_optimize_db') ) {
    */
   /*
   function sb_cf_cache_admin_controls() {
-    require_once SERVEBOLT_PATH . 'admin/cf-cache-admin-controls.php';
+    require_once SERVEBOLT_PLUGIN_DIR_PATH . 'admin/cf-cache-admin-controls.php';
     return CF_Cache_Admin_Controls::get_instance();
   }
   */
@@ -206,7 +206,7 @@ if ( ! function_exists('sb_nginx_fpc') ) {
    * @return Servebolt_Nginx_FPC|null
    */
   function sb_nginx_fpc() {
-    require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
+    require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
     return Servebolt_Nginx_FPC::get_instance();
   }
 }

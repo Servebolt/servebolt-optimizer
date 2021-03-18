@@ -49,7 +49,7 @@ class Assets {
 	 */
 	public function pluginPublicStyling(): void
     {
-		wp_enqueue_style('servebolt-optimizer-public-styling', SERVEBOLT_PATH_URL . 'assets/dist/css/public-style.css', [], filemtime(SERVEBOLT_PATH . 'assets/dist/css/public-style.css'));
+		wp_enqueue_style('servebolt-optimizer-public-styling', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/css/public-style.css', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/css/public-style.css'));
 	}
 
     /**
@@ -57,9 +57,9 @@ class Assets {
      */
     public function pluginAdminStyling(): void
     {
-        wp_enqueue_style('servebolt-optimizer-styling', SERVEBOLT_PATH_URL . 'assets/dist/css/admin-style.css', [], filemtime(SERVEBOLT_PATH . 'assets/dist/css/admin-style.css'));
+        wp_enqueue_style('servebolt-optimizer-styling', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/css/admin-style.css', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/css/admin-style.css'));
         if ( $this->isGutenberg() && apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true) ) {
-            wp_enqueue_style('servebolt-optimizer-gutenberg-menu-styling', SERVEBOLT_PATH_URL . 'assets/dist/css/gutenberg-menu.css', [], filemtime(SERVEBOLT_PATH . 'assets/dist/css/gutenberg-menu.css'));
+            wp_enqueue_style('servebolt-optimizer-gutenberg-menu-styling', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/css/gutenberg-menu.css', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/css/gutenberg-menu.css'));
         }
     }
 
@@ -70,9 +70,9 @@ class Assets {
     {
         if ($this->shouldLoadCommonAssets('styling')) {
             if (!sb_general_settings()->useNativeJsFallback()) {
-                wp_enqueue_style('sb-sweetalert2', SERVEBOLT_PATH_URL . 'assets/dist/css/sweetalert2.min.css', [], filemtime(SERVEBOLT_PATH . 'assets/dist/css/sweetalert2.min.css'));
+                wp_enqueue_style('sb-sweetalert2', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/css/sweetalert2.min.css', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/css/sweetalert2.min.css'));
             }
-            wp_enqueue_style('servebolt-optimizer-common-styling', SERVEBOLT_PATH_URL . 'assets/dist/css/common-style.css', [], filemtime(SERVEBOLT_PATH . 'assets/dist/css/common-style.css'));
+            wp_enqueue_style('servebolt-optimizer-common-styling', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/css/common-style.css', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/css/common-style.css'));
         }
 	}
 
@@ -87,7 +87,7 @@ class Assets {
 	public function pluginAdminScripts(): void
     {
         if ($this->isGutenberg() && apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true)) {
-            wp_enqueue_script('servebolt-optimizer-gutenberg-menu-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/gutenberg-menu.js', [], filemtime(SERVEBOLT_PATH . 'assets/dist/js/gutenberg-menu.js'), true);
+            wp_enqueue_script('servebolt-optimizer-gutenberg-menu-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/gutenberg-menu.js', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/gutenberg-menu.js'), true);
         }
     }
 
@@ -98,10 +98,10 @@ class Assets {
     {
 	    if ($this->shouldLoadCommonAssets('scripts')) {
             if (!sb_general_settings()->useNativeJsFallback()) {
-                wp_enqueue_script('sb-sweetalert2', SERVEBOLT_PATH_URL . 'assets/dist/js/sweetalert2.all.min.js', [], filemtime(SERVEBOLT_PATH . 'assets/dist/js/sweetalert2.all.min.js'), true);
+                wp_enqueue_script('sb-sweetalert2', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/sweetalert2.all.min.js', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/sweetalert2.all.min.js'), true);
             }
-            wp_enqueue_script('servebolt-optimizer-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/general.js', ['jquery'], filemtime(SERVEBOLT_PATH . 'assets/dist/js/general.js'), true);
-            wp_enqueue_script('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/cloudflare-cache-purge-trigger.js', ['jquery'], filemtime(SERVEBOLT_PATH . 'assets/dist/js/cloudflare-cache-purge-trigger.js'), true);
+            wp_enqueue_script('servebolt-optimizer-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/general.js', ['jquery'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/general.js'), true);
+            wp_enqueue_script('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/cloudflare-cache-purge-trigger.js', ['jquery'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/cloudflare-cache-purge-trigger.js'), true);
             wp_localize_script('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', 'sb_ajax_object', [
                 'ajax_nonce'                         => sb_get_ajax_nonce(),
                 'use_native_js_fallback'             => sb_boolean_to_string(sb_general_settings()->useNativeJsFallback()),

@@ -1,7 +1,7 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-#require_once SERVEBOLT_PATH . '/classes/sb-cloudflare-sdk/sb-cloudflare-sdk.class.php';
+#require_once SERVEBOLT_PLUGIN_DIR_PATH . '/classes/sb-cloudflare-sdk/sb-cloudflare-sdk.class.php';
 require_once __DIR__ . '/sb-cf-cache-purge-queue-handling.php';
 
 /**

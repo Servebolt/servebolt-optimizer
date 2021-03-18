@@ -14,7 +14,7 @@ function view(string $templatePath, $arguments = [], $echo = true): ?string
 {
     $templatePath = str_replace('.', '/', $templatePath);
     $suffix = '.php';
-    $basePath = SERVEBOLT_PSR4_PATH . 'Views/';
+    $basePath = SERVEBOLT_PLUGIN_PSR4_PATH . 'Views/';
     $filePath = $basePath . $templatePath . $suffix;
     if (file_exists($filePath) && is_readable($filePath)) {
         extract($arguments, EXTR_SKIP);
@@ -65,7 +65,7 @@ function sbGetAdminUrl() :string
 function sbClearAllCookies(): void
 {
     if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
-        require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
+        require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
     }
     ( new Servebolt_Nginx_FPC_Auth_Handling )->clearNoCacheCookie();
 }
@@ -127,7 +127,7 @@ function sbDeleteAllSettings(bool $allSites = true): void
 function sbCheckAllCookies(): void
 {
     if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
-        require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
+        require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
     }
     ( new Servebolt_Nginx_FPC_Auth_Handling )->cache_cookie_check();
 }

@@ -13,28 +13,28 @@ Text Domain: servebolt-wp
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 // Defines plugin paths and URLs
-define('SERVEBOLT_BASENAME', plugin_basename(__FILE__));
-define('SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ));
-define('SERVEBOLT_PATH', plugin_dir_path( __FILE__ ));
-define('SERVEBOLT_PSR4_PATH', SERVEBOLT_PATH . 'src/Servebolt/');
+define('SERVEBOLT_PLUGIN_BASENAME', plugin_basename(__FILE__));
+define('SERVEBOLT_PLUGIN_DIR_URL', plugin_dir_url( __FILE__ ));
+define('SERVEBOLT_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ));
+define('SERVEBOLT_PLUGIN_PSR4_PATH', SERVEBOLT_PLUGIN_DIR_PATH . 'src/Servebolt/');
 
 // Abort and display WP admin notice if PHP_MAJOR_VERSION is less than 7
 if (defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7) {
-    require SERVEBOLT_PATH . 'php-outdated.php';
+    require SERVEBOLT_PLUGIN_DIR_PATH . 'php-outdated.php';
     return;
 }
 
 // Make sure we got the composer-files
-if (!file_exists(SERVEBOLT_PATH . 'vendor/autoload.php')) {
-	require SERVEBOLT_PATH . 'composer-missing.php';
+if (!file_exists(SERVEBOLT_PLUGIN_DIR_PATH . 'vendor/autoload.php')) {
+	require SERVEBOLT_PLUGIN_DIR_PATH . 'composer-missing.php';
 	return;
 }
 
 // Load Composer dependencies
-require SERVEBOLT_PATH . 'vendor/autoload.php';
+require SERVEBOLT_PLUGIN_DIR_PATH . 'vendor/autoload.php';
 
 // Include general functions
-require_once SERVEBOLT_PATH . 'functions.php';
+require_once SERVEBOLT_PLUGIN_DIR_PATH . 'functions.php';
 
 // Register events for activation and deactivation of this plugin
 register_activation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\sbActivatePlugin');
@@ -54,24 +54,24 @@ if (
     new Servebolt\Optimizer\Crypto\OptionEncryption;
 
 	// Include the Servebolt Cloudflare class
-	//require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
+	//require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
 
 }
 
 // Loads the class that sets the correct cache headers for the Servebolt full page cache
 if (!class_exists('Servebolt_Nginx_FPC')) {
-	require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
+	require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
 	sb_nginx_fpc()->setup();
 }
 
 // Initialize image resizing
 if (sb_feature_active('cf_image_resize')) {
-	require_once SERVEBOLT_PATH . 'classes/cloudflare-image-resize/cloudflare-image-resizing.php';
+	require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-image-resize/cloudflare-image-resizing.php';
 	( new Cloudflare_Image_Resize )->init();
 }
 
 // Register cron schedule and cache purge event
-//require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache-cron-handle.php';
+//require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-cache/sb-cf-cache-cron-handle.php';
 
 // Register cache purge event for various hooks
 if (is_admin() || Servebolt\Optimizer\Helpers\isWpRest()) {
@@ -104,6 +104,6 @@ if (!is_admin() && !Servebolt\Optimizer\Helpers\isCli()) {
 
 // Initialize CLI-commands
 if (Servebolt\Optimizer\Helpers\isCli()) {
-    require_once SERVEBOLT_PATH . 'cli/cli.class.php';
+    require_once SERVEBOLT_PLUGIN_DIR_PATH . 'cli/cli.class.php';
 	Servebolt_CLI::get_instance();
 }

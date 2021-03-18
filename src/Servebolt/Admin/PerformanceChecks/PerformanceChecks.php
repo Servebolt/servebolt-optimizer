@@ -44,7 +44,7 @@ class PerformanceChecks
      */
     public function enqueueScripts(): void
     {
-        wp_enqueue_script( 'servebolt-optimizer-performance-checks-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/performance-checks.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'assets/dist/js/performance-checks.js'), true );
+        wp_enqueue_script( 'servebolt-optimizer-performance-checks-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/performance-checks.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/performance-checks.js'), true );
     }
 
     /**

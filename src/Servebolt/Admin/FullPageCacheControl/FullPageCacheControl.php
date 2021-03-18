@@ -56,7 +56,7 @@ class FullPageCacheControl
         if ( $screen->id != 'servebolt_page_servebolt-fpc' ) {
             return;
         }
-        wp_enqueue_script('servebolt-optimizer-fpc-scripts', SERVEBOLT_PATH_URL . 'assets/dist/js/fpc.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PATH . 'assets/dist/js/fpc.js'), true );
+        wp_enqueue_script('servebolt-optimizer-fpc-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/fpc.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/fpc.js'), true );
     }
 
     /**
