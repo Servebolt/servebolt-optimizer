@@ -33,6 +33,29 @@ class CachePurge
     }
 
     /**
+     * Get a hashed string of CF credentials to be used as transient keys.
+     *
+     * @param $settings
+     * @return string|null
+     */
+    private function getCfCredentialsHash($settings): ?string
+    {
+        switch ($settings['cf_auth_type']) {
+            case 'api_token':
+                if (!empty($settings['cf_api_token'])) {
+                    return hash('SHA512', $settings['cf_api_token']);
+                }
+                break;
+            case 'api_key':
+                if (!empty($settings['cf_email']) && !empty($settings['cf_api_key'])) {
+                    return hash('SHA512', $settings['cf_email']) . '_' . hash('SHA512', $settings['cf_api_key']);
+                }
+                break;
+        }
+        return null;
+    }
+
+    /**
      * Get available CF zones.
      *
      * @param $settings
@@ -40,20 +63,8 @@ class CachePurge
      */
     private function getCfZones($settings): array
     {
-        $listZonesBaseTransientKey = 'sb_cf_list_zones_';
-        switch ($settings['cf_auth_type']) {
-            case 'api_token':
-                if (!empty($settings['cf_api_token'])) {
-                    $listZonesTransientKey = $listZonesBaseTransientKey . hash('SHA512', $settings['cf_api_token']);
-                }
-                break;
-            case 'api_key':
-                if (!empty($settings['cf_email']) && !empty($settings['cf_api_key'])) {
-                    $listZonesTransientKey = $listZonesBaseTransientKey . $settings['cf_email'] . '_' . hash('SHA512', $settings['cf_api_key']);
-                }
-                break;
-        }
-        if (isset($listZonesTransientKey)) {
+        if ($credentialsHash = $this->getCfCredentialsHash($settings)) {
+            $listZonesTransientKey = 'sb_cf_list_zones_' . $credentialsHash;
             $zones = get_transient($listZonesTransientKey) ?? [];
             if (empty($zones)) {
                 $cfApi = Cloudflare::getInstance();
@@ -70,15 +81,15 @@ class CachePurge
     }
 
     /**
-     * Get the selected zone object.
+     * Get the selected CF zone object.
      *
      * @param $settings
      * @return object|null
      */
     private function getSelectedCfZone($settings): ?object
     {
-        if ($settings['cf_zone_id']) {
-            $zoneTransientKey = 'sb_cf_current_zone_' . $settings['cf_zone_id'];
+        if ($settings['cf_zone_id'] && $credentialsHash = $this->getCfCredentialsHash($settings)) {
+            $zoneTransientKey = 'sb_cf_current_zone_' . $credentialsHash . '_' . $settings['cf_zone_id'];
             $selectedZone = get_transient($zoneTransientKey);
             if (!$selectedZone) {
                 $cfApi = Cloudflare::getInstance();
