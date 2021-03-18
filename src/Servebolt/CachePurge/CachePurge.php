@@ -138,6 +138,18 @@ class CachePurge
     }
 
     /**
+     * Whether we should purge cache automatically when content is updated.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function automaticCachePurgeOnContentUpdateIsActive(?int $blogId = null): bool
+    {
+        // TODO: Add options to turn this feature on/off
+        return true;
+    }
+
+    /**
      * Check whether the cache purge feature is active.
      *
      * @param int|null $blogId

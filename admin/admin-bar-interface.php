@@ -1,6 +1,8 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use Servebolt\Optimizer\CachePurge\CachePurge;
+
 /**
  * Class Servebolt_Admin_Bar_Interface
  *
@@ -105,7 +107,8 @@ class Servebolt_Admin_Bar_Interface {
 		    */
 		}
 
-        $cache_purge_available = sb_cf_cache()->should_use_cf_feature();
+        //$cache_purge_available = sb_cf_cache()->should_use_cf_feature();
+        $cache_purge_available = CachePurge::featureIsActive();
 
 		if ( ! is_network_admin() ) {
             if ( $cache_purge_available ) {

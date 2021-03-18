@@ -1,6 +1,8 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\CachePurge\CachePurge;
+
 /**
  * Class Servebolt_CLI_Cloudflare_Cache_Extra
  */
@@ -1209,8 +1211,10 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	/**
 	 * Ensure that we are able to purge cache.
 	 */
-	protected function ensure_cache_purge_is_possible() {
-		if ( ! sb_cf_cache()->should_use_cf_feature() ) {
+	protected function ensure_cache_purge_is_possible(): void
+    {
+        //if ( ! sb_cf_cache()->should_use_cf_feature() ) {
+		if (!CachePurge::featureIsActive()) {
 			WP_CLI::error(sb__('Cannot purge cache since Cloudflare feature is not fully configured. Make sure that you have added your Cloudflare API credentials and specified a Zone ID.'));
 		}
 	}

@@ -2,6 +2,7 @@
 
 namespace Servebolt\Optimizer\CachePurge;
 
+
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
@@ -9,7 +10,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  *
  * This class registers the WP events which purges the cache automatically (updating/create posts, terms etc.).
  */
-class WPActions
+class WpObjectCachePurgeActions
 {
     /**
      * CachePurgeWPActions constructor.
@@ -21,10 +22,13 @@ class WPActions
     /**
      * Register action hooks.
      */
-    private function registerActions() {
+    private function registerActions()
+    {
 
-        // Check if Cloudflare cache purge feature is active
-        if ( ! sb_cf_cache()->cf_is_active() ) return; // TODO: Change this to be "agnostic"
+        // Skip this feature if the cache purge feature is inactive or insufficiently configured, or it automatic cache purge is inactive
+        if (!CachePurge::featureIsActive() || !CachePurge::automaticCachePurgeOnContentUpdateIsActive()) {
+            return;
+        }
 
         // Should skip all automatic cache purge?
         if ( apply_filters('sb_optimizer_disable_automatic_purge', false) ) return;
@@ -57,7 +61,8 @@ class WPActions
      * @param $taxonomy
      * @throws \ReflectionException
      */
-    public function purgeTermOnSave($termId, $termTaxonomyId, $taxonomy) {
+    public function purgeTermOnSave($termId, $termTaxonomyId, $taxonomy): void
+    {
         $this->maybePurgeTermSlugIfSlugChanged($termId, $taxonomy);
         $this->maybePurgeTerm($termId, $taxonomy);
     }
