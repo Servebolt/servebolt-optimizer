@@ -360,7 +360,8 @@ class AdminGuiController
      */
     public function errorLogCallback(): void
     {
-        ( Servebolt_Logviewer::get_instance() )->view();
+        require_once SERVEBOLT_PATH . 'admin/log-viewer.php';
+        ( \Servebolt_Logviewer::get_instance() )->view();
     }
 
     /**
