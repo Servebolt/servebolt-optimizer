@@ -2,8 +2,14 @@
 
 namespace Servebolt\Optimizer\Admin;
 
-use Servebolt\Optimizer\Admin\CachePurge\CachePurge;
+use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
+use Servebolt\Optimizer\Admin\FullPageCacheControl\FullPageCacheControl;
+use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
+use Servebolt\Optimizer\Admin\CloudflareImageResizing\CloudflareImageResizing;
+use Servebolt\Optimizer\Admin\PerformanceChecks\PerformanceChecks;
+use Servebolt\Optimizer\Admin\LogViewer\LogViewer;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\view;
 
 class AdminGuiController
 {
@@ -23,21 +29,25 @@ class AdminGuiController
      */
     public function adminInit()
     {
-        if ( ! is_user_logged_in() ) {
+        if (!is_user_logged_in()) {
             return;
         }
         $this->initAdminMenus();
         $this->initPluginSettingsLink();
         $this->initSettings();
 
-        CachePurge::init();
+        CachePurgeControl::init();
+        FullPageCacheControl::init();
+        GeneralSettings::init();
+        CloudflareImageResizing::init();
+        PerformanceChecks::init();
     }
 
     /**
      * Initialize settings.
      */
     private function initSettings() {
-        add_action( 'admin_init', [$this, 'registerSettings'] );
+        add_action('admin_init', [$this, 'registerSettings']);
     }
 
     /**
@@ -61,11 +71,6 @@ class AdminGuiController
         $itemsWithValues = [];
         foreach ( $items as $item ) {
             switch ($item) {
-                /*
-                case 'cf_switch':
-                    $itemsWithValues[$item] = sb_cf_cache()->cf_is_active();
-                    break;
-                */
                 case 'cache_purge_driver':
                     if (!host_is_servebolt()) {
                         $value = $this->getDefaultCachePurgeDriver(); // Only allow Cloudflare when not hosted at Servebolt
@@ -149,7 +154,7 @@ class AdminGuiController
     /**
      * Network admin menu.
      */
-    public function networkAdminMenu()
+    public function networkAdminMenu(): void
     {
         if (!apply_filters('sb_optimizer_display_network_super_admin_menu', true)) {
             return;
@@ -165,9 +170,11 @@ class AdminGuiController
     /**
      * Admin menu for sub sites (in multisite context).
      */
-    public function subSiteMenu()
+    public function subSiteMenu(): void
     {
-        if ( ! apply_filters('sb_optimizer_display_subsite_menu', true) ) return;
+        if (!apply_filters('sb_optimizer_display_subsite_menu', true)) {
+            return;
+        }
 
         $this->generalPageMenuPage(); // Register menu page
 
@@ -178,9 +185,11 @@ class AdminGuiController
     /**
      * Admin menu (in non-multisite context).
      */
-    public function singleSiteAdminMenu()
+    public function singleSiteAdminMenu(): void
     {
-        if ( ! apply_filters('sb_optimizer_display_single_site_admin_menu', true) ) return;
+        if (!apply_filters('sb_optimizer_display_single_site_admin_menu', true)) {
+            return;
+        }
 
         $this->generalPageMenuPage(); // Register menu page
 
@@ -196,12 +205,12 @@ class AdminGuiController
     {
         $this->cachePurgeMenu();
         $this->cfImageResizeMenu();
-        if ( host_is_servebolt() ) {
+        if (host_is_servebolt()) {
             $this->fpcCacheMenu();
             $this->errorLogMenu();
         }
         $this->generalSettingsMenu();
-        if ( ! is_network_admin() && sb_is_dev_debug() ) {
+        if (!is_network_admin() && sb_is_dev_debug()) {
             $this->debugMenu();
         }
     }
@@ -219,7 +228,7 @@ class AdminGuiController
      */
     private function cachePurgeMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('Cache purging'), sb__('Cache purging'), 'manage_options', 'servebolt-cache-purge-control', [CachePurge::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', sb__('Cache purging'), sb__('Cache purging'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-cf-cache-control', [$this, 'cachePurgeLegacyRedirect']);
     }
 
@@ -241,7 +250,7 @@ class AdminGuiController
     private function cfImageResizeMenu(): void
     {
         if ( sb_feature_active('cf_image_resize') ) {
-            add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [$this, 'cfImageResizingCallback']);
+            add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [CloudflareImageResizing::getInstance(), 'render']);
         }
     }
 
@@ -250,7 +259,7 @@ class AdminGuiController
      */
     private function fpcCacheMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-nginx-cache', [$this, 'nginxCacheCallback']);
+        add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-fpc', [FullPageCacheControl::getInstance(), 'render']);
     }
 
     /**
@@ -258,7 +267,7 @@ class AdminGuiController
      */
     private function errorLogMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('Error log'), sb__('Error log'), 'manage_options', 'servebolt-logs', [$this, 'errorLogCallback']);
+        add_submenu_page('servebolt-wp', sb__('Error log'), sb__('Error log'), 'manage_options', 'servebolt-logs', [LogViewer::getInstance(), 'render']);
     }
 
     /**
@@ -274,7 +283,7 @@ class AdminGuiController
      */
     private function performanceOptimizerMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('Performance optimizer'), sb__('Performance optimizer'), 'manage_options', 'servebolt-performance-tools', [$this, 'performanceCallback']);
+        add_submenu_page('servebolt-wp', sb__('Performance optimizer'), sb__('Performance optimizer'), 'manage_options', 'servebolt-performance-tools', [PerformanceChecks::getInstance(), 'render']);
     }
 
     /**
@@ -290,7 +299,7 @@ class AdminGuiController
      */
     private function generalSettingsMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('Settings'), sb__('Settings'), 'manage_options', 'servebolt-general-settings', [$this, 'generalSettingsCallback']);
+        add_submenu_page('servebolt-wp', sb__('Settings'), sb__('Settings'), 'manage_options', 'servebolt-general-settings', [GeneralSettings::getInstance(), 'render']);
     }
 
     /**
@@ -319,49 +328,7 @@ class AdminGuiController
      */
     public function generalPageCallback(): void
     {
-        sb_view('admin/views/dashboard/dashboard');
-    }
-
-    /**
-     * Display DB optimization page.
-     */
-    public function performanceCallback(): void
-    {
-        sb_performance_checks()->view();
-    }
-
-    /**
-     * Display the Cloudflare Image Resizing control page.
-     */
-    public function cfImageResizingCallback(): void
-    {
-        sb_cf_image_resizing()->view();
-    }
-
-    /**
-     * Display the Full Page Cache control page.
-     */
-    public function nginxCacheCallback(): void
-    {
-        sb_nginx_fpc_controls()->view();
-    }
-
-    /**
-     * Display the general settings control page.
-     */
-    public function generalSettingsCallback(): void
-    {
-        sb_general_settings()->view();
-    }
-
-
-    /**
-     * Display error log page.
-     */
-    public function errorLogCallback(): void
-    {
-        require_once SERVEBOLT_PATH . 'admin/log-viewer.php';
-        ( \Servebolt_Logviewer::get_instance() )->view();
+        view('dashboard.dashboard');
     }
 
     /**
@@ -369,6 +336,6 @@ class AdminGuiController
      */
     public function debugCallback(): void
     {
-        sb_view('admin/views/debug');
+        view('debug.debug');
     }
 }

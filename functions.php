@@ -150,9 +150,9 @@ if ( ! function_exists('sb_performance_checks') ) {
 	 *
 	 * @return Servebolt_Performance_Checks|null
 	 */
-	function sb_performance_checks() {
-		require_once SERVEBOLT_PATH . 'admin/performance-checks.php';
-		return Servebolt_Performance_Checks::get_instance();
+	function sb_performance_checks()
+    {
+        return Servebolt\Optimizer\Admin\PerformanceChecks\PerformanceChecks::getInstance();
 	}
 }
 
@@ -163,7 +163,7 @@ if ( ! function_exists('sb_cf_image_resize_control') ) {
 	 * @return SB_Image_Resize_Control|null
 	 */
 	function sb_cf_image_resize_control() {
-	  require_once SERVEBOLT_PATH . 'classes/cloudflare-image-resize/sb-image-resize-control.php';
+	    require_once SERVEBOLT_PATH . 'classes/cloudflare-image-resize/sb-image-resize-control.php';
 		return SB_Image_Resize_Control::get_instance();
 	}
 }
@@ -175,8 +175,7 @@ if ( ! function_exists('sb_cf_image_resizing') ) {
 	 * @return CF_Image_Resizing|null
 	 */
 	function sb_cf_image_resizing() {
-		require_once SERVEBOLT_PATH . 'admin/cf-image-resizing.php';
-		return CF_Image_Resizing::get_instance();
+        return Servebolt\Optimizer\Admin\CloudflareImageResizing\CloudflareImageResizing::getInstance();
 	}
 }
 
@@ -186,47 +185,39 @@ if ( ! function_exists('sb_optimize_db') ) {
    *
    * @return Servebolt_Performance_Checks|null
    */
-  function sb_optimize_db() {
-    require_once SERVEBOLT_PATH . 'admin/optimize-db/optimize-db.php';
-    return Servebolt_Optimize_DB::get_instance();
+  function sb_optimize_db()
+  {
+    return Servebolt\Optimizer\DatabaseOptimizer\DatabaseOptimizer::getInstance();
   }
 }
 
-if ( ! function_exists('sb_cf_cache') ) {
+//if ( ! function_exists('sb_cf_cache') ) {
   /**
    * Get Servebolt_Checks-instance.
    *
    * @return Servebolt_CF_Cache|null
    */
+  /*
   function sb_cf_cache() {
     require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
     return Servebolt_CF_Cache::get_instance();
   }
-}
+  */
+//}
 
-if ( ! function_exists('sb_cf_cache_controls') ) {
+//if ( ! function_exists('sb_cf_cache_controls') ) {
   /**
    * Get Servebolt_Checks-instance.
    *
    * @return Servebolt_Checks|null
    */
+  /*
   function sb_cf_cache_admin_controls() {
     require_once SERVEBOLT_PATH . 'admin/cf-cache-admin-controls.php';
     return CF_Cache_Admin_Controls::get_instance();
   }
-}
-
-if ( ! function_exists('sb_nginx_fpc_controls') ) {
-  /**
-   * Get Nginx_FPC_Controls-instance.
-   *
-   * @return Servebolt_Nginx_FPC|null
-   */
-  function sb_nginx_fpc_controls() {
-    require_once SERVEBOLT_PATH . 'admin/nginx-fpc-controls.php';
-    return Nginx_FPC_Controls::get_instance();
-  }
-}
+  */
+//}
 
 if ( ! function_exists('sb_general_settings') ) {
     /**
@@ -234,9 +225,9 @@ if ( ! function_exists('sb_general_settings') ) {
      *
      * @return SB_General_Settings|null
      */
-    function sb_general_settings() {
-        require_once SERVEBOLT_PATH . 'admin/general-settings.php';
-        return SB_General_Settings::get_instance();
+    function sb_general_settings()
+    {
+        return Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings::getInstance();
     }
 }
 
@@ -258,11 +249,11 @@ if ( ! function_exists('sb_checks') ) {
   /**
    * Get Servebolt_Checks-instance.
    *
-   * @return Servebolt_Optimize_DB|null
+   * @return DatabaseChecks|null
    */
-  function sb_checks() {
-    require_once SERVEBOLT_PATH . 'admin/optimize-db/checks.php';
-    return Servebolt_Checks::get_instance();
+  function sb_checks()
+  {
+      return Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks::getInstance();
   }
 }
 
@@ -903,6 +894,7 @@ if ( ! function_exists('sb_is_dev_debug') ) {
    * @return bool
    */
   function sb_is_dev_debug() {
+      return true;
     return ( defined('SB_DEBUG') && SB_DEBUG === true ) || ( array_key_exists('debug', $_GET ) );
   }
 }

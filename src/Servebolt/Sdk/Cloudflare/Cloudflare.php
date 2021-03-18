@@ -56,7 +56,7 @@ class Cloudflare extends HttpClient
         if ($this->credentialsOk($args)) {
             $this->setCredentials($args['authType'], $args['credentials']);
             if ($this->zoneOk($args)) {
-                $this->setZoneId($args['zoneId']);
+                $this->setZoneId($args['zoneId'], false);
             }
         }
     }

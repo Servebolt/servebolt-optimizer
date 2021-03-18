@@ -58,9 +58,17 @@ class Servebolt_CLI {
         $this->general          = new Servebolt_CLI_General;
         $this->optimizations    = new Servebolt_CLI_Optimizations;
         $this->fpc              = new Servebolt_CLI_FPC;
-        $this->cf_cache         = new Servebolt_CLI_Cloudflare_Cache;
+        $this->cf_cache         = new Servebolt_CLI_Cloudflare_Cache; // Legacy
         $this->general_settings = new Servebolt_CLI_General_Settings;
         $this->cf_image_resize  = new Servebolt_CLI_Cloudflare_Image_Resize;
+    }
+
+    public function cf_legacy_message() {
+        WP_CLI::line('This command is outdated. Please use "wp servebolt cache" instead.');
+    }
+
+    public function cache_message() {
+        WP_CLI::line('This command is WIP and will replace the "wp servebolt cf"-command.');
     }
 
 	/**
@@ -89,36 +97,38 @@ class Servebolt_CLI {
 		WP_CLI::add_command( 'servebolt fpc excluded-posts set',     [$this->fpc, 'command_nginx_fpc_set_excluded_posts'] );
 		WP_CLI::add_command( 'servebolt fpc excluded-posts clear',   [$this->fpc, 'command_nginx_fpc_clear_excluded_posts'] );
 
+		// Cache control
+        WP_CLI::add_command( 'servebolt cache',                      [$this, 'cache_message'] );
 
-		// Cloudflare Cache
-		WP_CLI::add_command( 'servebolt cf setup',                   [$this->cf_cache, 'command_cf_setup'] );
+		// Cloudflare Cache (legacy)
+		WP_CLI::add_command( 'servebolt cf setup',                   [$this, 'cf_legacy_message'] );
 
-		WP_CLI::add_command( 'servebolt cf status',                  [$this->cf_cache, 'command_cf_status'] );
-		WP_CLI::add_command( 'servebolt cf activate',                [$this->cf_cache, 'command_cf_enable'] );
-		WP_CLI::add_command( 'servebolt cf deactivate',              [$this->cf_cache, 'command_cf_disable'] );
+		WP_CLI::add_command( 'servebolt cf status',                  [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf activate',                [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf deactivate',              [$this, 'cf_legacy_message'] );
 
-		WP_CLI::add_command( 'servebolt cf config get',              [$this->cf_cache, 'command_cf_get_config'] );
-		WP_CLI::add_command( 'servebolt cf config set',              [$this->cf_cache, 'command_cf_set_config'] );
-		WP_CLI::add_command( 'servebolt cf config clear',            [$this->cf_cache, 'command_cf_clear_config'] );
+		WP_CLI::add_command( 'servebolt cf config get',              [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf config set',              [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf config clear',            [$this, 'cf_legacy_message'] );
 
-		WP_CLI::add_command( 'servebolt cf api test',                [$this->cf_cache, 'command_cf_test_api_connection'] );
-		WP_CLI::add_command( 'servebolt cf api credentials get',     [$this->cf_cache, 'command_cf_get_credentials'] );
-		WP_CLI::add_command( 'servebolt cf api credentials set',     [$this->cf_cache, 'command_cf_set_credentials'] );
-		WP_CLI::add_command( 'servebolt cf api credentials clear',   [$this->cf_cache, 'command_cf_clear_credentials'] );
+		WP_CLI::add_command( 'servebolt cf api test',                [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf api credentials get',     [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf api credentials set',     [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf api credentials clear',   [$this, 'cf_legacy_message'] );
 
-		WP_CLI::add_command( 'servebolt cf zone list',               [$this->cf_cache, 'command_cf_list_zones'] );
-		WP_CLI::add_command( 'servebolt cf zone get',                [$this->cf_cache, 'command_cf_get_zone'] );
-		WP_CLI::add_command( 'servebolt cf zone set',                [$this->cf_cache, 'command_cf_set_zone'] );
-		WP_CLI::add_command( 'servebolt cf zone clear',              [$this->cf_cache, 'command_cf_clear_zone'] );
+		WP_CLI::add_command( 'servebolt cf zone list',               [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf zone get',                [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf zone set',                [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf zone clear',              [$this, 'cf_legacy_message'] );
 
-		WP_CLI::add_command( 'servebolt cf purge type',              [$this->cf_cache, 'command_cf_set_purge_type'] );
-		WP_CLI::add_command( 'servebolt cf purge status',            [$this->cf_cache, 'command_cf_purge_status'] );
+		WP_CLI::add_command( 'servebolt cf purge type',              [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf purge status',            [$this, 'cf_legacy_message'] );
 
-		WP_CLI::add_command( 'servebolt cf purge queue',             [$this->cf_cache, 'command_cf_purge_queue'] );
-		WP_CLI::add_command( 'servebolt cf purge clear-queue',       [$this->cf_cache, 'command_cf_clear_cache_purge_queue'] );
-		WP_CLI::add_command( 'servebolt cf purge url',               [$this->cf_cache, 'command_cf_purge_url'] );
-		WP_CLI::add_command( 'servebolt cf purge post',              [$this->cf_cache, 'command_cf_purge_post'] );
-		WP_CLI::add_command( 'servebolt cf purge all',               [$this->cf_cache, 'command_cf_purge_all'] );
+		WP_CLI::add_command( 'servebolt cf purge queue',             [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf purge clear-queue',       [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf purge url',               [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf purge post',              [$this, 'cf_legacy_message'] );
+		WP_CLI::add_command( 'servebolt cf purge all',               [$this, 'cf_legacy_message'] );
 
         // General settings
         WP_CLI::add_command( 'servebolt general-settings list',      [$this->general_settings, 'command_general_settings_list'] );

@@ -1214,7 +1214,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	protected function ensure_cache_purge_is_possible(): void
     {
         //if ( ! sb_cf_cache()->should_use_cf_feature() ) {
-		if (!CachePurge::featureIsActive()) {
+		if (!CachePurge::featureIsAvailable()) {
 			WP_CLI::error(sb__('Cannot purge cache since Cloudflare feature is not fully configured. Make sure that you have added your Cloudflare API credentials and specified a Zone ID.'));
 		}
 	}

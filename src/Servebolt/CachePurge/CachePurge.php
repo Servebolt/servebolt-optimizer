@@ -109,7 +109,7 @@ class CachePurge
      * @param int|null $blogId
      * @return bool
      */
-    public static function featureIsActive(?int $blogId = null): bool
+    public static function featureIsAvailable(?int $blogId = null): bool
     {
         return self::cachePurgeIsActive($blogId) && self::featureIsConfigured($blogId);
     }

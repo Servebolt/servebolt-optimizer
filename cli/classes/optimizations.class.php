@@ -26,7 +26,7 @@ class Servebolt_CLI_Optimizations {
 	 *
 	 */
 	public function command_optimize_database() {
-		sb_optimize_db()->optimize_db(true);
+		sb_optimize_db()->optimizeDb(true);
 	}
 
 	/**
@@ -38,7 +38,7 @@ class Servebolt_CLI_Optimizations {
 	 *
 	 */
 	public function command_analyze_tables() {
-		if ( ! sb_optimize_db()->analyze_tables(true) ) {
+		if (!sb_optimize_db()->analyzeTables(true)) {
 			WP_CLI::error(sb__('Could not analyze tables.'));
 		} else {
 			WP_CLI::success(sb__('Analyzed tables.'));
