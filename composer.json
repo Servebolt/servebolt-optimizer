@@ -38,7 +38,14 @@
     "overtrue/phplint": "9999999-dev"
   },
   "extra": {
-    "installer-name": "servebolt-wp-optimize-plugin"
+    "installer-name": "servebolt-wp-optimize-plugin",
+    "hooks": {
+      "pre-push": [
+        "test",
+        "phpunit"
+      ],
+      "post-merge": "composer update"
+    }
   },
   "keywords": [
     "blocks",
