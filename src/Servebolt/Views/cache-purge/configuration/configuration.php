@@ -26,8 +26,8 @@
     </style>
 
     <form method="post" autocomplete="off" action="options.php" id="sb-configuration-form">
-        <?php settings_fields( 'sb-cf-options-page' ) ?>
-        <?php do_settings_sections( 'sb-cf-options-page' ) ?>
+        <?php settings_fields('sb-cache-purge-options-page') ?>
+        <?php do_settings_sections('sb-cache-purge-options-page') ?>
 
         <table class="form-table" id="sb-configuration-table" role="presentation">
 

@@ -30,26 +30,31 @@ if (!file_exists(SERVEBOLT_PATH . 'vendor/autoload.php')) {
 	return;
 }
 
+// Load Composer dependencies
 require SERVEBOLT_PATH . 'vendor/autoload.php';
 
 // Include general functions
 require_once SERVEBOLT_PATH . 'functions.php';
 
 // Register events for activation and deactivation of this plugin
-register_activation_hook(__FILE__, 'sb_activate_plugin');
-register_deactivation_hook(__FILE__, 'sb_deactivate_plugin');
+register_activation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\sbActivatePlugin');
+register_deactivation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\sbDeactivatePlugin');
 
 // Add various improvements/optimizations
-sb_generic_optimizations();
+new Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
 
 // We don't always need all files - only in WP Admin, in CLI-mode or when running the WP Cron.
-if (is_admin() || sb_is_cli() || sb_is_cron()) {
+if (
+    is_admin()
+    || Servebolt\Optimizer\Helpers\isCli()
+    || Servebolt\Optimizer\Helpers\isCron()
+) {
 
-	// Make sure we dont API credentials in clear text.
-	require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
+    // Make sure we dont API credentials in clear text.
+    new Servebolt\Optimizer\Crypto\OptionEncryption;
 
 	// Include the Servebolt Cloudflare class
-	require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
+	//require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
 
 }
 
@@ -68,13 +73,16 @@ if (sb_feature_active('cf_image_resize')) {
 // Register cron schedule and cache purge event
 //require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache-cron-handle.php';
 
-new Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions; // Register cache purge event for various hooks
+// Register cache purge event for various hooks
+if (is_admin() || Servebolt\Optimizer\Helpers\isWpRest()) {
+    new Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
+}
 
 // Load this admin bar interface
 Servebolt\Optimizer\Admin\AdminBarGUI\AdminBarGUI::init();
 
 // Load assets
-require_once SERVEBOLT_PATH . 'assets.php';
+new Servebolt\Optimizer\Admin\Assets;
 
 // Only load the plugin interface in WP Admin
 if (is_admin()) {
@@ -85,17 +93,17 @@ if (is_admin()) {
 }
 
 // Only front-end
-if (!is_admin() && !sb_is_cli()) {
+if (!is_admin() && !Servebolt\Optimizer\Helpers\isCli()) {
 
     // Feature to automatically version all enqueued script/style-tags
     if (sb_feature_active('sb_asset_auto_version')) {
-        require_once SERVEBOLT_PATH . 'classes/sb-asset-auto-version.class.php';
+        new Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
     }
 
 }
 
 // Initialize CLI-commands
-if ( sb_is_cli() ) {
+if (Servebolt\Optimizer\Helpers\isCli()) {
     require_once SERVEBOLT_PATH . 'cli/cli.class.php';
 	Servebolt_CLI::get_instance();
 }

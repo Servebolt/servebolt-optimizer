@@ -1,4 +1,7 @@
 <?php
+
+namespace Servebolt\Optimizer\Crypto;
+
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 /**
@@ -6,40 +9,43 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
  *
  * This class is used to prevent clear-text storage of strings in the options-table.
  */
-class SB_Option_Encryption {
+class OptionEncryption
+{
 
 	/**
 	 * Whether option encryption is active or not.
 	 *
 	 * @var bool
 	 */
-	private $option_encryption_active = true;
+	private $optionEncryptionActive = true;
 
 	/**
 	 * The option items to apply crypto to.
 	 *
 	 * @var array
 	 */
-	private $encrypted_option_items = ['cf_email', 'cf_api_key', 'cf_api_token'];
+	private $encryptedOptionItems = ['cf_email', 'cf_api_key', 'cf_api_token'];
 
 	/**
 	 * SB_Option_Encryption constructor.
 	 */
 	public function __construct() {
-		if ( ! $this->option_encryption_active ) return;
-		$this->option_encryption_handling();
+		if ($this->optionEncryptionActive) {
+            $this->optionEncryptionHandling();
+        }
 	}
 
 	/**
 	 * Make sure we don't store certain option items in clear text.
 	 */
-	private function option_encryption_handling() {
-		foreach($this->encrypted_option_items as $option_name) {
-			$full_option_name = sb_get_option_name($option_name);
-			add_filter( 'pre_update_option_' . $full_option_name, [$this, 'encrypt_option'], 10, 1);
-			add_filter( 'sb_optimizer_get_option_' . $full_option_name, [$this, 'decrypt_option'], 10, 1);
-			if ( is_multisite() ) {
-				add_filter( 'sb_optimizer_get_blog_option_' . $full_option_name, [$this, 'decrypt_blog_option'], 10, 2);
+	private function optionEncryptionHandling(): void
+    {
+		foreach($this->encryptedOptionItems as $optionName) {
+			$fullOptionName = sb_get_option_name($optionName);
+			add_filter('pre_update_option_' . $fullOptionName, [$this, 'encryptOption'], 10, 1);
+			add_filter('sb_optimizer_get_option_' . $fullOptionName, [$this, 'decryptOption'], 10, 1);
+			if (is_multisite()) {
+				add_filter('sb_optimizer_get_blog_option_' . $fullOptionName, [$this, 'decryptBlogOption'], 10, 2);
 			}
 		}
 
@@ -72,10 +78,13 @@ class SB_Option_Encryption {
 	 *
 	 * @return bool|string
 	 */
-	public function encrypt_option($value) {
-		if ( empty($value) ) return $value;
-		$encrypted_value = SB_Crypto::encrypt($value, $this->get_current_blog_id());
-		return $encrypted_value !== false ? $encrypted_value : $value;
+	public function encryptOption($value)
+    {
+		if (empty($value)) {
+            return $value;
+        }
+		$encryptedValue = Crypto::encrypt($value, $this->getCurrentBlogId());
+		return $encryptedValue !== false ? $encryptedValue : $value;
 	}
 
 	/**
@@ -85,10 +94,13 @@ class SB_Option_Encryption {
 	 *
 	 * @return bool|string
 	 */
-	public function decrypt_option($value) {
-		if ( empty($value) ) return $value;
-		$decrypted_value = SB_Crypto::decrypt($value, $this->get_current_blog_id());
-		return $decrypted_value !== false ? $decrypted_value : $value;
+	public function decryptOption($value)
+    {
+		if (empty($value)) {
+            return $value;
+        }
+		$decryptedValue = Crypto::decrypt($value, $this->getCurrentBlogId());
+		return $decryptedValue !== false ? $decryptedValue : $value;
 	}
 
 	/**
@@ -98,8 +110,8 @@ class SB_Option_Encryption {
 	 *
 	 * @return bool|string
 	 */
-	public function decrypt_blog_option($value, $blog_id) {
-		$decrypted_value = SB_Crypto::decrypt($value, $blog_id);
+	public function decryptBlogOption($value, $blog_id) {
+		$decrypted_value = Crypto::decrypt($value, $blog_id);
 		return $decrypted_value !== false ? $decrypted_value : $value;
 	}
 
@@ -108,12 +120,11 @@ class SB_Option_Encryption {
 	 *
 	 * @return bool
 	 */
-	private function get_current_blog_id() {
-		if ( ! is_multisite() ) {
+	private function getCurrentBlogId()
+    {
+		if (!is_multisite()) {
 			return false;
 		}
 		return get_current_blog_id();
 	}
-
 }
-new SB_Option_Encryption;

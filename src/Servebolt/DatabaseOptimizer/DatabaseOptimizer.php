@@ -596,7 +596,7 @@ class DatabaseOptimizer
 	 *
 	 * @return bool
 	 */
-	public function table_has_index_on_column($table_name, $column_name) {
+	public function tableHasIndexOnColumn($table_name, $column_name) {
 		$indexes = $this->wpdb()->get_results("SHOW INDEX FROM {$table_name}");
 		if ( is_array($indexes) ) {
 			foreach ( $indexes as $index ) {
@@ -625,7 +625,7 @@ class DatabaseOptimizer
 	 *
 	 * @return bool
 	 */
-	public function convert_table_to_innodb($table_name) {
+	public function convertTableToInnodb($table_name) {
 		$this->safe_query("ALTER TABLE {$table_name} ENGINE = InnoDB");
 		return $this->table_is_innodb($table_name);
 	}
@@ -725,7 +725,7 @@ class DatabaseOptimizer
 			foreach ( $tables as $table ) {
 				if ( ! isset($table->table_name) ) continue;
 				$this->innodb_conversion['count']++;
-				if ( $this->dry_run || $this->convert_table_to_innodb($table->table_name) ) {
+				if ( $this->dry_run || $this->convertTableToInnodb($table->table_name) ) {
 					$this->out(sprintf(sb__('Converted table "%s" to InnoDB'), $table->table_name), 'success');
 					$this->innodb_conversion['success'][] = $table->table_name;
 				} else {

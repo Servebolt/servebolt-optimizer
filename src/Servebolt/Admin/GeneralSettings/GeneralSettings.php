@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
+use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
 use function Servebolt\Optimizer\Helpers\sbGetAdminUrl;
 
 /**
@@ -107,6 +108,7 @@ class GeneralSettings
      */
     public function __call($name, $arguments)
     {
+        $name = camelCaseToSnakeCase($name);
         if ( in_array($name, array_keys($this->getRegisteredSettingsItems())) ) {
             $blog_id = sb_array_get(0, $arguments, false);
             return $this->getSettingsItem($name, $blog_id);

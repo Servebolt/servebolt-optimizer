@@ -25,7 +25,7 @@ class Servebolt_CLI_General extends Servebolt_CLI_Extras {
 		} else {
 			WP_CLI::confirm(sb__('Do you really want to delete all settings?'));
 		}
-		sb_delete_all_settings($affect_all_sites);
+		sbDeleteAllSettings($affect_all_sites);
 		WP_CLI::success(sb__('All settings deleted!'));
 	}
 

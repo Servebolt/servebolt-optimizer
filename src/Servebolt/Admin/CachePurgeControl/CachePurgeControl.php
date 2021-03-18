@@ -5,7 +5,6 @@ namespace Servebolt\Optimizer\Admin\CachePurgeControl;
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Api\Cloudflare\Cloudflare;
-use Servebolt\Optimizer\Admin\AdminGuiController;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\Configuration;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
 //use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\QueueHandling;
@@ -37,8 +36,7 @@ class CachePurgeControl
      */
     public function render(): void
     {
-        $adminGuiController = AdminGuiController::getInstance();
-        $settings = $adminGuiController->getSettingsItemsWithValues();
+        $settings = $this->getSettingsItemsWithValues();
         $cachePurge = $this;
         $isHostedAtServebolt = host_is_servebolt();
 
@@ -152,9 +150,6 @@ class CachePurgeControl
         add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
     }
 
-    /**
-     *
-     */
     public function enqueueScripts(): void
     {
         $screen = get_current_screen();
@@ -175,10 +170,57 @@ class CachePurgeControl
         add_action('admin_init', [$this, 'registerSettings']);
     }
 
-    public function registerSettings() : void
+    /**
+     * Get all plugin settings in array.
+     *
+     * @return array
+     */
+    public function getSettingsItemsWithValues(): array
+    {
+        $items = $this->getSettingsItems();
+        $itemsWithValues = [];
+        foreach ($items as $item) {
+            switch ($item) {
+                case 'cache_purge_driver':
+                    if (!host_is_servebolt()) {
+                        $value = $this->getDefaultCachePurgeDriver(); // Only allow Cloudflare when not hosted at Servebolt
+                    } else {
+                        $value = sb_get_option($item);
+                    }
+                    $itemsWithValues['cache_purge_driver'] = $value ?: $this->getDefaultCachePurgeDriver();
+                    break;
+                case 'cf_auth_type':
+                    $value = sb_get_option($item);
+                    $itemsWithValues['cf_auth_type'] = $value ?: $this->getDefaultCfAuthType();
+                    break;
+                default:
+                    $itemsWithValues[$item] = sb_get_option($item);
+                    break;
+            }
+        }
+        return $itemsWithValues;
+    }
+
+    /**
+     * @return string
+     */
+    private function getDefaultCfAuthType(): string
+    {
+        return 'api_token';
+    }
+
+    /**
+     * @return string
+     */
+    private function getDefaultCachePurgeDriver(): string
+    {
+        return 'cloudflare';
+    }
+
+    public function registerSettings(): void
     {
         foreach ($this->getSettingsItems() as $key) {
-            register_setting('sb-cf-options-page', sb_get_option_name($key));
+            register_setting('sb-cache-purge-options-page', sb_get_option_name($key));
         }
     }
 
@@ -187,10 +229,11 @@ class CachePurgeControl
      *
      * @return array
      */
-    private function getSettingsItems() : array
+    private function getSettingsItems(): array
     {
         return [
-            'cf_switch',
+            'cache_purge_switch',
+            'cache_purge_driver',
             'cf_zone_id',
             'cf_auth_type',
             'cf_email',

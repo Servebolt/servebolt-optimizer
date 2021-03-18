@@ -34,96 +34,12 @@ class AdminGuiController
         }
         $this->initAdminMenus();
         $this->initPluginSettingsLink();
-        $this->initSettings();
 
         CachePurgeControl::init();
         FullPageCacheControl::init();
         GeneralSettings::init();
         CloudflareImageResizing::init();
         PerformanceChecks::init();
-    }
-
-    /**
-     * Initialize settings.
-     */
-    private function initSettings() {
-        add_action('admin_init', [$this, 'registerSettings']);
-    }
-
-    /**
-     * Register custom options.
-     */
-    public function registerSettings(): void
-    {
-        foreach($this->getSettingsItems() as $key) {
-            register_setting('sb-cf-options-page', sb_get_option_name($key));
-        }
-    }
-
-    /**
-     * Get all plugin settings in array.
-     *
-     * @return array
-     */
-    public function getSettingsItemsWithValues(): array
-    {
-        $items = $this->getSettingsItems();
-        $itemsWithValues = [];
-        foreach ( $items as $item ) {
-            switch ($item) {
-                case 'cache_purge_driver':
-                    if (!host_is_servebolt()) {
-                        $value = $this->getDefaultCachePurgeDriver(); // Only allow Cloudflare when not hosted at Servebolt
-                    } else {
-                        $value = sb_get_option($item);
-                    }
-                    $itemsWithValues['cache_purge_driver'] = $value ?: $this->getDefaultCachePurgeDriver();
-                    break;
-                case 'cf_auth_type':
-                    $value = sb_get_option($item);
-                    $itemsWithValues['cf_auth_type'] = $value ?: $this->getDefaultCfAuthType();
-                    break;
-                default:
-                    $itemsWithValues[$item] = sb_get_option($item);
-                    break;
-            }
-        }
-        return $itemsWithValues;
-    }
-
-    /**
-     * @return string
-     */
-    private function getDefaultCfAuthType(): string
-    {
-        return 'api_token';
-    }
-
-    /**
-     * @return string
-     */
-    private function getDefaultCachePurgeDriver(): string
-    {
-        return 'cloudflare';
-    }
-
-    /**
-     * Settings items for CF cache.
-     *
-     * @return array
-     */
-    private function getSettingsItems(): array
-    {
-        return [
-            'cache_purge_switch',
-            'cache_purge_driver',
-            'cf_zone_id',
-            'cf_auth_type',
-            'cf_email',
-            'cf_api_key',
-            'cf_api_token',
-            'cf_cron_purge',
-        ];
     }
 
     /**

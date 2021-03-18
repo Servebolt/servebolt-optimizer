@@ -2,6 +2,11 @@
 
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) exit; // Exit if uninstall.php is not called by WordPress
 
-require_once __DIR__ . '/functions.php';
-sb_delete_all_settings();
-sb_clear_all_cookies();
+require SERVEBOLT_PATH . 'vendor/autoload.php';
+use function Servebolt\Optimizer\Helpers\sbDeleteAllSettings;
+use function Servebolt\Optimizer\Helpers\sbClearAllCookies;
+use Servebolt\Optimizer\Database\PluginTables;
+
+(new PluginTables(false))->deleteTables();
+sbDeleteAllSettings();
+sbClearAllCookies();

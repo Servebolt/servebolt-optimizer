@@ -28,9 +28,9 @@ class LogViewer
      */
     private function getErrorLogPath(): string
     {
-        $log_dir = str_replace('/public', '/logs', $_SERVER['DOCUMENT_ROOT']);
-        $log_file_path = $log_dir . '/ErrorLog';
-        return (string) apply_filters('sb_optimizer_log_file_path', $log_file_path);
+        $logDir = str_replace('/public', '/logs', $_SERVER['DOCUMENT_ROOT']);
+        $logFilePath = $logDir . '/ErrorLog';
+        return (string) apply_filters('sb_optimizer_log_file_path', $logFilePath);
     }
 
     /**

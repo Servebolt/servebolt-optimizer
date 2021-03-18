@@ -1,40 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-// Include crypto-class
-require __DIR__ . '/classes/sb-crypto.class.php';
-
-if ( ! function_exists('sb_cloudflare_proxy_in_use') ) {
-	/**
-	 * Check if Cloudflare Proxy is used by analyzing the request headers, and if not present then send a request to the front page and analyze the headers again.
-	 *
-	 * @return bool
-	 */
-	function sb_cloudflare_proxy_in_use() {
-
-		$cf_headers_to_look_for = ['cf-request-id', 'cf-ray'];
-
-		$headers = array_keys( array_change_key_case( (array) getallheaders(), CASE_LOWER ) );
-		foreach( $headers as $key ) {
-			if ( in_array($key, $cf_headers_to_look_for) ) {
-				return true;
-			}
-		}
-
-		if ( ! array_key_exists('sb-cf-check', $_GET) ) {
-			$headers = array_keys( array_change_key_case( get_headers( get_site_url('?sb-cf-check'), true ), CASE_LOWER ) );
-			foreach( $headers as $key ) {
-				if ( in_array($key, $cf_headers_to_look_for) ) {
-					return true;
-				}
-			}
-		}
-
-		return false;
-
-	}
-}
-
 if ( ! function_exists('sb_paginate_links_as_array') ) {
     /**
      * Create an array of paginated links based on URL and number of pages.
@@ -283,28 +249,6 @@ if ( ! function_exists('sb_boolean_to_string') ) {
     }
 }
 
-if ( ! function_exists('sb_is_cli') ) {
-  /**
-   * Check if we are running as CLI.
-   *
-   * @return bool
-   */
-  function sb_is_cli() {
-    return ( defined( 'WP_CLI' ) && WP_CLI );
-  }
-}
-
-if ( ! function_exists('sb_is_cron') ) {
-  /**
-   * Check if execution is initiated by cron.
-   *
-   * @return bool
-   */
-  function sb_is_cron() {
-    return ( defined( 'DOING_CRON' ) && DOING_CRON );
-  }
-}
-
 if ( ! function_exists('sb_cf_cache_purge_object') ) {
     /**
      * Create a new instance of SB_CF_Cache_Purge_Object.
@@ -318,25 +262,6 @@ if ( ! function_exists('sb_cf_cache_purge_object') ) {
         require_once __DIR__ . '/classes/cloudflare-cache/sb-cf-cache-purge-object.php';
         return new SB_CF_Cache_Purge_Object($id, $type, $args);
     }
-}
-
-if ( ! function_exists('sb_generic_optimizations') ) {
-  /**
-   * Add minor improvements to WP.
-   */
-  function sb_generic_optimizations() {
-
-    if ( apply_filters('sb_optimizer_skip_generic_optimizations', false) ) return;
-
-    // Disable CONCATENATE_SCRIPTS to get rid of some DDOS-attacks
-    if ( ! defined('CONCATENATE_SCRIPTS') ) {
-      define('CONCATENATE_SCRIPTS', false);
-    }
-
-    // Hide the meta tag generator from head and RSS
-    add_filter('the_generator', '__return_empty_string');
-    remove_action('wp_head', 'wp_generator');
-  }
 }
 
 if ( ! function_exists('sb_format_post_type') ) {
@@ -412,20 +337,6 @@ if ( ! function_exists('sb_checkbox_true') ) {
    */
   function sb_checkbox_true($value) {
     return $value === 'on' || filter_var($value, FILTER_VALIDATE_BOOLEAN) === true;
-  }
-}
-
-if ( ! function_exists('sb_cf_error') ) {
-  /**
-   * Log an Cloudflare error.
-   *
-   * @param $exception
-   *
-   * @return bool
-   */
-  function sb_cf_error($exception) {
-    sb_write_log($exception->getMessage());
-    return false;
   }
 }
 
@@ -621,35 +532,6 @@ if ( ! function_exists('sb_is_url') ) {
     function sb_is_url($url) {
         return filter_var($url, FILTER_VALIDATE_URL) !== false;
     }
-}
-
-if ( ! function_exists('sb_view') ) {
-  /**
-   * Display view.
-   *
-   * @param $path
-   * @param array $arguments
-   * @param bool $echo
-   *
-   * @return bool|false|string|void
-   */
-  function sb_view($path, $arguments = [], $echo = true) {
-    $path = SERVEBOLT_PATH . $path . '.php';
-    if ( ! file_exists($path) || ! is_readable($path) ) return false;
-    if ( is_array($arguments) ) {
-      $arguments = sb_remove_keys_from_array($arguments, ['path', 'arguments', 'echo', 'html']);
-      extract($arguments);
-    }
-    ob_start();
-    require $path;
-    $html = ob_get_contents();
-    ob_end_clean();
-    if ( $echo ) {
-      echo $html;
-      return;
-    }
-    return $html;
-  }
 }
 
 if ( ! function_exists('sb_get_option_name') ) {
@@ -899,97 +781,6 @@ if ( ! function_exists('sb_is_dev_debug') ) {
   }
 }
 
-if ( ! function_exists('sb_deactivate_plugin') ) {
-    /**
-     * Plugin deactivation.
-     */
-    function sb_deactivate_plugin() {
-        sb_clear_all_cookies();
-    }
-}
-
-if ( ! function_exists('sb_activate_plugin') ) {
-    /**
-     * Plugin activation.
-     */
-    function sb_activate_plugin() {
-        sb_check_all_cookies();
-    }
-}
-
-if ( ! function_exists('sb_check_all_cookies') ) {
-    /**
-     * Check the cookies we have been set.
-     */
-    function sb_check_all_cookies() {
-        if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
-            require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
-        }
-        ( new Servebolt_Nginx_FPC_Auth_Handling )->cache_cookie_check();
-    }
-}
-
-if ( ! function_exists('sb_clear_all_cookies') ) {
-    /**
-     * Clean the cookies we have been settin'.
-     */
-    function sb_clear_all_cookies() {
-        if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
-            require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
-        }
-        ( new Servebolt_Nginx_FPC_Auth_Handling )->clear_no_cache_cookie();
-    }
-}
-
-if ( ! function_exists('sb_delete_all_settings') ) {
-  /**
-   * Delete plugin settings.
-   *
-   * @param bool $all_sites
-   */
-  function sb_delete_all_settings($all_sites = true) {
-    $option_names = [
-
-      // General settings
-      'asset_auto_version',
-      'use_native_js_fallback',
-
-      // Wipe nonce
-      'ajax_nonce',
-      'record_max_num_pages_nonce',
-
-      // Wipe encryption keys
-      'mcrypt_key',
-      'openssl_key',
-      'openssl_iv',
-
-      // Wipe Cloudflare-related options
-      'cf_switch',
-      'cf_zone_id',
-      'cf_auth_type',
-      'cf_email',
-      'cf_api_key',
-      'cf_api_token',
-      'cf_items_to_purge',
-      'cf_cron_purge',
-
-      // Wipe SB FPC-relateds options
-      'fpc_switch',
-      'fpc_settings',
-      'fpc_exclude',
-    ];
-    foreach ( $option_names as $option_name ) {
-      if ( is_multisite() && $all_sites ) {
-        sb_iterate_sites(function ( $site ) use ($option_name) {
-          sb_delete_blog_option($site->blog_id, $option_name);
-        });
-      } else {
-        sb_delete_option($option_name);
-      }
-    }
-  }
-}
-
 if ( ! function_exists('sb_natural_language_join') ) {
   /**
    * Join strings together in a natural readable way.
@@ -1173,22 +964,6 @@ if ( ! function_exists('sb_format_comma_string') ) {
     return array_filter($array, function ($item) {
       return ! empty($item);
     });
-  }
-}
-
-if ( ! function_exists('sb_write_log') ) {
-  /**
-   * Write to log.
-   *
-   * @param $log
-   */
-  function sb_write_log($log)  {
-    if ( ! defined('WP_DEBUG') || WP_DEBUG == false ) return;
-    if ( is_array( $log ) || is_object( $log ) ) {
-      error_log( print_r( $log, true ) );
-    } else {
-      error_log( $log );
-    }
   }
 }
 
