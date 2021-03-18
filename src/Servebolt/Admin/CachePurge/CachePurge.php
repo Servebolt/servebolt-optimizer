@@ -40,18 +40,17 @@ class CachePurge
      */
     private function getCfZones($settings): array
     {
-        $listZonesTransientKey = 'sb_cf_list_zones_';
+        $listZonesBaseTransientKey = 'sb_cf_list_zones_';
         switch ($settings['cf_auth_type']) {
             case 'api_token':
                 if (!empty($settings['cf_api_token'])) {
-                    $listZonesTransientKey .= hash('SHA512', $settings['cf_api_token']);
+                    $listZonesTransientKey = $listZonesBaseTransientKey . hash('SHA512', $settings['cf_api_token']);
                 }
                 break;
             case 'api_key':
                 if (!empty($settings['cf_email']) && !empty($settings['cf_api_key'])) {
-                    $listZonesTransientKey .= $settings['cf_email'] . '_' . hash('SHA512', $settings['cf_api_key']);
+                    $listZonesTransientKey = $listZonesBaseTransientKey . $settings['cf_email'] . '_' . hash('SHA512', $settings['cf_api_key']);
                 }
-
                 break;
         }
         if (isset($listZonesTransientKey)) {
@@ -63,7 +62,9 @@ class CachePurge
                     set_transient($listZonesTransientKey, $zones, 60);
                 }
             }
-            return $zones;
+            if (is_array($zones)) {
+                return $zones;
+            }
         }
         return [];
     }
