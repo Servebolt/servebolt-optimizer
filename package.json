@@ -17,7 +17,6 @@
     "lint-js:fix": "eslint assets/src/**/*.js --fix",
     "lint": "npm run lint-php && npm run lint-css && npm run lint-js",
     "update:packages": "npm i -g npm-check-updates && npm-check-updates -u && npm install",
-    "postinstall": "composer install",
     "clean": "rimraf ./assets/dist"
   },
   "author": "Nelio Software",
