@@ -4,12 +4,6 @@ namespace Servebolt\Optimizer\CachePurge\PurgeObject;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-/*
-require_once __DIR__ . '/cache-purge-object-types/shared-methods.php';
-require_once __DIR__ . '/cache-purge-object-types/type-post.php';
-require_once __DIR__ . '/cache-purge-object-types/type-term.php';
-*/
-
 use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Post;
 use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Term;
 
@@ -18,7 +12,6 @@ use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Term;
  *
  * This class is used to build an array of various URLs related to an object (post, term etc.). This is useful when purging cache with Cloudflare to cover every place a post can be displayed (front page, various archives).
  */
-// class SB_CF_Cache_Purge_Object
 class PurgeObject
 {
 
