@@ -1,48 +1,6 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
-if ( ! function_exists('sb_paginate_links_as_array') ) {
-    /**
-     * Create an array of paginated links based on URL and number of pages.
-     *
-     * @param $url
-     * @param $pages_needed
-     * @param array $args
-     * @return array|string|void
-     */
-    function sb_paginate_links_as_array($url, $pages_needed, $args = []) {
-        if ( ! is_numeric($pages_needed) || $pages_needed <= 1 ) return [$url];
-
-        $base_args = apply_filters('sb_paginate_links_as_array_args', [
-            'base'      => $url . '%_%',
-            'type'      => 'array',
-            'current'   => false,
-            'total'     => $pages_needed,
-            'show_all'  => true,
-            'prev_next' => false,
-        ]);
-
-        $args = wp_parse_args( $args, $base_args );
-        $links = paginate_links($args);
-
-        $links = array_map(function($link) {
-            preg_match_all('/<a[^>]+href=([\'"])(?<href>.+?)\1[^>]*>/i', $link, $result);
-            if ( array_key_exists('href', $result) && count($result['href']) === 1 && ! empty($result['href']) ) {
-                $url = current($result['href']);
-                $url = strtok($url, '?'); // Remove query string
-                return $url;
-            }
-            return false;
-        }, $links);
-
-        $links = array_filter($links, function($link) {
-            return $link !== false;
-        });
-
-        return $links;
-    }
-}
-
 if ( ! function_exists('sb_smart_update_option') ) {
 	/**
    * A function that will store the option at the right place (in current blog or a specified blog).
@@ -84,44 +42,6 @@ if ( ! function_exists('sb_smart_get_option') ) {
 	}
 }
 
-if ( ! function_exists('sb_feature_active') ) {
-	/**
-   * Check whether a feature is active.
-   *
-	 * @param $feature
-	 *
-	 * @return bool|null
-	 */
-  function sb_feature_active($feature) {
-    switch ($feature) {
-        case 'cf_image_resize':
-          // Only active when defined is set, or if already active - this is to keep it beta for now (slightly hidden).
-          return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || ( sb_cf_image_resize_control() )->resizing_is_active();
-          break;
-        case 'sb_asset_auto_version':
-            return sb_general_settings()->asset_auto_version();
-            break;
-	    case 'cf_cache':
-		    return true;
-		    break;
-    }
-    return null;
-
-  }
-}
-
-if ( ! function_exists('sb_performance_checks') ) {
-	/**
-	 * Get Servebolt_Performance_Checks-instance.
-	 *
-	 * @return Servebolt_Performance_Checks|null
-	 */
-	function sb_performance_checks()
-    {
-        return Servebolt\Optimizer\Admin\PerformanceChecks\PerformanceChecks::getInstance();
-	}
-}
-
 if ( ! function_exists('sb_cf_image_resize_control') ) {
 	/**
 	 * Get SB_Image_Resize_Control-instance.
@@ -145,18 +65,6 @@ if ( ! function_exists('sb_cf_image_resizing') ) {
 	}
 }
 
-if ( ! function_exists('sb_optimize_db') ) {
-  /**
-   * Get Servebolt_Optimize_DB-instance.
-   *
-   * @return Servebolt_Performance_Checks|null
-   */
-  function sb_optimize_db()
-  {
-    return Servebolt\Optimizer\DatabaseOptimizer\DatabaseOptimizer::getInstance();
-  }
-}
-
 //if ( ! function_exists('sb_cf_cache') ) {
   /**
    * Get Servebolt_Checks-instance.
@@ -173,9 +81,9 @@ if ( ! function_exists('sb_optimize_db') ) {
 
 //if ( ! function_exists('sb_cf_cache_controls') ) {
   /**
-   * Get Servebolt_Checks-instance.
+   * Get CF_Cache_Admin_Controls-instance.
    *
-   * @return Servebolt_Checks|null
+   * @return CF_Cache_Admin_Controls|null
    */
   /*
   function sb_cf_cache_admin_controls() {
@@ -184,20 +92,6 @@ if ( ! function_exists('sb_optimize_db') ) {
   }
   */
 //}
-
-if ( ! function_exists('sb_general_settings') ) {
-    /**
-     * Get SB_General_Settings-instance.
-     *
-     * @return SB_General_Settings|null
-     */
-    function sb_general_settings()
-    {
-        return Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings::getInstance();
-    }
-}
-
-
 
 if ( ! function_exists('sb_nginx_fpc') ) {
   /**
@@ -209,44 +103,6 @@ if ( ! function_exists('sb_nginx_fpc') ) {
     require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
     return Servebolt_Nginx_FPC::get_instance();
   }
-}
-
-if ( ! function_exists('sb_checks') ) {
-  /**
-   * Get Servebolt_Checks-instance.
-   *
-   * @return DatabaseChecks|null
-   */
-  function sb_checks()
-  {
-      return Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks::getInstance();
-  }
-}
-
-if ( ! function_exists('sb_boolean_to_state_string') ) {
-  /**
-   * Convert a boolean to a human readable string.
-   *
-   * @param $state
-   *
-   * @return bool|null
-   */
-  function sb_boolean_to_state_string($state) {
-    return $state === true ? 'active' : 'inactive';
-  }
-}
-
-if ( ! function_exists('sb_boolean_to_string') ) {
-    /**
-     * Convert a type boolean to a verbose boolean string.
-     *
-     * @param $state
-     *
-     * @return bool|null
-     */
-    function sb_boolean_to_string($state) {
-        return $state === true ? 'true' : 'false';
-    }
 }
 
 if ( ! function_exists('sb_cf_cache_purge_object') ) {
@@ -262,82 +118,6 @@ if ( ! function_exists('sb_cf_cache_purge_object') ) {
         require_once __DIR__ . '/classes/cloudflare-cache/sb-cf-cache-purge-object.php';
         return new SB_CF_Cache_Purge_Object($id, $type, $args);
     }
-}
-
-if ( ! function_exists('sb_format_post_type') ) {
-  /**
-   * Format a post type slug.
-   *
-   * @param $post_type
-   *
-   * @return mixed|string
-   */
-  function sb_format_post_type($post_type) {
-    $post_type = str_replace('_', ' ', $post_type);
-    $post_type = str_replace('-', ' ', $post_type);
-    $post_type = ucfirst($post_type);
-    return $post_type;
-  }
-}
-
-if ( ! function_exists('sb_post_exists') ) {
-  /**
-   * Check if post exists.
-   *
-   * @param $post_id
-   *
-   * @return bool
-   */
-  function sb_post_exists($post_id) {
-    return get_post_status($post_id) !== false;
-  }
-}
-
-if ( ! function_exists('sb_resolve_post_ids') ) {
-  /**
-   * Convert an array of post IDs into array of title and Post ID.
-   *
-   * @param $posts
-   * @param bool $blog_id
-   *
-   * @return array
-   */
-  function sb_resolve_post_ids($posts, $blog_id = false) {
-    return array_map(function($post_id) use ($blog_id) {
-      $title = sb_get_the_title($post_id, $blog_id);
-      return $title ? $title . ' (' . $post_id . ')' : $post_id;
-    }, $posts);
-  }
-}
-
-if ( ! function_exists('sb_get_the_title') ) {
-  /**
-   * Get the title with optional blog-parameter.
-   *
-   * @param $post_id
-   * @param bool $blog_id
-   *
-   * @return string
-   */
-  function sb_get_the_title($post_id, $blog_id = false) {
-    if ( $blog_id ) switch_to_blog($blog_id);
-    $title = get_the_title($post_id);
-    if ( $blog_id ) restore_current_blog();
-    return $title;
-  }
-}
-
-if ( ! function_exists('sb_checkbox_true') ) {
-  /**
-   * Check if a value is either "on" or boolean and true.
-   *
-   * @param $value
-   *
-   * @return bool
-   */
-  function sb_checkbox_true($value) {
-    return $value === 'on' || filter_var($value, FILTER_VALIDATE_BOOLEAN) === true;
-  }
 }
 
 if ( ! function_exists('sb_get_text_domain') ) {
@@ -928,7 +708,7 @@ if ( ! function_exists('sb_display_value') ) {
      */
     function sb_display_value($value, $return = false) {
         if ( is_bool($value) ) {
-            $value = sb_boolean_to_string($value);
+            $value = booleanToString($value);
         } elseif ( is_string($value) ) {
             $value = $value;
         } else {
@@ -942,42 +722,4 @@ if ( ! function_exists('sb_display_value') ) {
         }
         echo $value;
     }
-}
-
-if ( ! function_exists('sb_format_comma_string') ) {
-  /**
-   * Format a string with comma separated values.
-   *
-   * @param $string Comma separated values.
-   *
-   * @return array
-   */
-  function sb_format_comma_string($string) {
-    $string = trim($string);
-    if ( empty($string) ) {
-      return [];
-    }
-    $array = explode(',', $string);
-    $array = array_map(function ($item) {
-      return trim($item);
-    }, $array);
-    return array_filter($array, function ($item) {
-      return ! empty($item);
-    });
-  }
-}
-
-if ( ! function_exists('sb_array_get') ) {
-  /**
-   * Get item from array.
-   *
-   * @param $key
-   * @param $array
-   * @param bool $default_value
-   *
-   * @return bool
-   */
-  function sb_array_get($key, $array, $default_value = false) {
-    return array_key_exists($key, $array) ? $array[$key] : $default_value;
-  }
 }

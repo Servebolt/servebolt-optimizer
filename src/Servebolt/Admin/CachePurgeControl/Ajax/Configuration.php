@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;
+use function Servebolt\Optimizer\Helpers\arrayGet;
 use Exception;
 
 class Configuration extends SharedAjaxMethods
@@ -30,7 +31,7 @@ class Configuration extends SharedAjaxMethods
         sb_ajax_user_allowed();
 
         $authType = sanitize_text_field($_POST['auth_type']);
-        $credentials = sb_array_get('credentials', $_POST);
+        $credentials = arrayGet('credentials', $_POST);
         try {
             $cfSdk = new CloudflareSdk(compact('authType', 'credentials'));
             $zones = $cfSdk->listZones();

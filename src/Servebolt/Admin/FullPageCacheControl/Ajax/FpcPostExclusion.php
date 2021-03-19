@@ -5,6 +5,8 @@ namespace Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax;
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
+use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
 
 /**
  * Class FpcPostExclusion
@@ -30,7 +32,7 @@ class FpcPostExclusion extends SharedAjaxMethods
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
 
-        $itemsToRemove = sb_array_get('items', $_POST);
+        $itemsToRemove = arrayGet('items', $_POST);
         if ($itemsToRemove === 'all') {
             sb_nginx_fpc()->set_ids_to_exclude_from_cache([]);
             wp_send_json_success();
@@ -63,8 +65,8 @@ class FpcPostExclusion extends SharedAjaxMethods
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
 
-        $postIdsString = sb_array_get('post_ids', $_POST);
-        $postIds = sb_format_comma_string($postIdsString);
+        $postIdsString = arrayGet('post_ids', $_POST);
+        $postIds = formatCommaStringToArray($postIdsString);
 
         if (!$postIds || empty($postIds)) {
             wp_send_json_error([

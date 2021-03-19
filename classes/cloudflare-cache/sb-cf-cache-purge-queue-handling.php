@@ -1,6 +1,8 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+
 /**
  * Class Servebolt_CF_Cache_Purge_Queue_Handling
  */
@@ -126,7 +128,7 @@ class Servebolt_CF_Cache_Purge_Queue_Handling {
         } else {
             $value = sb_get_option($this->cf_cron_active_option_key());
         }
-        return sb_checkbox_true($value);
+        return checkboxIsChecked($value);
     }
 
     /**

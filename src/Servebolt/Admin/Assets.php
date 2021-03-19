@@ -4,6 +4,9 @@ namespace Servebolt\Optimizer\Admin;
 
 if ( ! defined( 'ABSPATH' ) ) exit;
 
+use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
+use function Servebolt\Optimizer\Helpers\booleanToString;
+
 /**
  * Class Servebolt_Optimizer_Assets
  *
@@ -69,7 +72,8 @@ class Assets {
 	public function pluginCommonStyling()
     {
         if ($this->shouldLoadCommonAssets('styling')) {
-            if (!sb_general_settings()->useNativeJsFallback()) {
+            $generalSettings = GeneralSettings::getInstance();
+            if (!$generalSettings->useNativeJsFallback()) {
                 wp_enqueue_style('sb-sweetalert2', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/css/sweetalert2.min.css', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/css/sweetalert2.min.css'));
             }
             wp_enqueue_style('servebolt-optimizer-common-styling', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/css/common-style.css', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/css/common-style.css'));
@@ -97,14 +101,15 @@ class Assets {
 	public function pluginCommonScripts()
     {
 	    if ($this->shouldLoadCommonAssets('scripts')) {
-            if (!sb_general_settings()->useNativeJsFallback()) {
+	        $generalSettings = GeneralSettings::getInstance();
+            if (!$generalSettings->useNativeJsFallback()) {
                 wp_enqueue_script('sb-sweetalert2', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/sweetalert2.all.min.js', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/sweetalert2.all.min.js'), true);
             }
             wp_enqueue_script('servebolt-optimizer-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/general.js', ['jquery'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/general.js'), true);
             wp_enqueue_script('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/cloudflare-cache-purge-trigger.js', ['jquery'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/cloudflare-cache-purge-trigger.js'), true);
             wp_localize_script('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', 'sb_ajax_object', [
                 'ajax_nonce'                         => sb_get_ajax_nonce(),
-                'use_native_js_fallback'             => sb_boolean_to_string(sb_general_settings()->useNativeJsFallback()),
+                'use_native_js_fallback'             => booleanToString($generalSettings->useNativeJsFallback()),
                 //'cron_purge_is_active'               => sb_cf_cache()->cron_purge_is_active(),
                 'cron_purge_is_active'               => false, // TODO: Add real boolean value
                 'ajaxurl'                            => admin_url('admin-ajax.php'),

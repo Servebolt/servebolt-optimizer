@@ -9,6 +9,7 @@ use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
 use Servebolt\Optimizer\Api\Cloudflare\Cloudflare as CloudflareApi;
 use Servebolt\Optimizer\CachePurge\Drivers\Servebolt as ServeboltDriver;
 use Servebolt\Optimizer\CachePurge\Drivers\Cloudflare as CloudflareDriver;
+use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 
 /**
  * Class CachePurge
@@ -159,9 +160,9 @@ class CachePurge
     {
         $key = 'cache_purge_switch';
         if (is_numeric($blogId)) {
-            return sb_checkbox_true(sb_get_blog_option($blogId, $key));
+            return checkboxIsChecked(sb_get_blog_option($blogId, $key));
         } else {
-            return sb_checkbox_true(sb_get_option($key));
+            return checkboxIsChecked(sb_get_option($key));
         }
     }
 
@@ -275,9 +276,9 @@ class CachePurge
         }
         $key = 'cf_cron_purge';
         if ( is_numeric($blogId) ) {
-            return sb_checkbox_true(sb_get_blog_option($blogId, $key));
+            return checkboxIsChecked(sb_get_blog_option($blogId, $key));
         } else {
-            return sb_checkbox_true(sb_get_option($key));
+            return checkboxIsChecked(sb_get_option($key));
         }
     }
 }

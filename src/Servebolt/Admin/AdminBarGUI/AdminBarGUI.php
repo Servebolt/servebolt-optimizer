@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use WP_Admin_Bar;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\CachePurge\CachePurge;
-use function Servebolt\Optimizer\Helpers\sbGetAdminUrl;
+use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
 
 /**
  * Class Servebolt_Admin_Bar_Interface
@@ -90,11 +90,11 @@ class AdminBarGUI
 		$nodes = [];
 		$method = is_multisite() && is_network_admin() ? 'network_admin_url' : 'admin_url';
 
-		if ( $admin_url = sbGetAdminUrl() ) {
+		if ($adminUrl = getServeboltAdminUrl()) {
 			$nodes[] = [
 				'id'    => 'servebolt-crontrol-panel',
 				'title' => sb__('Servebolt Control Panel'),
-				'href'  => $admin_url,
+				'href'  => $adminUrl,
 				'meta'  => [
 					'target' => '_blank',
 					'class' => 'sb-admin-button'

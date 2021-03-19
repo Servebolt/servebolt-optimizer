@@ -32,8 +32,8 @@
                 <tr>
                     <td><?php echo $site->blog_id; ?></td>
                     <td><?php echo $site->domain . $site->path; ?></td>
-                    <td><?php echo sb_general_settings()->use_native_js_fallback($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
-                    <td><?php echo sb_general_settings()->asset_auto_version($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
+                    <td><?php echo $generalSettings->useNativeJsFallback($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
+                    <td><?php echo $generalSettings->assetAutoVersion($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
                     <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-general-settings' ); ?>" class="button btn"><?php sb_e('Go to site settings'); ?></a></td>
                 </tr>
             <?php endforeach; ?>
@@ -42,7 +42,7 @@
 
     <?php else : ?>
 
-        <?php $settings = sb_general_settings()->getAllSettingsItems(); ?>
+        <?php $settings = $generalSettings->getAllSettingsItems(); ?>
 
         <form method="post" action="options.php">
             <?php settings_fields( 'sb-general-settings-options-page' ) ?>
@@ -53,8 +53,8 @@
                     <td>
                         <fieldset>
                             <?php
-                                $overridden = sb_general_settings()->settingIsOverridden('use_native_js_fallback');
-                                $checked = sb_general_settings()->use_native_js_fallback();
+                                $overridden = $generalSettings->settingIsOverridden('use_native_js_fallback');
+                                $checked = $generalSettings->useNativeJsFallback();
                             ?>
                             <legend class="screen-reader-text"><span><?php sb_e('Use native JS fallback'); ?></span></legend>
                             <label for="use_native_js_fallback">

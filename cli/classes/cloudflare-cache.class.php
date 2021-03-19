@@ -1,6 +1,8 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use function Servebolt\Optimizer\Helpers\arrayGet;
+
 require_once __DIR__ . '/cloudflare-cache-extra.class.php';
 
 /**
@@ -65,14 +67,14 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	 */
 	public function command_cf_setup($args, $assoc_args, $interactive = true) {
 		$affect_all_sites   = $this->affect_all_sites( $assoc_args );
-		$auth_type          = sb_array_get('auth-type', $assoc_args);
-		$api_token          = sb_array_get('api-token', $assoc_args);
-		$email              = sb_array_get('email', $assoc_args);
-		$api_key            = sb_array_get('api-key', $assoc_args);
-		$zone               = sb_array_get('zone-id', $assoc_args);
+		$auth_type          = arrayGet('auth-type', $assoc_args);
+		$api_token          = arrayGet('api-token', $assoc_args);
+		$email              = arrayGet('email', $assoc_args);
+		$api_key            = arrayGet('api-key', $assoc_args);
+		$zone               = arrayGet('zone-id', $assoc_args);
 		$disable_validation = array_key_exists( 'disable-validation', $assoc_args );
 
-		$individual_zones   = sb_array_get('individual-zones', $assoc_args);
+		$individual_zones   = arrayGet('individual-zones', $assoc_args);
 		$individual_zones   = array_key_exists( 'individual-zones', $assoc_args ) ? ( empty($individual_zones) ? true : filter_var($individual_zones, FILTER_VALIDATE_BOOLEAN) ) : null;
 
 		$params             = compact('interactive', 'affect_all_sites', 'auth_type', 'api_token', 'email', 'api_key', 'zone', 'disable_validation', 'individual_zones');

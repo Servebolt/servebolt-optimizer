@@ -2,7 +2,10 @@
 
 namespace Servebolt\Optimizer\Admin\PerformanceChecks\Ajax;
 
+use Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks;
+use Servebolt\Optimizer\DatabaseOptimizer\DatabaseOptimizer;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
+use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 
 /**
  * Class OptimizeActions
@@ -30,8 +33,9 @@ class OptimizeActions extends SharedAjaxMethods
     {
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
-        sb_optimize_db()->deoptimizeIndexedTables();
-        sb_optimize_db()->convertTablesToNonInnodb();
+        $instance = DatabaseOptimizer::getInstance();
+        $instance->deoptimizeIndexedTables();
+        $instance->convertTablesToNonInnodb();
         wp_send_json_success();
     }
 
@@ -42,7 +46,7 @@ class OptimizeActions extends SharedAjaxMethods
     {
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
-        sbDeleteAllSettings();
+        deleteAllSettings();
         wp_send_json_success();
     }
 
@@ -61,16 +65,17 @@ class OptimizeActions extends SharedAjaxMethods
 
         $method = $validatedData['indexAdditionMethod'];
         $fullTableName = $validatedData['fullTableName'];
+        $instance = DatabaseOptimizer::getInstance();
 
-        if (sb_optimize_db()->tableHasIndexOnColumn($fullTableName, $validatedData['column'])) {
+        if ($instance->tableHasIndexOnColumn($fullTableName, $validatedData['column'])) {
             wp_send_json_success([
                 'message' => sprintf(sb__('Table "%s" already has index.'), $fullTableName)
             ]);
-        } elseif ( is_multisite() && sb_optimize_db()->$method($validatedData['blog_id']) ) {
+        } elseif (is_multisite() && $instance->$method($validatedData['blogId'])) {
             wp_send_json_success([
                 'message' => sprintf(sb__('Added index to table "%s".'), $fullTableName)
             ]);
-        } elseif ( ! is_multisite() && sb_optimize_db()->$method() ) {
+        } elseif (!is_multisite() && $instance->$method()) {
             wp_send_json_success([
                 'message' => sprintf(sb__('Added index to table "%s".'), $fullTableName)
             ]);
@@ -94,15 +99,18 @@ class OptimizeActions extends SharedAjaxMethods
             wp_send_json_error(['message' => $tableName->get_error_message()]);
         }
 
-        if (sb_optimize_db()->table_is_innodb($tableName)) {
+        $databaseOptimizer = DatabaseOptimizer::getInstance();
+        $databaseChecks = DatabaseChecks::getInstance();
+
+        if ($databaseOptimizer->table_is_innodb($tableName)) {
             wp_send_json_success([
                 'message' => 'Table is already using InnoDB.',
             ]);
-        } elseif (!(sb_checks())->tableValidForInnodbConversion($tableName)) {
+        } elseif (!$databaseChecks->tableValidForInnodbConversion($tableName)) {
             wp_send_json_error([
                 'message' => 'Specified table is either invalid or unavailable.',
             ]);
-        } elseif ( sb_optimize_db()->convertTableToInnodb($tableName) ) {
+        } elseif ($databaseOptimizer->convertTableToInnodb($tableName)) {
             wp_send_json_success([
                 'message' => 'Table got converted to InnoDB.',
             ]);
@@ -120,7 +128,8 @@ class OptimizeActions extends SharedAjaxMethods
     {
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
-        $result = sb_optimize_db()->optimizeDb();
+        $instance = DatabaseOptimizer::getInstance();
+        $result = $instance->optimizeDb();
         if ($result === false || $result['result'] === false) {
             wp_send_json_error();
         } else {
@@ -158,14 +167,18 @@ class OptimizeActions extends SharedAjaxMethods
 
         }
 
+        $databaseChecks = DatabaseChecks::getInstance();
+
         // Make sure we know which column to add index on in the table
-        $column = (sb_checks())->getIndexColumnFromTable($tableName);
+        $column = $databaseChecks->getIndexColumnFromTable($tableName);
         if (!$column) {
             return new WP_Error( 'invalid_table_name', sb__('Invalid table name') );
         }
 
+        $databaseOptimizer = DatabaseOptimizer::getInstance();
+
         // Make sure we found the table name to interact with
-        $fullTableName = is_multisite() ? sb_optimize_db()->get_table_name_by_blog_id($blogId, $tableName) : sb_optimize_db()->get_table_name($tableName);
+        $fullTableName = is_multisite() ? $databaseOptimizer->get_table_name_by_blog_id($blogId, $tableName) : $databaseOptimizer->get_table_name($tableName);
         if (!$fullTableName) {
             return new WP_Error( 'could_not_resolve_full_table_name', sb__('Could not resolve full table name') );
         }
@@ -176,7 +189,7 @@ class OptimizeActions extends SharedAjaxMethods
             return new WP_Error( 'could_not_resolve_index_creation_method_from_table_name', sb__('Could not resolve index creation method from table name') );
         }
 
-        if (  is_multisite() ) {
+        if (is_multisite()) {
             return compact('indexAdditionMethod', 'tableName', 'fullTableName', 'column', 'blogId');
         } else {
             return compact('indexAdditionMethod', 'tableName', 'fullTableName', 'column');

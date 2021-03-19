@@ -1,6 +1,9 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
+use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+
 require_once __DIR__ . '/sb-nginx-fpc-auth-handling.php';
 
 /**
@@ -108,9 +111,9 @@ class Servebolt_Nginx_FPC {
 	 */
 	public function fpc_is_active($blog_id = false) {
 		if ( is_numeric($blog_id) ) {
-			return sb_checkbox_true(sb_get_blog_option($blog_id, $this->fpc_active_option_key()));
+			return checkboxIsChecked(sb_get_blog_option($blog_id, $this->fpc_active_option_key()));
 		} else {
-			return sb_checkbox_true(sb_get_option($this->fpc_active_option_key()));
+			return checkboxIsChecked(sb_get_option($this->fpc_active_option_key()));
 		}
 	}
 
@@ -305,7 +308,8 @@ class Servebolt_Nginx_FPC {
      */
 	private function cf_apo_active() {
 	    if ( is_null($this->cf_apo_active) ) {
-            $this->cf_apo_active = sb_general_settings()->use_cloudflare_apo();
+            $generalSettings = GeneralSettings::getInstance();
+            $this->cf_apo_active = $generalSettings->use_cloudflare_apo();
         }
 	    return $this->cf_apo_active;
     }
@@ -453,7 +457,7 @@ class Servebolt_Nginx_FPC {
 		}
 		$fixed = [];
 		foreach($array as $key => $value) {
-			if ( sb_checkbox_true($value) ) {
+			if (checkboxIsChecked($value)) {
 				$fixed[] = $key;
 			}
 		}

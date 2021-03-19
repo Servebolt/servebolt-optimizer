@@ -7,7 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
-use function Servebolt\Optimizer\Helpers\sbGetAdminUrl;
+use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
+use function Servebolt\Optimizer\Helpers\arrayGet;
 
 /**
  * Class SB_General_Settings
@@ -110,7 +111,7 @@ class GeneralSettings
     {
         $name = camelCaseToSnakeCase($name);
         if ( in_array($name, array_keys($this->getRegisteredSettingsItems())) ) {
-            $blog_id = sb_array_get(0, $arguments, false);
+            $blog_id = arrayGet(0, $arguments, false);
             return $this->getSettingsItem($name, $blog_id);
         }
 
@@ -225,7 +226,8 @@ class GeneralSettings
     public function render(): void
     {
         view('general-settings.general-settings', [
-            'sbAdminUrl' => sbGetAdminUrl(),
+            'sbAdminUrl' => getServeboltAdminUrl(),
+            'generalSettings' => $this,
         ]);
     }
 

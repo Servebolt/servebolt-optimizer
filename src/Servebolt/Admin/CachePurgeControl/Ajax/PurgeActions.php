@@ -11,6 +11,8 @@ use Exception;
 use Servebolt\Optimizer\Exceptions\ApiError;
 use Servebolt\Optimizer\Exceptions\ApiMessage;
 use Servebolt\Optimizer\Exceptions\QueueError;
+use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\postExists;
 
 class PurgeActions extends SharedAjaxMethods
 {
@@ -109,7 +111,7 @@ class PurgeActions extends SharedAjaxMethods
 
         $this->ensureCachePurgeFeatureIsActive();
 
-        $url = (string) sb_array_get('url', $_POST);
+        $url = (string) arrayGet('url', $_POST);
         if (!$url || empty($url)) {
             wp_send_json_error( [ 'message' => sb__('Please specify the URL you would like to purge cache for.') ] );
             return;
@@ -148,14 +150,14 @@ class PurgeActions extends SharedAjaxMethods
     {
         $this->checkAjaxReferer();
         sb_ajax_user_allowed();
-        $postId = intval( sb_array_get('post_id', $_POST) );
+        $postId = intval(arrayGet('post_id', $_POST));
 
         $this->ensureCachePurgeFeatureIsActive();
 
         if (!$postId || empty($postId)) {
             wp_send_json_error(['message' => 'Please specify the post you would like to purge cache for.']);
             return;
-        } elseif (!sb_post_exists($postId)) {
+        } elseif (!postExists($postId)) {
             wp_send_json_error(['message' => 'The specified post does not exist.']);
             return;
         }

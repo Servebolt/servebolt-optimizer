@@ -1,6 +1,9 @@
 <?php
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
+
 require_once __DIR__ . '/fpc-extra.class.php';
 
 /**
@@ -147,8 +150,8 @@ class Servebolt_CLI_FPC extends Servebolt_CLI_FPC_Extra {
 		if ( $all_post_types ) {
 			$post_types = ['all'];
 		} else {
-			$post_types_string = sb_array_get('post-types', $assoc_args, '');
-			$post_types = sb_format_comma_string($post_types_string);
+			$post_types_string = arrayGet('post-types', $assoc_args, '');
+			$post_types = formatCommaStringToArray($post_types_string);
 		}
 
 		if ( empty($post_types) ) {

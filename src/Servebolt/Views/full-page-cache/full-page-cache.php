@@ -1,4 +1,5 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+<?php use function Servebolt\Optimizer\Helpers\formatPostTypeSlug; ?>
 <div class="wrap sb-content">
 	<h1><?php sb_e('Full Page Cache'); ?></h1>
 
@@ -47,7 +48,7 @@
             All
             <?php else: ?>
             <?php foreach ($sb_fpc_settings as $post_type) : ?>
-              <?php echo sb_format_post_type($post_type) . '<br>'; ?>
+              <?php echo formatPostTypeSlug($post_type) . '<br>'; ?>
             <?php endforeach; ?>
 	          <?php endif; ?>
           <?php else : ?>

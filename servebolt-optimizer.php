@@ -13,6 +13,7 @@ Text Domain: servebolt-wp
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 // Defines plugin paths and URLs
+define('SB_TXT_DOMAIN', plugin_basename(__FILE__));
 define('SERVEBOLT_PLUGIN_BASENAME', plugin_basename(__FILE__));
 define('SERVEBOLT_PLUGIN_DIR_URL', plugin_dir_url( __FILE__ ));
 define('SERVEBOLT_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ));
@@ -24,21 +25,15 @@ if (defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7) {
     return;
 }
 
-// Make sure we got the composer-files
-if (!file_exists(SERVEBOLT_PLUGIN_DIR_PATH . 'vendor/autoload.php')) {
-	require SERVEBOLT_PLUGIN_DIR_PATH . 'composer-missing.php';
-	return;
-}
-
 // Load Composer dependencies
 require SERVEBOLT_PLUGIN_DIR_PATH . 'vendor/autoload.php';
 
 // Include general functions
-require_once SERVEBOLT_PLUGIN_DIR_PATH . 'functions.php';
+require_once SERVEBOLT_PLUGIN_DIR_PATH . 'functions.php'; // TODO: Phase this file out
 
 // Register events for activation and deactivation of this plugin
-register_activation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\sbActivatePlugin');
-register_deactivation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\sbDeactivatePlugin');
+register_activation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\activatePlugin');
+register_deactivation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\deactivatePlugin');
 
 // Add various improvements/optimizations
 new Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
@@ -65,7 +60,7 @@ if (!class_exists('Servebolt_Nginx_FPC')) {
 }
 
 // Initialize image resizing
-if (sb_feature_active('cf_image_resize')) {
+if (Servebolt\Optimizer\Helpers\featureIsActive('cf_image_resize')) {
 	require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-image-resize/cloudflare-image-resizing.php';
 	( new Cloudflare_Image_Resize )->init();
 }
@@ -96,7 +91,7 @@ if (is_admin()) {
 if (!is_admin() && !Servebolt\Optimizer\Helpers\isCli()) {
 
     // Feature to automatically version all enqueued script/style-tags
-    if (sb_feature_active('sb_asset_auto_version')) {
+    if (Servebolt\Optimizer\Helpers\featureIsActive('sb_asset_auto_version')) {
         new Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
     }
 

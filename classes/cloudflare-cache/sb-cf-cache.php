@@ -4,6 +4,8 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 #require_once SERVEBOLT_PLUGIN_DIR_PATH . '/classes/sb-cloudflare-sdk/sb-cloudflare-sdk.class.php';
 require_once __DIR__ . '/sb-cf-cache-purge-queue-handling.php';
 
+use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+
 /**
  * Class Servebolt_CF_Cache
  * @package Servebolt
@@ -211,9 +213,9 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	public function cf_is_active($blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric( $blog_id ) ) {
-			return sb_checkbox_true(sb_get_blog_option($blog_id, $this->cf_active_option_key()));
+			return checkboxIsChecked(sb_get_blog_option($blog_id, $this->cf_active_option_key()));
 		} else {
-			return sb_checkbox_true(sb_get_option($this->cf_active_option_key()));
+			return checkboxIsChecked(sb_get_option($this->cf_active_option_key()));
 		}
 	}
 

@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax\FpcPostExclusion;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
-use function Servebolt\Optimizer\Helpers\sbGetAdminUrl;
+use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
 
 /**
  * Class Nginx_FPC_Controls
@@ -78,7 +78,7 @@ class FullPageCacheControl
 
     public function render(): void
     {
-        $sbAdminUrl = sbGetAdminUrl();
+        $sbAdminUrl = getServeboltAdminUrl();
         view('full-page-cache.full-page-cache', compact('sbAdminUrl'));
     }
 }

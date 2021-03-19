@@ -2,7 +2,7 @@
     <?php sb_e('Cache Purging'); ?>
 </a>
 
-<?php if ( sb_feature_active('cf_image_resize') ) : ?>
+<?php if (Servebolt\Optimizer\Helpers\featureIsActive('cf_image_resize')) : ?>
     <a href="<?php echo admin_url('admin.php?page=servebolt-cf-image-resizing'); ?>" class="sb-button yellow">
         <span style="position: relative;"><?php sb_e('Cloudflare Image Resizing'); ?> <span style="position: absolute;top: -8px;right: -30px;font-size: 10px;text-transform: uppercase;">Beta</span></span>
     </a>

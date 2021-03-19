@@ -1,4 +1,5 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+<?php use function Servebolt\Optimizer\Helpers\booleanToString; ?>
 
 <tbody class="sb-config-field-general sb-config-field-cloudflare <?php if (!$settings['cache_purge_switch']) echo 'sb-config-field-hidden'; ?>">
 
@@ -21,7 +22,7 @@
                     <?php endif; ?>
                     <?php sb_e('Use cron to purge cache?'); ?>
                     <?php if ( sb_cf_cache()->cron_state_is_overridden() ) : ?>
-                        <p><em>This value is overriden by the constant "SERVEBOLT_CF_PURGE_CRON" which is currently set to "<?php echo sb_boolean_to_string(sb_cf_cache()->cron_purge_is_active()); ?>".</em></p>
+                        <p><em>This value is overriden by the constant "SERVEBOLT_CF_PURGE_CRON" which is currently set to "<?php echo booleanToString(sb_cf_cache()->cron_purge_is_active()); ?>".</em></p>
                     <?php endif; ?>
                 </label>
             </fieldset>

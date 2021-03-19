@@ -2,6 +2,9 @@
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\CachePurge;
+use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\booleanToStateString;
+use function Servebolt\Optimizer\Helpers\resolvePostIdsToTitleAndPostIdString;
 
 /**
  * Class Servebolt_CLI_Cloudflare_Cache_Extra
@@ -678,7 +681,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	 * @param bool $blog_id
 	 */
 	protected function cf_toggle_active(bool $state, $blog_id = false) {
-		$state_string = sb_boolean_to_state_string($state);
+		$state_string = booleanToStateString($state);
 		$is_active = sb_cf_cache()->cf_is_active($blog_id);
 
 		if ( $is_active === $state ) {
@@ -789,7 +792,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 			$items_to_purge_count = sb_cf_cache()->count_items_to_purge();
 
 			if ( $extended ) {
-				$posts = sb_resolve_post_ids($items_to_purge, $blog_id);
+				$posts = resolvePostIdsToTitleAndPostIdString($items_to_purge, $blog_id);
 				$posts_string = sb_format_array_to_csv($posts, ', ');
 			} else {
 				$posts_string = sb_format_array_to_csv($items_to_purge);
@@ -958,7 +961,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		foreach($array as $item) {
 			$new_item = [];
 			foreach ($most_column_item as $column) {
-				$new_item[$column] = sb_array_get($column, $item, null);
+				$new_item[$column] = arrayGet($column, $item, null);
 			}
 			$new_array[] = $new_item;
 		}
@@ -999,7 +1002,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		}
 
 		$current_state = sb_cf_cache()->cf_is_active();
-		$cron_state_string = sb_boolean_to_state_string($current_state);
+		$cron_state_string = booleanToStateString($current_state);
 		if ( $blog_id ) {
 			WP_CLI::success(sprintf(sb__('Cloudflare feature is %s for site %s'), $cron_state_string, get_site_url($blog_id)));
 		} else {
@@ -1057,8 +1060,8 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	protected function cf_prepare_credentials($auth_type, $assoc_args) {
 		switch ( $auth_type ) {
 			case 'key':
-				$email = sb_array_get('email', $assoc_args);
-				$api_key = sb_array_get('api-key', $assoc_args);
+				$email = arrayGet('email', $assoc_args);
+				$api_key = arrayGet('api-key', $assoc_args);
 				if ( ! $email || empty($email) || ! $api_key || empty($api_key) ) {
 					WP_CLI::error(sb__('Please specify API key and email.'));
 				}
@@ -1069,7 +1072,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 				return (object) compact('type', 'verbose_type', 'credentials', 'verbose_credentials');
 				break;
 			case 'token':
-				$api_token = sb_array_get('api-token', $assoc_args);
+				$api_token = arrayGet('api-token', $assoc_args);
 				if ( ! $api_token || empty($api_token) ) {
 					WP_CLI::error(sb__('Please specify a token.'));
 				}

@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Admin\PerformanceChecks;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks;
 use Servebolt\Optimizer\Admin\PerformanceChecks\Ajax\OptimizeActions;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
@@ -76,7 +77,7 @@ class PerformanceChecks
      */
     public function render()
     {
-        $checksInstance = sb_checks();
+        $checksInstance = DatabaseChecks::getInstance();
         $tablesToIndex = $checksInstance->tablesToHaveIndexed();
         view('performance-checks.performance-checks', [
             'indexFixAvailable' => $this->tablesNeedIndex($tablesToIndex),

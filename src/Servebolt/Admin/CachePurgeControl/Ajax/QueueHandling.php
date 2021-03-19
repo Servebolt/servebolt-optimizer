@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Admin\CachePurgeControl\Ajax;
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
+use function Servebolt\Optimizer\Helpers\arrayGet;
 
 class QueueHandling extends SharedAjaxMethods
 {
@@ -25,7 +26,7 @@ class QueueHandling extends SharedAjaxMethods
         check_ajax_referer( sb_get_ajax_nonce_key(), 'security' );
         sb_ajax_user_allowed();
 
-        $items_to_remove = sb_array_get('items_to_remove', $_POST);
+        $items_to_remove = arrayGet('items_to_remove', $_POST);
 
         // Check if post data is present
         if ( ! $items_to_remove || empty($items_to_remove) ) {

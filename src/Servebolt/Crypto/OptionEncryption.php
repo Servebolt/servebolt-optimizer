@@ -4,6 +4,8 @@ namespace Servebolt\Optimizer\Crypto;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use function Servebolt\Optimizer\Helpers\booleanToString;
+
 /**
  * Class SB_Option_Encryption.
  *
@@ -61,7 +63,7 @@ class OptionEncryption
 			echo '---' . PHP_EOL;
 			var_dump('blog id: ' . $x);
 			var_dump('sb_get_blog_option: ' . sb_get_blog_option($x, $key));
-			var_dump('sb_update_blog_option: ' . sb_boolean_to_string( sb_update_blog_option($x, $key, $this_value) ));
+			var_dump('sb_update_blog_option: ' . booleanToString( sb_update_blog_option($x, $key, $this_value) ));
 			var_dump('get_blog_option: ' . get_blog_option($x, sb_get_option_name($key)));
 			var_dump('sb_get_blog_option: ' . sb_get_blog_option($x, $key));
 			$x++;

@@ -10,6 +10,7 @@ use Servebolt\Optimizer\Admin\PerformanceChecks\PerformanceChecks;
 use Servebolt\Optimizer\Admin\LogViewer\LogViewer;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
+use function Servebolt\Optimizer\Helpers\featureIsActive;
 
 class AdminGuiController
 {
@@ -165,7 +166,7 @@ class AdminGuiController
      */
     private function cfImageResizeMenu(): void
     {
-        if ( sb_feature_active('cf_image_resize') ) {
+        if (Servebolt\Optimizer\Helpers\featureIsActive('cf_image_resize')) {
             add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [CloudflareImageResizing::getInstance(), 'render']);
         }
     }
