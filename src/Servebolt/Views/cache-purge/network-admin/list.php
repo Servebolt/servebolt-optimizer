@@ -1,3 +1,4 @@
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use Servebolt\Optimizer\CachePurge\CachePurge; ?>
 <table class="wp-list-table widefat striped">
     <thead>
