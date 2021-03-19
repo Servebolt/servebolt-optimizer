@@ -7,7 +7,7 @@
 
     <?php settings_errors(); ?>
 
-    <p>This feature will use Cloudflare Image Resizing to resize the images uploaded in WordPress. Note that this is a <u>beta feature</u> in this plugin.</p>
+    <p>This feature will use Cloudflare Image Resizing to resize the images uploaded in WordPress. Note that this is a <u>beta feature</u> and might not work as expected.</p>
 
     <p>Read more about Cloudflares image resize feature <a href="https://developers.cloudflare.com/images/about/" target="_blank">here.</a></p>
 

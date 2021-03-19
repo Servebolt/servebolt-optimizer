@@ -5,7 +5,7 @@ require_once __DIR__ . '/cli-extras.class.php';
 require_once __DIR__ . '/classes/general.class.php';
 require_once __DIR__ . '/classes/optimizations.class.php';
 require_once __DIR__ . '/classes/fpc.class.php';
-require_once __DIR__ . '/classes/cloudflare-cache.class.php';
+//require_once __DIR__ . '/classes/cloudflare-cache.class.php';
 require_once __DIR__ . '/classes/general-settings.class.php';
 require_once __DIR__ . '/classes/cloudflare-image-resize.class.php';
 
@@ -29,7 +29,8 @@ class Servebolt_CLI {
      *
      * @var
      */
-    private $general, $optimizations, $fpc, $cf_cache, $cf_image_resize, $general_settings;
+    //private $general, $optimizations, $fpc, $cf_cache, $cf_image_resize, $general_settings;
+    private $general, $optimizations, $fpc, $cf_image_resize, $general_settings;
 
 	/**
 	 * Instantiate class.
@@ -58,7 +59,7 @@ class Servebolt_CLI {
         $this->general          = new Servebolt_CLI_General;
         $this->optimizations    = new Servebolt_CLI_Optimizations;
         $this->fpc              = new Servebolt_CLI_FPC;
-        $this->cf_cache         = new Servebolt_CLI_Cloudflare_Cache; // Legacy
+        //$this->cf_cache         = new Servebolt_CLI_Cloudflare_Cache; // Legacy
         $this->general_settings = new Servebolt_CLI_General_Settings;
         $this->cf_image_resize  = new Servebolt_CLI_Cloudflare_Image_Resize;
     }
