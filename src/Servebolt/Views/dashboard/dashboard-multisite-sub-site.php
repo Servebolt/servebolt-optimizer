@@ -1,3 +1,4 @@
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\hostIsServebolt; ?>
 <a href="<?php echo admin_url('admin.php?page=servebolt-cache-purge-control'); ?>" class="sb-button yellow">
     <?php _e('Cache Purging', 'servebolt-wp'); ?>

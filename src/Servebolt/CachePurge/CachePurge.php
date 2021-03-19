@@ -161,12 +161,22 @@ class CachePurge
      */
     public static function cachePurgeIsActive(?int $blogId = null): bool
     {
+        $noExistKey = 'value-does-not-exist';
         $key = 'cache_purge_switch';
         if (is_numeric($blogId)) {
-            return checkboxIsChecked(getBlogOption($blogId, $key));
+            $value = getBlogOption($blogId, $key, $noExistKey);
         } else {
-            return checkboxIsChecked(getOption($key));
+            $value = getOption($key, $noExistKey);
         }
+        if ($value === $noExistKey) {
+            $key = 'cf_switch';
+            if (is_numeric($blogId)) {
+                $value = getBlogOption($blogId, $key);
+            } else {
+                $value = getOption($key);
+            }
+        }
+        return checkboxIsChecked($value);
     }
 
     /**

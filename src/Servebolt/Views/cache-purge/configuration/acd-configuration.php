@@ -2,7 +2,7 @@
 <?php $serveboltApi = Servebolt\Optimizer\Api\Servebolt\Servebolt::getInstance(); ?>
 <?php $serveboltCachePurge = Servebolt\Optimizer\CachePurge\Drivers\Servebolt::getInstance(); ?>
 
-<tbody class="sb-config-field-general sb-config-field-acd <?php if ( ! $settings['cache_purge_switch'] || $settings['cache_purge_driver'] !== 'acd' ) echo 'sb-config-field-hidden'; ?>">
+<tbody class="sb-config-field-general sb-config-field-acd <?php if (!$cachePurgeIsActive || $settings['cache_purge_driver'] !== 'acd') echo 'sb-config-field-hidden'; ?>">
     <tr>
         <th scope="row" colspan="100%" style="padding-bottom: 5px;">
             <h3 style="margin-bottom: 0;"><?php _e('API credentials', 'servebolt-wp'); ?></h3>

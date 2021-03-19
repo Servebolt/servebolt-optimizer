@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Admin\CachePurgeControl;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Api\Cloudflare\Cloudflare;
+use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\Configuration;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
 //use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\QueueHandling;
@@ -45,8 +46,9 @@ class CachePurgeControl
 
         $selectedCfZone = $this->getSelectedCfZone($settings);
         $cfZones = $this->getCfZones($settings);
+        $cachePurgeIsActive = CachePurge::cachePurgeIsActive();
 
-        view('cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones'));
+        view('cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive'));
         /*
         $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
         $numberOfCachePurgeQueueItems = sb_cf_cache()->count_items_to_purge();

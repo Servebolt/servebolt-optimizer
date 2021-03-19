@@ -1,3 +1,4 @@
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <div class="promo-box">
     <h2 class="center"><?php _e('Need more speed?', 'servebolt-wp') ?></h2>
     <div class="wrap">
