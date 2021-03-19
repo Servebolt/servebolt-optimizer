@@ -2,7 +2,7 @@
 
 namespace Servebolt\Optimizer\CachePurge\Drivers;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Api\Cloudflare\Cloudflare as CloudflareApi;
 use Servebolt\Optimizer\Exceptions\CloudflareApiError;

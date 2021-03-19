@@ -2,13 +2,18 @@
 
 namespace Servebolt\Optimizer\Admin\GeneralSettings;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
 use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
 use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\getOptionName;
+use function Servebolt\Optimizer\Helpers\updateBlogOption;
+use function Servebolt\Optimizer\Helpers\getBlogOption;
+use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\getOption;
 
 /**
  * Class SB_General_Settings
@@ -46,7 +51,7 @@ class GeneralSettings
     public function registerSettings(): void
     {
         foreach ($this->getRegisteredSettingsItems() as $key => $type) {
-            register_setting('sb-general-settings-options-page', sb_get_option_name($key));
+            register_setting('sb-general-settings-options-page', getOptionName($key));
         }
     }
 
@@ -156,9 +161,9 @@ class GeneralSettings
             $value = $this->getOverrideConstantValue($item);
         } else {
             if ( is_numeric($blog_id) ) {
-                $value = sb_get_blog_option($blog_id, $item);
+                $value = getBlogOption($blog_id, $item);
             } else {
-                $value = sb_get_option($item);
+                $value = getOption($item);
             }
         }
         if ( ! $type ) {
@@ -198,9 +203,9 @@ class GeneralSettings
                 break;
         }
         if ( is_numeric($blog_id) ) {
-            sb_update_blog_option($blog_id, $item, $value);
+            updateBlogOption($blog_id, $item, $value);
         } else {
-            sb_update_option($item, $value);
+            updateOption($item, $value);
         }
         return true;
     }

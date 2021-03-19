@@ -1,5 +1,6 @@
-<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\formatPostTypeSlug; ?>
+<?php use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup; ?>
 <div class="wrap sb-content">
 	<h1><?php _e('Full Page Cache', 'servebolt-wp'); ?></h1>
 
@@ -130,7 +131,7 @@
               <tbody id="the-list">
               <tr class="no-items<?php if ( count($ids_to_exclude) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php _e('No posts to exclude from cache.', 'servebolt-wp'); ?></td></tr>
 	            <?php foreach($ids_to_exclude as $i => $post_id) : ?>
-		          <?php fpc_exclude_post_table_row_markup($post_id); ?>
+		          <?php fpcExcludePostTableRowMarkup($post_id); ?>
 	            <?php endforeach; ?>
               </tbody>
 

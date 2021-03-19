@@ -1,4 +1,5 @@
-<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
+<?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 <?php $cfApi = Servebolt\Optimizer\Api\Cloudflare\Cloudflare::getInstance(); ?>
 
 <tbody class="sb-config-field-general sb-config-field-cloudflare <?php if ( ! $settings['cache_purge_switch'] || $settings['cache_purge_driver'] !== 'cloudflare' ) echo 'sb-config-field-hidden'; ?>">
@@ -13,8 +14,8 @@
         <td>
             <fieldset>
                 <legend class="screen-reader-text"><span><?php _e('Authentication type', 'servebolt-wp'); ?></span></legend>
-                <label><input type="radio" name="<?php echo sb_get_option_name('cf_auth_type'); ?>" value="api_token" <?php checked($settings['cf_auth_type'] == 'api_token'); ?>> <code><?php _e('API token', 'servebolt-wp'); ?></code></label><br>
-                <label><input type="radio" name="<?php echo sb_get_option_name('cf_auth_type'); ?>" value="api_key" <?php checked($settings['cf_auth_type'] == 'api_key'); ?>> <code><?php _e('API key', 'servebolt-wp'); ?></code></label>
+                <label><input type="radio" name="<?php echo getOptionName('cf_auth_type'); ?>" value="api_token" <?php checked($settings['cf_auth_type'] == 'api_token'); ?>> <code><?php _e('API token', 'servebolt-wp'); ?></code></label><br>
+                <label><input type="radio" name="<?php echo getOptionName('cf_auth_type'); ?>" value="api_key" <?php checked($settings['cf_auth_type'] == 'api_key'); ?>> <code><?php _e('API key', 'servebolt-wp'); ?></code></label>
             </fieldset>
         </td>
     </tr>
@@ -23,7 +24,7 @@
         <td>
 
             <div class="sb-pwd">
-                <input name="<?php echo sb_get_option_name('cf_api_token'); ?>" type="password" id="sb_cf_api_token" autocomplete="off" data-original-value="<?php echo esc_attr($settings['cf_api_token']); ?>" value="<?php echo esc_attr($settings['cf_api_token']); ?>" class="regular-text validate-field validation-group-api_token validation-group-api_credentials">
+                <input name="<?php echo getOptionName('cf_api_token'); ?>" type="password" id="sb_cf_api_token" autocomplete="off" data-original-value="<?php echo esc_attr($settings['cf_api_token']); ?>" value="<?php echo esc_attr($settings['cf_api_token']); ?>" class="regular-text validate-field validation-group-api_token validation-group-api_credentials">
                 <button type="button" class="button button-secondary wp-hide-pw sb-hide-pwd hide-if-no-js" data-toggle="0" aria-label="Show password">
                     <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
                 </button>
@@ -36,7 +37,7 @@
     <tr class="feature_cf_auth_type-api_key"<?php if ( $settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
         <th scope="row"><label for="sb_cf_email"><?php _e('Cloudflare e-mail', 'servebolt-wp'); ?></label></th>
         <td>
-            <input name="<?php echo sb_get_option_name('cf_email'); ?>" type="text" id="sb_cf_email" autocomplete="off" data-original-value="<?php echo esc_attr($settings['cf_email']); ?>" value="<?php echo esc_attr($settings['cf_email']); ?>" class="regular-text validate-field validation-input-email validation-group-api_key_credentials validation-group-api_credentials">
+            <input name="<?php echo getOptionName('cf_email'); ?>" type="text" id="sb_cf_email" autocomplete="off" data-original-value="<?php echo esc_attr($settings['cf_email']); ?>" value="<?php echo esc_attr($settings['cf_email']); ?>" class="regular-text validate-field validation-input-email validation-group-api_key_credentials validation-group-api_credentials">
             <p class="invalid-message"></p>
         </td>
     </tr>
@@ -44,7 +45,7 @@
         <th scope="row"><label for="sb_cf_api_key"><?php _e('API key', 'servebolt-wp'); ?></label></th>
         <td>
             <div class="sb-pwd">
-                <input name="<?php echo sb_get_option_name('cf_api_key'); ?>" type="password" id="sb_cf_api_key" autocomplete="off" data-original-value="<?php echo esc_attr($settings['cf_api_key']); ?>" value="<?php echo esc_attr($settings['cf_api_key']); ?>" class="regular-text validate-field validation-input-api_key validation-group-api_key_credentials validation-group-api_credentials">
+                <input name="<?php echo getOptionName('cf_api_key'); ?>" type="password" id="sb_cf_api_key" autocomplete="off" data-original-value="<?php echo esc_attr($settings['cf_api_key']); ?>" value="<?php echo esc_attr($settings['cf_api_key']); ?>" class="regular-text validate-field validation-input-api_key validation-group-api_key_credentials validation-group-api_credentials">
                 <button type="button" class="button button-secondary wp-hide-pw sb-hide-pwd hide-if-no-js" data-toggle="0" aria-label="Show password">
                     <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
                 </button>
@@ -63,7 +64,7 @@
         <td>
 
             <?php $haveZones = (is_array($cfZones) && !empty($cfZones)); ?>
-            <input name="<?php echo sb_get_option_name('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID<?php if ($haveZones) echo ' or use the choices below'; ?>" value="<?php echo esc_attr($settings['cf_zone_id']); ?>" class="regular-text validate-field validation-group-zone_id">
+            <input name="<?php echo getOptionName('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID<?php if ($haveZones) echo ' or use the choices below'; ?>" value="<?php echo esc_attr($settings['cf_zone_id']); ?>" class="regular-text validate-field validation-group-zone_id">
             <span class="spinner zone-loading-spinner"></span>
             <p class="invalid-message"></p>
 

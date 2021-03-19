@@ -2,12 +2,13 @@
 
 namespace Servebolt\Optimizer\Admin\FullPageCacheControl;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax\FpcPostExclusion;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
+use function Servebolt\Optimizer\Helpers\getOptionName;
 
 /**
  * Class Nginx_FPC_Controls
@@ -72,7 +73,7 @@ class FullPageCacheControl
     public function registerSettings(): void
     {
         foreach(['fpc_settings', 'fpc_switch'] as $key) {
-            register_setting('fpc-options-page', sb_get_option_name($key));
+            register_setting('fpc-options-page', getOptionName($key));
         }
     }
 

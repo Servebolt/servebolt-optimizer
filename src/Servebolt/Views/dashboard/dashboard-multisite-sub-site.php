@@ -1,3 +1,4 @@
+<?php use function Servebolt\Optimizer\Helpers\hostIsServebolt; ?>
 <a href="<?php echo admin_url('admin.php?page=servebolt-cache-purge-control'); ?>" class="sb-button yellow">
     <?php _e('Cache Purging', 'servebolt-wp'); ?>
 </a>
@@ -8,7 +9,7 @@
     </a>
 <?php endif; ?>
 
-<?php if ( host_is_servebolt() ) : ?>
+<?php if (hostIsServebolt()) : ?>
     <a href="<?php echo admin_url('admin.php?page=servebolt-nginx-cache'); ?>" class="sb-button yellow">
         <?php _e('Full Page Cache settings', 'servebolt-wp') ?>
     </a>

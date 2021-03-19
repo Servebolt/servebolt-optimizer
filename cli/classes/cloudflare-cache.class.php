@@ -1,7 +1,8 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Options\Helpers\iterateSites;
 
 require_once __DIR__ . '/cloudflare-cache-extra.class.php';
 
@@ -101,7 +102,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	 */
 	public function command_cf_status($args, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) {
+            iterateSites(function ( $site ) {
 				$this->cf_status($site->blog_id);
 			});
 		} else {
@@ -124,7 +125,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	 */
 	public function command_cf_enable($args, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) {
+            iterateSites(function ( $site ) {
 				$this->cf_toggle_active(true, $site->blog_id);
 			});
 		} else {
@@ -147,7 +148,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	 */
 	public function command_cf_disable($args, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) {
+            iterateSites(function ( $site ) {
 				$this->cf_toggle_active(false, $site->blog_id);
 			});
 		} else {
@@ -171,7 +172,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	public function command_cf_get_config($args, $assoc_args) {
 		$arr = [];
 		if ( $this->affect_all_sites($assoc_args) ) {
-			sb_iterate_sites(function ( $site ) use (&$arr) {
+            iterateSites(function ( $site ) use (&$arr) {
 				$arr[] = $this->cf_get_config($site->blog_id);
 			});
 			$arr = $this->cf_ensure_config_array_integrity($arr); // Make sure each item has the same column-structure
@@ -241,7 +242,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	 */
 	public function command_cf_clear_config($args, $assoc_args) {
 		if ( $this->affect_all_sites($assoc_args) ) {
-			sb_iterate_sites(function ( $site ) use (&$arr) {
+            iterateSites(function ( $site ) use (&$arr) {
 				$this->cf_clear_config($site->blog_id);
 			});
 		} else {
@@ -264,7 +265,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	 */
 	public function command_cf_test_api_connection($args, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) {
+            iterateSites(function ( $site ) {
 				$this->cf_test_api_connection($site->blog_id);
 			});
 		} else {
@@ -288,7 +289,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	public function command_cf_get_credentials($args, $assoc_args) {
 		$arr = [];
 		if ( $this->affect_all_sites($assoc_args) ) {
-			sb_iterate_sites(function ( $site ) use (&$arr) {
+            iterateSites(function ( $site ) use (&$arr) {
 				$arr[] = $this->cf_get_credentials($site->blog_id);
 			});
 		} else {
@@ -330,7 +331,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 		list($auth_type) = $args;
 		$credential_data = $this->cf_prepare_credentials($auth_type, $assoc_args);
 		if ( $this->affect_all_sites($assoc_args) ) {
-			sb_iterate_sites(function ( $site ) use ($credential_data) {
+            iterateSites(function ( $site ) use ($credential_data) {
 				$this->cf_set_credentials($credential_data, $site->blog_id);
 			});
 		} else {
@@ -353,7 +354,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	 */
 	public function command_cf_clear_credentials($args, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) {
+            iterateSites(function ( $site ) {
 				$this->cf_clear_credentials( $site->blog_id );
 			});
 		} else {
@@ -389,7 +390,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	public function command_cf_get_zone($args, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
 			$arr = [];
-			sb_iterate_sites(function ( $site ) use (&$arr) {
+            iterateSites(function ( $site ) use (&$arr) {
 				$arr[] = $this->cf_get_zone($site->blog_id, false);
 			});
 			WP_CLI\Utils\format_items('table', $arr, array_keys(current($arr)));
@@ -485,7 +486,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	 */
 	public function command_cf_clear_zone($args, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) {
+            iterateSites(function ( $site ) {
 				$this->cf_clear_zone( $site->blog_id );
 			});
 		} else {
@@ -547,7 +548,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 		$arr = [];
 		$extended = array_key_exists('extended', $assoc_args);
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) use (&$arr, $extended) {
+            iterateSites(function ( $site ) use (&$arr, $extended) {
 				$arr[] = $this->cf_purge_status($site->blog_id, $extended);
 			});
 		} else {
@@ -571,7 +572,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	 */
 	public function command_cf_clear_cache_purge_queue($args, $assoc_args ) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) {
+            iterateSites(function ( $site ) {
 				$this->cf_clear_cache_purge_queue($site->blog_id);
 			});
 		} else {
@@ -661,7 +662,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	public function command_cf_purge_all($args, $assoc_args) {
 		$this->ensure_cache_purge_is_possible();
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) {
+            iterateSites(function ( $site ) {
 				if ( $this->cf_purge_all($site->blog_id) ) {
 					WP_CLI::success(sprintf(__('All cache was purged for %s', 'servebolt-wp'), get_site_url($site->blog_id)), false);
 				} else {

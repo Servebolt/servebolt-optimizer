@@ -2,7 +2,7 @@
 
 namespace Servebolt\Optimizer\Admin\CachePurgeControl\Ajax;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
@@ -13,6 +13,12 @@ use Servebolt\Optimizer\Exceptions\ApiMessage;
 use Servebolt\Optimizer\Exceptions\QueueError;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\postExists;
+use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
+//use function Servebolt\Optimizer\Helpers\getBlogName;
+//use function Servebolt\Optimizer\Helpers\createLiTagsFromArray;
+//use function Servebolt\Optimizer\Helpers\requireSuperadmin;
+//use function Servebolt\Optimizer\Helpers\countSites;
+//use function Servebolt\Options\Helpers\iterateSites;
 
 class PurgeActions extends SharedAjaxMethods
 {
@@ -53,7 +59,7 @@ class PurgeActions extends SharedAjaxMethods
     public function purgeAllCacheCallback()
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
 
         $this->ensureCachePurgeFeatureIsActive();
 
@@ -107,7 +113,7 @@ class PurgeActions extends SharedAjaxMethods
     public function purgeUrlCacheCallback()
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
 
         $this->ensureCachePurgeFeatureIsActive();
 
@@ -149,7 +155,7 @@ class PurgeActions extends SharedAjaxMethods
     public function purgePostCacheCallback() : void
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
         $postId = intval(arrayGet('post_id', $_POST));
 
         $this->ensureCachePurgeFeatureIsActive();
@@ -195,11 +201,11 @@ class PurgeActions extends SharedAjaxMethods
     public function purgeNetworkCacheCallback() : void
     {
         $this->checkAjaxReferer();
-        sb_require_superadmin();
+        requireSuperadmin();
 
         $failed_purge_attempts = [];
         $queue_based_cache_purge_sites = [];
-        sb_iterate_sites(function($site) use (&$failed_purge_attempts, &$queue_based_cache_purge_sites) {
+        iterateSites(function($site) use (&$failed_purge_attempts, &$queue_based_cache_purge_sites) {
 
             // Switch context to blog
             if ( sb_cf_cache()->cf_switch_to_blog($site->blog_id) === false ) {
@@ -245,11 +251,11 @@ class PurgeActions extends SharedAjaxMethods
         });
 
         $queue_based_cache_purge_sites_count = count($queue_based_cache_purge_sites);
-        $all_sites_use_queue_based_cache_purge = $queue_based_cache_purge_sites_count == sb_count_sites();
+        $all_sites_use_queue_based_cache_purge = $queue_based_cache_purge_sites_count == countSites();
         $some_sites_has_queue_purge_active = $queue_based_cache_purge_sites_count > 0;
 
         $failed_purge_attempt_count = count($failed_purge_attempts);
-        $all_failed = $failed_purge_attempt_count == sb_count_sites();
+        $all_failed = $failed_purge_attempt_count == countSites();
 
         if ( $all_failed ) {
             wp_send_json_error( [
@@ -321,8 +327,8 @@ class PurgeActions extends SharedAjaxMethods
     private function purgeNetworkCacheFailedSites($failed): string
     {
         $markup = '<strong>' . __('The cache was cleared on all sites except the following:', 'servebolt-wp') . '</strong>';
-        $markup .= sb_create_li_tags_from_array($failed, function ($item) {
-            return sb_get_blog_name($item['blog_id']) . ( $item['reason'] ? ' (' . $item['reason'] . ')' : '' );
+        $markup .= createLiTagsFromArray($failed, function ($item) {
+            return getBlogName($item['blog_id']) . ( $item['reason'] ? ' (' . $item['reason'] . ')' : '' );
         });
         return $markup;
     }

@@ -1,8 +1,9 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
+use function Servebolt\Options\Helpers\iterateSites;
 
 require_once __DIR__ . '/fpc-extra.class.php';
 
@@ -85,7 +86,7 @@ class Servebolt_CLI_FPC extends Servebolt_CLI_FPC_Extra {
 	public function command_nginx_fpc_status($args, $assoc_args) {
 		if ( $this->affect_all_sites($assoc_args) ) {
 			$sites_status = [];
-			sb_iterate_sites(function ($site) use (&$sites_status) {
+            iterateSites(function ($site) use (&$sites_status) {
 				$sites_status[] = $this->get_nginx_fpc_status($site->blog_id);
 			});
 		} else {
@@ -112,7 +113,7 @@ class Servebolt_CLI_FPC extends Servebolt_CLI_FPC_Extra {
 	public function command_nginx_fpc_get_cache_post_types($args, $assoc_args) {
 		if ( $this->affect_all_sites($assoc_args) ) {
 			$sites_status = [];
-			sb_iterate_sites(function ($site) use (&$sites_status) {
+            iterateSites(function ($site) use (&$sites_status) {
 				$sites_status[] = $this->nginx_fpc_get_cache_post_types($site->blog_id);
 			});
 		} else {
@@ -159,7 +160,7 @@ class Servebolt_CLI_FPC extends Servebolt_CLI_FPC_Extra {
 		}
 
 		if ( $this->affect_all_sites($assoc_args) ) {
-			sb_iterate_sites(function ( $site ) use ($post_types) {
+            iterateSites(function ( $site ) use ($post_types) {
 				$this->nginx_set_post_types($post_types, $site->blog_id);
 			});
 		} else {
@@ -186,7 +187,7 @@ class Servebolt_CLI_FPC extends Servebolt_CLI_FPC_Extra {
 	 */
 	public function command_nginx_fpc_clear_cache_post_types($args, $assoc_args) {
 		if ( $this->affect_all_sites($assoc_args) ) {
-			sb_iterate_sites(function ( $site ) {
+            iterateSites(function ( $site ) {
 				$this->nginx_set_post_types([], $site->blog_id);
 			});
 		} else {
@@ -218,7 +219,7 @@ class Servebolt_CLI_FPC extends Servebolt_CLI_FPC_Extra {
 		$arr = [];
 		$extended = array_key_exists('extended', $assoc_args);
 		if ( $this->affect_all_sites($assoc_args) ) {
-			sb_iterate_sites(function ( $site ) use (&$arr, $extended) {
+            iterateSites(function ( $site ) use (&$arr, $extended) {
 				$arr[] = $this->nginx_fpc_get_excluded_posts($site->blog_id, $extended);
 			});
 		} else {
@@ -265,7 +266,7 @@ class Servebolt_CLI_FPC extends Servebolt_CLI_FPC_Extra {
 	 */
 	public function command_nginx_fpc_clear_excluded_posts($args, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) {
+            iterateSites(function ( $site ) {
 				$this->nginx_set_exclude_ids(false, $site->blog_id);
 			});
 		} else {

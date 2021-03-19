@@ -1,10 +1,13 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\resolvePostIdsToTitleAndPostIdString;
+use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
+use function Servebolt\Optimizer\Helpers\getBlogName;
+use function Servebolt\Options\Helpers\iterateSites;
 
 /**
  * Class Servebolt_CLI_Cloudflare_Cache_Extra
@@ -138,7 +141,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	 */
 	private function multisite_has_multiple_domains($only_check_top_domain = false) {
 		$domains = [];
-		sb_iterate_sites(function($site) use (&$domains, $only_check_top_domain) {
+        iterateSites(function($site) use (&$domains, $only_check_top_domain) {
 			$site_url = get_site_url($site->blog_id);
 			$url_parts = parse_url($site_url);
 			$hostname = $url_parts['host'];
@@ -267,7 +270,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 			$params['zone'] = [];
 
 			$first = true;
-			sb_iterate_sites(function ($site) use ($api_connection_available, &$params, &$first) {
+            iterateSites(function ($site) use ($api_connection_available, &$params, &$first) {
 				$params['zone'][$site->blog_id] = $this->select_zone($api_connection_available, $params, $site->blog_id, ! $first);
 				$first = false;
 			});
@@ -280,7 +283,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 
 		if ( $params['affect_all_sites'] ) {
 			$result = [];
-			sb_iterate_sites(function($site) use (&$result, $params, $individual_zone_setup) {
+            iterateSites(function($site) use (&$result, $params, $individual_zone_setup) {
 				if ( $individual_zone_setup ) {
 					$zone = $params['zone'][$site->blog_id]['id'];
 				} else {
@@ -348,8 +351,8 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		}
 		$selected_zone = false;
 		if ( $blog_id ) {
-			//WP_CLI::line(sprintf(__('Select Zone ID for site: %s (%s)'), sb_get_blog_name($blog_id), get_site_url($blog_id)));
-			WP_CLI::line(sprintf(__('%s (%s)'), sb_get_blog_name($blog_id), get_site_url($blog_id)));
+			//WP_CLI::line(sprintf(__('Select Zone ID for site: %s (%s)'), getBlogName($blog_id), get_site_url($blog_id)));
+			WP_CLI::line(sprintf(__('%s (%s)'), getBlogName($blog_id), get_site_url($blog_id)));
 		}
 
 		// Determine which zone to use
@@ -514,7 +517,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 
 		if ( $params['affect_all_sites'] ) {
 			$result = [];
-			sb_iterate_sites(function($site) use (&$result, $params) {
+            iterateSites(function($site) use (&$result, $params) {
 				$result[$site->blog_id] = $this->store_cf_configuration($params['auth_type'], $params, $params['zone'], $site->blog_id);
 			});
 			$has_failed = in_array(false, $result, true);
@@ -793,9 +796,9 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 
 			if ( $extended ) {
 				$posts = resolvePostIdsToTitleAndPostIdString($items_to_purge, $blog_id);
-				$posts_string = sb_format_array_to_csv($posts, ', ');
+				$posts_string = formatArrayToCsv($posts, ', ');
 			} else {
-				$posts_string = sb_format_array_to_csv($items_to_purge);
+				$posts_string = formatArrayToCsv($items_to_purge);
 			}
 
 			$arr[$purge_item_column_key] = $items_to_purge ? $posts_string . ( $items_to_purge_count > $max_items ? '...' : '') : 'Empty';
@@ -830,7 +833,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 			} else {
 				$arr = [];
 				if ( $blog_id ) {
-					$arr['Blog'] = sb_get_blog_name($blog_id);
+					$arr['Blog'] = getBlogName($blog_id);
 					$arr['URL'] = get_site_url($blog_id);
 				}
 				$arr['Zone'] = 'Not set';
@@ -846,7 +849,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 			} else {
 				$arr = [];
 				if ( $blog_id ) {
-					$arr['Blog'] = sb_get_blog_name($blog_id);
+					$arr['Blog'] = getBlogName($blog_id);
 					$arr['URL'] = get_site_url($blog_id);
 				}
 				$arr['Zone'] = $zone;
@@ -977,7 +980,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	 */
 	protected function cf_cron_toggle($state, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) use ($state) {
+            iterateSites(function ( $site ) use ($state) {
 				$this->cf_cron_control($state, $site->blog_id);
 			});
 		} else {

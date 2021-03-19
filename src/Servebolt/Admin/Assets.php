@@ -6,6 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use function Servebolt\Optimizer\Helpers\booleanToString;
+use function Servebolt\Optimizer\Helpers\getAjaxNonce;
 
 /**
  * Class Servebolt_Optimizer_Assets
@@ -108,7 +109,7 @@ class Assets {
             wp_enqueue_script('servebolt-optimizer-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/general.js', ['jquery'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/general.js'), true);
             wp_enqueue_script('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/cloudflare-cache-purge-trigger.js', ['jquery'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/cloudflare-cache-purge-trigger.js'), true);
             wp_localize_script('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', 'sb_ajax_object', [
-                'ajax_nonce'                         => sb_get_ajax_nonce(),
+                'ajax_nonce'                         => getAjaxNonce(),
                 'use_native_js_fallback'             => booleanToString($generalSettings->useNativeJsFallback()),
                 //'cron_purge_is_active'               => sb_cf_cache()->cron_purge_is_active(),
                 'cron_purge_is_active'               => false, // TODO: Add real boolean value

@@ -1,10 +1,11 @@
-<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
+<?php use function Servebolt\Optimizer\Helpers\isDevDebug; ?>
 
 <div class="wrap sb-content">
 
 	<h1><?php _e('Performance Optimizer', 'servebolt-wp'); ?></h1>
 
-  <?php if ( sb_is_dev_debug() ) : ?>
+  <?php if ( isDevDebug() ) : ?>
     <button class="sb-deoptimize-database button" style="margin-top: 10px;">De-optimize database!</button>
     <button class="sb-clear-all-settings button" style="margin-top: 10px;">Reset all settings</button>
   <?php endif; ?>

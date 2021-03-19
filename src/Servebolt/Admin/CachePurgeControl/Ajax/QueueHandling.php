@@ -2,10 +2,11 @@
 
 namespace Servebolt\Optimizer\Admin\CachePurgeControl\Ajax;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 
 class QueueHandling extends SharedAjaxMethods
 {
@@ -23,8 +24,8 @@ class QueueHandling extends SharedAjaxMethods
      * Delete items from cache purge queue.
      */
     public function deleteCachePurgeQueueItemsCallback() {
-        check_ajax_referer( sb_get_ajax_nonce_key(), 'security' );
-        sb_ajax_user_allowed();
+        $this->checkAjaxReferer();
+        ajaxUserAllowed();
 
         $items_to_remove = arrayGet('items_to_remove', $_POST);
 
@@ -73,7 +74,7 @@ class QueueHandling extends SharedAjaxMethods
     public function loadCachePurgeQueueList()
     {
         $this->checkAjaxReferer();;
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
         $max_number_of_cache_purge_queue_items = sb_cf_cache_admin_controls()->max_number_of_cache_purge_queue_items();
         $items_to_purge = sb_cf_cache()->get_items_to_purge($max_number_of_cache_purge_queue_items);
         wp_send_json_success([

@@ -3,7 +3,7 @@
 namespace Servebolt\Optimizer\CachePurge;
 
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class CachePurgeWPActions

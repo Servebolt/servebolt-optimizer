@@ -11,6 +11,8 @@ use Servebolt\Optimizer\Admin\LogViewer\LogViewer;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\featureIsActive;
+use function Servebolt\Optimizer\Helpers\isDevDebug;
+use function Servebolt\Optimizer\Helpers\hostIsServebolt;
 
 class AdminGuiController
 {
@@ -122,12 +124,12 @@ class AdminGuiController
     {
         $this->cachePurgeMenu();
         $this->cfImageResizeMenu();
-        if (host_is_servebolt()) {
+        if (hostIsServebolt()) {
             $this->fpcCacheMenu();
             $this->errorLogMenu();
         }
         $this->generalSettingsMenu();
-        if (!is_network_admin() && sb_is_dev_debug()) {
+        if (!is_network_admin() && isDevDebug()) {
             $this->debugMenu();
         }
     }

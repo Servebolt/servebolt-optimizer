@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\DatabaseOptimizer;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Options\Helpers\iterateSites;
 
 /**
  * Class DatabaseChecks
@@ -131,7 +132,7 @@ class DatabaseChecks
 		global $wpdb;
 		if (is_multisite()) {
 			$tables = [];
-			sb_iterate_sites(function($site) use (&$tables, $wpdb) {
+            iterateSites(function($site) use (&$tables, $wpdb) {
 				switch_to_blog($site->blog_id);
 				$tables[$site->blog_id] = array_flip($wpdb->tables);
 				restore_current_blog();

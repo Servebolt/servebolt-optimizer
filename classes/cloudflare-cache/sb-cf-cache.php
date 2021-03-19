@@ -1,10 +1,19 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 #require_once SERVEBOLT_PLUGIN_DIR_PATH . '/classes/sb-cloudflare-sdk/sb-cloudflare-sdk.class.php';
 require_once __DIR__ . '/sb-cf-cache-purge-queue-handling.php';
 
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+use function Servebolt\Optimizer\Helpers\naturalLanguageJoin;
+use function Servebolt\Optimizer\Helpers\deleteBlogOption;
+use function Servebolt\Optimizer\Helpers\updateBlogOption;
+use function Servebolt\Optimizer\Helpers\getBlogOption;
+use function Servebolt\Optimizer\Helpers\deleteOption;
+use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\getOption;
+use function Servebolt\Optimizer\Helpers\smartUpdateOption;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
 
 /**
  * Class Servebolt_CF_Cache
@@ -132,7 +141,7 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	public function api_permissions_needed($human_readable = true) {
 		$permissions = ['Zone.Zone', 'Zone.Cache Purge'];
 		if ( $human_readable ) {
-			return sb_natural_language_join($permissions);
+			return naturalLanguageJoin($permissions);
 		}
 		return $permissions;
 	}
@@ -213,9 +222,9 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	public function cf_is_active($blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric( $blog_id ) ) {
-			return checkboxIsChecked(sb_get_blog_option($blog_id, $this->cf_active_option_key()));
+			return checkboxIsChecked(getBlogOption($blog_id, $this->cf_active_option_key()));
 		} else {
-			return checkboxIsChecked(sb_get_option($this->cf_active_option_key()));
+			return checkboxIsChecked(getOption($this->cf_active_option_key()));
 		}
 	}
 
@@ -230,9 +239,9 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	public function cf_toggle_active(bool $state, $blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric($blog_id) ) {
-			return sb_update_blog_option($blog_id, $this->cf_active_option_key(), $state);
+			return updateBlogOption($blog_id, $this->cf_active_option_key(), $state);
 		} else {
-			return sb_update_option($this->cf_active_option_key(), $state);
+			return updateOption($this->cf_active_option_key(), $state);
 		}
 	}
 
@@ -278,9 +287,9 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	public function clear_active_zone_id($blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric( $blog_id ) ) {
-			sb_delete_blog_option($blog_id,'cf_zone_id');
+			deleteBlogOption($blog_id,'cf_zone_id');
 		} else {
-			sb_delete_option('cf_zone_id');
+            deleteOption('cf_zone_id');
 		}
 	}
 
@@ -294,9 +303,9 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	 */
 	public function store_active_zone_id($zone_id, $blog_id = false) {
 		if ( is_numeric($blog_id) ) {
-			return sb_update_blog_option($blog_id, 'cf_zone_id', $zone_id);
+			return updateBlogOption($blog_id, 'cf_zone_id', $zone_id);
 		} else {
-			return sb_update_option('cf_zone_id', $zone_id);
+			return updateOption('cf_zone_id', $zone_id);
 		}
 	}
 
@@ -310,9 +319,9 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	public function get_active_zone_id($blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric($blog_id) ) {
-			return sb_get_blog_option($blog_id, 'cf_zone_id');
+			return getBlogOption($blog_id, 'cf_zone_id');
 		} else {
-			return sb_get_option('cf_zone_id');
+			return getOption('cf_zone_id');
 		}
 	}
 
@@ -335,9 +344,9 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	public function get_authentication_type($blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric($blog_id) ) {
-			return sb_get_blog_option($blog_id, 'cf_auth_type',  $this->default_authentication_type);
+			return getBlogOption($blog_id, 'cf_auth_type',  $this->default_authentication_type);
 		} else {
-			return sb_get_option('cf_auth_type',  $this->default_authentication_type);
+			return getOption('cf_auth_type',  $this->default_authentication_type);
 		}
 	}
 
@@ -352,9 +361,9 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	public function set_authentication_type($type, $blog_id = false) {
 		$blog_id = $this->get_blog_id($blog_id);
 		if ( is_numeric($blog_id) ) {
-			return sb_update_blog_option($blog_id, 'cf_auth_type', $type);
+			return updateBlogOption($blog_id, 'cf_auth_type', $type);
 		} else {
-			return sb_update_option('cf_auth_type', $type);
+			return updateOption('cf_auth_type', $type);
 		}
 	}
 
@@ -367,9 +376,9 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 		$blog_id = $this->get_blog_id($blog_id);
 		foreach(['cf_auth_type', 'cf_api_token', 'cf_api_key', 'cf_email'] as $key) {
 			if ( is_numeric($blog_id) ) {
-				sb_delete_blog_option($blog_id, $key);
+				deleteBlogOption($blog_id, $key);
 			} else {
-				sb_delete_option($key);
+                deleteOption($key);
 			}
 		}
 	}
@@ -468,7 +477,7 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 				break;
 		}
 		if ( isset($option_name) ) {
-			return sb_smart_get_option($this->get_blog_id($blog_id), $option_name);
+			return smartGetOption($this->get_blog_id($blog_id), $option_name);
 		}
 		return false;
 	}
@@ -495,7 +504,7 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 				break;
 		}
 		if ( isset($option_name) ) {
-			return sb_smart_update_option($this->get_blog_id($blog_id), $option_name, $value, true);
+			return smartUpdateOption($this->get_blog_id($blog_id), $option_name, $value, true);
 		}
 		return false;
 	}

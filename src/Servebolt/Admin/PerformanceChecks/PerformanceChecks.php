@@ -2,7 +2,7 @@
 
 namespace Servebolt\Optimizer\Admin\PerformanceChecks;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks;
 use Servebolt\Optimizer\Admin\PerformanceChecks\Ajax\OptimizeActions;

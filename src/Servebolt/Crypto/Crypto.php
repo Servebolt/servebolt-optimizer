@@ -2,6 +2,10 @@
 
 namespace Servebolt\Optimizer\Crypto;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\generateRandomPermanentKey;
+
 /**
  * Class Crypto
  */
@@ -96,7 +100,7 @@ class Crypto
      */
     public static function mcryptKey(): string
     {
-        $key = sb_generate_random_permanent_key('mcrypt_key', self::$blogId);
+        $key = generateRandomPermanentKey('mcrypt_key', self::$blogId);
         $key = apply_filters('sb_optimizer_mcrypt_key', $key);
         return $key;
     }
@@ -159,8 +163,8 @@ class Crypto
      */
     public static function opensslKeys(): array
     {
-        $key = sb_generate_random_permanent_key('openssl_key', self::$blogId);
-        $iv = sb_generate_random_permanent_key('openssl_iv', self::$blogId);
+        $key = generateRandomPermanentKey('openssl_key', self::$blogId);
+        $iv = generateRandomPermanentKey('openssl_iv', self::$blogId);
         $keys = apply_filters('sb_optimizer_openssl_keys', compact('key', 'iv'));
         return $keys;
     }

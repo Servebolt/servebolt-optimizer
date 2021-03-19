@@ -2,10 +2,11 @@
 
 namespace Servebolt\Optimizer\Admin\CloudflareImageResizing;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
+use function Servebolt\Optimizer\Helpers\getOptionName;
 
 /**
  * Class CloudflareImageResizing
@@ -40,7 +41,7 @@ class CloudflareImageResizing
      */
     public function registerSettings() {
         foreach(['cf_image_resizing'] as $key) {
-            register_setting('sb-cf-image-resizing-options-page', sb_get_option_name($key));
+            register_setting('sb-cf-image-resizing-options-page', getOptionName($key));
         }
     }
 

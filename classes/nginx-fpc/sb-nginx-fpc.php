@@ -1,8 +1,14 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+use function Servebolt\Optimizer\Helpers\isAjax;
+use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
+use function Servebolt\Optimizer\Helpers\updateBlogOption;
+use function Servebolt\Optimizer\Helpers\getBlogOption;
+use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\getOption;
 
 require_once __DIR__ . '/sb-nginx-fpc-auth-handling.php';
 
@@ -111,9 +117,9 @@ class Servebolt_Nginx_FPC {
 	 */
 	public function fpc_is_active($blog_id = false) {
 		if ( is_numeric($blog_id) ) {
-			return checkboxIsChecked(sb_get_blog_option($blog_id, $this->fpc_active_option_key()));
+			return checkboxIsChecked(getBlogOption($blog_id, $this->fpc_active_option_key()));
 		} else {
-			return checkboxIsChecked(sb_get_option($this->fpc_active_option_key()));
+			return checkboxIsChecked(getOption($this->fpc_active_option_key()));
 		}
 	}
 
@@ -133,7 +139,7 @@ class Servebolt_Nginx_FPC {
 		$this->headers_already_set = true;
 
         // No cache if FPC is not active, or if we are logged in
-        if ( ! $this->fpc_is_active() || is_admin() || sb_is_ajax() || is_user_logged_in() ) {
+        if ( ! $this->fpc_is_active() || is_admin() || isAjax() || is_user_logged_in() ) {
             $this->no_cache_headers();
             if ( $debug ) $this->header('No-cache-trigger: 1');
             return $posts;
@@ -379,9 +385,9 @@ class Servebolt_Nginx_FPC {
 	 */
 	public function set_cacheable_post_types($post_types, $blog_id = false) {
 		if ( is_numeric($blog_id) ) {
-			return sb_update_blog_option($blog_id, $this->fpc_cacheable_post_types_option_key(), $post_types);
+			return updateBlogOption($blog_id, $this->fpc_cacheable_post_types_option_key(), $post_types);
 		} else {
-			return sb_update_option($this->fpc_cacheable_post_types_option_key(), $post_types);
+			return updateOption($this->fpc_cacheable_post_types_option_key(), $post_types);
 		}
 	}
 
@@ -421,9 +427,9 @@ class Servebolt_Nginx_FPC {
 	public function get_post_types_to_cache($respect_default_fallback = true, $respect_all = true, $blog_id = false) {
 
 		if ( is_numeric($blog_id) ) {
-			$post_types_to_cache = sb_get_blog_option($blog_id, $this->fpc_cacheable_post_types_option_key());
+			$post_types_to_cache = getBlogOption($blog_id, $this->fpc_cacheable_post_types_option_key());
 		} else {
-			$post_types_to_cache = sb_get_option($this->fpc_cacheable_post_types_option_key());
+			$post_types_to_cache = getOption($this->fpc_cacheable_post_types_option_key());
 		}
 
 		// Make sure we migrate from old array structure
@@ -480,7 +486,7 @@ class Servebolt_Nginx_FPC {
 	    if ( $format === 'array' ) {
 		    return $defaults;
 	    } elseif ( $format === 'csv' ) {
-		    return sb_format_array_to_csv($defaults);
+		    return formatArrayToCsv($defaults);
 	    }
     }
 
@@ -493,12 +499,12 @@ class Servebolt_Nginx_FPC {
 	 */
 	public function get_ids_to_exclude_from_cache($blog_id = false) {
 		if ( is_numeric($blog_id) ) {
-			$ids_to_exclude = sb_get_blog_option( $blog_id, 'fpc_exclude');
+			$ids_to_exclude = getBlogOption( $blog_id, 'fpc_exclude');
 			if ( ! is_array($ids_to_exclude) ) $ids_to_exclude = [];
 			return $ids_to_exclude;
 		}
 		if ( is_null( $this->ids_to_exclude_cache ) ) {
-			$ids_to_exclude = sb_get_option( 'fpc_exclude');
+			$ids_to_exclude = getOption( 'fpc_exclude');
 			if ( ! is_array($ids_to_exclude) ) $ids_to_exclude = [];
 			$this->ids_to_exclude_cache = $ids_to_exclude;
 		}
@@ -546,9 +552,9 @@ class Servebolt_Nginx_FPC {
 	public function set_ids_to_exclude_from_cache($ids_to_exclude, $blog_id = false) {
 		$this->ids_to_exclude_cache = $ids_to_exclude;
 		if ( is_numeric($blog_id) ) {
-			return sb_update_blog_option( $blog_id, 'fpc_exclude', $ids_to_exclude );
+			return updateBlogOption( $blog_id, 'fpc_exclude', $ids_to_exclude );
 		} else {
-			return sb_update_option( 'fpc_exclude', $ids_to_exclude );
+			return updateOption( 'fpc_exclude', $ids_to_exclude );
 		}
 	}
 
@@ -571,9 +577,9 @@ class Servebolt_Nginx_FPC {
 	 */
 	public function fpc_toggle_active( bool $state, $blog_id = false) {
 		if ( is_numeric($blog_id) ) {
-			return sb_update_blog_option($blog_id, $this->fpc_active_option_key(), $state);
+			return updateBlogOption($blog_id, $this->fpc_active_option_key(), $state);
 		} else {
-			return sb_update_option($this->fpc_active_option_key(), $state);
+			return updateOption($this->fpc_active_option_key(), $state);
 		}
 	}
 

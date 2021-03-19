@@ -2,11 +2,14 @@
 
 namespace Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
+use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
+use function Servebolt\Optimizer\Helpers\createLiTagsFromArray;
+use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup;
 
 /**
  * Class FpcPostExclusion
@@ -30,7 +33,7 @@ class FpcPostExclusion extends SharedAjaxMethods
     public function updateFpcExcludePostsListCallback(): void
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
 
         $itemsToRemove = arrayGet('items', $_POST);
         if ($itemsToRemove === 'all') {
@@ -63,7 +66,7 @@ class FpcPostExclusion extends SharedAjaxMethods
     public function updateExcludedPostsCallback(): void
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
 
         $postIdsString = arrayGet('post_ids', $_POST);
         $postIds = formatCommaStringToArray($postIdsString);
@@ -96,7 +99,7 @@ class FpcPostExclusion extends SharedAjaxMethods
             }
 
             if ( sb_nginx_fpc()->exclude_post_from_cache($postId) ) {
-                $newMarkup .= fpc_exclude_post_table_row_markup($postId, false);
+                $newMarkup .= fpcExcludePostTableRowMarkup($postId, false);
                 $success[] = $postId;
                 $added[] = $postId;
                 continue;
@@ -123,27 +126,27 @@ class FpcPostExclusion extends SharedAjaxMethods
         if ( $hasInvalid ) {
             $type = 'warning';
             $title = __('We made progress, but...', 'servebolt-wp');
-            $invalidMessage = sprintf(__('The following %s were invalid:', 'servebolt-wp'), ( $onlyOnePostId ? __('post ID', 'servebolt-wp') : __('post IDs', 'servebolt-wp') ) ) . sb_create_li_tags_from_array($invalid);
+            $invalidMessage = sprintf(__('The following %s were invalid:', 'servebolt-wp'), ( $onlyOnePostId ? __('post ID', 'servebolt-wp') : __('post IDs', 'servebolt-wp') ) ) . createLiTagsFromArray($invalid);
         }
 
         if ( $hasFailed ) {
             $type = 'warning';
             $title = __('We made progress, but...', 'servebolt-wp');
-            $failedMessage = __('Could not exclude the following posts from cache:', 'servebolt-wp') . sb_create_li_tags_from_array($failed, function($postId) {
+            $failedMessage = __('Could not exclude the following posts from cache:', 'servebolt-wp') . createLiTagsFromArray($failed, function($postId) {
                 $title = get_the_title($postId);
                 return $title ? $title . ' (ID ' . $postId . ')' : $postId;
             });
         }
 
         if ( count($alreadyExcluded) > 0 ) {
-            $alreadyExcludedMessage = __('The following posts are already excluded from cache:', 'servebolt-wp') . sb_create_li_tags_from_array($alreadyExcluded, function($postId) {
+            $alreadyExcludedMessage = __('The following posts are already excluded from cache:', 'servebolt-wp') . createLiTagsFromArray($alreadyExcluded, function($postId) {
                 $title = get_the_title($postId);
                 return $title ? $title . ' (ID ' . $postId . ')' : $postId;
             });
         }
 
         if ( count($added) > 0 ) {
-            $addedMessage = __('The following posts were excluded from cache:', 'servebolt-wp') . sb_create_li_tags_from_array($added, function($postId) {
+            $addedMessage = __('The following posts were excluded from cache:', 'servebolt-wp') . createLiTagsFromArray($added, function($postId) {
                 $title = get_the_title($postId);
                 return $title ? $title . ' (ID ' . $postId . ')' : $postId;
             });

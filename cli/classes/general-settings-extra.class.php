@@ -1,7 +1,8 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
+use function Servebolt\Optimizer\Helpers\displayValue;
 
 /**
  * Class Servebolt_CLI_General_Settings_Extra
@@ -30,7 +31,7 @@ class Servebolt_CLI_General_Settings_Extra extends Servebolt_CLI_Extras {
 
         $generalSettings = GeneralSettings::getInstance();
         $raw_value = $generalSettings->getSettingsItem($setting_key, $blog_id);
-        $value = sb_display_value($raw_value, true);
+        $value = displayValue($raw_value, true);
         $array = [];
         if ( $blog_id ) {
             $array['URL'] = get_site_url($blog_id);

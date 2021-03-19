@@ -1,5 +1,6 @@
-<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\view; ?>
+<?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 
 <?php settings_errors(); ?>
 
@@ -37,7 +38,7 @@
                     <fieldset>
                         <legend class="screen-reader-text"><span><?php _e('Cache purge-feature active?', 'servebolt-wp'); ?></span></legend>
                         <label for="cache_purge_switch">
-                            <input name="<?php echo sb_get_option_name('cache_purge_switch'); ?>" type="checkbox" id="cache_purge_switch" value="1" <?php checked($settings['cache_purge_switch']); ?>>
+                            <input name="<?php echo getOptionName('cache_purge_switch'); ?>" type="checkbox" id="cache_purge_switch" value="1" <?php checked($settings['cache_purge_switch']); ?>>
                             <?php _e('Active?', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
@@ -50,11 +51,11 @@
                     <fieldset>
                         <legend class="screen-reader-text"><span><?php _e('Cache purge driver', 'servebolt-wp'); ?></span></legend>
                         <label>
-                            <input type="radio" name="<?php echo sb_get_option_name('cache_purge_driver'); ?>" value="cloudflare" <?php checked($settings['cache_purge_driver'] == 'cloudflare'); ?>> <code><?php _e('Cloudflare', 'servebolt-wp'); ?></code>
+                            <input type="radio" name="<?php echo getOptionName('cache_purge_driver'); ?>" value="cloudflare" <?php checked($settings['cache_purge_driver'] == 'cloudflare'); ?>> <code><?php _e('Cloudflare', 'servebolt-wp'); ?></code>
                         </label>
                         <br>
                         <label<?php if (!$isHostedAtServebolt) echo ' style="opacity: 0.5;pointer-events:none;"'; ?>>
-                            <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo sb_get_option_name('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?>> <code><?php _e('Accelerated Domains', 'servebolt-wp'); ?></code>
+                            <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo getOptionName('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?>> <code><?php _e('Accelerated Domains', 'servebolt-wp'); ?></code>
                             <em>For Servebolt-customers only</em>
                         </label>
                     </fieldset>

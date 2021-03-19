@@ -2,11 +2,12 @@
 
 namespace Servebolt\Optimizer\Admin\CachePurgeControl\Ajax;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;
 use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 use Exception;
 
 class Configuration extends SharedAjaxMethods
@@ -28,7 +29,7 @@ class Configuration extends SharedAjaxMethods
     public function lookupZonesCallback(): void
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
 
         $authType = sanitize_text_field($_POST['auth_type']);
         $credentials = arrayGet('credentials', $_POST);
@@ -53,7 +54,7 @@ class Configuration extends SharedAjaxMethods
     public function lookupZoneCallback(): void
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
 
         parse_str($_POST['form'], $form_data);
         $authType = sanitize_text_field($form_data['servebolt_cf_auth_type']);
@@ -97,7 +98,7 @@ class Configuration extends SharedAjaxMethods
     public function validateCfSettingsFormCallback(): void
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
 
         parse_str($_POST['form'], $form_data);
         $errors = [];

@@ -2,7 +2,7 @@
 
 namespace Servebolt\Optimizer\Admin\CachePurgeControl;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Api\Cloudflare\Cloudflare;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\Configuration;
@@ -10,6 +10,9 @@ use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
 //use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\QueueHandling;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
+use function Servebolt\Optimizer\Helpers\hostIsServebolt;
+use function Servebolt\Optimizer\Helpers\getOptionName;
+use function Servebolt\Optimizer\Helpers\getOption;
 
 class CachePurgeControl
 {
@@ -38,7 +41,7 @@ class CachePurgeControl
     {
         $settings = $this->getSettingsItemsWithValues();
         $cachePurge = $this;
-        $isHostedAtServebolt = host_is_servebolt();
+        $isHostedAtServebolt = hostIsServebolt();
 
         $selectedCfZone = $this->getSelectedCfZone($settings);
         $cfZones = $this->getCfZones($settings);
@@ -182,19 +185,19 @@ class CachePurgeControl
         foreach ($items as $item) {
             switch ($item) {
                 case 'cache_purge_driver':
-                    if (!host_is_servebolt()) {
+                    if (!hostIsServebolt()) {
                         $value = $this->getDefaultCachePurgeDriver(); // Only allow Cloudflare when not hosted at Servebolt
                     } else {
-                        $value = sb_get_option($item);
+                        $value = getOption($item);
                     }
                     $itemsWithValues['cache_purge_driver'] = $value ?: $this->getDefaultCachePurgeDriver();
                     break;
                 case 'cf_auth_type':
-                    $value = sb_get_option($item);
+                    $value = getOption($item);
                     $itemsWithValues['cf_auth_type'] = $value ?: $this->getDefaultCfAuthType();
                     break;
                 default:
-                    $itemsWithValues[$item] = sb_get_option($item);
+                    $itemsWithValues[$item] = getOption($item);
                     break;
             }
         }
@@ -220,7 +223,7 @@ class CachePurgeControl
     public function registerSettings(): void
     {
         foreach ($this->getSettingsItems() as $key) {
-            register_setting('sb-cache-purge-options-page', sb_get_option_name($key));
+            register_setting('sb-cache-purge-options-page', getOptionName($key));
         }
     }
 

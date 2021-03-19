@@ -2,7 +2,9 @@
 
 namespace Servebolt\Optimizer\Admin;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\getAjaxNonceKey;
 
 /**
  * Class SharedAjaxMethods
@@ -12,6 +14,6 @@ abstract class SharedAjaxMethods
 {
     protected function checkAjaxReferer() : void
     {
-        check_ajax_referer(sb_get_ajax_nonce_key(), 'security');
+        check_ajax_referer(getAjaxNonceKey(), 'security');
     }
 }

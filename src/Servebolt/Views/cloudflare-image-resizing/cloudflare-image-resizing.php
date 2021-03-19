@@ -1,4 +1,5 @@
-<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
+<?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 <div class="wrap sb-content" id="sb-configuration">
 
     <h1><?php _e('Cloudflare Image Resizing', 'servebolt-wp'); ?> <sup style="font-size: 12px;">BETA</sup></h1>
@@ -53,7 +54,7 @@
                         <fieldset>
                             <legend class="screen-reader-text"><span><?php _e('Cloudflare cache-feature active?', 'servebolt-wp'); ?></span></legend>
                             <label for="cf_image_resizing">
-                                <input name="<?php echo sb_get_option_name('cf_image_resizing'); ?>" type="checkbox" id="cf_image_resizing" value="1" <?php checked((sb_cf_image_resize_control())->resizing_is_active()); ?>>
+                                <input name="<?php echo getOptionName('cf_image_resizing'); ?>" type="checkbox" id="cf_image_resizing" value="1" <?php checked((sb_cf_image_resize_control())->resizing_is_active()); ?>>
                                 <?php _e('Active?', 'servebolt-wp'); ?>
                             </label>
                         </fieldset>

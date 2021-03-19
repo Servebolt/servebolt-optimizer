@@ -1,10 +1,12 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\resolvePostIdsToTitleAndPostIdString;
+use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
+use function Servebolt\Options\Helpers\iterateSites;
 
 /**
  * Class WP_CLI_FPC_Extra
@@ -32,7 +34,7 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 		$array = array_merge($array, [
 			'Status'            => $status,
 			'Active post types' => $enabled_post_types_string,
-			'Posts to exclude'  => sb_format_array_to_csv($excluded_posts),
+			'Posts to exclude'  => formatArrayToCsv($excluded_posts),
 		]);
 		return $array;
 	}
@@ -75,7 +77,7 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 		if ( array_key_exists('all', $post_types) ) {
 			return __('All', 'servebolt-wp');
 		}
-		return sb_format_array_to_csv($post_types);
+		return formatArrayToCsv($post_types);
 	}
 
 	/**
@@ -129,7 +131,7 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 
 		if ( is_multisite() && $affect_all_blogs ) {
 			WP_CLI::line(__('Applying settings to all blogs', 'servebolt-wp'));
-			sb_iterate_sites(function($site) use ($cache_active, $post_types) {
+            iterateSites(function($site) use ($cache_active, $post_types) {
 				$this->nginx_toggle_cache_for_blog($cache_active, $site->blog_id);
 				if ( $post_types ) $this->nginx_set_post_types($post_types, $site->blog_id);
 			});
@@ -165,9 +167,9 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 			}
 		} else {
 			if ( $blog_id ) {
-				WP_CLI::success(sprintf(__('Cache post type(s) set to %s on site %s'), sb_format_array_to_csv($post_types), get_site_url($blog_id)));
+				WP_CLI::success(sprintf(__('Cache post type(s) set to %s on site %s'), formatArrayToCsv($post_types), get_site_url($blog_id)));
 			} else {
-				WP_CLI::success(sprintf(__('Cache post type(s) set to %s'), sb_format_array_to_csv($post_types)));
+				WP_CLI::success(sprintf(__('Cache post type(s) set to %s'), formatArrayToCsv($post_types)));
 			}
 		}
 	}
@@ -225,15 +227,15 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 		sb_nginx_fpc()->set_ids_to_exclude_from_cache($already_excluded, $blog_id);
 
 		if ( ! empty($already_added) ) {
-			WP_CLI::warning(sprintf(__('The following ids were already excluded: %s', 'servebolt-wp'), sb_format_array_to_csv($already_added)));
+			WP_CLI::warning(sprintf(__('The following ids were already excluded: %s', 'servebolt-wp'), formatArrayToCsv($already_added)));
 		}
 
 		if ( ! empty($invalid_id) ) {
-			WP_CLI::warning(sprintf(__('The following ids were invalid: %s', 'servebolt-wp'), sb_format_array_to_csv($invalid_id)));
+			WP_CLI::warning(sprintf(__('The following ids were invalid: %s', 'servebolt-wp'), formatArrayToCsv($invalid_id)));
 		}
 
 		if ( ! empty($was_excluded) ) {
-			WP_CLI::success(sprintf(__('Added %s to the list of excluded ids', 'servebolt-wp'), sb_format_array_to_csv($was_excluded)));
+			WP_CLI::success(sprintf(__('Added %s to the list of excluded ids', 'servebolt-wp'), formatArrayToCsv($was_excluded)));
 		} else {
 			WP_CLI::warning(__('No action was made.', 'servebolt-wp'));
 		}
@@ -255,9 +257,9 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 		}
 		$already_excluded = sb_nginx_fpc()->get_ids_to_exclude_from_cache($blog_id);
 		if ( $extended ) {
-			$already_excluded = sb_format_array_to_csv(resolvePostIdsToTitleAndPostIdString($already_excluded), ', ');
+			$already_excluded = formatArrayToCsv(resolvePostIdsToTitleAndPostIdString($already_excluded), ', ');
 		} else {
-			$already_excluded = sb_format_array_to_csv($already_excluded);
+			$already_excluded = formatArrayToCsv($already_excluded);
 		}
 		$arr['Excluded posts'] = $already_excluded;
 		return $arr;

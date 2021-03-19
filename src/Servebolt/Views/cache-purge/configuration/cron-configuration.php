@@ -1,5 +1,6 @@
-<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\booleanToString; ?>
+<?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 
 <tbody class="sb-config-field-general sb-config-field-cloudflare <?php if (!$settings['cache_purge_switch']) echo 'sb-config-field-hidden'; ?>">
 
@@ -16,9 +17,9 @@
             <fieldset>
                 <legend class="screen-reader-text"><span><?php _e('Cache purge via cron', 'servebolt-wp'); ?></span></legend>
                 <label for="cf_cron_purge">
-                    <input name="<?php if ( ! sb_cf_cache()->cron_state_is_overridden() ) echo sb_get_option_name('cf_cron_purge'); ?>" type="checkbox" id="cf_cron_purge" value="1"<?php if ( sb_cf_cache()->cron_state_is_overridden() ) echo ' disabled'; ?> <?php checked($cf_settings['cf_cron_purge']); ?>>
+                    <input name="<?php if ( ! sb_cf_cache()->cron_state_is_overridden() ) echo getOptionName('cf_cron_purge'); ?>" type="checkbox" id="cf_cron_purge" value="1"<?php if ( sb_cf_cache()->cron_state_is_overridden() ) echo ' disabled'; ?> <?php checked($cf_settings['cf_cron_purge']); ?>>
                     <?php if ( sb_cf_cache()->cron_state_is_overridden() ) : ?>
-                        <input type="hidden" name="<?php echo sb_get_option_name('cf_cron_purge'); ?>" value="<?php echo $settings['cf_cron_purge'] ? '1' : '0'; ?>">
+                        <input type="hidden" name="<?php echo getOptionName('cf_cron_purge'); ?>" value="<?php echo $settings['cf_cron_purge'] ? '1' : '0'; ?>">
                     <?php endif; ?>
                     <?php _e('Use cron to purge cache?', 'servebolt-wp'); ?>
                     <?php if ( sb_cf_cache()->cron_state_is_overridden() ) : ?>

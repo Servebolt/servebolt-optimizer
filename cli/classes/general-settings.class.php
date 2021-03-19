@@ -1,7 +1,9 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 require_once __DIR__ . '/general-settings-extra.class.php';
+
+use function Servebolt\Options\Helpers\iterateSites;
 
 /**
  * Class Servebolt_CLI_Cloudflare_Image_Resize
@@ -25,7 +27,7 @@ class Servebolt_CLI_General_Settings extends Servebolt_CLI_General_Settings_Extr
     public function command_general_settings_list($args, $assoc_args) {
         $columns = [ 'Name', 'Type', 'Value' ];
         if ( $this->affect_all_sites($assoc_args) ) {
-            sb_iterate_sites(function ($site) use ($columns) {
+            iterateSites(function ($site) use ($columns) {
                 $items = array_map(function($item) use ($columns, $site) {
                     $settings_key = $this->resolve_settings_key($item['name']);
                     $resolve_settings_values = $this->get_setting($settings_key, $site->blog_id);
@@ -75,7 +77,7 @@ class Servebolt_CLI_General_Settings extends Servebolt_CLI_General_Settings_Extr
         }
         if ( $this->affect_all_sites($assoc_args) ) {
             $sites_setting = [];
-            sb_iterate_sites(function ($site) use ($settings_key, &$sites_setting) {
+            iterateSites(function ($site) use ($settings_key, &$sites_setting) {
                 $sites_setting[] = $this->get_setting($settings_key, $site->blog_id);
             });
         } else {
@@ -111,7 +113,7 @@ class Servebolt_CLI_General_Settings extends Servebolt_CLI_General_Settings_Extr
             return;
         }
         if ( $this->affect_all_sites($assoc_args) ) {
-            sb_iterate_sites(function ($site) use ($settings_key, $value) {
+            iterateSites(function ($site) use ($settings_key, $value) {
                 $this->set_setting($settings_key, $value, $site->blog_id);
             });
         } else {

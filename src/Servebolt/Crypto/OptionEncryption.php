@@ -2,9 +2,12 @@
 
 namespace Servebolt\Optimizer\Crypto;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use function Servebolt\Optimizer\Helpers\booleanToString;
+//use function Servebolt\Optimizer\Helpers\booleanToString;
+//use function Servebolt\Optimizer\Helpers\updateBlogOption;
+//use function Servebolt\Optimizer\Helpers\getBlogOption;
+use function Servebolt\Optimizer\Helpers\getOptionName;
 
 /**
  * Class SB_Option_Encryption.
@@ -43,7 +46,7 @@ class OptionEncryption
 	private function optionEncryptionHandling(): void
     {
 		foreach($this->encryptedOptionItems as $optionName) {
-			$fullOptionName = sb_get_option_name($optionName);
+			$fullOptionName = getOptionName($optionName);
 			add_filter('pre_update_option_' . $fullOptionName, [$this, 'encryptOption'], 10, 1);
 			add_filter('sb_optimizer_get_option_' . $fullOptionName, [$this, 'decryptOption'], 10, 1);
 			if (is_multisite()) {
@@ -62,10 +65,10 @@ class OptionEncryption
 			$this_value = $value . ' ' . $x;
 			echo '---' . PHP_EOL;
 			var_dump('blog id: ' . $x);
-			var_dump('sb_get_blog_option: ' . sb_get_blog_option($x, $key));
-			var_dump('sb_update_blog_option: ' . booleanToString( sb_update_blog_option($x, $key, $this_value) ));
-			var_dump('get_blog_option: ' . get_blog_option($x, sb_get_option_name($key)));
-			var_dump('sb_get_blog_option: ' . sb_get_blog_option($x, $key));
+			var_dump('getBlogOption: ' . getBlogOption($x, $key));
+			var_dump('updateBlogOption: ' . booleanToString( updateBlogOption($x, $key, $this_value) ));
+			var_dump('get_blog_option: ' . get_blog_option($x, getOptionName($key)));
+			var_dump('getBlogOption: ' . getBlogOption($x, $key));
 			$x++;
 		}
 		die;

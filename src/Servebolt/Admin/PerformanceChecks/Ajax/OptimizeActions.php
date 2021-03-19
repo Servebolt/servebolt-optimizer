@@ -6,6 +6,7 @@ use Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks;
 use Servebolt\Optimizer\DatabaseOptimizer\DatabaseOptimizer;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use function Servebolt\Optimizer\Helpers\deleteAllSettings;
+use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 
 /**
  * Class OptimizeActions
@@ -32,7 +33,7 @@ class OptimizeActions extends SharedAjaxMethods
     public function wreakHavocCallback(): void
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
         $instance = DatabaseOptimizer::getInstance();
         $instance->deoptimizeIndexedTables();
         $instance->convertTablesToNonInnodb();
@@ -45,7 +46,7 @@ class OptimizeActions extends SharedAjaxMethods
     public function clearAllSettingsCallback(): void
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
         deleteAllSettings();
         wp_send_json_success();
     }
@@ -56,7 +57,7 @@ class OptimizeActions extends SharedAjaxMethods
     public function createIndexCallback(): void
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
 
         $validatedData = $this->validateIndexCreationInput();
         if ( is_wp_error($validatedData) ) {
@@ -92,7 +93,7 @@ class OptimizeActions extends SharedAjaxMethods
     public function convertTableToInnodbCallback(): void
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
 
         $tableName = $this->validateInnodbConversionInput(false, false);
         if (is_wp_error($tableName)) {
@@ -127,7 +128,7 @@ class OptimizeActions extends SharedAjaxMethods
     public function optimizeDbCallback(): void
     {
         $this->checkAjaxReferer();
-        sb_ajax_user_allowed();
+        ajaxUserAllowed();
         $instance = DatabaseOptimizer::getInstance();
         $result = $instance->optimizeDb();
         if ($result === false || $result['result'] === false) {
