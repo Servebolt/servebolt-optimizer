@@ -2,7 +2,7 @@
 <?php use function Servebolt\Optimizer\Helpers\booleanToString; ?>
 <?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 
-<tbody class="sb-config-field-general sb-config-field-cloudflare <?php if (!$settings['cache_purge_switch']) echo 'sb-config-field-hidden'; ?>">
+<tbody class="sb-config-field-general sb-config-field-cloudflare <?php if (!$cachePurgeIsActive) echo 'sb-config-field-hidden'; ?>">
 
     <?php /*
     <tr>

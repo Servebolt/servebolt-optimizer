@@ -38,14 +38,14 @@
                     <fieldset>
                         <legend class="screen-reader-text"><span><?php _e('Cache purge-feature active?', 'servebolt-wp'); ?></span></legend>
                         <label for="cache_purge_switch">
-                            <input name="<?php echo getOptionName('cache_purge_switch'); ?>" type="checkbox" id="cache_purge_switch" value="1" <?php checked($settings['cache_purge_switch']); ?>>
+                            <input name="<?php echo getOptionName('cache_purge_switch'); ?>" type="checkbox" id="cache_purge_switch" value="1" <?php checked($cachePurgeIsActive); ?>>
                             <?php _e('Active?', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
                 </td>
             </tr>
 
-            <tr class="sb-config-field-general <?php if ( ! $settings['cache_purge_switch'] ) echo ' sb-config-field-hidden'; ?>">
+            <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
                 <th scope="row"><?php _e('Cache purge driver', 'servebolt-wp'); ?></th>
                 <td>
                     <fieldset>
