@@ -398,7 +398,7 @@ class Servebolt_Nginx_FPC {
 
 		$array = [];
 		if ( $include_all ) {
-			$array['all'] = __('All');
+			$array['all'] = __('All', 'servebolt-wp');
 		}
 
 		foreach ($post_types as $post_type) {

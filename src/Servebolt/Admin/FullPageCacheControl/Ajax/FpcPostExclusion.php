@@ -70,7 +70,7 @@ class FpcPostExclusion extends SharedAjaxMethods
 
         if (!$postIds || empty($postIds)) {
             wp_send_json_error([
-                'message' => __('Post IDs missing'),
+                'message' => __('Post IDs missing', 'servebolt-wp'),
             ]);
         }
 
@@ -112,7 +112,7 @@ class FpcPostExclusion extends SharedAjaxMethods
         $hasFailedOnly = ! $gotSuccess && $hasFailed && ! $hasInvalid;
 
         $type = 'success';
-        $title = __('All good');
+        $title = __('All good', 'servebolt-wp');
         $returnMethod = 'wp_send_json_success';
 
         $invalidMessage = '';
@@ -122,28 +122,28 @@ class FpcPostExclusion extends SharedAjaxMethods
 
         if ( $hasInvalid ) {
             $type = 'warning';
-            $title = __('We made progress, but...');
-            $invalidMessage = sprintf(__('The following %s were invalid:'), ( $onlyOnePostId ? __('post ID') : __('post IDs') ) ) . sb_create_li_tags_from_array($invalid);
+            $title = __('We made progress, but...', 'servebolt-wp');
+            $invalidMessage = sprintf(__('The following %s were invalid:', 'servebolt-wp'), ( $onlyOnePostId ? __('post ID', 'servebolt-wp') : __('post IDs', 'servebolt-wp') ) ) . sb_create_li_tags_from_array($invalid);
         }
 
         if ( $hasFailed ) {
             $type = 'warning';
-            $title = __('We made progress, but...');
-            $failedMessage = __('Could not exclude the following posts from cache:') . sb_create_li_tags_from_array($failed, function($postId) {
+            $title = __('We made progress, but...', 'servebolt-wp');
+            $failedMessage = __('Could not exclude the following posts from cache:', 'servebolt-wp') . sb_create_li_tags_from_array($failed, function($postId) {
                 $title = get_the_title($postId);
                 return $title ? $title . ' (ID ' . $postId . ')' : $postId;
             });
         }
 
         if ( count($alreadyExcluded) > 0 ) {
-            $alreadyExcludedMessage = __('The following posts are already excluded from cache:') . sb_create_li_tags_from_array($alreadyExcluded, function($postId) {
+            $alreadyExcludedMessage = __('The following posts are already excluded from cache:', 'servebolt-wp') . sb_create_li_tags_from_array($alreadyExcluded, function($postId) {
                 $title = get_the_title($postId);
                 return $title ? $title . ' (ID ' . $postId . ')' : $postId;
             });
         }
 
         if ( count($added) > 0 ) {
-            $addedMessage = __('The following posts were excluded from cache:') . sb_create_li_tags_from_array($added, function($postId) {
+            $addedMessage = __('The following posts were excluded from cache:', 'servebolt-wp') . sb_create_li_tags_from_array($added, function($postId) {
                 $title = get_the_title($postId);
                 return $title ? $title . ' (ID ' . $postId . ')' : $postId;
             });
@@ -152,15 +152,15 @@ class FpcPostExclusion extends SharedAjaxMethods
         if ( $hasInvalidOnly ) {
             $returnMethod = 'wp_send_json_error';
             $type = 'warning';
-            $title = ( $onlyOnePostId ? __('Post ID invalid') : __('Post IDs invalid') );
+            $title = ( $onlyOnePostId ? __('Post ID invalid', 'servebolt-wp') : __('Post IDs invalid', 'servebolt-wp') );
         } elseif ( $hasFailedOnly ) {
             $returnMethod = 'wp_send_json_error';
-            $title = __('Could not update exclude list');
+            $title = __('Could not update exclude list', 'servebolt-wp');
             $type = 'error';
 
         } elseif (!$gotSuccess) {
             $returnMethod = 'wp_send_json_error';
-            $title = __('Something went wrong');
+            $title = __('Something went wrong', 'servebolt-wp');
             $type = 'warning';
         }
 

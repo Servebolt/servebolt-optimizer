@@ -1,16 +1,16 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\formatPostTypeSlug; ?>
 <div class="wrap sb-content">
-	<h1><?php _e('Full Page Cache'); ?></h1>
+	<h1><?php _e('Full Page Cache', 'servebolt-wp'); ?></h1>
 
     <?php settings_errors(); ?>
 
 	<div>
-	  <?php $sbAdminButton = $sbAdminUrl ? sprintf('<a href="%s" target="_blank">%s</a>', $sbAdminUrl, __('Servebolt Control Panel dashboard')) : __('Servebolt Control Panel dashboard'); ?>
-		<p><?php _e('Servebolt Full Page Cache is easy to set up, but should always be tested before activating it on production environments.'); ?></p>
-		<p><?php printf( esc_html__( 'To activate Full Page Cache to go %s and set "Caching" to "Static Files + Full-Page Cache"'), $sbAdminButton ) ?></p>
+	  <?php $sbAdminButton = $sbAdminUrl ? sprintf('<a href="%s" target="_blank">%s</a>', $sbAdminUrl, __('Servebolt Control Panel dashboard', 'servebolt-wp')) : __('Servebolt Control Panel dashboard', 'servebolt-wp'); ?>
+		<p><?php _e('Servebolt Full Page Cache is easy to set up, but should always be tested before activating it on production environments.', 'servebolt-wp'); ?></p>
+		<p><?php printf( esc_html__('To activate Full Page Cache to go %s and set "Caching" to "Static Files + Full-Page Cache"', 'servebolt-wp'), $sbAdminButton ) ?></p>
     <?php if ( $sbAdminUrl ) : ?>
-		<p><a href="<?php echo $sbAdminUrl; ?>" target="_blank" class="button"><?php _e('Servebolt Control Panel dashboard') ?></a></p>
+		<p><a href="<?php echo $sbAdminUrl; ?>" target="_blank" class="button"><?php _e('Servebolt Control Panel dashboard', 'servebolt-wp') ?></a></p>
     <?php endif; ?>
 	</div>
 
@@ -19,20 +19,20 @@
     <table class="wp-list-table widefat striped">
       <thead>
       <tr>
-        <th><?php _e('Blog ID'); ?></th>
-        <th><?php _e('URL'); ?></th>
-        <th><?php _e('Full Page Cache Active'); ?></th>
-        <th><?php _e('Post types'); ?></th>
-        <th><?php _e('Controls'); ?></th>
+        <th><?php _e('Blog ID', 'servebolt-wp'); ?></th>
+        <th><?php _e('URL', 'servebolt-wp'); ?></th>
+        <th><?php _e('Full Page Cache Active', 'servebolt-wp'); ?></th>
+        <th><?php _e('Post types', 'servebolt-wp'); ?></th>
+        <th><?php _e('Controls', 'servebolt-wp'); ?></th>
       </tr>
       </thead>
       <tfoot>
       <tr>
-        <th><?php _e('Blog ID'); ?></th>
-        <th><?php _e('URL'); ?></th>
-        <th><?php _e('Full Page Cache Active'); ?></th>
-        <th><?php _e('Post types'); ?></th>
-        <th><?php _e('Controls'); ?></th>
+        <th><?php _e('Blog ID', 'servebolt-wp'); ?></th>
+        <th><?php _e('URL', 'servebolt-wp'); ?></th>
+        <th><?php _e('Full Page Cache Active', 'servebolt-wp'); ?></th>
+        <th><?php _e('Post types', 'servebolt-wp'); ?></th>
+        <th><?php _e('Controls', 'servebolt-wp'); ?></th>
       </tr>
       </tfoot>
       <tbody>
@@ -41,7 +41,7 @@
         <tr>
           <td><?php echo $site->blog_id; ?></td>
           <td><?php echo $site->domain . $site->path; ?></td>
-          <td><?php echo sb_nginx_fpc()->fpc_is_active($site->blog_id) ? __('Yes') : __('No'); ?></td>
+          <td><?php echo sb_nginx_fpc()->fpc_is_active($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
           <td>
           <?php if ( ! empty($sb_fpc_settings) ) : ?>
             <?php if ( in_array('all', $sb_fpc_settings) ) : ?>
@@ -55,7 +55,7 @@
           None
           <?php endif; ?>
           </td>
-          <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-nginx-cache' ); ?>" class="button btn"><?php _e('Go to site NGINX settings'); ?></a></td>
+          <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-nginx-cache' ); ?>" class="button btn"><?php _e('Go to site NGINX settings', 'servebolt-wp'); ?></a></td>
         </tr>
 	    <?php endforeach; ?>
       </tbody>
@@ -72,7 +72,7 @@
 			<?php settings_fields( 'fpc-options-page' ) ?>
 			<?php do_settings_sections( 'fpc-options-page' ) ?>
       <div class="nginx_switch">
-        <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_fpc_active ? ' checked' : ''; ?>><label for="sb-nginx_cache_switch"><?php _e('Turn Full Page Cache on'); ?></label>
+        <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_fpc_active ? ' checked' : ''; ?>><label for="sb-nginx_cache_switch"><?php _e('Turn Full Page Cache on', 'servebolt-wp'); ?></label>
       </div>
 			<table class="form-table" id="sb-nginx-fpc-form"<?php echo ( $nginx_fpc_active ? '' : ' style="display: none;"' ); ?>>
 				<tr>
@@ -85,7 +85,7 @@
 						<?php endforeach; ?>
             <p><?php _e('By default this plugin enables Full Page Caching of posts, pages and products. 
                             Activate post types here if you want a different cache setup. 
-                            This will override the default setup.'); ?></p>
+                            This will override the default setup.', 'servebolt-wp'); ?></p>
 					</td>
 				</tr>
         <tr>
@@ -95,10 +95,10 @@
 
             <div class="tablenav top">
               <div class="alignleft actions bulkactions">
-                <button type="button" class="button action sb-remove-selected-exclude-items" disabled><?php _e('Remove selected'); ?></button>
+                <button type="button" class="button action sb-remove-selected-exclude-items" disabled><?php _e('Remove selected', 'servebolt-wp'); ?></button>
               </div>
               <div class="alignleft actions bulkactions">
-                <button type="button" style="float:left;" class="button action sb-flush-fpc-exclude-items"<?php if ( count($ids_to_exclude) === 0 ) echo ' disabled'; ?>><?php _e('Flush posts'); ?></button>
+                <button type="button" style="float:left;" class="button action sb-flush-fpc-exclude-items"<?php if ( count($ids_to_exclude) === 0 ) echo ' disabled'; ?>><?php _e('Flush posts', 'servebolt-wp'); ?></button>
               </div>
               <div class="alignleft actions bulkactions">
                 <button class="button button-primary sb-add-exclude-post" type="button">Add post to list</button>
@@ -111,24 +111,24 @@
 
               <thead>
               <tr>
-                <td id="cb" class="manage-column column-cb check-column"><label class="screen-reader-text" for="cb-select-all-1"><?php _e('Select All'); ?></label><input id="cb-select-all-1" type="checkbox"></td>
-                <th scope="col" id="post_id" class="manage-column column-post-id"><?php _e('Post ID'); ?></th>
-                <th scope="col" id="post_id" class="manage-column column-post-id"><?php _e('Post title'); ?></th>
-                <th scope="col" id="url" class="manage-column column-url"><?php _e('URL'); ?></th>
+                <td id="cb" class="manage-column column-cb check-column"><label class="screen-reader-text" for="cb-select-all-1"><?php _e('Select All', 'servebolt-wp'); ?></label><input id="cb-select-all-1" type="checkbox"></td>
+                <th scope="col" id="post_id" class="manage-column column-post-id"><?php _e('Post ID', 'servebolt-wp'); ?></th>
+                <th scope="col" id="post_id" class="manage-column column-post-id"><?php _e('Post title', 'servebolt-wp'); ?></th>
+                <th scope="col" id="url" class="manage-column column-url"><?php _e('URL', 'servebolt-wp'); ?></th>
               </tr>
               </thead>
 
               <tfoot>
               <tr>
-                <td class="manage-column column-cb check-column"><label class="screen-reader-text" for="cb-select-all-2"><?php _e('Select All'); ?></label><input id="cb-select-all-2" type="checkbox"></td>
-                <th scope="col" class="manage-column column-title column-primary"><?php _e('Post ID'); ?></th>
-                <th scope="col" class="manage-column column-title column-primary"><?php _e('Post title'); ?></th>
-                <th scope="col" class="manage-column column-author"><?php _e('URL'); ?></th>
+                <td class="manage-column column-cb check-column"><label class="screen-reader-text" for="cb-select-all-2"><?php _e('Select All', 'servebolt-wp'); ?></label><input id="cb-select-all-2" type="checkbox"></td>
+                <th scope="col" class="manage-column column-title column-primary"><?php _e('Post ID', 'servebolt-wp'); ?></th>
+                <th scope="col" class="manage-column column-title column-primary"><?php _e('Post title', 'servebolt-wp'); ?></th>
+                <th scope="col" class="manage-column column-author"><?php _e('URL', 'servebolt-wp'); ?></th>
               </tr>
               </tfoot>
 
               <tbody id="the-list">
-              <tr class="no-items<?php if ( count($ids_to_exclude) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php _e('No posts to exclude from cache.'); ?></td></tr>
+              <tr class="no-items<?php if ( count($ids_to_exclude) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php _e('No posts to exclude from cache.', 'servebolt-wp'); ?></td></tr>
 	            <?php foreach($ids_to_exclude as $i => $post_id) : ?>
 		          <?php fpc_exclude_post_table_row_markup($post_id); ?>
 	            <?php endforeach; ?>
@@ -138,7 +138,7 @@
 
             <div class="tablenav bottom">
               <div class="alignleft actions bulkactions">
-                <button type="button" id="doaction" class="button action sb-remove-selected-exclude-items" disabled><?php _e('Remove selected'); ?></button>
+                <button type="button" id="doaction" class="button action sb-remove-selected-exclude-items" disabled><?php _e('Remove selected', 'servebolt-wp'); ?></button>
               </div>
             </div>
 

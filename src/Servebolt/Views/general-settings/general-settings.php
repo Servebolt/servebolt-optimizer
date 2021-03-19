@@ -1,6 +1,6 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
 <div class="wrap sb-content">
-    <h1><?php _e('General settings'); ?></h1>
+    <h1><?php _e('General settings', 'servebolt-wp'); ?></h1>
 
     <?php settings_errors(); ?>
 
@@ -11,20 +11,20 @@
         <table class="wp-list-table widefat striped">
             <thead>
             <tr>
-                <th><?php _e('Blog ID'); ?></th>
-                <th><?php _e('URL'); ?></th>
-                <th><?php _e('Use native JS fallback'); ?></th>
-                <th><?php _e('Automatic version parameter'); ?></th>
-                <th><?php _e('Controls'); ?></th>
+                <th><?php _e('Blog ID', 'servebolt-wp'); ?></th>
+                <th><?php _e('URL', 'servebolt-wp'); ?></th>
+                <th><?php _e('Use native JS fallback', 'servebolt-wp'); ?></th>
+                <th><?php _e('Automatic version parameter', 'servebolt-wp'); ?></th>
+                <th><?php _e('Controls', 'servebolt-wp'); ?></th>
             </tr>
             </thead>
             <tfoot>
             <tr>
-                <th><?php _e('Blog ID'); ?></th>
-                <th><?php _e('URL'); ?></th>
-                <th><?php _e('Use native JS fallback'); ?></th>
-                <th><?php _e('Automatic version parameter'); ?></th>
-                <th><?php _e('Controls'); ?></th>
+                <th><?php _e('Blog ID', 'servebolt-wp'); ?></th>
+                <th><?php _e('URL', 'servebolt-wp'); ?></th>
+                <th><?php _e('Use native JS fallback', 'servebolt-wp'); ?></th>
+                <th><?php _e('Automatic version parameter', 'servebolt-wp'); ?></th>
+                <th><?php _e('Controls', 'servebolt-wp'); ?></th>
             </tr>
             </tfoot>
             <tbody>
@@ -32,9 +32,9 @@
                 <tr>
                     <td><?php echo $site->blog_id; ?></td>
                     <td><?php echo $site->domain . $site->path; ?></td>
-                    <td><?php echo $generalSettings->useNativeJsFallback($site->blog_id) ? __('Yes') : __('No'); ?></td>
-                    <td><?php echo $generalSettings->assetAutoVersion($site->blog_id) ? __('Yes') : __('No'); ?></td>
-                    <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-general-settings' ); ?>" class="button btn"><?php _e('Go to site settings'); ?></a></td>
+                    <td><?php echo $generalSettings->useNativeJsFallback($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
+                    <td><?php echo $generalSettings->assetAutoVersion($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
+                    <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-general-settings' ); ?>" class="button btn"><?php _e('Go to site settings', 'servebolt-wp'); ?></a></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
@@ -49,14 +49,14 @@
             <?php do_settings_sections( 'sb-general-settings-options-page' ) ?>
             <table class="form-table" id="sb-nginx-fpc-form">
                 <tr>
-                    <th scope="row"><?php _e('Use native JS fallback'); ?></th>
+                    <th scope="row"><?php _e('Use native JS fallback', 'servebolt-wp'); ?></th>
                     <td>
                         <fieldset>
                             <?php
                                 $overridden = $generalSettings->settingIsOverridden('use_native_js_fallback');
                                 $checked = $generalSettings->useNativeJsFallback();
                             ?>
-                            <legend class="screen-reader-text"><span><?php _e('Use native JS fallback'); ?></span></legend>
+                            <legend class="screen-reader-text"><span><?php _e('Use native JS fallback', 'servebolt-wp'); ?></span></legend>
                             <label for="use_native_js_fallback">
                                 <input name="<?php echo sb_get_option_name('use_native_js_fallback'); ?>" type="checkbox"<?php if ( $overridden ) echo ' disabled'; ?> id="use_native_js_fallback" value="1"<?php echo $checked ? ' checked' : ''; ?>>
                                 <?php _e(sprintf('Using native JS for alerts, prompts and confirmations which would otherwise use third party library SweetAlert %s(prone to cause conflicts if SweetAlert is already used in the theme or in other plugins)%s.', '<em>', '</em>')); ?>
@@ -68,10 +68,10 @@
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php _e('Add automatic version parameter to asset URLs'); ?></th>
+                    <th scope="row"><?php _e('Add automatic version parameter to asset URLs', 'servebolt-wp'); ?></th>
                     <td>
                         <fieldset>
-                            <legend class="screen-reader-text"><span><?php _e('Add automatic version parameter to asset URLs'); ?></span></legend>
+                            <legend class="screen-reader-text"><span><?php _e('Add automatic version parameter to asset URLs', 'servebolt-wp'); ?></span></legend>
                             <label for="asset_auto_version">
                                 <input name="<?php echo sb_get_option_name('asset_auto_version'); ?>" type="checkbox" id="asset_auto_version" value="1"<?php echo sb_general_settings()->asset_auto_version() ? ' checked' : ''; ?>>
                                 <?php _e('Check this if you want to add an automatic version parameter (used for automatic cache busting) to the URLs of the script and style-files on this site. This is useful when dealing with issues related to cache.'); ?>
@@ -80,13 +80,13 @@
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row"><?php _e('Enable Cloudflare APO support?'); ?></th>
+                    <th scope="row"><?php _e('Enable Cloudflare APO support?', 'servebolt-wp'); ?></th>
                     <td>
                         <fieldset>
-                            <legend class="screen-reader-text"><span><?php _e('Whether Cloudflare APO-feature should be active for this site. Note that you need to use the Cloudflare proxy for this to work.'); ?></span></legend>
+                            <legend class="screen-reader-text"><span><?php _e('Whether Cloudflare APO-feature should be active for this site. Note that you need to use the Cloudflare proxy for this to work.', 'servebolt-wp'); ?></span></legend>
                             <label for="use_cloudflare_apo">
                                 <input name="<?php echo sb_get_option_name('use_cloudflare_apo'); ?>" type="checkbox" id="use_cloudflare_apo" value="1"<?php echo sb_general_settings()->use_cloudflare_apo() ? ' checked' : ''; ?>>
-                                <?php _e('Check this if you want the Cloudflare APO-feature to be active for this site. Note that you need to use the Cloudflare proxy for this to work.'); ?>
+                                <?php _e('Check this if you want the Cloudflare APO-feature to be active for this site. Note that you need to use the Cloudflare proxy for this to work.', 'servebolt-wp'); ?>
                             </label>
                         </fieldset>
                     </td>

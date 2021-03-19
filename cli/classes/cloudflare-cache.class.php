@@ -424,7 +424,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 			return;
 		}
 
-		WP_CLI::line(__('This will set/update which Cloudflare zone we are interacting with.'));
+		WP_CLI::line(__('This will set/update which Cloudflare zone we are interacting with.', 'servebolt-wp'));
 
 		if ( $current_zone_id = sb_cf_cache()->get_active_zone_id() ) {
 			$current_zone = sb_cf_cache()->get_zone_by_id($current_zone_id);
@@ -449,28 +449,10 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 			$string = '[Last attempt] ' . $string;
 		}
 
-		_e($string);
-		$zone = $this->user_input(function($input) use ($zones) {
-			if ( $zones ) {
-				foreach ( $zones as $i => $zone ) {
-					if ( $i+1 == $input || $zone->id == $input || $zone->name == $input ) {
-						return $zone;
-					}
-				}
-			} else {
-				if ( ! empty($input) ) {
-					return $input;
-				}
-			}
-			return false;
-		});
-
-		if ( ! $zone ) {
-			if ( $failCount >= $maxFailCount ) {
-				WP_CLI::error('No zone selected, exiting.');
+		_e('No zone selected, exiting.', 'servebolt-wp');
 			}
 			$failCount++;
-			WP_CLI::error(__('Invalid selection, please try again.'), false);
+			WP_CLI::error(__('Invalid selection, please try again.', 'servebolt-wp'), false);
 			goto select_zone;
 		}
 
@@ -484,7 +466,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 		$zone_name = is_object($zone) ? $zone->name : $zone_id;
 
 		sb_cf_cache()->store_active_zone_id($zone_id);
-		WP_CLI::success(sprintf(__('Successfully selected zone %s'), $zone_name));
+		WP_CLI::success(sprintf(__('Successfully selected zone %s', 'servebolt-wp'), $zone_name));
 
 	}
 
@@ -542,7 +524,7 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 				$this->cf_cron_toggle( false, $assoc_args );
 				return;
 		}
-		WP_CLI::error(__('Invalid purge type - please use either "cron" or "immediately"'));
+		WP_CLI::error(__('Invalid purge type - please use either "cron" or "immediately"', 'servebolt-wp'));
 	}
 
 	/**
@@ -607,12 +589,12 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
      */
     public function command_cf_purge_queue() {
         if ( ! sb_cf_cache()->cron_purge_is_active() ) {
-            WP_CLI::error(__('Queue-based cached purge is not active.'));
+            WP_CLI::error(__('Queue-based cached purge is not active.', 'servebolt-wp'));
             return;
         }
-        WP_CLI::line(__('Purging cache for items in the cache queue.'));
+        WP_CLI::line(__('Purging cache for items in the cache queue.', 'servebolt-wp'));
         sb_cf_cache()->purge_by_cron();
-        WP_CLI::success(__('Cache queue purged!'));
+        WP_CLI::success(__('Cache queue purged!', 'servebolt-wp'));
     }
 
 	/**
@@ -631,11 +613,11 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	public function command_cf_purge_url($args) {
 		list($url) = $args;
 		$this->ensure_cache_purge_is_possible();
-		WP_CLI::line(sprintf(__('Purging cache for url %s'), $url));
+		WP_CLI::line(sprintf(__('Purging cache for url %s', 'servebolt-wp'), $url));
 		if ( sb_cf_cache()->purge_by_url($url) === true ) {
-			WP_CLI::success(__('Cache purged!'));
+			WP_CLI::success(__('Cache purged!', 'servebolt-wp'));
 		} else {
-			WP_CLI::error(__('Could not purge cache.'));
+			WP_CLI::error(__('Could not purge cache.', 'servebolt-wp'));
 		}
 	}
 
@@ -655,11 +637,11 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 	public function command_cf_purge_post($args) {
 		list($post_id) = $args;
 		$this->ensure_cache_purge_is_possible();
-		WP_CLI::line(sprintf(__('Purging cache for post %s'), $post_id));
+		WP_CLI::line(sprintf(__('Purging cache for post %s', 'servebolt-wp'), $post_id));
 		if ( sb_cf_cache()->purge_post($post_id) ) {
-			WP_CLI::success(__('Cache purged!'));
+			WP_CLI::success(__('Cache purged!', 'servebolt-wp'));
 		} else {
-			WP_CLI::error(__('Could not purge cache.'));
+			WP_CLI::error(__('Could not purge cache.', 'servebolt-wp'));
 		}
 	}
 
@@ -681,16 +663,16 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 		if ( $this->affect_all_sites( $assoc_args ) ) {
 			sb_iterate_sites(function ( $site ) {
 				if ( $this->cf_purge_all($site->blog_id) ) {
-					WP_CLI::success(sprintf(__('All cache was purged for %s'), get_site_url($site->blog_id)), false);
+					WP_CLI::success(sprintf(__('All cache was purged for %s', 'servebolt-wp'), get_site_url($site->blog_id)), false);
 				} else {
-					WP_CLI::error(sprintf(__('Could not purge cache for %s'), get_site_url($site->blog_id)), false);
+					WP_CLI::error(sprintf(__('Could not purge cache for %s', 'servebolt-wp'), get_site_url($site->blog_id)), false);
 				}
 			});
 		} else {
 			if ( $this->cf_purge_all() ) {
-				WP_CLI::success(__('All cache was purged.'));
+				WP_CLI::success(__('All cache was purged.', 'servebolt-wp'));
 			} else {
-				WP_CLI::error(__('Could not purge cache.'));
+				WP_CLI::error(__('Could not purge cache.', 'servebolt-wp'));
 			}
 		}
 	}

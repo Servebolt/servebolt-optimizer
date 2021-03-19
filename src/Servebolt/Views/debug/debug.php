@@ -2,21 +2,21 @@
 <?php use Servebolt\Optimizer\CachePurge\CachePurge; ?>
 <div class="wrap sb-content" id="sb-configuration">
 
-	<h1><?php _e('Servebolt Optimizer - Debug information'); ?></h1>
+	<h1><?php _e('Servebolt Optimizer - Debug information', 'servebolt-wp'); ?></h1>
 	<p>This page displays debug information about the settings. A useful tool to ensure integrity of the settings and how they are being presented in the GUI and in the system.</p>
 
 	<hr>
 
 	<h2>Cache purge</h2>
 
-	<p>Feature is active? - <?php echo CachePurge::cachePurgeIsActive() ? __('Yes') : __('No'); ?></p>
-	<p>Feature is configured? - <?php echo CachePurge::featureIsConfigured() ? __('Yes') : __('No'); ?></p>
-	<p>Feature is available? - <?php echo CachePurge::featureIsAvailable() ? __('Yes') : __('No'); ?></p>
-	<p>Automatic cache purge on content update? - <?php echo CachePurge::automaticCachePurgeOnContentUpdateIsActive() ? __('Yes') : __('No'); ?></p>
+	<p>Feature is active? - <?php echo CachePurge::cachePurgeIsActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
+	<p>Feature is configured? - <?php echo CachePurge::featureIsConfigured() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
+	<p>Feature is available? - <?php echo CachePurge::featureIsAvailable() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
+	<p>Automatic cache purge on content update? - <?php echo CachePurge::automaticCachePurgeOnContentUpdateIsActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 
     <?php /*
-	<p>Cron purging is active? - <?php echo sb_cf_cache()->cron_purge_is_active() ? __('Yes') : __('No'); ?> <?php if ( sb_cf_cache()->cron_active_state_override() !== null ) echo ' (overridden with constant)'; ?></p>
-	<p>Cron purge execute is active? - <?php echo sb_cf_cache()->should_purge_cache_queue() ? __('Yes') : __('No'); ?></p>
+	<p>Cron purging is active? - <?php echo sb_cf_cache()->cron_purge_is_active() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> <?php if ( sb_cf_cache()->cron_active_state_override() !== null ) echo ' (overridden with constant)'; ?></p>
+	<p>Cron purge execute is active? - <?php echo sb_cf_cache()->should_purge_cache_queue() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 
 	<strong>URL's / ID's to purge cache for</strong>
 	<?php foreach ( sb_cf_cache()->get_items_to_purge() as $item ) : ?>
@@ -43,10 +43,10 @@
 		$default_post_types_to_cache = sb_nginx_fpc()->get_default_post_types_to_cache();
 	?>
 
-	<p>Feature is active? - <?php echo sb_nginx_fpc()->fpc_is_active() ? __('Yes') : __('No'); ?></p>
-	<p>Cache all post types? - <?php echo ( is_array($selected_post_types_to_cache) && in_array('all', $selected_post_types_to_cache ) ) ? __('Yes') : __('No'); ?></p>
-	<p>Any specific post types set? - <?php echo ( is_array($selected_post_types_to_cache_without_all) && ! empty($selected_post_types_to_cache_without_all ) ) ? __('Yes') : __('No'); ?> </p>
-	<p>Default post types used? - <?php echo ( ! is_array($selected_post_types_to_cache) || empty($selected_post_types_to_cache ) ) ? __('Yes') : __('No'); ?> </p>
+	<p>Feature is active? - <?php echo sb_nginx_fpc()->fpc_is_active() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
+	<p>Cache all post types? - <?php echo ( is_array($selected_post_types_to_cache) && in_array('all', $selected_post_types_to_cache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
+	<p>Any specific post types set? - <?php echo ( is_array($selected_post_types_to_cache_without_all) && ! empty($selected_post_types_to_cache_without_all ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>
+	<p>Default post types used? - <?php echo ( ! is_array($selected_post_types_to_cache) || empty($selected_post_types_to_cache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>
 
 	<br>
 

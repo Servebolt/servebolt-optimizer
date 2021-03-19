@@ -47,7 +47,7 @@ class Servebolt_CLI_General_Settings extends Servebolt_CLI_General_Settings_Extr
             WP_CLI\Utils\format_items( 'table', $items, $columns);
             WP_CLI::line('');
         }
-        WP_CLI::line(__('Use "wp servebolt general-settings get [name]" and "wp servebolt general-settings set [name]" to get/set value of a settings.'));
+        WP_CLI::line(__('Use "wp servebolt general-settings get [name]" and "wp servebolt general-settings set [name]" to get/set value of a settings.', 'servebolt-wp'));
     }
 
     /**

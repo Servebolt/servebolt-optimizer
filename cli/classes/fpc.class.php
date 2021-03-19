@@ -155,7 +155,7 @@ class Servebolt_CLI_FPC extends Servebolt_CLI_FPC_Extra {
 		}
 
 		if ( empty($post_types) ) {
-			WP_CLI::error(__('No post types specified'));
+			WP_CLI::error(__('No post types specified', 'servebolt-wp'));
 		}
 
 		if ( $this->affect_all_sites($assoc_args) ) {

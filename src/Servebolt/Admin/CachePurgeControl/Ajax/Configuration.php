@@ -120,7 +120,7 @@ class Configuration extends SharedAjaxMethods
         switch ($authType) {
             case 'api_token':
                 if ( empty($apiToken) ) {
-                    $errors['api_token'] = __('You need to provide an API token.');
+                    $errors['api_token'] = __('You need to provide an API token.', 'servebolt-wp');
                 } else {
                     $cfSdk = new CloudflareSdk([
                         'authType' => 'api_token',
@@ -132,17 +132,17 @@ class Configuration extends SharedAjaxMethods
                         }
                         $shouldCheckZone = true;
                     } catch (Exception $e) {
-                        $errors['api_token'] = __('Invalid API token.');
+                        $errors['api_token'] = __('Invalid API token.', 'servebolt-wp');
                     }
                 }
                 break;
             case 'api_key':
                 if (empty($email)) {
-                    $errors['email'] = __('You need to provide an email address.');
+                    $errors['email'] = __('You need to provide an email address.', 'servebolt-wp');
                 }
 
                 if (empty($apiKey)) {
-                    $errors['api_key'] = __('You need to provide an API key.');
+                    $errors['api_key'] = __('You need to provide an API key.', 'servebolt-wp');
                 }
 
                 if (!empty($email) && !empty($apiKey)) {
@@ -156,18 +156,18 @@ class Configuration extends SharedAjaxMethods
                         }
                         $shouldCheckZone = true;
                     } catch (Exception $e) {
-                        $errors['api_key_credentials'] = __( 'Invalid API credentials.' );
+                        $errors['api_key_credentials'] = __('Invalid API credentials.', 'servebolt-wp');
                     }
                 }
 
                 break;
             default:
-                $errors[] = __('Invalid authentication type.');
+                $errors[] = __('Invalid authentication type.', 'servebolt-wp');
         }
 
         if ( $shouldCheckZone ) {
             if ( empty($zoneId) ) {
-                $errors['zone_id'] = __('You need to provide a zone.');
+                $errors['zone_id'] = __('You need to provide a zone.', 'servebolt-wp');
             } else {
                 try {
                     if ( ! $zoneId = $cfSdk->getZoneById($zoneId) ) {
@@ -180,7 +180,7 @@ class Configuration extends SharedAjaxMethods
         } else {
             /*
             $string = $authType == 'api_token' ? 'token' : 'credentials';
-            $errors[] = sprintf(__('Cannot validate zone due to insufficient/invalid API %s'), $string);
+            $errors[] = sprintf(__('Cannot validate zone due to insufficient/invalid API %s', 'servebolt-wp'), $string);
             */
         }
 
@@ -222,6 +222,6 @@ class Configuration extends SharedAjaxMethods
         $errors = array_map(function ($error) {
             return rtrim(trim($error), '.');
         }, $errors);
-        return '<br><strong>' . __('Validation errors:') . '</strong><ul><li>- ' . implode('</li><li>- ', $errors) . '</li></ul>';
+        return '<br><strong>' . __('Validation errors:', 'servebolt-wp') . '</strong><ul><li>- ' . implode('</li><li>- ', $errors) . '</li></ul>';
     }
 }

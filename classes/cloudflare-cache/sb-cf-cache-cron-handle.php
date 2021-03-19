@@ -154,7 +154,7 @@ class Servebolt_CF_Cache_Cron_Handle {
 	public function add_cache_purge_cron_schedule( $schedules ) {
 		$schedules['every_minute'] = array(
 			'interval' => 60,
-			'display'  => __( 'Every minute' )
+			'display'  => __('Every minute', 'servebolt-wp')
 		);
 		return $schedules;
 	}

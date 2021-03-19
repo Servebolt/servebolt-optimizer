@@ -577,19 +577,19 @@ if ( ! function_exists('fpc_exclude_post_table_row_markup') ) {
         <td class="column-post-id has-row-actions fpc-exclude-item-column">
               <?php echo $post_id; ?>
               <div class="row-actions">
-                <span class="trash"><a href="#" class="sb-remove-item-from-fpc-post-exclude"><?php _e('Delete'); ?></a> | </span>
-                <span class="view"><a href="<?php echo esc_attr($url); ?>" target="_blank"><?php _e('View'); ?></a><?php if ( $edit_url ) echo ' | '; ?></span>
+                <span class="trash"><a href="#" class="sb-remove-item-from-fpc-post-exclude"><?php _e('Delete', 'servebolt-wp'); ?></a> | </span>
+                <span class="view"><a href="<?php echo esc_attr($url); ?>" target="_blank"><?php _e('View', 'servebolt-wp'); ?></a><?php if ( $edit_url ) echo ' | '; ?></span>
                 <?php if ( $edit_url ) : ?>
-                    <span class="view"><a href="<?php echo $edit_url; ?>" target="_blank"><?php _e('Edit'); ?></a></span>
+                    <span class="view"><a href="<?php echo $edit_url; ?>" target="_blank"><?php _e('Edit', 'servebolt-wp'); ?></a></span>
                 <?php endif; ?>
               </div>
             </td>
             <td class="fpc-exclude-item-column"><strong><?php echo $title; ?></strong></td>
           <?php else : ?>
             <td class="column-post-id has-row-actions fpc-exclude-item-column" colspan="2">
-              <?php echo $post_id; ?> (<?php _e('Post does not exist.') ?>)
+              <?php echo $post_id; ?> (<?php _e('Post does not exist.', 'servebolt-wp') ?>)
               <div class="row-actions">
-                <span class="trash"><a href="#" class="sb-remove-item-from-fpc-post-exclude"><?php _e('Delete'); ?></a></span>
+                <span class="trash"><a href="#" class="sb-remove-item-from-fpc-post-exclude"><?php _e('Delete', 'servebolt-wp'); ?></a></span>
               </div>
             </td>
           <?php endif; ?>
