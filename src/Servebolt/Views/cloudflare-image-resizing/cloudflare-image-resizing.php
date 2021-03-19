@@ -1,7 +1,7 @@
 <?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
 <div class="wrap sb-content" id="sb-configuration">
 
-    <h1><?php sb_e('Cloudflare Image Resizing'); ?> <sup style="font-size: 12px;">BETA</sup></h1>
+    <h1><?php _e('Cloudflare Image Resizing'); ?> <sup style="font-size: 12px;">BETA</sup></h1>
 
     <?php settings_errors(); ?>
 
@@ -14,18 +14,18 @@
         <table class="wp-list-table widefat striped">
             <thead>
             <tr>
-                <th><?php sb_e('Blog ID'); ?></th>
-                <th><?php sb_e('URL'); ?></th>
-                <th><?php sb_e('Image Resizing Active'); ?></th>
-                <th><?php sb_e('Controls'); ?></th>
+                <th><?php _e('Blog ID'); ?></th>
+                <th><?php _e('URL'); ?></th>
+                <th><?php _e('Image Resizing Active'); ?></th>
+                <th><?php _e('Controls'); ?></th>
             </tr>
             </thead>
             <tfoot>
             <tr>
-                <th><?php sb_e('Blog ID'); ?></th>
-                <th><?php sb_e('URL'); ?></th>
-                <th><?php sb_e('Image Resizing Active'); ?></th>
-                <th><?php sb_e('Controls'); ?></th>
+                <th><?php _e('Blog ID'); ?></th>
+                <th><?php _e('URL'); ?></th>
+                <th><?php _e('Image Resizing Active'); ?></th>
+                <th><?php _e('Controls'); ?></th>
             </tr>
             </tfoot>
             <tbody>
@@ -33,8 +33,8 @@
                 <tr>
                     <td><?php echo $site->blog_id; ?></td>
                     <td><?php echo $site->domain . $site->path; ?></td>
-                    <td><?php echo ( sb_cf_image_resize_control() )->resizing_is_active($site->blog_id) ? sb__('Yes') : sb__('No'); ?></td>
-                    <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-cf-image-resizing' ); ?>" class="button btn"><?php sb_e('Go to site settings'); ?></a></td>
+                    <td><?php echo ( sb_cf_image_resize_control() )->resizing_is_active($site->blog_id) ? __('Yes') : __('No'); ?></td>
+                    <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-cf-image-resizing' ); ?>" class="button btn"><?php _e('Go to site settings'); ?></a></td>
                 </tr>
             <?php endforeach; ?>
             </tbody>
@@ -48,13 +48,13 @@
 
             <table class="form-table" id="sb-image-resizing-configuration-table" role="presentation">
                 <tr>
-                    <th scope="row"><?php sb_e('Cloudflare image resize-feature'); ?></th>
+                    <th scope="row"><?php _e('Cloudflare image resize-feature'); ?></th>
                     <td>
                         <fieldset>
-                            <legend class="screen-reader-text"><span><?php sb_e('Cloudflare cache-feature active?'); ?></span></legend>
+                            <legend class="screen-reader-text"><span><?php _e('Cloudflare cache-feature active?'); ?></span></legend>
                             <label for="cf_image_resizing">
                                 <input name="<?php echo sb_get_option_name('cf_image_resizing'); ?>" type="checkbox" id="cf_image_resizing" value="1" <?php checked((sb_cf_image_resize_control())->resizing_is_active()); ?>>
-                                <?php sb_e('Active?'); ?>
+                                <?php _e('Active?'); ?>
                             </label>
                         </fieldset>
                     </td>

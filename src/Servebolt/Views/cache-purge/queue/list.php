@@ -2,8 +2,8 @@
 
 <tr class="sb-config-field-hidden feature_cf_cron_purge sb-toggle-active-cron-item<?php if ( ! sb_cf_cache()->cron_purge_is_active() ) echo ' cf-hidden-cron'; ?>">
     <th scope="row" colspan="2" style="padding-bottom: 5px;">
-        <label for="items_to_purge"><?php sb_e('Cache purge queue'); ?></label>
-        <p style="font-weight: normal;"><?php echo sprintf(sb__('The list below contains all the posts/URLs that are scheduled for cache purge. The max number of items in the list is %s, the rest will be unavailable for display. The most recently added item can be seen at the bottom of the list.%s Note: If you have more than %s items in the list then that would indicate that there is something wrong with the cron-setup. If so please investigate and/or contact support.'), $max_number_of_cache_purge_queue_items, '<br>', $max_number_of_cache_purge_queue_items); ?></p>
+        <label for="items_to_purge"><?php _e('Cache purge queue'); ?></label>
+        <p style="font-weight: normal;"><?php echo sprintf(__('The list below contains all the posts/URLs that are scheduled for cache purge. The max number of items in the list is %s, the rest will be unavailable for display. The most recently added item can be seen at the bottom of the list.%s Note: If you have more than %s items in the list then that would indicate that there is something wrong with the cron-setup. If so please investigate and/or contact support.'), $max_number_of_cache_purge_queue_items, '<br>', $max_number_of_cache_purge_queue_items); ?></p>
     </th>
 </tr>
 <tr class="sb-toggle-active-cron-item<?php if ( ! sb_cf_cache()->cron_purge_is_active() ) echo ' cf-hidden-cron'; ?>">
@@ -13,13 +13,13 @@
 
         <div class="tablenav top">
             <div class="alignleft actions bulkactions">
-                <button type="button" class="button action remove-selected-purge-items" disabled><?php sb_e('Remove selected'); ?></button>
+                <button type="button" class="button action remove-selected-purge-items" disabled><?php _e('Remove selected'); ?></button>
             </div>
             <div class="alignleft actions bulkactions">
-                <button type="button" style="float:left;" class="button action flush-purge-items-queue"<?php if ( count($items_to_purge) === 0 ) echo ' disabled'; ?>><?php sb_e('Flush queue'); ?></button>
+                <button type="button" style="float:left;" class="button action flush-purge-items-queue"<?php if ( count($items_to_purge) === 0 ) echo ' disabled'; ?>><?php _e('Flush queue'); ?></button>
             </div>
             <div class="alignleft actions bulkactions">
-                <button type="button" style="float:left;" class="button action refresh-purge-items-queue"><?php sb_e('Refresh queue'); ?></button>
+                <button type="button" style="float:left;" class="button action refresh-purge-items-queue"><?php _e('Refresh queue'); ?></button>
             </div>
 
             <span class="spinner purge-queue-loading-spinner"></span>
@@ -33,7 +33,7 @@
 
         <div class="tablenav bottom">
             <div class="alignleft actions bulkactions">
-                <button type="button" id="doaction" class="button action remove-selected-purge-items" disabled><?php sb_e('Remove selected'); ?></button>
+                <button type="button" id="doaction" class="button action remove-selected-purge-items" disabled><?php _e('Remove selected'); ?></button>
             </div>
         </div>
 

@@ -62,7 +62,7 @@ class DatabaseOptimizer
 	public function optimizeDb(bool $cli = false) {
 		$this->cli = $cli;
 		if ( $this->cli ) {
-			WP_CLI::line(sb__('Starting optimization...'));
+			WP_CLI::line(__('Starting optimization...'));
 		}
 		$this->resetResultVariables();
 		$this->optimizePostMetaTables();
@@ -120,10 +120,10 @@ class DatabaseOptimizer
 
 		if ( is_null($result) ) {
 			// No changes made
-			return $this->return_result( true, sb__('No changes needed, database looks healthy, and everything is good!') );
+			return $this->return_result( true, __('No changes needed, database looks healthy, and everything is good!') );
 		} elseif ( $result === true ) {
 			// Changes made and they were done successfully
-			return $this->return_result( true, sb__('Nice, we got to do some changes to the database and it seems that we we\'re successful!'), $this->tasks );
+			return $this->return_result( true, __('Nice, we got to do some changes to the database and it seems that we we\'re successful!'), $this->tasks );
 		} else {
 
 			// We did some changes, and got one or more errors
@@ -143,7 +143,7 @@ class DatabaseOptimizer
 					}
 				}
 			} else {
-				return $this->return_result( true, sb__( '' ), $this->tasks );
+				return $this->return_result( true, __( '' ), $this->tasks );
 			}
 
 		}
@@ -167,19 +167,19 @@ class DatabaseOptimizer
 			if ( is_null($this->meta_value_index_addition) ) {
 				$result['meta_value_index_addition'] = [
 					'type'    => 'success',
-					'message' => sb__('Post meta-table already have an index on the meta_value-column.'),
+					'message' => __('Post meta-table already have an index on the meta_value-column.'),
 				];
 				$meta_value_index_addition = null;
 			} elseif ( $this->meta_value_index_addition === false ) {
 				$result['meta_value_index_addition'] = [
 					'type'    => 'error',
-					'message' => sb__('Could not add meta_value-column index on post meta-table.'),
+					'message' => __('Could not add meta_value-column index on post meta-table.'),
 				];
 				$meta_value_index_addition = false;
 			} else {
 				$result['meta_value_index_addition'] = [
 					'type'    => 'success',
-					'message' => sb__('Added meta_value-column index to post meta-table.'),
+					'message' => __('Added meta_value-column index to post meta-table.'),
 				];
 				$meta_value_index_addition = true;
 			}
@@ -187,14 +187,14 @@ class DatabaseOptimizer
 			if ( $this->meta_value_index_addition['count'] === 0 ) {
 				$result['meta_value_index_addition'] = [
 					'type'    => 'success',
-					'message' => sb__('All post meta-tables already has an index on the meta_value-column.'),
+					'message' => __('All post meta-tables already has an index on the meta_value-column.'),
 				];
 				$meta_value_index_addition = null;
 			} elseif ( count($this->meta_value_index_addition['fail']) > 0 ) {
 				if ( count($this->meta_value_index_addition['fail']) === $this->meta_value_index_addition['count'] ) {
 					$result['meta_value_index_addition'] = [
 						'type'    => 'error',
-						'message' => sb__('Failed to add meta_value-column index on all post meta-tables.'),
+						'message' => __('Failed to add meta_value-column index on all post meta-tables.'),
 					];
 				} else {
 					$failed_blog_urls = array_map(function($blog_id) {
@@ -202,14 +202,14 @@ class DatabaseOptimizer
 					}, $this->meta_value_index_addition['fail']);
 					$result['meta_value_index_addition'] = [
 						'type'  => 'table',
-						'table' => [ sb__('Failed to add meta_value-column index to post meta-tables on sites:') => $failed_blog_urls ]
+						'table' => [ __('Failed to add meta_value-column index to post meta-tables on sites:') => $failed_blog_urls ]
 					];
 				}
 				$meta_value_index_addition = false;
 			} else {
 				$result['meta_value_index_addition'] = [
 					'type'    => 'success',
-					'message' => sb__('Added meta_value-column index to all post meta-tables.'),
+					'message' => __('Added meta_value-column index to all post meta-tables.'),
 				];
 				$meta_value_index_addition = true;
 			}
@@ -220,19 +220,19 @@ class DatabaseOptimizer
 			if ( is_null($this->autoload_index_addition) ) {
 				$result['autoload_index_addition'] = [
 					'type'    => 'success',
-					'message' => sb__('Options-table already have an index on the autoload-column.'),
+					'message' => __('Options-table already have an index on the autoload-column.'),
 				];
 				$autoload_index_addition = null;
 			} elseif ( $this->autoload_index_addition === false ) {
 				$result['autoload_index_addition'] = [
 					'type'    => 'error',
-					'message' => sb__('Could not add autoload-column index on options-table.'),
+					'message' => __('Could not add autoload-column index on options-table.'),
 				];
 				$autoload_index_addition = false;
 			} else {
 				$result['autoload_index_addition'] = [
 					'type'    => 'success',
-					'message' => sb__('Added autoload-column index to options-table.'),
+					'message' => __('Added autoload-column index to options-table.'),
 				];
 				$autoload_index_addition = true;
 			}
@@ -240,18 +240,18 @@ class DatabaseOptimizer
 			if ( $this->autoload_index_addition['count'] === 0 ) {
 				$result['autoload_index_addition'] = [
 					'type' => 'success',
-					'message' => sb__('All options-tables already has an index on the autoload-column.'),
+					'message' => __('All options-tables already has an index on the autoload-column.'),
 				];
 				$autoload_index_addition = null;
 			} elseif ( count($this->autoload_index_addition['fail']) > 0 ) {
 				if ( count($this->autoload_index_addition['fail']) === $this->autoload_index_addition['count'] ) {
 					$result['autoload_index_addition'] = [
 						'type'    => 'error',
-						'message' => sb__('Failed to add autoload-column index on all options-tables'),
+						'message' => __('Failed to add autoload-column index on all options-tables'),
 					];
 				} else {
 					$failed_blog_urls = array_map(function($blog_id) {
-						return [ sb__('Failed to add autoload-column index to options-tables on sites:') => get_site_url($blog_id) ];
+						return [ __('Failed to add autoload-column index to options-tables on sites:') => get_site_url($blog_id) ];
 					}, $this->autoload_index_addition['fail']);
 					$result['autoload_index_addition'] = [
 						'type'  => 'table',
@@ -262,7 +262,7 @@ class DatabaseOptimizer
 			} else {
 				$result['autoload_index_addition'] = [
 					'type'    => 'success',
-					'message' => sb__('Added autoload-column index to all options-tables.'),
+					'message' => __('Added autoload-column index to all options-tables.'),
 				];
 				$autoload_index_addition = true;
 			}
@@ -272,18 +272,18 @@ class DatabaseOptimizer
 		if ( $this->innodb_conversion['count'] === 0 ) {
 			$result['innodb_conversion'] = [
 				'type'    => 'success',
-				'message' => sb__('All tables are already using InnoDB.'),
+				'message' => __('All tables are already using InnoDB.'),
 			];
 			$innodb_conversion = null;
 		} elseif ( count($this->innodb_conversion['fail']) > 0 ) {
 			if ( count($this->innodb_conversion['fail']) === $this->innodb_conversion['count'] ) {
 				$result['innodb_conversion'] = [
 					'type'    => 'error',
-					'message' => sb__('Could not convert tables to InnoDB.'),
+					'message' => __('Could not convert tables to InnoDB.'),
 				];
 			} else {
 				$failed_tables = array_map(function($table_name) {
-					return [ sb__('Failed to convert the following tables to InnoDB:') => $table_name ];
+					return [ __('Failed to convert the following tables to InnoDB:') => $table_name ];
 				}, $this->innodb_conversion['fail']);
 				$result['innodb_conversion'] = [
 					'type'  => 'table',
@@ -294,7 +294,7 @@ class DatabaseOptimizer
 		} else {
 			$result['innodb_conversion'] = [
 				'type'    => 'success',
-				'message' => sb__('All tables converted to InnoDB.'),
+				'message' => __('All tables converted to InnoDB.'),
 			];
 			$innodb_conversion = true;
 		}
@@ -391,10 +391,10 @@ class DatabaseOptimizer
 				if ( ! in_array($this->wpdb()->postmeta, $post_meta_tables_with_post_meta_value_index ) ) {
 					$this->meta_value_index_addition['count']++;
 					if ( $this->dry_run || $this->add_post_meta_index() ) {
-						$this->out(sprintf( sb__('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blogIdentification($site), $site->blog_id), 'success');
+						$this->out(sprintf( __('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blogIdentification($site), $site->blog_id), 'success');
 						$this->meta_value_index_addition['success'][] = $site->blog_id;
 					} else {
-						$this->out(sprintf( sb__('Could not add index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blogIdentification($site), $site->blog_id), 'error');
+						$this->out(sprintf( __('Could not add index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blogIdentification($site), $site->blog_id), 'error');
 						$this->meta_value_index_addition['fail'][] = $site->blog_id;
 					}
 				}
@@ -403,10 +403,10 @@ class DatabaseOptimizer
 		} else {
 			if ( ! in_array($this->wpdb()->postmeta, $post_meta_tables_with_post_meta_value_index ) ) {
 				if ( $this->dry_run || $this->add_post_meta_index() ) {
-					$this->out(sprintf(sb__('Added index to table "%s"'), $this->wpdb()->postmeta), 'success');
+					$this->out(sprintf(__('Added index to table "%s"'), $this->wpdb()->postmeta), 'success');
 					$this->meta_value_index_addition = true;
 				} else {
-					$this->out(sprintf(sb__('Could not add index to table "%s"'), $this->wpdb()->postmeta), 'error');
+					$this->out(sprintf(__('Could not add index to table "%s"'), $this->wpdb()->postmeta), 'error');
 					$this->meta_value_index_addition = false;
 				}
 			}
@@ -425,10 +425,10 @@ class DatabaseOptimizer
 				if ( ! in_array($this->wpdb()->options, $options_tables_with_autoload_index ) ) {
 					$this->autoload_index_addition['count']++;
 					if ( $this->dry_run || $this->add_options_autoload_index() ) {
-						$this->out(sprintf( sb__('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->options, $this->blogIdentification($site), $site->blog_id ), 'success');
+						$this->out(sprintf( __('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->options, $this->blogIdentification($site), $site->blog_id ), 'success');
 						$this->autoload_index_addition['success'][] = $site->blog_id;
 					} else {
-						$this->out(sprintf( sb__('Could not add index to table "%" on site %s (site ID %s)'), $this->wpdb()->options, $this->blogIdentification($site), $site->blog_id ), 'error');
+						$this->out(sprintf( __('Could not add index to table "%" on site %s (site ID %s)'), $this->wpdb()->options, $this->blogIdentification($site), $site->blog_id ), 'error');
 						$this->autoload_index_addition['fail'][] = $site->blog_id;
 					}
 				}
@@ -437,10 +437,10 @@ class DatabaseOptimizer
 		} else {
 			if ( ! in_array($this->wpdb()->options, $options_tables_with_autoload_index ) ) {
 				if ( $this->dry_run || $this->add_options_autoload_index() ) {
-					$this->out(sb__('Added index to table "options-table'), 'success');
+					$this->out(__('Added index to table "options-table'), 'success');
 					$this->autoload_index_addition = true;
 				} else {
-					$this->out(sb__('Could not add index to options-table'), 'error');
+					$this->out(__('Could not add index to options-table'), 'error');
 					$this->autoload_index_addition = false;
 				}
 
@@ -726,10 +726,10 @@ class DatabaseOptimizer
 				if ( ! isset($table->table_name) ) continue;
 				$this->innodb_conversion['count']++;
 				if ( $this->dry_run || $this->convertTableToInnodb($table->table_name) ) {
-					$this->out(sprintf(sb__('Converted table "%s" to InnoDB'), $table->table_name), 'success');
+					$this->out(sprintf(__('Converted table "%s" to InnoDB'), $table->table_name), 'success');
 					$this->innodb_conversion['success'][] = $table->table_name;
 				} else {
-					$this->out(sprintf(sb__('Could not convert table "%s" to InnoDB'), $table->table_name), 'error');
+					$this->out(sprintf(__('Could not convert table "%s" to InnoDB'), $table->table_name), 'error');
 					$this->innodb_conversion['fail'][] = $table->table_name;
 				}
 			}

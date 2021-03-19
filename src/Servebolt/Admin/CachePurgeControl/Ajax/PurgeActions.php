@@ -113,7 +113,7 @@ class PurgeActions extends SharedAjaxMethods
 
         $url = (string) arrayGet('url', $_POST);
         if (!$url || empty($url)) {
-            wp_send_json_error( [ 'message' => sb__('Please specify the URL you would like to purge cache for.') ] );
+            wp_send_json_error( [ 'message' => __('Please specify the URL you would like to purge cache for.') ] );
             return;
         }
 
@@ -123,10 +123,10 @@ class PurgeActions extends SharedAjaxMethods
             if ($cronPurgeIsActive) {
                 wp_send_json_success([
                     'title' => 'Just a moment',
-                    'message' => sprintf(sb__('A cache purge-request for the URL "%s" was added to the queue and will be executed shortly.'), $url),
+                    'message' => sprintf(__('A cache purge-request for the URL "%s" was added to the queue and will be executed shortly.'), $url),
                 ]);
             } else {
-                wp_send_json_success(['message' => sprintf(sb__('Cache was purged for URL "%s".'), $url)]);
+                wp_send_json_success(['message' => sprintf(__('Cache was purged for URL "%s".'), $url)]);
             }
         } catch (QueueError $e) {
             // TODO: Handle response from queue system
@@ -168,10 +168,10 @@ class PurgeActions extends SharedAjaxMethods
             if ($cronPurgeIsActive) {
                 wp_send_json_success( [
                     'title'   => 'Just a moment',
-                    'message' => sprintf(sb__('A cache purge-request for the post "%s" was added to the queue and will be executed shortly.'), get_the_title($postId)),
+                    'message' => sprintf(__('A cache purge-request for the post "%s" was added to the queue and will be executed shortly.'), get_the_title($postId)),
                 ] );
             } else {
-                wp_send_json_success(['message' => sprintf(sb__('Cache was purged for the post post "%s".'), get_the_title($postId))]);
+                wp_send_json_success(['message' => sprintf(__('Cache was purged for the post post "%s".'), get_the_title($postId))]);
             }
         } catch (QueueError $e) {
             // TODO: Handle response from queue system
@@ -219,7 +219,7 @@ class PurgeActions extends SharedAjaxMethods
             if ( ! sb_cf_cache()->cf_cache_feature_available() ) {
                 $failed_purge_attempts[] = [
                     'blog_id' => $site->blog_id,
-                    'reason'  => sb__('Cloudflare feature not available'),
+                    'reason'  => __('Cloudflare feature not available'),
                 ];
                 return;
             }
@@ -253,23 +253,23 @@ class PurgeActions extends SharedAjaxMethods
 
         if ( $all_failed ) {
             wp_send_json_error( [
-                'message' => sb__('Could not purge cache on any sites.'),
+                'message' => __('Could not purge cache on any sites.'),
             ] );
         } else {
             if ( $failed_purge_attempt_count > 0 ) {
                 wp_send_json_success([
                     'type'   => 'warning',
-                    'title'  => sb__('Could not clear cache on all sites'),
+                    'title'  => __('Could not clear cache on all sites'),
                     'markup' => $this->purgeNetworkCacheFailedSites($failed_purge_attempts),
                 ]);
             } else {
 
                 if ( $all_sites_use_queue_based_cache_purge ) {
-                    $feedback = sb__('Cache will be cleared for all sites in a moment.');
+                    $feedback = __('Cache will be cleared for all sites in a moment.');
                 } elseif ( $some_sites_has_queue_purge_active ) {
-                    $feedback = sb__('Cache cleared for all sites, but note that some sites are using queue based cache purging and will be purged in a moment.');
+                    $feedback = __('Cache cleared for all sites, but note that some sites are using queue based cache purging and will be purged in a moment.');
                 } else {
-                    $feedback = sb__('Cache cleared for all sites');
+                    $feedback = __('Cache cleared for all sites');
                 }
 
                 wp_send_json_success( [
@@ -293,15 +293,15 @@ class PurgeActions extends SharedAjaxMethods
             case 'url_purge_item_already_in_queue':
                 wp_send_json_success( [
                     'type'    => 'warning',
-                    'title'   => sb__('Oh!'),
-                    'message' => sb__('All good, the URL is already in the cache purge queue!'),
+                    'title'   => __('Oh!'),
+                    'message' => __('All good, the URL is already in the cache purge queue!'),
                 ] );
                 break;
             case 'post_purge_item_already_in_queue':
                 wp_send_json_success( [
                     'type'    => 'warning',
-                    'title'   => sb__('Oh!'),
-                    'message' => sb__('All good, the post is already in the cache purge queue.'),
+                    'title'   => __('Oh!'),
+                    'message' => __('All good, the post is already in the cache purge queue.'),
                 ] );
                 break;
             default:
@@ -320,7 +320,7 @@ class PurgeActions extends SharedAjaxMethods
     /*
     private function purgeNetworkCacheFailedSites($failed): string
     {
-        $markup = '<strong>' . sb__('The cache was cleared on all sites except the following:') . '</strong>';
+        $markup = '<strong>' . __('The cache was cleared on all sites except the following:') . '</strong>';
         $markup .= sb_create_li_tags_from_array($failed, function ($item) {
             return sb_get_blog_name($item['blog_id']) . ( $item['reason'] ? ' (' . $item['reason'] . ')' : '' );
         });

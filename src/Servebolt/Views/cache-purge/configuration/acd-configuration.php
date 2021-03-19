@@ -5,16 +5,16 @@
 <tbody class="sb-config-field-general sb-config-field-acd <?php if ( ! $settings['cache_purge_switch'] || $settings['cache_purge_driver'] !== 'acd' ) echo 'sb-config-field-hidden'; ?>">
     <tr>
         <th scope="row" colspan="100%" style="padding-bottom: 5px;">
-            <h3 style="margin-bottom: 0;"><?php sb_e('API credentials'); ?></h3>
-            <p style="font-weight: normal;"><?php sb_e('The information below is read from the environment file in the Servebolt hosting environment.'); ?></p>
+            <h3 style="margin-bottom: 0;"><?php _e('API credentials'); ?></h3>
+            <p style="font-weight: normal;"><?php _e('The information below is read from the environment file in the Servebolt hosting environment.'); ?></p>
             <?php if (!$serveboltCachePurge->configurationOk()) : ?>
-                <p style="font-weight: normal;color: red;"><?php sb_e('We could not seem to load the configuration from the environment file and therefore the cache purge feature is disabled.'); ?></p>
+                <p style="font-weight: normal;color: red;"><?php _e('We could not seem to load the configuration from the environment file and therefore the cache purge feature is disabled.'); ?></p>
             <?php endif; ?>
         </th>
     </tr>
 
     <tr>
-        <th scope="row"><label for="sb_api_key"><?php sb_e('API key'); ?></label></th>
+        <th scope="row"><label for="sb_api_key"><?php _e('API key'); ?></label></th>
         <td>
 
             <div class="sb-pwd">
@@ -28,7 +28,7 @@
         </td>
     </tr>
     <tr>
-        <th scope="row"><label for="sb_environment_id"><?php sb_e('Environment ID'); ?></label></th>
+        <th scope="row"><label for="sb_environment_id"><?php _e('Environment ID'); ?></label></th>
         <td>
             <input type="text" id="sb_environment_id" value="<?php echo esc_attr($serveboltApi->getEnvironmentId()); ?>" class="regular-text validate-field validation-input-email" readonly>
             <p class="invalid-message"></p>

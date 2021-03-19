@@ -58,7 +58,7 @@ class AdminBarGUI
 			$nodes = array_merge([
 				[
 					'id'    => $parentId,
-					'title' => sb__('Servebolt Optimizer'),
+					'title' => __('Servebolt Optimizer'),
 					'href'  => false,
 					'meta'  => [
 						'target' => '_blank',
@@ -93,7 +93,7 @@ class AdminBarGUI
 		if ($adminUrl = getServeboltAdminUrl()) {
 			$nodes[] = [
 				'id'    => 'servebolt-crontrol-panel',
-				'title' => sb__('Servebolt Control Panel'),
+				'title' => __('Servebolt Control Panel'),
 				'href'  => $adminUrl,
 				'meta'  => [
 					'target' => '_blank',
@@ -107,7 +107,7 @@ class AdminBarGUI
 		    /*
 			$nodes[] = [
 				'id'    => 'servebolt-clear-cf-network-cache',
-				'title' => sb__('Purge Cloudflare Cache for all sites'),
+				'title' => __('Purge Cloudflare Cache for all sites'),
 				'href'  => '#',
 				'meta'  => [
 					'target' => '_blank',
@@ -123,7 +123,7 @@ class AdminBarGUI
             if ($cachePurgeAvailable) {
                 $nodes[] = [
                     'id' => 'servebolt-clear-all-cf-cache',
-                    'title' => sb__('Purge all cache'),
+                    'title' => __('Purge all cache'),
                     'href' => '#',
                     'meta' => [
                         'class' => 'sb-admin-button sb-purge-all-cache'
@@ -135,7 +135,7 @@ class AdminBarGUI
         if ($cachePurgeAvailable) {
             $nodes[] = [
                 'id' => 'servebolt-clear-cf-cache-url',
-                'title' => sb__('Purge a URL'),
+                'title' => __('Purge a URL'),
                 'href' => '#',
                 'meta' => [
                     'class' => 'sb-admin-button sb-purge-url'
@@ -148,7 +148,7 @@ class AdminBarGUI
 				if ($postId = $this->getSinglePostId()) {
 					$nodes[] = [
 						'id'    => 'servebolt-clear-current-cf-cache',
-						'title' => '<span data-id="' . $postId . '">' . sb__('Purge current post cache') . '</span>',
+						'title' => '<span data-id="' . $postId . '">' . __('Purge current post cache') . '</span>',
 						'href'  => '#',
 						'meta'  => [
 							'class' => 'sb-admin-button sb-purge-current-post-cache'
@@ -160,7 +160,7 @@ class AdminBarGUI
 
 		$nodes[] = [
 			'id'    => 'servebolt-plugin-settings',
-			'title' => sb__('Settings'),
+			'title' => __('Settings'),
 			'href'  => $method('admin.php?page=servebolt-wp'),
 			'meta'  => [
 				'target' => '',

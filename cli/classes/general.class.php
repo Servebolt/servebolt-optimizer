@@ -21,12 +21,12 @@ class Servebolt_CLI_General extends Servebolt_CLI_Extras {
 	public function command_delete_all_settings($args, $assoc_args) {
 		$affect_all_sites = $this->affect_all_sites( $assoc_args );
 		if ( $affect_all_sites ) {
-			WP_CLI::confirm(sb__('Do you really want to delete all settings? This will affect all sites in multisite-network.'));
+			WP_CLI::confirm(__('Do you really want to delete all settings? This will affect all sites in multisite-network.'));
 		} else {
-			WP_CLI::confirm(sb__('Do you really want to delete all settings?'));
+			WP_CLI::confirm(__('Do you really want to delete all settings?'));
 		}
         Servebolt\Optimizer\Helpers\deleteAllSettings($affect_all_sites);
-		WP_CLI::success(sb__('All settings deleted!'));
+		WP_CLI::success(__('All settings deleted!'));
 	}
 
 }

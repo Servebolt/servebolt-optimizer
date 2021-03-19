@@ -3,7 +3,7 @@
 
 <div class="wrap sb-content">
 	<div class="sb-logo"></div>
-	<h1 class="heading"><?php sb_e('Performance tools'); ?></h1>
+	<h1 class="heading"><?php _e('Performance tools'); ?></h1>
 
     <?php settings_errors(); ?>
 

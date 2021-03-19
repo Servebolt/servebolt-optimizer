@@ -137,7 +137,7 @@ class AdminGuiController
      */
     private function generalPageMenuPage(): void
     {
-        add_menu_page( sb__('Servebolt'), sb__('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'generalPageCallback'], SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/images/servebolt-icon.svg' );
+        add_menu_page( __('Servebolt'), __('Servebolt'), 'manage_options', 'servebolt-wp', [$this, 'generalPageCallback'], SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/images/servebolt-icon.svg' );
     }
 
     /**
@@ -145,7 +145,7 @@ class AdminGuiController
      */
     private function cachePurgeMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('Cache purging'), sb__('Cache purging'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Cache purging'), __('Cache purging'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-cf-cache-control', [$this, 'cachePurgeLegacyRedirect']);
     }
 
@@ -167,7 +167,7 @@ class AdminGuiController
     private function cfImageResizeMenu(): void
     {
         if (Servebolt\Optimizer\Helpers\featureIsActive('cf_image_resize')) {
-            add_submenu_page('servebolt-wp', sb__('Cloudflare Image Resizing'), sb__('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [CloudflareImageResizing::getInstance(), 'render']);
+            add_submenu_page('servebolt-wp', __('Cloudflare Image Resizing'), __('Cloudflare Image Resizing'), 'manage_options', 'servebolt-cf-image-resizing', [CloudflareImageResizing::getInstance(), 'render']);
         }
     }
 
@@ -176,7 +176,7 @@ class AdminGuiController
      */
     private function fpcCacheMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('Page Cache'), sb__('Full Page Cache'), 'manage_options', 'servebolt-fpc', [FullPageCacheControl::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Page Cache'), __('Full Page Cache'), 'manage_options', 'servebolt-fpc', [FullPageCacheControl::getInstance(), 'render']);
     }
 
     /**
@@ -184,7 +184,7 @@ class AdminGuiController
      */
     private function errorLogMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('Error log'), sb__('Error log'), 'manage_options', 'servebolt-logs', [LogViewer::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Error log'), __('Error log'), 'manage_options', 'servebolt-logs', [LogViewer::getInstance(), 'render']);
     }
 
     /**
@@ -192,7 +192,7 @@ class AdminGuiController
      */
     private function debugMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('Debug'), sb__('Debug'), 'manage_options', 'servebolt-debug', [$this, 'debugCallback']);
+        add_submenu_page('servebolt-wp', __('Debug'), __('Debug'), 'manage_options', 'servebolt-debug', [$this, 'debugCallback']);
     }
 
     /**
@@ -200,7 +200,7 @@ class AdminGuiController
      */
     private function performanceOptimizerMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('Performance optimizer'), sb__('Performance optimizer'), 'manage_options', 'servebolt-performance-tools', [PerformanceChecks::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Performance optimizer'), __('Performance optimizer'), 'manage_options', 'servebolt-performance-tools', [PerformanceChecks::getInstance(), 'render']);
     }
 
     /**
@@ -208,7 +208,7 @@ class AdminGuiController
      */
     private function generalMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('General'), sb__('General'), 'manage_options', 'servebolt-wp');
+        add_submenu_page('servebolt-wp', __('General'), __('General'), 'manage_options', 'servebolt-wp');
     }
 
     /**
@@ -216,7 +216,7 @@ class AdminGuiController
      */
     private function generalSettingsMenu(): void
     {
-        add_submenu_page('servebolt-wp', sb__('Settings'), sb__('Settings'), 'manage_options', 'servebolt-general-settings', [GeneralSettings::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Settings'), __('Settings'), 'manage_options', 'servebolt-general-settings', [GeneralSettings::getInstance(), 'render']);
     }
 
     /**
@@ -236,7 +236,7 @@ class AdminGuiController
      */
     public function addSettingsLinkToPlugin($links): array
     {
-        $links[] = sprintf('<a href="%s">%s</a>', admin_url( 'options-general.php?page=servebolt-wp' ), sb__('Settings'));
+        $links[] = sprintf('<a href="%s">%s</a>', admin_url( 'options-general.php?page=servebolt-wp' ), __('Settings'));
         return $links;
     }
 

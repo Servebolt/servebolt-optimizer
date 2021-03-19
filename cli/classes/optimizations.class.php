@@ -43,9 +43,9 @@ class Servebolt_CLI_Optimizations {
 	public function command_analyze_tables() {
         $instance = DatabaseOptimizer::getInstance();
 		if (!$instance->analyzeTables(true)) {
-			WP_CLI::error(sb__('Could not analyze tables.'));
+			WP_CLI::error(__('Could not analyze tables.'));
 		} else {
-			WP_CLI::success(sb__('Analyzed tables.'));
+			WP_CLI::success(__('Analyzed tables.'));
 		}
 	}
 

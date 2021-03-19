@@ -120,7 +120,7 @@ class Configuration extends SharedAjaxMethods
         switch ($authType) {
             case 'api_token':
                 if ( empty($apiToken) ) {
-                    $errors['api_token'] = sb__('You need to provide an API token.');
+                    $errors['api_token'] = __('You need to provide an API token.');
                 } else {
                     $cfSdk = new CloudflareSdk([
                         'authType' => 'api_token',
@@ -132,17 +132,17 @@ class Configuration extends SharedAjaxMethods
                         }
                         $shouldCheckZone = true;
                     } catch (Exception $e) {
-                        $errors['api_token'] = sb__('Invalid API token.');
+                        $errors['api_token'] = __('Invalid API token.');
                     }
                 }
                 break;
             case 'api_key':
                 if (empty($email)) {
-                    $errors['email'] = sb__('You need to provide an email address.');
+                    $errors['email'] = __('You need to provide an email address.');
                 }
 
                 if (empty($apiKey)) {
-                    $errors['api_key'] = sb__('You need to provide an API key.');
+                    $errors['api_key'] = __('You need to provide an API key.');
                 }
 
                 if (!empty($email) && !empty($apiKey)) {
@@ -156,31 +156,31 @@ class Configuration extends SharedAjaxMethods
                         }
                         $shouldCheckZone = true;
                     } catch (Exception $e) {
-                        $errors['api_key_credentials'] = sb__( 'Invalid API credentials.' );
+                        $errors['api_key_credentials'] = __( 'Invalid API credentials.' );
                     }
                 }
 
                 break;
             default:
-                $errors[] = sb__('Invalid authentication type.');
+                $errors[] = __('Invalid authentication type.');
         }
 
         if ( $shouldCheckZone ) {
             if ( empty($zoneId) ) {
-                $errors['zone_id'] = sb__('You need to provide a zone.');
+                $errors['zone_id'] = __('You need to provide a zone.');
             } else {
                 try {
                     if ( ! $zoneId = $cfSdk->getZoneById($zoneId) ) {
                         throw new Exception;
                     }
                 } catch (Exception $e) {
-                    $errors['zone_id'] = sb__('Seems like we are lacking access to zone (check permissions) or the zone does not exist.');
+                    $errors['zone_id'] = __('Seems like we are lacking access to zone (check permissions) or the zone does not exist.');
                 }
             }
         } else {
             /*
             $string = $authType == 'api_token' ? 'token' : 'credentials';
-            $errors[] = sprintf(sb__('Cannot validate zone due to insufficient/invalid API %s'), $string);
+            $errors[] = sprintf(__('Cannot validate zone due to insufficient/invalid API %s'), $string);
             */
         }
 
@@ -222,6 +222,6 @@ class Configuration extends SharedAjaxMethods
         $errors = array_map(function ($error) {
             return rtrim(trim($error), '.');
         }, $errors);
-        return '<br><strong>' . sb__('Validation errors:') . '</strong><ul><li>- ' . implode('</li><li>- ', $errors) . '</li></ul>';
+        return '<br><strong>' . __('Validation errors:') . '</strong><ul><li>- ' . implode('</li><li>- ', $errors) . '</li></ul>';
     }
 }
