@@ -1,5 +1,12 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+use function Servebolt\Optimizer\Helpers\isUrl;
+use function Servebolt\Optimizer\Helpers\updateBlogOption;
+use function Servebolt\Optimizer\Helpers\getBlogOption;
+use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\getOption;
 
 /**
  * Class Servebolt_CF_Cache_Purge_Queue_Handling
@@ -122,11 +129,11 @@ class Servebolt_CF_Cache_Purge_Queue_Handling {
             return $active_state_override;
         }
         if ( is_numeric($blog_id) ) {
-            $value = sb_get_blog_option($blog_id, $this->cf_cron_active_option_key());
+            $value = getBlogOption($blog_id, $this->cf_cron_active_option_key());
         } else {
-            $value = sb_get_option($this->cf_cron_active_option_key());
+            $value = getOption($this->cf_cron_active_option_key());
         }
-        return sb_checkbox_true($value);
+        return checkboxIsChecked($value);
     }
 
     /**
@@ -149,9 +156,9 @@ class Servebolt_CF_Cache_Purge_Queue_Handling {
     public function cf_toggle_cron_active(bool $state, $blog_id = false) {
         $blog_id = $this->get_blog_id($blog_id);
         if ( is_numeric($blog_id) ) {
-            return sb_update_blog_option($blog_id, $this->cf_cron_active_option_key(), $state);
+            return updateBlogOption($blog_id, $this->cf_cron_active_option_key(), $state);
         } else {
-            return sb_update_option($this->cf_cron_active_option_key(), $state);
+            return updateOption($this->cf_cron_active_option_key(), $state);
         }
     }
 
@@ -303,7 +310,7 @@ class Servebolt_CF_Cache_Purge_Queue_Handling {
      * @return bool
      */
     public function set_items_to_purge( array $items_to_purge ) {
-        return sb_update_option( $this->cf_purge_queue_option_key(), $items_to_purge, false );
+        return updateOption( $this->cf_purge_queue_option_key(), $items_to_purge, false );
     }
 
     /**
@@ -346,9 +353,9 @@ class Servebolt_CF_Cache_Purge_Queue_Handling {
     public function get_items_to_purge($limit = false, $blog_id = false, $format_items = true) {
         $blog_id = $this->get_blog_id($blog_id);
         if ( is_numeric($blog_id) ) {
-            $items = sb_get_blog_option($blog_id, $this->cf_purge_queue_option_key());
+            $items = getBlogOption($blog_id, $this->cf_purge_queue_option_key());
         } else {
-            $items = sb_get_option($this->cf_purge_queue_option_key());
+            $items = getOption($this->cf_purge_queue_option_key());
         }
         if ( ! is_array($items) ) return [];
 
@@ -378,7 +385,7 @@ class Servebolt_CF_Cache_Purge_Queue_Handling {
                     return $this->purge_queue_item_template(false, 'all', null);
                 } elseif ( is_numeric($item) ) {
                     return $this->purge_queue_item_template($item, 'post', null);
-                } elseif( sb_is_url($item) ) {
+                } elseif( isUrl($item) ) {
                     return $this->purge_queue_item_template($item, 'url', null);
                 }
             }

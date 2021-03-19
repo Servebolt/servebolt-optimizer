@@ -3,7 +3,7 @@
 namespace Unit;
 
 use WP_UnitTestCase;
-use function Servebolt\Optimizer\Helpers\sbGetAdminUrl;
+use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
 
 class HelpersTest extends WP_UnitTestCase
 {
@@ -11,6 +11,6 @@ class HelpersTest extends WP_UnitTestCase
     public function testThatWeCanGetAdminUrlFromHomePath(): void
     {
         define('SB_DEBUG', true);
-        $this->assertEquals(sbGetAdminUrl(), 'https://admin.servebolt.com/siteredirect/?site=4321');
+        $this->assertEquals(getServeboltAdminUrl(), 'https://admin.servebolt.com/siteredirect/?site=4321');
     }
 }

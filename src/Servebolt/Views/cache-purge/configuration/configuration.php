@@ -1,23 +1,24 @@
-<?php if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly ?>
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\view; ?>
+<?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 
 <?php settings_errors(); ?>
 
 <?php /*
 <?php if ( $numberOfCachePurgeQueueItems > $maxNumberOfCachePurgeQueueItems ) : ?>
     <div class="notice notice-warning">
-        <p><?php echo sprintf(sb__('Note: It seems like there is over %s items in the %scache purge queue list%s. This indicates that there might be something wrong with the cron-setup since the cache does not get purged automatically. Please make sure you have set everything up correctly and/or contact support.'), $max_number_of_cache_purge_queue_items, '<a href="#purge-items-table">', '</a>'); ?></p>
+        <p><?php echo sprintf(__('Note: It seems like there is over %s items in the %scache purge queue list%s. This indicates that there might be something wrong with the cron-setup since the cache does not get purged automatically. Please make sure you have set everything up correctly and/or contact support.', 'servebolt-wp'), $max_number_of_cache_purge_queue_items, '<a href="#purge-items-table">', '</a>'); ?></p>
     </div>
 <?php endif; ?>
  */ ?>
 
-<p><?php sb_e('This feature will automatically purge the cache whenever you do an update in WordPress. Neat right?'); ?></p>
+<p><?php _e('This feature will automatically purge the cache whenever you do an update in WordPress. Neat right?', 'servebolt-wp'); ?></p>
 
     <?php view('cache-purge.configuration.cache-purge-triggers'); ?>
 
-    <h1><?php sb_e('Configuration'); ?></h1>
-    <!--<p><?php sb_e('This feature can be set up using WP CLI or with the form below.'); ?></p>-->
-    <!--<p><?php echo sprintf(sb__('Run %swp servebolt cache-purge --help%s to see available commands.'), '<code>', '</code>'); ?></p>-->
+    <h1><?php _e('Configuration', 'servebolt-wp'); ?></h1>
+    <!--<p><?php _e('This feature can be set up using WP CLI or with the form below.', 'servebolt-wp'); ?></p>-->
+    <!--<p><?php echo sprintf(__('Run %swp servebolt cache-purge --help%s to see available commands.', 'servebolt-wp'), '<code>', '</code>'); ?></p>-->
 
     <style type="text/css">
         .sb-config-field-hidden {
@@ -26,35 +27,35 @@
     </style>
 
     <form method="post" autocomplete="off" action="options.php" id="sb-configuration-form">
-        <?php settings_fields( 'sb-cf-options-page' ) ?>
-        <?php do_settings_sections( 'sb-cf-options-page' ) ?>
+        <?php settings_fields('sb-cache-purge-options-page') ?>
+        <?php do_settings_sections('sb-cache-purge-options-page') ?>
 
         <table class="form-table" id="sb-configuration-table" role="presentation">
 
             <tr>
-                <th scope="row"><?php sb_e('Cache purge-feature'); ?></th>
+                <th scope="row"><?php _e('Cache purge-feature', 'servebolt-wp'); ?></th>
                 <td>
                     <fieldset>
-                        <legend class="screen-reader-text"><span><?php sb_e('Cache purge-feature active?'); ?></span></legend>
+                        <legend class="screen-reader-text"><span><?php _e('Cache purge-feature active?', 'servebolt-wp'); ?></span></legend>
                         <label for="cache_purge_switch">
-                            <input name="<?php echo sb_get_option_name('cache_purge_switch'); ?>" type="checkbox" id="cache_purge_switch" value="1" <?php checked($settings['cache_purge_switch']); ?>>
-                            <?php sb_e('Active?'); ?>
+                            <input name="<?php echo getOptionName('cache_purge_switch'); ?>" type="checkbox" id="cache_purge_switch" value="1" <?php checked($settings['cache_purge_switch']); ?>>
+                            <?php _e('Active?', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
                 </td>
             </tr>
 
             <tr class="sb-config-field-general <?php if ( ! $settings['cache_purge_switch'] ) echo ' sb-config-field-hidden'; ?>">
-                <th scope="row"><?php sb_e('Cache purge driver'); ?></th>
+                <th scope="row"><?php _e('Cache purge driver', 'servebolt-wp'); ?></th>
                 <td>
                     <fieldset>
-                        <legend class="screen-reader-text"><span><?php sb_e('Cache purge driver'); ?></span></legend>
+                        <legend class="screen-reader-text"><span><?php _e('Cache purge driver', 'servebolt-wp'); ?></span></legend>
                         <label>
-                            <input type="radio" name="<?php echo sb_get_option_name('cache_purge_driver'); ?>" value="cloudflare" <?php checked($settings['cache_purge_driver'] == 'cloudflare'); ?>> <code><?php sb_e('Cloudflare'); ?></code>
+                            <input type="radio" name="<?php echo getOptionName('cache_purge_driver'); ?>" value="cloudflare" <?php checked($settings['cache_purge_driver'] == 'cloudflare'); ?>> <code><?php _e('Cloudflare', 'servebolt-wp'); ?></code>
                         </label>
                         <br>
                         <label<?php if (!$isHostedAtServebolt) echo ' style="opacity: 0.5;pointer-events:none;"'; ?>>
-                            <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo sb_get_option_name('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?>> <code><?php sb_e('Accelerated Domains'); ?></code>
+                            <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo getOptionName('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?>> <code><?php _e('Accelerated Domains', 'servebolt-wp'); ?></code>
                             <em>For Servebolt-customers only</em>
                         </label>
                     </fieldset>

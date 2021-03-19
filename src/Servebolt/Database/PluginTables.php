@@ -2,6 +2,10 @@
 
 namespace Servebolt\Optimizer\Database;
 
+/**
+ * Class PluginTables
+ * @package Servebolt\Optimizer\Database
+ */
 class PluginTables
 {
 

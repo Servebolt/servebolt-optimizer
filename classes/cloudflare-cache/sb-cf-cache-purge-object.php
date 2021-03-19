@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 require_once __DIR__ . '/cache-purge-object-types/shared-methods.php';
 require_once __DIR__ . '/cache-purge-object-types/type-post.php';

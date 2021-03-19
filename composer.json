@@ -56,7 +56,7 @@
   ],
   "autoload": {
     "files": [
-      "src/Servebolt/Helpers/General.php",
+      "src/Servebolt/Helpers/Helpers.php",
       "src/Servebolt/CachePurge/ThirdPartyFunctions.php"
     ],
     "psr-4": {

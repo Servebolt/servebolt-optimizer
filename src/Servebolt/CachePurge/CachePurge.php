@@ -2,13 +2,16 @@
 
 namespace Servebolt\Optimizer\CachePurge;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
 use Servebolt\Optimizer\Api\Cloudflare\Cloudflare as CloudflareApi;
 use Servebolt\Optimizer\CachePurge\Drivers\Servebolt as ServeboltDriver;
 use Servebolt\Optimizer\CachePurge\Drivers\Cloudflare as CloudflareDriver;
+use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+use function Servebolt\Optimizer\Helpers\hostIsServebolt;
+use function Servebolt\Optimizer\Helpers\getOption;
 
 /**
  * Class CachePurge
@@ -109,7 +112,7 @@ class CachePurge
      * @param int|null $blogId
      * @return bool
      */
-    public static function featureIsActive(?int $blogId = null): bool
+    public static function featureIsAvailable(?int $blogId = null): bool
     {
         return self::cachePurgeIsActive($blogId) && self::featureIsConfigured($blogId);
     }
@@ -159,9 +162,9 @@ class CachePurge
     {
         $key = 'cache_purge_switch';
         if (is_numeric($blogId)) {
-            return sb_checkbox_true(sb_get_blog_option($blogId, $key));
+            return checkboxIsChecked(getBlogOption($blogId, $key));
         } else {
-            return sb_checkbox_true(sb_get_option($key));
+            return checkboxIsChecked(getOption($key));
         }
     }
 
@@ -186,9 +189,9 @@ class CachePurge
     {
         $key = 'cache_purge_driver';
         if (is_numeric($blogId)) {
-            return sb_get_blog_option($blogId, $key);
+            return getBlogOption($blogId, $key);
         } else {
-            return sb_get_option($key);
+            return getOption($key);
         }
     }
 
@@ -199,7 +202,7 @@ class CachePurge
      */
     private static function isHostedAtServebolt(): bool
     {
-        return host_is_servebolt();
+        return hostIsServebolt();
     }
 
     /**
@@ -275,9 +278,9 @@ class CachePurge
         }
         $key = 'cf_cron_purge';
         if ( is_numeric($blogId) ) {
-            return sb_checkbox_true(sb_get_blog_option($blogId, $key));
+            return checkboxIsChecked(getBlogOption($blogId, $key));
         } else {
-            return sb_checkbox_true(sb_get_option($key));
+            return checkboxIsChecked(getOption($key));
         }
     }
 }

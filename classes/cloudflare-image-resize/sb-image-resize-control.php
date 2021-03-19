@@ -1,5 +1,11 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+use function Servebolt\Optimizer\Helpers\updateBlogOption;
+use function Servebolt\Optimizer\Helpers\getBlogOption;
+use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\getOption;
 
 /**
  * Class SB_Image_Resize_Control
@@ -46,9 +52,9 @@ class SB_Image_Resize_Control {
 	 */
 	public function cf_image_resize_toggle_active(bool $state, $blog_id = false) {
 		if ( is_numeric($blog_id) ) {
-			return sb_update_blog_option($blog_id, $this->cf_resizing_active_option_key(), $state);
+			return updateBlogOption($blog_id, $this->cf_resizing_active_option_key(), $state);
 		} else {
-			return sb_update_option($this->cf_resizing_active_option_key(), $state);
+			return updateOption($this->cf_resizing_active_option_key(), $state);
 		}
 	}
 
@@ -61,9 +67,9 @@ class SB_Image_Resize_Control {
 	 */
 	public function resizing_is_active($blog_id = false) {
 		if ( is_numeric($blog_id) ) {
-			return sb_checkbox_true(sb_get_blog_option($blog_id, $this->cf_resizing_active_option_key()));
+			return checkboxIsChecked(getBlogOption($blog_id, $this->cf_resizing_active_option_key()));
 		} else {
-			return sb_checkbox_true(sb_get_option($this->cf_resizing_active_option_key()));
+			return checkboxIsChecked(getOption($this->cf_resizing_active_option_key()));
 		}
 	}
 

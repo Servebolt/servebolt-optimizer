@@ -1,7 +1,13 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\CachePurge;
+use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\booleanToStateString;
+use function Servebolt\Optimizer\Helpers\resolvePostIdsToTitleAndPostIdString;
+use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
+use function Servebolt\Optimizer\Helpers\getBlogName;
+use function Servebolt\Options\Helpers\iterateSites;
 
 /**
  * Class Servebolt_CLI_Cloudflare_Cache_Extra
@@ -83,7 +89,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	 */
 	private function test_api($cf, $params, $return = false) {
 		if ( ! $cf ) {
-			$message = sb__('Could not register credentials with Cloudflare API class.');
+			$message = __('Could not register credentials with Cloudflare API class.', 'servebolt-wp');
 			if ( $return ) {
 				return $message;
 			}
@@ -91,11 +97,11 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		} elseif ( ! $params['disable_validation'] ) {
 			if ( $cf->test_api_connection($params['auth_type']) ) {
 				if ( ! $return ) {
-					WP_CLI::success(sb__('Cloudflare API test passed.'));
+					WP_CLI::success(__('Cloudflare API test passed.', 'servebolt-wp'));
 				}
 				return true;
 			} else {
-				$message = sb__('Cloudflare API test failed. Please check your credentials.');
+				$message = __('Cloudflare API test failed. Please check your credentials.', 'servebolt-wp');
 				if ( $return ) {
 					return $message;
 				}
@@ -112,7 +118,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	 * @return mixed
 	 */
 	private function confirm($text) {
-		$result = $this->collect_parameter($text . ' ' . sb__('[y/n]') . ' ', sb__('Please reply with either "y" or "n".'), function($input) {
+		$result = $this->collect_parameter($text . ' ' . __('[y/n]', 'servebolt-wp') . ' ', __('Please reply with either "y" or "n".', 'servebolt-wp'), function($input) {
 			switch ($input) {
 				case 'y':
 					return ['boolean' => true];
@@ -135,7 +141,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	 */
 	private function multisite_has_multiple_domains($only_check_top_domain = false) {
 		$domains = [];
-		sb_iterate_sites(function($site) use (&$domains, $only_check_top_domain) {
+        iterateSites(function($site) use (&$domains, $only_check_top_domain) {
 			$site_url = get_site_url($site->blog_id);
 			$url_parts = parse_url($site_url);
 			$hostname = $url_parts['host'];
@@ -162,37 +168,37 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 
 		$api_connection_available = false;
 
-		WP_CLI::line(sb__('Welcome!'));
-		WP_CLI::line(sb__('This guide will set up the Cloudflare feature on your site.'));
-		WP_CLI::line(sb__('This allows for automatic cache purge when the contents of your site changes.'));
-		WP_CLI::line(sb__('Note that this will potentially overwrite any already existing configuration.'));
+		WP_CLI::line(__('Welcome!', 'servebolt-wp'));
+		WP_CLI::line(__('This guide will set up the Cloudflare feature on your site.', 'servebolt-wp'));
+		WP_CLI::line(__('This allows for automatic cache purge when the contents of your site changes.', 'servebolt-wp'));
+		WP_CLI::line(__('Note that this will potentially overwrite any already existing configuration.', 'servebolt-wp'));
 		if ( $params['affect_all_sites'] ) {
-			WP_CLI::warning(sb__('This will affect all your site in the multisite-network'));
+			WP_CLI::warning(__('This will affect all your site in the multisite-network', 'servebolt-wp'));
 		}
 		WP_CLI::line();
-		WP_CLI::confirm(sb__('Do you want to continue?'));
+		WP_CLI::confirm(__('Do you want to continue?', 'servebolt-wp'));
 
 		if ( is_multisite() && ! $params['affect_all_sites'] ) {
-			WP_CLI::line(sb__('It looks like this is a multisite.'));
-			$params['affect_all_sites'] = (boolean) $this->confirm(sb__('Do you want to setup Cloudflare on all sites in multisite-network?'));
+			WP_CLI::line(__('It looks like this is a multisite.', 'servebolt-wp'));
+			$params['affect_all_sites'] = (boolean) $this->confirm(__('Do you want to setup Cloudflare on all sites in multisite-network?', 'servebolt-wp'));
 		}
 
 		$this->separator();
 
-		WP_CLI::line(sb__('Okay, first we need to set up the API connection to Cloudflare.'));
+		WP_CLI::line(__('Okay, first we need to set up the API connection to Cloudflare.', 'servebolt-wp'));
 
 		// Determine authentication type
 		if ( $params['auth_type'] ) {
 			if ( ! $this->auth_type_valid($params['auth_type']) ) {
-				WP_CLI::error(sprintf(sb__('Invalid authentication type specified: "%s"'), $params['auth_type']));
+				WP_CLI::error(sprintf(__('Invalid authentication type specified: "%s"', 'servebolt-wp'), $params['auth_type']));
 			}
-			WP_CLI::success(sprintf(sb__('Cloudflare API authentication type is already set to "%s"'), $params['auth_type']));
+			WP_CLI::success(sprintf(__('Cloudflare API authentication type is already set to "%s"', 'servebolt-wp'), $params['auth_type']));
 		} else {
-			$params['auth_type'] = $this->collect_parameter(sb__('Select one of the options: '), sb__('Invalid selection, please try again.'), function($input) {
+			$params['auth_type'] = $this->collect_parameter(__('Select one of the options: ', 'servebolt-wp'), __('Invalid selection, please try again.', 'servebolt-wp'), function($input) {
 				if ( empty($input) ) return false;
 				return $this->auth_type_valid($input, false, true);
 			}, function () {
-				WP_CLI::line(sb__('How will you authenticate with the Cloudflare API?'));
+				WP_CLI::line(__('How will you authenticate with the Cloudflare API?', 'servebolt-wp'));
 				foreach($this->allowed_auth_types as $key => $value) {
 					WP_CLI::line(sprintf('[%s] %s', $key, $value));
 				}
@@ -204,9 +210,9 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 			case 'token':
 			case 'API Token':
 				if ( $params['api_token'] ) {
-					WP_CLI::success(sprintf(sb__('API token is already set to "%s"'), $params['api_token']));
+					WP_CLI::success(sprintf(__('API token is already set to "%s"', 'servebolt-wp'), $params['api_token']));
 				} else {
-					$params['api_token'] = $this->collect_parameter(sb__('Specify Cloudflare API Token: '), sb__('API cannot be empty.'));
+					$params['api_token'] = $this->collect_parameter(__('Specify Cloudflare API Token: ', 'servebolt-wp'), __('API cannot be empty.', 'servebolt-wp'));
 				}
 
 				$cf = $this->cf_create_cloudflare_cache_instance($params);
@@ -218,15 +224,15 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 			case 'key':
 			case 'API Keys':
 				if ( $params['email'] ) {
-					WP_CLI::success(sprintf(sb__('E-mail is already set to "%s"'), $params['email']));
+					WP_CLI::success(sprintf(__('E-mail is already set to "%s"', 'servebolt-wp'), $params['email']));
 				} else {
-					$params['email'] = $this->collect_parameter(sb__('Specify Cloudflare username (e-mail): '), sb__('E-mail cannot be empty.'));
+					$params['email'] = $this->collect_parameter(__('Specify Cloudflare username (e-mail): '), __('E-mail cannot be empty.', 'servebolt-wp'));
 				}
 
 				if ( $params['api_key'] ) {
-					WP_CLI::success(sprintf(sb__('API key is already set to "%s"'), $params['api_key']));
+					WP_CLI::success(sprintf(__('API key is already set to "%s"', 'servebolt-wp'), $params['api_key']));
 				} else {
-					$params['api_key'] = $this->collect_parameter(sb__('Specify Cloudflare API key: '), sb__('API key cannot be empty.'));
+					$params['api_key'] = $this->collect_parameter(__('Specify Cloudflare API key: ', 'servebolt-wp'), __('API key cannot be empty.', 'servebolt-wp'));
 				}
 
 				$cf = $this->cf_create_cloudflare_cache_instance($params);
@@ -236,7 +242,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 
 				break;
 			default:
-				WP_CLI::error(sb__('Invalid authentication type, please try again.'));
+				WP_CLI::error(__('Invalid authentication type, please try again.', 'servebolt-wp'));
 				break;
 		}
 
@@ -247,24 +253,24 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		$individual_zone_setup = $params['individual_zones'];
 		if ( $params['affect_all_sites'] && $this->multisite_has_multiple_domains() && is_null($individual_zone_setup) ) {
 			if ( $individual_zone_setup !== true ) {
-				WP_CLI::line(sb__('Seems like your multisite has multiple domains.'));
-				$individual_zone_setup = $this->confirm(sb__('Would you like to set an individual Zone ID for each site?'));
+				WP_CLI::line(__('Seems like your multisite has multiple domains.', 'servebolt-wp'));
+				$individual_zone_setup = $this->confirm(__('Would you like to set an individual Zone ID for each site?', 'servebolt-wp'));
 			} else {
-				WP_CLI::line(sb__('Seems like your multisite has multiple domains. Please set an individual Zone ID for each site.'));
+				WP_CLI::line(__('Seems like your multisite has multiple domains. Please set an individual Zone ID for each site.', 'servebolt-wp'));
 			}
 		}
 
 		if ( $params['affect_all_sites'] && $individual_zone_setup ) {
 
 			if ( $params['zone'] ) {
-				WP_CLI::warning(sprintf(sb__('Zone ID is already specified as "%s" via the arguments, but since Zone ID is individual for each site then this value will be ignored.'), $params['zone']));
+				WP_CLI::warning(sprintf(__('Zone ID is already specified as "%s" via the arguments, but since Zone ID is individual for each site then this value will be ignored.', 'servebolt-wp'), $params['zone']));
 			}
 
 			WP_CLI::line('Please follow the guide below to set Zone ID for each site:');
 			$params['zone'] = [];
 
 			$first = true;
-			sb_iterate_sites(function ($site) use ($api_connection_available, &$params, &$first) {
+            iterateSites(function ($site) use ($api_connection_available, &$params, &$first) {
 				$params['zone'][$site->blog_id] = $this->select_zone($api_connection_available, $params, $site->blog_id, ! $first);
 				$first = false;
 			});
@@ -277,7 +283,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 
 		if ( $params['affect_all_sites'] ) {
 			$result = [];
-			sb_iterate_sites(function($site) use (&$result, $params, $individual_zone_setup) {
+            iterateSites(function($site) use (&$result, $params, $individual_zone_setup) {
 				if ( $individual_zone_setup ) {
 					$zone = $params['zone'][$site->blog_id]['id'];
 				} else {
@@ -289,30 +295,30 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 			$all_failed = ! in_array(true, $result, true);
 			if ( $has_failed ) {
 				if ( $all_failed ) {
-					WP_CLI::error(sb__('Could not set config on any sites.'));
+					WP_CLI::error(__('Could not set config on any sites.', 'servebolt-wp'));
 				} else {
 					$table = [];
 					foreach($result as $key => $value) {
 						$table[] = [
-							sb__('Blod ID') => $key,
-							sb__('Configuration') => $value ? sb__('Success') : sb__('Failed'),
+							__('Blod ID', 'servebolt-wp') => $key,
+							__('Configuration', 'servebolt-wp') => $value ? __('Success', 'servebolt-wp') : __('Failed', 'servebolt-wp'),
 						];
 					}
-					WP_CLI::warning(sb__('Action complete, but we failed to apply config to some sites:'));
+					WP_CLI::warning(__('Action complete, but we failed to apply config to some sites:', 'servebolt-wp'));
 					WP_CLI\Utils\format_items( 'table', $table, array_keys(current($table)));
 				}
 			} else {
-				WP_CLI::success(sb__('Configuration on all sites!'));
+				WP_CLI::success(__('Configuration on all sites!', 'servebolt-wp'));
 			}
 		} else {
 			if ( $this->store_cf_configuration($params['auth_type'], $params, $params['zone']['id']) && sb_cf_cache()->cf_toggle_active(true) ) {
-				WP_CLI::success(sb__('Configuration stored!'));
+				WP_CLI::success(__('Configuration stored!', 'servebolt-wp'));
 			} else {
-				WP_CLI::error(sb__('Hmm, could not store configuration. Please try again and/or contact support.'));
+				WP_CLI::error(__('Hmm, could not store configuration. Please try again and/or contact support.', 'servebolt-wp'));
 			}
 		}
 
-		WP_CLI::success(sb__('Cloudflare feature successfully set up!'));
+		WP_CLI::success(__('Cloudflare feature successfully set up!', 'servebolt-wp'));
 
 	}
 
@@ -345,8 +351,8 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		}
 		$selected_zone = false;
 		if ( $blog_id ) {
-			//WP_CLI::line(sprintf(sb__('Select Zone ID for site: %s (%s)'), sb_get_blog_name($blog_id), get_site_url($blog_id)));
-			WP_CLI::line(sprintf(sb__('%s (%s)'), sb_get_blog_name($blog_id), get_site_url($blog_id)));
+			//WP_CLI::line(sprintf(__('Select Zone ID for site: %s (%s)'), getBlogName($blog_id), get_site_url($blog_id)));
+			WP_CLI::line(sprintf(__('%s (%s)'), getBlogName($blog_id), get_site_url($blog_id)));
 		}
 
 		// Determine which zone to use
@@ -354,13 +360,13 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 
 			if ( ! $blog_id && $params['zone'] ) {
 				$selected_zone = $this->zone_array($params['zone']);
-				WP_CLI::success(sprintf(sb__('Zone ID is already specified to be "%s"'), $selected_zone['id']));
+				WP_CLI::success(sprintf(__('Zone ID is already specified to be "%s"', 'servebolt-wp'), $selected_zone['id']));
 			} else {
 
-				WP_CLI::line(sb__( 'Choose from the list below or specify your own Zone ID.' ));
+				WP_CLI::line(__('Choose from the list below or specify your own Zone ID.', 'servebolt-wp'));
 				$this->list_zones(true);
 
-				$selected_zone = $this->collect_parameter( sb__( 'Cloudflare Zone ID: ' ), sb__( 'Zone cannot be empty.' ), function ( $input ) use ( $zones ) {
+				$selected_zone = $this->collect_parameter( __('Cloudflare Zone ID: ', 'servebolt-wp'), __('Zone cannot be empty.', 'servebolt-wp'), function ( $input ) use ( $zones ) {
 					if ( empty( $input ) ) {
 						return false;
 					}
@@ -376,24 +382,24 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 			if ( ! $params['disable_validation'] ) {
 				$zone = sb_cf_cache()->get_zone_by_id($selected_zone['id']);
 				if ( ! $zone ) {
-					WP_CLI::error(sb__('Could not validate zone. Make sure it exists and that we have access to it.'));
+					WP_CLI::error(__('Could not validate zone. Make sure it exists and that we have access to it.', 'servebolt-wp'));
 				}
 			}
 
 		} else {
 			if ( ! $blog_id && $params['zone'] ) {
 				$selected_zone = $this->zone_array($params['zone']);
-				WP_CLI::success(sprintf(sb__('Zone ID is already set to "%s"'), $selected_zone['id']));
+				WP_CLI::success(sprintf(__('Zone ID is already set to "%s"', 'servebolt-wp'), $selected_zone['id']));
 			} else {
-				$zone_id = $this->collect_parameter(sb__('Cloudflare Zone ID: '), sb__('Zone cannot be empty.'));
+				$zone_id = $this->collect_parameter(__('Cloudflare Zone ID: ', 'servebolt-wp'), __('Zone cannot be empty.', 'servebolt-wp'));
 				$selected_zone = $this->zone_array($zone_id);
 			}
 		}
 
 		if ( $selected_zone['name'] ) {
-			WP_CLI::line(sprintf(sb__('Selected zone %s (%s)'), $selected_zone['name'], $selected_zone['id']));
+			WP_CLI::line(sprintf(__('Selected zone %s (%s)'), $selected_zone['name'], $selected_zone['id']));
 		} else {
-			WP_CLI::line(sprintf(sb__('Selected zone %s'), $selected_zone['id']));
+			WP_CLI::line(sprintf(__('Selected zone %s', 'servebolt-wp'), $selected_zone['id']));
 		}
 
 		return $selected_zone;
@@ -440,18 +446,18 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		$api_connection_available = false;
 
 		if ( ! $this->auth_type_valid($params['auth_type'], true, false) ) {
-			$messages[] = sb__('Authentication type invalid.');
+			$messages[] = __('Authentication type invalid.', 'servebolt-wp');
 		}
 
 		switch ($params['auth_type']) {
 			case 'key':
 
 				if ( empty($params['email']) ) {
-					$messages[] = sb__('E-mail must be specified.');
+					$messages[] = __('E-mail must be specified.', 'servebolt-wp');
 				}
 
 				if ( empty($params['api_key']) ) {
-					$messages[] = sb__('API key must be specified.');
+					$messages[] = __('API key must be specified.', 'servebolt-wp');
 				}
 
 				$cf = $this->cf_create_cloudflare_cache_instance($params);
@@ -467,7 +473,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 			case 'token':
 
 				if ( empty($params['api_token']) ) {
-					$messages[] = sb__('API token must be specified.');
+					$messages[] = __('API token must be specified.', 'servebolt-wp');
 				}
 
 				$cf = $this->cf_create_cloudflare_cache_instance($params);
@@ -484,11 +490,11 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 
 
 		if ( empty($params['zone']) ) {
-			$messages[] = sb__('Zone must be specified.');
+			$messages[] = __('Zone must be specified.', 'servebolt-wp');
 		} elseif ( $api_connection_available && ! $params['disable_validation'] ) {
 			$zone = sb_cf_cache()->get_zone_by_id($params['zone']);
 			if ( ! $zone ) {
-				$messages[] = sb__('Zone is invalid. Make sure it exists and that we have access to it.');
+				$messages[] = __('Zone is invalid. Make sure it exists and that we have access to it.', 'servebolt-wp');
 			}
 		}
 
@@ -511,33 +517,33 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 
 		if ( $params['affect_all_sites'] ) {
 			$result = [];
-			sb_iterate_sites(function($site) use (&$result, $params) {
+            iterateSites(function($site) use (&$result, $params) {
 				$result[$site->blog_id] = $this->store_cf_configuration($params['auth_type'], $params, $params['zone'], $site->blog_id);
 			});
 			$has_failed = in_array(false, $result, true);
 			$all_failed = ! in_array(true, $result, true);
 			if ( $has_failed ) {
 				if ( $all_failed ) {
-					WP_CLI::error(sb__('Could not set config on any sites.'));
+					WP_CLI::error(__('Could not set config on any sites.', 'servebolt-wp'));
 				} else {
 					$table = [];
 					foreach($result as $key => $value) {
 						$table[] = [
-							sb__('Blod ID') => $key,
-							sb__('Configuration') => $value ? sb__('Success') : sb__('Failed'),
+							__('Blod ID', 'servebolt-wp') => $key,
+							__('Configuration', 'servebolt-wp') => $value ? __('Success', 'servebolt-wp') : __('Failed', 'servebolt-wp'),
 						];
 					}
-					WP_CLI::warning(sb__('Action complete, but we failed to apply config to some sites:'));
+					WP_CLI::warning(__('Action complete, but we failed to apply config to some sites:', 'servebolt-wp'));
 					WP_CLI\Utils\format_items( 'table', $table, array_keys(current($table)));
 				}
 			} else {
-				WP_CLI::success(sb__('Configuration on all sites!'));
+				WP_CLI::success(__('Configuration on all sites!', 'servebolt-wp'));
 			}
 		} else {
 			if ( $this->store_cf_configuration($params['auth_type'], $params, $params['zone']) ) {
-				WP_CLI::success(sb__('Cloudflare configuration stored successfully.'));
+				WP_CLI::success(__('Cloudflare configuration stored successfully.', 'servebolt-wp'));
 			} else {
-				WP_CLI::error(sb__('Could not store Cloudflare configuration.'));
+				WP_CLI::error(__('Could not store Cloudflare configuration.', 'servebolt-wp'));
 			}
 		}
 	}
@@ -611,7 +617,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		if ( sb_cf_cache()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
-			WP_CLI::error(sprintf(sb__('Could not execute cache purge on site %s'), get_site_url($blog_id)), false);
+			WP_CLI::error(sprintf(__('Could not execute cache purge on site %s', 'servebolt-wp'), get_site_url($blog_id)), false);
 			return;
 
 		}
@@ -619,9 +625,9 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		// Check if cron purge is active
 		if ( ! sb_cf_cache()->cron_purge_is_active() ) {
 			if ( $blog_id ) {
-				WP_CLI::warning(sprintf(sb__('Note: cache purge via cron is not active on site %s.'), get_site_url($blog_id)));
+				WP_CLI::warning(sprintf(__('Note: cache purge via cron is not active on site %s.', 'servebolt-wp'), get_site_url($blog_id)));
 			} else {
-				WP_CLI::warning(sb__('Note: cache purge via cron is not active.'));
+				WP_CLI::warning(__('Note: cache purge via cron is not active.', 'servebolt-wp'));
 			}
 		}
 
@@ -629,16 +635,16 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		if ( sb_cf_cache()->has_items_to_purge() ) {
 			sb_cf_cache()->clear_items_to_purge();
 			if ( $blog_id ) {
-				WP_CLI::success(sprintf(sb__('Cache purge queue cleared on site %s.'), get_site_url($blog_id)));
+				WP_CLI::success(sprintf(__('Cache purge queue cleared on site %s.', 'servebolt-wp'), get_site_url($blog_id)));
 			} else {
-				WP_CLI::success(sb__('Cache purge queue cleared.'));
+				WP_CLI::success(__('Cache purge queue cleared.', 'servebolt-wp'));
 			}
 
 		} else {
 			if ( $blog_id ) {
-				WP_CLI::warning(sprintf(sb__('Cache purge queue already empty on site %s.'), get_site_url($blog_id)));
+				WP_CLI::warning(sprintf(__('Cache purge queue already empty on site %s.', 'servebolt-wp'), get_site_url($blog_id)));
 			} else {
-				WP_CLI::warning(sb__('Cache purge queue already empty.'));
+				WP_CLI::warning(__('Cache purge queue already empty.', 'servebolt-wp'));
 			}
 		}
 
@@ -662,9 +668,9 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 
 		// Tell the user what we're doing
 		if ( $blog_id ) {
-			WP_CLI::line(sprintf(sb__('Purging all cache for zone %s on site %s'), $current_zone->name, get_site_url($blog_id)));
+			WP_CLI::line(sprintf(__('Purging all cache for zone %s on site %s', 'servebolt-wp'), $current_zone->name, get_site_url($blog_id)));
 		} else {
-			WP_CLI::line(sprintf(sb__('Purging all cache for zone %s'), $current_zone->name));
+			WP_CLI::line(sprintf(__('Purging all cache for zone %s', 'servebolt-wp'), $current_zone->name));
 		}
 
 		// Purge all cache
@@ -678,29 +684,29 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	 * @param bool $blog_id
 	 */
 	protected function cf_toggle_active(bool $state, $blog_id = false) {
-		$state_string = sb_boolean_to_state_string($state);
+		$state_string = booleanToStateString($state);
 		$is_active = sb_cf_cache()->cf_is_active($blog_id);
 
 		if ( $is_active === $state ) {
 			if ( $blog_id ) {
-				WP_CLI::warning(sprintf(sb__('Cloudflare feature is already set to %s on site %s'), $state_string, get_site_url($blog_id)));
+				WP_CLI::warning(sprintf(__('Cloudflare feature is already set to %s on site %s', 'servebolt-wp'), $state_string, get_site_url($blog_id)));
 			} else {
-				WP_CLI::warning(sprintf(sb__('Cloudflare feature is already set to %s'), $state_string));
+				WP_CLI::warning(sprintf(__('Cloudflare feature is already set to %s', 'servebolt-wp'), $state_string));
 			}
 			return;
 		}
 
 		if ( sb_cf_cache()->cf_toggle_active($state, $blog_id) ) {
 			if ( $blog_id ) {
-				WP_CLI::success(sprintf(sb__('Cloudflare feature was set to %s on site %s'), $state_string, get_site_url($blog_id)));
+				WP_CLI::success(sprintf(__('Cloudflare feature was set to %s on site %s', 'servebolt-wp'), $state_string, get_site_url($blog_id)));
 			} else {
-				WP_CLI::success(sprintf(sb__('Cloudflare feature was set to %s'), $state_string));
+				WP_CLI::success(sprintf(__('Cloudflare feature was set to %s', 'servebolt-wp'), $state_string));
 			}
 		} else {
 			if ( $blog_id ) {
-				WP_CLI::error(sprintf(sb__('Could not set Cloudflare feature to %s on site %s'), $state_string, get_site_url($blog_id)), false);
+				WP_CLI::error(sprintf(__('Could not set Cloudflare feature to %s on site %s', 'servebolt-wp'), $state_string, get_site_url($blog_id)), false);
 			} else {
-				WP_CLI::error(sprintf(sb__('Could not set Cloudflare feature to %s'), $state_string), false);
+				WP_CLI::error(sprintf(__('Could not set Cloudflare feature to %s', 'servebolt-wp'), $state_string), false);
 			}
 		}
 	}
@@ -717,22 +723,22 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		$zones = $this->get_zones();
 		if ( ! $zones || empty($zones) ) {
 			if ( ! $output_texts ) return false;
-			$error_lines = [sb__('Could not retrieve any zones. This might be the reasons:')];
-			$error_lines[] = '- ' . sb__('Check that you have configured the Cloudflare API credentials');
+			$error_lines = [__('Could not retrieve any zones. This might be the reasons:', 'servebolt-wp')];
+			$error_lines[] = '- ' . __('Check that you have configured the Cloudflare API credentials', 'servebolt-wp');
 			switch( sb_cf_cache()->get_authentication_type() ) {
 				case 'api_token':
-					$error_lines[] = '- ' . sb__('Your API token might be limited to one or more zones.');
-					$error_lines[] = '  ' . sb__('Listing zones does unfortunately only work when "Zone Resource" is set to "All Zones" (when creating the token in Cloudflare).');
+					$error_lines[] = '- ' . __('Your API token might be limited to one or more zones.', 'servebolt-wp');
+					$error_lines[] = '  ' . __('Listing zones does unfortunately only work when "Zone Resource" is set to "All Zones" (when creating the token in Cloudflare).');
 					break;
 				case 'api_key':
-					$error_lines[] = '- ' . sb__('Your API keys belongs to a user which might lack permissions to list zones.');
+					$error_lines[] = '- ' . __('Your API keys belongs to a user which might lack permissions to list zones.', 'servebolt-wp');
 					break;
 			}
 			WP_CLI::error_multi_line($error_lines);
 			return false;
 		}
 		if ( $output_texts ) {
-			WP_CLI::line(sb__('The following zones are available:'));
+			WP_CLI::line(__('The following zones are available:', 'servebolt-wp'));
 		}
 		foreach ($zones as $i => $zone ) {
 			if ( $include_numbers === true ) {
@@ -754,10 +760,10 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		$zone_identification = $zone_object ? $zone_object->name . ' (' . $zone_object->id . ')' : $zone_id;
 		if ( ! $zone_object ) {
 			WP_CLI::error_multi_line(['Could not find zone with the specified ID in Cloudflare. This might indicate:', '- the API connection is not working', '- that the zone does not exists', '- that we lack access to the zone']);
-			WP_CLI::confirm(sb__('Do you still wish to set the zone?'));
+			WP_CLI::confirm(__('Do you still wish to set the zone?', 'servebolt-wp'));
 		}
 		sb_cf_cache()->store_active_zone_id($zone_id);
-		WP_CLI::success(sprintf(sb__('Successfully selected zone %s'), $zone_identification));
+		WP_CLI::success(sprintf(__('Successfully selected zone %s', 'servebolt-wp'), $zone_identification));
 	}
 
 	/**
@@ -789,10 +795,10 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 			$items_to_purge_count = sb_cf_cache()->count_items_to_purge();
 
 			if ( $extended ) {
-				$posts = sb_resolve_post_ids($items_to_purge, $blog_id);
-				$posts_string = sb_format_array_to_csv($posts, ', ');
+				$posts = resolvePostIdsToTitleAndPostIdString($items_to_purge, $blog_id);
+				$posts_string = formatArrayToCsv($posts, ', ');
 			} else {
-				$posts_string = sb_format_array_to_csv($items_to_purge);
+				$posts_string = formatArrayToCsv($items_to_purge);
 			}
 
 			$arr[$purge_item_column_key] = $items_to_purge ? $posts_string . ( $items_to_purge_count > $max_items ? '...' : '') : 'Empty';
@@ -820,14 +826,14 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		if ( empty($zone) ) {
 			if ( $output ) {
 				if ( $blog_id ) {
-					WP_CLI::warning(sprintf(sb__('Active zone is not set for site %s'), get_site_url($blog_id)));
+					WP_CLI::warning(sprintf(__('Active zone is not set for site %s', 'servebolt-wp'), get_site_url($blog_id)));
 				} else {
-					WP_CLI::warning(sb__('Active zone is not set'));
+					WP_CLI::warning(__('Active zone is not set', 'servebolt-wp'));
 				}
 			} else {
 				$arr = [];
 				if ( $blog_id ) {
-					$arr['Blog'] = sb_get_blog_name($blog_id);
+					$arr['Blog'] = getBlogName($blog_id);
 					$arr['URL'] = get_site_url($blog_id);
 				}
 				$arr['Zone'] = 'Not set';
@@ -836,14 +842,14 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		} else {
 			if ( $output ) {
 				if ( $blog_id ) {
-					WP_CLI::success( sprintf( sb__( 'Active zone is %s for site %s' ), $zone, get_site_url( $blog_id ) ) );
+					WP_CLI::success( sprintf( __('Active zone is %s for site %s', 'servebolt-wp'), $zone, get_site_url( $blog_id ) ) );
 				} else {
-					WP_CLI::success( sprintf( sb__( 'Active zone is %s' ), $zone ) );
+					WP_CLI::success( sprintf( __('Active zone is %s', 'servebolt-wp'), $zone ) );
 				}
 			} else {
 				$arr = [];
 				if ( $blog_id ) {
-					$arr['Blog'] = sb_get_blog_name($blog_id);
+					$arr['Blog'] = getBlogName($blog_id);
 					$arr['URL'] = get_site_url($blog_id);
 				}
 				$arr['Zone'] = $zone;
@@ -958,7 +964,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		foreach($array as $item) {
 			$new_item = [];
 			foreach ($most_column_item as $column) {
-				$new_item[$column] = sb_array_get($column, $item, null);
+				$new_item[$column] = arrayGet($column, $item, null);
 			}
 			$new_array[] = $new_item;
 		}
@@ -974,7 +980,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	 */
 	protected function cf_cron_toggle($state, $assoc_args) {
 		if ( $this->affect_all_sites( $assoc_args ) ) {
-			sb_iterate_sites(function ( $site ) use ($state) {
+            iterateSites(function ( $site ) use ($state) {
 				$this->cf_cron_control($state, $site->blog_id);
 			});
 		} else {
@@ -993,17 +999,17 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		if ( sb_cf_cache()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
-			WP_CLI::error(sprintf(sb__('Could not get Cloudflare feature status on site %s'), get_site_url($blog_id)), false);
+			WP_CLI::error(sprintf(__('Could not get Cloudflare feature status on site %s', 'servebolt-wp'), get_site_url($blog_id)), false);
 			return;
 
 		}
 
 		$current_state = sb_cf_cache()->cf_is_active();
-		$cron_state_string = sb_boolean_to_state_string($current_state);
+		$cron_state_string = booleanToStateString($current_state);
 		if ( $blog_id ) {
-			WP_CLI::success(sprintf(sb__('Cloudflare feature is %s for site %s'), $cron_state_string, get_site_url($blog_id)));
+			WP_CLI::success(sprintf(__('Cloudflare feature is %s for site %s', 'servebolt-wp'), $cron_state_string, get_site_url($blog_id)));
 		} else {
-			WP_CLI::success(sprintf(sb__('Cloudflare feature is %s'), $cron_state_string));
+			WP_CLI::success(sprintf(__('Cloudflare feature is %s', 'servebolt-wp'), $cron_state_string));
 		}
 	}
 
@@ -1021,7 +1027,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		if ( sb_cf_cache()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
-			WP_CLI::error(sprintf(sb__('Could not set cache purge type to "%s" on site %s'), $purge_type, get_site_url($blog_id)), false);
+			WP_CLI::error(sprintf(__('Could not set cache purge type to "%s" on site %s', 'servebolt-wp'), $purge_type, get_site_url($blog_id)), false);
 			return;
 
 		}
@@ -1029,16 +1035,16 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		$current_state = sb_cf_cache()->cron_purge_is_active();
 		if ( $current_state === $cron_state ) {
 			if ( is_numeric($blog_id) ) {
-				WP_CLI::warning(sprintf(sb__('Cache purge type is already "%s" on site %s'), $purge_type, get_site_url($blog_id)));
+				WP_CLI::warning(sprintf(__('Cache purge type is already "%s" on site %s', 'servebolt-wp'), $purge_type, get_site_url($blog_id)));
 			} else {
-				WP_CLI::warning(sprintf(sb__('Cache purge type is already "%s"'), $purge_type));
+				WP_CLI::warning(sprintf(__('Cache purge type is already "%s"', 'servebolt-wp'), $purge_type));
 			}
 		} else {
 			sb_cf_cache()->cf_toggle_cron_active($cron_state);
 			if ( is_numeric($blog_id) ) {
-				WP_CLI::success(sprintf(sb__('Cache purge type is set to "%s" on site %s'), $purge_type, get_site_url($blog_id)));
+				WP_CLI::success(sprintf(__('Cache purge type is set to "%s" on site %s', 'servebolt-wp'), $purge_type, get_site_url($blog_id)));
 			} else {
-				WP_CLI::success(sprintf(sb__('Cache purge type is set to "%s"'), $purge_type));
+				WP_CLI::success(sprintf(__('Cache purge type is set to "%s"', 'servebolt-wp'), $purge_type));
 			}
 		}
 
@@ -1057,10 +1063,10 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	protected function cf_prepare_credentials($auth_type, $assoc_args) {
 		switch ( $auth_type ) {
 			case 'key':
-				$email = sb_array_get('email', $assoc_args);
-				$api_key = sb_array_get('api-key', $assoc_args);
+				$email = arrayGet('email', $assoc_args);
+				$api_key = arrayGet('api-key', $assoc_args);
 				if ( ! $email || empty($email) || ! $api_key || empty($api_key) ) {
-					WP_CLI::error(sb__('Please specify API key and email.'));
+					WP_CLI::error(__('Please specify API key and email.', 'servebolt-wp'));
 				}
 				$type         = 'api_key';
 				$verbose_type = 'API key';
@@ -1069,9 +1075,9 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 				return (object) compact('type', 'verbose_type', 'credentials', 'verbose_credentials');
 				break;
 			case 'token':
-				$api_token = sb_array_get('api-token', $assoc_args);
+				$api_token = arrayGet('api-token', $assoc_args);
 				if ( ! $api_token || empty($api_token) ) {
-					WP_CLI::error(sb__('Please specify a token.'));
+					WP_CLI::error(__('Please specify a token.', 'servebolt-wp'));
 				}
 				$type         = 'api_token';
 				$verbose_type = 'API token';
@@ -1081,7 +1087,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 				break;
 		}
 
-		WP_CLI::error(sb__('Could not set credentials. Please check the arguments and try again.'));
+		WP_CLI::error(__('Could not set credentials. Please check the arguments and try again.', 'servebolt-wp'));
 	}
 
 	/**
@@ -1092,9 +1098,9 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	protected function cf_clear_zone($blog_id = false) {
 		sb_cf_cache()->clear_active_zone_id($blog_id);
 		if ( $blog_id ) {
-			WP_CLI::success(sprintf(sb__('Successfully cleared zone on site %s.'), get_site_url($blog_id)));
+			WP_CLI::success(sprintf(__('Successfully cleared zone on site %s.', 'servebolt-wp'), get_site_url($blog_id)));
 		} else {
-			WP_CLI::success(sb__('Successfully cleared zone.'));
+			WP_CLI::success(__('Successfully cleared zone.', 'servebolt-wp'));
 		}
 	}
 
@@ -1108,9 +1114,9 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		sb_cf_cache()->clear_active_zone_id($blog_id);
 		sb_cf_cache()->cf_toggle_active(false, $blog_id);
 		if ( $blog_id ) {
-			WP_CLI::success(sprintf(sb__('Successfully cleared Cloudflare configuration on site %s.'), get_site_url($blog_id)));
+			WP_CLI::success(sprintf(__('Successfully cleared Cloudflare configuration on site %s.', 'servebolt-wp'), get_site_url($blog_id)));
 		} else {
-			WP_CLI::success(sb__('Successfully cleared Cloudflare configuration.'));
+			WP_CLI::success(__('Successfully cleared Cloudflare configuration.', 'servebolt-wp'));
 		}
 	}
 
@@ -1122,9 +1128,9 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	protected function cf_clear_credentials($blog_id = false) {
 		sb_cf_cache()->clear_credentials($blog_id);
 		if ( $blog_id ) {
-			WP_CLI::success(sprintf(sb__('Successfully cleared API credentials on site %s.'), get_site_url($blog_id)));
+			WP_CLI::success(sprintf(__('Successfully cleared API credentials on site %s.', 'servebolt-wp'), get_site_url($blog_id)));
 		} else {
-			WP_CLI::success(sb__('Successfully cleared API credentials.'));
+			WP_CLI::success(__('Successfully cleared API credentials.', 'servebolt-wp'));
 		}
 	}
 
@@ -1139,29 +1145,29 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		if ( sb_cf_cache()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
-			WP_CLI::error(sprintf(sb__('Could not test Cloudflare API connection on site %s'), get_site_url($blog_id)), false);
+			WP_CLI::error(sprintf(__('Could not test Cloudflare API connection on site %s', 'servebolt-wp'), get_site_url($blog_id)), false);
 			return;
 
 		}
 
 		if ( sb_cf_cache()->test_api_connection() ) {
 			if ( $blog_id ) {
-				WP_CLI::success(sprintf(sb__('API connection passed on site %s'), get_site_url($blog_id)));
+				WP_CLI::success(sprintf(__('API connection passed on site %s', 'servebolt-wp'), get_site_url($blog_id)));
 			} else {
-				WP_CLI::success(sb__('API connection passed!'));
+				WP_CLI::success(__('API connection passed!', 'servebolt-wp'));
 			}
 
 			// Be sure to notify user if Zone ID is missing
 			$active_zone = sb_cf_cache()->get_active_zone_id();
 			if ( ! $active_zone || empty($active_zone) ) {
-				WP_CLI::warning(sb__('Note that no Zone ID is set, so cache purge feature will not work.'));
+				WP_CLI::warning(__('Note that no Zone ID is set, so cache purge feature will not work.', 'servebolt-wp'));
 			}
 
 		} else {
 			if ( $blog_id ) {
-				WP_CLI::error(sprintf(sb__('Could not communicate with the API on site %s. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), get_site_url($blog_id), sb_cf_cache()->api_permissions_needed()), false);
+				WP_CLI::error(sprintf(__('Could not communicate with the API on site %s. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), get_site_url($blog_id), sb_cf_cache()->api_permissions_needed()), false);
 			} else {
-				WP_CLI::error(sprintf(sb__('Could not communicate with the API. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), sb_cf_cache()->api_permissions_needed()), false);
+				WP_CLI::error(sprintf(__('Could not communicate with the API. Please check that API credentials are configured correctly and that we have the right permissions (%s).'), sb_cf_cache()->api_permissions_needed()), false);
 			}
 		}
 	}
@@ -1178,7 +1184,7 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		if ( sb_cf_cache()->cf_switch_to_blog($blog_id) === false ) {
 
 			// Could not switch to blog
-			WP_CLI::error(sprintf(sb__('Could not set Cloudflare credentials on site %s'), get_site_url($blog_id)), false);
+			WP_CLI::error(sprintf(__('Could not set Cloudflare credentials on site %s', 'servebolt-wp'), get_site_url($blog_id)), false);
 			return;
 
 		}
@@ -1186,24 +1192,24 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 		if ( sb_cf_cache()->store_credentials($credential_data->type, $credential_data->credentials) ) {
 			if ( sb_cf_cache()->test_api_connection() ) {
 				if ( $blog_id ) {
-					WP_CLI::success(sprintf(sb__('Cloudflare credentials set on site %s using %s: %s'), get_site_url($blog_id), $credential_data->verbose_type, $credential_data->verbose_credentials));
-					WP_CLI::success(sprintf(sb__('API connection test passed on site %s'), get_site_url($blog_id)));
+					WP_CLI::success(sprintf(__('Cloudflare credentials set on site %s using %s: %s', 'servebolt-wp'), get_site_url($blog_id), $credential_data->verbose_type, $credential_data->verbose_credentials));
+					WP_CLI::success(sprintf(__('API connection test passed on site %s', 'servebolt-wp'), get_site_url($blog_id)));
 				} else {
-					WP_CLI::success(sprintf(sb__('Cloudflare credentials set using %s: %s'), $credential_data->verbose_type, $credential_data->verbose_credentials));
-					WP_CLI::success(sb__('API connection test passed!'));
+					WP_CLI::success(sprintf(__('Cloudflare credentials set using %s: %s', 'servebolt-wp'), $credential_data->verbose_type, $credential_data->verbose_credentials));
+					WP_CLI::success(__('API connection test passed!', 'servebolt-wp'));
 				}
 			} else {
 				if ( $blog_id ) {
-					WP_CLI::warning(sprintf(sb__('Credentials were stored on site %s but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), get_site_url($blog_id), sb_cf_cache()->api_permissions_needed()), false);
+					WP_CLI::warning(sprintf(__('Credentials were stored on site %s but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), get_site_url($blog_id), sb_cf_cache()->api_permissions_needed()), false);
 				} else {
-					WP_CLI::warning(sprintf(sb__('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), sb_cf_cache()->api_permissions_needed()), false);
+					WP_CLI::warning(sprintf(__('Credentials were stored but the API connection test failed. Please check that the credentials are correct and have the correct permissions (%s).'), sb_cf_cache()->api_permissions_needed()), false);
 				}
 			}
 		} else {
 			if ( $blog_id ) {
-				WP_CLI::error(sprintf(sb__('Could not set Cloudflare credentials on site %s using %s: %s'), get_site_url($blog_id), $credential_data->verbose_type, $credential_data->verbose_credentials), false);
+				WP_CLI::error(sprintf(__('Could not set Cloudflare credentials on site %s using %s: %s', 'servebolt-wp'), get_site_url($blog_id), $credential_data->verbose_type, $credential_data->verbose_credentials), false);
 			} else {
-				WP_CLI::error(sprintf(sb__('Could not set Cloudflare credentials using %s: %s'), $credential_data->verbose_type, $credential_data->verbose_credentials), false);
+				WP_CLI::error(sprintf(__('Could not set Cloudflare credentials using %s: %s', 'servebolt-wp'), $credential_data->verbose_type, $credential_data->verbose_credentials), false);
 			}
 		}
 	}
@@ -1214,8 +1220,8 @@ class Servebolt_CLI_Cloudflare_Cache_Extra extends Servebolt_CLI_Extras {
 	protected function ensure_cache_purge_is_possible(): void
     {
         //if ( ! sb_cf_cache()->should_use_cf_feature() ) {
-		if (!CachePurge::featureIsActive()) {
-			WP_CLI::error(sb__('Cannot purge cache since Cloudflare feature is not fully configured. Make sure that you have added your Cloudflare API credentials and specified a Zone ID.'));
+		if (!CachePurge::featureIsAvailable()) {
+			WP_CLI::error(__('Cannot purge cache since Cloudflare feature is not fully configured. Make sure that you have added your Cloudflare API credentials and specified a Zone ID.', 'servebolt-wp'));
 		}
 	}
 

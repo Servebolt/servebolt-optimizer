@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 2.1.5
+Version: 2.2.0-beta.4
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that implements Servebolt Security & Performance best practises for WordPress.
@@ -10,93 +10,95 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: servebolt-wp
 */
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 // Defines plugin paths and URLs
-define('SERVEBOLT_BASENAME', plugin_basename(__FILE__));
-define('SERVEBOLT_PATH_URL', plugin_dir_url( __FILE__ ));
-define('SERVEBOLT_PATH', plugin_dir_path( __FILE__ ));
-define('SERVEBOLT_PSR4_PATH', SERVEBOLT_PATH . 'src/Servebolt/');
+define('SB_TXT_DOMAIN', plugin_basename(__FILE__));
+define('SERVEBOLT_PLUGIN_BASENAME', plugin_basename(__FILE__));
+define('SERVEBOLT_PLUGIN_DIR_URL', plugin_dir_url( __FILE__ ));
+define('SERVEBOLT_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ));
+define('SERVEBOLT_PLUGIN_PSR4_PATH', SERVEBOLT_PLUGIN_DIR_PATH . 'src/Servebolt/');
 
 // Abort and display WP admin notice if PHP_MAJOR_VERSION is less than 7
-if ( defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7 ) {
-    require SERVEBOLT_PATH . 'php-outdated.php';
+if (defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7) {
+    require SERVEBOLT_PLUGIN_DIR_PATH . 'php-outdated.php';
     return;
 }
 
-// Make sure we got the composer-files
-if (!file_exists(SERVEBOLT_PATH . 'vendor/autoload.php')) {
-	require SERVEBOLT_PATH . 'composer-missing.php';
-	return;
-}
-
-require SERVEBOLT_PATH . 'vendor/autoload.php';
+// Load Composer dependencies
+require SERVEBOLT_PLUGIN_DIR_PATH . 'vendor/autoload.php';
 
 // Include general functions
-require_once SERVEBOLT_PATH . 'functions.php';
+require_once SERVEBOLT_PLUGIN_DIR_PATH . 'functions.php'; // TODO: Phase this file out
 
 // Register events for activation and deactivation of this plugin
-register_activation_hook(__FILE__, 'sb_activate_plugin');
-register_deactivation_hook(__FILE__, 'sb_deactivate_plugin');
+register_activation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\activatePlugin');
+register_deactivation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\deactivatePlugin');
 
 // Add various improvements/optimizations
-sb_generic_optimizations();
+new Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
 
 // We don't always need all files - only in WP Admin, in CLI-mode or when running the WP Cron.
-if ( is_admin() || sb_is_cli() || sb_is_cron() ) {
+if (
+    is_admin()
+    || Servebolt\Optimizer\Helpers\isCli()
+    || Servebolt\Optimizer\Helpers\isCron()
+) {
 
-	// Make sure we dont API credentials in clear text.
-	require_once SERVEBOLT_PATH . 'classes/sb-option-encryption.php';
+    // Make sure we dont API credentials in clear text.
+    new Servebolt\Optimizer\Crypto\OptionEncryption;
 
 	// Include the Servebolt Cloudflare class
-	require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
+	//require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
 
 }
 
 // Loads the class that sets the correct cache headers for the Servebolt full page cache
-if ( ! class_exists('Servebolt_Nginx_FPC') ){
-	require_once SERVEBOLT_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
+if (!class_exists('Servebolt_Nginx_FPC')) {
+	require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
 	sb_nginx_fpc()->setup();
 }
 
 // Initialize image resizing
-if ( sb_feature_active('cf_image_resize') ) {
-	require_once SERVEBOLT_PATH . 'classes/cloudflare-image-resize/cloudflare-image-resizing.php';
+if (Servebolt\Optimizer\Helpers\featureIsActive('cf_image_resize')) {
+	require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-image-resize/cloudflare-image-resizing.php';
 	( new Cloudflare_Image_Resize )->init();
 }
 
 // Register cron schedule and cache purge event
-require_once SERVEBOLT_PATH . 'classes/cloudflare-cache/sb-cf-cache-cron-handle.php';
+//require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-cache/sb-cf-cache-cron-handle.php';
 
-new Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions; // Register cache purge event for various hooks
+// Register cache purge event for various hooks
+if (is_admin() || Servebolt\Optimizer\Helpers\isWpRest()) {
+    new Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
+}
 
 // Load this admin bar interface
-require_once SERVEBOLT_PATH . 'admin/admin-bar-interface.php';
+Servebolt\Optimizer\Admin\AdminBarGUI\AdminBarGUI::init();
 
 // Load assets
-require_once SERVEBOLT_PATH . 'assets.php';
+new Servebolt\Optimizer\Admin\Assets;
 
 // Only load the plugin interface in WP Admin
-if ( is_admin() ) {
+if (is_admin()) {
 
 	// Load this plugins interface
     Servebolt\Optimizer\Admin\AdminGuiController::getInstance();
-	//require_once SERVEBOLT_PATH . 'admin/admin-interface.php';
 
 }
 
 // Only front-end
-if ( ! is_admin() && ! sb_is_cli() ) {
+if (!is_admin() && !Servebolt\Optimizer\Helpers\isCli()) {
 
     // Feature to automatically version all enqueued script/style-tags
-    if ( sb_feature_active('sb_asset_auto_version') ) {
-        require_once SERVEBOLT_PATH . 'classes/sb-asset-auto-version.class.php';
+    if (Servebolt\Optimizer\Helpers\featureIsActive('sb_asset_auto_version')) {
+        new Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
     }
 
 }
 
 // Initialize CLI-commands
-if ( sb_is_cli() ) {
-    require_once SERVEBOLT_PATH . 'cli/cli.class.php';
+if (Servebolt\Optimizer\Helpers\isCli()) {
+    require_once SERVEBOLT_PLUGIN_DIR_PATH . 'cli/cli.class.php';
 	Servebolt_CLI::get_instance();
 }

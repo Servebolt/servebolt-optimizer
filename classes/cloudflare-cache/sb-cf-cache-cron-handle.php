@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class Servebolt_CF_Cache_Cron_Handle
@@ -43,8 +43,10 @@ class Servebolt_CF_Cache_Cron_Handle {
 		// Add schedule for execution every minute
 		add_filter( 'cron_schedules', [ $this, 'add_cache_purge_cron_schedule' ] );
 
-		// Bail if we are not CLI and not in WP Admin and not running via cron
-		if ( ! sb_is_cli() && ! is_admin() && ! sb_is_cron() ) return;
+		// Bail if we are not CLI, not running via cron and not in WP Admin
+		if ( !Servebolt\Optimizer\Helpers\isCli() && !Servebolt\Optimizer\Helpers\isCron() && !is_admin()) {
+            return;
+        }
 
 		// Update cron state
 		$this->update_cron_state();
@@ -152,7 +154,7 @@ class Servebolt_CF_Cache_Cron_Handle {
 	public function add_cache_purge_cron_schedule( $schedules ) {
 		$schedules['every_minute'] = array(
 			'interval' => 60,
-			'display'  => sb__( 'Every minute' )
+			'display'  => __('Every minute', 'servebolt-wp')
 		);
 		return $schedules;
 	}

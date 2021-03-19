@@ -2,11 +2,15 @@
 
 namespace Servebolt\Optimizer\Api\Cloudflare;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Multiton;
 use Servebolt\Optimizer\Traits\ClientMethodProxy;
 use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;
+use function Servebolt\Optimizer\Helpers\naturalLanguageJoin;
+use function Servebolt\Optimizer\Helpers\getBlogOption;
+use function Servebolt\Optimizer\Helpers\getOption;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
 
 /**
  * Class Cloudflare
@@ -115,7 +119,7 @@ class Cloudflare
     {
         $permissions = ['Zone.Zone', 'Zone.Cache Purge'];
         if ( $humanReadable ) {
-            return sb_natural_language_join($permissions);
+            return naturalLanguageJoin($permissions);
         }
         return $permissions;
     }
@@ -130,9 +134,9 @@ class Cloudflare
     private function getZoneId($blogId = null)
     {
         if ( is_numeric($blogId) ) {
-            return sb_get_blog_option($blogId, 'cf_zone_id');
+            return getBlogOption($blogId, 'cf_zone_id');
         } else {
-            return sb_get_option('cf_zone_id');
+            return getOption('cf_zone_id');
         }
     }
 
@@ -158,7 +162,7 @@ class Cloudflare
                 break;
         }
         if ( isset($optionName) ) {
-            return sb_smart_get_option($blogId, $optionName);
+            return smartGetOption($blogId, $optionName);
         }
         return false;
     }
@@ -211,11 +215,11 @@ class Cloudflare
     {
         if ( is_numeric($blogId) ) {
             return $this->ensureAuthTypeIntegrity(
-                sb_get_blog_option($blogId, 'cf_auth_type',  $this->getDefaultAuthType())
+                getBlogOption($blogId, 'cf_auth_type',  $this->getDefaultAuthType())
             );
         } else {
             return $this->ensureAuthTypeIntegrity(
-                sb_get_option('cf_auth_type',  $this->getDefaultAuthType())
+                getOption('cf_auth_type',  $this->getDefaultAuthType())
             );
         }
         return null;

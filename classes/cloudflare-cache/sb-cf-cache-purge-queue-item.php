@@ -1,5 +1,7 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\isUrl;
 
 /**
  * Class CF_Cache_Purge_Queue_Item
@@ -219,7 +221,7 @@ class CF_Cache_Purge_Queue_Item {
      * @return bool
      */
     public function is_url() {
-        return sb_is_url($this->item);
+        return isUrl($this->item);
     }
 
     /**

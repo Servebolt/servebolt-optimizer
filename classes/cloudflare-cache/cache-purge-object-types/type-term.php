@@ -1,5 +1,7 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\paginateLinksAsArray;
 
 /**
  * Class SB_CF_Cache_Purge_Term_Object
@@ -95,7 +97,7 @@ class SB_CF_Cache_Purge_Term_Object extends SB_CF_Cache_Purge_Object_Shared {
                     ]
                 ],
             ], 'term');
-            $this->add_urls(sb_paginate_links_as_array($term_url, $pages_needed));
+            $this->add_urls(paginateLinksAsArray($term_url, $pages_needed));
             return true;
         }
         return false;

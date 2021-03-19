@@ -45,9 +45,9 @@ trait Zone
      * @param string $zoneId
      * @return bool
      */
-    protected function zoneExists(string $zoneId) : bool
+    protected function zoneExists(string $zoneId): bool
     {
-        return $this->getZoneByKey($zoneId, 'id') !== false;
+        return is_object($this->getZoneByKey($zoneId, 'id'));
     }
 
     /**
@@ -67,15 +67,19 @@ trait Zone
      *
      * @param string $zoneName
      * @param string $key
-     * @return bool|mixed
+     * @return bool|object
      */
-    public function getZoneByKey(string $zoneName, string $key = 'name')
+    public function getZoneByKey(string $zoneName, string $key = 'name'): ?object
     {
-        foreach ( $this->listZones() as $zone ) {
-            if ( isset($zone->{ $key }) && $zone->{ $key } === $zoneName ) {
-                return $zone;
+        $zones = $this->listZones();
+        if (is_array($zones)) {
+            foreach ($zones as $zone)
+            {
+                if ( isset($zone->{ $key }) && $zone->{ $key } === $zoneName ) {
+                    return $zone;
+                }
             }
         }
-        return true;
+        return null;
     }
 }

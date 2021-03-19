@@ -1,5 +1,7 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\paginateLinksAsArray;
 
 /**
  * Class SB_CF_Cache_Purge_Post_Object
@@ -139,7 +141,7 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
             $pages_needed = $this->get_pages_needed([
                 'post_type' => $this->get_post_type(),
             ], 'post');
-            $this->add_urls(sb_paginate_links_as_array($post_type_archive_url, $pages_needed));
+            $this->add_urls(paginateLinksAsArray($post_type_archive_url, $pages_needed));
         }
     }
 
@@ -155,7 +157,7 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
                     'post_type' => apply_filters('sb_optimizer_cf_cache_purge_author_archive_post_type', 'post'),
                     'author'    => $author,
                 ], 'post');
-                $this->add_urls(sb_paginate_links_as_array($author_url, $pages_needed));
+                $this->add_urls(paginateLinksAsArray($author_url, $pages_needed));
             }
         }
     }
@@ -194,7 +196,7 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
                                     ]
                                 ],
                             ], 'post');
-                            $this->add_urls(sb_paginate_links_as_array($term_link, $pages_needed));
+                            $this->add_urls(paginateLinksAsArray($term_link, $pages_needed));
                         }
                     }
                 }
@@ -217,7 +219,7 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
                     compact('year', 'month', 'day')
                 ]
             ], 'post');
-            $this->add_urls(sb_paginate_links_as_array($date_archive, $pages_needed));
+            $this->add_urls(paginateLinksAsArray($date_archive, $pages_needed));
         }
     }
 

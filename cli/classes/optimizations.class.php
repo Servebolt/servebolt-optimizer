@@ -1,5 +1,7 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use Servebolt\Optimizer\DatabaseOptimizer\DatabaseOptimizer;
 
 /**
  * Class Servebolt_CLI_Optimizations
@@ -26,7 +28,8 @@ class Servebolt_CLI_Optimizations {
 	 *
 	 */
 	public function command_optimize_database() {
-		sb_optimize_db()->optimize_db(true);
+	    $instance = DatabaseOptimizer::getInstance();
+        $instance->optimizeDb(true);
 	}
 
 	/**
@@ -38,10 +41,11 @@ class Servebolt_CLI_Optimizations {
 	 *
 	 */
 	public function command_analyze_tables() {
-		if ( ! sb_optimize_db()->analyze_tables(true) ) {
-			WP_CLI::error(sb__('Could not analyze tables.'));
+        $instance = DatabaseOptimizer::getInstance();
+		if (!$instance->analyzeTables(true)) {
+			WP_CLI::error(__('Could not analyze tables.', 'servebolt-wp'));
 		} else {
-			WP_CLI::success(sb__('Analyzed tables.'));
+			WP_CLI::success(__('Analyzed tables.', 'servebolt-wp'));
 		}
 	}
 

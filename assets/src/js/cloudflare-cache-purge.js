@@ -469,7 +469,7 @@ jQuery(document).ready(function($) {
         window.sb_validate_cf_configuration_form_can_submit = false;
         window.sb_validate_cf_configuration_form_validation_is_running = false;
         spinner.removeClass('is-active');
-        window.sb_warning('Ouch!', 'An unkown error occurred. Please try agin or contact support.');
+        window.sb_warning('Ouch!', 'An unkown error occurred. Please try again or contact support.');
         form.find('input[type="submit"]').prop('disabled', false);
       }
     });

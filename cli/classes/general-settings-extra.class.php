@@ -1,5 +1,8 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
+use function Servebolt\Optimizer\Helpers\displayValue;
 
 /**
  * Class Servebolt_CLI_General_Settings_Extra
@@ -11,8 +14,10 @@ class Servebolt_CLI_General_Settings_Extra extends Servebolt_CLI_Extras {
      *
      * @return array
      */
-    protected function get_settings_keys() {
-        return array_keys(sb_general_settings()->get_all_settings_items());
+    protected function get_settings_keys()
+    {
+        $generalSettings = GeneralSettings::getInstance();
+        return array_keys($generalSettings->getAllSettingsItems());
     }
 
     /**
@@ -23,8 +28,10 @@ class Servebolt_CLI_General_Settings_Extra extends Servebolt_CLI_Extras {
      * @return bool|mixed|void
      */
     protected function get_setting($setting_key, $blog_id = false) {
-        $raw_value = sb_general_settings()->get_settings_item($setting_key, $blog_id);
-        $value = sb_display_value($raw_value, true);
+
+        $generalSettings = GeneralSettings::getInstance();
+        $raw_value = $generalSettings->getSettingsItem($setting_key, $blog_id);
+        $value = displayValue($raw_value, true);
         $array = [];
         if ( $blog_id ) {
             $array['URL'] = get_site_url($blog_id);
@@ -41,20 +48,22 @@ class Servebolt_CLI_General_Settings_Extra extends Servebolt_CLI_Extras {
      * @param bool $blog_id
      * @return bool|mixed|void
      */
-    protected function set_setting($setting_key, $value, $blog_id = false) {
-        $result = sb_general_settings()->set_settings_item($setting_key, $value, $blog_id);
+    protected function set_setting($setting_key, $value, $blog_id = false)
+    {
+        $generalSettings = GeneralSettings::getInstance();
+        $result = $generalSettings->setSettingsItem($setting_key, $value, $blog_id);
         if ( ! $result ) {
             if ( $blog_id ) {
-                WP_CLI::error(sprintf(sb__('Could not set setting "%s" to value "%s" on site %s'), $setting_key, $value, get_site_url($blog_id)), false);
+                WP_CLI::error(sprintf(__('Could not set setting "%s" to value "%s" on site %s', 'servebolt-wp'), $setting_key, $value, get_site_url($blog_id)), false);
             } else {
-                WP_CLI::error(sprintf(sb__('Could not set setting "%s" to value "%s"'), $setting_key, $value), false);
+                WP_CLI::error(sprintf(__('Could not set setting "%s" to value "%s"', 'servebolt-wp'), $setting_key, $value), false);
             }
             return false;
         }
         if ( $blog_id ) {
-            WP_CLI::success(sprintf(sb__('Setting "%s" set to value "%s" on site %s'), $setting_key, $value, get_site_url($blog_id)));
+            WP_CLI::success(sprintf(__('Setting "%s" set to value "%s" on site %s', 'servebolt-wp'), $setting_key, $value, get_site_url($blog_id)));
         } else {
-            WP_CLI::success(sprintf(sb__('Setting "%s" set to value "%s"'), $setting_key, $value));
+            WP_CLI::success(sprintf(__('Setting "%s" set to value "%s"', 'servebolt-wp'), $setting_key, $value));
         }
         return true;
     }
@@ -65,7 +74,8 @@ class Servebolt_CLI_General_Settings_Extra extends Servebolt_CLI_Extras {
      * @return array
      */
     protected function get_settings() {
-        $types = sb_general_settings()->registered_settings_items();
+        $generalSettings = GeneralSettings::getInstance();
+        $types = $generalSettings->getRegisteredSettingsItems();
         $formatted_items = [];
         foreach ( $types as $name => $type ) {
             $formatted_items[] = [
@@ -96,7 +106,7 @@ class Servebolt_CLI_General_Settings_Extra extends Servebolt_CLI_Extras {
      * @param $setting
      */
     protected function unresolved_setting($setting) {
-        WP_CLI::error(sprintf(sb__('Setting "%s" not found. Please run "wp servebolt general-settings list" to see available settings.'), $setting));
+        WP_CLI::error(sprintf(__('Setting "%s" not found. Please run "wp servebolt general-settings list" to see available settings.', 'servebolt-wp'), $setting));
     }
 
 }

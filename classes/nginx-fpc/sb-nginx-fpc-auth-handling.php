@@ -1,5 +1,5 @@
 <?php
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class Servebolt_Nginx_FPC_Auth_Handling
@@ -39,7 +39,7 @@ class Servebolt_Nginx_FPC_Auth_Handling {
 		add_filter( 'init', [ $this, 'no_cache_cookie_check' ] );
 
 		// Clear no-cache cookie when logging out
-		add_action( 'clear_auth_cookie', [ $this, 'clear_no_cache_cookie' ] );
+		add_action('clear_auth_cookie', [$this, 'clearNoCacheCookie']);
 
 	}
 
@@ -66,7 +66,7 @@ class Servebolt_Nginx_FPC_Auth_Handling {
 	 */
 	public function no_cache_cookie_check() {
 		if ( $this->cookie_is_set() && ! is_user_logged_in() ) {
-			$this->clear_no_cache_cookie();
+			$this->clearNoCacheCookie();
 		}
 	}
 
@@ -82,7 +82,7 @@ class Servebolt_Nginx_FPC_Auth_Handling {
 	/**
 	 * Clear no-cache cookie.
 	 */
-	public function clear_no_cache_cookie() {
+	public function clearNoCacheCookie() {
 		$this->set_no_cache_cookie(false);
 	}
 

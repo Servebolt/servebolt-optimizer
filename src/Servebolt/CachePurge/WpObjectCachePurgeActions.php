@@ -3,7 +3,7 @@
 namespace Servebolt\Optimizer\CachePurge;
 
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class CachePurgeWPActions
@@ -26,7 +26,7 @@ class WpObjectCachePurgeActions
     {
 
         // Skip this feature if the cache purge feature is inactive or insufficiently configured, or it automatic cache purge is inactive
-        if (!CachePurge::featureIsActive() || !CachePurge::automaticCachePurgeOnContentUpdateIsActive()) {
+        if (!CachePurge::featureIsAvailable() || !CachePurge::automaticCachePurgeOnContentUpdateIsActive()) {
             return;
         }
 
@@ -80,11 +80,9 @@ class WpObjectCachePurgeActions
      *
      * @param $termId
      * @param $taxonomy
-     * @throws \ReflectionException
      */
     private function maybePurgeTerm($termId, $taxonomy) {
         if ( ! $this->shouldPurgeTermCache($termId, $taxonomy) ) return;
-        //sb_cf_cache()->purge_term($termId, $taxonomy);
         $driver = CachePurge::getInstance();
         return $driver->purgeCacheForTerm($termId);
     }
@@ -172,7 +170,6 @@ class WpObjectCachePurgeActions
      */
     private function maybePurgePost($postId) {
         if ( ! $this->shouldPurgePostCache($postId) ) return;
-        //sb_cf_cache()->purge_post($postId);
         $driver = CachePurge::getInstance();
         $driver->purgeCacheForPost($postId);
     }
