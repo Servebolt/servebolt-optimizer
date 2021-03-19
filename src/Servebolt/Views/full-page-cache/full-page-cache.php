@@ -57,7 +57,7 @@
           None
           <?php endif; ?>
           </td>
-          <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-nginx-cache' ); ?>" class="button btn"><?php _e('Go to site NGINX settings', 'servebolt-wp'); ?></a></td>
+          <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-fpc' ); ?>" class="button btn"><?php _e('Go to site FPC settings', 'servebolt-wp'); ?></a></td>
         </tr>
 	    <?php endforeach; ?>
       </tbody>

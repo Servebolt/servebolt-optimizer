@@ -15,7 +15,7 @@
 <?php endif; ?>
 
 <?php if (hostIsServebolt()) : ?>
-    <a href="<?php echo admin_url('admin.php?page=servebolt-nginx-cache'); ?>" class="sb-button yellow">
+    <a href="<?php echo admin_url('admin.php?page=servebolt-fpc'); ?>" class="sb-button yellow">
         <?php _e('Full Page Cache settings', 'servebolt-wp') ?>
     </a>
 

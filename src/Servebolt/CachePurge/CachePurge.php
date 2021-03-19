@@ -11,6 +11,7 @@ use Servebolt\Optimizer\CachePurge\Drivers\Servebolt as ServeboltDriver;
 use Servebolt\Optimizer\CachePurge\Drivers\Cloudflare as CloudflareDriver;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\hostIsServebolt;
+use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 
 /**
