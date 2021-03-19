@@ -10,6 +10,7 @@ use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 use function Servebolt\Optimizer\Helpers\createLiTagsFromArray;
 use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup;
+use function Servebolt\Optimizer\Helpers\nginxFpc;
 
 /**
  * Class FpcPostExclusion
@@ -37,7 +38,7 @@ class FpcPostExclusion extends SharedAjaxMethods
 
         $itemsToRemove = arrayGet('items', $_POST);
         if ($itemsToRemove === 'all') {
-            sb_nginx_fpc()->set_ids_to_exclude_from_cache([]);
+            nginxFpc()->set_ids_to_exclude_from_cache([]);
             wp_send_json_success();
         }
         if (!$itemsToRemove || empty($itemsToRemove)) {
@@ -49,14 +50,14 @@ class FpcPostExclusion extends SharedAjaxMethods
         $itemsToRemove = array_filter($itemsToRemove, function ($item) {
             return is_numeric($item);
         });
-        $currentItems = sb_nginx_fpc()->get_ids_to_exclude_from_cache();
+        $currentItems = nginxFpc()->get_ids_to_exclude_from_cache();
         if (!is_array($currentItems)) {
             $currentItems = [];
         }
         $updatedItems = array_filter($currentItems, function($item) use ($itemsToRemove) {
             return ! in_array($item, $itemsToRemove);
         });
-        sb_nginx_fpc()->set_ids_to_exclude_from_cache($updatedItems);
+        nginxFpc()->set_ids_to_exclude_from_cache($updatedItems);
         wp_send_json_success();
     }
 
@@ -92,13 +93,13 @@ class FpcPostExclusion extends SharedAjaxMethods
                 continue;
             }
 
-            if ( sb_nginx_fpc()->should_exclude_post_from_cache($postId) ) {
+            if ( nginxFpc()->should_exclude_post_from_cache($postId) ) {
                 $alreadyExcluded[] = $postId;
                 $success[] = $postId;
                 continue;
             }
 
-            if ( sb_nginx_fpc()->exclude_post_from_cache($postId) ) {
+            if (nginxFpc()->exclude_post_from_cache($postId) ) {
                 $newMarkup .= fpcExcludePostTableRowMarkup($postId, false);
                 $success[] = $postId;
                 $added[] = $postId;

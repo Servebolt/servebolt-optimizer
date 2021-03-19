@@ -15,13 +15,11 @@ function sb_purge_url(string $url, bool $return_wp_error_object = false)
     try {
         return WordPressCachePurge::purgeByUrl($url);
     } catch (ApiError $e) {
-        // TODO: Handle API error message
         if ($return_wp_error_object) {
             // TODO: Return WP Error object
         }
         return false;
     } catch (Exception $e) {
-        // TODO: Handle general error
         if ($return_wp_error_object) {
             // TODO: Return WP Error object
         }

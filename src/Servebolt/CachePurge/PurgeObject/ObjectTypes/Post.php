@@ -1,14 +1,18 @@
 <?php
+
+namespace Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes;
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\paginateLinksAsArray;
 
 /**
- * Class SB_CF_Cache_Purge_Post_Object
+ * Class Post
  *
  * This is a cache purge object with the type of post.
  */
-class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
+//class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared
+class Post extends SharedMethods {
 
     /**
      * Define the type of this object in WP context.
@@ -18,7 +22,7 @@ class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared {
     protected $object_type = 'post';
 
     /**
-     * SB_CF_Cache_Purge_Post_Object constructor.
+     * Post constructor.
      * @param $post_id
      * @param $args
      */

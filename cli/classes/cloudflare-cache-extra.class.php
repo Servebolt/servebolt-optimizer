@@ -7,7 +7,7 @@ use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\resolvePostIdsToTitleAndPostIdString;
 use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
 use function Servebolt\Optimizer\Helpers\getBlogName;
-use function Servebolt\Options\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
  * Class Servebolt_CLI_Cloudflare_Cache_Extra

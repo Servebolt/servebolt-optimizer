@@ -2,7 +2,7 @@
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\arrayGet;
-use function Servebolt\Options\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\iterateSites;
 
 require_once __DIR__ . '/cloudflare-cache-extra.class.php';
 
@@ -450,8 +450,26 @@ class Servebolt_CLI_Cloudflare_Cache extends Servebolt_CLI_Cloudflare_Cache_Extr
 			$string = '[Last attempt] ' . $string;
 		}
 
-		_e('No zone selected, exiting.', 'servebolt-wp');
-			}
+        _e($string, 'wordpress-wp');
+        $zone = $this->user_input(function($input) use ($zones) {
+            if ( $zones ) {
+                foreach ( $zones as $i => $zone ) {
+                    if ( $i+1 == $input || $zone->id == $input || $zone->name == $input ) {
+                        return $zone;
+                    }
+                }
+            } else {
+                if ( ! empty($input) ) {
+                    return $input;
+                }
+            }
+            return false;
+        });
+
+        if ( ! $zone ) {
+            if ( $failCount >= $maxFailCount ) {
+                WP_CLI::error('No zone selected, exiting.');
+            }
 			$failCount++;
 			WP_CLI::error(__('Invalid selection, please try again.', 'servebolt-wp'), false);
 			goto select_zone;

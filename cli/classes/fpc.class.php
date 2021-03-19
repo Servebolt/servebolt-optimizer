@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
-use function Servebolt\Options\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\iterateSites;
 
 require_once __DIR__ . '/fpc-extra.class.php';
 

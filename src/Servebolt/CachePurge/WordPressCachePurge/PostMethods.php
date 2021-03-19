@@ -3,6 +3,7 @@
 namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
+use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 
 /**
  * Trait PostMethods
@@ -19,10 +20,11 @@ trait PostMethods
      */
     private static function getUrlsToPurgeByPostId(int $postId): array
     {
-        return sb_cf_cache_purge_object(
+        $purgeObject = new PurgeObject(
             $postId,
             'post'
-        )->get_urls();
+        );
+        return $purgeObject->get_urls();
     }
 
     /**

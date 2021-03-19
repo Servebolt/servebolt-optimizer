@@ -5,12 +5,12 @@ namespace Servebolt\Optimizer\Admin;
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\FullPageCacheControl;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
-use Servebolt\Optimizer\Admin\CloudflareImageResizing\CloudflareImageResizing;
+use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\PerformanceChecks\PerformanceChecks;
 use Servebolt\Optimizer\Admin\LogViewer\LogViewer;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
-use function Servebolt\Optimizer\Helpers\featureIsActive;
+use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isDevDebug;
 use function Servebolt\Optimizer\Helpers\hostIsServebolt;
 
@@ -41,7 +41,7 @@ class AdminGuiController
         CachePurgeControl::init();
         FullPageCacheControl::init();
         GeneralSettings::init();
-        CloudflareImageResizing::init();
+        CloudflareImageResize::init();
         PerformanceChecks::init();
     }
 
@@ -168,8 +168,8 @@ class AdminGuiController
      */
     private function cfImageResizeMenu(): void
     {
-        if (featureIsActive('cf_image_resize')) {
-            add_submenu_page('servebolt-wp', __('Cloudflare Image Resizing', 'servebolt-wp'), __('Cloudflare Image Resizing', 'servebolt-wp'), 'manage_options', 'servebolt-cf-image-resizing', [CloudflareImageResizing::getInstance(), 'render']);
+        if (featureIsAvailable('cf_image_resize')) {
+            add_submenu_page('servebolt-wp', __('Cloudflare Image Resizing', 'servebolt-wp'), __('Cloudflare Image Resizing', 'servebolt-wp'), 'manage_options', 'servebolt-cf-image-resizing', [CloudflareImageResize::getInstance(), 'render']);
         }
     }
 

@@ -14,6 +14,7 @@ use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
+use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 
 /**
  * Class Servebolt_CF_Cache
@@ -565,7 +566,8 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
      * @return bool|mixed
      */
 	private function get_purge_urls_by_term_id( int $term_id, string $taxonomy_slug ) {
-        return sb_cf_cache_purge_object($term_id, 'term', ['taxonomy_slug' => $taxonomy_slug])->get_urls();
+	    $purgeObject = new PurgeObject($term_id, 'term', ['taxonomy_slug' => $taxonomy_slug]);
+        return $purgeObject->get_urls();
     }
 
 	/**
@@ -576,7 +578,8 @@ class Servebolt_CF_Cache extends Servebolt_CF_Cache_Purge_Queue_Handling {
 	 * @return array
 	 */
 	private function get_purge_urls_by_post_id( int $post_id ) {
-        return sb_cf_cache_purge_object($post_id, 'post')->get_urls();
+	    $purgeObject = new PurgeObject($post_id, 'post');
+        return $purgeObject->get_urls();
 	}
 
     /**

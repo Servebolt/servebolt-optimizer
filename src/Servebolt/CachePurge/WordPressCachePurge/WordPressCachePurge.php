@@ -20,10 +20,9 @@ class WordPressCachePurge
      * Purge cache by URL.
      *
      * @param string $url
-     * @param bool $returnWpError
      * @return bool
      */
-    public static function purgeByUrl(string $url, bool $returnWpError = false)
+    public static function purgeByUrl(string $url)
     {
         if ($postId = url_to_postid($url)) {
             return self::purgePostCache($postId);

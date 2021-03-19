@@ -9,6 +9,7 @@ use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\getOption;
+use function Servebolt\Optimizer\Helpers\nginxFpc;
 
 require_once __DIR__ . '/sb-nginx-fpc-auth-handling.php';
 
@@ -436,7 +437,7 @@ class Servebolt_Nginx_FPC {
 		$post_types_to_cache = $this->maybe_fix_post_type_array_structure($post_types_to_cache);
 
 		if ( $respect_all && in_array('all', (array) $post_types_to_cache) ) {
-			return array_keys(sb_nginx_fpc()->get_available_post_types_to_cache());
+			return array_keys(nginxFpc()->get_available_post_types_to_cache());
 		}
 
 		// Check if we should return default post types instead of not post types are set
@@ -532,13 +533,13 @@ class Servebolt_Nginx_FPC {
 	 * @return bool
 	 */
 	public function exclude_posts_from_cache($posts, $blog_id = false) {
-		$already_excluded = sb_nginx_fpc()->get_ids_to_exclude_from_cache($blog_id) ?: [];
+		$already_excluded = nginxFpc()->get_ids_to_exclude_from_cache($blog_id) ?: [];
 		foreach($posts as $post_id) {
 			if ( ! in_array($post_id, $already_excluded) ) {
 				$already_excluded[] = $post_id;
 			}
 		}
-		return sb_nginx_fpc()->set_ids_to_exclude_from_cache($already_excluded, $blog_id);
+		return nginxFpc()->set_ids_to_exclude_from_cache($already_excluded, $blog_id);
 	}
 
 	/**

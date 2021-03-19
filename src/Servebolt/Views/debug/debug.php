@@ -1,5 +1,6 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use Servebolt\Optimizer\CachePurge\CachePurge; ?>
+<?php use Servebolt\Optimizer\Helpers\nginxFpc; ?>
 <div class="wrap sb-content" id="sb-configuration">
 
 	<h1><?php _e('Servebolt Optimizer - Debug information', 'servebolt-wp'); ?></h1>
@@ -33,17 +34,17 @@
 	<h2>Nginx FPC</h2>
 
 	<?php
-		$selected_post_types_to_cache  = sb_nginx_fpc()->get_post_types_to_cache(false, false);
+		$selected_post_types_to_cache  = nginxFpc()->get_post_types_to_cache(false, false);
 		$selected_post_types_to_cache_without_all = $selected_post_types_to_cache ? array_filter($selected_post_types_to_cache, function($post_type) {
 			return $post_type !== 'all';
 		}) : [];
-		$post_types_that_will_be_cached  = sb_nginx_fpc()->get_post_types_to_cache();
-		$available_post_types = sb_nginx_fpc()->get_available_post_types_to_cache(false);
-		$ids_to_exclude_from_cache = sb_nginx_fpc()->get_ids_to_exclude_from_cache();
-		$default_post_types_to_cache = sb_nginx_fpc()->get_default_post_types_to_cache();
+		$post_types_that_will_be_cached  = nginxFpc()->get_post_types_to_cache();
+		$available_post_types = nginxFpc()->get_available_post_types_to_cache(false);
+		$ids_to_exclude_from_cache = nginxFpc()->get_ids_to_exclude_from_cache();
+		$default_post_types_to_cache = nginxFpc()->get_default_post_types_to_cache();
 	?>
 
-	<p>Feature is active? - <?php echo sb_nginx_fpc()->fpc_is_active() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
+	<p>Feature is active? - <?php echo nginxFpc()->fpc_is_active() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 	<p>Cache all post types? - <?php echo ( is_array($selected_post_types_to_cache) && in_array('all', $selected_post_types_to_cache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 	<p>Any specific post types set? - <?php echo ( is_array($selected_post_types_to_cache_without_all) && ! empty($selected_post_types_to_cache_without_all ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>
 	<p>Default post types used? - <?php echo ( ! is_array($selected_post_types_to_cache) || empty($selected_post_types_to_cache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>

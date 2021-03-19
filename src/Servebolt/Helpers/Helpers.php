@@ -2,6 +2,9 @@
 
 namespace Servebolt\Optimizer\Helpers;
 
+use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
+use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
+
 /**
  * Display a view, Laravel style.
  *
@@ -219,7 +222,7 @@ function clearAllCookies(): void
     if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
         require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
     }
-    ( new Servebolt_Nginx_FPC_Auth_Handling )->clearNoCacheCookie();
+    ( new \Servebolt_Nginx_FPC_Auth_Handling )->clearNoCacheCookie();
 }
 
 /**
@@ -281,7 +284,7 @@ function checkAllCookies(): void
     if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
         require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
     }
-    ( new Servebolt_Nginx_FPC_Auth_Handling )->cache_cookie_check();
+    ( new \Servebolt_Nginx_FPC_Auth_Handling )->cache_cookie_check();
 }
 
 /**
@@ -514,6 +517,23 @@ function formatPostTypeSlug(string $postType): string
 }
 
 /**
+ * Check whether a feature is available.
+ *
+ * @param string $feature
+ * @return bool|null
+ */
+function featureIsAvailable(string $feature): ?bool
+{
+    switch ($feature) {
+        case 'cf_image_resize':
+            //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || ( CloudflareImageResize::getInstance() )->resizingIsActive();
+            return true;
+            break;
+    }
+    return null;
+}
+
+/**
  * Check whether a feature is active.
  *
  * @param string $feature
@@ -524,12 +544,11 @@ function featureIsActive(string $feature): ?bool
 {
     switch ($feature) {
         case 'cf_image_resize':
-            // Only active when defined is set, or if already active - this is to keep it beta for now (slightly hidden).
-            return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || ( sb_cf_image_resize_control() )->resizing_is_active();
+            return ( CloudflareImageResize::getInstance() )->resizingIsActive();
             break;
         case 'sb_asset_auto_version':
         case 'asset_auto_version':
-            $generalSettings = \Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings::getInstance();
+            $generalSettings = GeneralSettings::getInstance();
             return $generalSettings->assetAutoVersion();
             break;
         case 'cf_cache':
@@ -893,4 +912,15 @@ function smartGetOption($blog_id, $option_name, $default = false)
         $result = getOption($option_name, $default);
     }
     return $result;
+}
+
+/**
+ * Get Servebolt_Nginx_FPC-instance.
+ *
+ * @return Servebolt_Nginx_FPC|null
+ */
+function nginxFpc()
+{
+    require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
+    return \Servebolt_Nginx_FPC::get_instance();
 }

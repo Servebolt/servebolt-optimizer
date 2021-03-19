@@ -1,14 +1,19 @@
 <?php
+
+namespace Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes;
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\paginateLinksAsArray;
 
 /**
- * Class SB_CF_Cache_Purge_Term_Object
+ * Class Term
  *
  * This is a cache purge object with the type of term.
  */
-class SB_CF_Cache_Purge_Term_Object extends SB_CF_Cache_Purge_Object_Shared {
+//class SB_CF_Cache_Purge_Term_Object extends SB_CF_Cache_Purge_Object_Shared
+class Term extends SharedMethods
+{
 
     /**
      * Define the type of this object in WP context.
@@ -18,7 +23,7 @@ class SB_CF_Cache_Purge_Term_Object extends SB_CF_Cache_Purge_Object_Shared {
     protected $object_type = 'term';
 
     /**
-     * SB_CF_Cache_Purge_Term_Object constructor.
+     * Term constructor.
      * @param $term_id
      * @param $args
      */

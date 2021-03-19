@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 require_once __DIR__ . '/general-settings-extra.class.php';
 
-use function Servebolt\Options\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
  * Class Servebolt_CLI_Cloudflare_Image_Resize

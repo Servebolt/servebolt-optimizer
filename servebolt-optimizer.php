@@ -28,9 +28,6 @@ if (defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7) {
 // Load Composer dependencies
 require SERVEBOLT_PLUGIN_DIR_PATH . 'vendor/autoload.php';
 
-// Include general functions
-require_once SERVEBOLT_PLUGIN_DIR_PATH . 'functions.php'; // TODO: Phase this file out
-
 // Register events for activation and deactivation of this plugin
 register_activation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\activatePlugin');
 register_deactivation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\deactivatePlugin');
@@ -56,13 +53,12 @@ if (
 // Loads the class that sets the correct cache headers for the Servebolt full page cache
 if (!class_exists('Servebolt_Nginx_FPC')) {
 	require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
-	sb_nginx_fpc()->setup();
+    Servebolt\Optimizer\Helpers\nginxFpc()->setup();
 }
 
 // Initialize image resizing
 if (Servebolt\Optimizer\Helpers\featureIsActive('cf_image_resize')) {
-	require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-image-resize/cloudflare-image-resizing.php';
-	( new Cloudflare_Image_Resize )->init();
+    new Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
 }
 
 // Register cron schedule and cache purge event

@@ -1,6 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\formatPostTypeSlug; ?>
 <?php use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup; ?>
+<?php use function Servebolt\Optimizer\Helpers\nginxFpc; ?>
 <div class="wrap sb-content">
 	<h1><?php _e('Full Page Cache', 'servebolt-wp'); ?></h1>
 
@@ -38,11 +39,11 @@
       </tfoot>
       <tbody>
 	    <?php foreach (get_sites() as $site) : ?>
-		  <?php $sb_fpc_settings = sb_nginx_fpc()->get_post_types_to_cache(false, false, $site->blog_id); ?>
+		  <?php $sb_fpc_settings = nginxFpc()->get_post_types_to_cache(false, false, $site->blog_id); ?>
         <tr>
           <td><?php echo $site->blog_id; ?></td>
           <td><?php echo $site->domain . $site->path; ?></td>
-          <td><?php echo sb_nginx_fpc()->fpc_is_active($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
+          <td><?php echo nginxFpc()->fpc_is_active($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
           <td>
           <?php if ( ! empty($sb_fpc_settings) ) : ?>
             <?php if ( in_array('all', $sb_fpc_settings) ) : ?>
@@ -65,9 +66,9 @@
   <?php else : ?>
 
     <?php
-	    $nginx_fpc_active     = sb_nginx_fpc()->fpc_is_active();
-      $post_types_to_cache  = sb_nginx_fpc()->get_post_types_to_cache(false, false);
-      $available_post_types = sb_nginx_fpc()->get_available_post_types_to_cache(true);
+	    $nginx_fpc_active     = nginxFpc()->fpc_is_active();
+      $post_types_to_cache  = nginxFpc()->get_post_types_to_cache(false, false);
+      $available_post_types = nginxFpc()->get_available_post_types_to_cache(true);
     ?>
 		<form method="post" action="options.php">
 			<?php settings_fields( 'fpc-options-page' ) ?>
@@ -92,7 +93,7 @@
         <tr>
           <th scope="row">Posts to exclude from cache</th>
           <td>
-            <?php $ids_to_exclude = sb_nginx_fpc()->get_ids_to_exclude_from_cache() ?: []; ?>
+            <?php $ids_to_exclude = nginxFpc()->get_ids_to_exclude_from_cache() ?: []; ?>
 
             <div class="tablenav top">
               <div class="alignleft actions bulkactions">

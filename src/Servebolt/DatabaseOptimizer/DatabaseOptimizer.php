@@ -5,7 +5,7 @@ namespace Servebolt\Optimizer\DatabaseOptimizer;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
-use function Servebolt\Options\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
  * Class DatabaseOptimizer

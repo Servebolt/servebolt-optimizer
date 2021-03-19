@@ -6,7 +6,8 @@ use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\resolvePostIdsToTitleAndPostIdString;
 use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
-use function Servebolt\Options\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\nginxFpc;
 
 /**
  * Class WP_CLI_FPC_Extra
@@ -23,10 +24,10 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 	 * @return array
 	 */
 	protected function get_nginx_fpc_status($blog_id = false) {
-		$status = sb_nginx_fpc()->fpc_is_active($blog_id) ? 'Active' : 'Inactive';
-		$post_types = sb_nginx_fpc()->get_post_types_to_cache(true, true, $blog_id);
+		$status = nginxFpc()->fpc_is_active($blog_id) ? 'Active' : 'Inactive';
+		$post_types = nginxFpc()->get_post_types_to_cache(true, true, $blog_id);
 		$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
-		$excluded_posts = sb_nginx_fpc()->get_ids_to_exclude_from_cache($blog_id);
+		$excluded_posts = nginxFpc()->get_ids_to_exclude_from_cache($blog_id);
 		$array = [];
 		if ( $blog_id ) {
 			$array['URL'] = get_site_url($blog_id);
@@ -47,7 +48,7 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 	 * @return array
 	 */
 	protected function nginx_fpc_get_cache_post_types($blog_id = false) {
-		$post_types = sb_nginx_fpc()->get_post_types_to_cache(true, true, $blog_id);
+		$post_types = nginxFpc()->get_post_types_to_cache(true, true, $blog_id);
 		$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
 		$array = [];
 		if ( $blog_id ) {
@@ -70,7 +71,7 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 
 		// Cache default post types
 		if ( ! is_array($post_types) || empty($post_types) ) {
-			return sprintf( __('Default [%s]', 'servebolt-wp'), sb_nginx_fpc()->get_default_post_types_to_cache( 'csv' ) );
+			return sprintf( __('Default [%s]', 'servebolt-wp'), nginxFpc()->get_default_post_types_to_cache( 'csv' ) );
 		}
 
 		// Cache all post types
@@ -89,10 +90,10 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 	private function nginx_toggle_cache_for_blog($new_cache_state, $blog_id = null) {
 		$url = get_site_url($blog_id);
 		$cache_active_string = booleanToStateString($new_cache_state);
-		if ( $new_cache_state === sb_nginx_fpc()->fpc_is_active($blog_id) ) {
+		if ( $new_cache_state === nginxFpc()->fpc_is_active($blog_id) ) {
 			WP_CLI::warning(sprintf( __('Full Page Cache already %s on site %s', 'servebolt-wp'), $cache_active_string, $url ));
 		} else {
-			sb_nginx_fpc()->fpc_toggle_active($new_cache_state, $blog_id);
+            nginxFpc()->fpc_toggle_active($new_cache_state, $blog_id);
 			WP_CLI::success(sprintf( __('Full Page Cache %s on site %s', 'servebolt-wp'), $cache_active_string, $url ));
 		}
 	}
@@ -158,7 +159,7 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 		$post_types = array_filter($post_types, function($post_type) use ($all_post_type_keys) {
 			return in_array($post_type, $all_post_type_keys) || $post_type === 'all';
 		});
-		sb_nginx_fpc()->set_cacheable_post_types($post_types, $blog_id);
+        nginxFpc()->set_cacheable_post_types($post_types, $blog_id);
 		if ( empty($post_types) ) {
 			if ( $blog_id ) {
 				WP_CLI::success(sprintf(__('Cache post type(s) cleared on site %s'), get_site_url($blog_id)));
@@ -180,7 +181,7 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 	 * @return array|bool
 	 */
 	private function nginx_get_all_post_types() {
-		$all_post_types = sb_nginx_fpc()->get_available_post_types_to_cache(false);
+		$all_post_types = nginxFpc()->get_available_post_types_to_cache(false);
 		if ( is_array($all_post_types) ) {
 			return array_map(function($post_type) {
 				return isset($post_type->name) ? $post_type->name : $post_type;
@@ -199,11 +200,11 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 		if ( is_string($ids_to_exclude) ) {
 			$ids_to_exclude = formatCommaStringToArray($ids_to_exclude);
 		}
-		$already_excluded = sb_nginx_fpc()->get_ids_to_exclude_from_cache($blog_id);
+		$already_excluded = nginxFpc()->get_ids_to_exclude_from_cache($blog_id);
 		$clear_all = $ids_to_exclude === false;
 
 		if ( $clear_all ) {
-			sb_nginx_fpc()->set_ids_to_exclude_from_cache([], $blog_id);
+            nginxFpc()->set_ids_to_exclude_from_cache([], $blog_id);
 			WP_CLI::success(__('All excluded posts were cleared.', 'servebolt-wp'));
 			return;
 		} elseif ( is_array($ids_to_exclude) && empty($ids_to_exclude) ) {
@@ -224,7 +225,7 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 				$already_added[] = $id;
 			}
 		}
-		sb_nginx_fpc()->set_ids_to_exclude_from_cache($already_excluded, $blog_id);
+        nginxFpc()->set_ids_to_exclude_from_cache($already_excluded, $blog_id);
 
 		if ( ! empty($already_added) ) {
 			WP_CLI::warning(sprintf(__('The following ids were already excluded: %s', 'servebolt-wp'), formatArrayToCsv($already_added)));
@@ -255,7 +256,7 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 		} else {
 			$arr = [];
 		}
-		$already_excluded = sb_nginx_fpc()->get_ids_to_exclude_from_cache($blog_id);
+		$already_excluded = nginxFpc()->get_ids_to_exclude_from_cache($blog_id);
 		if ( $extended ) {
 			$already_excluded = formatArrayToCsv(resolvePostIdsToTitleAndPostIdString($already_excluded), ', ');
 		} else {

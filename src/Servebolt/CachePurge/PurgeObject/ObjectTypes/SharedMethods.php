@@ -1,12 +1,16 @@
 <?php
+
+namespace Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes;
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
- * Trait SB_CF_Cache_Purge_Object_Shared_Methods
+ * Trait SharedMethods
  *
  * This trait contains common methods for building a cache purge object of various types (post, term etc.).
  */
-abstract class SB_CF_Cache_Purge_Object_Shared {
+abstract class SharedMethods
+{
 
     /**
      * The ID of the object to be purged.
@@ -37,7 +41,7 @@ abstract class SB_CF_Cache_Purge_Object_Shared {
     private $success = false;
 
     /**
-     * SB_CF_Cache_Purge_Object_Shared constructor.
+     * SharedMethods constructor.
      *
      * @param $id
      * @param $args

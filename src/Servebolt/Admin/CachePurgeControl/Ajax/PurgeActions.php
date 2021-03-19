@@ -18,7 +18,7 @@ use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 //use function Servebolt\Optimizer\Helpers\createLiTagsFromArray;
 //use function Servebolt\Optimizer\Helpers\requireSuperadmin;
 //use function Servebolt\Optimizer\Helpers\countSites;
-//use function Servebolt\Options\Helpers\iterateSites;
+//use function Servebolt\Optimizer\Helpers\iterateSites;
 
 class PurgeActions extends SharedAjaxMethods
 {

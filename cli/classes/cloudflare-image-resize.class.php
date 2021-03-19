@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 require_once __DIR__ . '/cloudflare-image-resize-extra.class.php';
 
-use function Servebolt\Options\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
  * Class Servebolt_CLI_Cloudflare_Image_Resize
@@ -49,10 +49,10 @@ class Servebolt_CLI_Cloudflare_Image_Resize extends Servebolt_CLI_Cloudflare_Ima
     public function command_cf_image_resize_enable($args, $assoc_args) {
         if ( $this->affect_all_sites( $assoc_args ) ) {
             iterateSites(function ( $site ) {
-                $this->cf_image_resize_toggle_active(true, $site->blog_id);
+                $this->cfImageResizeToggleActive(true, $site->blog_id);
             });
         } else {
-            $this->cf_image_resize_toggle_active(true);
+            $this->cfImageResizeToggleActive(true);
         }
     }
 
@@ -72,10 +72,10 @@ class Servebolt_CLI_Cloudflare_Image_Resize extends Servebolt_CLI_Cloudflare_Ima
     public function command_cf_image_resize_disable($args, $assoc_args) {
         if ( $this->affect_all_sites( $assoc_args ) ) {
             iterateSites(function ( $site ) {
-                $this->cf_image_resize_toggle_active(false, $site->blog_id);
+                $this->cfImageResizeToggleActive(false, $site->blog_id);
             });
         } else {
-            $this->cf_image_resize_toggle_active(false);
+            $this->cfImageResizeToggleActive(false);
         }
     }
 

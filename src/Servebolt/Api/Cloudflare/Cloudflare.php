@@ -133,7 +133,7 @@ class Cloudflare
      */
     private function getZoneId($blogId = null)
     {
-        if ( is_numeric($blogId) ) {
+        if (is_numeric($blogId)) {
             return getBlogOption($blogId, 'cf_zone_id');
         } else {
             return getOption('cf_zone_id');
@@ -215,11 +215,11 @@ class Cloudflare
     {
         if ( is_numeric($blogId) ) {
             return $this->ensureAuthTypeIntegrity(
-                getBlogOption($blogId, 'cf_auth_type',  $this->getDefaultAuthType())
+                getBlogOption($blogId, 'cf_auth_type', $this->getDefaultAuthType())
             );
         } else {
             return $this->ensureAuthTypeIntegrity(
-                getOption('cf_auth_type',  $this->getDefaultAuthType())
+                getOption('cf_auth_type', $this->getDefaultAuthType())
             );
         }
         return null;
@@ -230,9 +230,10 @@ class Cloudflare
      *
      * @param $authType
      *
-     * @return bool|string
+     * @return string
      */
-    private function ensureAuthTypeIntegrity($authType) {
+    private function ensureAuthTypeIntegrity($authType): string
+    {
         switch ($authType) {
             case 'token':
             case 'apiToken':

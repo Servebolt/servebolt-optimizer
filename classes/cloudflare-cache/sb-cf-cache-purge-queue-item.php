@@ -2,6 +2,7 @@
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\isUrl;
+use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 
 /**
  * Class CF_Cache_Purge_Queue_Item
@@ -122,7 +123,7 @@ class CF_Cache_Purge_Queue_Item {
      */
     private function get_purge_object() {
         if ( is_null($this->purge_object) ) {
-            $this->purge_object = sb_cf_cache_purge_object($this->item, $this->type);
+            $this->purge_object = new PurgeObject($this->item, $this->type);
         }
         return $this->purge_object;
     }

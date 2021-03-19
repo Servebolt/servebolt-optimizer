@@ -3,6 +3,7 @@
 namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
+use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 
 /**
  * Trait TermMethods
@@ -20,11 +21,12 @@ trait TermMethods
      */
     private function getUrlsToPurgeByTermId(int $termId, string $taxonomySlug): array
     {
-        return sb_cf_cache_purge_object(
+        $purgeObject = new PurgeObject(
             $termId,
             'term',
             ['taxonomy_slug' => $taxonomySlug]
-        )->get_urls();
+        );
+        return $purgeObject->get_urls();
     }
 
     /**
