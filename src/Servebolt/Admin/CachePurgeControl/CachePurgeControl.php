@@ -47,8 +47,9 @@ class CachePurgeControl
         $selectedCfZone = $this->getSelectedCfZone($settings);
         $cfZones = $this->getCfZones($settings);
         $cachePurgeIsActive = CachePurge::cachePurgeIsActive();
+        $autoCachePurgeIsActive = CachePurge::automaticCachePurgeOnContentUpdateIsActive();
 
-        view('cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive'));
+        view('cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive'));
         /*
         $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
         $numberOfCachePurgeQueueItems = sb_cf_cache()->count_items_to_purge();
@@ -238,6 +239,7 @@ class CachePurgeControl
     {
         return [
             'cache_purge_switch',
+            'cache_purge_auto',
             'cache_purge_driver',
             'cf_zone_id',
             'cf_auth_type',

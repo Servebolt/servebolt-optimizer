@@ -46,6 +46,19 @@
             </tr>
 
             <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
+                <th scope="row"><?php _e('Automatic purge on content update?', 'servebolt-wp'); ?></th>
+                <td>
+                    <fieldset>
+                        <legend class="screen-reader-text"><span><?php _e('Automatic cache purge on content update', 'servebolt-wp'); ?></span></legend>
+                        <label for="cache_purge_auto">
+                            <input name="<?php echo getOptionName('cache_purge_auto'); ?>" type="checkbox" id="cache_purge_auto" value="1" <?php checked($autoCachePurgeIsActive); ?>>
+                            <?php _e('Active?', 'servebolt-wp'); ?>
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
+
+            <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
                 <th scope="row"><?php _e('Cache purge driver', 'servebolt-wp'); ?></th>
                 <td>
                     <fieldset>

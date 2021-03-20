@@ -19,7 +19,7 @@ trait TermMethods
      * @param string $taxonomySlug
      * @return bool|mixed
      */
-    private function getUrlsToPurgeByTermId(int $termId, string $taxonomySlug): array
+    private static function getUrlsToPurgeByTermId(int $termId, string $taxonomySlug): array
     {
         $purgeObject = new PurgeObject(
             $termId,

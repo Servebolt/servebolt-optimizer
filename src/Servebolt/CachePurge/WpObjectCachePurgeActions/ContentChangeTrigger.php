@@ -1,10 +1,11 @@
 <?php
 
-namespace Servebolt\Optimizer\CachePurge;
+namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
+use Servebolt\Optimizer\CachePurge\CachePurge;
 use Exception;
 
 /**
@@ -12,7 +13,7 @@ use Exception;
  *
  * This class registers the WP events which purges the cache automatically (updating/create posts, terms etc.).
  */
-class WpObjectCachePurgeActions
+class ContentChangeTrigger
 {
     /**
      * CachePurgeWPActions constructor.
@@ -55,27 +56,16 @@ class WpObjectCachePurgeActions
         if ( apply_filters('sb_optimizer_automatic_purge_on_term_save', true) ) {
             add_action( 'edit_term', [ $this, 'purgeTermOnSave' ], 99, 3 );
         }
-
     }
 
     /**
      * @param $termId
      * @param $termTaxonomyId
      * @param $taxonomy
-     * @throws \ReflectionException
      */
     public function purgeTermOnSave($termId, $termTaxonomyId, $taxonomy): void
     {
-        $this->maybePurgeTermSlugIfSlugChanged($termId, $taxonomy);
         $this->maybePurgeTerm($termId, $taxonomy);
-    }
-
-    /**
-     *
-     */
-    private function maybePurgeTermSlugIfSlugChanged() {
-        // TODO: We might need to use a different filter to try to catch the old slug before the term is being updated. Take a look at the function wp-includes/taxonomy.php:2922 for available filters/actions.
-        // TODO: When a term is updated, check if the term slug is being changed and purge the cache on the old URL.
     }
 
     /**
@@ -84,15 +74,14 @@ class WpObjectCachePurgeActions
      * @param $termId
      * @param $taxonomy
      */
-    private function maybePurgeTerm($termId, $taxonomy) {
+    private function maybePurgeTerm($termId, $taxonomy): void
+    {
         if (!$this->shouldPurgeTermCache($termId, $taxonomy)) {
             return;
         }
         try {
-            return WordPressCachePurge::purgeTermCache($termId, $taxonomy);
-        } catch (Exception $e) {
-            return false;
-        }
+            WordPressCachePurge::purgeTermCache($termId, $taxonomy);
+        } catch (Exception $e) {}
     }
 
     /**
@@ -108,7 +97,9 @@ class WpObjectCachePurgeActions
 
         // Let users override the outcome
         $override = apply_filters('sb_optimizer_should_purge_term_cache', null, $termId, $taxonomy);
-        if ( is_bool($override) ) return $override;
+        if ( is_bool($override) ) {
+            return $override;
+        }
 
         // Check that the taxonomy is public
         $taxonomyObject = get_taxonomy($taxonomy);
@@ -137,13 +128,15 @@ class WpObjectCachePurgeActions
         // Check that the post type is public
         $postType = get_post_type($postId);
         $postTypeObject = get_post_type_object($postType);
-        if ( $postTypeObject && ( $postTypeObject->public !== true || $postTypeObject->publicly_queryable !== true ) ) {
+        if ($postTypeObject && ($postTypeObject->public !== true || $postTypeObject->publicly_queryable !== true)) {
             return false;
         }
 
         // Make sure that post is not just a draft
         $postStatus = get_post_status($postId);
-        if ( ! in_array($postStatus, ['publish']) ) return false;
+        if (!in_array($postStatus, ['publish'])) {
+            return false;
+        }
 
         return true;
     }
@@ -155,22 +148,9 @@ class WpObjectCachePurgeActions
      * @param $postAfter
      * @param $postBefore
      */
-    public function purgePostOnSave($postId, $postAfter, $postBefore) {
-        $this->maybePurgePostPermalinkIfSlugChanged($postId, $postAfter, $postBefore);
+    public function purgePostOnSave($postId, $postAfter, $postBefore): void
+    {
         $this->maybePurgePost($postId);
-    }
-
-    /**
-     * Purge the cache for the old URL if the permalink was changed.
-     *
-     * @param $postId
-     * @param $postAfter
-     * @param $postBefore
-     */
-    private function maybePurgePostPermalinkIfSlugChanged($postId, $postAfter, $postBefore) {
-        //$permalinkChanged = $postBefore->post_name != $postAfter->post_name;
-        //dd($permalinkChanged);
-        // TODO: Check if permalink has changed, and if so then purge cache for the old URL.
     }
 
     /**
@@ -178,16 +158,14 @@ class WpObjectCachePurgeActions
      *
      * @param $postId
      */
-    private function maybePurgePost($postId)
+    private function maybePurgePost($postId): void
     {
         if (!$this->shouldPurgePostCache($postId)) {
             return;
         }
         try {
-            return WordPressCachePurge::purgeByPostId($postId);
-        } catch (Exception $e) {
-            return false;
-        }
+            WordPressCachePurge::purgeByPostId($postId);
+        } catch (Exception $e) {}
     }
 
     /**
@@ -197,14 +175,23 @@ class WpObjectCachePurgeActions
      * @param $commentApproved
      * @param $commentData
      */
-    public function purgePostOnCommentPost($commentId, $commentApproved, $commentData) {
-        $postId = $this->get_post_id_from_comment($commentData);
+    public function purgePostOnCommentPost($commentId, $commentApproved, $commentData): void
+    {
+        $postId = $this->getPostIdFromComment($commentData);
 
         // Bail on the cache purge if we could not figure out which post was commented on
-        if ( ! $postId ) return;
+        if (!$postId) {
+            return;
+        }
 
         // Bail on the cache purge if the comment needs to be approved first
-        if ( apply_filters('sb_optimizer_prevent_cache_purge_on_unapproved_comments', true) && ! apply_filters('sb_optimizer_comment_approved_cache_purge', $commentApproved, $commentData) ) return;
+        $commentIsApproved = apply_filters('sb_optimizer_comment_approved_cache_purge', $commentApproved, $commentData, $commentId);
+        if (
+            apply_filters('sb_optimizer_prevent_cache_purge_on_unapproved_comments', true)
+            && !$commentIsApproved
+        ) {
+            return;
+        }
 
         $this->maybePurgePost($postId);
     }
@@ -216,10 +203,14 @@ class WpObjectCachePurgeActions
      * @param $oldStatus
      * @param $commentData
      */
-    public function purgePostOnCommentApproval($newStatus, $oldStatus, $commentData) {
-        if ( $oldStatus != $newStatus && $newStatus == 'approved' ) {
+    public function purgePostOnCommentApproval($newStatus, $oldStatus, $commentData): void
+    {
+        $statusDidChange = $oldStatus != $newStatus;
+        if ($statusDidChange && $newStatus == 'approved') {
             $postId = $this->getPostIdFromComment($commentData);
-            if ( ! $postId ) return;
+            if (!$postId) {
+                return;
+            }
             $this->maybePurgePost($postId);
         }
     }
@@ -229,11 +220,14 @@ class WpObjectCachePurgeActions
      *
      * @param $commentData
      *
-     * @return bool
+     * @return bool|int
      */
-    private function getPostIdFromComment($commentData) {
+    private function getPostIdFromComment($commentData)
+    {
         $commentData = (array) $commentData;
-        if ( ! array_key_exists('comment_post_ID', $commentData) ) return false;
+        if (!array_key_exists('comment_post_ID', $commentData)) {
+            return false;
+        }
         return $commentData['comment_post_ID'];
     }
 }
