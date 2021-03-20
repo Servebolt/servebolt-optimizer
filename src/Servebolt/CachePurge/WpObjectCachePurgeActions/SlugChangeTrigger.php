@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Exception;
 
@@ -68,10 +69,11 @@ class SlugChangeTrigger
         $term = get_term($termId, $taxonomy);
         $termSlugDidChange = $term->slug !== $updateData['slug'];
         if ($termSlugDidChange) {
-            $previousTermPermalink = get_term_link($term);
-            if ($previousTermPermalink) {
-                sb_cf_cache()->purge_by_url($previousTermPermalink, false);
-                // TODO: Consider whether we should add pagination-support to this cache purge
+            if ($previousTermPermalink = get_term_link($term)) {
+                try {
+                    // TODO: Consider whether we should add pagination-support to this cache purge
+                    WordPressCachePurge::purgeByUrl($previousTermPermalink);
+                } catch (Exception $e) {}
             }
         }
         return $updateData;
@@ -81,8 +83,10 @@ class SlugChangeTrigger
      * Record the current state of the permalink before post update.
      *
      * @param $postId
+     * @return string
      */
-    public function recordPostPermalink($postId) {
+    public function recordPostPermalink($postId): void
+    {
         $this->previousPostPermalink = get_permalink($postId);
     }
 
@@ -92,7 +96,7 @@ class SlugChangeTrigger
      * @param $postId
      * @return bool
      */
-    public function postPermalinkDidChange($postId)
+    public function postPermalinkDidChange($postId): bool
     {
         if (!is_null($this->previousPostPermalink) && get_permalink($postId) !== $this->previousPostPermalink) {
             return true;
@@ -103,12 +107,14 @@ class SlugChangeTrigger
     /**
      * Check if the post permalink changed, and if so then purge the old one.
      *
-     * @param $post_id
+     * @param $postId
      */
-    public function checkPreviousPostPermalink($post_id) {
-        if ( $this->postPermalinkDidChange($post_id) ) {
-
-            //sb_cf_cache()->purge_by_url($this->previous_post_permalink, false);
+    public function checkPreviousPostPermalink($postId): void
+    {
+        if ($this->postPermalinkDidChange($postId)) {
+            try {
+                WordPressCachePurge::purgeByUrl($this->previousPostPermalink);
+            } catch (Exception $e) {}
         }
     }
 
