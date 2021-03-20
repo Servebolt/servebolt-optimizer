@@ -83,7 +83,6 @@ class SlugChangeTrigger
      * Record the current state of the permalink before post update.
      *
      * @param $postId
-     * @return string
      */
     public function recordPostPermalink($postId): void
     {
