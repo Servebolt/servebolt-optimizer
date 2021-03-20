@@ -5,8 +5,8 @@
 <tbody class="sb-config-field-general sb-config-field-acd <?php if (!$cachePurgeIsActive || $settings['cache_purge_driver'] !== 'acd') echo 'sb-config-field-hidden'; ?>">
     <tr>
         <th scope="row" colspan="100%" style="padding-bottom: 5px;">
-            <h3 style="margin-bottom: 0;"><?php _e('API credentials', 'servebolt-wp'); ?></h3>
-            <p style="font-weight: normal;"><?php _e('The information below is read from the environment file in the Servebolt hosting environment.', 'servebolt-wp'); ?></p>
+            <h3 style="margin-bottom: 0;"><?php _e('Servebolt API credentials', 'servebolt-wp'); ?></h3>
+            <p style="font-weight: normal;"><?php echo sprintf(__('The information below is read from %sthe environment file in the Servebolt hosting environment%s.', 'servebolt-wp'), '<a href="https://servebo.lt/axeme" target="_blank">', '</a>'); ?></p>
             <?php if (!$serveboltCachePurge->configurationOk()) : ?>
                 <p style="font-weight: normal;color: red;"><?php _e('We could not seem to load the configuration from the environment file and therefore the cache purge feature is disabled.', 'servebolt-wp'); ?></p>
             <?php endif; ?>
@@ -14,7 +14,9 @@
     </tr>
 
     <tr>
-        <th scope="row"><label for="sb_api_key"><?php _e('API key', 'servebolt-wp'); ?></label></th>
+        <th scope="row">
+            <label for="sb_api_key"><?php _e('Environment API key', 'wp-servebolt'); ?></label><br>
+        </th>
         <td>
 
             <div class="sb-pwd">
@@ -23,6 +25,8 @@
                     <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
                 </button>
             </div>
+
+            <p><em><?php echo sprintf(__('For communication with the %sServebolt API%s.', 'servebolt-wp'), '<a href="https://servebo.lt/bd5c4" target="_blank">', '</a>'); ?></em></p>
 
             <p class="invalid-message"></p>
         </td>
