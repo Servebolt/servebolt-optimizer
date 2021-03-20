@@ -4,6 +4,8 @@ namespace Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use WP_Query;
+
 /**
  * Trait SharedMethods
  *
