@@ -2,7 +2,6 @@
 
 namespace Servebolt\Optimizer\CachePurge;
 
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
@@ -15,14 +14,15 @@ class WpObjectCachePurgeActions
     /**
      * CachePurgeWPActions constructor.
      */
-    public function __construct() {
-        $this->registerActions();
+    public function __construct()
+    {
+        $this->registerPurgeActions();
     }
 
     /**
      * Register action hooks.
      */
-    private function registerActions()
+    public function registerPurgeActions()
     {
 
         // Skip this feature if the cache purge feature is inactive or insufficiently configured, or it automatic cache purge is inactive

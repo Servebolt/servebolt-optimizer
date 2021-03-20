@@ -64,8 +64,8 @@ if (Servebolt\Optimizer\Helpers\featureIsActive('cf_image_resize')) {
 // Register cron schedule and cache purge event
 //require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-cache/sb-cf-cache-cron-handle.php';
 
-// Register cache purge event for various hooks
-if (is_admin() || Servebolt\Optimizer\Helpers\isWpRest()) {
+if (Servebolt\Optimizer\Helpers\isWpRest() || is_admin()) {
+    // Register cache purge event for various hooks
     new Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 }
 

@@ -321,7 +321,8 @@ function isCli(): bool
  */
 function isWpRest(): bool
 {
-    return (defined('REST_REQUEST') && REST_REQUEST);
+    $restPrefix = rest_get_url_prefix();
+    return substr($_SERVER['REQUEST_URI'], 1, strlen($restPrefix) ) === $restPrefix;
 }
 
 /**
