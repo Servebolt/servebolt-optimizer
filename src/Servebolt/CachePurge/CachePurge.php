@@ -149,8 +149,17 @@ class CachePurge
      */
     public static function automaticCachePurgeOnContentUpdateIsActive(?int $blogId = null): bool
     {
-        // TODO: Add options to turn this feature on/off
-        return true;
+        $noExistKey = 'value-does-not-exist';
+        $key = 'cache_purge_auto';
+        if (is_numeric($blogId)) {
+            $value = getBlogOption($blogId, $key, $noExistKey);
+        } else {
+            $value = getOption($key, $noExistKey);
+        }
+        if ($value === $noExistKey) {
+            return true; // Default value
+        }
+        return checkboxIsChecked($value);
     }
 
     /**

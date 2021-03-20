@@ -249,6 +249,7 @@ function deleteAllSettings(bool $allSites = true): void
 
         // Wipe Cache purge-related options
         'cache_purge_switch',
+        'cache_purge_auto',
         'cache_purge_driver',
         'cf_switch',
         'cf_zone_id',

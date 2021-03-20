@@ -1,10 +1,11 @@
 <?php
 
-namespace Servebolt\Optimizer\CachePurge;
+namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
+use Servebolt\Optimizer\CachePurge\CachePurge;
 use Exception;
 
 /**
@@ -12,7 +13,7 @@ use Exception;
  *
  * This class registers the WP events which purges the cache automatically (updating/create posts, terms etc.).
  */
-class WpObjectCachePurgeActions
+class ContentChangeTrigger
 {
     /**
      * CachePurgeWPActions constructor.

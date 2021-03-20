@@ -66,7 +66,8 @@ if (Servebolt\Optimizer\Helpers\featureIsActive('cf_image_resize')) {
 
 if (Servebolt\Optimizer\Helpers\isWpRest() || is_admin()) {
     // Register cache purge event for various hooks
-    new Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
+    new Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\ContentChangeTrigger;
+    new Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\SlugChangeTrigger;
 }
 
 // Load this admin bar interface
