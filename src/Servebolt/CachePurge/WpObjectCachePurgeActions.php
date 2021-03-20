@@ -4,6 +4,9 @@ namespace Servebolt\Optimizer\CachePurge;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
+use Exception;
+
 /**
  * Class CachePurgeWPActions
  *
@@ -82,9 +85,14 @@ class WpObjectCachePurgeActions
      * @param $taxonomy
      */
     private function maybePurgeTerm($termId, $taxonomy) {
-        if ( ! $this->shouldPurgeTermCache($termId, $taxonomy) ) return;
-        $driver = CachePurge::getInstance();
-        return $driver->purgeCacheForTerm($termId);
+        if (!$this->shouldPurgeTermCache($termId, $taxonomy)) {
+            return;
+        }
+        try {
+            return WordPressCachePurge::purgeTermCache($termId, $taxonomy);
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -95,7 +103,8 @@ class WpObjectCachePurgeActions
      *
      * @return bool|void
      */
-    private function shouldPurgeTermCache($termId, $taxonomy) {
+    private function shouldPurgeTermCache($termId, $taxonomy): bool
+    {
 
         // Let users override the outcome
         $override = apply_filters('sb_optimizer_should_purge_term_cache', null, $termId, $taxonomy);
@@ -118,7 +127,8 @@ class WpObjectCachePurgeActions
      *
      * @return bool|void
      */
-    private function shouldPurgePostCache($postId) {
+    private function shouldPurgePostCache($postId): bool
+    {
 
         // Let users override the outcome
         $override = apply_filters('sb_optimizer_should_purge_post_cache', null, $postId);
@@ -168,10 +178,16 @@ class WpObjectCachePurgeActions
      *
      * @param $postId
      */
-    private function maybePurgePost($postId) {
-        if ( ! $this->shouldPurgePostCache($postId) ) return;
-        $driver = CachePurge::getInstance();
-        $driver->purgeCacheForPost($postId);
+    private function maybePurgePost($postId)
+    {
+        if (!$this->shouldPurgePostCache($postId)) {
+            return;
+        }
+        try {
+            return WordPressCachePurge::purgeByPostId($postId);
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
     /**

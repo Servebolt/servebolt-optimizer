@@ -4,9 +4,6 @@ namespace Servebolt\Optimizer\CachePurge\PurgeObject;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Post;
-use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Term;
-
 /**
  * Class PurgeObject
  *
@@ -31,7 +28,7 @@ class PurgeObject
      */
     public function __construct($id = false, $type = 'post', $args = []) {
         if ( $id ) {
-            $this->add_object($id, $type, $args);
+            $this->addObject($id, $type, $args);
         }
     }
 
@@ -111,9 +108,9 @@ class PurgeObject
      * @param $type
      * @return string
      */
-    private function build_purge_object_type_classname($type) {
-        return ucfirst($type);
-        //return sprintf('SB_CF_Cache_Purge_%s_Object', ucfirst($type));
+    private function buildPurgeObjectTypeClassname($type): string
+    {
+        return '\\Servebolt\Optimizer\\CachePurge\\PurgeObject\\ObjectTypes\\' . ucfirst($type);
     }
 
     /**
@@ -123,10 +120,11 @@ class PurgeObject
      * @param $type
      * @return bool|mixed
      */
-    private function resolve_purge_object($id, $type, $args) {
-        $class_name = $this->build_purge_object_type_classname($type);
-        if ( ! class_exists($class_name) ) return false;
-        return new $class_name($id, $args);
+    private function resolvePurgeObject($id, $type, $args)
+    {
+        $className = $this->buildPurgeObjectTypeClassname($type);
+        if ( ! class_exists($className) ) return false;
+        return new $className($id, $args);
     }
 
     /**
@@ -137,10 +135,11 @@ class PurgeObject
      * @param array $args
      * @return bool
      */
-    public function add_object($id, $type = 'post', $args = []) {
-        $purge_object = $this->resolve_purge_object($id, $type, $args);
-        if ( $purge_object && ! is_wp_error($purge_object) ) {
-            $this->purge_object = $purge_object;
+    public function addObject($id, $type = 'post', $args = [])
+    {
+        $purgeObject = $this->resolvePurgeObject($id, $type, $args);
+        if ($purgeObject && !is_wp_error($purgeObject)) {
+            $this->purge_object = $purgeObject;
             return $this->purge_object;
         }
         return false;
