@@ -13,7 +13,7 @@ use function Servebolt\Optimizer\Helpers\displayValue;
  * Class GeneralSettings
  * @package Servebolt\Optimizer\Cli\GeneralSettings
  */
-class GeneralSettings extends CliHelpers
+class GeneralSettings
 {
 
     /**
@@ -46,7 +46,7 @@ class GeneralSettings extends CliHelpers
             'Type',
             'Value',
         ];
-        if ( $this->affectAllSites($assoc_args) ) {
+        if (CliHelpers::affectAllSites($assoc_args)) {
             iterateSites(function ($site) use ($columns) {
                 $items = array_map(function($item) use ($columns, $site) {
                     $settingsKey = $this->resolveSettingsKey($item['name']);
@@ -96,7 +96,7 @@ class GeneralSettings extends CliHelpers
             $this->unresolvedSetting($setting);
             return;
         }
-        if ($this->affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assoc_args)) {
             $sitesSetting = [];
             iterateSites(function ($site) use ($settingsKey, &$sitesSetting) {
                 $sitesSetting[] = $this->getSetting($settingsKey, $site->blog_id);
@@ -134,7 +134,7 @@ class GeneralSettings extends CliHelpers
             $this->unresolvedSetting($setting);
             return;
         }
-        if ($this->affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assoc_args)) {
             iterateSites(function ($site) use ($settingsKey, $value) {
                 $this->setSetting($settingsKey, $value, $site->blog_id);
             });

@@ -13,7 +13,7 @@ use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize as Clo
  * Class CloudflareImageResize
  * @package Servebolt\Optimizer\Cli\CloudflareImageResize
  */
-class CloudflareImageResize extends CliHelpers
+class CloudflareImageResize
 {
     /**
      * CloudflareImageResize constructor.
@@ -39,7 +39,7 @@ class CloudflareImageResize extends CliHelpers
      *
      */
     public function status($args, $assoc_args) {
-        if ($this->affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assoc_args)) {
             iterateSites(function ($site) {
                 $this->imageResizeStatus($site->blog_id);
             });
@@ -62,7 +62,7 @@ class CloudflareImageResize extends CliHelpers
      *
      */
     public function enable($args, $assoc_args) {
-        if ($this->affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assoc_args)) {
             iterateSites(function ($site) {
                 $this->toggleActive(true, $site->blog_id);
             });
@@ -86,7 +86,7 @@ class CloudflareImageResize extends CliHelpers
      */
     public function disable($args, $assoc_args)
     {
-        if ($this->affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assoc_args)) {
             iterateSites(function ($site) {
                 $this->toggleActive(false, $site->blog_id);
             });

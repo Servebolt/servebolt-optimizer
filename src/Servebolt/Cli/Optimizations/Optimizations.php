@@ -12,7 +12,7 @@ use Servebolt\Optimizer\DatabaseOptimizer\DatabaseOptimizer;
  * Class Optimizations
  * @package Servebolt\Optimizer\Cli\Optimizations
  */
-class Optimizations extends CliHelpers
+class Optimizations
 {
 
     /**

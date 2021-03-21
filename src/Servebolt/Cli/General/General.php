@@ -8,7 +8,7 @@ use WP_CLI;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 
-class General extends CliHelpers
+class General
 {
 
     /**
@@ -33,7 +33,7 @@ class General extends CliHelpers
      */
     public function commandDeleteAllSettings($args, $assoc_args)
     {
-        if ($affectAllSites = $this->affectAllSites($assoc_args)) {
+        if ($affectAllSites = CliHelpers::affectAllSites($assoc_args)) {
             WP_CLI::confirm(__('Do you really want to delete all settings? This will affect all sites in multisite-network.', 'servebolt-wp'));
         } else {
             WP_CLI::confirm(__('Do you really want to delete all settings?', 'servebolt-wp'));

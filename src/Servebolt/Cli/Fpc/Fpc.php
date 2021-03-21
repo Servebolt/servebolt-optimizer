@@ -18,7 +18,7 @@ use function Servebolt\Optimizer\Helpers\nginxFpc;
  * Class Fpc
  * @package Servebolt\Optimizer\Cli\Fpc
  */
-class Fpc extends CliHelpers
+class Fpc
 {
     /**
      * Fpc constructor.
@@ -115,7 +115,7 @@ class Fpc extends CliHelpers
      */
     public function command_nginx_fpc_status($args, $assoc_args)
     {
-        if ($this->affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assoc_args)) {
             $sitesStatus = [];
             iterateSites(function ($site) use (&$sitesStatus) {
                 $sitesStatus[] = $this->get_nginx_fpc_status($site->blog_id);
@@ -142,7 +142,7 @@ class Fpc extends CliHelpers
      *
      */
     public function command_nginx_fpc_get_cache_post_types($args, $assoc_args) {
-        if ( $this->affectAllSites($assoc_args) ) {
+        if ( CliHelpers::affectAllSites($assoc_args) ) {
             $sitesStatus = [];
             iterateSites(function ($site) use (&$sitesStatus) {
                 $sitesStatus[] = $this->nginx_fpc_get_cache_post_types($site->blog_id);
@@ -190,7 +190,7 @@ class Fpc extends CliHelpers
             WP_CLI::error(__('No post types specified', 'servebolt-wp'));
         }
 
-        if ( $this->affectAllSites($assoc_args) ) {
+        if ( CliHelpers::affectAllSites($assoc_args) ) {
             iterateSites(function ($site) use ($postTypes) {
                 $this->nginx_set_post_types($postTypes, $site->blog_id);
             });
@@ -217,7 +217,7 @@ class Fpc extends CliHelpers
      *
      */
     public function command_nginx_fpc_clear_cache_post_types($args, $assoc_args) {
-        if ($this->affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assoc_args)) {
             iterateSites(function ($site) {
                 $this->nginx_set_post_types([], $site->blog_id);
             });
@@ -250,7 +250,7 @@ class Fpc extends CliHelpers
     {
         $array = [];
         $extended = array_key_exists('extended', $assoc_args);
-        if ($this->affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assoc_args)) {
             iterateSites(function ($site ) use (&$array, $extended) {
                 $array[] = $this->nginx_fpc_get_excluded_posts($site->blog_id, $extended);
             });
@@ -299,7 +299,7 @@ class Fpc extends CliHelpers
      */
     public function command_nginx_fpc_clear_excluded_posts($args, $assoc_args)
     {
-        if ($this->affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assoc_args)) {
             iterateSites(function ($site) {
                 $this->nginx_set_exclude_ids(false, $site->blog_id);
             });
