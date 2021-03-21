@@ -44,6 +44,7 @@ dwsync.xml
 intermediate
 .idea
 cache
+!src/Servebolt/Cli/Cache
 node_modules
 
 # Ignore compiled stuff
