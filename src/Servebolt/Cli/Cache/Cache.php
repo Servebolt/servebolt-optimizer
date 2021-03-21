@@ -18,7 +18,7 @@ class Cache extends CliHelpers
      */
     public function __construct()
     {
-        $this->registerCommands();
+        //$this->registerCommands();
         $this->registerLegacyCommands();
     }
 
@@ -59,7 +59,7 @@ class Cache extends CliHelpers
         WP_CLI::add_command('servebolt cache-purge purge all', [$this, 'command_cache_purge_all']);
     }
 
-    private function legacyCommands(): void
+    private function registerLegacyCommands(): void
     {
         // Cloudflare Cache (legacy)
         WP_CLI::add_command('servebolt cf setup',                   [$this, 'cfLegacyMessage']);
@@ -94,6 +94,6 @@ class Cache extends CliHelpers
 
     public function cfLegacyMessage(): void
     {
-        WP_CLI::line('This command is outdated. Please use "wp servebolt cache-purge" instead.');
+        WP_CLI::error('This command is deprecated. Please use "wp servebolt cache-purge" instead.');
     }
 }
