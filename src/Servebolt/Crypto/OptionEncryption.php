@@ -47,10 +47,10 @@ class OptionEncryption
     {
 		foreach($this->encryptedOptionItems as $optionName) {
 			$fullOptionName = getOptionName($optionName);
-			add_filter('pre_update_option_' . $fullOptionName, [$this, 'encryptOption'], 10, 1);
-			add_filter('sb_optimizer_get_option_' . $fullOptionName, [$this, 'decryptOption'], 10, 1);
+			add_filter('pre_update_option_' . $fullOptionName, [__CLASS__, 'encryptOption'], 10, 1);
+			add_filter('sb_optimizer_get_option_' . $fullOptionName, [__CLASS__, 'decryptOption'], 10, 1);
 			if (is_multisite()) {
-				add_filter('sb_optimizer_get_blog_option_' . $fullOptionName, [$this, 'decryptBlogOption'], 10, 2);
+				add_filter('sb_optimizer_get_blog_option_' . $fullOptionName, [__CLASS__, 'decryptBlogOption'], 10, 2);
 			}
 		}
 
@@ -83,12 +83,12 @@ class OptionEncryption
 	 *
 	 * @return bool|string
 	 */
-	public function encryptOption($value)
+	public static function encryptOption($value)
     {
 		if (empty($value)) {
             return $value;
         }
-		$encryptedValue = Crypto::encrypt($value, $this->getCurrentBlogId());
+		$encryptedValue = Crypto::encrypt($value, self::getCurrentBlogId());
 		return $encryptedValue !== false ? $encryptedValue : $value;
 	}
 
@@ -99,33 +99,34 @@ class OptionEncryption
 	 *
 	 * @return bool|string
 	 */
-	public function decryptOption($value)
+	public static function decryptOption($value)
     {
 		if (empty($value)) {
             return $value;
         }
-		$decryptedValue = Crypto::decrypt($value, $this->getCurrentBlogId());
+		$decryptedValue = Crypto::decrypt($value, self::getCurrentBlogId());
 		return $decryptedValue !== false ? $decryptedValue : $value;
 	}
 
 	/**
 	 * Decrypt option value on a specific site.
 	 * @param $value
-	 * @param $blog_id
+	 * @param $blogId
 	 *
 	 * @return bool|string
 	 */
-	public function decryptBlogOption($value, $blog_id) {
-		$decrypted_value = Crypto::decrypt($value, $blog_id);
-		return $decrypted_value !== false ? $decrypted_value : $value;
+	public static function decryptBlogOption($value, $blogId)
+    {
+		$decryptedValue = Crypto::decrypt($value, $blogId);
+		return $decryptedValue !== false ? $decryptedValue : $value;
 	}
 
 	/**
 	 * Get current blog ID with non-multisite fallback.
 	 *
-	 * @return bool
+	 * @return bool|int
 	 */
-	private function getCurrentBlogId()
+	private static function getCurrentBlogId()
     {
 		if (!is_multisite()) {
 			return false;

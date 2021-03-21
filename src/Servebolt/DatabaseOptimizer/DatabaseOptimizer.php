@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\DatabaseOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use WP_CLI;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 

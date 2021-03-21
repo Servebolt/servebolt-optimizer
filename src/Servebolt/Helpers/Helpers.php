@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Helpers;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
+use Servebolt\Optimizer\Fpc\FpcAuthHandling;
 
 /**
  * Display a view, Laravel style.
@@ -219,10 +220,7 @@ function getServeboltAdminUrl() :string
  */
 function clearAllCookies(): void
 {
-    if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
-        require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
-    }
-    ( new \Servebolt_Nginx_FPC_Auth_Handling )->clearNoCacheCookie();
+    (new FpcAuthHandling)->clearNoCacheCookie();
 }
 
 /**
@@ -282,10 +280,7 @@ function deleteAllSettings(bool $allSites = true): void
  */
 function checkAllCookies(): void
 {
-    if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
-        require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
-    }
-    ( new \Servebolt_Nginx_FPC_Auth_Handling )->cache_cookie_check();
+    (new FpcAuthHandling)->cache_cookie_check();
 }
 
 /**
@@ -923,6 +918,5 @@ function smartGetOption($blog_id, $option_name, $default = false)
  */
 function nginxFpc()
 {
-    require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
-    return \Servebolt_Nginx_FPC::get_instance();
+    return \Servebolt\Optimizer\Fpc\Fpc::getInstance();
 }
