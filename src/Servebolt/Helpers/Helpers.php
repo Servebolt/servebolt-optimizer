@@ -876,17 +876,17 @@ function getOption($option_name, $default = false)
 /**
  * A function that will store the option at the right place (in current blog or a specified blog).
  *
- * @param $blog_id
+ * @param $blogId
  * @param $option_name
  * @param $value
  * @param bool $assert_update
  *
  * @return bool|mixed
  */
-function smartUpdateOption($blog_id, $option_name, $value, $assert_update = true)
+function smartUpdateOption($blogId, $option_name, $value, $assert_update = true)
 {
-    if ( is_numeric($blog_id) ) {
-        $result = updateBlogOption($blog_id, $option_name, $value, $assert_update);
+    if (is_numeric($blogId)) {
+        $result = updateBlogOption($blogId, $option_name, $value, $assert_update);
     } else {
         $result = updateOption($option_name, $value, $assert_update);
     }

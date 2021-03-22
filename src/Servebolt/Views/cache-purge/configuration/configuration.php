@@ -59,10 +59,10 @@
             </tr>
 
             <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
-                <th scope="row"><?php _e('Cache purge driver', 'servebolt-wp'); ?></th>
+                <th scope="row"><?php _e('Cache purge provider', 'servebolt-wp'); ?></th>
                 <td>
                     <fieldset>
-                        <legend class="screen-reader-text"><span><?php _e('Cache purge driver', 'servebolt-wp'); ?></span></legend>
+                        <legend class="screen-reader-text"><span><?php _e('Cache purge provider', 'servebolt-wp'); ?></span></legend>
                         <label>
                             <input type="radio" name="<?php echo getOptionName('cache_purge_driver'); ?>" value="cloudflare" <?php checked($settings['cache_purge_driver'] == 'cloudflare'); ?>> <code><?php _e('Cloudflare', 'servebolt-wp'); ?></code>
                         </label>

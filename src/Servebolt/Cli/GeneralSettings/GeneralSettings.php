@@ -8,6 +8,7 @@ use WP_CLI;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings as GeneralSettingsAdmin;
 use function Servebolt\Optimizer\Helpers\displayValue;
+use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
  * Class GeneralSettings
@@ -39,35 +40,23 @@ class GeneralSettings
      *     wp servebolt general-settings list --all
      *
      */
-    public function list($args, $assoc_args)
+    public function list($args, $assocArgs)
     {
         $columns = [
             'Name',
             'Type',
             'Value',
         ];
-        if (CliHelpers::affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assocArgs)) {
             iterateSites(function ($site) use ($columns) {
-                $items = array_map(function($item) use ($columns, $site) {
-                    $settingsKey = $this->resolveSettingsKey($item['name']);
-                    $resolveSettingsValues = $this->getSetting($settingsKey, $site->blog_id);
-                    $item['value'] = $resolveSettingsValues[$settingsKey];
-                    return array_combine($columns, $item);
-                }, $this->getSettings());
-                WP_CLI::line(sprintf('%s setting(s) for site "%s":', count($items), get_site_url($site->blog_id)));
-                WP_CLI\Utils\format_items( 'table', $items, $columns);
-                WP_CLI::line('');
+                $this->printSettingsList($site->blog_id, $columns, function($items) use ($site) {
+                    return sprintf('%s setting(s) for site "%s":', count($items), get_site_url($site->blog_id));
+                });
             });
         } else {
-            $items = array_map(function($item) use ($columns) {
-                $settingsKey = $this->resolveSettingsKey($item['name']);
-                $resolveSettingsValues = $this->getSetting($settingsKey);
-                $item['value'] = $resolveSettingsValues[$settingsKey];
-                return array_combine($columns, $item);
-            }, $this->getSettings());
-            WP_CLI::line(sprintf('%s setting(s):', count($items)));
-            WP_CLI\Utils\format_items( 'table', $items, $columns);
-            WP_CLI::line('');
+            $this->printSettingsList(null, $columns, function($items) {
+                return sprintf('%s setting(s):', count($items));
+            });
         }
         WP_CLI::line(__('Use "wp servebolt general-settings get [name]" and "wp servebolt general-settings set [name]" to get/set value of a settings.', 'servebolt-wp'));
     }
@@ -88,7 +77,7 @@ class GeneralSettings
      *     wp servebolt general-settings get use-native-js-fallback
      *
      */
-    public function get($args, $assoc_args)
+    public function get($args, $assocArgs)
     {
         list($setting) = $args;
         $settingsKey = $this->resolveSettingsKey($setting);
@@ -96,7 +85,7 @@ class GeneralSettings
             $this->unresolvedSetting($setting);
             return;
         }
-        if (CliHelpers::affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assocArgs)) {
             $sitesSetting = [];
             iterateSites(function ($site) use ($settingsKey, &$sitesSetting) {
                 $sitesSetting[] = $this->getSetting($settingsKey, $site->blog_id);
@@ -126,7 +115,7 @@ class GeneralSettings
      *     wp servebolt general-settings set use-native-js-fallback true
      *
      */
-    public function set($args, $assoc_args)
+    public function set($args, $assocArgs)
     {
         list($setting, $value) = $args;
         $settingsKey = $this->resolveSettingsKey($setting);
@@ -134,13 +123,31 @@ class GeneralSettings
             $this->unresolvedSetting($setting);
             return;
         }
-        if (CliHelpers::affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assocArgs)) {
             iterateSites(function ($site) use ($settingsKey, $value) {
                 $this->setSetting($settingsKey, $value, $site->blog_id);
             });
         } else {
             $this->setSetting($settingsKey, $value);
         }
+    }
+
+    /**
+     * @param null $blogId
+     * @param $columns
+     * @param $closure
+     */
+    private function printSettingsList($blogId = null, $columns, $closure): void
+    {
+        $items = array_map(function($item) use ($columns, $blogId) {
+            $settingsKey = $this->resolveSettingsKey($item['name']);
+            $resolveSettingsValues = $this->getSetting($settingsKey, $blogId);
+            $item['value'] = $resolveSettingsValues[$settingsKey];
+            return array_combine($columns, $item);
+        }, $this->getSettings());
+        WP_CLI::line($closure($items));
+        WP_CLI\Utils\format_items( 'table', $items, $columns);
+        WP_CLI::line('');
     }
 
     /**
@@ -161,7 +168,8 @@ class GeneralSettings
      * @param bool $blogId
      * @return bool|mixed|void
      */
-    protected function getSetting($settingKey, $blogId = false) {
+    protected function getSetting($settingKey, $blogId = false)
+    {
 
         $generalSettings = GeneralSettingsAdmin::getInstance();
         $rawValue = $generalSettings->getSettingsItem($settingKey, $blogId);
@@ -207,7 +215,7 @@ class GeneralSettings
      *
      * @return array
      */
-    protected function getSettings()
+    protected function getSettings(): array
     {
         $generalSettings = GeneralSettingsAdmin::getInstance();
         $types = $generalSettings->getRegisteredSettingsItems();

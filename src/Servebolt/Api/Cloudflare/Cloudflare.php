@@ -176,7 +176,7 @@ class Cloudflare
      */
     private function getCredentialsForAuthType($authType, $blogId = null): ?array
     {
-        switch ( $authType ) {
+        switch ($authType) {
             case 'api_token':
                 $apiToken = $this->getCredential('api_token', $blogId);
                 if ( ! empty($apiToken) ) {

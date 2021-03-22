@@ -5,7 +5,7 @@ namespace Servebolt\Optimizer\Cli;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Cli\CloudflareImageResize\CloudflareImageResize;
-use Servebolt\Optimizer\Cli\Cache\Cache;
+use Servebolt\Optimizer\Cli\Cache\CfSetup;
 use Servebolt\Optimizer\Cli\Fpc\Fpc;
 use Servebolt\Optimizer\Cli\General\General;
 use Servebolt\Optimizer\Cli\GeneralSettings\GeneralSettings;
@@ -22,7 +22,7 @@ class Cli
      */
     public function __construct()
     {
-        new Cache;
+        new CfSetup;
         new CloudflareImageResize;
         new Fpc;
         new General;

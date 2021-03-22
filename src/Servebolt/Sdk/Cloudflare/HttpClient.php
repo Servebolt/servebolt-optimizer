@@ -37,7 +37,7 @@ abstract class HttpClient
             'Content-Type' => 'application/json',
             'Accept'       => 'application/json',
         ];
-        switch ( $this->authType ) {
+        switch ($this->authType) {
             case 'api_token':
                 $headers['Authorization'] = 'Bearer ' . $this->getCredential('apiToken');
                 break;
