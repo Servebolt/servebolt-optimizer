@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Queue;
 
+use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
+
 class QueueItem
 {
 
@@ -64,6 +66,7 @@ class QueueItem
      */
     public function __get($name)
     {
+        $name = camelCaseToSnakeCase($name);
         if (isset($this->{$name})) {
             return $this->{$name};
         } elseif (isset($this->payload->{$name})) {
