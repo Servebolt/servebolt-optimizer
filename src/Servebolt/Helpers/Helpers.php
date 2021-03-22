@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Helpers;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
+use Servebolt\Optimizer\Database\PluginTables;
 
 /**
  * Display a view, Laravel style.
@@ -301,7 +302,7 @@ function deactivatePlugin(): void
  */
 function activatePlugin(): void
 {
-    new Servebolt\Optimizer\Database\PluginTables; // Run database migrations
+    new PluginTables; // Run database migrations
     checkAllCookies();
 }
 
