@@ -3,7 +3,6 @@
 namespace Unit\Queue;
 
 use Servebolt\Optimizer\Queue\Queue;
-use Servebolt\Optimizer\Queue\QueueItem;
 use Servebolt\Optimizer\Database\PluginTables;
 use ServeboltWPUnitTestCase;
 
@@ -29,6 +28,37 @@ class QueueTest extends ServeboltWPUnitTestCase
         $this->assertTrue($queue->itemExists($item->id));
     }
 
+    public function testThatQueueNameGetSet()
+    {
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        $queueName = 'my-queue';
+        $queue = new Queue($queueName);
+        $item = $queue->add($itemData);
+        $this->assertEquals($queueName, $item->queue);
+    }
+
+    public function testThatWeCanReachItemProperties()
+    {
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        $queue = new Queue('my-queue');
+        $item = $queue->add($itemData);
+        $currentTime = current_time('timestamp', true);
+        $this->assertIsInt($item->id);
+        $this->assertNull($item->parent_id);
+        $this->assertNull($item->parent_queue_name);
+        $this->assertEquals($itemData, $item->payload);
+        $this->assertEquals(0, $item->attempts);
+        $this->assertNull($item->reserved_at_gmt);
+        $this->assertNull($item->completed_at_gmt);
+        $this->assertEquals($currentTime, $item->created_at_gmt);
+    }
+
     public function testThatPayloadGetsSet()
     {
         $itemData = [
@@ -37,6 +67,7 @@ class QueueTest extends ServeboltWPUnitTestCase
         ];
         $queue = new Queue('my-queue');
         $item = $queue->add($itemData);
+        $this->assertTrue(is_array($item->payload));
         $this->assertEquals($itemData, $item->payload);
     }
 
@@ -69,6 +100,7 @@ class QueueTest extends ServeboltWPUnitTestCase
             'bar' => 'foo',
         ];
         $queue = new Queue('my-queue');
+        $this->assertEquals(0, $queue->countItems());
         $queue->add($itemData);
         $queue->add($itemData);
         $queue->add($itemData);
@@ -135,13 +167,52 @@ class QueueTest extends ServeboltWPUnitTestCase
             'foo' => 'bar',
             'bar' => 'foo',
         ];
-        $queue->add($itemData);
-        $queue->add($itemData);
-        $queue->add($itemData);
-
+        $firstItem = $queue->add($itemData);
+        $secondItem = $queue->add($itemData);
+        $thirdItem = $queue->add($itemData);
+        $this->assertEquals(3, $queue->countItems());
+        $queue->delete($firstItem->id);
+        $this->assertEquals(2, $queue->countItems());
+        $queue->delete($secondItem->id);
+        $this->assertEquals(1, $queue->countItems());
+        $queue->delete($thirdItem->id);
+        $this->assertTrue($queue->isEmpty());
     }
 
-    public function testThatQueueCanBeCreatedAndThatWeCanAddToTheQueue()
+    public function testThatItemCanHaveParentItem()
+    {
+        $firstInstance = Queue::getInstance('my-queue-1', 'my-queue-1');
+        $secondInstance = Queue::getInstance('my-queue-2', 'my-queue-2');
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+
+        $parentItem = $firstInstance->add($itemData);
+        $childItem = $secondInstance->add($itemData);
+        $childItem->addParent($parentItem);
+        $this->assertEquals($parentItem, $childItem->getParentItem());
+
+        $childItem = $secondInstance->add($itemData, $parentItem);
+        $this->assertEquals($parentItem, $childItem->getParentItem());
+    }
+
+    public function testThatWeCanClearQueue()
+    {
+        $queue = new Queue('my-queue');
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        $queue->add($itemData);
+        $queue->add($itemData);
+        $queue->add($itemData);
+        $this->assertEquals(3, $queue->countItems());
+        $queue->clearQueue();
+        $this->assertEquals(0, $queue->countItems());
+    }
+
+    public function testThatTimestampAreCorrect()
     {
         $itemData = [
             'foo' => 'bar',
@@ -150,36 +221,96 @@ class QueueTest extends ServeboltWPUnitTestCase
         $queueName = 'my-queue';
         $queue = new Queue($queueName);
 
-        $this->assertEquals(0, $queue->countItems());
         $item = $queue->add($itemData);
-        $this->assertEquals(1, $queue->countItems());
         $currentTime = current_time('timestamp', true);
-        $delay = 1;
 
-        $this->assertEquals($currentTime, $item->created_at_gmt);
         $this->assertEquals($currentTime, $item->createdAtGmt);
-        $this->assertTrue($queue->itemExists($item->id));
-        $this->assertTrue(is_array($item->payload));
-        $this->assertEquals($itemData, $item->payload);
-        $this->assertEquals($queueName, $item->queue);
-        $this->assertEquals(0, $item->attempts);
+        sleep(1);
+        $item = $queue->reserveItem($item);
+        $this->assertEquals($currentTime + 1, $item->reservedAtGmt);
+        sleep(1);
+        $item = $queue->completeItem($item);
+        $this->assertEquals($currentTime + 2, $item->completedAtGmt);
+    }
 
-        sleep($delay);
+    public function testThatWeCanReserveItem()
+    {
+        $queue = new Queue('my-queue');
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        $item = $queue->add($itemData);
         $this->assertFalse($item->isReserved());
         $item = $queue->reserveItem($item);
-        $this->assertNotFalse($item);
         $this->assertTrue($item->isReserved());
-        $this->assertEquals($currentTime + $delay, $item->reserved_at_gmt);
-        $this->assertEquals(1, $item->attempts);
+    }
 
-        $item = $queue->releaseItem($item);
-        $this->assertNotFalse($item);
+    public function testThatWeCanReserveItems()
+    {
+        $queue = new Queue('my-queue');
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        $items = [
+            $queue->add($itemData),
+            $queue->add($itemData),
+            $queue->add($itemData),
+        ];
+        $this->assertEquals(0, $queue->countReservedItems());
+        $this->assertEquals(3, $queue->countAvailableItems());
+        $queue->reserveItems($items);
+        $this->assertEquals(3, $queue->countReservedItems());
+        $this->assertEquals(0, $queue->countAvailableItems());
+    }
+
+    public function testThatWeCanCompleteItem()
+    {
+        $queue = new Queue('my-queue');
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        $item = $queue->add($itemData);
         $this->assertFalse($item->isReserved());
-        $this->assertNull($item->reserved_at_gmt);
-        $this->assertEquals(1, $item->attempts);
+        $this->assertFalse($item->isCompleted());
+        $item = $queue->completeItem($item);
+        $this->assertTrue($item->isReserved());
+        $this->assertTrue($item->isCompleted());
+    }
 
-        $queue->delete($item);
-        $this->assertFalse($queue->itemExists($item->id));
-        $this->assertEquals(0, $queue->countItems());
+    public function testThatWeCanCompleteItems()
+    {
+        $queue = new Queue('my-queue');
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        $items = [
+            $queue->add($itemData),
+            $queue->add($itemData),
+            $queue->add($itemData),
+        ];
+        $this->assertEquals(0, $queue->countCompletedItems());
+        $this->assertEquals(3, $queue->countAvailableItems());
+        $queue->completeItems($items);
+        $this->assertEquals(3, $queue->countCompletedItems());
+        $this->assertEquals(0, $queue->countAvailableItems());
+    }
+
+    public function testThatAttemptIncrements()
+    {
+        $queue = new Queue('my-queue');
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        $item = $queue->add($itemData);
+        $this->assertEquals(0, $item->attempts);
+        $item = $queue->reserveItem($item);
+        $this->assertEquals(1, $item->attempts);
+        $item->doAttempt();
+        $this->assertEquals(2, $item->attempts);
     }
 }

@@ -128,6 +128,32 @@ class Queue
      * @param QueueItem[] $items
      * @return array
      */
+    public function completeItems(array $items): array
+    {
+        return array_map(function($item) {
+            return $this->completeItem($item);
+        }, $items);
+    }
+
+    /**
+     * @param QueueItem|int $item
+     * @return QueueItem|null
+     */
+    public function completeItem($item): ?object
+    {
+        if ($item = $this->resolveItem($item)) {
+            $item->complete();
+            if ($this->persistItem($item)) {
+                return $item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param QueueItem[] $items
+     * @return array
+     */
     public function releaseItems(array $items): array
     {
         return array_map(function($item) {
@@ -205,13 +231,22 @@ class Queue
     }
 
     /**
+     * @param mixed|object $var
+     * @return bool
+     */
+    private function isQueueItem($var): bool
+    {
+        return is_a($var, '\\Servebolt\\Optimizer\\Queue\\QueueItem');
+    }
+
+    /**
      * @param string|int $identifier
      * @param string $key
      * @return bool
      */
     public function delete($identifier, string $key = 'id'): bool
     {
-        if (is_a($identifier, '\\Servebolt\\Optimizer\\Queue\\QueueItem')) {
+        if ($this->isQueueItem($identifier)) {
             $key = 'id';
             $identifier = $identifier->id;
         }
@@ -223,15 +258,46 @@ class Queue
     }
 
     /**
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return $this->countItems() === 0;
+    }
+
+    /**
+     * Clear all queue items.
+     *
+     * @return bool
+     */
+    public function clearQueue(): bool
+    {
+        global $wpdb;
+        return $wpdb->delete($this->getTableName(), [
+                'queue' => $this->queueName,
+            ]) !== false;
+    }
+
+    /**
      * @param mixed $itemData
+     * @param null|string $parentQueueName
      * @param null|int $parentId
      * @return null|QueueItem
      */
-    public function add($itemData, $parentId = null): ?object
+    public function add($itemData, $parentQueueName = null, $parentId = null): ?object
     {
+        if ($this->isQueueItem($parentQueueName)) {
+            $parentId = $parentQueueName->id;
+            $parentQueueName = $parentQueueName->queue;
+        }
+        if ($parentQueueName === $this->queueName) { // Parent element can't be in the same queue as child element
+            $parentId = null;
+            $parentQueueName = null;
+        }
         global $wpdb;
         $wpdb->insert($this->getTableName(), [
             'parent_id' => $parentId,
+            'parent_queue_name' => $parentQueueName,
             'queue' => $this->queueName,
             'payload' => serialize($itemData),
             'attempts' => 0,
@@ -250,12 +316,42 @@ class Queue
         return $this->get($identifier, $key) !== null;
     }
 
-    /**
-     * @return int
-     */
     public function countItems(): int
     {
         global $wpdb;
         return $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$this->getTableName()} WHERE queue = %s", $this->queueName));
+    }
+
+    public function countAvailableItems(): int
+    {
+        global $wpdb;
+        return $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$this->getTableName()} WHERE queue = %s AND reserved_at_gmt IS NULL", $this->queueName));
+    }
+
+    public function countReservedItems(): int
+    {
+        global $wpdb;
+        return $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$this->getTableName()} WHERE queue = %s AND reserved_at_gmt IS NOT NULL AND completed_at_gmt IS NULL ", $this->queueName));
+    }
+
+    public function hasItems(): bool
+    {
+        return $this->countItems() > 0;
+    }
+
+    public function hasAvailable(): bool
+    {
+        return $this->countAvailableItems() > 0;
+    }
+
+    public function allCompleted(): bool
+    {
+        $this->countItems() === $this->countCompletedItems();
+    }
+
+    public function countCompletedItems(): int
+    {
+        global $wpdb;
+        return $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$this->getTableName()} WHERE queue = %s AND reserved_at_gmt IS NOT NULL AND completed_at_gmt IS NOT NULL ", $this->queueName));
     }
 }
