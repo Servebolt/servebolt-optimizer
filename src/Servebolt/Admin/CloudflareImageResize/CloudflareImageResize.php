@@ -77,7 +77,7 @@ class CloudflareImageResize
      *
      * @return bool
      */
-    public function cfImageResizeToggleActive(bool $state, $blog_id = false)
+    public function toggleActive(bool $state, $blog_id = false)
     {
         if ( is_numeric($blog_id) ) {
             return updateBlogOption($blog_id, $this->cf_resizing_active_option_key(), $state);

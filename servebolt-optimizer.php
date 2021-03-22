@@ -52,7 +52,6 @@ if (
 
 // Loads the class that sets the correct cache headers for the Servebolt full page cache
 if (!class_exists('Servebolt_Nginx_FPC')) {
-	require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
     Servebolt\Optimizer\Helpers\nginxFpc()->setup();
 }
 
@@ -96,6 +95,5 @@ if (!is_admin() && !Servebolt\Optimizer\Helpers\isCli()) {
 
 // Initialize CLI-commands
 if (Servebolt\Optimizer\Helpers\isCli()) {
-    require_once SERVEBOLT_PLUGIN_DIR_PATH . 'cli/cli.class.php';
-	Servebolt_CLI::get_instance();
+    new Servebolt\Optimizer\Cli\Cli;
 }

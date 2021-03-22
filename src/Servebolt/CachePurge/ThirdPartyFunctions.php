@@ -68,7 +68,8 @@ function sb_purge_term_cache($term_id, $taxonomy_slug, bool $return_wp_error_obj
 {
     try {
         return WordPressCachePurge::purgeByTermId(
-            (int) $term_id
+            (int) $term_id,
+            $taxonomy_slug
         );
     } catch (ApiError $e) {
         // TODO: Handle API error message

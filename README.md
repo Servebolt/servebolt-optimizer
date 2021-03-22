@@ -9,6 +9,9 @@ This repository contains the WordPress plugin Servebolt Optimizer - a plugin tha
 
 ## Development
 
+### Testing
+TODO: Robert needs to add instructions on setting up the test environment
+
 ### Build assets
 1. Run `yarn install`
 2. Run `yarn build` for local or `yarn production` for production

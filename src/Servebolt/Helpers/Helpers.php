@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Helpers;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
+use Servebolt\Optimizer\Fpc\FpcAuthHandling;
 use Servebolt\Optimizer\Database\PluginTables;
 
 /**
@@ -220,10 +221,7 @@ function getServeboltAdminUrl() :string
  */
 function clearAllCookies(): void
 {
-    if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
-        require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
-    }
-    ( new \Servebolt_Nginx_FPC_Auth_Handling )->clearNoCacheCookie();
+    (new FpcAuthHandling)->clearNoCacheCookie();
 }
 
 /**
@@ -283,10 +281,7 @@ function deleteAllSettings(bool $allSites = true): void
  */
 function checkAllCookies(): void
 {
-    if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
-        require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
-    }
-    ( new \Servebolt_Nginx_FPC_Auth_Handling )->cache_cookie_check();
+    (new FpcAuthHandling)->cache_cookie_check();
 }
 
 /**
@@ -881,17 +876,17 @@ function getOption($option_name, $default = false)
 /**
  * A function that will store the option at the right place (in current blog or a specified blog).
  *
- * @param $blog_id
+ * @param $blogId
  * @param $option_name
  * @param $value
  * @param bool $assert_update
  *
  * @return bool|mixed
  */
-function smartUpdateOption($blog_id, $option_name, $value, $assert_update = true)
+function smartUpdateOption($blogId, $option_name, $value, $assert_update = true)
 {
-    if ( is_numeric($blog_id) ) {
-        $result = updateBlogOption($blog_id, $option_name, $value, $assert_update);
+    if (is_numeric($blogId)) {
+        $result = updateBlogOption($blogId, $option_name, $value, $assert_update);
     } else {
         $result = updateOption($option_name, $value, $assert_update);
     }
@@ -924,6 +919,5 @@ function smartGetOption($blog_id, $option_name, $default = false)
  */
 function nginxFpc()
 {
-    require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
-    return \Servebolt_Nginx_FPC::get_instance();
+    return \Servebolt\Optimizer\Fpc\Fpc::getInstance();
 }
