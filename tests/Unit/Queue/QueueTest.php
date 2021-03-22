@@ -138,7 +138,7 @@ class QueueTest extends ServeboltWPUnitTestCase
         $queue->add($itemData);
         $queue->add($itemData);
         $queue->add($itemData);
-        
+
     }
 
     public function testThatQueueCanBeCreatedAndThatWeCanAddToTheQueue()
