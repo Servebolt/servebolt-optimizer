@@ -41,7 +41,7 @@ class WordPressCachePurge
      * @param bool $returnWpError
      * @return bool
      */
-    public function purgeByTermId(int $termId, string $taxonomySlug, bool $returnWpError = false)
+    public static function purgeByTermId(int $termId, string $taxonomySlug, bool $returnWpError = false)
     {
         return self::purgeTermCache($termId, $taxonomySlug, $returnWpError);
     }
@@ -96,7 +96,7 @@ class WordPressCachePurge
      * @param bool $returnWpError
      * @return bool
      */
-    public function purgeAllNetwork(bool $returnWpError = false)
+    public static function purgeAllNetwork(bool $returnWpError = false)
     {
         if (!is_multisite()) {
             return false;
