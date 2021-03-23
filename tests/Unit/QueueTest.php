@@ -372,4 +372,18 @@ class QueueTest extends ServeboltWPUnitTestCase
         $this->assertEquals(0, $queue->countAvailableItems());
         $this->assertEquals(32, $queue->countCompletedItems());
     }
+
+    public function testThatQueueItemFromDifferentQueueCannotBeInteractedWithInAnotherQueueInstance()
+    {
+        $firstInstance = Queue::getInstance('my-queue-1', 'my-queue-1');
+        $secondInstance = Queue::getInstance('my-queue-2', 'my-queue-2');
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        $item = $firstInstance->add($itemData);
+        $this->assertNull($secondInstance->reserveItem($item));
+        $this->assertNull($secondInstance->completeItem($item));
+        $this->assertNull($secondInstance->releaseItem($item));
+    }
 }
