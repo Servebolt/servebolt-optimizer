@@ -61,6 +61,12 @@ if (Servebolt\Optimizer\Helpers\featureIsActive('cf_image_resize')) {
     new Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
 }
 
+new Servebolt\Optimizer\CronHandle\CronSchedule; // Register cron schedule
+if (Servebolt\Optimizer\Helpers\isCli() || is_admin() || Servebolt\Optimizer\Helpers\isCron()) {
+    new Servebolt\Optimizer\CronHandle\CronEvents; // Register event for schedule
+    new Servebolt\Optimizer\Queue\QueueEventHandler; // Act upon events for the queues
+}
+
 // Register cron schedule and cache purge event
 //require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-cache/sb-cf-cache-cron-handle.php';
 

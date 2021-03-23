@@ -44,7 +44,7 @@ class PurgeActions extends SharedAjaxMethods
      */
     private function ensureCachePurgeFeatureIsActive(): void
     {
-        if (!CachePurge::cachePurgeIsActive()) {
+        if (!CachePurge::isActive()) {
             wp_send_json_error(
                 [
                     'message' => 'The cache purge feature is not active so we could not purge cache. Make sure you the configuration is correct.'

@@ -46,7 +46,7 @@ class CachePurgeControl
 
         $selectedCfZone = $this->getSelectedCfZone($settings);
         $cfZones = $this->getCfZones($settings);
-        $cachePurgeIsActive = CachePurge::cachePurgeIsActive();
+        $cachePurgeIsActive = CachePurge::isActive();
         $autoCachePurgeIsActive = CachePurge::automaticCachePurgeOnContentUpdateIsActive();
 
         view('cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive'));

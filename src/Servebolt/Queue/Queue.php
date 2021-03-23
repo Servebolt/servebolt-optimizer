@@ -2,7 +2,7 @@
 
 namespace Servebolt\Optimizer\Queue;
 
-use Servebolt\Optimizer\Traits\Multiton;
+use Servebolt\Optimizer\Traits\MultitonWithArgumentForwarding;
 
 /**
  * Class Queue
@@ -10,7 +10,7 @@ use Servebolt\Optimizer\Traits\Multiton;
  */
 class Queue
 {
-    use Multiton;
+    use MultitonWithArgumentForwarding;
 
     /**
      * @var string Table name.
@@ -43,6 +43,38 @@ class Queue
         return $this->tableName;
     }
 
+    public function getUnfinishedItemsByParent(int $parentId, string $parentQueueName): ?array
+    {
+        global $wpdb;
+        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND parent_id = %s AND parent_queue_name = %s AND completed_at_gmt IS NULL", $this->queueName, $parentId, $parentQueueName, );
+        $rawItems = $wpdb->get_results($sql);
+        if ($rawItems) {
+            return $this->instantiateQueueItems($rawItems);
+        }
+        return null;
+    }
+
+    /**
+     * @return QueueItem[]|null
+     */
+    public function getReservedItems(): ?array
+    {
+        global $wpdb;
+        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND reserved_at_gmt IS NOT NULL", $this->queueName);
+        $rawItems = $wpdb->get_results($sql);
+        if ($rawItems) {
+            return $this->instantiateQueueItems($rawItems);
+        }
+        return null;
+    }
+
+    private function instantiateQueueItems(array $rawItems)
+    {
+        return array_map(function ($rawItem) {
+            return new QueueItem($rawItem);
+        }, $rawItems);
+    }
+
     /**
      * @param int $chunkSize
      * @param bool $onlyUnreserved
@@ -58,10 +90,7 @@ class Queue
         }
         $rawItems = $wpdb->get_results($sql);
         if ($rawItems) {
-            $rawItems = array_map(function ($rawItem) {
-                return new QueueItem($rawItem);
-            }, $rawItems);
-            return $rawItems;
+            return $this->instantiateQueueItems($rawItems);
         }
         return null;
     }

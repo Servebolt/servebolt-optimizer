@@ -10,7 +10,7 @@
 
 	<h2>Cache purge</h2>
 
-	<p>Feature is active? - <?php echo CachePurge::cachePurgeIsActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
+	<p>Feature is active? - <?php echo CachePurge::isActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 	<p>Feature is configured? - <?php echo CachePurge::featureIsConfigured() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 	<p>Feature is available? - <?php echo CachePurge::featureIsAvailable() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 	<p>Automatic cache purge on content update? - <?php echo CachePurge::automaticCachePurgeOnContentUpdateIsActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>

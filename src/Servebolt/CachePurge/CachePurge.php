@@ -74,7 +74,7 @@ class CachePurge
     public static function resolveDriver(?int $blogId = null, bool $verbose = false): ?string
     {
         if (
-            self::cachePurgeIsActive($blogId)
+            self::isActive($blogId)
             && self::cloudflareIsSelected($blogId)
             && self::cloudflareIsConfigured($blogId)
         ) {
@@ -82,7 +82,7 @@ class CachePurge
         }
         if (
             self::isHostedAtServebolt()
-            && self::cachePurgeIsActive($blogId)
+            && self::isActive($blogId)
             && self::acdIsSelected($blogId)
             && self::acdIsConfigured()
         ) {
@@ -115,7 +115,18 @@ class CachePurge
      */
     public static function featureIsAvailable(?int $blogId = null): bool
     {
-        return self::cachePurgeIsActive($blogId) && self::featureIsConfigured($blogId);
+        return self::isActive($blogId) && self::featureIsConfigured($blogId);
+    }
+
+    /**
+     * Alias for "featureIsAvailable".
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function featureIsActive(?int $blogId = null): bool
+    {
+        return self::featureIsAvailable($blogId);
     }
 
     /**
@@ -168,7 +179,7 @@ class CachePurge
      * @param int|null $blogId
      * @return bool
      */
-    public static function cachePurgeIsActive(?int $blogId = null): bool
+    public static function isActive(?int $blogId = null): bool
     {
         $noExistKey = 'value-does-not-exist';
         $key = 'cache_purge_switch';
