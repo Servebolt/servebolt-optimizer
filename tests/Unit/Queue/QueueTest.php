@@ -6,7 +6,10 @@ use Servebolt\Optimizer\Queue\Queue;
 use Servebolt\Optimizer\Database\PluginTables;
 use ServeboltWPUnitTestCase;
 
-
+/**
+ * Class QueueTest
+ * @package Unit\Queue
+ */
 class QueueTest extends ServeboltWPUnitTestCase
 {
 
