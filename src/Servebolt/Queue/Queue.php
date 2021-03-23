@@ -48,7 +48,7 @@ class Queue
      * @param bool $onlyUnreserved
      * @return QueueItem[]|null
      */
-    public function getItems(int $chunkSize = 10, $onlyUnreserved = true)
+    public function getItems(int $chunkSize = 30, $onlyUnreserved = true)
     {
         global $wpdb;
         if ($onlyUnreserved) {
@@ -71,19 +71,9 @@ class Queue
      */
     public function deleteItems(array $items): void
     {
+        $items = $this->filterItemsFromOtherQueues($items);
         array_map(function($item) {
             $this->delete($item);
-        }, $items);
-    }
-
-    /**
-     * @param QueueItem[] $items
-     * @return array
-     */
-    public function resolveItems(array $items): array
-    {
-        return array_map(function($item) {
-            return $this->resolveItem($item);
         }, $items);
     }
 
@@ -91,7 +81,7 @@ class Queue
      * @param int $chunkSize
      * @return QueueItem[]|null
      */
-    public function getAndReserveItems(int $chunkSize = 10): ?array
+    public function getAndReserveItems(int $chunkSize = 30): ?array
     {
         $items = $this->getItems($chunkSize, true);
         $this->reserveItems($items);
@@ -104,6 +94,7 @@ class Queue
      */
     public function reserveItems(array $items): array
     {
+        $items = $this->filterItemsFromOtherQueues($items);
         return array_map(function($item) {
             return $this->reserveItem($item);
         }, $items);
@@ -130,9 +121,21 @@ class Queue
      */
     public function completeItems(array $items): array
     {
+        $items = $this->filterItemsFromOtherQueues($items);
         return array_map(function($item) {
             return $this->completeItem($item);
         }, $items);
+    }
+
+    /**
+     * @param array $array
+     * @return array
+     */
+    private function filterItemsFromOtherQueues(array $array): array
+    {
+        return array_filter($array, function($item) {
+            return $this->queueName === $item->queue;
+        });
     }
 
     /**
@@ -156,6 +159,7 @@ class Queue
      */
     public function releaseItems(array $items): array
     {
+        $items = $this->filterItemsFromOtherQueues($items);
         return array_map(function($item) {
             return $this->releaseItem($item);
         }, $items);
@@ -183,9 +187,12 @@ class Queue
     private function resolveItem($item): ?object
     {
         if (is_int($item)) {
-            return $this->get($item);
+            $item = $this->get($item);
         }
-        return $item;
+        if ($this->queueName === $item->queue) {
+            return $item;
+        }
+        return null;
     }
 
     /**

@@ -24,7 +24,7 @@ class QueueTest extends ServeboltWPUnitTestCase
         ];
         $queue = new Queue('my-queue');
         $item = $queue->add($itemData);
-        $this->assertTrue(is_a($item, '\\Servebolt\\Optimizer\\Queue\\QueueItem'));
+        $this->assertTrue($this->isQueueItem($item));
         $this->assertTrue($queue->itemExists($item->id));
     }
 
@@ -67,7 +67,7 @@ class QueueTest extends ServeboltWPUnitTestCase
         ];
         $queue = new Queue('my-queue');
         $item = $queue->add($itemData);
-        $this->assertTrue(is_array($item->payload));
+        $this->assertIsArray($item->payload);
         $this->assertEquals($itemData, $item->payload);
     }
 
@@ -88,9 +88,14 @@ class QueueTest extends ServeboltWPUnitTestCase
             'bar' => 'foo3',
         ]);
         $lookupItem = $queue->get($item->id);
-        $this->assertTrue(is_a($lookupItem, '\\Servebolt\\Optimizer\\Queue\\QueueItem'));
+        $this->assertTrue($this->isQueueItem($lookupItem));
         $this->assertEquals($lookupItem->id, $item->id);
         $this->assertEquals($payload, $lookupItem->payload);
+    }
+
+    private function isQueueItem($var): bool
+    {
+        return is_a($var, '\\Servebolt\\Optimizer\\Queue\\QueueItem');
     }
 
     public function testThatItemCountIsCorrect()
@@ -227,6 +232,7 @@ class QueueTest extends ServeboltWPUnitTestCase
         $this->assertEquals($currentTime, $item->createdAtGmt);
         sleep(1);
         $item = $queue->reserveItem($item);
+
         $this->assertEquals($currentTime + 1, $item->reservedAtGmt);
         sleep(1);
         $item = $queue->completeItem($item);
@@ -312,5 +318,55 @@ class QueueTest extends ServeboltWPUnitTestCase
         $this->assertEquals(1, $item->attempts);
         $item->doAttempt();
         $this->assertEquals(2, $item->attempts);
+    }
+
+    public function testThatItemsCanBeFetched()
+    {
+        $queue = new Queue('my-queue');
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        $this->assertNull($queue->getItems());
+        for ($i = 1; $i <= 32; $i++) {
+            $queue->add($itemData);
+        }
+        $this->assertCount(30, $queue->getItems());
+        $this->assertCount(32, $queue->getItems(40));
+    }
+
+    public function testThatItemsCanBeReserved()
+    {
+        $queue = new Queue('my-queue');
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        for ($i = 1; $i <= 32; $i++) {
+            $queue->add($itemData);
+        }
+
+        $this->assertEquals(0, $queue->countReservedItems());
+        $this->assertEquals(32, $queue->countAvailableItems());
+        $this->assertEquals(0, $queue->countCompletedItems());
+
+        $items = $queue->getAndReserveItems();
+        $this->assertCount(30, $items);
+        $this->assertEquals(30, $queue->countReservedItems());
+        $this->assertEquals(2, $queue->countAvailableItems());
+        $this->assertEquals(0, $queue->countCompletedItems());
+
+        $secondItems = $queue->getAndReserveItems();
+        $this->assertCount(2, $secondItems);
+        $this->assertEquals(32, $queue->countReservedItems());
+        $this->assertEquals(0, $queue->countAvailableItems());
+        $this->assertEquals(0, $queue->countCompletedItems());
+
+        $allItems = array_merge($items, $secondItems);
+        $queue->completeItems($allItems);
+        $this->assertCount(32, $allItems);
+        $this->assertEquals(0, $queue->countReservedItems());
+        $this->assertEquals(0, $queue->countAvailableItems());
+        $this->assertEquals(32, $queue->countCompletedItems());
     }
 }
