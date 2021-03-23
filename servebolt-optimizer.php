@@ -45,9 +45,6 @@ if (
     // Make sure we dont API credentials in clear text.
     new Servebolt\Optimizer\Crypto\OptionEncryption;
 
-	// Include the Servebolt Cloudflare class
-	//require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-cache/sb-cf-cache.php';
-
 }
 
 // Loads the class that sets the correct cache headers for the Servebolt full page cache
@@ -66,9 +63,6 @@ if (Servebolt\Optimizer\Helpers\isCli() || is_admin() || Servebolt\Optimizer\Hel
     new Servebolt\Optimizer\CronHandle\CronEvents; // Register event for schedule
     new Servebolt\Optimizer\Queue\QueueEventHandler; // Act upon events for the queues
 }
-
-// Register cron schedule and cache purge event
-//require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/cloudflare-cache/sb-cf-cache-cron-handle.php';
 
 if (Servebolt\Optimizer\Helpers\isWpRest() || is_admin()) {
     // Register cache purge event for various hooks
