@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit\Queue;
+namespace Unit;
 
 use Servebolt\Optimizer\Queue\Queue;
 use Servebolt\Optimizer\Database\PluginTables;
