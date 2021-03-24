@@ -11,7 +11,7 @@ use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
 //use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\QueueHandling;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
-use function Servebolt\Optimizer\Helpers\hostIsServebolt;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\getOption;
 
@@ -42,7 +42,7 @@ class CachePurgeControl
     {
         $settings = $this->getSettingsItemsWithValues();
         $cachePurge = $this;
-        $isHostedAtServebolt = hostIsServebolt();
+        $isHostedAtServebolt = isHostedAtServebolt();
 
         $selectedCfZone = $this->getSelectedCfZone($settings);
         $cfZones = $this->getCfZones($settings);
@@ -188,7 +188,7 @@ class CachePurgeControl
         foreach ($items as $item) {
             switch ($item) {
                 case 'cache_purge_driver':
-                    if (!hostIsServebolt()) {
+                    if (!isHostedAtServebolt()) {
                         $value = $this->getDefaultCachePurgeDriver(); // Only allow Cloudflare when not hosted at Servebolt
                     } else {
                         $value = getOption($item);

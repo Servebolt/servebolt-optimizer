@@ -10,7 +10,7 @@ use Servebolt\Optimizer\Api\Cloudflare\Cloudflare as CloudflareApi;
 use Servebolt\Optimizer\CachePurge\Drivers\Servebolt as ServeboltDriver;
 use Servebolt\Optimizer\CachePurge\Drivers\Cloudflare as CloudflareDriver;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
-use function Servebolt\Optimizer\Helpers\hostIsServebolt;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 
@@ -81,7 +81,7 @@ class CachePurge
             return $verbose ? 'Cloudflare' : 'cloudflare';
         }
         if (
-            self::isHostedAtServebolt()
+            isHostedAtServebolt()
             && self::isActive($blogId)
             && self::acdIsSelected($blogId)
             && self::acdIsConfigured()
@@ -227,16 +227,6 @@ class CachePurge
     }
 
     /**
-     * Check that site is hosted at Servebolt.
-     *
-     * @return bool
-     */
-    private static function isHostedAtServebolt(): bool
-    {
-        return hostIsServebolt();
-    }
-
-    /**
      * Check whether ACD is selected as cache purge driver.
      *
      * @param int|null $blogId
@@ -275,9 +265,12 @@ class CachePurge
      *
      * @return bool
      */
-    public static function cronStateIsOverridden(): bool
+    public static function queueBasedCachePurgeActiveStateIsOverridden(): bool
     {
-        return defined('SERVEBOLT_CF_PURGE_CRON') && is_bool(SERVEBOLT_CF_PURGE_CRON);
+        return
+            (defined('SERVEBOLT_CF_PURGE_CRON') && is_bool(SERVEBOLT_CF_PURGE_CRON)) // Legacy
+            || ( defined('SERVEBOLT_QUEUE_BASED_CACHE_PURGE') && is_bool(SERVEBOLT_QUEUE_BASED_CACHE_PURGE) );
+
     }
 
     /**
@@ -285,9 +278,9 @@ class CachePurge
      *
      * @return mixed
      */
-    public static function cronActiveStateOverride(): ?bool
+    public static function queueBasedCachePurgeActiveStateOverride(): ?bool
     {
-        if ( self::cronStateIsOverridden() ) {
+        if ( self::queueBasedCachePurgeActiveStateIsOverridden() ) {
             return SERVEBOLT_CF_PURGE_CRON;
         }
         return null;
@@ -303,7 +296,7 @@ class CachePurge
      */
     public static function queueBasedCachePurgeIsActive(bool $respectOverride = true, ?int $blogId = null): bool
     {
-        $activeStateOverride = self::cronActiveStateOverride();
+        $activeStateOverride = self::queueBasedCachePurgeActiveStateOverride();
         if ( $respectOverride && is_bool($activeStateOverride) ) {
             return $activeStateOverride;
         }

@@ -12,7 +12,7 @@ use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isDevDebug;
-use function Servebolt\Optimizer\Helpers\hostIsServebolt;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 
 class AdminGuiController
 {
@@ -124,7 +124,7 @@ class AdminGuiController
     {
         $this->cachePurgeMenu();
         $this->cfImageResizeMenu();
-        if (hostIsServebolt()) {
+        if (isHostedAtServebolt()) {
             $this->fpcCacheMenu();
             $this->errorLogMenu();
         }

@@ -712,7 +712,7 @@ function requireSuperadmin()
  *
  * @return bool
  */
-function hostIsServebolt(): bool
+function isHostedAtServebolt(): bool
 {
     if (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
         return HOST_IS_SERVEBOLT_OVERRIDE;
