@@ -24,7 +24,7 @@ trait PostMethods
             $postId,
             'post'
         );
-        return $purgeObject->get_urls();
+        return $purgeObject->getUrls();
     }
 
     /**

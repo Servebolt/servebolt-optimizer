@@ -2,8 +2,12 @@
 
 namespace Servebolt\Optimizer\Queue;
 
-use Servebolt\Optimizer\CronHandle\CronMinuteEvent;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use Servebolt\Optimizer\CronHandle\CronMinuteEvent;
+use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use Servebolt\Optimizer\Queue\Queues\UrlQueue;
+
 /**
  * Class QueueEventHandler
  * @package Servebolt\Optimizer\Queue
@@ -21,11 +25,11 @@ class QueueEventHandler
 
     public function handleWpObjectQueue(): void
     {
-        (new WpObjectQueue)->parseQueue();
+        (WpObjectQueue::getInstance())->parseQueue();
     }
 
     public function handleUrlQueue(): void
     {
-        (new UrlQueue)->parseQueue();
+        (UrlQueue::getInstance())->parseQueue();
     }
 }

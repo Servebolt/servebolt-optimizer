@@ -96,7 +96,7 @@ class WordPressCachePurge
      * @param bool $returnWpError
      * @return bool
      */
-    public function purgeAllNetwork(bool $returnWpError = false)
+    public static function purgeAllNetwork(bool $returnWpError = false)
     {
         if (!is_multisite()) {
             return false;

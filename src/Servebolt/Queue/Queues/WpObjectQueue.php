@@ -1,20 +1,23 @@
 <?php
 
-namespace Servebolt\Optimizer\Queue;
+namespace Servebolt\Optimizer\Queue\Queues;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
+use Servebolt\Optimizer\Traits\Singleton;
+use Servebolt\Optimizer\Queue\QueueSystem\Queue;
 
 /**
  * Class WpObjectQueue
  *
  * This initiates the queue that acts as a parent for the UrlQueue.
  *
- * @package Servebolt\Optimizer\Queue
+ * @package Servebolt\Optimizer\Queue\Queues
  */
 class WpObjectQueue
 {
+    use Singleton;
 
     /**
      * @var int The number of times the queue parsing should be ran per event trigger.
@@ -60,19 +63,14 @@ class WpObjectQueue
         if (in_array($payload['type'], ['post', 'term'])) {
             $purgeObject = new PurgeObject(
                 $payload['id'],
-                $payload['type']
+                $payload['type'],
             );
-            if ($urls = $purgeObject->get_urls()) {
+            if ($purgeObject->success() && $urls = $purgeObject->getUrls()) {
                 return $urls;
             }
             return null;
-        } elseif ($payload->type == 'url') {
-            if ($payload->url) {
-                return [
-                    $payload['url']
-                ];
-            }
-            return null;
+        } elseif ($payload['type'] == 'url' && $payload->url) {
+            return [$payload['url']];
         }
         return null;
     }
@@ -85,16 +83,17 @@ class WpObjectQueue
         if ($items = $this->queue->getAndReserveItems()) {
             foreach ($items as $item) {
                 $payload = $item->payload;
-                if ($payload->type === 'purge-all') {
-                    $this->urlQueue()->add(['type' => 'purge-all'], $item);
-                } else {
-                    if ($urls = $this->resolveUrlsToPurgeFromWpObject($payload)) {
-                        foreach ($urls as $url) {
-                            $this->urlQueue()->add([
-                                'type' => 'url',
-                                'url' => $url,
-                            ], $item);
-                        }
+                if ($payload['type'] === 'purge-all') {
+                    $this->urlQueue()->add([
+                        'type' => 'purge-all',
+                        'networkPurge' => $payload->networkPurge
+                    ], $item);
+                } else if ($urls = $this->resolveUrlsToPurgeFromWpObject($payload)) {
+                    foreach ($urls as $url) {
+                        $this->urlQueue()->add([
+                            'type' => 'url',
+                            'url' => $url,
+                        ], $item);
                     }
                 }
             }
@@ -104,7 +103,7 @@ class WpObjectQueue
     /**
      * Flag WP Object queue items as done as long as they have no unfinished Url Queue items.
      */
-    private function flagQueueItemsAsCompleted(): void
+    private function flagWpObjectQueueItemsAsCompleted(): void
     {
         $items = $this->queue->getReservedItems();
         if ($items) {
@@ -135,6 +134,7 @@ class WpObjectQueue
      */
     public function add($itemData, $parentQueueName = null, $parentId = null): ?object
     {
+        // TODO Maybe check if the item is already in the queue?
         return $this->queue->add($itemData, $parentQueueName, $parentId);
     }
 

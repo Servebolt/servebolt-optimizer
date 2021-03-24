@@ -1,12 +1,12 @@
 <?php
 
-namespace Servebolt\Optimizer\Queue;
+namespace Servebolt\Optimizer\Queue\QueueSystem;
 
 use Servebolt\Optimizer\Traits\MultitonWithArgumentForwarding;
 
 /**
  * Class Queue
- * @package Servebolt\Optimizer\Queue
+ * @package Servebolt\Optimizer\Queue\QueueSystem
  */
 class Queue
 {
@@ -47,12 +47,13 @@ class Queue
      * Get reserved unfinished items that have not been attempted more than $maxAttemptsBeforeIgnore.
      *
      * @param int $maxAttemptsBeforeIgnore
+     * @param int $chunkSize
      * @return array|null
      */
-    public function getUnfinishedPreviouslyAttemptedItems($maxAttemptsBeforeIgnore = 3): ?array
+    public function getUnfinishedPreviouslyAttemptedItems($maxAttemptsBeforeIgnore = 3, int $chunkSize = 30): ?array
     {
         global $wpdb;
-        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s (attempts <= %s OR force_retry = 1) reserved_at_gmt IS NOT NULL AND completed_at_gmt IS NULL", $this->queueName, $maxAttemptsBeforeIgnore);
+        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s (attempts <= %s OR force_retry = 1) reserved_at_gmt IS NOT NULL AND completed_at_gmt IS NULL LIMIT %s", $this->queueName, $maxAttemptsBeforeIgnore, $chunkSize);
         $rawItems = $wpdb->get_results($sql);
         if ($rawItems) {
             return $this->instantiateQueueItems($rawItems);
@@ -97,7 +98,7 @@ class Queue
      * @param bool $onlyUnreserved
      * @return QueueItem[]|null
      */
-    public function getItems(int $chunkSize = 30, $onlyUnreserved = true)
+    public function getItems(int $chunkSize = 30, $onlyUnreserved = true): ?array
     {
         global $wpdb;
         if ($onlyUnreserved) {
@@ -130,7 +131,9 @@ class Queue
     public function getAndReserveItems(int $chunkSize = 30): ?array
     {
         $items = $this->getItems($chunkSize, true);
-        $this->reserveItems($items);
+        if ($items) {
+            $this->reserveItems($items);
+        }
         return $items;
     }
 
@@ -289,7 +292,7 @@ class Queue
      */
     private function isQueueItem($var): bool
     {
-        return is_a($var, '\\Servebolt\\Optimizer\\Queue\\QueueItem');
+        return is_a($var, '\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem');
     }
 
     /**

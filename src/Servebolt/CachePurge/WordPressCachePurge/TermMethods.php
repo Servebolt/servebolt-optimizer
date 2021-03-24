@@ -26,7 +26,7 @@ trait TermMethods
             'term',
             ['taxonomy_slug' => $taxonomySlug]
         );
-        return $purgeObject->get_urls();
+        return $purgeObject->getUrls();
     }
 
     /**

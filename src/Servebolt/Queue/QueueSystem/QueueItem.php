@@ -1,9 +1,13 @@
 <?php
 
-namespace Servebolt\Optimizer\Queue;
+namespace Servebolt\Optimizer\Queue\QueueSystem;
 
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
 
+/**
+ * Class QueueItem
+ * @package Servebolt\Optimizer\Queue\QueueSystem
+ */
 class QueueItem
 {
 
@@ -17,6 +21,10 @@ class QueueItem
     private $completed_at_gmt;
     private $created_at_gmt;
 
+    /**
+     * QueueItem constructor.
+     * @param $queueItemData
+     */
     public function __construct($queueItemData)
     {
         $this->registerItemData($queueItemData);
@@ -77,7 +85,7 @@ class QueueItem
     {
         if (!$this->isReserved()) { // Only allow reservation when not already reserved
             $this->reserved_at_gmt = current_time('timestamp', true);
-            $this->doAttempt();
+            //$this->doAttempt();
         }
     }
 
