@@ -153,6 +153,7 @@ function createLiTagsFromArray($iterator, $closure = false, bool $includeUl = tr
  */
 function paginateLinksAsArray($url, $pagesNeeded, $args = [])
 {
+    $url = trailingslashit($url);
     if ( ! is_numeric($pagesNeeded) || $pagesNeeded <= 1 ) {
         return [$url];
     }

@@ -4,6 +4,9 @@ namespace Servebolt\Optimizer\CachePurge\PurgeObject;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Post;
+use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Term;
+
 /**
  * Class PurgeObject
  *
@@ -17,89 +20,44 @@ class PurgeObject
      *
      * @var null
      */
-    private $purge_object = null;
+    private $purgeObject = null;
 
     /**
      * PurgeObject constructor.
      *
-     * @param $id
+     * @param int|null $objectId
      * @param string $type
      * @param array $args
      */
-    public function __construct($id = false, $type = 'post', $args = []) {
-        if ( $id ) {
-            $this->addObject($id, $type, $args);
+    public function __construct(?int $objectId = null, string $type = 'post', array $args = [])
+    {
+        if ($objectId) {
+            $this->addObject($objectId, $type, $args);
         }
     }
 
     /**
-     * Get all the URLs to purge for this purge object.
+     * Proxy function calls to purge object.
      *
-     * @return array|bool|bool[]|mixed
-     */
-    public function get_purge_urls() {
-        if ( ! $this->purge_object ) return false;
-        return $this->purge_object->get_urls();
-    }
-
-    /**
-     * Get the base URL of the purge object.
-     *
-     * @return bool
-     */
-    public function get_base_url() {
-        if ( ! $this->purge_object ) return false;
-        return $this->purge_object->get_base_url();
-    }
-
-    /**
-     * Get the edit URL of the purge object.
-     *
-     * @return bool
-     */
-    public function get_edit_url() {
-        if ( ! $this->purge_object ) return false;
-        return $this->purge_object->get_edit_url();
-    }
-
-    /**
-     * Get the title of the purge object.
-     *
-     * @return bool
-     */
-    public function get_title() {
-        if ( ! $this->purge_object ) return false;
-        return $this->purge_object->get_title();
-    }
-
-    /**
-     * Get the ID of the purge object.
-     *
-     * @return bool
-     */
-    public function get_id() {
-        if ( ! $this->purge_object ) return false;
-        return $this->purge_object->get_id();
-    }
-
-    /**
-     * Check whether we could resolve the object to be purged.
-     *
+     * @param $name
+     * @param $arguments
      * @return mixed
      */
-    public function success() {
-        if ( ! $this->purge_object ) return false;
-        return $this->purge_object->success();
-    }
-
-    /**
-     * Get all URLs generated for purge object.
-     *
-     * @return mixed
-     */
-    public function get_urls() {
-        if ( ! $this->purge_object ) return false;
-        return $this->purge_object->get_urls();
+    public function __call($name, $arguments)
+    {
+        $forwardedMethods = [
+            'success',
+            'getUrls',
+            'getPurgeUrls',
+            'getEditUrl',
+            'getBaseUrl',
+            'getTitle',
+            'getId',
+        ];
+        if (in_array($name, $forwardedMethods) && $this->purgeObject && method_exists($this->purgeObject, $name)) {
+            return $this->purgeObject->{$name}();
+        }
+        trigger_error(sprintf('Call to undefined method %s', $name));
     }
 
     /**
@@ -118,12 +76,15 @@ class PurgeObject
      *
      * @param $id
      * @param $type
-     * @return bool|mixed
+     * @param $args
+     * @return bool|Term|Post
      */
     private function resolvePurgeObject($id, $type, $args)
     {
         $className = $this->buildPurgeObjectTypeClassname($type);
-        if ( ! class_exists($className) ) return false;
+        if (!class_exists($className)) {
+            return false;
+        }
         return new $className($id, $args);
     }
 
@@ -133,14 +94,14 @@ class PurgeObject
      * @param $id
      * @param string $type
      * @param array $args
-     * @return bool
+     * @return bool|Post|Term
      */
     public function addObject($id, $type = 'post', $args = [])
     {
         $purgeObject = $this->resolvePurgeObject($id, $type, $args);
         if ($purgeObject && !is_wp_error($purgeObject)) {
-            $this->purge_object = $purgeObject;
-            return $this->purge_object;
+            $this->purgeObject = $purgeObject;
+            return $this->purgeObject;
         }
         return false;
     }

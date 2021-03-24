@@ -43,10 +43,27 @@ class Queue
         return $this->tableName;
     }
 
+    /**
+     * Get reserved unfinished items that have not been attempted more than $maxAttemptsBeforeIgnore.
+     *
+     * @param int $maxAttemptsBeforeIgnore
+     * @return array|null
+     */
+    public function getUnfinishedPreviouslyAttemptedItems($maxAttemptsBeforeIgnore = 3): ?array
+    {
+        global $wpdb;
+        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s (attempts <= %s OR force_retry = 1) reserved_at_gmt IS NOT NULL AND completed_at_gmt IS NULL", $this->queueName, $maxAttemptsBeforeIgnore);
+        $rawItems = $wpdb->get_results($sql);
+        if ($rawItems) {
+            return $this->instantiateQueueItems($rawItems);
+        }
+        return null;
+    }
+
     public function getUnfinishedItemsByParent(int $parentId, string $parentQueueName): ?array
     {
         global $wpdb;
-        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND parent_id = %s AND parent_queue_name = %s AND completed_at_gmt IS NULL", $this->queueName, $parentId, $parentQueueName, );
+        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND parent_id = %s AND parent_queue_name = %s AND reserved_at_gmt IS NOT NULL AND completed_at_gmt IS NULL", $this->queueName, $parentId, $parentQueueName);
         $rawItems = $wpdb->get_results($sql);
         if ($rawItems) {
             return $this->instantiateQueueItems($rawItems);

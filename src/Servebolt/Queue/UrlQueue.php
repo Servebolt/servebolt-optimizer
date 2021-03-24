@@ -2,10 +2,9 @@
 
 namespace Servebolt\Optimizer\Queue;
 
-use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
-use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 
 /**
  * Class UrlQueue
@@ -18,6 +17,11 @@ class UrlQueue
      * @var int The number of times the queue parsing should be ran per event trigger.
      */
     private $numberOfRuns = 3;
+
+    /**
+     * @var int The number of attempts we should do to parse each item before abandoning it.
+     */
+    private $maxAttemptsPerItem = 3;
 
     /**
      * @var int The size of the URLs being purged at a time.
@@ -45,15 +49,43 @@ class UrlQueue
     public function __construct()
     {
         $this->queue = Queue::getInstance(self::$queueName);
-        $this->wpObjectQueue = Queue::getInstance(WpObjectQueue::$queueName);
+    }
+
+    public function add($itemData, $parentQueueName = null, $parentId = null): ?object
+    {
+        $this->queue->add($itemData, $parentQueueName, $parentId);
+    }
+
+    /**
+     * @return mixed|Queue
+     */
+    private function wpObjectQueue()
+    {
+        if (!$this->wpObjectQueue) {
+            $this->wpObjectQueue = Queue::getInstance(WpObjectQueue::$queueName);
+        }
+        return $this->wpObjectQueue;
+    }
+
+    /**
+     * Parse the URL queue.
+     */
+    public function parseQueue(): void
+    {
         for ($i = 1; $i <= $this->numberOfRuns; $i++) {
             $this->parseQueue();
         }
     }
 
-    private function parseQueue(): void
+    private function parseQueueSegment(): void
     {
+        if ($itemsToRetry = $this->queue->getUnfinishedPreviouslyAttemptedItems()) {
+            // TODO: Retry unfinished items
+            return;
+        }
+
         $items = $this->queue->getAndReserveItems($this->urlChunkSize);
+        // TODO: Make sure we only do 3 attempts
         if ($items) {
             $urls = [];
             foreach ($items as $item) {

@@ -21,11 +21,11 @@ class QueueEventHandler
 
     public function handleWpObjectQueue(): void
     {
-        new WpObjectQueue;
+        (new WpObjectQueue)->parseQueue();
     }
 
     public function handleUrlQueue(): void
     {
-        new UrlQueue();
+        (new UrlQueue)->parseQueue();
     }
 }

@@ -11,7 +11,6 @@ use function Servebolt\Optimizer\Helpers\paginateLinksAsArray;
  *
  * This is a cache purge object with the type of term.
  */
-//class SB_CF_Cache_Purge_Term_Object extends SB_CF_Cache_Purge_Object_Shared
 class Term extends SharedMethods
 {
 
@@ -20,43 +19,46 @@ class Term extends SharedMethods
      *
      * @var string
      */
-    protected $object_type = 'term';
+    protected $objectType = 'term';
 
     /**
      * Term constructor.
-     * @param $term_id
+     * @param $termId
      * @param $args
      */
-    public function __construct($term_id, $args) {
-        parent::__construct($term_id, $args);
+    public function __construct($termId, $args) {
+        parent::__construct($termId, $args);
     }
 
     /**
      * Get the term URL.
      *
-     * @return mixed
+     * @return string|WP_Error
      */
-    public function get_base_url() {
-        return get_term_link( $this->get_id() );
+    public function getBaseUrl()
+    {
+        return get_term_link($this->getId());
     }
 
     /**
      * Get the term edit URL.
      *
-     * @return mixed
+     * @return string|null
      */
-    public function get_edit_url() {
-        return get_edit_term_link( $this->get_id() );
+    public function getEditUrl(): ?string
+    {
+        return get_edit_term_link($this->getId());
     }
 
     /**
      * Get the term title.
      *
-     * @return mixed
+     * @return string|bool
      */
-    public function get_title() {
-        $term = get_term( $this->get_id() );
-        if ( isset($term->name) ) {
+    public function getTitle()
+    {
+        $term = get_term($this->getId());
+        if (isset($term->name)) {
             return $term->name;
         }
         return false;
@@ -64,45 +66,48 @@ class Term extends SharedMethods
 
     /**
      * Add URLs related to a term object.
+     *
+     * @return bool
      */
-    protected function init_object() {
-
+    protected function initObject(): bool
+    {
         // The URL to the term archive.
-        if ( $this->add_term_url() ) {
+        if ($this->addTermUrl()) {
             $this->success(true); // Flag that found the term
             return true;
         } else {
             return false; // Could not find the term, stop execution
         }
-
     }
 
     /**
      * Generate URLs related to the object.
      */
-    protected function generate_other_urls() {
-
+    protected function generateOtherUrls(): void
+    {
         // The URL to the front page
-        $this->add_front_page();
-
+        $this->addFrontPage();
     }
 
     /**
      * Add the term URL.
+     *
+     * @return bool
      */
-    private function add_term_url() {
-        $term_url = $this->get_base_url();
-        if ( $term_url && ! is_wp_error($term_url) ) {
-            $pages_needed = $this->get_pages_needed([
+    private function addTermUrl(): bool
+    {
+        $termUrl = $this->getBaseUrl();
+        if ($termUrl && ! is_wp_error($termUrl)) {
+            $pagesNeeded = $this->getPagesNeeded([
                 'tax_query' => [
                     [
-                        'taxonomy' => $this->get_argument('taxonomy_slug'),
+                        'taxonomy' => $this->getArgument('taxonomy_slug'),
                         'field'    => 'term_id',
-                        'terms'    => $this->get_id(),
+                        'terms'    => $this->getId(),
                     ]
                 ],
             ], 'term');
-            $this->add_urls(paginateLinksAsArray($term_url, $pages_needed));
+            $this->addUrls(paginateLinksAsArray($termUrl, $pagesNeeded));
             return true;
         }
         return false;
