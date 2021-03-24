@@ -2,9 +2,9 @@
 
 namespace Servebolt\Optimizer\CronHandle;
 
-use Servebolt\Optimizer\CachePurge\CachePurge;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use Servebolt\Optimizer\CronHandle\Events\CronMinuteEvent;
 
 /**
  * Class CronEvents

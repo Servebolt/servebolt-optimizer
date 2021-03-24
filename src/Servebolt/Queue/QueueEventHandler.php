@@ -19,8 +19,8 @@ class QueueEventHandler
      */
     public function __construct()
     {
-        add_action(CronMinuteEvent::$cronKey, [$this, 'handleWpObjectQueue'], 10);
-        add_action(CronMinuteEvent::$cronKey, [$this, 'handleUrlQueue'], 11);
+        add_action(CronMinuteEvent::$hook, [$this, 'handleWpObjectQueue'], 10);
+        add_action(CronMinuteEvent::$hook, [$this, 'handleUrlQueue'], 11);
     }
 
     public function handleWpObjectQueue(): void

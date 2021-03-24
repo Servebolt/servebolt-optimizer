@@ -1,10 +1,10 @@
 <?php
 
-namespace Servebolt\Optimizer\CronHandle;
-
-use Servebolt\Optimizer\CachePurge\CachePurge;
+namespace Servebolt\Optimizer\CronHandle\Events;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use Servebolt\Optimizer\CachePurge\CachePurge;
 
 /**
  * Class CronEvent
@@ -13,9 +13,9 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 class CronMinuteEvent
 {
     /**
-     * @var string
+     * @var string The action hook used when triggering this event.
      */
-    public static $cronKey = 'servebolt_optimizer_every_minute_cron_event';
+    public static $hook = 'servebolt_optimizer_every_minute_cron_event';
 
     /**
      * CronEvent constructor.
@@ -23,32 +23,32 @@ class CronMinuteEvent
     public function __construct()
     {
         if (CachePurge::featureIsActive() && CachePurge::cronPurgeIsActive()) {
-            $this->registerCachePurgeEvent();
+            $this->registerEvent();
         } else {
-            $this->deregisterCachePurgeEvent();
+            $this->deregisterEvent();
         }
     }
 
-    private function registerCachePurgeEvent(?int $blogId = null): void
+    private function registerEvent(?int $blogId = null): void
     {
         if ($blogId) {
             switch_to_blog($blogId);
         }
-        if (!wp_next_scheduled(self::$cronKey)) {
-            wp_schedule_event(time(), 'every_minute', self::$cronKey);
+        if (!wp_next_scheduled(self::$hook)) {
+            wp_schedule_event(time(), 'every_minute', self::$hook);
         }
         if ($blogId) {
             restore_current_blog();
         }
     }
 
-    private function deregisterCachePurgeEvent(?int $blogId = null): void
+    private function deregisterEvent(?int $blogId = null): void
     {
         if ($blogId) {
             switch_to_blog($blogId);
         }
-        if (wp_next_scheduled($this->cronKey)) {
-            wp_clear_scheduled_hook($this->cronKey);
+        if (wp_next_scheduled(self::$hook)) {
+            wp_clear_scheduled_hook(self::$hook);
         }
         if ($blogId) {
             restore_current_blog();
