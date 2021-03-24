@@ -101,7 +101,7 @@ class Term extends SharedMethods
             $pagesNeeded = $this->getPagesNeeded([
                 'tax_query' => [
                     [
-                        'taxonomy' => $this->getArgument('taxonomy_slug'),
+                        'taxonomy' => $this->getArgument('taxonomySlug'),
                         'field'    => 'term_id',
                         'terms'    => $this->getId(),
                     ]

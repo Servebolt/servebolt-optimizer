@@ -27,7 +27,7 @@ trait TermMethods
         $purgeObject = new PurgeObject(
             $termId,
             'term',
-            ['taxonomy_slug' => $taxonomySlug]
+            compact('taxonomySlug'),
         );
         return $purgeObject->getUrls();
     }
@@ -46,7 +46,7 @@ trait TermMethods
             return $queueInstance->add([
                 $termId,
                 'term',
-                ['taxonomy_slug' => $taxonomySlug]
+                compact('taxonomySlug'),
             ]);
         } else {
             $urlsToPurge = self::getUrlsToPurgeByTermId($termId, $taxonomySlug);
