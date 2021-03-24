@@ -5,8 +5,8 @@
 <tbody class="sb-config-field-general sb-config-field-cloudflare <?php if (!$cachePurgeIsActive|| $settings['cache_purge_driver'] !== 'cloudflare') echo 'sb-config-field-hidden'; ?>">
     <tr>
         <th scope="row" colspan="100%" style="padding-bottom: 5px;">
-            <h3 style="margin-bottom: 0;"><?php _e('API credentials', 'servebolt-wp'); ?></h3>
-            <p style="font-weight: normal;"><?php echo sprintf(__('We\'ll be using the Cloudflare API to connect your site to your Cloudflare account. We recommend using an API token as this will allow for more granular access control. You can learn more about how to set this up in %sour documentation%s.', 'servebolt-wp'), '<a href="https://servebo.lt/xjmkq" target="_blank">', '</a>'); ?></p>
+            <h3 style="margin-bottom: 0;"><?php _e('Cloudflare API', 'servebolt-wp'); ?></h3>
+            <p style="font-weight: normal;"><?php _e('Servebolt Optimizer connects to the Cloudflare cache through the Cloudflare API. Best practice is to use API token for authentication.', 'servebolt-wp');?></p>
         </th>
     </tr>
     <tr>
@@ -14,8 +14,14 @@
         <td>
             <fieldset>
                 <legend class="screen-reader-text"><span><?php _e('Authentication type', 'servebolt-wp'); ?></span></legend>
-                <label><input type="radio" name="<?php echo getOptionName('cf_auth_type'); ?>" value="api_token" <?php checked($settings['cf_auth_type'] == 'api_token'); ?>> <code><?php _e('API token', 'servebolt-wp'); ?></code></label><br>
-                <label><input type="radio" name="<?php echo getOptionName('cf_auth_type'); ?>" value="api_key" <?php checked($settings['cf_auth_type'] == 'api_key'); ?>> <code><?php _e('API key', 'servebolt-wp'); ?></code></label>
+                <label>
+                    <input type="radio" name="<?php echo getOptionName('cf_auth_type'); ?>" value="api_token" <?php checked($settings['cf_auth_type'] == 'api_token'); ?>> <code><?php _e('API token', 'servebolt-wp'); ?></code>
+                    <a href="https://servebo.lt/upuls"><?php _e('How to make an API token', 'servebolt-wp'); ?></a>
+                </label><br>
+                <label>
+                    <input type="radio" name="<?php echo getOptionName('cf_auth_type'); ?>" value="api_key" <?php checked($settings['cf_auth_type'] == 'api_key'); ?>> <code><?php _e('API key', 'servebolt-wp'); ?></code>
+                    <a href="https://servebo.lt/6f0rm"><?php _e('How to get your API key', 'servebolt-wp'); ?></a>
+                </label>
             </fieldset>
         </td>
     </tr>
@@ -54,17 +60,12 @@
         </td>
     </tr>
     <tr>
-        <th scope="row" colspan="100%" style="padding-bottom: 5px;">
-            <h3 style="margin-bottom: 0;"><?php _e('Cloudflare zone', 'servebolt-wp'); ?></h3>
-            <p style="font-weight: normal;"><?php _e('A domain in Cloudflare is called a zone. We\'ll need the ID of the zone you\'d like to connect here. You can find the Zone ID in the Cloudflare Overview tab of the domain you\'d like to connect, in the right sidebar under the API section.', 'servebolt-wp'); ?></p>
-        </th>
-    </tr>
-    <tr>
-        <th scope="row"><label for="zone_id"><?php _e('Zone ID', 'servebolt-wp'); ?></label></th>
+        <th scope="row"><label for="zone_id"><?php _e('Cloudflare Zone ID', 'servebolt-wp'); ?></label></th>
         <td>
 
             <?php $haveZones = (is_array($cfZones) && !empty($cfZones)); ?>
             <input name="<?php echo getOptionName('cf_zone_id'); ?>" type="text" id="zone_id" placeholder="Type zone ID<?php if ($haveZones) echo ' or use the choices below'; ?>" value="<?php echo esc_attr($settings['cf_zone_id']); ?>" class="regular-text validate-field validation-group-zone_id">
+            <p style="font-weight: normal;"><?php _e('You can find the Zone ID in the Cloudflare Overview tab of the zone you\'d like to connect, in the right sidebar under the API section.', 'servebolt-wp'); ?></p>
             <span class="spinner zone-loading-spinner"></span>
             <p class="invalid-message"></p>
 

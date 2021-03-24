@@ -10,7 +10,14 @@ $available_post_types = nginxFpc()->get_available_post_types_to_cache(true);
     <?php settings_fields( 'fpc-options-page' ) ?>
     <?php do_settings_sections( 'fpc-options-page' ) ?>
     <div class="nginx_switch">
-        <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_fpc_active ? ' checked' : ''; ?>><label for="sb-nginx_cache_switch"><?php _e('Turn Full Page Cache on', 'servebolt-wp'); ?></label>
+        <table class="form-table" id="sb-nginx-fpc-form"<?php echo ( $nginx_fpc_active ? '' : ' style="display: none;"' ); ?>>
+            <tr>
+                <th scope="row"><?php _e('HTML Cache', 'servebolt-wp'); ?></th>
+                <td>
+                    <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_fpc_active ? ' checked' : ''; ?>><label for="sb-nginx_cache_switch"><?php _e('Enabled', 'servebolt-wp'); ?></label>
+                </td>
+            </tr>
+        </table>
     </div>
     <table class="form-table" id="sb-nginx-fpc-form"<?php echo ( $nginx_fpc_active ? '' : ' style="display: none;"' ); ?>>
         <tr>
@@ -21,13 +28,13 @@ $available_post_types = nginxFpc()->get_available_post_types_to_cache(true);
                     <?php $checked = in_array($post_type, (array) $post_types_to_cache) ? ' checked' : ''; ?>
                     <span class="<?php if ( $all_checked && $post_type !== 'all' ) echo ' disabled'; ?>"><input id="sb-cache_post_type_<?php echo $post_type; ?>" class="servebolt_fpc_settings_item" name="servebolt_fpc_settings[<?php echo $post_type; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="sb-cache_post_type_<?php echo $post_type; ?>"><?php echo $post_type_name; ?></label></span><br>
                 <?php endforeach; ?>
-                <p><?php _e('By default this plugin enables Full Page Caching of posts, pages and products. 
-                            Activate post types here if you want a different cache setup. 
+                <p><?php _e('By default this plugin enables HTML caching of posts, pages and products.
+                            Activate post types here if you want a different cache setup. If none of the post types above is checked the plugin will use default settings.
                             This will override the default setup.', 'servebolt-wp'); ?></p>
             </td>
         </tr>
         <tr>
-            <th scope="row">Posts to exclude from cache</th>
+            <th scope="row">Posts to exclude from caching</th>
             <td>
                 <?php $ids_to_exclude = nginxFpc()->get_ids_to_exclude_from_cache() ?: []; ?>
 
@@ -39,7 +46,7 @@ $available_post_types = nginxFpc()->get_available_post_types_to_cache(true);
                         <button type="button" style="float:left;" class="button action sb-flush-fpc-exclude-items"<?php if ( count($ids_to_exclude) === 0 ) echo ' disabled'; ?>><?php _e('Flush posts', 'servebolt-wp'); ?></button>
                     </div>
                     <div class="alignleft actions bulkactions">
-                        <button class="button button-primary sb-add-exclude-post" type="button">Add post to list</button>
+                        <button class="button button-primary sb-add-exclude-post" type="button">Add post to exclude</button>
                     </div>
                     <span class="spinner flush-fpc-exlcude-list-loading-spinner"></span>
                     <br class="clear">
@@ -66,7 +73,7 @@ $available_post_types = nginxFpc()->get_available_post_types_to_cache(true);
                     </tfoot>
 
                     <tbody id="the-list">
-                    <tr class="no-items<?php if ( count($ids_to_exclude) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php _e('No posts to exclude from cache.', 'servebolt-wp'); ?></td></tr>
+                    <tr class="no-items<?php if ( count($ids_to_exclude) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php _e('No posts set to be excluded', 'servebolt-wp'); ?></td></tr>
                     <?php foreach($ids_to_exclude as $i => $post_id) : ?>
                         <?php fpcExcludePostTableRowMarkup($post_id); ?>
                     <?php endforeach; ?>

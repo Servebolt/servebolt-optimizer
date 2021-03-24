@@ -12,7 +12,10 @@
 <?php endif; ?>
  */ ?>
 
-<p><?php _e('This feature will automatically purge the cache whenever you do an update in WordPress. Neat right?', 'servebolt-wp'); ?></p>
+<p><?php _e("Servebolt Optimizer supports cache purging of Cloudflare and Accelerated Domains cache. Cache purging can be done both manually and automatically.", 'servebolt-wp'); ?></p>
+<p><?php _e('When purging manually you can purge specific URLs, or even purge the entire cache.
+
+Keep in mind that purging the entire cache has a temporary impact on the loading speed for the website visitors, because the cache needs to be rebuilt by requesting fresh content and assets from the origin. <strong>When puring manually the best practice is to purge specific assets or pages by using the purge URL feature.</stong>', 'servebolt-wp'); ?>
 
     <?php view('cache-purge.configuration.cache-purge-triggers'); ?>
 
@@ -33,43 +36,47 @@
         <table class="form-table" id="sb-configuration-table" role="presentation">
 
             <tr>
-                <th scope="row"><?php _e('Cache purge-feature', 'servebolt-wp'); ?></th>
+                <th scope="row"><?php _e('Cache purge', 'servebolt-wp'); ?></th>
                 <td>
                     <fieldset>
                         <legend class="screen-reader-text"><span><?php _e('Cache purge-feature active?', 'servebolt-wp'); ?></span></legend>
                         <label for="cache_purge_switch">
                             <input name="<?php echo getOptionName('cache_purge_switch'); ?>" type="checkbox" id="cache_purge_switch" value="1" <?php checked($cachePurgeIsActive); ?>>
-                            <?php _e('Active?', 'servebolt-wp'); ?>
+                            <?php _e('Enabled', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
                 </td>
             </tr>
 
             <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
-                <th scope="row"><?php _e('Automatic purge on content update?', 'servebolt-wp'); ?></th>
+                <th scope="row"><?php _e('Automatic purge on content update', 'servebolt-wp'); ?></th>
                 <td>
                     <fieldset>
                         <legend class="screen-reader-text"><span><?php _e('Automatic cache purge on content update', 'servebolt-wp'); ?></span></legend>
                         <label for="cache_purge_auto">
                             <input name="<?php echo getOptionName('cache_purge_auto'); ?>" type="checkbox" id="cache_purge_auto" value="1" <?php checked($autoCachePurgeIsActive); ?>>
-                            <?php _e('Active?', 'servebolt-wp'); ?>
+                            <?php _e('Enabled', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
                 </td>
             </tr>
 
             <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
-                <th scope="row"><?php _e('Cache purge driver', 'servebolt-wp'); ?></th>
+                <th scope="row"><?php _e('Cache provider', 'servebolt-wp'); ?></th>
                 <td>
                     <fieldset>
-                        <legend class="screen-reader-text"><span><?php _e('Cache purge driver', 'servebolt-wp'); ?></span></legend>
+                        <legend class="screen-reader-text"><span><?php _e('Cache provider', 'servebolt-wp'); ?></span></legend>
                         <label>
-                            <input type="radio" name="<?php echo getOptionName('cache_purge_driver'); ?>" value="cloudflare" <?php checked($settings['cache_purge_driver'] == 'cloudflare'); ?>> <code><?php _e('Cloudflare', 'servebolt-wp'); ?></code>
+                            <input type="radio" name="<?php echo getOptionName('cache_purge_driver'); ?>" value="cloudflare" <?php checked($settings['cache_purge_driver'] == 'cloudflare'); ?>><a href="https://servebo.lt/0fzxq" target="_blank"><?php _e('Cloudflare', 'servebolt-wp'); ?></a>
                         </label>
                         <br>
                         <label<?php if (!$isHostedAtServebolt) echo ' style="opacity: 0.5;pointer-events:none;"'; ?>>
-                            <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo getOptionName('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?>> <code><?php _e('Accelerated Domains', 'servebolt-wp'); ?></code>
-                            <em>For Servebolt-customers only</em>
+                            <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo getOptionName('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?>><a href="https://servebo.lt/a5dk3" target="_blank"><?php _e('Accelerated Domains', 'servebolt-wp'); ?></a>
+                        </label>
+                        <br>
+                        <label<?php if (!$isHostedAtServebolt) echo ' style="opacity: 0.5;pointer-events:none;"'; ?>>
+                            <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo getOptionName('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?> disabled><?php _e('Servebolt Cloud', 'servebolt-wp'); ?>
+                            <em><?php _e('Coming soon', 'servebolt-wp'); ?></em>
                         </label>
                     </fieldset>
                 </td>

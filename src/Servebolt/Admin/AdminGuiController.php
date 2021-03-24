@@ -190,7 +190,7 @@ class AdminGuiController
      */
     private function fpcCacheMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Page Cache', 'servebolt-wp'), __('Full Page Cache', 'servebolt-wp'), 'manage_options', 'servebolt-fpc', [FullPageCacheControl::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Page Cache', 'servebolt-wp'), __('Cache settings', 'servebolt-wp'), 'manage_options', 'servebolt-fpc', [FullPageCacheControl::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-nginx-cache', [$this, 'fpcLegacyRedirect']);
     }
 
@@ -231,7 +231,7 @@ class AdminGuiController
      */
     private function generalSettingsMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Settings', 'servebolt-wp'), __('Settings', 'servebolt-wp'), 'manage_options', 'servebolt-general-settings', [GeneralSettings::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Settings', 'servebolt-wp'), __('General settings', 'servebolt-wp'), 'manage_options', 'servebolt-general-settings', [GeneralSettings::getInstance(), 'render']);
     }
 
     /**
