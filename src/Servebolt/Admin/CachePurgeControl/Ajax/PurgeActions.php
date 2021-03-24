@@ -63,10 +63,10 @@ class PurgeActions extends SharedAjaxMethods
 
         $this->ensureCachePurgeFeatureIsActive();
 
-        $cronPurgeIsActive = CachePurge::cronPurgeIsActive();
+        $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
         $hasPurgeAllRequestInQueue = false; // TODO: Check if there is already a purge all request in the queue, if the cron feature is active.
 
-        if ($cronPurgeIsActive && $hasPurgeAllRequestInQueue) {
+        if ($queueBasedCachePurgeIsActive && $hasPurgeAllRequestInQueue) {
             wp_send_json_success([
                 'title' => 'All good!',
                 'message' => 'A purge all-request is already queued and should be executed shortly.',
@@ -76,7 +76,7 @@ class PurgeActions extends SharedAjaxMethods
 
         try {
             WordPressCachePurge::purgeAll();
-            if ($cronPurgeIsActive) {
+            if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
                     'title' => 'Just a moment',
                     'message' => 'A purge all-request was added to the queue and will be executed shortly.',
@@ -123,10 +123,10 @@ class PurgeActions extends SharedAjaxMethods
             return;
         }
 
-        $cronPurgeIsActive = CachePurge::cronPurgeIsActive();
+        $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
         try {
             WordPressCachePurge::purgeByUrl($url);
-            if ($cronPurgeIsActive) {
+            if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success([
                     'title' => 'Just a moment',
                     'message' => sprintf(__('A cache purge-request for the URL "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), $url),
@@ -168,10 +168,10 @@ class PurgeActions extends SharedAjaxMethods
             return;
         }
 
-        $cronPurgeIsActive = CachePurge::cronPurgeIsActive();
+        $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
         try {
             WordPressCachePurge::purgeByPost($postId);
-            if ($cronPurgeIsActive) {
+            if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
                     'title'   => 'Just a moment',
                     'message' => sprintf(__('A cache purge-request for the post "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), get_the_title($postId)),

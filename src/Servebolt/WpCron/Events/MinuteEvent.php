@@ -1,16 +1,16 @@
 <?php
 
-namespace Servebolt\Optimizer\CronHandle\Events;
+namespace Servebolt\Optimizer\WpCron\Events;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\CachePurge;
 
 /**
- * Class CronEvent
- * @package Servebolt\Optimizer\CronHandle
+ * Class MinuteEvent
+ * @package Servebolt\Optimizer\WpCron
  */
-class CronMinuteEvent
+class MinuteEvent
 {
     /**
      * @var string The action hook used when triggering this event.
@@ -18,11 +18,11 @@ class CronMinuteEvent
     public static $hook = 'servebolt_optimizer_every_minute_cron_event';
 
     /**
-     * CronEvent constructor.
+     * MinuteEvent constructor.
      */
     public function __construct()
     {
-        if (CachePurge::featureIsActive() && CachePurge::cronPurgeIsActive()) {
+        if (CachePurge::featureIsActive() && CachePurge::queueBasedCachePurgeIsActive()) {
             $this->registerEvent();
         } else {
             $this->deregisterEvent();

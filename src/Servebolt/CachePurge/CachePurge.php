@@ -301,7 +301,7 @@ class CachePurge
      *
      * @return bool
      */
-    public static function cronPurgeIsActive(bool $respectOverride = true, ?int $blogId = null): bool
+    public static function queueBasedCachePurgeIsActive(bool $respectOverride = true, ?int $blogId = null): bool
     {
         $activeStateOverride = self::cronActiveStateOverride();
         if ( $respectOverride && is_bool($activeStateOverride) ) {
