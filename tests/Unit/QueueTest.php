@@ -54,4 +54,44 @@ class QueueTest extends ServeboltWPUnitTestCase
         $this->assertEquals($queueItem->id, $urlQueueItem->parentId);
         $this->assertEquals(WpObjectQueue::$queueName, $urlQueueItem->parentQueueName);
     }
+
+    public function testThatTermUrlsGetsParsedFromWpObjectQueueToUrlQueue(): void
+    {
+        $taxonomy = 'test-taxonomy';
+        $termName = 'test-term';
+
+        register_taxonomy($taxonomy, null);
+        $term = wp_insert_term($termName, $taxonomy);
+        $termId = $term['term_id'];
+        $termPermalink = get_term_link($termId, $taxonomy);
+
+        $this->assertIsInt($termId);
+        $wpObjectQueue = WpObjectQueue::getInstance();
+        $urlQueueInstance = Queue::getInstance(UrlQueue::$queueName);
+        $queueItem = $wpObjectQueue->add([
+            'id' => $termId,
+            'type' => 'term',
+        ]);
+        $this->assertInstanceOf('\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem', $queueItem);
+        $wpObjectQueue->parseQueue();
+
+        $items = $urlQueueInstance->getItems();
+
+        $urlQueueItem = null;
+        $this->assertIsArray($items);
+        $urlOnly = array_filter(array_map(function($item) use ($termPermalink, &$urlQueueItem) {
+            if ($item->payload['url'] === $termPermalink) {
+                $urlQueueItem = $item;
+            }
+            if (!empty($item->payload['url'])) {
+                return $item->payload['url'];
+            }
+            return null;
+        }, $items));
+        $this->assertContains($termPermalink, $urlOnly);
+
+        $this->assertInstanceOf('\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem', $urlQueueItem);
+        $this->assertEquals($queueItem->id, $urlQueueItem->parentId);
+        $this->assertEquals(WpObjectQueue::$queueName, $urlQueueItem->parentQueueName);
+    }
 }
