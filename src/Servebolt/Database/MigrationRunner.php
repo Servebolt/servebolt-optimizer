@@ -100,7 +100,7 @@ class MigrationRunner
     public function rollbackFromZero()
     {
         $this->runPrePostMethods = false;
-        //$this->ignoreUpperConstraint = true;
+        $this->ignoreUpperConstraint = true;
         $this->migrationDirection = 'up';
         if ($migrations = $this->resolveMigrations()) {
             foreach ($migrations as $migration) {
@@ -172,8 +172,7 @@ class MigrationRunner
             list($migrationNumber, $migrationName) = $fileNameParts;
             $className = '\\Servebolt\\Optimizer\\Database\\Migrations\\' . $migrationName;
             require_once $migrationFile;
-            $version = $className::$version;
-            if ($this->shouldRunMigration($version)) {
+            if ($this->shouldRunMigration($className)) {
                 $migrations[$migrationNumber] = $className;
             }
         }
@@ -225,11 +224,17 @@ class MigrationRunner
     /**
      * Check whether given migration should be ran based on the plugin version defined in the migration, based on the constraint of the current plugin version and the previously migration version number.
      *
-     * @param $migrationVersion
+     * @param string $className
      * @return bool
      */
-    private function shouldRunMigration($migrationVersion): bool
+    private function shouldRunMigration(string $className): bool
     {
+        $isActive = !property_exists($className, 'active') || $className::$active === true;
+        if (!$isActive) {
+            return false; // Migration not active
+        }
+
+        $migrationVersion = $className::$version;
         if (
             $this->migrationDirection == 'down'
             && (
@@ -240,7 +245,7 @@ class MigrationRunner
                 )
             )
         ) {
-            return true;
+            return true; // We should migrate down using this migration
         } elseif (
             $this->migrationDirection == 'up'
             && (
@@ -251,9 +256,9 @@ class MigrationRunner
                 )
             )
         ) {
-            return true;
+            return true; // We should migrate up using this migration
         } else {
-            return false;
+            return false; // We should not run this migration
         }
     }
 
@@ -284,6 +289,9 @@ class MigrationRunner
 
     public function getCurrentPluginVersion(bool $ignoreBetaVersion = true): string
     {
+        if(!function_exists('get_plugin_data')) {
+            require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        }
         $pluginData = get_plugin_data(SERVEBOLT_PLUGIN_FILE);
         if ($ignoreBetaVersion) {
             return preg_replace('/(.+)-(.+)/', '$1', $pluginData['Version']);

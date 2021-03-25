@@ -46,7 +46,22 @@ abstract class Migration
         if ($tableName = $this->getTableNameWithPrefix()) {
             $sql = str_replace('%table-name%', $tableName, $sql);
         }
+
+        $mysqlEngine = apply_filters('sb_optimizer_migration_mysql_charset', 'InnoDB');
+        $mysqlCharset = apply_filters('sb_optimizer_migration_mysql_charset', $wpdb->charset);
+        $mysqlCharsetCollate = apply_filters('sb_optimizer_migration_mysql_charset_collate', $wpdb->collate);
+
+        if (!$mysqlCharset) {
+            $mysqlCharset = apply_filters('sb_optimizer_migration_mysql_charset_fallback', 'utf8mb4');
+        }
+        if (!$mysqlCharsetCollate) {
+            $mysqlCharsetCollate = apply_filters('sb_optimizer_migration_mysql_charset_collate_fallback', 'utf8mb4_unicode_520_ci');
+        }
+
         $sql = str_replace('%prefix%', $wpdb->prefix, $sql);
+        $sql = str_replace('%mysql-engine%', $mysqlEngine, $sql);
+        $sql = str_replace('%charset%', $mysqlCharset, $sql);
+        $sql = str_replace('%charset-collate%', $mysqlCharsetCollate, $sql);
         return $sql;
     }
 
