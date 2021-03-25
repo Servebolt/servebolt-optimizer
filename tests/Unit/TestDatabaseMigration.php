@@ -24,7 +24,15 @@ class TestDatabaseMigration extends ServeboltWPUnitTestCase
 
     public function testThatTablesExists()
     {
+        MigrationRunner::migrate();
         $instance = new MigrationRunner;
         $this->assertTrue($instance->tablesExist());
+    }
+
+    public function testThatTablesDoesNotExists()
+    {
+        MigrationRunner::cleanup();
+        $instance = new MigrationRunner;
+        $this->assertFalse($instance->tablesExist());
     }
 }
