@@ -18,11 +18,40 @@ class MinuteEvent
     public static $hook = 'servebolt_optimizer_every_minute_cron_event';
 
     /**
+     * Get for filter/actions on hook.
+     *
+     * @param string|null $hook
+     * @return object|null
+     */
+    private function getFiltersForHook(?string $hook = null): ?object
+    {
+        global $wp_filter;
+        if (empty($hook) || !isset($wp_filter[$hook])) {
+            return null;
+        }
+        return $wp_filter[$hook];
+    }
+
+    /**
+     * Check whether we have any actions registered on the hook/action for this event.
+     *
+     * @return bool
+     */
+    private function hasActionsRegistered(): bool
+    {
+        return !empty($this->getFiltersForHook(self::$hook));
+    }
+
+    /**
      * MinuteEvent constructor.
      */
     public function __construct()
     {
-        if (CachePurge::featureIsActive() && CachePurge::queueBasedCachePurgeIsActive()) {
+        if (
+            $this->hasActionsRegistered()
+            && CachePurge::featureIsActive()
+            && CachePurge::queueBasedCachePurgeIsActive()
+        ) {
             $this->registerEvent();
         } else {
             $this->deregisterEvent();

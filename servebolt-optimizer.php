@@ -63,11 +63,12 @@ if (Servebolt\Optimizer\Helpers\featureIsActive('cf_image_resize')) {
     new Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
 }
 
+// Queue system
+new Servebolt\Optimizer\Queue\QueueEventHandler; // Register event listener for queues
+
+// Register cron schedule & event
 new Servebolt\Optimizer\WpCron\WpCronCustomSchedules; // Register cron schedule
-if (Servebolt\Optimizer\Helpers\isCli() || is_admin() || Servebolt\Optimizer\Helpers\isCron()) {
-    new Servebolt\Optimizer\WpCron\WpCronEvents; // Register event for schedule
-    new Servebolt\Optimizer\Queue\QueueEventHandler; // Act upon events for the queues
-}
+new Servebolt\Optimizer\WpCron\WpCronEvents; // Register event trigger for cron schedule
 
 if (Servebolt\Optimizer\Helpers\isWpRest() || is_admin()) {
     // Register cache purge event for various hooks
