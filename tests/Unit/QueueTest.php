@@ -7,6 +7,7 @@ use Servebolt\Optimizer\Queue\Queues\UrlQueue;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use Servebolt\Optimizer\Database\MigrationRunner;
 use ServeboltWPUnitTestCase;
+use function Servebolt\Optimizer\Helpers\isQueueItem;
 
 /**
  * Class QueueTest
@@ -32,7 +33,7 @@ class QueueTest extends ServeboltWPUnitTestCase
             'id' => $postId,
             'type' => 'post',
         ]);
-        $this->assertInstanceOf('\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem', $queueItem);
+        $this->assertTrue(isQueueItem($queueItem));
         $wpObjectQueue->parseQueue();
 
         $items = $urlQueueInstance->getItems();
@@ -50,7 +51,7 @@ class QueueTest extends ServeboltWPUnitTestCase
         }, $items));
         $this->assertContains($postPermalink, $urlOnly);
 
-        $this->assertInstanceOf('\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem', $urlQueueItem);
+        $this->assertTrue(isQueueItem($urlQueueItem));
         $this->assertEquals($queueItem->id, $urlQueueItem->parentId);
         $this->assertEquals(WpObjectQueue::$queueName, $urlQueueItem->parentQueueName);
     }
@@ -72,7 +73,7 @@ class QueueTest extends ServeboltWPUnitTestCase
             'id' => $termId,
             'type' => 'term',
         ]);
-        $this->assertInstanceOf('\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem', $queueItem);
+        $this->assertTrue(isQueueItem($queueItem));
         $wpObjectQueue->parseQueue();
 
         $items = $urlQueueInstance->getItems();
@@ -90,7 +91,7 @@ class QueueTest extends ServeboltWPUnitTestCase
         }, $items));
         $this->assertContains($termPermalink, $urlOnly);
 
-        $this->assertInstanceOf('\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem', $urlQueueItem);
+        $this->assertTrue(isQueueItem($urlQueueItem));
         $this->assertEquals($queueItem->id, $urlQueueItem->parentId);
         $this->assertEquals(WpObjectQueue::$queueName, $urlQueueItem->parentQueueName);
     }
