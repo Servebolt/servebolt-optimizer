@@ -53,7 +53,7 @@ class Queue
     public function getUnfinishedPreviouslyAttemptedItems($maxAttemptsBeforeIgnore = 3, int $chunkSize = 30): ?array
     {
         global $wpdb;
-        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s (attempts <= %s OR force_retry = 1) reserved_at_gmt IS NOT NULL AND completed_at_gmt IS NULL LIMIT %s", $this->queueName, $maxAttemptsBeforeIgnore, $chunkSize);
+        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND (attempts <= %s OR force_retry = 1) AND reserved_at_gmt IS NOT NULL AND completed_at_gmt IS NULL LIMIT {$chunkSize}", $this->queueName, $maxAttemptsBeforeIgnore);
         $rawItems = $wpdb->get_results($sql);
         if ($rawItems) {
             return $this->instantiateQueueItems($rawItems);
