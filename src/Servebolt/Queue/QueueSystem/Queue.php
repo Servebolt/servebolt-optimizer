@@ -3,6 +3,7 @@
 namespace Servebolt\Optimizer\Queue\QueueSystem;
 
 use Servebolt\Optimizer\Traits\MultitonWithArgumentForwarding;
+use function Servebolt\Optimizer\Helpers\isQueueItem;
 
 /**
  * Class Queue
@@ -303,22 +304,13 @@ class Queue
     }
 
     /**
-     * @param mixed|object $var
-     * @return bool
-     */
-    private function isQueueItem($var): bool
-    {
-        return is_a($var, '\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem');
-    }
-
-    /**
      * @param string|int $identifier
      * @param string $key
      * @return bool
      */
     public function delete($identifier, string $key = 'id'): bool
     {
-        if ($this->isQueueItem($identifier)) {
+        if (isQueueItem($identifier)) {
             $key = 'id';
             $identifier = $identifier->id;
         }
@@ -358,7 +350,7 @@ class Queue
      */
     public function add($itemData, $parentQueueName = null, $parentId = null): ?object
     {
-        if ($this->isQueueItem($parentQueueName)) {
+        if (isQueueItem($parentQueueName)) {
             $parentId = $parentQueueName->id;
             $parentQueueName = $parentQueueName->queue;
         }

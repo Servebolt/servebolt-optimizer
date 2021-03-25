@@ -5,6 +5,7 @@ namespace Unit;
 use Servebolt\Optimizer\Database\MigrationRunner;
 use Servebolt\Optimizer\Queue\QueueSystem\Queue;
 use ServeboltWPUnitTestCase;
+use function Servebolt\Optimizer\Helpers\isQueueItem;
 
 /**
  * Class QueueSystemTest
@@ -27,7 +28,7 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
         ];
         $queue = new Queue('my-queue');
         $item = $queue->add($itemData);
-        $this->assertTrue($this->isQueueItem($item));
+        $this->assertTrue(isQueueItem($item));
         $this->assertTrue($queue->itemExists($item->id));
     }
 
@@ -91,14 +92,9 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
             'bar' => 'foo3',
         ]);
         $lookupItem = $queue->get($item->id);
-        $this->assertTrue($this->isQueueItem($lookupItem));
+        $this->assertTrue(isQueueItem($lookupItem));
         $this->assertEquals($lookupItem->id, $item->id);
         $this->assertEquals($payload, $lookupItem->payload);
-    }
-
-    private function isQueueItem($var): bool
-    {
-        return is_a($var, '\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem');
     }
 
     public function testThatItemCountIsCorrect()

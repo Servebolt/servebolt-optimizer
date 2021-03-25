@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use function Servebolt\Optimizer\Helpers\isQueueItem;
 
 /**
  * Trait TermMethods
@@ -43,11 +44,11 @@ trait TermMethods
     {
         if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
             $queueInstance = WpObjectQueue::getInstance();
-            return $queueInstance->add([
+            return isQueueItem($queueInstance->add([
                 $termId,
                 'term',
                 compact('taxonomySlug'),
-            ]);
+            ]));
         } else {
             $urlsToPurge = self::getUrlsToPurgeByTermId($termId, $taxonomySlug);
             $cachePurgeDriver = CachePurgeDriver::getInstance();

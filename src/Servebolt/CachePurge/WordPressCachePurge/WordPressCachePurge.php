@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use function Servebolt\Optimizer\Helpers\isQueueItem;
 
 /**
  * Class WordPressCachePurge
@@ -32,10 +33,10 @@ class WordPressCachePurge
         } else {
             if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
                 $queueInstance = WpObjectQueue::getInstance();
-                $queueInstance->add([
+                return isQueueItem($queueInstance->add([
                     'type' => 'url',
                     'url' => $url,
-                ]);
+                ]));
             } else {
                 $cachePurgeDriver = CachePurgeDriver::getInstance();
                 return $cachePurgeDriver->purgeByUrl($url);
@@ -78,10 +79,10 @@ class WordPressCachePurge
     {
         if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
             $queueInstance = WpObjectQueue::getInstance();
-            $queueInstance->add([
+            return isQueueItem($queueInstance->add([
                 'type' => 'purge-all',
                 'networkPurge' => false,
-            ]);
+            ]));
         } else {
             $cachePurgeDriver = CachePurgeDriver::getInstance();
             return $cachePurgeDriver->purgeAll();
@@ -105,10 +106,10 @@ class WordPressCachePurge
         }
         if (CachePurgeDriver::queueBasedCachePurgeIsActive($blogId)) {
             $queueInstance = WpObjectQueue::getInstance();
-            $result = $queueInstance->add([
+            $result = isQueueItem($queueInstance->add([
                 'type' => 'purge-all',
                 'networkPurge' => false,
-            ]);
+            ]));
         } else {
             $cachePurgeDriver = CachePurgeDriver::getInstance();
             $result = $cachePurgeDriver->purgeAll();
@@ -132,14 +133,13 @@ class WordPressCachePurge
         }
         if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
             $queueInstance = WpObjectQueue::getInstance();
-            return $queueInstance->add([
+            return isQueueItem($queueInstance->add([
                 'type' => 'purge-all',
                 'networkPurge' => true,
-            ]);
+            ]));
         } else {
             $cachePurgeDriver = CachePurgeDriver::getInstance();
             return $cachePurgeDriver->purgeAll();
         }
     }
-
 }

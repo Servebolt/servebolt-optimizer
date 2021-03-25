@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use function Servebolt\Optimizer\Helpers\isQueueItem;
 
 /**
  * Trait PostMethods
@@ -46,10 +47,10 @@ trait PostMethods
 
         if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
             $queueInstance = WpObjectQueue::getInstance();
-            return $queueInstance->add([
+            return isQueueItem($queueInstance->add([
                 'type' => 'post',
                 'id' => $postId,
-            ]);
+            ]));
         } else {
             $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
             $cachePurgeDriver = CachePurgeDriver::getInstance();

@@ -312,6 +312,17 @@ function activatePlugin(): void
 }
 
 /**
+ * Check whether a variable is an instance of QueueItem.
+ *
+ * @param $var
+ * @return bool
+ */
+function isQueueItem($var): bool
+{
+    return is_a($var, '\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem');
+}
+
+/**
  * Check if we are running as CLI.
  *
  * @return bool
