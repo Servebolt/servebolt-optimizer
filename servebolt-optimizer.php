@@ -10,6 +10,9 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: servebolt-wp
 */
 
+use Servebolt\Optimizer\Queue\QueueSystem\Queue;
+use Servebolt\Optimizer\Queue\QueueSystem\SqlBuilder;
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 // Defines plugin paths and URLs
@@ -89,6 +92,15 @@ if (is_admin()) {
     Servebolt\Optimizer\Admin\AdminGuiController::getInstance();
 
 }
+
+/*
+if (!is_admin() && !Servebolt\Optimizer\Helpers\isWpRest()) {
+    add_action('init', function() {
+        (Servebolt\Optimizer\Queue\Queues\WpObjectQueue::getInstance())->parseQueue();
+        die;
+    });
+}
+*/
 
 // Only front-end
 if (!is_admin() && !Servebolt\Optimizer\Helpers\isCli()) {

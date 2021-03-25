@@ -25,6 +25,11 @@ class WpObjectQueue
     private $numberOfRuns = 3;
 
     /**
+     * @var int The number of items in each chunk / "run".
+     */
+    private $chunkSize = 30;
+
+    /**
      * @var Queue
      */
     public $queue;
@@ -55,7 +60,7 @@ class WpObjectQueue
         for ($i = 1; $i <= $this->numberOfRuns; $i++) {
             $this->parseQueueSegment();
         }
-        $this->flagWpObjectQueueItemsAsCompleted();
+        //$this->flagWpObjectQueueItemsAsCompleted();
     }
 
     private function resolveUrlsToPurgeFromWpObject($payload): ?array
@@ -80,7 +85,10 @@ class WpObjectQueue
      */
     private function parseQueueSegment(): void
     {
-        if ($items = $this->queue->getAndReserveItems()) {
+
+
+        $items = $this->queue->getAndReserveItems($this->chunkSize, true);
+        if ($items) {
             foreach ($items as $item) {
                 $payload = $item->payload;
                 if ($payload['type'] === 'purge-all') {
@@ -105,8 +113,7 @@ class WpObjectQueue
      */
     private function flagWpObjectQueueItemsAsCompleted(): void
     {
-        $items = $this->queue->getReservedItems();
-        if ($items) {
+        if ($items = $this->queue->getReservedItems()) {
             foreach ($items as $item) {
                 if (empty($this->urlQueue()->getUnfinishedItemsByParent($item->id, $item->queue))) {
                     $this->queue->completeItem($item); // This item does not have any active URL queue items, flag it as completed
@@ -128,14 +135,15 @@ class WpObjectQueue
 
     /**
      * @param $itemData
-     * @param null $parentQueueName
-     * @param null $parentId
      * @return object|null
      */
-    public function add($itemData, $parentQueueName = null, $parentId = null): ?object
+    public function add($itemData): ?object
     {
-        // TODO Maybe check if the item is already in the queue?
-        return $this->queue->add($itemData, $parentQueueName, $parentId);
+        $serializedItemData = serialize($itemData);
+        if ($this->queue->itemExists($serializedItemData, 'payload')) {
+            return $this->queue->get($serializedItemData, 'payload');
+        }
+        return $this->queue->add($itemData);
     }
 
 }

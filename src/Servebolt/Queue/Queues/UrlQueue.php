@@ -18,11 +18,6 @@ class UrlQueue
     use Singleton;
 
     /**
-     * @var bool Whether to allow duplicate entries in the queue.
-     */
-    private $allowDuplicates = false;
-
-    /**
      * @var int The number of times the queue parsing should be ran per event trigger.
      */
     private $numberOfRuns = 3;
@@ -62,9 +57,10 @@ class UrlQueue
 
     public function add($itemData, $parentQueueName = null, $parentId = null): ?object
     {
-        if ($this->allowDuplicates || !$this->queue->itemExists('payload', $itemData['payload'])) {
-            return $this->queue->add($itemData, $parentQueueName, $parentId);
+        if ($this->queue->itemExists('payload', serialize($itemData['payload']))) {
+            return $this->queue->get('payload', serialize($itemData['payload']));
         }
+        return $this->queue->add($itemData, $parentQueueName, $parentId);
     }
 
     /**

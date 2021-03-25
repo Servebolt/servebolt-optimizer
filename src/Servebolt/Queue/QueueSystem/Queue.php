@@ -127,26 +127,28 @@ class Queue
 
     /**
      * @param int $chunkSize
+     * @param bool $doAttempt
      * @return QueueItem[]|null
      */
-    public function getAndReserveItems(int $chunkSize = 30): ?array
+    public function getAndReserveItems(int $chunkSize = 30, bool $doAttempt = false): ?array
     {
         $items = $this->getItems($chunkSize, true);
         if ($items) {
-            $this->reserveItems($items);
+            $this->reserveItems($items, $doAttempt);
         }
         return $items;
     }
 
     /**
      * @param QueueItem[] $items
+     * @param bool $doAttempt
      * @return array
      */
-    public function reserveItems(array $items): array
+    public function reserveItems(array $items, bool $doAttempt = false): array
     {
         $items = $this->filterItemsFromOtherQueues($items);
-        return array_map(function($item) {
-            return $this->reserveItem($item);
+        return array_map(function($item) use ($doAttempt) {
+            return $this->reserveItem($item, $doAttempt);
         }, $items);
     }
 
@@ -287,15 +289,62 @@ class Queue
         );
     }
 
+    /*
+    public function itemQuery(array $args)
+    {
+        $rawSql = "SELECT * FROM {$this->getTableName()} WHERE 1=1";
+
+        $isReserved = isset($args['isReserved']);
+        $isNotReserved = isset($args['isNotReserved']);
+        $isCompleted = isset($args['isReserved']);
+        $isNotCompleted = isset($args['isNotReserved']);
+
+        $where = isset($args['where']) ? $args['where'] : [];
+        $order = isset($args['order']) ? $args['order'] : false;
+        $orderBy = isset($args['orderBy']) ? $args['orderBy'] : false;
+        $limit = isset($args['limit']) ? $args['limit'] : false;
+
+        foreach ($where as $queryItem) {
+            $prepareArguments[] = $queryItem['value'];
+            $operator = isset($args['operator']) ? $args['operator'] : '=';
+            $rawSql .= " AND {$queryItem['key']} {$operator} %s";
+        }
+
+        if ($order) {
+            $rawSql .= " ORDER BY {$order}";
+            if ($orderBy) {
+                $rawSql .= " {$orderBy}";
+            }
+        }
+
+        if ($limit) {
+            $rawSql .= " LIMIT {$limit}";
+        }
+
+        global $wpdb;
+        $sql = $wpdb->prepare($rawSql, $prepareArguments);
+        $rawItem = $wpdb->get_row($sql);
+        if ($rawItem) {
+            return new QueueItem($rawItem);
+        }
+        return null;
+    }
+    */
+
     /**
      * @param string|int $identifier
      * @param string $key
+     * @param bool $ignoreExpired
      * @return null|object
      */
-    public function get($identifier, string $key = 'id'): ?object
+    public function get($identifier, string $key = 'id', $ignoreExpired = true): ?object
     {
         global $wpdb;
-        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND {$key} = %s", $this->queueName, $identifier);
+        if ($ignoreExpired) {
+            $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND {$key} = %s", $this->queueName, $identifier);
+        } else {
+            $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND {$key} = %s", $this->queueName, $identifier);
+        }
         $rawItem = $wpdb->get_row($sql);
         if ($rawItem) {
             return new QueueItem($rawItem);
