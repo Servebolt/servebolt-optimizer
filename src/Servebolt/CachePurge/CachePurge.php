@@ -269,7 +269,7 @@ class CachePurge
     {
         return
             (defined('SERVEBOLT_CF_PURGE_CRON') && is_bool(SERVEBOLT_CF_PURGE_CRON)) // Legacy
-            || ( defined('SERVEBOLT_QUEUE_BASED_CACHE_PURGE') && is_bool(SERVEBOLT_QUEUE_BASED_CACHE_PURGE) );
+            || (defined('SERVEBOLT_QUEUE_BASED_CACHE_PURGE') && is_bool(SERVEBOLT_QUEUE_BASED_CACHE_PURGE));
 
     }
 
@@ -281,7 +281,11 @@ class CachePurge
     public static function queueBasedCachePurgeActiveStateOverride(): ?bool
     {
         if ( self::queueBasedCachePurgeActiveStateIsOverridden() ) {
-            return SERVEBOLT_CF_PURGE_CRON;
+            if (defined('SERVEBOLT_CF_PURGE_CRON')) {
+                return SERVEBOLT_CF_PURGE_CRON;// Legacy
+            } else {
+                return SERVEBOLT_QUEUE_BASED_CACHE_PURGE;
+            }
         }
         return null;
     }
@@ -297,7 +301,7 @@ class CachePurge
     public static function queueBasedCachePurgeIsActive(bool $respectOverride = true, ?int $blogId = null): bool
     {
         $activeStateOverride = self::queueBasedCachePurgeActiveStateOverride();
-        if ( $respectOverride && is_bool($activeStateOverride) ) {
+        if ($respectOverride && is_bool($activeStateOverride)) {
             return $activeStateOverride;
         }
 
