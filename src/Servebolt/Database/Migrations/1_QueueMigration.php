@@ -6,13 +6,26 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Database\Migration;
 
+/**
+ * Class QueueMigration
+ * @package Servebolt\Optimizer\Database\Migrations
+ */
 class QueueMigration extends Migration
 {
 
+    /**
+     * @var string Table name (optional).
+     */
     protected $tableName = 'sb_queue';
 
+    /**
+     * @var string The plugin version number that this migration belongs to.
+     */
     public static $version = '2.2.0';
 
+    /**
+     * Migrate up.
+     */
     public function up(): void
     {
         $sql = <<<EOF

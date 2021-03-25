@@ -2,8 +2,8 @@
 
 namespace Unit;
 
+use Servebolt\Optimizer\Database\MigrationRunner;
 use Servebolt\Optimizer\Queue\QueueSystem\Queue;
-use Servebolt\Optimizer\Database\PluginTables;
 use ServeboltWPUnitTestCase;
 
 /**
@@ -16,7 +16,7 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
     public function setUp()
     {
         parent::setUp();
-        new PluginTables; // Ensure we got database table
+        MigrationRunner::run(true);
     }
 
     public function testThatItemCanBeAddedToTheQueue()
@@ -317,9 +317,9 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
         ];
         $item = $queue->add($itemData);
         $this->assertEquals(0, $item->attempts);
-        $item = $queue->reserveItem($item);
+        $item = $queue->reserveItem($item, true);
         $this->assertEquals(1, $item->attempts);
-        $item->doAttempt();
+        $item = $queue->doAttempt($item);
         $this->assertEquals(2, $item->attempts);
     }
 

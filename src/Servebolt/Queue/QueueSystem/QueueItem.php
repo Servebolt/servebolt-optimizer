@@ -81,11 +81,13 @@ class QueueItem
         $this->attempts++;
     }
 
-    public function reserve(): void
+    public function reserve(bool $doAttempt = false): void
     {
         if (!$this->isReserved()) { // Only allow reservation when not already reserved
             $this->reserved_at_gmt = current_time('timestamp', true);
-            //$this->doAttempt();
+            if ($doAttempt) {
+                $this->doAttempt();
+            }
         }
     }
 

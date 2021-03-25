@@ -53,42 +53,42 @@ EOF;
     /**
      * Before migrating, regardless of direction.
      */
-    public function pre()
+    public function preMigration()
     {
     }
 
     /**
      * After migrating, regardless of direction.
      */
-    public function post()
+    public function postMigration()
     {
     }
 
     /**
      * Before migrating down.
      */
-    public function preDown()
+    public function preDownMigration()
     {
     }
 
     /**
      * After migrating down.
      */
-    public function postDown()
+    public function postDownMigration()
     {
     }
 
     /**
      * Before migrating up.
      */
-    public function preUp()
+    public function preUpMigration()
     {
     }
 
     /**
      * After migrating up.
      */
-    public function postUp()
+    public function postUpMigration()
     {
     }
 }

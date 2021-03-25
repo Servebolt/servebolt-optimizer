@@ -151,12 +151,28 @@ class Queue
 
     /**
      * @param QueueItem|int $item
+     * @param bool $doAttempt
      * @return QueueItem|null
      */
-    public function reserveItem($item): ?object
+    public function reserveItem($item, bool $doAttempt = false): ?object
     {
         if ($item = $this->resolveItem($item)) {
-            $item->reserve();
+            $item->reserve($doAttempt);
+            if ($this->persistItem($item)) {
+                return $item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param $item
+     * @return object|null
+     */
+    public function doAttempt($item): ?object
+    {
+        if ($item = $this->resolveItem($item)) {
+            $item->doAttempt();
             if ($this->persistItem($item)) {
                 return $item;
             }

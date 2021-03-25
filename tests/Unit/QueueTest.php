@@ -5,7 +5,7 @@ namespace Unit;
 use Servebolt\Optimizer\Queue\QueueSystem\Queue;
 use Servebolt\Optimizer\Queue\Queues\UrlQueue;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
-use Servebolt\Optimizer\Database\PluginTables;
+use Servebolt\Optimizer\Database\MigrationRunner;
 use ServeboltWPUnitTestCase;
 
 /**
@@ -18,7 +18,7 @@ class QueueTest extends ServeboltWPUnitTestCase
     {
         parent::setUp();
         $this->set_permalink_structure('/%postname%/');
-        new PluginTables; // Ensure we got database table
+        MigrationRunner::run(true);
     }
 
     public function testThatPostUrlsGetsParsedFromWpObjectQueueToUrlQueue(): void
