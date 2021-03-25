@@ -265,6 +265,9 @@ function deleteAllSettings(bool $allSites = true): void
         'fpc_switch',
         'fpc_settings',
         'fpc_exclude',
+
+        // Migration related
+        'migration_version',
     ];
     foreach ($optionNames as $optionName) {
         if (is_multisite() && $allSites) {

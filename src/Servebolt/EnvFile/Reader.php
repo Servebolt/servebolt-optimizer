@@ -28,7 +28,7 @@ class Reader
      *
      * @var bool
      */
-    private bool $success = false;
+    private $success = false;
 
     /**
      * The basename of the environment file.
@@ -37,8 +37,19 @@ class Reader
      */
     private $basename = 'environment';
 
+    /**
+     * @var string The desired file type to read (JSON or INI).
+     */
     private $desiredFileType;
+
+    /**
+     * @var string The type of file that was resolved.
+     */
     private $resolvedFileType;
+
+    /**
+     * @var string The path to the folder that contains the environment file.
+     */
     private $folderPath;
 
     public function __construct($folderPath = null, $desiredFileType = 'auto', $basename = null)

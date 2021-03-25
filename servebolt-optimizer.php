@@ -13,11 +13,20 @@ Text Domain: servebolt-wp
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 // Defines plugin paths and URLs
-define('SB_TXT_DOMAIN', plugin_basename(__FILE__));
+define('SERVEBOLT_PLUGIN_FILE', __FILE__);
 define('SERVEBOLT_PLUGIN_BASENAME', plugin_basename(__FILE__));
 define('SERVEBOLT_PLUGIN_DIR_URL', plugin_dir_url( __FILE__ ));
 define('SERVEBOLT_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ));
 define('SERVEBOLT_PLUGIN_PSR4_PATH', SERVEBOLT_PLUGIN_DIR_PATH . 'src/Servebolt/');
+
+/*
+var_dump(SERVEBOLT_PLUGIN_FILE);
+var_dump(SERVEBOLT_PLUGIN_BASENAME);
+var_dump(SERVEBOLT_PLUGIN_DIR_URL);
+var_dump(SERVEBOLT_PLUGIN_DIR_PATH);
+var_dump(SERVEBOLT_PLUGIN_PSR4_PATH);
+die;
+*/
 
 // Abort and display WP admin notice if PHP_MAJOR_VERSION is less than 7
 if (defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7) {
@@ -27,6 +36,8 @@ if (defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7) {
 
 // Load Composer dependencies
 require SERVEBOLT_PLUGIN_DIR_PATH . 'vendor/autoload.php';
+
+new Servebolt\Optimizer\Database\MigrationRunner;
 
 // Register events for activation and deactivation of this plugin
 register_activation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\activatePlugin');

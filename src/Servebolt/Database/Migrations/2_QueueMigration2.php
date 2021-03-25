@@ -1,3 +1,19 @@
+<?php
+
+namespace Servebolt\Optimizer\Database\Migrations;
+
+use Servebolt\Optimizer\Database\Migration;
+
+class QueueMigration2 extends Migration
+{
+
+    protected $tableName = 'sb_queue_2';
+
+    public static $version = '2.2.0';
+
+    public function up(): void
+    {
+        $sql = <<<EOF
 CREATE TABLE IF NOT EXISTS `%table-name%` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` bigint(20) unsigned DEFAULT NULL,
@@ -12,3 +28,15 @@ CREATE TABLE IF NOT EXISTS `%table-name%` (
   PRIMARY KEY (`id`),
   KEY `jobs_queue_index` (`queue`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1527 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+EOF;
+        $this->runSql($sql);
+    }
+
+    public function down(): void
+    {
+        $sql = <<<EOF
+DROP TABLE IF EXISTS `%table-name%`
+EOF;
+        $this->runSql($sql);
+    }
+}

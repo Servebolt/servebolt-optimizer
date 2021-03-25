@@ -61,7 +61,8 @@
     ],
     "psr-4": {
       "Servebolt\\Optimizer\\": "src/Servebolt"
-    }
+    },
+    "exclude-from-classmap": ["src/Servebolt/Database/Migrations/"]
   },
   "config": {
     "platform": {
