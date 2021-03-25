@@ -2,12 +2,29 @@
 
 namespace Unit;
 
-class TestDatabaseMigration extends WP_UnitTestCase
+use Servebolt\Optimizer\Database\MigrationRunner;
+use ServeboltWPUnitTestCase;
+
+class TestDatabaseMigration extends ServeboltWPUnitTestCase
 {
 
-    public function testThatMigrations(): void
+    public function tearDown(): void
     {
-        define('SB_DEBUG', true);
-        $this->assertEquals(getServeboltAdminUrl(), 'https://admin.servebolt.com/siteredirect/?site=4321');
+        parent::tearDown();
+        MigrationRunner::cleanup();
+        $this->disallowPersistenceInDatabase();
+    }
+
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->allowPersistenceInDatabase();
+        MigrationRunner::migrateFresh();
+    }
+
+    public function testThatTablesExists()
+    {
+        $instance = new MigrationRunner;
+        $this->assertTrue($instance->tablesExist());
     }
 }

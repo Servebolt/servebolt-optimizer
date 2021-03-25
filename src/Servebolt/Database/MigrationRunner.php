@@ -140,6 +140,43 @@ class MigrationRunner
         }
     }
 
+    /**
+     * Check that all tables exist.
+     *
+     * @return bool
+     */
+    public function tablesExist(): bool
+    {
+        $this->ignoreUpperConstraint = true;
+        $this->migrationDirection = 'up';
+        if ($migrations = $this->resolveMigrations()) {
+            foreach ($migrations as $migration) {
+                $tableName = (new $migration)->getTableNameWithPrefix();
+                if (!$this->tableExists($tableName)) {
+                    return false;
+                }
+            }
+
+        }
+        return true;
+    }
+
+    /**
+     * Check if a table exists.
+     *
+     * @param string $tableName
+     * @return bool
+     */
+    public function tableExists(string $tableName): bool
+    {
+        global $wpdb;
+        return in_array($tableName,
+            $wpdb->get_col(
+                $wpdb->prepare('SHOW TABLES LIKE %s', $tableName),
+                0),
+            true);
+    }
+
     private function doMigration(): void
     {
         $this->migrationDirection = $this->getMigrationDirection();

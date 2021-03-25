@@ -70,7 +70,7 @@ abstract class Migration
      *
      * @return string|null
      */
-    private function getTableNameWithPrefix(): ?string
+    public function getTableNameWithPrefix(): ?string
     {
         global $wpdb;
         if (property_exists($this, 'tableName')) {
