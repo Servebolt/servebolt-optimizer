@@ -4,12 +4,31 @@ namespace Servebolt\Optimizer\Database\Migrations;
 
 use Servebolt\Optimizer\Database\Migration;
 
+/**
+ * Class MigrationTemplate
+ *
+ * Be sure to name this file "{migration-number}_SomethingMigration.php".
+ * "migration-number" should be an incremental number starting at 1 and upwards.
+ * Example: 8_SomethingMigration.php
+ *
+ * @package Servebolt\Optimizer\Database\Migrations
+ */
 class MigrationTemplate extends Migration
 {
 
+    /**
+     * @var string Table name (optional).
+     */
     protected $tableName = 'table_name';
+
+    /**
+     * @var string The plugin version number that this migration belongs to.
+     */
     public static $version = '1.0.0';
 
+    /**
+     * Migrate up.
+     */
     public function up(): void
     {
         $sql = <<<EOF
@@ -21,11 +40,53 @@ EOF;
         $this->runSql($sql);
     }
 
+    /**
+     * Migrate down.
+     */
     public function down(): void
     {
-        $sql = <<<EOF
-DROP TABLE IF EXISTS `%table-name%`
-EOF;
-        $this->runSql($sql);
+        $this->dropTable();
+    }
+
+    /**
+     * Before migrating, regardless of direction.
+     */
+    public function pre()
+    {
+    }
+
+    /**
+     * After migrating, regardless of direction.
+     */
+    public function post()
+    {
+    }
+
+    /**
+     * Before migrating down.
+     */
+    public function preDown()
+    {
+    }
+
+    /**
+     * After migrating down.
+     */
+    public function postDown()
+    {
+    }
+
+    /**
+     * Before migrating up.
+     */
+    public function preUp()
+    {
+    }
+
+    /**
+     * After migrating up.
+     */
+    public function postUp()
+    {
     }
 }

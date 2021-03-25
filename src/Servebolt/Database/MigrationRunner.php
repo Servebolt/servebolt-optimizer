@@ -13,7 +13,7 @@ class MigrationRunner
 {
 
     /**
-     * @var string The last version we migrated data to.
+     * @var string The last version we migrated to.
      */
     private $currentMigratedVersion;
 
@@ -23,7 +23,7 @@ class MigrationRunner
     private $currentPluginVersion;
 
     /**
-     * @var string The direction of the migration
+     * @var string The direction of the migration.
      */
     private $migrationDirection;
 
@@ -33,6 +33,11 @@ class MigrationRunner
     public function __construct()
     {
         add_action('admin_init', [$this, 'checkIfWeShouldMigrate']);
+    }
+
+    public static function run(): void
+    {
+        new self;
     }
 
     public function checkIfWeShouldMigrate(): void
@@ -90,10 +95,16 @@ class MigrationRunner
         $preMethod = 'pre' . ucfirst($migrationMethod);
         $postMethod = 'post' . ucfirst($migrationMethod);
         if (method_exists($instance, $migrationMethod)) {
+            if (method_exists($instance, 'pre')) {
+                $instance->pre();
+            }
             if (method_exists($instance, $preMethod)) {
                 $instance->{$preMethod}();
             }
             $instance->{$migrationMethod}();
+            if (method_exists($instance, 'post')) {
+                $instance->post();
+            }
             if (method_exists($instance, $preMethod)) {
                 $instance->{$postMethod}();
             }
@@ -104,8 +115,8 @@ class MigrationRunner
     {
         if (
             $this->migrationDirection == 'down'
-            && $migrationVersion >= $this->currentPluginVersion
-            && $migrationVersion < $this->currentMigratedVersion
+            && $migrationVersion > $this->currentPluginVersion
+            && $migrationVersion <= $this->currentMigratedVersion
         ) {
             return true;
         } elseif (
@@ -139,7 +150,7 @@ class MigrationRunner
 
     public function getCurrentPluginVersion(bool $ignoreBetaVersion = true): string
     {
-        //return '2.1.9';
+        return '2.1.3';
         $pluginData = get_plugin_data(SERVEBOLT_PLUGIN_FILE);
         if ($ignoreBetaVersion) {
             return preg_replace('/(.+)-(.+)/', '$1', $pluginData['Version']);

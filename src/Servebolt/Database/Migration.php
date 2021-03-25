@@ -20,6 +20,24 @@ class Migration
         dbDelta($sql);
     }
 
+    public function dropTable(): void
+    {
+        if ($tableName = $this->getTableName()) {
+            global $wpdb;
+            $sql = sprintf('DROP TABLE IF EXISTS %s;', $tableName);
+            $wpdb->query($sql);
+        }
+    }
+
+    private function getTableName(): ?string
+    {
+        global $wpdb;
+        if (property_exists($this, 'tableName')) {
+            return $wpdb->prefix . $this->tableName;
+        }
+        return null;
+    }
+
     /**
      * Populate variables in SQL-query.
      *
@@ -29,8 +47,8 @@ class Migration
     private function populateSql(string $sql): string
     {
         global $wpdb;
-        if (property_exists($this, 'tableName')) {
-            $sql = str_replace('%table-name%', $wpdb->prefix . $this->tableName, $sql);
+        if ($tableName = $this->getTableName()) {
+            $sql = str_replace('%table-name%', $tableName, $sql);
         }
         $sql = str_replace('%prefix%', $wpdb->prefix, $sql);
         return $sql;

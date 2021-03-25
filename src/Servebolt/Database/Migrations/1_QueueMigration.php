@@ -34,10 +34,6 @@ EOF;
 
     public function down(): void
     {
-        die('a');
-        $sql = <<<EOF
-DROP TABLE IF EXISTS `%table-name%`
-EOF;
-        $this->runSql($sql);
+        $this->dropTable();
     }
 }

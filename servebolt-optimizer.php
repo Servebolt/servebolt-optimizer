@@ -19,15 +19,6 @@ define('SERVEBOLT_PLUGIN_DIR_URL', plugin_dir_url( __FILE__ ));
 define('SERVEBOLT_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ));
 define('SERVEBOLT_PLUGIN_PSR4_PATH', SERVEBOLT_PLUGIN_DIR_PATH . 'src/Servebolt/');
 
-/*
-var_dump(SERVEBOLT_PLUGIN_FILE);
-var_dump(SERVEBOLT_PLUGIN_BASENAME);
-var_dump(SERVEBOLT_PLUGIN_DIR_URL);
-var_dump(SERVEBOLT_PLUGIN_DIR_PATH);
-var_dump(SERVEBOLT_PLUGIN_PSR4_PATH);
-die;
-*/
-
 // Abort and display WP admin notice if PHP_MAJOR_VERSION is less than 7
 if (defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7) {
     require SERVEBOLT_PLUGIN_DIR_PATH . 'php-outdated.php';
@@ -37,14 +28,17 @@ if (defined('PHP_MAJOR_VERSION') && PHP_MAJOR_VERSION < 7) {
 // Load Composer dependencies
 require SERVEBOLT_PLUGIN_DIR_PATH . 'vendor/autoload.php';
 
-new Servebolt\Optimizer\Database\MigrationRunner;
-
 // Register events for activation and deactivation of this plugin
 register_activation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\activatePlugin');
 register_deactivation_hook(__FILE__, 'Servebolt\\Optimizer\\Helpers\\deactivatePlugin');
 
 // Add various improvements/optimizations
 new Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
+
+if (is_admin()) {
+    // Make sure to hold the database and data structure in sync with the version number
+    Servebolt\Optimizer\Database\MigrationRunner::run();
+}
 
 // We don't always need all files - only in WP Admin, in CLI-mode or when running the WP Cron.
 if (
