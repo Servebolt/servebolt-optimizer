@@ -48,8 +48,10 @@ class CachePurgeControl
         $cfZones = $this->getCfZones($settings);
         $cachePurgeIsActive = CachePurge::isActive();
         $autoCachePurgeIsActive = CachePurge::automaticCachePurgeOnContentUpdateIsActive();
+        $queueBasedCachePurgeActiveStateIsOverridden = CachePurge::queueBasedCachePurgeActiveStateIsOverridden();
+        $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
 
-        view('cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive'));
+        view('cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive', 'queueBasedCachePurgeActiveStateIsOverridden', 'queueBasedCachePurgeIsActive'));
         /*
         $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
         $numberOfCachePurgeQueueItems = sb_cf_cache()->count_items_to_purge();
@@ -246,7 +248,7 @@ class CachePurgeControl
             'cf_email',
             'cf_api_key',
             'cf_api_token',
-            'cf_cron_purge',
+            'queue_based_cache_purge',
         ];
     }
 }

@@ -300,11 +300,22 @@ class CachePurge
         if ( $respectOverride && is_bool($activeStateOverride) ) {
             return $activeStateOverride;
         }
-        $key = 'cf_cron_purge';
-        if ( is_numeric($blogId) ) {
-            return checkboxIsChecked(getBlogOption($blogId, $key));
+
+        $noExistKey = 'value-does-not-exist';
+        $key = 'queue_based_cache_purge';
+        if (is_numeric($blogId)) {
+            $value = getBlogOption($blogId, $key, $noExistKey);
         } else {
-            return checkboxIsChecked(getOption($key));
+            $value = getOption($key, $noExistKey);
         }
+        if ($value === $noExistKey) {
+            $key = 'cf_cron_purge';
+            if (is_numeric($blogId)) {
+                $value = getBlogOption($blogId, $key);
+            } else {
+                $value = getOption($key);
+            }
+        }
+        return checkboxIsChecked($value);
     }
 }

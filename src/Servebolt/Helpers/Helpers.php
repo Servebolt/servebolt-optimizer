@@ -261,6 +261,7 @@ function deleteAllSettings(bool $allSites = true): void
         'cf_api_token',
         'cf_items_to_purge',
         'cf_cron_purge',
+        'queue_based_cache_purge',
 
         // Wipe SB FPC-related options
         'fpc_switch',
