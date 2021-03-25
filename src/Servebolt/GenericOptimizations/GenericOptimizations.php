@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\GenericOptimizations;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 /**
  * Class GenericOptimizations
  * @package Servebolt\Optimizer\GenericOptimizations

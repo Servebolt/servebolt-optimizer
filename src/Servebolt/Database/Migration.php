@@ -2,11 +2,13 @@
 
 namespace Servebolt\Optimizer\Database;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 /**
  * Class Migration
  * @package Servebolt\Optimizer\Database
  */
-class Migration
+abstract class Migration
 {
     /**
      * Run MySQL-query.
@@ -20,22 +22,16 @@ class Migration
         dbDelta($sql);
     }
 
+    /**
+     * Drop a table.
+     */
     public function dropTable(): void
     {
-        if ($tableName = $this->getTableName()) {
+        if ($tableName = $this->getTableNameWithPrefix()) {
             global $wpdb;
             $sql = sprintf('DROP TABLE IF EXISTS %s;', $tableName);
             $wpdb->query($sql);
         }
-    }
-
-    private function getTableName(): ?string
-    {
-        global $wpdb;
-        if (property_exists($this, 'tableName')) {
-            return $wpdb->prefix . $this->tableName;
-        }
-        return null;
     }
 
     /**
@@ -47,10 +43,24 @@ class Migration
     private function populateSql(string $sql): string
     {
         global $wpdb;
-        if ($tableName = $this->getTableName()) {
+        if ($tableName = $this->getTableNameWithPrefix()) {
             $sql = str_replace('%table-name%', $tableName, $sql);
         }
         $sql = str_replace('%prefix%', $wpdb->prefix, $sql);
         return $sql;
+    }
+
+    /**
+     * Get full table name, including prefix.
+     *
+     * @return string|null
+     */
+    private function getTableNameWithPrefix(): ?string
+    {
+        global $wpdb;
+        if (property_exists($this, 'tableName')) {
+            return $wpdb->prefix . $this->tableName;
+        }
+        return null;
     }
 }

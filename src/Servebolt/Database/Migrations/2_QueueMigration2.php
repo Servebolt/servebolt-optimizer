@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Database\Migrations;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Database\Migration;
 
 class QueueMigration2 extends Migration
