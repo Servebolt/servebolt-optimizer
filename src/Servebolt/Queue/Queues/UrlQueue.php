@@ -57,9 +57,7 @@ class UrlQueue
 
     public function add($itemData, $parentQueueName = null, $parentId = null): ?object
     {
-        if ($this->queue->itemExists('payload', serialize($itemData['payload']))) {
-            return $this->queue->get('payload', serialize($itemData['payload']));
-        }
+        // TODO: Prehaps add duplicate handling
         return $this->queue->add($itemData, $parentQueueName, $parentId);
     }
 
@@ -100,18 +98,13 @@ class UrlQueue
 
     private function parseItems($items)
     {
+        // TODO: If purge-all request is present in WpObjectQueue, clear both queues, expand purge-all request to UrlQueue, parse UrlQueue
         $cachePurgeDriver = CachePurgeDriver::getInstance();
         $urls = [];
         foreach ($items as $item) {
             switch ($item->payload['type']) {
                 case 'purge-all':
-                    if ($item->payload['networkPurge']) {
-                        $cachePurgeDriver->purgeAllNetwork();
-                        // TODO: Flag item as success
-                    } else {
-                        $cachePurgeDriver->purgeAll();
-                        // TODO: Flag item as success
-                    }
+                    $cachePurgeDriver->purgeAll();
                     break;
                 case 'url':
                     $urls[] = $item->payload['url'];

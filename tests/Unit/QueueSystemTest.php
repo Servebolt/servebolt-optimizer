@@ -119,7 +119,7 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
         ];
         $queue = new Queue('my-queue');
         $item = $queue->add($itemData);
-        $item->reserve();
+        $item->flagAsReserved();
         $this->assertEquals($item->createdAtGmt, $item->created_at_gmt);
         $this->assertEquals($item->reservedAtGmt, $item->reserved_at_gmt);
         $this->assertEquals($item->parent_id, $item->parentId);
@@ -127,10 +127,9 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
 
     public function testThatWeCanHaveMultipleQueues()
     {
-        $firstInstance = Queue::getInstance('my-queue-1', 'my-queue-1');
-        $secondInstance = Queue::getInstance('my-queue-2', 'my-queue-2');
+        $firstInstance = Queue::getInstance('my-queue-1');
+        $secondInstance = Queue::getInstance('my-queue-2');
         $thirdInstance = new Queue('my-queue-3');
-        $fourthInstance = Queue::getInstance(null, 'my-queue-4');
         $itemData = [
             'foo' => 'bar',
             'bar' => 'foo',
@@ -140,13 +139,11 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
         $this->assertTrue($firstInstance->itemExists($item->id));
         $this->assertFalse($secondInstance->itemExists($item->id));
         $this->assertFalse($thirdInstance->itemExists($item->id));
-        $this->assertFalse($fourthInstance->itemExists($item->id));
 
         $item = $secondInstance->add($itemData);
         $this->assertTrue($secondInstance->itemExists($item->id));
         $this->assertFalse($firstInstance->itemExists($item->id));
         $this->assertFalse($thirdInstance->itemExists($item->id));
-        $this->assertFalse($fourthInstance->itemExists($item->id));
     }
 
     public function testThatWeCanDeleteItem()

@@ -4,13 +4,13 @@ namespace Servebolt\Optimizer\Database\Migrations;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Database\Migration;
+use Servebolt\Optimizer\Database\AbstractMigration;
 
 /**
  * Class CacheExclusionMigration
  * @package Servebolt\Optimizer\Database\Migrations
  */
-class CacheExclusionMigration extends Migration
+class CacheExclusionMigration extends AbstractMigration
 {
 
     /**

@@ -24,11 +24,6 @@ class Queue
     private $queueName;
 
     /**
-     * @var QueueQuery Query instance.
-     */
-    public $query;
-
-    /**
      * Queue constructor.
      * @param $queueName
      */
@@ -38,9 +33,17 @@ class Queue
         $this->setTableName();
     }
 
-    public function query()
+    /**
+     * @param bool $queueConstraint
+     * @return QueueQuery
+     */
+    public function query(bool $queueConstraint = true)
     {
-        return new QueueQuery($this->tableName);
+        $query = new QueueQuery($this->tableName);
+        if ($queueConstraint) {
+            $query->byQueue($this->queueName);
+        }
+        return $query;
     }
 
     private function setTableName(): void
@@ -58,68 +61,73 @@ class Queue
      * Get reserved unfinished items that have not been attempted more than $maxAttemptsBeforeIgnore.
      *
      * @param int $maxAttemptsBeforeIgnore
-     * @param int $chunkSize
+     * @param int|null $chunkSize
      * @return array|null
      */
-    public function getUnfinishedPreviouslyAttemptedItems($maxAttemptsBeforeIgnore = 3, int $chunkSize = 30): ?array
+    public function getUnfinishedPreviouslyAttemptedItems($maxAttemptsBeforeIgnore = 3, ?int $chunkSize = 30): ?array
     {
-        global $wpdb;
-        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND (attempts <= %s OR force_retry = 1) AND reserved_at_gmt IS NOT NULL AND completed_at_gmt IS NULL LIMIT {$chunkSize}", $this->queueName, $maxAttemptsBeforeIgnore);
-        $rawItems = $wpdb->get_results($sql);
-        if ($rawItems) {
-            return $this->instantiateQueueItems($rawItems);
+        $query = $this->query();
+        $query->whereShouldRun()
+            ->isReserved()
+            ->isNotCompleted();
+        if ($chunkSize) {
+            $query->limit($chunkSize);
+        }
+        if ($result = $query->result()) {
+            return $result;
         }
         return null;
     }
 
-    public function getUnfinishedItemsByParent(int $parentId, string $parentQueueName): ?array
+    public function getUnfinishedItemsByParent(int $parentId, string $parentQueueName, ?int $chunkSize = 30): ?array
     {
-        global $wpdb;
-        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND parent_id = %s AND parent_queue_name = %s AND reserved_at_gmt IS NOT NULL AND completed_at_gmt IS NULL", $this->queueName, $parentId, $parentQueueName);
-        $rawItems = $wpdb->get_results($sql);
-        if ($rawItems) {
-            return $this->instantiateQueueItems($rawItems);
+        $query = $this->query();
+        $query->isActive()
+            ->byParentQueue($parentId, $parentQueueName);
+        if ($chunkSize) {
+            $query->limit($chunkSize);
+        }
+        if ($result = $query->result()) {
+            return $result;
         }
         return null;
     }
 
     /**
+     * @param int|null $chunkSize
      * @return QueueItem[]|null
      */
-    public function getReservedItems(): ?array
+    public function getReservedItems(?int $chunkSize = 30): ?array
     {
-        global $wpdb;
-        $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND reserved_at_gmt IS NOT NULL", $this->queueName);
-        $rawItems = $wpdb->get_results($sql);
-        if ($rawItems) {
-            return $this->instantiateQueueItems($rawItems);
+        $query = $this->query();
+        $query->isActive()
+            ->isReserved();
+        if ($chunkSize) {
+            $query->limit($chunkSize);
+        }
+        if ($result = $query->result()) {
+            return $result;
         }
         return null;
     }
 
-    private function instantiateQueueItems(array $rawItems)
-    {
-        return array_map(function ($rawItem) {
-            return new QueueItem($rawItem);
-        }, $rawItems);
-    }
-
     /**
-     * @param int $chunkSize
+     * @param int|null $chunkSize
      * @param bool $onlyUnreserved
      * @return QueueItem[]|null
      */
-    public function getItems(int $chunkSize = 30, $onlyUnreserved = true): ?array
+    public function getItems(?int $chunkSize = 30, $onlyUnreserved = true): ?array
     {
-        global $wpdb;
-        if ($onlyUnreserved) {
-            $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND reserved_at_gmt IS NULL ORDER BY id DESC LIMIT {$chunkSize}", $this->queueName);
-        } else {
-            $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s ORDER BY id DESC LIMIT {$chunkSize}", $this->queueName);
+        $query = $this->query();
+        if ($chunkSize) {
+            $query->limit($chunkSize);
         }
-        $rawItems = $wpdb->get_results($sql);
-        if ($rawItems) {
-            return $this->instantiateQueueItems($rawItems);
+        if ($onlyUnreserved) {
+            $query->isNotReserved();
+        }
+        $query->orderBy('id', 'DESC');
+        if ($result = $query->result()) {
+            return $result;
         }
         return null;
     }
@@ -136,17 +144,56 @@ class Queue
     }
 
     /**
-     * @param int $chunkSize
+     * @param int|null $chunkSize
      * @param bool $doAttempt
      * @return QueueItem[]|null
      */
-    public function getAndReserveItems(int $chunkSize = 30, bool $doAttempt = false): ?array
+    public function getAndReserveItems(?int $chunkSize = 30, bool $doAttempt = false): ?array
     {
-        $items = $this->getItems($chunkSize, true);
-        if ($items) {
-            $this->reserveItems($items, $doAttempt);
+        $query = $this->query();
+        $query->isActive()
+            ->andWhere(function($query) {
+                $query->whereShouldForceRetry();
+                $query->orWhere(function($query) {
+                    $query->isNotReserved();
+                });
+            })
+            ->orderBy('id', 'DESC');
+            if ($chunkSize) {
+                $query->limit($chunkSize);
+            }
+        if ($result = $query->result()) {
+            $this->reserveItems($result, $doAttempt);
+            return $result;
         }
-        return $items;
+        return null;
+    }
+
+    /**
+     * @param QueueItem[] $items
+     * @return array
+     */
+    public function setItemsAsFailed(array $items): array
+    {
+        $items = $this->filterItemsFromOtherQueues($items);
+        return array_map(function($item) {
+            return $this->setItemAsFailed($item);
+        }, $items);
+    }
+
+    /**
+     * @param QueueItem|int $item
+     * @return QueueItem|null
+     */
+    public function setItemAsFailed($item): ?object
+    {
+        if ($item = $this->resolveItem($item)) {
+            $item->flagAsFailed();
+            if ($this->persistItem($item)) {
+                return $item;
+            }
+        }
+        return null;
     }
 
     /**
@@ -170,7 +217,7 @@ class Queue
     public function reserveItem($item, bool $doAttempt = false): ?object
     {
         if ($item = $this->resolveItem($item)) {
-            $item->reserve($doAttempt);
+            $item->flagAsReserved($doAttempt);
             if ($this->persistItem($item)) {
                 return $item;
             }
@@ -206,24 +253,40 @@ class Queue
     }
 
     /**
-     * @param array $array
-     * @return array
-     */
-    private function filterItemsFromOtherQueues(array $array): array
-    {
-        return array_filter($array, function($item) {
-            return $this->queueName === $item->queue;
-        });
-    }
-
-    /**
      * @param QueueItem|int $item
      * @return QueueItem|null
      */
     public function completeItem($item): ?object
     {
         if ($item = $this->resolveItem($item)) {
-            $item->complete();
+            $item->flagAsCompleted();
+            if ($this->persistItem($item)) {
+                return $item;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param QueueItem[] $items
+     * @return array
+     */
+    public function flagItemsAsUpdated(array $items): array
+    {
+        $items = $this->filterItemsFromOtherQueues($items);
+        return array_map(function($item) {
+            return $this->flagItemAsUpdated($item);
+        }, $items);
+    }
+
+    /**
+     * @param QueueItem|int $item
+     * @return QueueItem|null
+     */
+    public function flagItemAsUpdated($item): ?object
+    {
+        if ($item = $this->resolveItem($item)) {
+            $item->flagAsUpdated();
             if ($this->persistItem($item)) {
                 return $item;
             }
@@ -256,6 +319,17 @@ class Queue
             }
         }
         return null;
+    }
+
+    /**
+     * @param array $array
+     * @return array
+     */
+    private function filterItemsFromOtherQueues(array $array): array
+    {
+        return array_filter($array, function($item) {
+            return $this->queueName === $item->queue;
+        });
     }
 
     /**
@@ -299,65 +373,30 @@ class Queue
         );
     }
 
-    /*
-    public function itemQuery(array $args)
-    {
-        $rawSql = "SELECT * FROM {$this->getTableName()} WHERE 1=1";
-
-        $isReserved = isset($args['isReserved']);
-        $isNotReserved = isset($args['isNotReserved']);
-        $isCompleted = isset($args['isReserved']);
-        $isNotCompleted = isset($args['isNotReserved']);
-
-        $where = isset($args['where']) ? $args['where'] : [];
-        $order = isset($args['order']) ? $args['order'] : false;
-        $orderBy = isset($args['orderBy']) ? $args['orderBy'] : false;
-        $limit = isset($args['limit']) ? $args['limit'] : false;
-
-        foreach ($where as $queryItem) {
-            $prepareArguments[] = $queryItem['value'];
-            $operator = isset($args['operator']) ? $args['operator'] : '=';
-            $rawSql .= " AND {$queryItem['key']} {$operator} %s";
-        }
-
-        if ($order) {
-            $rawSql .= " ORDER BY {$order}";
-            if ($orderBy) {
-                $rawSql .= " {$orderBy}";
-            }
-        }
-
-        if ($limit) {
-            $rawSql .= " LIMIT {$limit}";
-        }
-
-        global $wpdb;
-        $sql = $wpdb->prepare($rawSql, $prepareArguments);
-        $rawItem = $wpdb->get_row($sql);
-        if ($rawItem) {
-            return new QueueItem($rawItem);
-        }
-        return null;
-    }
-    */
-
     /**
      * @param string|int $identifier
      * @param string $key
-     * @param bool $ignoreExpired
+     * @param bool $ignoreCompleted
+     * @param bool $ignoreFailed
      * @return null|object
      */
-    public function get($identifier, string $key = 'id', $ignoreExpired = true): ?object
+    public function get(
+        $identifier,
+        string $key = 'id',
+        bool $ignoreCompleted = false,
+        bool $ignoreFailed = true
+    ): ?object
     {
-        global $wpdb;
-        if ($ignoreExpired) {
-            $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND {$key} = %s", $this->queueName, $identifier);
-        } else {
-            $sql = $wpdb->prepare("SELECT * FROM {$this->getTableName()} WHERE queue = %s AND {$key} = %s", $this->queueName, $identifier);
+        $query = $this->query();
+        $query->where($key, $identifier);
+        if ($ignoreFailed) {
+            $query->hasNotFailed(); // Ignore failed items
         }
-        $rawItem = $wpdb->get_row($sql);
-        if ($rawItem) {
-            return new QueueItem($rawItem);
+        if ($ignoreCompleted) {
+            $query->isNotCompleted();
+        }
+        if ($item = $query->first()) {
+            return $item;
         }
         return null;
     }
@@ -391,14 +430,20 @@ class Queue
     /**
      * Clear all queue items.
      *
+     * @param bool|callable $constraintClosureOrSkipConstraintBoolean
      * @return bool
      */
-    public function clearQueue(): bool
+    public function clearQueue($constraintClosureOrSkipConstraintBoolean = false)
     {
-        global $wpdb;
-        return $wpdb->delete($this->getTableName(), [
-                'queue' => $this->queueName,
-            ]) !== false;
+        $query = $this->query();
+        $query->delete();
+        if (is_callable($constraintClosureOrSkipConstraintBoolean)) {
+            $constraintClosureOrSkipConstraintBoolean($query);
+        } elseif ($constraintClosureOrSkipConstraintBoolean === false) {
+            $query->hasNotFailed()
+                ->isNotCompleted();
+        }
+        $query->run();
     }
 
     /**
@@ -441,20 +486,26 @@ class Queue
 
     public function countItems(): int
     {
-        global $wpdb;
-        return $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$this->getTableName()} WHERE queue = %s", $this->queueName));
+        $query = $this->query();
+        $query->selectCount();
+        return $query->getVar();
     }
 
     public function countAvailableItems(): int
     {
-        global $wpdb;
-        return $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$this->getTableName()} WHERE queue = %s AND reserved_at_gmt IS NULL", $this->queueName));
+        $query = $this->query();
+        $query->selectCount()
+            ->isNotReserved();
+        return $query->getVar();
     }
 
     public function countReservedItems(): int
     {
-        global $wpdb;
-        return $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$this->getTableName()} WHERE queue = %s AND reserved_at_gmt IS NOT NULL AND completed_at_gmt IS NULL ", $this->queueName));
+        $query = $this->query();
+        $query->selectCount()
+            ->isReserved()
+            ->isNotCompleted();
+        return $query->getVar();
     }
 
     public function hasItems(): bool
@@ -474,7 +525,10 @@ class Queue
 
     public function countCompletedItems(): int
     {
-        global $wpdb;
-        return $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$this->getTableName()} WHERE queue = %s AND reserved_at_gmt IS NOT NULL AND completed_at_gmt IS NOT NULL ", $this->queueName));
+        $query = $this->query();
+        $query->selectCount()
+            ->isReserved()
+            ->isCompleted();
+        return $query->getVar();
     }
 }

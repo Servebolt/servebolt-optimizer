@@ -62,6 +62,11 @@ class SqlBuilder
     private $limit = [];
 
     /**
+     * @var string What the query should start with.
+     */
+    private $statementType = 'SELECT';
+
+    /**
      * SqlBuilder constructor.
      * @param string|null $tableName
      */
@@ -108,6 +113,24 @@ class SqlBuilder
             return current($result);
         }
         return null;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function run()
+    {
+        $sql = $this->buildQuery();
+        $this->wpdb->query($sql);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getVar()
+    {
+        $sql = $this->buildQuery();
+        return $this->wpdb->get_var($sql);
     }
 
     /**
@@ -171,13 +194,25 @@ class SqlBuilder
     {
         $this->resetQueryBuild();
 
-        $this->addToQuery("SELECT {$this->selectItems()}");
-        $this->addToQuery("FROM `{$this->tableName}`");
-        // TODO: Add joins
-        $this->addWhereItemsToQuery();
-        // TODO: Add having
-        $this->addOrderParameterToQuery();
-        $this->addLimitParameter();
+        switch ($this->statementType) {
+            case 'SELECT':
+                $this->addToQuery("SELECT {$this->selectItems()}");
+                $this->addToQuery("FROM `{$this->tableName}`");
+                // TODO: Add joins
+                $this->addWhereItemsToQuery();
+                // TODO: Add having
+                $this->addOrderParameterToQuery();
+                $this->addLimitParameter();
+                break;
+            case 'DELETE':
+                $this->addToQuery("DELETE FROM `{$this->tableName}`");
+                // TODO: Add joins
+                $this->addWhereItemsToQuery();
+                $this->addOrderParameterToQuery();
+                $this->addLimitParameter();
+                break;
+
+        }
 
         return $this->prepareQuery();
     }
@@ -280,8 +315,14 @@ class SqlBuilder
         );
     }
 
+    public function delete()
+    {
+        $this->statementType = 'DELETE';
+    }
+
     public function selectCount()
     {
+        $this->statementType = 'SELECT';
         $this->select('COUNT(*)');
         $this->selectCount = true;
         return $this;
@@ -289,6 +330,7 @@ class SqlBuilder
 
     public function select(string $select)
     {
+        $this->statementType = 'SELECT';
         $this->select[] = $select;
         return $this;
     }
@@ -340,6 +382,15 @@ class SqlBuilder
                 $value = $valueOrOperator;
                 $operator = $this->defaultWhereOperator();
             }
+            /*
+            if (is_null($value)) {
+                var_dump($key);
+                var_dump($value);
+                var_dump($operator);
+                var_dump($prefix);
+                die;
+            }
+            */
             $this->where[] = $this->whereDefaults($key, $value, $operator, $prefix);
         }
         return $this;
@@ -358,10 +409,17 @@ class SqlBuilder
 
     public function limit(int $rowCount, ?int $offset = null)
     {
+        $this->limit = [];
         if ($offset) {
             $this->limit[] = $offset;
         }
         $this->limit[] = $rowCount;
+        return $this;
+    }
+
+    public function orderBy(string $order, ?string $orderBy = null)
+    {
+        $this->order($order, $orderBy);
         return $this;
     }
 

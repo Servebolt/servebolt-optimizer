@@ -5,7 +5,7 @@ namespace Unit;
 use Servebolt\Optimizer\Database\MigrationRunner;
 use ServeboltWPUnitTestCase;
 
-class TestDatabaseMigration extends ServeboltWPUnitTestCase
+class DatabaseMigrationTest extends ServeboltWPUnitTestCase
 {
 
     public function tearDown(): void

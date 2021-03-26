@@ -24,7 +24,7 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 	 * @return array
 	 */
 	protected function get_nginx_fpc_status($blog_id = false) {
-		$status = nginxFpc()->fpc_is_active($blog_id) ? 'Active' : 'Inactive';
+		$status = nginxFpc()->fpcIsActive($blog_id) ? 'Active' : 'Inactive';
 		$post_types = nginxFpc()->get_post_types_to_cache(true, true, $blog_id);
 		$enabled_post_types_string = $this->nginx_get_active_post_types_string($post_types);
 		$excluded_posts = nginxFpc()->get_ids_to_exclude_from_cache($blog_id);
@@ -90,7 +90,7 @@ abstract class Servebolt_CLI_FPC_Extra extends Servebolt_CLI_Extras {
 	private function nginx_toggle_cache_for_blog($new_cache_state, $blog_id = null) {
 		$url = get_site_url($blog_id);
 		$cache_active_string = booleanToStateString($new_cache_state);
-		if ( $new_cache_state === nginxFpc()->fpc_is_active($blog_id) ) {
+		if ( $new_cache_state === nginxFpc()->fpcIsActive($blog_id) ) {
 			WP_CLI::warning(sprintf( __('Full Page Cache already %s on site %s', 'servebolt-wp'), $cache_active_string, $url ));
 		} else {
             nginxFpc()->fpc_toggle_active($new_cache_state, $blog_id);

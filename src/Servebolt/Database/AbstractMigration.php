@@ -5,10 +5,10 @@ namespace Servebolt\Optimizer\Database;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
- * Class Migration
+ * Class AbstractMigration
  * @package Servebolt\Optimizer\Database
  */
-abstract class Migration
+abstract class AbstractMigration
 {
     /**
      * Run MySQL-query.

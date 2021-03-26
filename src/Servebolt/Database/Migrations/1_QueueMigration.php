@@ -4,13 +4,13 @@ namespace Servebolt\Optimizer\Database\Migrations;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Database\Migration;
+use Servebolt\Optimizer\Database\AbstractMigration;
 
 /**
  * Class QueueMigration
  * @package Servebolt\Optimizer\Database\Migrations
  */
-class QueueMigration extends Migration
+class QueueMigration extends AbstractMigration
 {
 
     /**
@@ -41,9 +41,11 @@ CREATE TABLE IF NOT EXISTS `%table-name%` (
   `queue` varchar(255) COLLATE %charset-collate% NOT NULL,
   `payload` longtext COLLATE %charset-collate% NOT NULL,
   `attempts` tinyint(3) unsigned NOT NULL,
-  `force_retry` tinyint(1) unsigned DEFAULT NULL,
+  `force_retry` tinyint(1) unsigned DEFAULT 0,
+  `failed_at_gmt` int(10) unsigned DEFAULT NULL,
   `reserved_at_gmt` int(10) unsigned DEFAULT NULL,
   `completed_at_gmt` int(10) unsigned DEFAULT NULL,
+  `updated_at_gmt` int(10) unsigned DEFAULT NULL,
   `created_at_gmt` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `jobs_queue_index` (`queue`)

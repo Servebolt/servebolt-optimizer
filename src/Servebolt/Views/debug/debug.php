@@ -34,17 +34,17 @@
 	<h2>Nginx FPC</h2>
 
 	<?php
-		$selected_post_types_to_cache  = nginxFpc()->get_post_types_to_cache(false, false);
+		$selected_post_types_to_cache  = nginxFpc()->getPostTypesToCache(false, false);
 		$selected_post_types_to_cache_without_all = $selected_post_types_to_cache ? array_filter($selected_post_types_to_cache, function($post_type) {
 			return $post_type !== 'all';
 		}) : [];
-		$post_types_that_will_be_cached  = nginxFpc()->get_post_types_to_cache();
-		$available_post_types = nginxFpc()->get_available_post_types_to_cache(false);
-		$ids_to_exclude_from_cache = nginxFpc()->get_ids_to_exclude_from_cache();
-		$default_post_types_to_cache = nginxFpc()->get_default_post_types_to_cache();
+		$post_types_that_will_be_cached  = nginxFpc()->getPostTypesToCache();
+		$available_post_types = nginxFpc()->getAvailablePostTypesToCache(false);
+		$ids_to_exclude_from_cache = nginxFpc()->getIdsToExcludeFromCache();
+		$default_post_types_to_cache = nginxFpc()->getDefaultPostTypesToCache();
 	?>
 
-	<p>Feature is active? - <?php echo nginxFpc()->fpc_is_active() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
+	<p>Feature is active? - <?php echo nginxFpc()->fpcIsActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 	<p>Cache all post types? - <?php echo ( is_array($selected_post_types_to_cache) && in_array('all', $selected_post_types_to_cache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 	<p>Any specific post types set? - <?php echo ( is_array($selected_post_types_to_cache_without_all) && ! empty($selected_post_types_to_cache_without_all ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>
 	<p>Default post types used? - <?php echo ( ! is_array($selected_post_types_to_cache) || empty($selected_post_types_to_cache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>

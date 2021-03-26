@@ -1,5 +1,4 @@
 <?php
-
 /**
  * PHPUnit bootstrap file
  *

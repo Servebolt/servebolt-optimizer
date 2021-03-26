@@ -4,9 +4,15 @@ namespace Servebolt\Optimizer\Database;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\deleteOption;
+use function Servebolt\Optimizer\Helpers\deleteSiteOption;
 use function Servebolt\Optimizer\Helpers\getOption;
+use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\updateSiteOption;
+
+// TODO: Handle upgrade from single site to multisite
 
 /**
  * Class Migration
@@ -44,6 +50,19 @@ class MigrationRunner
      * @var bool Whether to run pre/post methods on migration.
      */
     private $runPrePostMethods = true;
+
+    /**
+     * @var string The options key used to store migration version.
+     */
+    private $migrationVersionOptionsKey = 'migration_version';
+
+    /**
+     * @return string
+     */
+    private function migrationVersionOptionsKey(): string
+    {
+        return apply_filters('sb_optimizer_migration_version_options_key', $this->migrationVersionOptionsKey);
+    }
 
     /**
      * Check if we need to migrate, based on previous migration constraint.
@@ -230,9 +249,27 @@ class MigrationRunner
      */
     private function runMigration(string $migrationClass): void
     {
+        $multisiteSupport = is_multisite() && (!property_exists($migrationClass, 'multisiteSupport') || $migrationClass::$multisiteSupport === true);
+        if ($multisiteSupport) {
+            iterateSites(function ($site) use ($migrationClass) {
+                switch_to_blog($site->blog_id);
+                $this->runMigrationSteps($migrationClass);
+                restore_current_blog();
+            });
+        } else {
+            $this->runMigrationSteps($migrationClass);
+        }
+    }
+
+    /**
+     * Run migration steps.
+     *
+     * @param $migrationClass
+     */
+    private function runMigrationSteps($migrationClass): void
+    {
         $instance = new $migrationClass;
         $migrationMethod = $this->migrationDirection;
-
         if (method_exists($instance, $migrationMethod)) {
             if ($this->runPrePostMethods) {
                 if (method_exists($instance, 'preMigration')) {
@@ -310,18 +347,30 @@ class MigrationRunner
             $version = $this->getCurrentPluginVersion();
         }
         $this->currentMigratedVersion =  $version;
-        updateOption('migration_version', $version);
+        if (is_multisite()) {
+            updateSiteOption($this->migrationVersionOptionsKey(), $version);
+        } else {
+            updateOption($this->migrationVersionOptionsKey(), $version);
+        }
     }
 
     public function clearMigratedVersion(): void
     {
         $this->currentMigratedVersion =  null;
-        deleteOption('migration_version');
+        if (is_multisite()) {
+            deleteSiteOption($this->migrationVersionOptionsKey());
+        } else {
+            deleteOption($this->migrationVersionOptionsKey());
+        }
     }
 
     public function getCurrentMigratedVersion(): string
     {
-        return getOption('migration_version');
+        if (is_multisite()) {
+            return getSiteOption($this->migrationVersionOptionsKey());
+        } else {
+            return getOption($this->migrationVersionOptionsKey());
+        }
     }
 
     public function getCurrentPluginVersion(bool $ignoreBetaVersion = true): string

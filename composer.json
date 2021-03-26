@@ -73,6 +73,9 @@
     "phpunit": [
       "./vendor/phpunit/phpunit/phpunit"
     ],
+    "phpunit-mu": [
+      "./vendor/phpunit/phpunit/phpunit -c phpunit-mu.xml"
+    ],
     "install-wp-test": ["ci/install-wp-tests.sh"],
     "test": ["ci/phpcs.sh","ci/phplint.sh","ci/phan.sh"],
     "post-install-cmd": [

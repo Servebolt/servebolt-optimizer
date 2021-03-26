@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Database\Migrations;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Database\Migration;
+use Servebolt\Optimizer\Database\AbstractMigration;
 
 /**
  * Class MigrationTemplate
@@ -15,8 +15,13 @@ use Servebolt\Optimizer\Database\Migration;
  *
  * @package Servebolt\Optimizer\Database\Migrations
  */
-class MigrationTemplate extends Migration
+class MigrationTemplate extends AbstractMigration
 {
+
+    /**
+     * @var bool Whether the migration should be executed for each blog in a multisite (optional, defaults to true if omitted).
+     */
+    public static $multisiteSupport = true;
 
     /**
      * @var bool Whether the migration is active (optional, defaults to true if omitted).

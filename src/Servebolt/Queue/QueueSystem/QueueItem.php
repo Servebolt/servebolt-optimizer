@@ -17,8 +17,11 @@ class QueueItem
     private $queue;
     private $payload;
     private $attempts;
+    private $force_retry;
+    private $failed_at_gmt;
     private $reserved_at_gmt;
     private $completed_at_gmt;
+    private $updated_at_gmt;
     private $created_at_gmt;
 
     /**
@@ -70,9 +73,9 @@ class QueueItem
         return false;
     }
 
-    public function complete()
+    public function flagAsCompleted()
     {
-        $this->reserve(); // Make sure to reserve before completing
+        $this->flagAsReserved(); // Make sure to reserve before completing
         $this->completed_at_gmt = current_time('timestamp', true);
     }
 
@@ -81,7 +84,17 @@ class QueueItem
         $this->attempts++;
     }
 
-    public function reserve(bool $doAttempt = false): void
+    public function flagAsFailed(): void
+    {
+        $this->failed_at_gmt = current_time('timestamp', true);
+    }
+
+    public function flagAsUpdated(): void
+    {
+        $this->updated_at_gmt = current_time('timestamp', true);
+    }
+
+    public function flagAsReserved(bool $doAttempt = false): void
     {
         if (!$this->isReserved()) { // Only allow reservation when not already reserved
             $this->reserved_at_gmt = current_time('timestamp', true);
@@ -105,8 +118,11 @@ class QueueItem
             'queue' => $this->queue,
             'payload' => serialize($this->payload),
             'attempts' => $this->attempts,
+            'force_retry' => $this->force_retry ?: false,
+            'failed_at_gmt' => $this->failed_at_gmt,
             'reserved_at_gmt' => $this->reserved_at_gmt,
             'completed_at_gmt' => $this->completed_at_gmt,
+            'updated_at_gmt' => $this->updated_at_gmt,
             'created_at_gmt' => $this->created_at_gmt,
         ];
     }
@@ -137,8 +153,11 @@ class QueueItem
         $this->queue = $item->queue;
         $this->payload = unserialize($item->payload);
         $this->attempts = $item->attempts ?: 0;
+        $this->force_retry = $item->force_retry ?: false;
+        $this->failed_at_gmt = $item->failed_at_gmt;
         $this->reserved_at_gmt = $item->reserved_at_gmt;
         $this->completed_at_gmt = $item->completed_at_gmt;
+        $this->updated_at_gmt = $item->updated_at_gmt;
         $this->created_at_gmt = $item->created_at_gmt;
     }
 

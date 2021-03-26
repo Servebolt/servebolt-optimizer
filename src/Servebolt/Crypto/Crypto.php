@@ -45,7 +45,7 @@ class Crypto
      */
     public static function encrypt(string $inputString, $blogId = false, $method = false)
     {
-        if (is_multisite() && is_numeric($blogId)) {
+        if (is_multisite() && (is_numeric($blogId) || $blogId === 'site')) {
             self::$blogId = $blogId;
         }
         try {
@@ -74,7 +74,7 @@ class Crypto
      * @return bool|string
      */
     public static function decrypt(string $inputString, $blogId = false, $method = false) {
-        if (is_multisite() && is_numeric($blogId)) {
+        if (is_multisite() && (is_numeric($blogId) || $blogId === 'site')) {
             self::$blogId = $blogId;
         }
         try {
@@ -165,8 +165,7 @@ class Crypto
     {
         $key = generateRandomPermanentKey('openssl_key', self::$blogId);
         $iv = generateRandomPermanentKey('openssl_iv', self::$blogId);
-        $keys = apply_filters('sb_optimizer_openssl_keys', compact('key', 'iv'));
-        return $keys;
+        return apply_filters('sb_optimizer_openssl_keys', compact('key', 'iv'));
     }
 
     /**
