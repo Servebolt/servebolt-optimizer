@@ -24,6 +24,11 @@ class Queue
     private $queueName;
 
     /**
+     * @var QueueQuery Query instance.
+     */
+    public $query;
+
+    /**
      * Queue constructor.
      * @param $queueName
      */
@@ -31,6 +36,11 @@ class Queue
     {
         $this->queueName = $queueName;
         $this->setTableName();
+    }
+
+    public function query()
+    {
+        return new QueueQuery($this->tableName);
     }
 
     private function setTableName(): void

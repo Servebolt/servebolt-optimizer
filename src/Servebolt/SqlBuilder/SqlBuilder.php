@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\SqlBuilder;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 /**
  * Class SqlBuilder
  * @package Servebolt\Optimizer\Queue\QueueSystem
@@ -18,6 +20,11 @@ class SqlBuilder
      * @var bool Whether we have added the "WHERE"-string to the query string already.
      */
     private $firstWhereAdded = false;
+
+    /**
+     * @var bool Whether this is a count query.
+     */
+    private $selectCount = false;
 
     /**
      * @var string Query string.
@@ -50,6 +57,11 @@ class SqlBuilder
     private $orderBy;
 
     /**
+     * @var array Limit parameter
+     */
+    private $limit = [];
+
+    /**
      * SqlBuilder constructor.
      * @param string|null $tableName
      */
@@ -78,7 +90,11 @@ class SqlBuilder
      */
     public function from(string $tableName): self
     {
-        $this->tableName = $this->wpdb->prefix . $tableName;
+        if (substr($tableName, 0, strlen($this->wpdb->prefix)) !== $this->wpdb->prefix) {
+            $this->tableName = $this->wpdb->prefix . $tableName;
+        } else {
+            $this->tableName = $tableName;
+        }
         return $this;
     }
 
@@ -100,6 +116,18 @@ class SqlBuilder
     public function result()
     {
         $sql = $this->buildQuery();
+        if ($this->selectCount) {
+            return $this->wpdb->get_var($sql);
+        }
+        return $this->getResults($sql);
+    }
+
+    /**
+     * @param string $sql
+     * @return mixed
+     */
+    protected function getResults(string $sql)
+    {
         return $this->wpdb->get_results($sql);
     }
 
@@ -120,7 +148,7 @@ class SqlBuilder
     {
         if ($trim) {
             $queryIsEmpty = empty($this->query);
-            $queryPart = ($queryIsEmpty ? '' : ' '). trim($queryPart);
+            $queryPart = ($queryIsEmpty ? '' : ' ') . trim($queryPart);
         }
         $this->query .= $queryPart;
     }
@@ -149,8 +177,17 @@ class SqlBuilder
         $this->addWhereItemsToQuery();
         // TODO: Add having
         $this->addOrderParameterToQuery();
+        $this->addLimitParameter();
 
         return $this->prepareQuery();
+    }
+
+    private function addLimitParameter()
+    {
+        if (!empty($this->limit)) {
+            $limitString = implode(', ', $this->limit);
+            $this->addToQuery("LIMIT {$limitString}");
+        }
     }
 
     private function resetQueryBuild(): void
@@ -243,6 +280,13 @@ class SqlBuilder
         );
     }
 
+    public function selectCount()
+    {
+        $this->select('COUNT(*)');
+        $this->selectCount = true;
+        return $this;
+    }
+
     public function select(string $select)
     {
         $this->select[] = $select;
@@ -298,6 +342,26 @@ class SqlBuilder
             }
             $this->where[] = $this->whereDefaults($key, $value, $operator, $prefix);
         }
+        return $this;
+    }
+
+    public function removeOrder()
+    {
+        $this->order = null;
+        $this->orderBy = null;
+    }
+
+    public function removeLimit()
+    {
+        $this->limit = [];
+    }
+
+    public function limit(int $rowCount, ?int $offset = null)
+    {
+        if ($offset) {
+            $this->limit[] = $offset;
+        }
+        $this->limit[] = $rowCount;
         return $this;
     }
 
