@@ -10,7 +10,7 @@ use Servebolt\Optimizer\Api\Cloudflare\Cloudflare as CloudflareApi;
 use Servebolt\Optimizer\CachePurge\Drivers\Servebolt as ServeboltDriver;
 use Servebolt\Optimizer\CachePurge\Drivers\Cloudflare as CloudflareDriver;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
-use function Servebolt\Optimizer\Helpers\hostIsServebolt;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 
@@ -74,15 +74,15 @@ class CachePurge
     public static function resolveDriver(?int $blogId = null, bool $verbose = false): ?string
     {
         if (
-            self::cachePurgeIsActive($blogId)
+            self::isActive($blogId)
             && self::cloudflareIsSelected($blogId)
             && self::cloudflareIsConfigured($blogId)
         ) {
             return $verbose ? 'Cloudflare' : 'cloudflare';
         }
         if (
-            self::isHostedAtServebolt()
-            && self::cachePurgeIsActive($blogId)
+            isHostedAtServebolt()
+            && self::isActive($blogId)
             && self::acdIsSelected($blogId)
             && self::acdIsConfigured()
         ) {
@@ -115,7 +115,18 @@ class CachePurge
      */
     public static function featureIsAvailable(?int $blogId = null): bool
     {
-        return self::cachePurgeIsActive($blogId) && self::featureIsConfigured($blogId);
+        return self::isActive($blogId) && self::featureIsConfigured($blogId);
+    }
+
+    /**
+     * Alias for "featureIsAvailable".
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function featureIsActive(?int $blogId = null): bool
+    {
+        return self::featureIsAvailable($blogId);
     }
 
     /**
@@ -168,7 +179,7 @@ class CachePurge
      * @param int|null $blogId
      * @return bool
      */
-    public static function cachePurgeIsActive(?int $blogId = null): bool
+    public static function isActive(?int $blogId = null): bool
     {
         $noExistKey = 'value-does-not-exist';
         $key = 'cache_purge_switch';
@@ -216,16 +227,6 @@ class CachePurge
     }
 
     /**
-     * Check that site is hosted at Servebolt.
-     *
-     * @return bool
-     */
-    private static function isHostedAtServebolt(): bool
-    {
-        return hostIsServebolt();
-    }
-
-    /**
      * Check whether ACD is selected as cache purge driver.
      *
      * @param int|null $blogId
@@ -264,9 +265,12 @@ class CachePurge
      *
      * @return bool
      */
-    public static function cronStateIsOverridden(): bool
+    public static function queueBasedCachePurgeActiveStateIsOverridden(): bool
     {
-        return defined('SERVEBOLT_CF_PURGE_CRON') && is_bool(SERVEBOLT_CF_PURGE_CRON);
+        return
+            (defined('SERVEBOLT_CF_PURGE_CRON') && is_bool(SERVEBOLT_CF_PURGE_CRON)) // Legacy
+            || (defined('SERVEBOLT_QUEUE_BASED_CACHE_PURGE') && is_bool(SERVEBOLT_QUEUE_BASED_CACHE_PURGE));
+
     }
 
     /**
@@ -274,10 +278,14 @@ class CachePurge
      *
      * @return mixed
      */
-    public static function cronActiveStateOverride(): ?bool
+    public static function queueBasedCachePurgeActiveStateOverride(): ?bool
     {
-        if ( self::cronStateIsOverridden() ) {
-            return SERVEBOLT_CF_PURGE_CRON;
+        if ( self::queueBasedCachePurgeActiveStateIsOverridden() ) {
+            if (defined('SERVEBOLT_CF_PURGE_CRON')) {
+                return SERVEBOLT_CF_PURGE_CRON;// Legacy
+            } else {
+                return SERVEBOLT_QUEUE_BASED_CACHE_PURGE;
+            }
         }
         return null;
     }
@@ -290,17 +298,28 @@ class CachePurge
      *
      * @return bool
      */
-    public static function cronPurgeIsActive(bool $respectOverride = true, ?int $blogId = null): bool
+    public static function queueBasedCachePurgeIsActive(bool $respectOverride = true, ?int $blogId = null): bool
     {
-        $activeStateOverride = self::cronActiveStateOverride();
-        if ( $respectOverride && is_bool($activeStateOverride) ) {
+        $activeStateOverride = self::queueBasedCachePurgeActiveStateOverride();
+        if ($respectOverride && is_bool($activeStateOverride)) {
             return $activeStateOverride;
         }
-        $key = 'cf_cron_purge';
-        if ( is_numeric($blogId) ) {
-            return checkboxIsChecked(getBlogOption($blogId, $key));
+
+        $noExistKey = 'value-does-not-exist';
+        $key = 'queue_based_cache_purge';
+        if (is_numeric($blogId)) {
+            $value = getBlogOption($blogId, $key, $noExistKey);
         } else {
-            return checkboxIsChecked(getOption($key));
+            $value = getOption($key, $noExistKey);
         }
+        if ($value === $noExistKey) {
+            $key = 'cf_cron_purge';
+            if (is_numeric($blogId)) {
+                $value = getBlogOption($blogId, $key);
+            } else {
+                $value = getOption($key);
+            }
+        }
+        return checkboxIsChecked($value);
     }
 }

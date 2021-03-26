@@ -23,11 +23,11 @@
     </tfoot>
     <tbody>
     <?php foreach (get_sites() as $site) : ?>
-        <?php $sb_fpc_settings = nginxFpc()->get_post_types_to_cache(false, false, $site->blog_id); ?>
+        <?php $sb_fpc_settings = nginxFpc()->getPostTypesToCache(false, false, $site->blog_id); ?>
         <tr>
             <td><?php echo $site->blog_id; ?></td>
             <td><?php echo $site->domain . $site->path; ?></td>
-            <td><?php echo nginxFpc()->fpc_is_active($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
+            <td><?php echo nginxFpc()->fpcIsActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
             <td>
                 <?php if ( ! empty($sb_fpc_settings) ) : ?>
                     <?php if ( in_array('all', $sb_fpc_settings) ) : ?>

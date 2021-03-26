@@ -49,24 +49,30 @@ abstract class SharedMethods
      * @param $args
      */
     protected function __construct($id, $args) {
-        $this->set_id($id);
-        $this->set_arguments($args);
-        if ( $this->init_object() ) { // Check if we could find the object first
-            if ( apply_filters('sb_optimizer_should_generate_other_urls', true) ) { // Check if we should generate all other related URLs for object
-                $this->generate_other_urls();
+        $this->setId($id);
+        $this->setArguments($args);
+        if ( $this->initObject() ) { // Check if we could find the object first
+            if (apply_filters('sb_optimizer_should_generate_other_urls', true)) { // Check if we should generate all other related URLs for object
+                $this->generateOtherUrls();
             }
         }
-        $this->post_url_generate_actions();
+        $this->postUrlGenerateActions();
     }
 
     /**
      * Do stuff after we have generated URLs.
      */
-    private function post_url_generate_actions() {
-
+    private function postUrlGenerateActions(): void
+    {
         // Let other manipulate URLs
-        $this->set_urls(apply_filters('sb_optimizer_alter_urls_for_cache_purge_object', $this->get_urls(), $this->get_id(), $this->object_type));
-
+        $this->setUrls(
+            apply_filters(
+                'sb_optimizer_alter_urls_for_cache_purge_object',
+                $this->getUrls(),
+                $this->getId(),
+                $this->objectType
+            )
+        );
     }
 
     /**
@@ -75,10 +81,11 @@ abstract class SharedMethods
      * @param null $bool
      * @return bool|void
      */
-    public function success($bool = null) {
-        if ( is_bool($bool) ) {
+    public function success($bool = null): ?bool
+    {
+        if (is_bool($bool)) {
             $this->success = $bool;
-            return;
+            return null;
         }
         return $this->success === true;
     }
@@ -88,7 +95,8 @@ abstract class SharedMethods
      *
      * @param $id
      */
-    protected function set_id($id) {
+    protected function setId($id): void
+    {
         $this->id = $id;
     }
 
@@ -97,18 +105,20 @@ abstract class SharedMethods
      *
      * @param $args
      */
-    protected function set_arguments($args) {
+    protected function setArguments($args): void
+    {
         $this->args = $args;
     }
 
     /**
      * Get and argument for the object to be purged.
      *
-     * @param $key
-     * @return bool
+     * @param string $key
+     * @return bool|mixed
      */
-    protected function get_argument($key) {
-        if ( array_key_exists($key, $this->args) ) {
+    protected function getArgument(string $key)
+    {
+        if (array_key_exists($key, $this->args)) {
             return $this->args[$key];
         }
         return false;
@@ -117,10 +127,11 @@ abstract class SharedMethods
     /**
      * Get the ID of the object to be pured.
      *
-     * @return mixed
+     * @return int|mixed
      */
-    public function get_id() {
-        if ( is_numeric($this->id) ) {
+    public function getId()
+    {
+        if (is_numeric($this->id)) {
             return (int) $this->id; // Make sure to return ID as int if it is numerical
         }
         return $this->id;
@@ -129,14 +140,15 @@ abstract class SharedMethods
     /**
      * Add URL to be purged cache for.
      *
-     * @param $url
+     * @param string $url
      * @return bool
      */
-    public function add_url($url) {
-        $urls = $this->get_urls();
-        if ( ! in_array($url, $urls) ) {
+    public function addUrl(string $url): bool
+    {
+        $urls = $this->getUrls();
+        if (!in_array($url, $urls)) {
             $urls[] = $url;
-            $this->set_urls($urls);
+            $this->setUrls($urls);
             return true;
         }
         return false;
@@ -145,22 +157,29 @@ abstract class SharedMethods
     /**
      * Add multiple URLs to be purged cache for.
      *
-     * @param $urls
+     * @param array $urls
      */
-    public function add_urls($urls) {
-        if ( ! is_array($urls) ) return;
+    public function addUrls(array $urls): void
+    {
+        if (!is_array($urls)) {
+            return;
+        }
         array_map(function ($url) {
-            $this->add_url($url);
+            $this->addUrl($url);
         }, $urls);
     }
 
     /**
      * Set the URLs to purge cache for.
      *
-     * @param $urls
+     * @param array $urls
+     * @return bool
      */
-    public function set_urls($urls) {
-        if ( ! is_array($urls) ) return false;
+    public function setUrls(array $urls): bool
+    {
+        if (!is_array($urls)) {
+            return false;
+        }
         $this->urls = $urls;
         return true;
     }
@@ -170,18 +189,19 @@ abstract class SharedMethods
      *
      * @return array
      */
-    public function get_urls() {
+    public function getUrls()
+    {
         return $this->urls;
     }
 
     /**
      * Add the front page to be purged.
      */
-    public function add_front_page() {
-        if ( $front_page_id = get_option( 'page_on_front' ) ) {
-            $front_page_url = get_permalink($front_page_id);
-            if ( $front_page_url ) {
-                $this->add_url($front_page_url);
+    public function addFrontPage(): void
+    {
+        if ($frontPageId = get_option('page_on_front')) {
+            if ($frontPageUrl = get_permalink($frontPageId)) {
+                $this->addUrl($frontPageUrl);
             }
         }
     }
@@ -189,21 +209,21 @@ abstract class SharedMethods
     /**
      * Find out how many pages needed for an archive.
      *
-     * @param $query_args
-     * @param $type
-     * @return mixed
+     * @param array $queryArgs
+     * @param string $type
+     * @return int
      */
-    protected function get_pages_needed($query_args, $type) {
-        $query_args = wp_parse_args($query_args, [
+    protected function getPagesNeeded(array $queryArgs, string $type): int
+    {
+        $queryArgs = wp_parse_args($queryArgs, [
             'post_type'   => 'any',
             'post_status' => 'publish',
         ]);
-        $query_args = (array) apply_filters('sb_optimizer_cf_cache_purge_pages_needed_post_query_arguments', $query_args, $type, $this->get_id());
-        $query = new WP_Query($query_args);
-        if ( ! $query->have_posts() ) {
-            return apply_filters('sb_optimizer_cf_cache_purge_pages_needed_no_posts', 0, $type, $this->get_id());
+        $queryArgs = (array) apply_filters('sb_optimizer_cf_cache_purge_pages_needed_post_query_arguments', $queryArgs, $type, $this->getId());
+        $query = new WP_Query($queryArgs);
+        if (!$query->have_posts()) {
+            return (int) apply_filters('sb_optimizer_cf_cache_purge_pages_needed_no_posts', 0, $type, $this->getId());
         }
-        return apply_filters('sb_optimizer_cf_cache_purge_pages_needed', $query->max_num_pages, $type, $this->get_id());
+        return (int) apply_filters('sb_optimizer_cf_cache_purge_pages_needed', $query->max_num_pages, $type, $this->getId());
     }
-
 }

@@ -38,7 +38,7 @@ class FpcPostExclusion extends SharedAjaxMethods
 
         $itemsToRemove = arrayGet('items', $_POST);
         if ($itemsToRemove === 'all') {
-            nginxFpc()->set_ids_to_exclude_from_cache([]);
+            nginxFpc()->setIdsToExcludeFromCache([]);
             wp_send_json_success();
         }
         if (!$itemsToRemove || empty($itemsToRemove)) {
@@ -50,14 +50,14 @@ class FpcPostExclusion extends SharedAjaxMethods
         $itemsToRemove = array_filter($itemsToRemove, function ($item) {
             return is_numeric($item);
         });
-        $currentItems = nginxFpc()->get_ids_to_exclude_from_cache();
+        $currentItems = nginxFpc()->getIdsToExcludeFromCache();
         if (!is_array($currentItems)) {
             $currentItems = [];
         }
         $updatedItems = array_filter($currentItems, function($item) use ($itemsToRemove) {
             return ! in_array($item, $itemsToRemove);
         });
-        nginxFpc()->set_ids_to_exclude_from_cache($updatedItems);
+        nginxFpc()->setIdsToExcludeFromCache($updatedItems);
         wp_send_json_success();
     }
 
@@ -93,13 +93,13 @@ class FpcPostExclusion extends SharedAjaxMethods
                 continue;
             }
 
-            if ( nginxFpc()->should_exclude_post_from_cache($postId) ) {
+            if ( nginxFpc()->shouldExcludePostFromCache($postId) ) {
                 $alreadyExcluded[] = $postId;
                 $success[] = $postId;
                 continue;
             }
 
-            if (nginxFpc()->exclude_post_from_cache($postId) ) {
+            if (nginxFpc()->excludePostFromCache($postId) ) {
                 $newMarkup .= fpcExcludePostTableRowMarkup($postId, false);
                 $success[] = $postId;
                 $added[] = $postId;

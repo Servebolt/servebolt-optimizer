@@ -2,8 +2,12 @@
 
 namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
+use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use function Servebolt\Optimizer\Helpers\isQueueItem;
 
 /**
  * Trait TermMethods
@@ -24,9 +28,9 @@ trait TermMethods
         $purgeObject = new PurgeObject(
             $termId,
             'term',
-            ['taxonomy_slug' => $taxonomySlug]
+            compact('taxonomySlug'),
         );
-        return $purgeObject->get_urls();
+        return $purgeObject->getUrls();
     }
 
     /**
@@ -38,9 +42,17 @@ trait TermMethods
      */
     public static function purgeTermCache(int $termId, string $taxonomySlug): bool
     {
-        // TODO: Add queue handling here
-        $urlsToPurge = self::getUrlsToPurgeByTermId($termId, $taxonomySlug);
-        $cachePurgeDriver = CachePurgeDriver::getInstance();
-        return $cachePurgeDriver->purgeByUrls($urlsToPurge);
+        if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
+            $queueInstance = WpObjectQueue::getInstance();
+            return isQueueItem($queueInstance->add([
+                $termId,
+                'term',
+                compact('taxonomySlug'),
+            ]));
+        } else {
+            $urlsToPurge = self::getUrlsToPurgeByTermId($termId, $taxonomySlug);
+            $cachePurgeDriver = CachePurgeDriver::getInstance();
+            return $cachePurgeDriver->purgeByUrls($urlsToPurge);
+        }
     }
 }

@@ -11,23 +11,23 @@ use function Servebolt\Optimizer\Helpers\paginateLinksAsArray;
  *
  * This is a cache purge object with the type of post.
  */
-//class SB_CF_Cache_Purge_Post_Object extends SB_CF_Cache_Purge_Object_Shared
-class Post extends SharedMethods {
+class Post extends SharedMethods
+{
 
     /**
      * Define the type of this object in WP context.
      *
      * @var string
      */
-    protected $object_type = 'post';
+    protected $objectType = 'post';
 
     /**
      * Post constructor.
-     * @param $post_id
+     * @param $postId
      * @param $args
      */
-    public function __construct($post_id, $args) {
-        parent::__construct($post_id, $args);
+    public function __construct($postId, $args) {
+        parent::__construct($postId, $args);
     }
 
     /**
@@ -35,91 +35,97 @@ class Post extends SharedMethods {
      *
      * @return mixed
      */
-    public function get_base_url() {
-        return get_permalink( $this->get_id() );
+    public function getBaseUrl()
+    {
+        return get_permalink($this->getId());
     }
 
     /**
      * Get the post edit URL.
      *
-     * @return mixed
+     * @return null|string
      */
-    public function get_edit_url() {
-        return get_edit_post_link( $this->get_id() );
+    public function getEditUrl(): ?string
+    {
+        return get_edit_post_link($this->getId());
     }
 
     /**
      * Get the post title.
      *
-     * @return mixed
+     * @return string
      */
-    public function get_title() {
-        return get_the_title( $this->get_id() );
+    public function get_title(): string
+    {
+        return get_the_title($this->getId());
     }
 
     /**
      * Add URLs related to a post object.
+     *
+     * @return bool
      */
-    protected function init_object() {
-
+    protected function initObject(): bool
+    {
         // The URL to the post itself
-        if ( $this->add_post_url() ) {
+        if ( $this->addPostUrl() ) {
             $this->success(true); // Flag that found the post
             return true;
         } else {
             return false; // Could not find the post, stop execution
         }
-
     }
 
     /**
      * Generate URLs related to the object.
      */
-    protected function generate_other_urls() {
+    protected function generateOtherUrls()
+    {
 
         // The URL to the front page
-        $this->add_front_page();
+        $this->addFrontPage();
 
         // The URL to the post type archive for the post type of the post
-        $this->add_post_type_archive();
+        $this->addPostTypeArchive();
 
         // The URL to the author archive
-        $this->add_author_archive();
+        $this->addAuthorArchive();
 
         // The URLs for categories, tags, post formats + any custom taxonomies for post type
-        $this->add_taxonomy_archives();
+        $this->addTaxonomyArchives();
 
         // Check if should care about date archive URLs when purging cache
-        if ( $this->date_archive_active() ) {
+        if ($this->dateArchiveActive()) {
 
             // Only for post type "post"
-            if ( $this->post_type_is('post') ) {
+            if ($this->postTypeIs('post')) {
 
                 // The URL to the date archive
-                $this->add_date_archive();
-
+                $this->addDateArchive();
             }
-
         }
-
     }
 
     /**
      * Whether we should care about date archive URLs when purging cache.
      *
-     * @return mixed
+     * @return bool
      */
-    private function date_archive_active() {
-        return apply_filters('sb_optimizer_cf_cache_purge_date_archive_active', false);
+    private function dateArchiveActive(): bool
+    {
+        return (bool) apply_filters('sb_optimizer_cf_cache_purge_date_archive_active', false);
     }
 
     /**
      * Add the URL of a post to be purged.
+     *
+     * @return bool
      */
-    private function add_post_url() {
-        $post_permalink = $this->get_base_url();
-        if ( $post_permalink && ! is_wp_error($post_permalink) ) {
-            $this->add_url($post_permalink);
+    private function addPostUrl(): bool
+    {
+        $postPermalink = $this->getBaseUrl();
+        if ($postPermalink && !is_wp_error($postPermalink)) {
+            $this->addUrl($postPermalink);
             return true;
         }
         return false;
@@ -128,40 +134,45 @@ class Post extends SharedMethods {
     /**
      * Check whether a certain post type should be purge cache for.
      *
-     * @param $post_type
-     * @return mixed
+     * @param string $postType
+     * @return bool
      */
-    private function post_type_archive_should_be_purged($post_type) {
-        return apply_filters('sb_optimizer_cf_cache_purge_taxonomy_should_be_purged', true, $post_type);
+    private function postTypeArchiveShouldBePurged(string $postType): bool
+    {
+        return (bool) apply_filters('sb_optimizer_cf_cache_purge_taxonomy_should_be_purged', true, $postType);
     }
 
     /**
      * Add post type archive to be purged.
      */
-    private function add_post_type_archive() {
-        if ( ! $this->post_type_archive_should_be_purged($this->get_post_type()) ) return;
-        $post_type_archive_url = get_post_type_archive_link($this->get_post_type());
-        if ( $post_type_archive_url && ! is_wp_error($post_type_archive_url) ) {
-            $pages_needed = $this->get_pages_needed([
-                'post_type' => $this->get_post_type(),
+    private function addPostTypeArchive(): void
+    {
+        if (!$this->postTypeArchiveShouldBePurged($this->getPostType())) {
+            return;
+        }
+        $postTypeArchiveUrl = get_post_type_archive_link($this->getPostType());
+        if ($postTypeArchiveUrl && !is_wp_error($postTypeArchiveUrl)) {
+            $pagesNeeded = $this->getPagesNeeded([
+                'post_type' => $this->getPostType(),
             ], 'post');
-            $this->add_urls(paginateLinksAsArray($post_type_archive_url, $pages_needed));
+            $this->addUrls(paginateLinksAsArray($postTypeArchiveUrl, $pagesNeeded));
         }
     }
 
     /**
      * Add author URL to be purged.
      */
-    private function add_author_archive() {
-        $author = $this->get_post_author();
-        if ( $author && ! is_wp_error($author) ) {
-            $author_url = get_author_posts_url($author);
-            if ( $author_url && ! is_wp_error($author_url) ) {
-                $pages_needed = $this->get_pages_needed([
+    private function addAuthorArchive(): void
+    {
+        $author = $this->getPostAuthor();
+        if ($author && !is_wp_error($author)) {
+            $authorUrl = get_author_posts_url($author);
+            if ($authorUrl && !is_wp_error($authorUrl)) {
+                $pagesNeeded = $this->getPagesNeeded([
                     'post_type' => apply_filters('sb_optimizer_cf_cache_purge_author_archive_post_type', 'post'),
                     'author'    => $author,
                 ], 'post');
-                $this->add_urls(paginateLinksAsArray($author_url, $pages_needed));
+                $this->addUrls(paginateLinksAsArray($authorUrl, $pagesNeeded));
             }
         }
     }
@@ -170,37 +181,43 @@ class Post extends SharedMethods {
      * Check whether a certain taxonomy should be purge cache for.
      *
      * @param $taxonomy
-     * @return mixed
+     * @return bool
      */
-    private function taxonomy_archive_should_be_purged($taxonomy) {
-        return apply_filters('sb_optimizer_cf_cache_purge_taxonomy_should_be_purged', true, $taxonomy);
+    private function taxonomyArchiveShouldBePurged($taxonomy): bool
+    {
+        return (bool) apply_filters('sb_optimizer_cf_cache_purge_taxonomy_should_be_purged', true, $taxonomy);
     }
 
     /**
      * Add taxonomy terms URLs (where the post is present) to be purged.
      */
-    private function add_taxonomy_archives() {
+    private function addTaxonomyArchives(): void
+    {
         $taxonomies = get_taxonomies([], 'objects');
-        if ( is_array($taxonomies) ) {
-            foreach ( $taxonomies as $taxonomy_slug => $taxonomy ) {
-                if ( ! $this->taxonomy_archive_should_be_purged($taxonomy) ) continue;
-                if ( ! in_array($this->get_post_type(), $taxonomy->object_type) ) continue;
-                $terms_for_post_in_taxonomy = wp_get_post_terms($this->get_id(), $taxonomy_slug);
-                if ( is_array($terms_for_post_in_taxonomy) ) {
-                    foreach ( $terms_for_post_in_taxonomy as $term ) {
-                        $term_link = get_term_link($term, $taxonomy_slug);
-                        if ( $term_link && ! is_wp_error($term_link) ) {
-                            $pages_needed = $this->get_pages_needed([
+        if (is_array($taxonomies)) {
+            foreach ($taxonomies as $taxonomySlug => $taxonomy) {
+                if (
+                    ! $this->taxonomyArchiveShouldBePurged($taxonomy)
+                    || ! in_array($this->getPostType(), $taxonomy->object_type)
+                ) {
+                    continue;
+                }
+                $termsForPostInTaxonomy = wp_get_post_terms($this->getId(), $taxonomySlug);
+                if (is_array($termsForPostInTaxonomy)) {
+                    foreach ($termsForPostInTaxonomy as $term) {
+                        $termLink = get_term_link($term, $taxonomySlug);
+                        if ($termLink && !is_wp_error($termLink)) {
+                            $pagesNeeded = $this->getPagesNeeded([
                                 'post_type' => $taxonomy->object_type,
                                 'tax_query' => [
                                     [
-                                        'taxonomy' => $taxonomy_slug,
+                                        'taxonomy' => $taxonomySlug,
                                         'field' => 'slug',
                                         'terms' => $term->slug,
                                     ]
                                 ],
                             ], 'post');
-                            $this->add_urls(paginateLinksAsArray($term_link, $pages_needed));
+                            $this->addUrls(paginateLinksAsArray($termLink, $pagesNeeded));
                         }
                     }
                 }
@@ -211,19 +228,20 @@ class Post extends SharedMethods {
     /**
      * Add date archive URLs to be purged.
      */
-    private function add_date_archive() {
-        $year  = get_the_time('Y', $this->get_id());
-        $month = get_the_time('m', $this->get_id());
-        $day   = get_the_time('d', $this->get_id());
-        $date_archive = get_day_link($year, $month, $day);
-        if ( $date_archive && ! is_wp_error($date_archive) ) {
-            $pages_needed = $this->get_pages_needed([
+    private function addDateArchive(): void
+    {
+        $year  = get_the_time('Y', $this->getId());
+        $month = get_the_time('m', $this->getId());
+        $day   = get_the_time('d', $this->getId());
+        $dateArchive = get_day_link($year, $month, $day);
+        if ($dateArchive && !is_wp_error($dateArchive)) {
+            $pagesNeeded = $this->getPagesNeeded([
                 'post_type'  => apply_filters('sb_optimizer_cf_cache_purge_date_archive_post_type', 'post'),
                 'date_query' => [
                     compact('year', 'month', 'day')
                 ]
             ], 'post');
-            $this->add_urls(paginateLinksAsArray($date_archive, $pages_needed));
+            $this->addUrls(paginateLinksAsArray($dateArchive, $pagesNeeded));
         }
     }
 
@@ -232,28 +250,34 @@ class Post extends SharedMethods {
      *
      * @return mixed
      */
-    private function get_post_author() {
-        $post = get_post( $this->get_id() );
-        return isset($post->post_author) ? $post->post_author : false;
+    private function getPostAuthor(): ?string
+    {
+        $post = get_post($this->getId());
+        if (isset($post->post_author)) {
+            return $post->post_author;
+        }
+        return null;
     }
 
     /**
      * Get the post type of the post object.
      *
-     * @return mixed
+     * @return string|false
      */
-    private function get_post_type() {
-        return get_post_type($this->get_id());
+    private function getPostType()
+    {
+        return get_post_type($this->getId());
     }
 
     /**
      * Check if current post type is equals a given post type.
      *
-     * @param $post_type
+     * @param string $postType
      * @return bool
      */
-    private function post_type_is($post_type) {
-        return $post_type == $this->get_post_type();
+    private function postTypeIs(string $postType): bool
+    {
+        return $postType == $this->getPostType();
     }
 
 }
