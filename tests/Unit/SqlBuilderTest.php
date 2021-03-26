@@ -39,20 +39,29 @@ class SqlBuilderTest extends ServeboltWPUnitTestCase
         $queue->reserveItem($item1);
 
         $itemData2 = [
-            'foo' => 'bar',
-            'bar' => 'foo',
+            'foo2' => 'bar',
+            'bar2' => 'foo',
         ];
         $item2 = $queue->add($itemData2);
         $queue->reserveItem($item2);
-
-        $query = SqlBuilder::query('sb_queue');
-        $query->select('*');
-        $query->where('reserved_at_gmt', 'IS NOT', 'NULL');
-        $query->orWhere(function($query) use ($itemData1, $itemData2) {
-            $query->where('payload', serialize($itemData1));
-            $query->orWhere('payload', serialize($itemData2));
+        
+        $query = SqlBuilder::query('sb_queue')
+        ->select('*')
+        ->from('sb_queue')
+        ->order('id', 'ASC')
+        ->where('reserved_at_gmt', 'IS NOT', 'NULL')
+        ->orWhere(function($query) use ($itemData1, $itemData2) {
+            $query->where('payload', serialize($itemData1))
+            ->orWhere(function($query) use ($itemData1, $itemData2) {
+                $query->where('payload', serialize($itemData1))
+                    ->orWhere('payload', serialize($itemData2));
+            });
         });
+
+        $this->assertEquals(serialize($itemData1), $query->first()->payload);
         $query->order('id', 'DESC');
+        $this->assertEquals(serialize($itemData2), $query->first()->payload);
+
         $this->assertEquals(2, $query->count());
         $queue->deleteItems([$item1, $item2]);
         $this->assertEquals(0, $query->count());

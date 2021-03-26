@@ -8,41 +8,115 @@ namespace Servebolt\Optimizer\SqlBuilder;
  */
 class SqlBuilder
 {
-    private $query = '';
-    private $prepareArguments = [];
-    private $select = [];
-    private $where = [];
-    private $order;
-    private $orderBy;
-    private $tableName;
-    private $firstWhereAdded = false;
-    private $whereGroup = false;
-    private $capturedWhereItems = [];
 
-    public static function query(string $tableName)
+    /**
+     * @var string Table name.
+     */
+    private $tableName;
+
+    /**
+     * @var bool Whether we have added the "WHERE"-string to the query string already.
+     */
+    private $firstWhereAdded = false;
+
+    /**
+     * @var string Query string.
+     */
+    private $query = '';
+
+    /**
+     * @var array Array of arguments that will be populate into the query string.
+     */
+    private $prepareArguments = [];
+
+    /**
+     * @var array Items for query-part of query string.
+     */
+    private $select = [];
+
+    /**
+     * @var array Items for where-part of query string.
+     */
+    private $where = [];
+
+    /**
+     * @var array Order-parameter.
+     */
+    private $order;
+
+    /**
+     * @var array Order by-parameter.
+     */
+    private $orderBy;
+
+    /**
+     * SqlBuilder constructor.
+     * @param string|null $tableName
+     */
+    public function __construct(?string $tableName = null)
+    {
+        $this->wpdb = $GLOBALS['wpdb'];
+        if ($tableName) {
+            $this->from($tableName);
+        }
+    }
+
+    /**
+     * Instance factory.
+     *
+     * @param string|null $tableName
+     * @return SqlBuilder
+     */
+    public static function query(?string $tableName = null)
     {
         return new self($tableName);
     }
 
-    public function __construct(string $tableName)
+    /**
+     * @param string $tableName
+     * @return SqlBuilder
+     */
+    public function from(string $tableName): self
     {
-        $this->wpdb = $GLOBALS['wpdb'];
         $this->tableName = $this->wpdb->prefix . $tableName;
+        return $this;
     }
 
+    /**
+     * @return mixed|null
+     */
+    public function first()
+    {
+        $result = $this->result();
+        if (is_array($result)) {
+            return current($result);
+        }
+        return null;
+    }
+
+    /**
+     * @return mixed
+     */
     public function result()
     {
         $sql = $this->buildQuery();
         return $this->wpdb->get_results($sql);
     }
 
-    public function count()
+    /**
+     * @return int
+     */
+    public function count(): int
     {
         $this->result();
         return $this->wpdb->num_rows;
     }
 
-    private function addToQuery($queryPart, bool $trim = true): void
+    /**
+     * @param string $queryPart
+     * @param bool $trim
+     */
+    private function addToQuery(string $queryPart, bool $trim = true): void
     {
         if ($trim) {
             $queryIsEmpty = empty($this->query);
@@ -51,6 +125,9 @@ class SqlBuilder
         $this->query .= $queryPart;
     }
 
+    /**
+     * @return string
+     */
     private function selectItems(): string
     {
         if (empty($this->select)) {
@@ -59,25 +136,46 @@ class SqlBuilder
         return implode(', ', $this->select);
     }
 
-    public function buildQuery()
+    /**
+     * @return string
+     */
+    public function buildQuery(): string
+    {
+        $this->resetQueryBuild();
+
+        $this->addToQuery("SELECT {$this->selectItems()}");
+        $this->addToQuery("FROM `{$this->tableName}`");
+        // TODO: Add joins
+        $this->addWhereItemsToQuery();
+        // TODO: Add having
+        $this->addOrderParameterToQuery();
+
+        return $this->prepareQuery();
+    }
+
+    private function resetQueryBuild(): void
     {
         $this->query = '';
         $this->firstWhereAdded = false;
         $this->prepareArguments = [];
+    }
 
-        $this->addToQuery("SELECT {$this->selectItems()}");
-        $this->addToQuery("FROM `{$this->tableName}`");
-        foreach ($this->where as $where) {
-            $this->handleWhereWhileBuildingQuery($where);
+    private function prepareQuery(): string
+    {
+        if (empty($this->prepareArguments)) {
+            return $this->query; // No external arguments
         }
+        return $this->wpdb->prepare($this->query, ...$this->prepareArguments);
+    }
+
+    private function addOrderParameterToQuery(): void
+    {
         if ($this->order) {
             $this->addToQuery("ORDER BY {$this->order}");
             if ($this->orderBy) {
-                $this->addToQuery("{$this->orderBy}");
+                $this->addToQuery($this->orderBy);
             }
         }
-
-        return $this->wpdb->prepare($this->query, ...$this->prepareArguments);
     }
 
     private function addToPrepareArguments($value): void
@@ -85,7 +183,7 @@ class SqlBuilder
         $this->prepareArguments[] = $value;
     }
 
-    private function addPrefixToQuery($prefix)
+    private function addPrefixToQuery($prefix): void
     {
         if (!$this->firstWhereAdded) {
             $this->addToQuery("WHERE");
@@ -104,118 +202,111 @@ class SqlBuilder
         return false;
     }
 
-    private function handleWhereWhileBuildingQuery($where)
+    private function addWhereItemsToQuery(): void
     {
-        $this->addPrefixToQuery($where['prefix']);
-        switch ($where['type']) {
-            case 'where':
-                if ($this->valueIsWhitelisted($where['key'], $where['value'], $where['operator'])) {
-                    $this->addToQuery("`{$where['key']}` {$where['operator']} {$where['value']}");
-                } else {
-                    $this->addToQuery("`{$where['key']}` {$where['operator']} %s");
-                    $this->addToPrepareArguments($where['value']);
-                }
-                break;
-            case 'whereGroup':
-                $this->addToQuery('(');
-                foreach ($where['items'] as $item) {
-                    $this->handleWhereWhileBuildingQuery($item);
-                }
-                $this->addToQuery(')', false);
-                break;
+        $skipPrefixOnNext = false;
+        foreach ($this->where as $where) {
+            switch ($where['type']) {
+                case 'where':
+
+                    if ($skipPrefixOnNext === false) {
+                        $this->addPrefixToQuery($where['prefix']);
+                    }
+
+                    if ($this->valueIsWhitelisted($where['key'], $where['value'], $where['operator'])) {
+                        $this->addToQuery("`{$where['key']}` {$where['operator']} {$where['value']}", !$skipPrefixOnNext);
+                    } else {
+                        $this->addToQuery("`{$where['key']}` {$where['operator']} %s", !$skipPrefixOnNext);
+                        $this->addToPrepareArguments($where['value']);
+                    }
+                    if ($skipPrefixOnNext === true) {
+                        $skipPrefixOnNext = false;
+                    }
+                    break;
+                case 'whereGroupStart':
+                    $this->addPrefixToQuery($where['prefix']);
+                    $this->addToQuery('(');
+                    $skipPrefixOnNext = true;
+                    break;
+                case 'whereGroupEnd':
+                    $this->addToQuery(')', false);
+                    break;
+            }
         }
     }
 
     private static function whereDefaults(string $key, string $value, string $operator = '=', ?string $prefix = null): array
     {
-        return compact('key', 'value', 'operator', 'prefix');
+        return array_merge(
+            ['type' => 'where'],
+            compact('key', 'value', 'operator', 'prefix'),
+        );
     }
 
     public function select(string $select)
     {
         $this->select[] = $select;
+        return $this;
     }
 
-    public function andWhere($key, $value = null, $operator = null)
-    {
-        return $this->where($key, $value, $operator, 'AND');
-    }
-
-    private function defaultOperator(): string
+    private function defaultWhereOperator(): string
     {
         return '=';
     }
 
-    public function orWhere($key, $value = null, $operator = null)
+    private function defaultWherePrefix(): string
     {
-
-        return $this->where($key, $value, $operator, 'OR');
+        return 'AND';
     }
 
-    private function isWhereGroup(): bool
+    public function andWhere($key, ?string $value = null, ?string $operator = null)
     {
-        return $this->whereGroup === true;
+        $this->where($key, $value, $operator, 'AND');
+        return $this;
     }
 
-    private function startWhereGroup()
+    public function orWhere($key, ?string $value = null, ?string $operator = null)
     {
-        $this->whereGroup = true;
+        $this->where($key, $value, $operator, 'OR');
+        return $this;
     }
 
-    private function endWhereGroup()
+    public function where($key, ?string $valueOrOperator = null, ?string $value = null, ?string $prefix = null)
     {
-        $this->resetCapturedWhereItems();
-        $this->whereGroup = false;
-    }
+        $isWhereGroup = is_callable($key);
+        $closure = $key;
 
-    public function capturedWhereItems()
-    {
-        return $this->capturedWhereItems;
-    }
+        if (is_null($prefix)) {
+            $prefix = $this->defaultWherePrefix();
+        }
 
-    private function resetCapturedWhereItems()
-    {
-        $this->capturedWhereItems = [];
-    }
-
-    public function where($key, string $valueOrOperator = null, ?string $value = null, string $prefix = null): void
-    {
-        if (is_callable($key)) {
-            $this->startWhereGroup();
-            $key($this);
+        if ($isWhereGroup) {
             $this->where[] = [
                 'prefix' => $prefix,
-                'type' => 'whereGroup',
-                'items' => $this->capturedWhereItems(),
+                'type' => 'whereGroupStart',
             ];
-            $this->endWhereGroup();
+            $closure($this); // Where group callable closure
+            $this->where[] = [
+                'type' => 'whereGroupEnd',
+            ];
         } else {
-
             if (!is_null($value)) {
                 $operator = $valueOrOperator;
             } else {
                 $value = $valueOrOperator;
-                $operator = $this->defaultOperator();
+                $operator = $this->defaultWhereOperator();
             }
-
-            $whereItem = array_merge(
-                ['type' => 'where'],
-                $this->whereDefaults($key, $value, $operator, $prefix)
-            );
-
-            if ($this->isWhereGroup()) {
-                $this->capturedWhereItems[] = $whereItem;
-            } else {
-                $this->where[] = $whereItem;
-            }
+            $this->where[] = $this->whereDefaults($key, $value, $operator, $prefix);
         }
+        return $this;
     }
 
-    public function order(string $order, ?string $orderBy = null): void
+    public function order(string $order, ?string $orderBy = null)
     {
         $this->order = $order;
         if ($orderBy) {
             $this->orderBy = $orderBy;
         }
+        return $this;
     }
 }
