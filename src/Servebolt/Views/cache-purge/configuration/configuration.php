@@ -75,7 +75,7 @@ Keep in mind that purging the entire cache has a temporary impact on the loading
                         <br>
                         <label style="opacity: 0.5;pointer-events:none;">
                             <input type="radio" readonly><?php _e('Servebolt Cloud', 'servebolt-wp'); ?>
-                            <em><?php _e('Coming soon', 'servebolt-wp'); ?></em>
+                            <em>- <?php _e('Coming soon', 'servebolt-wp'); ?></em>
                         </label>
                     </fieldset>
                 </td>
