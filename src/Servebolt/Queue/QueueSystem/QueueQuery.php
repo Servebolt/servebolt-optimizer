@@ -4,13 +4,13 @@ namespace Servebolt\Optimizer\Queue\QueueSystem;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\SqlBuilder\SqlBuilder;
+use Servebolt\Optimizer\SqlBuilder\WpSqlBuilder;
 
 /**
  * Class QueueQuery
  * @package Servebolt\Optimizer\Queue\QueueSystem
  */
-class QueueQuery extends SqlBuilder
+class QueueQuery extends WpSqlBuilder
 {
     /**
      * QueueQuery constructor.

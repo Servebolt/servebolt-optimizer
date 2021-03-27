@@ -5,6 +5,7 @@ namespace Unit;
 use Servebolt\Optimizer\Database\MigrationRunner;
 use Servebolt\Optimizer\Queue\QueueSystem\Queue;
 use Servebolt\Optimizer\SqlBuilder\SqlBuilder;
+use Servebolt\Optimizer\SqlBuilder\WpSqlBuilder;
 use ServeboltWPUnitTestCase;
 
 /**
@@ -28,6 +29,25 @@ class SqlBuilderTest extends ServeboltWPUnitTestCase
         MigrationRunner::migrateFresh();
     }
 
+    public function testSqlBuilder()
+    {
+        $query = SqlBuilder::query('sb_queue')
+            ->selectCount()
+            ->from('sb_queue')
+            ->order('id', 'ASC')
+            ->where('reserved_at_gmt', 'IS NOT', 'NULL')
+            ->orWhere(function($query) {
+                $query->where('payload', '1')
+                    ->orWhere(function($query) {
+                        $query->where('payload', '2')
+                            ->orWhere('payload', '3');
+                    });
+            });
+        $sql = $query->buildQuery();
+        $this->assertIsString($sql);
+        $this->assertEquals("SELECT COUNT(*) FROM `sb_queue` WHERE `reserved_at_gmt` IS NOT NULL OR (`payload` = '1' OR (`payload` = '2' OR `payload` = '3')) ORDER BY id ASC", $sql);
+    }
+
     public function testThatCountWorks()
     {
         $queue = new Queue('my-queue');
@@ -45,7 +65,7 @@ class SqlBuilderTest extends ServeboltWPUnitTestCase
         $item2 = $queue->add($itemData2);
         $queue->reserveItem($item2);
 
-        $query = SqlBuilder::query('sb_queue')
+        $query = WpSqlBuilder::query('sb_queue')
             ->selectCount()
             ->from('sb_queue')
             ->order('id', 'ASC')
@@ -77,7 +97,7 @@ class SqlBuilderTest extends ServeboltWPUnitTestCase
         $item2 = $queue->add($itemData2);
         $queue->reserveItem($item2);
 
-        $query = SqlBuilder::query('sb_queue')
+        $query = WpSqlBuilder::query('sb_queue')
         ->select('*')
         ->from('sb_queue')
         ->order('id', 'ASC')

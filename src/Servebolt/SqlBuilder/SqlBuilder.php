@@ -24,17 +24,17 @@ class SqlBuilder
     /**
      * @var bool Whether this is a count query.
      */
-    private $selectCount = false;
+    protected $selectCount = false;
 
     /**
      * @var string Query string.
      */
-    private $query = '';
+    protected $query = '';
 
     /**
      * @var array Array of arguments that will be populate into the query string.
      */
-    private $prepareArguments = [];
+    protected $prepareArguments = [];
 
     /**
      * @var array Items for query-part of query string.
@@ -72,7 +72,6 @@ class SqlBuilder
      */
     public function __construct(?string $tableName = null)
     {
-        $this->wpdb = $GLOBALS['wpdb'];
         if ($tableName) {
             $this->from($tableName);
         }
@@ -93,74 +92,10 @@ class SqlBuilder
      * @param string $tableName
      * @return SqlBuilder
      */
-    public function from(string $tableName): self
+    public function from(string $tableName)
     {
-        if (substr($tableName, 0, strlen($this->wpdb->prefix)) !== $this->wpdb->prefix) {
-            $this->tableName = $this->wpdb->prefix . $tableName;
-        } else {
-            $this->tableName = $tableName;
-        }
+        $this->tableName = $tableName;
         return $this;
-    }
-
-    /**
-     * @return mixed|null
-     */
-    public function first()
-    {
-        $result = $this->result();
-        if (is_array($result)) {
-            return current($result);
-        }
-        return null;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function run()
-    {
-        $sql = $this->buildQuery();
-        $this->wpdb->query($sql);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getVar()
-    {
-        $sql = $this->buildQuery();
-        return $this->wpdb->get_var($sql);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function result()
-    {
-        $sql = $this->buildQuery();
-        if ($this->selectCount) {
-            return $this->wpdb->get_var($sql);
-        }
-        return $this->getResults($sql);
-    }
-
-    /**
-     * @param string $sql
-     * @return mixed
-     */
-    protected function getResults(string $sql)
-    {
-        return $this->wpdb->get_results($sql);
-    }
-
-    /**
-     * @return int
-     */
-    public function count(): int
-    {
-        $this->result();
-        return $this->wpdb->num_rows;
     }
 
     /**
@@ -232,12 +167,15 @@ class SqlBuilder
         $this->prepareArguments = [];
     }
 
-    private function prepareQuery(): string
+    protected function prepareQuery(): string
     {
         if (empty($this->prepareArguments)) {
             return $this->query; // No external arguments
         }
-        return $this->wpdb->prepare($this->query, ...$this->prepareArguments);
+        $query = $this->query;
+        $query = str_replace('%s', "'%s'", $query);
+        $query = vsprintf($query, $this->prepareArguments);
+        return $query;
     }
 
     private function addOrderParameterToQuery(): void
