@@ -6,10 +6,10 @@
     <h1><?php _e('Cloudflare Image Resizing', 'servebolt-wp'); ?> <sup style="font-size: 12px;">BETA</sup></h1>
 
     <?php settings_errors(); ?>
+    <p><?php echo sprintf(__('This feature will use %sCloudflare Image Resizing%s to resize the images uploaded in WordPress. Note that this is a <strong>beta feature</strong> and might not work as expected.', 'servebolt-wp'), '<a href="https://servebo.lt/lzlmr" target="_blank">', '</a>'); ?></a>
+    <p><?php echo sprintf(__('Cloudflare Image Resize requires your domain to have an active %sCloudflare Business subscription%s, have the Image Resizing feature active, and that your traffic is proxied through Cloudflare.', 'servebolt-wp'), '<a href="https://servebo.lt/agg0t" target="_blank">', '</a>'); ?></a>
 
-    <p>This feature will use Cloudflare Image Resizing to resize the images uploaded in WordPress. Note that this is a <u>beta feature</u> and might not work as expected.</p>
-
-    <p>Read more about Cloudflares image resize feature <a href="https://developers.cloudflare.com/images/about/" target="_blank">here.</a></p>
+    <p></p>
 
     <?php if ( is_network_admin() ) : ?>
 
@@ -50,13 +50,13 @@
 
             <table class="form-table" id="sb-image-resizing-configuration-table" role="presentation">
                 <tr>
-                    <th scope="row"><?php _e('Cloudflare image resize-feature', 'servebolt-wp'); ?></th>
+                    <th scope="row"><?php _e('Cloudflare Image Resizing support', 'servebolt-wp'); ?></th>
                     <td>
                         <fieldset>
                             <legend class="screen-reader-text"><span><?php _e('Cloudflare cache-feature active?', 'servebolt-wp'); ?></span></legend>
                             <label for="cf_image_resizing">
                                 <input name="<?php echo getOptionName('cf_image_resizing'); ?>" type="checkbox" id="cf_image_resizing" value="1" <?php checked((CloudflareImageResize::getInstance())->resizingIsActive()); ?>>
-                                <?php _e('Active?', 'servebolt-wp'); ?>
+                                <?php _e('Enabled', 'servebolt-wp'); ?>
                             </label>
                         </fieldset>
                     </td>

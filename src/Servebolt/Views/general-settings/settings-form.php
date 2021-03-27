@@ -9,6 +9,18 @@
     <?php do_settings_sections( 'sb-general-settings-options-page' ) ?>
     <table class="form-table" id="sb-nginx-fpc-form">
         <tr>
+            <th scope="row"><?php _e('Enable Cloudflare APO support?', 'servebolt-wp'); ?></th>
+            <td>
+                <fieldset>
+                    <legend class="screen-reader-text"><span><?php _e('Whether Cloudflare APO-feature should be active for this site. Note that you need to use the Cloudflare proxy for this to work.', 'servebolt-wp'); ?></span></legend>
+                    <label for="use_cloudflare_apo">
+                        <input name="<?php echo getOptionName('use_cloudflare_apo'); ?>" type="checkbox" id="use_cloudflare_apo" value="1"<?php echo $generalSettings->useCloudflareApo() ? ' checked' : ''; ?>>
+                        <?php _e('Check this if you want the Cloudflare APO-feature to be active for this site. Note that you need to use the Cloudflare proxy for this to work.', 'servebolt-wp'); ?>
+                    </label>
+                </fieldset>
+            </td>
+        </tr>
+        <tr>
             <th scope="row"><?php _e('Use native JS fallback', 'servebolt-wp'); ?></th>
             <td>
                 <fieldset>
@@ -35,18 +47,6 @@
                     <label for="asset_auto_version">
                         <input name="<?php echo getOptionName('asset_auto_version'); ?>" type="checkbox" id="asset_auto_version" value="1"<?php echo $generalSettings->assetAutoVersion() ? ' checked' : ''; ?>>
                         <?php _e('Check this if you want to add an automatic version parameter (used for automatic cache busting) to the URLs of the script and style-files on this site. This is useful when dealing with issues related to cache.'); ?>
-                    </label>
-                </fieldset>
-            </td>
-        </tr>
-        <tr>
-            <th scope="row"><?php _e('Enable Cloudflare APO support?', 'servebolt-wp'); ?></th>
-            <td>
-                <fieldset>
-                    <legend class="screen-reader-text"><span><?php _e('Whether Cloudflare APO-feature should be active for this site. Note that you need to use the Cloudflare proxy for this to work.', 'servebolt-wp'); ?></span></legend>
-                    <label for="use_cloudflare_apo">
-                        <input name="<?php echo getOptionName('use_cloudflare_apo'); ?>" type="checkbox" id="use_cloudflare_apo" value="1"<?php echo $generalSettings->useCloudflareApo() ? ' checked' : ''; ?>>
-                        <?php _e('Check this if you want the Cloudflare APO-feature to be active for this site. Note that you need to use the Cloudflare proxy for this to work.', 'servebolt-wp'); ?>
                     </label>
                 </fieldset>
             </td>
