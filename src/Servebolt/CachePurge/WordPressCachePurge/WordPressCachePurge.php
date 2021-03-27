@@ -2,7 +2,11 @@
 
 namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
+use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use function Servebolt\Optimizer\Helpers\isQueueItem;
 
 /**
  * Class WordPressCachePurge
@@ -27,9 +31,16 @@ class WordPressCachePurge
         if ($postId = url_to_postid($url)) {
             return self::purgePostCache($postId);
         } else {
-            // TODO: Add queue handling here
-            $cachePurgeDriver = CachePurgeDriver::getInstance();
-            return $cachePurgeDriver->purgeByUrl($url);
+            if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
+                $queueInstance = WpObjectQueue::getInstance();
+                return isQueueItem($queueInstance->add([
+                    'type' => 'url',
+                    'url' => $url,
+                ]));
+            } else {
+                $cachePurgeDriver = CachePurgeDriver::getInstance();
+                return $cachePurgeDriver->purgeByUrl($url);
+            }
         }
     }
 
@@ -41,7 +52,7 @@ class WordPressCachePurge
      * @param bool $returnWpError
      * @return bool
      */
-    public function purgeByTermId(int $termId, string $taxonomySlug, bool $returnWpError = false)
+    public static function purgeByTermId(int $termId, string $taxonomySlug, bool $returnWpError = false)
     {
         return self::purgeTermCache($termId, $taxonomySlug, $returnWpError);
     }
@@ -66,9 +77,16 @@ class WordPressCachePurge
      */
     public static function purgeAll(bool $returnWpError = false)
     {
-        // TODO: Add queue handling here
-        $cachePurgeDriver = CachePurgeDriver::getInstance();
-        return $cachePurgeDriver->purgeAll();
+        if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
+            $queueInstance = WpObjectQueue::getInstance();
+            return isQueueItem($queueInstance->add([
+                'type' => 'purge-all',
+                'networkPurge' => false,
+            ]));
+        } else {
+            $cachePurgeDriver = CachePurgeDriver::getInstance();
+            return $cachePurgeDriver->purgeAll();
+        }
     }
 
     /**
@@ -83,11 +101,23 @@ class WordPressCachePurge
         if (!is_multisite()) {
             return false;
         }
-        // TODO: Add switch to blog-logic here
-        // TODO: Add queue handling here
-        $cachePurgeDriver = CachePurgeDriver::getInstance();
-        return $cachePurgeDriver->purgeAll();
-
+        if ($blogId) {
+            switch_to_blog($blogId);
+        }
+        if (CachePurgeDriver::queueBasedCachePurgeIsActive($blogId)) {
+            $queueInstance = WpObjectQueue::getInstance();
+            $result = isQueueItem($queueInstance->add([
+                'type' => 'purge-all',
+                'networkPurge' => false,
+            ]));
+        } else {
+            $cachePurgeDriver = CachePurgeDriver::getInstance();
+            $result = $cachePurgeDriver->purgeAll();
+        }
+        if ($blogId) {
+            restore_current_blog();
+        }
+        return $result;
     }
 
     /**
@@ -96,14 +126,20 @@ class WordPressCachePurge
      * @param bool $returnWpError
      * @return bool
      */
-    public function purgeAllNetwork(bool $returnWpError = false)
+    public static function purgeAllNetwork(bool $returnWpError = false)
     {
         if (!is_multisite()) {
             return false;
         }
-        // TODO: Return Return WP Error object if $returnWpError is true
-        // TODO: Add support for purge all in multisite context
-        // TODO: Add queue handling here
+        if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
+            $queueInstance = WpObjectQueue::getInstance();
+            return isQueueItem($queueInstance->add([
+                'type' => 'purge-all',
+                'networkPurge' => true,
+            ]));
+        } else {
+            $cachePurgeDriver = CachePurgeDriver::getInstance();
+            return $cachePurgeDriver->purgeAll();
+        }
     }
-
 }

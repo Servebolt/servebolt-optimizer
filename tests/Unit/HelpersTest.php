@@ -13,4 +13,10 @@ class HelpersTest extends WP_UnitTestCase
         define('SB_DEBUG', true);
         $this->assertEquals(getServeboltAdminUrl(), 'https://admin.servebolt.com/siteredirect/?site=4321');
     }
+
+    public function testThatTestConstantGetsSet()
+    {
+        $this->assertTrue(defined('WP_TESTS_IS_RUNNING'));
+        $this->assertTrue(WP_TESTS_IS_RUNNING);
+    }
 }

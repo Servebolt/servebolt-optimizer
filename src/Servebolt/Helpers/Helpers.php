@@ -4,7 +4,9 @@ namespace Servebolt\Optimizer\Helpers;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
-use Servebolt\Optimizer\Database\PluginTables;
+use Servebolt\Optimizer\Database\MigrationRunner;
+use Servebolt\Optimizer\NginxFpc\NginxFpc;
+use Servebolt\Optimizer\NginxFpc\NginxFpcAuthHandling;
 
 /**
  * Display a view, Laravel style.
@@ -154,6 +156,7 @@ function createLiTagsFromArray($iterator, $closure = false, bool $includeUl = tr
  */
 function paginateLinksAsArray($url, $pagesNeeded, $args = [])
 {
+    $url = trailingslashit($url);
     if ( ! is_numeric($pagesNeeded) || $pagesNeeded <= 1 ) {
         return [$url];
     }
@@ -220,10 +223,23 @@ function getServeboltAdminUrl() :string
  */
 function clearAllCookies(): void
 {
-    if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
-        require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
-    }
-    ( new \Servebolt_Nginx_FPC_Auth_Handling )->clearNoCacheCookie();
+    nginxFpcAuthHandling()->clearNoCacheCookie();
+}
+
+/**
+ * Check the cookies we have been set.
+ */
+function checkAllCookies(): void
+{
+    nginxFpcAuthHandling()->cacheCookieCheck();
+}
+
+/**
+ * @return NginxFpcAuthHandling
+ */
+function nginxFpcAuthHandling(): object
+{
+    return NginxFpcAuthHandling::getInstance();
 }
 
 /**
@@ -260,11 +276,15 @@ function deleteAllSettings(bool $allSites = true): void
         'cf_api_token',
         'cf_items_to_purge',
         'cf_cron_purge',
+        'queue_based_cache_purge',
 
         // Wipe SB FPC-related options
         'fpc_switch',
         'fpc_settings',
         'fpc_exclude',
+
+        // Migration related
+        'migration_version',
     ];
     foreach ($optionNames as $optionName) {
         if (is_multisite() && $allSites) {
@@ -275,18 +295,6 @@ function deleteAllSettings(bool $allSites = true): void
             deleteOption($optionName);
         }
     }
-}
-
-
-/**
- * Check the cookies we have been set.
- */
-function checkAllCookies(): void
-{
-    if ( ! class_exists('Servebolt_Nginx_FPC_Auth_Handling') ) {
-        require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc-auth-handling.php';
-    }
-    ( new \Servebolt_Nginx_FPC_Auth_Handling )->cache_cookie_check();
 }
 
 /**
@@ -302,8 +310,19 @@ function deactivatePlugin(): void
  */
 function activatePlugin(): void
 {
-    new PluginTables; // Run database migrations
+    MigrationRunner::migrate(); // Run database migrations
     checkAllCookies();
+}
+
+/**
+ * Check whether a variable is an instance of QueueItem.
+ *
+ * @param $var
+ * @return bool
+ */
+function isQueueItem($var): bool
+{
+    return is_a($var, '\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem');
 }
 
 /**
@@ -314,6 +333,30 @@ function activatePlugin(): void
 function isCli(): bool
 {
     return (defined('WP_CLI') && WP_CLI);
+}
+
+/**
+ * Check if we are front-end.
+ *
+ * @return bool
+ */
+function isFrontEnd(): bool
+{
+    // TODO: Anything else we need to add here?
+    return !is_admin()
+        && !isCli()
+        && !isAjax()
+        && !isWpRest();
+}
+
+/**
+ * Check if we are running Unit tests.
+ *
+ * @return bool
+ */
+function isTesting(): bool
+{
+    return (defined('WP_TESTS_IS_RUNNING') && WP_TESTS_IS_RUNNING === true);
 }
 
 /**
@@ -373,17 +416,21 @@ function getAjaxNonceKey(): string
  *
  * @return mixed|string|void
  */
-function generateRandomPermanentKey($name, $blogId = false)
+function generateRandomPermanentKey(string $name, $blogId = false)
 {
-    if ( is_numeric($blogId) ) {
+    if (is_multisite() && is_numeric($blogId)) {
         $key = getBlogOption($blogId, $name);
+    } elseif (is_multisite() && $blogId == 'site') {
+        $key = getSiteOption($name);
     } else {
         $key = getOption($name);
     }
     if ( ! $key ) {
         $key = generateRandomString(36);
-        if ( is_numeric($blogId) ) {
+        if (is_multisite() && is_numeric($blogId)) {
             updateBlogOption($blogId, $name, $key);
+        } elseif (is_multisite() && $blogId == 'site') {
+            updateSiteOption($name, $key);
         } else {
             updateOption($name, $key);
         }
@@ -712,7 +759,7 @@ function requireSuperadmin()
  *
  * @return bool
  */
-function hostIsServebolt(): bool
+function isHostedAtServebolt(): bool
 {
     if (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
         return HOST_IS_SERVEBOLT_OVERRIDE;
@@ -779,16 +826,25 @@ function countSites(): int
  * Execute function closure for each site in multisite-network.
  *
  * @param $function
+ * @param bool $runBlogSwitch
  *
  * @return bool
  */
-function iterateSites($function)
+function iterateSites($function, bool $runBlogSwitch = false): bool
 {
-    if ( ! is_multisite() ) return false;
+    if (!is_multisite()) {
+        return false;
+    }
     $sites = getSites();
-    if ( is_array($sites) ) {
+    if (is_array($sites)) {
         foreach ($sites as $site) {
+            if ($runBlogSwitch) {
+                switch_to_blog($site->blog_id);
+            }
             $function($site);
+            if ($runBlogSwitch) {
+                restore_current_blog();
+            }
         }
         return true;
     }
@@ -879,19 +935,66 @@ function getOption($option_name, $default = false)
 }
 
 /**
+ * Delete site option.
+ *
+ * @param $option
+ *
+ * @return bool
+ */
+function deleteSiteOption($option)
+{
+    return delete_site_option(getOptionName($option));
+}
+
+/**
+ * Update site option.
+ *
+ * @param $optionName
+ * @param $value
+ * @param bool $assertUpdate
+ *
+ * @return bool
+ */
+function updateSiteOption($optionName, $value, $assertUpdate = true)
+{
+    $fullOptionName = getOptionName($optionName);
+    $result = update_site_option($fullOptionName, $value);
+    if ($assertUpdate && !$result) {
+        $currentValue = getSiteOption($optionName);
+        return ( $currentValue == $value );
+    }
+    return true;
+}
+
+/**
+ * Get site option.
+ *
+ * @param $option_name
+ * @param bool $default
+ *
+ * @return mixed|void
+ */
+function getSiteOption($option_name, $default = false)
+{
+    $full_option_name = getOptionName($option_name);
+    $value = get_site_option($full_option_name, $default);
+    return apply_filters('sb_optimizer_get_site_option_' . $full_option_name, $value);
+}
+
+/**
  * A function that will store the option at the right place (in current blog or a specified blog).
  *
- * @param $blog_id
+ * @param $blogId
  * @param $option_name
  * @param $value
  * @param bool $assert_update
  *
  * @return bool|mixed
  */
-function smartUpdateOption($blog_id, $option_name, $value, $assert_update = true)
+function smartUpdateOption($blogId, $option_name, $value, $assert_update = true)
 {
-    if ( is_numeric($blog_id) ) {
-        $result = updateBlogOption($blog_id, $option_name, $value, $assert_update);
+    if (is_numeric($blogId)) {
+        $result = updateBlogOption($blogId, $option_name, $value, $assert_update);
     } else {
         $result = updateOption($option_name, $value, $assert_update);
     }
@@ -920,10 +1023,9 @@ function smartGetOption($blog_id, $option_name, $default = false)
 /**
  * Get Servebolt_Nginx_FPC-instance.
  *
- * @return Servebolt_Nginx_FPC|null
+ * @return NginxFpc|null
  */
 function nginxFpc()
 {
-    require_once SERVEBOLT_PLUGIN_DIR_PATH . 'classes/nginx-fpc/sb-nginx-fpc.php';
-    return \Servebolt_Nginx_FPC::get_instance();
+    return NginxFpc::getInstance();
 }

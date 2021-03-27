@@ -65,7 +65,6 @@ Keep in mind that purging the entire cache has a temporary impact on the loading
                 <th scope="row"><?php _e('Cache provider', 'servebolt-wp'); ?></th>
                 <td>
                     <fieldset>
-                        <legend class="screen-reader-text"><span><?php _e('Cache provider', 'servebolt-wp'); ?></span></legend>
                         <label>
                             <input type="radio" name="<?php echo getOptionName('cache_purge_driver'); ?>" value="cloudflare" <?php checked($settings['cache_purge_driver'] == 'cloudflare'); ?>><a href="https://servebo.lt/0fzxq" target="_blank"><?php _e('Cloudflare', 'servebolt-wp'); ?></a>
                         </label>
@@ -74,8 +73,8 @@ Keep in mind that purging the entire cache has a temporary impact on the loading
                             <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo getOptionName('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?>><a href="https://servebo.lt/a5dk3" target="_blank"><?php _e('Accelerated Domains', 'servebolt-wp'); ?></a>
                         </label>
                         <br>
-                        <label<?php if (!$isHostedAtServebolt) echo ' style="opacity: 0.5;pointer-events:none;"'; ?>>
-                            <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo getOptionName('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?> disabled><?php _e('Servebolt Cloud', 'servebolt-wp'); ?>
+                        <label style="opacity: 0.5;pointer-events:none;">
+                            <input type="radio" readonly><?php _e('Servebolt Cloud', 'servebolt-wp'); ?>
                             <em><?php _e('Coming soon', 'servebolt-wp'); ?></em>
                         </label>
                     </fieldset>

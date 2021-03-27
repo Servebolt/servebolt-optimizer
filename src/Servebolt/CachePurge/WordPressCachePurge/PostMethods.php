@@ -2,8 +2,12 @@
 
 namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
+use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use function Servebolt\Optimizer\Helpers\isQueueItem;
 
 /**
  * Trait PostMethods
@@ -24,7 +28,7 @@ trait PostMethods
             $postId,
             'post'
         );
-        return $purgeObject->get_urls();
+        return $purgeObject->getUrls();
     }
 
     /**
@@ -41,9 +45,16 @@ trait PostMethods
             return false;
         }
 
-        // TODO: Add queue handling here
-        $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
-        $cachePurgeDriver = CachePurgeDriver::getInstance();
-        return $cachePurgeDriver->purgeByUrls($urlsToPurge);
+        if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
+            $queueInstance = WpObjectQueue::getInstance();
+            return isQueueItem($queueInstance->add([
+                'type' => 'post',
+                'id' => $postId,
+            ]));
+        } else {
+            $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
+            $cachePurgeDriver = CachePurgeDriver::getInstance();
+            return $cachePurgeDriver->purgeByUrls($urlsToPurge);
+        }
     }
 }

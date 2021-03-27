@@ -1,5 +1,5 @@
 #!/bin/sh
 vendor/bin/phpcs --version
-vendor/bin/phpcs -s --standard=PSR2 \
+vendor/bin/phpcs -s --standard=PSR1 \
 --exclude=Squiz.CSS.Indentation \
 src tests "$*"

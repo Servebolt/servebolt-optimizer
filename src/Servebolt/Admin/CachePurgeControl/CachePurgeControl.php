@@ -11,7 +11,7 @@ use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
 //use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\QueueHandling;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
-use function Servebolt\Optimizer\Helpers\hostIsServebolt;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\getOption;
 
@@ -42,14 +42,16 @@ class CachePurgeControl
     {
         $settings = $this->getSettingsItemsWithValues();
         $cachePurge = $this;
-        $isHostedAtServebolt = hostIsServebolt();
+        $isHostedAtServebolt = isHostedAtServebolt();
 
         $selectedCfZone = $this->getSelectedCfZone($settings);
         $cfZones = $this->getCfZones($settings);
-        $cachePurgeIsActive = CachePurge::cachePurgeIsActive();
+        $cachePurgeIsActive = CachePurge::isActive();
         $autoCachePurgeIsActive = CachePurge::automaticCachePurgeOnContentUpdateIsActive();
+        $queueBasedCachePurgeActiveStateIsOverridden = CachePurge::queueBasedCachePurgeActiveStateIsOverridden();
+        $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
 
-        view('cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive'));
+        view('cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive', 'queueBasedCachePurgeActiveStateIsOverridden', 'queueBasedCachePurgeIsActive'));
         /*
         $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
         $numberOfCachePurgeQueueItems = sb_cf_cache()->count_items_to_purge();
@@ -188,7 +190,7 @@ class CachePurgeControl
         foreach ($items as $item) {
             switch ($item) {
                 case 'cache_purge_driver':
-                    if (!hostIsServebolt()) {
+                    if (!isHostedAtServebolt()) {
                         $value = $this->getDefaultCachePurgeDriver(); // Only allow Cloudflare when not hosted at Servebolt
                     } else {
                         $value = getOption($item);
@@ -246,7 +248,7 @@ class CachePurgeControl
             'cf_email',
             'cf_api_key',
             'cf_api_token',
-            'cf_cron_purge',
+            'queue_based_cache_purge',
         ];
     }
 }

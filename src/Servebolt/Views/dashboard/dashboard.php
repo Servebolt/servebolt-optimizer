@@ -1,5 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
-<?php use function Servebolt\Optimizer\Helpers\hostIsServebolt; ?>
+<?php use function Servebolt\Optimizer\Helpers\isHostedAtServebolt; ?>
 <?php use function Servebolt\Optimizer\Helpers\view; ?>
 
 <div class="wrap sb-content">
@@ -33,7 +33,7 @@
 
     </div>
 
-	<?php if (!hostIsServebolt()) : ?>
+	<?php if (!isHostedAtServebolt()) : ?>
         <?php view('dashboard.promo-box', $arguments); ?>
     <?php endif; ?>
 

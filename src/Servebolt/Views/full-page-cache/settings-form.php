@@ -2,9 +2,9 @@
 <?php use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup; ?>
 <?php use function Servebolt\Optimizer\Helpers\nginxFpc; ?>
 <?php
-$nginx_fpc_active     = nginxFpc()->fpc_is_active();
-$post_types_to_cache  = nginxFpc()->get_post_types_to_cache(false, false);
-$available_post_types = nginxFpc()->get_available_post_types_to_cache(true);
+$nginx_fpc_active     = nginxFpc()->fpcIsActive();
+$post_types_to_cache  = nginxFpc()->getPostTypesToCache(false, false);
+$available_post_types = nginxFpc()->getAvailablePostTypesToCache(true);
 ?>
 <form method="post" action="options.php">
     <?php settings_fields( 'fpc-options-page' ) ?>
@@ -36,7 +36,7 @@ $available_post_types = nginxFpc()->get_available_post_types_to_cache(true);
         <tr>
             <th scope="row">Posts to exclude from caching</th>
             <td>
-                <?php $ids_to_exclude = nginxFpc()->get_ids_to_exclude_from_cache() ?: []; ?>
+                <?php $ids_to_exclude = nginxFpc()->getIdsToExcludeFromCache() ?: []; ?>
 
                 <div class="tablenav top">
                     <div class="alignleft actions bulkactions">
