@@ -2,6 +2,7 @@
 
 namespace Servebolt\Optimizer\Admin;
 
+use Servebolt\Optimizer\Admin\AcceleratedDomainsControl\AcceleratedDomainsControl;
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\FullPageCacheControl;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
@@ -38,6 +39,7 @@ class AdminGuiController
         $this->initAdminMenus();
         $this->initPluginSettingsLink();
 
+        AcceleratedDomainsControl::init();
         CachePurgeControl::init();
         FullPageCacheControl::init();
         GeneralSettings::init();
@@ -125,6 +127,7 @@ class AdminGuiController
         $this->cachePurgeMenu();
         $this->cfImageResizeMenu();
         if (isHostedAtServebolt()) {
+            $this->acceleratedDomainsMenu();
             $this->cacheSettingsMenu();
             $this->errorLogMenu();
         }
@@ -196,6 +199,14 @@ class AdminGuiController
     {
         add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-fpc', [FullPageCacheControl::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-nginx-cache', [$this, 'fpcLegacyRedirect']);
+    }
+
+    /**
+     * Register cache settings menu item.
+     */
+    private function acceleratedDomainsMenu(): void
+    {
+        add_submenu_page('servebolt-wp', __('Accelerated domains', 'servebolt-wp'), __('Accelerated domains', 'servebolt-wp'), 'manage_options', 'servebolt-acd', [AcceleratedDomainsControl::getInstance(), 'render']);
     }
 
     /**

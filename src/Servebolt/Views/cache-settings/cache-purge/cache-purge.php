@@ -11,8 +11,8 @@
     <?php endif; ?>
 
     <?php if ( is_network_admin() ) : ?>
-        <?php view('cache-purge.network-admin.network-admin', $arguments); ?>
+        <?php view('cache-settings.cache-purge.network-admin.network-admin', $arguments); ?>
     <?php else : ?>
-        <?php view('cache-purge.configuration.configuration', $arguments); ?>
+        <?php view('cache-settings.cache-purge.configuration.configuration', $arguments); ?>
     <?php endif; ?>
 </div>
