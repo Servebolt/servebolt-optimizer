@@ -2,7 +2,9 @@
 <?php use function Servebolt\Optimizer\Helpers\view; ?>
 
 <div class="wrap sb-content">
-	<h1><?php _e('Cache settings', 'servebolt-wp'); ?></h1>
+	<h1><?php _e('Cache', 'servebolt-wp'); ?></h1>
+
+    <?php view('cache-settings.tabs-menu', ['selectedTab' => 'cache-settings']); ?>
 
     <?php settings_errors(); ?>
 
@@ -21,13 +23,9 @@
 	</div>
 
 	<?php if ( is_network_admin() ) : ?>
-
         <?php view('full-page-cache.network-list-view'); ?>
-
     <?php else : ?>
-
         <?php view('full-page-cache.settings-form'); ?>
-
 	<?php endif; ?>
 
 </div>

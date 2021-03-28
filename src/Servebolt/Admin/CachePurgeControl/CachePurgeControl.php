@@ -33,6 +33,20 @@ class CachePurgeControl
         $this->initAjax();
         $this->initAssets();
         $this->initSettings();
+        if (isHostedAtServebolt()) {
+            $this->rewriteHighlightedMenuItem();
+        }
+    }
+
+    private function rewriteHighlightedMenuItem(): void
+    {
+        add_filter('parent_file', function($parentFile) {
+            global $plugin_page;
+            if ('servebolt-cache-purge-control' == $plugin_page) {
+                $plugin_page = 'servebolt-fpc';
+            }
+            return $parentFile;
+        });
     }
 
     /**
