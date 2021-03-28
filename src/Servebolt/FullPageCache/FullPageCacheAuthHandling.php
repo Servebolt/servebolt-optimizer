@@ -1,20 +1,20 @@
 <?php
 
-namespace Servebolt\Optimizer\NginxFpc;
+namespace Servebolt\Optimizer\FullPageCache;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
 
 /**
- * Class NginxFpcAuthHandling
- * @package Servebolt\Optimizer\NginxFpc
+ * Class FullPageCacheAuthHandling
+ * @package Servebolt\Optimizer\FullPageCache
  *
  * This class will handle the "no_cache"-cookie. The cookie will be set when logged in and will result in Nginx cache being disabled for the authenticated user.
  *
  * Note: Cloudflare seems to respect this header also - so yeah, nice to know about when debugging.
  */
-class NginxFpcAuthHandling
+class FullPageCacheAuthHandling
 {
     use Singleton;
 
@@ -38,7 +38,7 @@ class NginxFpcAuthHandling
     }
 
     /**
-     * NginxFpcAuthHandling constructor.
+     * FullPageCacheAuthHandling constructor.
      */
 	public function __construct()
     {
@@ -114,7 +114,8 @@ class NginxFpcAuthHandling
 	 *
 	 * @return mixed
 	 */
-	public function fetchSecureLoggedInCookieValue($secureLoggedInCookie) {
+	public function fetchSecureLoggedInCookieValue($secureLoggedInCookie)
+    {
 		$this->secureLoggedInCookie = $secureLoggedInCookie;
 		return $secureLoggedInCookie;
 	}

@@ -26,7 +26,8 @@ class Post extends SharedMethods
      * @param $postId
      * @param $args
      */
-    public function __construct($postId, $args) {
+    public function __construct($postId, $args)
+    {
         parent::__construct($postId, $args);
     }
 
@@ -55,7 +56,7 @@ class Post extends SharedMethods
      *
      * @return string
      */
-    public function get_title(): string
+    public function getTitle(): string
     {
         return get_the_title($this->getId());
     }

@@ -125,7 +125,7 @@ class AdminGuiController
         $this->cachePurgeMenu();
         $this->cfImageResizeMenu();
         if (isHostedAtServebolt()) {
-            $this->fpcCacheMenu();
+            $this->cacheSettingsMenu();
             $this->errorLogMenu();
         }
         $this->generalSettingsMenu();
@@ -147,7 +147,11 @@ class AdminGuiController
      */
     private function cachePurgeMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Cache purging', 'servebolt-wp'), __('Cache purging', 'servebolt-wp'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
+        if (isHostedAtServebolt()) {
+            add_submenu_page(null, null, null, 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
+        } else {
+            add_submenu_page('servebolt-wp', __('Cache purging', 'servebolt-wp'), __('Cache purging', 'servebolt-wp'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
+        }
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-cf-cache-control', [$this, 'cachePurgeLegacyRedirect']);
     }
 
@@ -186,11 +190,11 @@ class AdminGuiController
     }
 
     /**
-     * Register full page cache menu item.
+     * Register cache settings menu item.
      */
-    private function fpcCacheMenu(): void
+    private function cacheSettingsMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Page Cache', 'servebolt-wp'), __('Cache settings', 'servebolt-wp'), 'manage_options', 'servebolt-fpc', [FullPageCacheControl::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-fpc', [FullPageCacheControl::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-nginx-cache', [$this, 'fpcLegacyRedirect']);
     }
 

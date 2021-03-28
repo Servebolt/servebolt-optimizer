@@ -1,32 +1,32 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup; ?>
-<?php use function Servebolt\Optimizer\Helpers\nginxFpc; ?>
+<?php use function Servebolt\Optimizer\Helpers\fullPageCache; ?>
 <?php
-$nginx_fpc_active     = nginxFpc()->fpcIsActive();
-$post_types_to_cache  = nginxFpc()->getPostTypesToCache(false, false);
-$available_post_types = nginxFpc()->getAvailablePostTypesToCache(true);
+$nginxFpcActive = fullPageCache()->fpcIsActive();
+$postTypesToCache  = fullPageCache()->getPostTypesToCache(false, false);
+$availablePostTypes = fullPageCache()->getAvailablePostTypesToCache(true);
 ?>
 <form method="post" action="options.php">
     <?php settings_fields( 'fpc-options-page' ) ?>
     <?php do_settings_sections( 'fpc-options-page' ) ?>
     <div class="nginx_switch">
-        <table class="form-table" id="sb-nginx-fpc-form"<?php echo ( $nginx_fpc_active ? '' : ' style="display: none;"' ); ?>>
+        <table class="form-table" id="sb-nginx-fpc-form"<?php echo ( $nginxFpcActive ? '' : ' style="display: none;"' ); ?>>
             <tr>
                 <th scope="row"><?php _e('HTML Cache', 'servebolt-wp'); ?></th>
                 <td>
-                    <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginx_fpc_active ? ' checked' : ''; ?>><label for="sb-nginx_cache_switch"><?php _e('Enabled', 'servebolt-wp'); ?></label>
+                    <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginxFpcActive ? ' checked' : ''; ?>><label for="sb-nginx_cache_switch"><?php _e('Enabled', 'servebolt-wp'); ?></label>
                 </td>
             </tr>
         </table>
     </div>
-    <table class="form-table" id="sb-nginx-fpc-form"<?php echo ( $nginx_fpc_active ? '' : ' style="display: none;"' ); ?>>
+    <table class="form-table" id="sb-nginx-fpc-form"<?php echo ( $nginxFpcActive ? '' : ' style="display: none;"' ); ?>>
         <tr>
             <th scope="row">Cache post types</th>
             <td>
-                <?php $all_checked = in_array('all', (array) $post_types_to_cache); ?>
-                <?php foreach ($available_post_types as $post_type => $post_type_name) : ?>
-                    <?php $checked = in_array($post_type, (array) $post_types_to_cache) ? ' checked' : ''; ?>
-                    <span class="<?php if ( $all_checked && $post_type !== 'all' ) echo ' disabled'; ?>"><input id="sb-cache_post_type_<?php echo $post_type; ?>" class="servebolt_fpc_settings_item" name="servebolt_fpc_settings[<?php echo $post_type; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="sb-cache_post_type_<?php echo $post_type; ?>"><?php echo $post_type_name; ?></label></span><br>
+                <?php $allChecked = in_array('all', (array) $postTypesToCache); ?>
+                <?php foreach ($availablePostTypes as $postType => $postTypeName) : ?>
+                    <?php $checked = in_array($postType, (array) $postTypesToCache) ? ' checked' : ''; ?>
+                    <span class="<?php if ( $allChecked && $postType !== 'all' ) echo ' disabled'; ?>"><input id="sb-cache_post_type_<?php echo $postType; ?>" class="servebolt_fpc_settings_item" name="servebolt_fpc_settings[<?php echo $postType; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="sb-cache_post_type_<?php echo $postType; ?>"><?php echo $postTypeName; ?></label></span><br>
                 <?php endforeach; ?>
                 <p><?php _e('By default this plugin enables HTML caching of posts, pages and products.
                             Activate post types here if you want a different cache setup. If none of the post types above is checked the plugin will use default settings.
@@ -36,14 +36,14 @@ $available_post_types = nginxFpc()->getAvailablePostTypesToCache(true);
         <tr>
             <th scope="row">Posts to exclude from caching</th>
             <td>
-                <?php $ids_to_exclude = nginxFpc()->getIdsToExcludeFromCache() ?: []; ?>
+                <?php $idsToExclude = fullPageCache()->getIdsToExcludeFromCache() ?: []; ?>
 
                 <div class="tablenav top">
                     <div class="alignleft actions bulkactions">
                         <button type="button" class="button action sb-remove-selected-exclude-items" disabled><?php _e('Remove selected', 'servebolt-wp'); ?></button>
                     </div>
                     <div class="alignleft actions bulkactions">
-                        <button type="button" style="float:left;" class="button action sb-flush-fpc-exclude-items"<?php if ( count($ids_to_exclude) === 0 ) echo ' disabled'; ?>><?php _e('Flush posts', 'servebolt-wp'); ?></button>
+                        <button type="button" style="float:left;" class="button action sb-flush-fpc-exclude-items"<?php if ( count($idsToExclude) === 0 ) echo ' disabled'; ?>><?php _e('Flush posts', 'servebolt-wp'); ?></button>
                     </div>
                     <div class="alignleft actions bulkactions">
                         <button class="button button-primary sb-add-exclude-post" type="button">Add post to exclude</button>
@@ -73,9 +73,9 @@ $available_post_types = nginxFpc()->getAvailablePostTypesToCache(true);
                     </tfoot>
 
                     <tbody id="the-list">
-                    <tr class="no-items<?php if ( count($ids_to_exclude) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php _e('No posts set to be excluded', 'servebolt-wp'); ?></td></tr>
-                    <?php foreach($ids_to_exclude as $i => $post_id) : ?>
-                        <?php fpcExcludePostTableRowMarkup($post_id); ?>
+                    <tr class="no-items<?php if ( count($idsToExclude) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php _e('No posts set to be excluded', 'servebolt-wp'); ?></td></tr>
+                    <?php foreach($idsToExclude as $i => $postId) : ?>
+                        <?php fpcExcludePostTableRowMarkup($postId); ?>
                     <?php endforeach; ?>
                     </tbody>
 

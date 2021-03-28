@@ -7,7 +7,7 @@
 <?php /*
 <?php if ( $numberOfCachePurgeQueueItems > $maxNumberOfCachePurgeQueueItems ) : ?>
     <div class="notice notice-warning">
-        <p><?php echo sprintf(__('Note: It seems like there is over %s items in the %scache purge queue list%s. This indicates that there might be something wrong with the cron-setup since the cache does not get purged automatically. Please make sure you have set everything up correctly and/or contact support.', 'servebolt-wp'), $max_number_of_cache_purge_queue_items, '<a href="#purge-items-table">', '</a>'); ?></p>
+        <p><?php echo sprintf(__('Note: It seems like there is over %s items in the %scache purge queue list%s. This indicates that there might be something wrong with the cron-setup since the cache does not get purged automatically. Please make sure you have set everything up correctly and/or contact support.', 'servebolt-wp'), $maxNumberOfCachePurgeQueueItems, '<a href="#purge-items-table">', '</a>'); ?></p>
     </div>
 <?php endif; ?>
  */ ?>

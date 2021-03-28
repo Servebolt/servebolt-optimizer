@@ -31,9 +31,9 @@ class General
      *
      *     wp servebolt delete-all-settings
      */
-    public function commandDeleteAllSettings($args, $assoc_args)
+    public function commandDeleteAllSettings($args, $assocArgs)
     {
-        if ($affectAllSites = CliHelpers::affectAllSites($assoc_args)) {
+        if ($affectAllSites = CliHelpers::affectAllSites($assocArgs)) {
             WP_CLI::confirm(__('Do you really want to delete all settings? This will affect all sites in multisite-network.', 'servebolt-wp'));
         } else {
             WP_CLI::confirm(__('Do you really want to delete all settings?', 'servebolt-wp'));

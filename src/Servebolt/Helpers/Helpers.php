@@ -5,8 +5,8 @@ namespace Servebolt\Optimizer\Helpers;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use Servebolt\Optimizer\Database\MigrationRunner;
-use Servebolt\Optimizer\NginxFpc\NginxFpc;
-use Servebolt\Optimizer\NginxFpc\NginxFpcAuthHandling;
+use Servebolt\Optimizer\FullPageCache\FullPageCache;
+use Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling;
 
 /**
  * Display a view, Laravel style.
@@ -106,18 +106,18 @@ function displayValue($value, bool $return = false)
 /**
  * Check if current user has capability, abort if not.
  *
- * @param bool $return_result
+ * @param bool $returnResult
  * @param string $capability
  *
  * @return mixed
  */
-function ajaxUserAllowed($return_result = false, $capability = 'manage_options')
+function ajaxUserAllowed(bool $returnResult = false, $capability = 'manage_options')
 {
-    $user_can = apply_filters('sb_optimizer_ajax_user_allowed', current_user_can($capability));
-    if ( $return_result ) {
-        return $user_can;
+    $userCan = apply_filters('sb_optimizer_ajax_user_allowed', current_user_can($capability));
+    if ($returnResult) {
+        return $userCan;
     }
-    if ( ! $user_can ) {
+    if (!$userCan) {
         wp_die();
     }
 }
@@ -223,7 +223,7 @@ function getServeboltAdminUrl() :string
  */
 function clearAllCookies(): void
 {
-    nginxFpcAuthHandling()->clearNoCacheCookie();
+    fullPageCacheAuthHandling()->clearNoCacheCookie();
 }
 
 /**
@@ -231,15 +231,15 @@ function clearAllCookies(): void
  */
 function checkAllCookies(): void
 {
-    nginxFpcAuthHandling()->cacheCookieCheck();
+    fullPageCacheAuthHandling()->cacheCookieCheck();
 }
 
 /**
- * @return NginxFpcAuthHandling
+ * @return FullPageCacheAuthHandling
  */
-function nginxFpcAuthHandling(): object
+function fullPageCacheAuthHandling(): object
 {
-    return NginxFpcAuthHandling::getInstance();
+    return FullPageCacheAuthHandling::getInstance();
 }
 
 /**
@@ -518,15 +518,15 @@ function checkboxIsChecked($value, string $onString = 'on'): bool
  * Convert an array of post IDs into array of title and Post ID.
  *
  * @param $posts
- * @param bool $blog_id
+ * @param bool|int $blogId
  *
  * @return array
  */
-function resolvePostIdsToTitleAndPostIdString($posts, $blog_id = false): array
+function resolvePostIdsToTitleAndPostIdString($posts, $blogId = false): array
 {
-    return array_map(function($post_id) use ($blog_id) {
-        $title = getPostTitleByBlog($post_id, $blog_id);
-        return $title ? $title . ' (' . $post_id . ')' : $post_id;
+    return array_map(function($postId) use ($blogId) {
+        $title = getPostTitleByBlog($postId, $blogId);
+        return $title ? $title . ' (' . $postId . ')' : $postId;
     }, $posts);
 }
 
@@ -777,14 +777,14 @@ function isHostedAtServebolt(): bool
 /**
  * Get blog name.
  *
- * @param $blogId
+ * @param int $blogId
  *
  * @return bool|string
  */
 function getBlogName($blogId)
 {
-    $current_blog_details = get_blog_details( [ 'blog_id' => $blogId ] );
-    return $current_blog_details ? $current_blog_details->blogname : false;
+    $currentBlogDetails = get_blog_details( [ 'blog_id' => $blogId ] );
+    return $currentBlogDetails ? $currentBlogDetails->blogname : false;
 }
 
 /**
@@ -865,8 +865,8 @@ function updateBlogOption($blogId, $optionName, $value, $assertUpdate = true)
     $fullOptionName = getOptionName($optionName);
     $result = update_blog_option($blogId, $fullOptionName, $value);
     if ($assertUpdate && !$result) {
-        $current_value = getBlogOption($blogId, $optionName);
-        return ( $current_value == $value );
+        $currentValue = getBlogOption($blogId, $optionName);
+        return ($currentValue == $value);
     }
     return true;
 }
@@ -874,17 +874,17 @@ function updateBlogOption($blogId, $optionName, $value, $assertUpdate = true)
 /**
  * Get blog option.
  *
- * @param $blog_id
- * @param $option_name
+ * @param $blogId
+ * @param $optionName
  * @param bool $default
  *
  * @return mixed
  */
-function getBlogOption($blog_id, $option_name, $default = false)
+function getBlogOption($blogId, $optionName, $default = false)
 {
-    $full_option_name = getOptionName($option_name);
-    $value = get_blog_option($blog_id, $full_option_name, $default);
-    return apply_filters('sb_optimizer_get_blog_option_' . $full_option_name, $value, $blog_id);
+    $fullOptionName = getOptionName($optionName);
+    $value = get_blog_option($blogId, $fullOptionName, $default);
+    return apply_filters('sb_optimizer_get_blog_option_' . $fullOptionName, $value, $blogId);
 }
 
 /**
@@ -922,16 +922,16 @@ function updateOption($optionName, $value, $assertUpdate = true)
 /**
  * Get option.
  *
- * @param $option_name
+ * @param $optionName
  * @param bool $default
  *
  * @return mixed|void
  */
-function getOption($option_name, $default = false)
+function getOption($optionName, $default = false)
 {
-    $full_option_name = getOptionName($option_name);
-    $value = get_option($full_option_name, $default);
-    return apply_filters('sb_optimizer_get_option_' . $full_option_name, $value);
+    $fullOptionName = getOptionName($optionName);
+    $value = get_option($fullOptionName, $default);
+    return apply_filters('sb_optimizer_get_option_' . $fullOptionName, $value);
 }
 
 /**
@@ -969,34 +969,34 @@ function updateSiteOption($optionName, $value, $assertUpdate = true)
 /**
  * Get site option.
  *
- * @param $option_name
+ * @param $optionName
  * @param bool $default
  *
  * @return mixed|void
  */
-function getSiteOption($option_name, $default = false)
+function getSiteOption($optionName, $default = false)
 {
-    $full_option_name = getOptionName($option_name);
-    $value = get_site_option($full_option_name, $default);
-    return apply_filters('sb_optimizer_get_site_option_' . $full_option_name, $value);
+    $fullOptionName = getOptionName($optionName);
+    $value = get_site_option($fullOptionName, $default);
+    return apply_filters('sb_optimizer_get_site_option_' . $fullOptionName, $value);
 }
 
 /**
  * A function that will store the option at the right place (in current blog or a specified blog).
  *
  * @param $blogId
- * @param $option_name
+ * @param $optionName
  * @param $value
- * @param bool $assert_update
+ * @param bool $assertUpdate
  *
  * @return bool|mixed
  */
-function smartUpdateOption($blogId, $option_name, $value, $assert_update = true)
+function smartUpdateOption($blogId, $optionName, $value, $assertUpdate = true)
 {
     if (is_numeric($blogId)) {
-        $result = updateBlogOption($blogId, $option_name, $value, $assert_update);
+        $result = updateBlogOption($blogId, $optionName, $value, $assertUpdate);
     } else {
-        $result = updateOption($option_name, $value, $assert_update);
+        $result = updateOption($optionName, $value, $assertUpdate);
     }
     return $result;
 }
@@ -1004,28 +1004,28 @@ function smartUpdateOption($blogId, $option_name, $value, $assert_update = true)
 /**
  * A function that will get the option at the right place (in current blog or a specified blog).
  *
- * @param $blog_id
- * @param $option_name
+ * @param $blogId
+ * @param $optionName
  * @param bool $default
  *
  * @return mixed|void
  */
-function smartGetOption($blog_id, $option_name, $default = false)
+function smartGetOption($blogId, $optionName, $default = false)
 {
-    if ( is_numeric($blog_id) ) {
-        $result = getBlogOption($blog_id, $option_name, $default);
+    if (is_numeric($blogId)) {
+        $result = getBlogOption($blogId, $optionName, $default);
     } else {
-        $result = getOption($option_name, $default);
+        $result = getOption($optionName, $default);
     }
     return $result;
 }
 
 /**
- * Get Servebolt_Nginx_FPC-instance.
+ * Get FullPageCache-instance.
  *
- * @return NginxFpc|null
+ * @return FullPageCache|null
  */
-function nginxFpc()
+function fullPageCache()
 {
-    return NginxFpc::getInstance();
+    return FullPageCache::getInstance();
 }

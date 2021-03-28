@@ -26,7 +26,8 @@ class Term extends SharedMethods
      * @param $termId
      * @param $args
      */
-    public function __construct($termId, $args) {
+    public function __construct($termId, $args)
+    {
         parent::__construct($termId, $args);
     }
 

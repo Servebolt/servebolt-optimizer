@@ -38,8 +38,9 @@ class CloudflareImageResize
      *     wp servebolt cf-image-resize status
      *
      */
-    public function status($args, $assoc_args) {
-        if (CliHelpers::affectAllSites($assoc_args)) {
+    public function status($args, $assocArgs)
+    {
+        if (CliHelpers::affectAllSites($assocArgs)) {
             iterateSites(function ($site) {
                 $this->imageResizeStatus($site->blog_id);
             });
@@ -61,8 +62,9 @@ class CloudflareImageResize
      *     wp servebolt cf-image-resize activate
      *
      */
-    public function enable($args, $assoc_args) {
-        if (CliHelpers::affectAllSites($assoc_args)) {
+    public function enable($args, $assocArgs)
+    {
+        if (CliHelpers::affectAllSites($assocArgs)) {
             iterateSites(function ($site) {
                 $this->toggleActive(true, $site->blog_id);
             });
@@ -84,9 +86,9 @@ class CloudflareImageResize
      *     wp servebolt cf-image-resize deactivate
      *
      */
-    public function disable($args, $assoc_args)
+    public function disable($args, $assocArgs)
     {
-        if (CliHelpers::affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assocArgs)) {
             iterateSites(function ($site) {
                 $this->toggleActive(false, $site->blog_id);
             });

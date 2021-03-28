@@ -89,7 +89,8 @@ class GeneralSettings
      * @param string $prefix
      * @return mixed
      */
-    public function getOverrideConstantValue($name, $prefix = 'SERVEBOLT') {
+    public function getOverrideConstantValue($name, $prefix = 'SERVEBOLT')
+    {
         $name = $this->getOverrideConstantName($name, $prefix);
         return constant($name);
     }
@@ -101,7 +102,8 @@ class GeneralSettings
      * @param string $prefix
      * @return string
      */
-    private function getOverrideConstantName($name, $prefix = 'SERVEBOLT') {
+    private function getOverrideConstantName($name, $prefix = 'SERVEBOLT')
+    {
         return rtrim($prefix, '_') . '_' . mb_strtoupper($name);
     }
 
@@ -116,8 +118,8 @@ class GeneralSettings
     {
         $name = camelCaseToSnakeCase($name);
         if ( in_array($name, array_keys($this->getRegisteredSettingsItems())) ) {
-            $blog_id = arrayGet(0, $arguments, false);
-            return $this->getSettingsItem($name, $blog_id);
+            $blogId = arrayGet(0, $arguments, false);
+            return $this->getSettingsItem($name, $blogId);
         }
 
         // Trigger error for call to undefined method
@@ -131,16 +133,17 @@ class GeneralSettings
     /**
      * Get all general settings in array.
      *
-     * @param bool $blog_id
+     * @param bool|int $blogId
      * @return array
      */
-    public function getAllSettingsItems($blog_id = false) {
-        $settings_items = $this->getRegisteredSettingsItems();
+    public function getAllSettingsItems($blogId = false): array
+    {
+        $settingsItems = $this->getRegisteredSettingsItems();
         $values = [];
-        foreach ( $settings_items as $item => $type ) {
+        foreach ($settingsItems as $item => $type) {
             switch ($item) {
                 default:
-                    $values[$item] = $this->getSettingsItem($item, $blog_id, $type);
+                    $values[$item] = $this->getSettingsItem($item, $blogId, $type);
                     break;
             }
         }
@@ -151,22 +154,23 @@ class GeneralSettings
      * Get value of specific general setting, with override taken into consideration.
      *
      * @param $item
-     * @param bool $blog_id
+     * @param bool|int $blogId
      * @param bool $type
-     * @param bool $respect_override
+     * @param bool $respectOverride
      * @return bool|mixed|void
      */
-    public function getSettingsItem($item, $blog_id = false, $type = false, $respect_override = true) {
-        if ( $respect_override && $this->settingIsOverridden($item) ) {
+    public function getSettingsItem($item, $blogId = false, $type = false, $respectOverride = true)
+    {
+        if ($respectOverride && $this->settingIsOverridden($item)) {
             $value = $this->getOverrideConstantValue($item);
         } else {
-            if ( is_numeric($blog_id) ) {
-                $value = getBlogOption($blog_id, $item);
+            if (is_numeric($blogId)) {
+                $value = getBlogOption($blogId, $item);
             } else {
                 $value = getOption($item);
             }
         }
-        if ( ! $type ) {
+        if (!$type) {
             $type = $this->resolveSettingsItemType($item);
         }
         switch ($type) {
@@ -183,13 +187,13 @@ class GeneralSettings
      *
      * @param $item
      * @param $value
-     * @param bool $blog_id
+     * @param bool|int $blogId
      * @param bool $type
      * @return bool|mixed|void
      */
-    public function setSettingsItem($item, $value, $blog_id = false, $type = false)
+    public function setSettingsItem($item, $value, $blogId = false, $type = false)
     {
-        if ( ! $type ) {
+        if (!$type) {
             $type = $this->resolveSettingsItemType($item);
         }
         $value = trim($value);
@@ -202,8 +206,8 @@ class GeneralSettings
                 $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
                 break;
         }
-        if ( is_numeric($blog_id) ) {
-            updateBlogOption($blog_id, $item, $value);
+        if (is_numeric($blogId)) {
+            updateBlogOption($blogId, $item, $value);
         } else {
             updateOption($item, $value);
         }

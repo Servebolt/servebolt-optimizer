@@ -18,7 +18,8 @@ class Assets {
 	/**
 	 * Servebolt_Optimizer_Assets constructor.
 	 */
-	public function __construct() {
+	public function __construct()
+    {
 		add_action('init', [$this, 'initAssets']);
 	}
 

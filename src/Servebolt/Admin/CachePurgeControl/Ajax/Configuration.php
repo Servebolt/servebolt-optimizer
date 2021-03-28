@@ -56,12 +56,12 @@ class Configuration extends SharedAjaxMethods
         $this->checkAjaxReferer();
         ajaxUserAllowed();
 
-        parse_str($_POST['form'], $form_data);
-        $authType = sanitize_text_field($form_data['servebolt_cf_auth_type']);
-        $apiToken = sanitize_text_field($form_data['servebolt_cf_api_token']);
-        $email = sanitize_text_field($form_data['servebolt_cf_email']);
-        $apiKey = sanitize_text_field($form_data['servebolt_cf_api_key']);
-        $zoneId = sanitize_text_field($form_data['servebolt_cf_zone_id']);
+        parse_str($_POST['form'], $formData);
+        $authType = sanitize_text_field($formData['servebolt_cf_auth_type']);
+        $apiToken = sanitize_text_field($formData['servebolt_cf_api_token']);
+        $email = sanitize_text_field($formData['servebolt_cf_email']);
+        $apiKey = sanitize_text_field($formData['servebolt_cf_api_key']);
+        $zoneId = sanitize_text_field($formData['servebolt_cf_zone_id']);
         try {
             switch ($authType) {
                 case 'api_token':
@@ -100,18 +100,18 @@ class Configuration extends SharedAjaxMethods
         $this->checkAjaxReferer();
         ajaxUserAllowed();
 
-        parse_str($_POST['form'], $form_data);
+        parse_str($_POST['form'], $formData);
         $errors = [];
 
-        $featureIsActive = array_key_exists('servebolt_cache_purge_switch', $form_data)
-            && filter_var($form_data['servebolt_cache_purge_switch'], FILTER_VALIDATE_BOOLEAN) === true;
-        $cfIsActive = array_key_exists('servebolt_cache_purge_driver', $form_data)
-            && $form_data['servebolt_cache_purge_driver'] == 'cloudflare';
-        $authType = sanitize_text_field($form_data['servebolt_cf_auth_type']);
-        $apiToken = sanitize_text_field($form_data['servebolt_cf_api_token']);
-        $email = sanitize_text_field($form_data['servebolt_cf_email']);
-        $apiKey = sanitize_text_field($form_data['servebolt_cf_api_key']);
-        $zoneId = sanitize_text_field($form_data['servebolt_cf_zone_id']);
+        $featureIsActive = array_key_exists('servebolt_cache_purge_switch', $formData)
+            && filter_var($formData['servebolt_cache_purge_switch'], FILTER_VALIDATE_BOOLEAN) === true;
+        $cfIsActive = array_key_exists('servebolt_cache_purge_driver', $formData)
+            && $formData['servebolt_cache_purge_driver'] == 'cloudflare';
+        $authType = sanitize_text_field($formData['servebolt_cf_auth_type']);
+        $apiToken = sanitize_text_field($formData['servebolt_cf_api_token']);
+        $email = sanitize_text_field($formData['servebolt_cf_email']);
+        $apiKey = sanitize_text_field($formData['servebolt_cf_api_key']);
+        $zoneId = sanitize_text_field($formData['servebolt_cf_zone_id']);
         $shouldCheckZone = false;
 
         if (!$featureIsActive || !$cfIsActive) {

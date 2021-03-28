@@ -203,13 +203,13 @@ class PurgeActions extends SharedAjaxMethods
         $this->checkAjaxReferer();
         requireSuperadmin();
 
-        $failed_purge_attempts = [];
-        $queue_based_cache_purge_sites = [];
-        iterateSites(function($site) use (&$failed_purge_attempts, &$queue_based_cache_purge_sites) {
+        $failedPurgeAttempts = [];
+        $queueBasedCachePurgeSites = [];
+        iterateSites(function($site) use (&$failedPurgeAttempts, &$queueBasedCachePurgeSites) {
 
             // Switch context to blog
             if ( sb_cf_cache()->cf_switch_to_blog($site->blog_id) === false ) {
-                $failed_purge_attempts[] = [
+                $failedPurgeAttempts[] = [
                     'blog_id' => $site->blog_id,
                     'reason'  => false,
                 ];
@@ -217,13 +217,13 @@ class PurgeActions extends SharedAjaxMethods
             }
 
             // Skip if CF cache purge feature is not active
-            if ( ! sb_cf_cache()->cf_is_active() ) {
+            if (!sb_cf_cache()->cf_is_active()) {
                 return;
             }
 
-            // Check if the Cloudflare cache purg feature is avavilable
-            if ( ! sb_cf_cache()->cf_cache_feature_available() ) {
-                $failed_purge_attempts[] = [
+            // Check if the Cloudflare cache purge feature is available
+            if (!sb_cf_cache()->cf_cache_feature_available()) {
+                $failedPurgeAttempts[] = [
                     'blog_id' => $site->blog_id,
                     'reason'  => __('Cloudflare feature not available', 'servebolt-wp'),
                 ];
@@ -231,18 +231,18 @@ class PurgeActions extends SharedAjaxMethods
             }
 
             // Flag that current site uses queue based cache purge
-            if ( sb_cf_cache()->cron_purge_is_active() ) {
-                $queue_based_cache_purge_sites[] = $site->blog_id;
+            if (sb_cf_cache()->cron_purge_is_active()) {
+                $queueBasedCachePurgeSites[] = $site->blog_id;
             }
 
             // Check if we already added a purge all-request to queue (if queue based cache purge is used)
-            if ( sb_cf_cache()->cron_purge_is_active() && sb_cf_cache()->has_purge_all_request_in_queue() ) {
+            if (sb_cf_cache()->cron_purge_is_active() && sb_cf_cache()->has_purge_all_request_in_queue()) {
                 return;
             }
 
             // Purge all cache
-            if ( ! sb_cf_cache()->purge_all() ) {
-                $failed_purge_attempts[] = [
+            if (!sb_cf_cache()->purge_all()) {
+                $failedPurgeAttempts[] = [
                     'blog_id' => $site->blog_id,
                     'reason'  => false,
                 ];
@@ -250,29 +250,29 @@ class PurgeActions extends SharedAjaxMethods
 
         });
 
-        $queue_based_cache_purge_sites_count = count($queue_based_cache_purge_sites);
-        $all_sites_use_queue_based_cache_purge = $queue_based_cache_purge_sites_count == countSites();
-        $some_sites_has_queue_purge_active = $queue_based_cache_purge_sites_count > 0;
+        $queueBasedCachePurgeSitesCount = count($queueBasedCachePurgeSites);
+        $allSitesUseQueueBasedCachePurge = $queueBasedCachePurgeSitesCount == countSites();
+        $someSitesHasQueuePurgeActive = $queueBasedCachePurgeSitesCount > 0;
 
-        $failed_purge_attempt_count = count($failed_purge_attempts);
-        $all_failed = $failed_purge_attempt_count == countSites();
+        $failedPurgeAttemptCount = count($failedPurgeAttempts);
+        $allFailed = $failedPurgeAttemptCount == countSites();
 
-        if ( $all_failed ) {
+        if ($allFailed) {
             wp_send_json_error( [
                 'message' => __('Could not purge cache on any sites.', 'servebolt-wp'),
             ] );
         } else {
-            if ( $failed_purge_attempt_count > 0 ) {
+            if ($failedPurgeAttemptCount > 0) {
                 wp_send_json_success([
                     'type'   => 'warning',
                     'title'  => __('Could not clear cache on all sites', 'servebolt-wp'),
-                    'markup' => $this->purgeNetworkCacheFailedSites($failed_purge_attempts),
+                    'markup' => $this->purgeNetworkCacheFailedSites($failedPurgeAttempts),
                 ]);
             } else {
 
-                if ( $all_sites_use_queue_based_cache_purge ) {
+                if ($allSitesUseQueueBasedCachePurge) {
                     $feedback = __('Cache will be cleared for all sites in a moment.', 'servebolt-wp');
-                } elseif ( $some_sites_has_queue_purge_active ) {
+                } elseif ($someSitesHasQueuePurgeActive) {
                     $feedback = __('Cache cleared for all sites, but note that some sites are using queue based cache purging and will be purged in a moment.', 'servebolt-wp');
                 } else {
                     $feedback = __('Cache cleared for all sites', 'servebolt-wp');
@@ -295,7 +295,7 @@ class PurgeActions extends SharedAjaxMethods
     /*
     private function handlePurgeItemAlreadyInQueue($purgeResult): void
     {
-        switch ( $purgeResult->get_error_code() ) {
+        switch ( $purgeResult->getErrorCode() ) {
             case 'url_purge_item_already_in_queue':
                 wp_send_json_success( [
                     'type'    => 'warning',

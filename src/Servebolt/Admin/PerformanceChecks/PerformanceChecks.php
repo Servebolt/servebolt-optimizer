@@ -51,7 +51,8 @@ class PerformanceChecks
     /**
      * Add AJAX handling.
      */
-    private function initAjax() {
+    private function initAjax(): void
+    {
         new OptimizeActions;
     }
 

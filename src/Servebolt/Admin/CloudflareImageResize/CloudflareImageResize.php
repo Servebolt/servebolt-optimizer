@@ -30,7 +30,8 @@ class CloudflareImageResize
     /**
      * CloudflareImageResize constructor.
      */
-    private function __construct() {
+    private function __construct()
+    {
         $this->initSettings();
     }
 
@@ -65,7 +66,8 @@ class CloudflareImageResize
      *
      * @return string
      */
-    private static function cf_resizing_active_option_key() {
+    private static function cfResizingActiveOptionKey()
+    {
         return 'cf_image_resizing';
     }
 
@@ -73,32 +75,32 @@ class CloudflareImageResize
      * Check if Cloudflare image resize feature is active.
      *
      * @param bool $state
-     * @param bool $blog_id
+     * @param bool|int $blogId
      *
      * @return bool
      */
-    public function toggleActive(bool $state, $blog_id = false)
+    public function toggleActive(bool $state, $blogId = false)
     {
-        if ( is_numeric($blog_id) ) {
-            return updateBlogOption($blog_id, $this->cf_resizing_active_option_key(), $state);
+        if ( is_numeric($blogId) ) {
+            return updateBlogOption($blogId, $this->cfResizingActiveOptionKey(), $state);
         } else {
-            return updateOption($this->cf_resizing_active_option_key(), $state);
+            return updateOption($this->cfResizingActiveOptionKey(), $state);
         }
     }
 
     /**
      * Check if Cloudflare image resize feature is active.
      *
-     * @param bool $blog_id
+     * @param bool|int $blogId
      *
      * @return bool
      */
-    public function resizingIsActive($blog_id = false): bool
+    public function resizingIsActive($blogId = false): bool
     {
-        if ( is_numeric($blog_id) ) {
-            return checkboxIsChecked(getBlogOption($blog_id, $this->cf_resizing_active_option_key()));
+        if (is_numeric($blogId)) {
+            return checkboxIsChecked(getBlogOption($blogId, $this->cfResizingActiveOptionKey()));
         } else {
-            return checkboxIsChecked(getOption($this->cf_resizing_active_option_key()));
+            return checkboxIsChecked(getOption($this->cfResizingActiveOptionKey()));
         }
     }
 }

@@ -48,7 +48,8 @@ abstract class SharedMethods
      * @param $id
      * @param $args
      */
-    protected function __construct($id, $args) {
+    protected function __construct($id, $args)
+    {
         $this->setId($id);
         $this->setArguments($args);
         if ( $this->initObject() ) { // Check if we could find the object first

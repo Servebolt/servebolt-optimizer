@@ -34,7 +34,8 @@ class OptionEncryption
 	/**
 	 * SB_Option_Encryption constructor.
 	 */
-	public function __construct() {
+	public function __construct()
+    {
 		if ($this->optionEncryptionActive) {
             $this->optionEncryptionHandling();
             $this->siteOptionEncryptionHandling();

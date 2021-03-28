@@ -1,6 +1,6 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\formatPostTypeSlug; ?>
-<?php use function Servebolt\Optimizer\Helpers\nginxFpc; ?>
+<?php use function Servebolt\Optimizer\Helpers\fullPageCache; ?>
 
 <table class="wp-list-table widefat striped">
     <thead>
@@ -23,18 +23,18 @@
     </tfoot>
     <tbody>
     <?php foreach (get_sites() as $site) : ?>
-        <?php $sb_fpc_settings = nginxFpc()->getPostTypesToCache(false, false, $site->blog_id); ?>
+        <?php $sbFpcSettings = fullPageCache()->getPostTypesToCache(false, false, $site->blog_id); ?>
         <tr>
             <td><?php echo $site->blog_id; ?></td>
             <td><?php echo $site->domain . $site->path; ?></td>
-            <td><?php echo nginxFpc()->fpcIsActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
+            <td><?php echo fullPageCache()->fpcIsActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
             <td>
-                <?php if ( ! empty($sb_fpc_settings) ) : ?>
-                    <?php if ( in_array('all', $sb_fpc_settings) ) : ?>
+                <?php if ( ! empty($sbFpcSettings) ) : ?>
+                    <?php if ( in_array('all', $sbFpcSettings) ) : ?>
                         All
                     <?php else: ?>
-                        <?php foreach ($sb_fpc_settings as $post_type) : ?>
-                            <?php echo formatPostTypeSlug($post_type) . '<br>'; ?>
+                        <?php foreach ($sbFpcSettings as $postType) : ?>
+                            <?php echo formatPostTypeSlug($postType) . '<br>'; ?>
                         <?php endforeach; ?>
                     <?php endif; ?>
                 <?php else : ?>

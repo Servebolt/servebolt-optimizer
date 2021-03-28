@@ -93,8 +93,8 @@ class CloudflareImageResize
     {
 
         // Whether we should upscale images that are too small to fill the proportions of an image size
-        if ( apply_filters('sb_optimizer_cf_image_resize_upscale_images', true ) ) {
-            add_filter( 'image_resize_dimensions', [ $this, 'imageUpscale' ], 10, 6 );
+        if (apply_filters('sb_optimizer_cf_image_resize_upscale_images', true)) {
+            add_filter('image_resize_dimensions', [$this, 'imageUpscale'], 10, 6);
         }
     }
 
@@ -275,28 +275,28 @@ class CloudflareImageResize
      * When generating cropped image sizes then upscale the image if the original is too small, so that we get the proportion specified in the image size.
      *
      * @param $default
-     * @param $orig_w
-     * @param $orig_h
-     * @param $new_w
-     * @param $new_h
+     * @param $origW
+     * @param $origH
+     * @param $newW
+     * @param $newH
      * @param $crop
      *
      * @return array|null
      */
-    function imageUpscale($default, $orig_w, $orig_h, $new_w, $new_h, $crop)
+    function imageUpscale($default, $origW, $origH, $newW, $newH, $crop)
     {
-        if ( ! $crop ) {
+        if (!$crop) {
             return $default; // Let the WordPress default function handle this
         }
 
-        $size_ratio = max($new_w / $orig_w, $new_h / $orig_h);
+        $sizeRatio = max($newW / $origW, $newH / $origH);
 
-        $crop_w = round($new_w / $size_ratio);
-        $crop_h = round($new_h / $size_ratio);
+        $cropW = round($newW / $sizeRatio);
+        $cropH = round($newH / $sizeRatio);
 
-        $s_x = floor( ($orig_w - $crop_w) / 2 );
-        $s_y = floor( ($orig_h - $crop_h) / 2 );
+        $sx = floor( ($origW - $cropW) / 2 );
+        $sy = floor( ($origH - $cropH) / 2 );
 
-        return apply_filters('sb_optimizer_cf_image_resize_upscale_dimensions', [ 0, 0, (int) $s_x, (int) $s_y, (int) $new_w, (int) $new_h, (int) $crop_w, (int) $crop_h ] );
+        return apply_filters('sb_optimizer_cf_image_resize_upscale_dimensions', [0, 0, (int) $sx, (int) $sy, (int) $newW, (int) $newH, (int) $cropW, (int) $cropH]);
     }
 }

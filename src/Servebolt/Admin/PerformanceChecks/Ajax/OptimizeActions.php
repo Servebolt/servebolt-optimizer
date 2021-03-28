@@ -103,7 +103,7 @@ class OptimizeActions extends SharedAjaxMethods
         $databaseOptimizer = DatabaseOptimizer::getInstance();
         $databaseChecks = DatabaseChecks::getInstance();
 
-        if ($databaseOptimizer->table_is_innodb($tableName)) {
+        if ($databaseOptimizer->tableIsInnodb($tableName)) {
             wp_send_json_success([
                 'message' => 'Table is already using InnoDB.',
             ]);
@@ -179,7 +179,7 @@ class OptimizeActions extends SharedAjaxMethods
         $databaseOptimizer = DatabaseOptimizer::getInstance();
 
         // Make sure we found the table name to interact with
-        $fullTableName = is_multisite() ? $databaseOptimizer->get_table_name_by_blog_id($blogId, $tableName) : $databaseOptimizer->get_table_name($tableName);
+        $fullTableName = is_multisite() ? $databaseOptimizer->getTableNameByBlogId($blogId, $tableName) : $databaseOptimizer->getTableName($tableName);
         if (!$fullTableName) {
             return new WP_Error( 'could_not_resolve_full_table_name', __('Could not resolve full table name', 'servebolt-wp') );
         }
@@ -200,17 +200,17 @@ class OptimizeActions extends SharedAjaxMethods
     /**
      * Identify which method we should use to optimize the given table type.
      *
-     * @param $table_name
+     * @param string $tableName
      *
      * @return null|string
      */
-    private function getIndexCreationMethodByTableName($table_name): ?string
+    private function getIndexCreationMethodByTableName(string $tableName): ?string
     {
-        switch ($table_name) {
+        switch ($tableName) {
             case 'options':
-                return 'add_options_autoload_index';
+                return 'addOptionsAutoloadIndex';
             case 'postmeta':
-                return 'add_post_meta_index';
+                return 'addPostMetaIndex';
         }
         return null;
     }

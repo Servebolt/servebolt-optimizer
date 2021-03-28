@@ -33,6 +33,20 @@ class CachePurgeControl
         $this->initAjax();
         $this->initAssets();
         $this->initSettings();
+        if (isHostedAtServebolt()) {
+            $this->rewriteHighlightedMenuItem();
+        }
+    }
+
+    private function rewriteHighlightedMenuItem(): void
+    {
+        add_filter('parent_file', function($parentFile) {
+            global $plugin_page;
+            if ('servebolt-cache-purge-control' == $plugin_page) {
+                $plugin_page = 'servebolt-fpc';
+            }
+            return $parentFile;
+        });
     }
 
     /**
@@ -54,7 +68,7 @@ class CachePurgeControl
         view('cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive', 'queueBasedCachePurgeActiveStateIsOverridden', 'queueBasedCachePurgeIsActive'));
         /*
         $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
-        $numberOfCachePurgeQueueItems = sb_cf_cache()->count_items_to_purge();
+        $numberOfCachePurgeQueueItems = sb_cf_cache()->countItemsToPurge();
         Helpers\view('cache-purge/cache-purge', compact(
             'maxNumberOfCachePurgeQueueItems',
             'numberOfCachePurgeQueueItems'
