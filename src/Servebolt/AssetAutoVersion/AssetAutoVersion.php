@@ -15,7 +15,8 @@ class AssetAutoVersion {
     /**
      * SB_WP_Automatic_Asset_Versioning constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         add_filter('style_loader_tag', [$this, 'styleLoaderTag'], 10, 4);
         add_filter('script_loader_tag', [$this, 'scriptLoaderTag'], 10, 3);
     }

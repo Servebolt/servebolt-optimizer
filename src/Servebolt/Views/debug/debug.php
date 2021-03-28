@@ -1,6 +1,6 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use Servebolt\Optimizer\CachePurge\CachePurge; ?>
-<?php use function Servebolt\Optimizer\Helpers\nginxFpc; ?>
+<?php use function Servebolt\Optimizer\Helpers\fullPageCache; ?>
 <div class="wrap sb-content" id="sb-configuration">
 
 	<h1><?php _e('Servebolt Optimizer - Debug information', 'servebolt-wp'); ?></h1>
@@ -34,28 +34,28 @@
 	<h2>Nginx FPC</h2>
 
 	<?php
-		$selected_post_types_to_cache  = nginxFpc()->getPostTypesToCache(false, false);
-		$selected_post_types_to_cache_without_all = $selected_post_types_to_cache ? array_filter($selected_post_types_to_cache, function($post_type) {
-			return $post_type !== 'all';
+		$selectedPostTypesToCache  = fullPageCache()->getPostTypesToCache(false, false);
+		$selectedPostTypesToCacheWithoutAll = $selectedPostTypesToCache ? array_filter($selectedPostTypesToCache, function($postType) {
+			return $postType !== 'all';
 		}) : [];
-		$post_types_that_will_be_cached  = nginxFpc()->getPostTypesToCache();
-		$available_post_types = nginxFpc()->getAvailablePostTypesToCache(false);
-		$ids_to_exclude_from_cache = nginxFpc()->getIdsToExcludeFromCache();
-		$default_post_types_to_cache = nginxFpc()->getDefaultPostTypesToCache();
+		$postTypesThatWillBeCached  = fullPageCache()->getPostTypesToCache();
+		$availablePostTypes = fullPageCache()->getAvailablePostTypesToCache(false);
+		$idsToExcludeFromCache = fullPageCache()->getIdsToExcludeFromCache();
+		$defaultPostTypesToCache = fullPageCache()->getDefaultPostTypesToCache();
 	?>
 
-	<p>Feature is active? - <?php echo nginxFpc()->fpcIsActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
-	<p>Cache all post types? - <?php echo ( is_array($selected_post_types_to_cache) && in_array('all', $selected_post_types_to_cache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
-	<p>Any specific post types set? - <?php echo ( is_array($selected_post_types_to_cache_without_all) && ! empty($selected_post_types_to_cache_without_all ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>
-	<p>Default post types used? - <?php echo ( ! is_array($selected_post_types_to_cache) || empty($selected_post_types_to_cache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>
+	<p>Feature is active? - <?php echo fullPageCache()->fpcIsActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
+	<p>Cache all post types? - <?php echo ( is_array($selectedPostTypesToCache) && in_array('all', $selectedPostTypesToCache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
+	<p>Any specific post types set? - <?php echo ( is_array($selectedPostTypesToCacheWithoutAll) && ! empty($selectedPostTypesToCacheWithoutAll ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>
+	<p>Default post types used? - <?php echo ( ! is_array($selectedPostTypesToCache) || empty($selectedPostTypesToCache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>
 
 	<br>
 
 	<strong>Raw stored post type data:</strong>
-	<?php if ( $selected_post_types_to_cache ) : ?>
+	<?php if ( $selectedPostTypesToCache ) : ?>
 		<ul style="margin-top: 5px;">
-		<?php foreach ( $selected_post_types_to_cache as $post_type ) : ?>
-			<li>- <?php echo $post_type; ?></li>
+		<?php foreach ($selectedPostTypesToCache as $postType) : ?>
+			<li>- <?php echo $postType; ?></li>
 		<?php endforeach; ?>
 		</ul>
 	<?php else : ?>
@@ -65,10 +65,10 @@
 	<br>
 
 	<strong>Post types that will be cached:</strong>
-	<?php if ( $post_types_that_will_be_cached ) : ?>
+	<?php if ($postTypesThatWillBeCached) : ?>
 		<ul style="margin-top: 5px;">
-		<?php foreach ( $post_types_that_will_be_cached as $post_type ) : ?>
-			<li>- <?php echo $post_type; ?></li>
+		<?php foreach ($postTypesThatWillBeCached as $postType) : ?>
+			<li>- <?php echo $postType; ?></li>
 		<?php endforeach; ?>
 		</ul>
 	<?php else : ?>
@@ -78,10 +78,10 @@
 	<br>
 
 	<strong>Default post types to cache:</strong>
-	<?php if ( $default_post_types_to_cache ) : ?>
+	<?php if ($defaultPostTypesToCache) : ?>
 		<ul style="margin-top: 5px;">
-			<?php foreach ( $default_post_types_to_cache as $post_type ) : ?>
-				<li>- <?php echo $post_type; ?></li>
+			<?php foreach ($defaultPostTypesToCache as $postType) : ?>
+				<li>- <?php echo $postType; ?></li>
 			<?php endforeach; ?>
 		</ul>
 	<?php else : ?>
@@ -91,10 +91,10 @@
 	<br>
 
 	<strong>Post types available to cache (all public post types):</strong>
-	<?php if ( $available_post_types ) : ?>
+	<?php if ($availablePostTypes) : ?>
 		<ul style="margin-top: 5px;">
-			<?php foreach ( $available_post_types as $post_type => $post_type_name ) : ?>
-				<li>- <?php echo $post_type; ?></li>
+			<?php foreach ($availablePostTypes as $postType => $postTypeName ) : ?>
+				<li>- <?php echo $postType; ?></li>
 			<?php endforeach; ?>
 		</ul>
 	<?php else : ?>
@@ -105,10 +105,10 @@
 	<br>
 
 	<strong>Posts to exclude from cache:</strong>
-	<?php if ( $ids_to_exclude_from_cache ) : ?>
+	<?php if ( $idsToExcludeFromCache ) : ?>
 		<ul style="margin-top: 5px;">
-			<?php foreach ( $ids_to_exclude_from_cache as $post_id ) : ?>
-				<li><a href="<?php echo get_permalink($post_id); ?>"><?php echo get_the_title($post_id); ?> (<?php echo $post_id; ?>)</a></li>
+			<?php foreach ($idsToExcludeFromCache as $postId) : ?>
+				<li><a href="<?php echo get_permalink($postId); ?>"><?php echo get_the_title($postId); ?> (<?php echo $postId; ?>)</a></li>
 			<?php endforeach; ?>
 		</ul>
 	<?php else : ?>

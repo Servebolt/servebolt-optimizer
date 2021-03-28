@@ -12,7 +12,7 @@ use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\resolvePostIdsToTitleAndPostIdString;
 use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
-use function Servebolt\Optimizer\Helpers\nginxFpc;
+use function Servebolt\Optimizer\Helpers\fullPageCache;
 
 /**
  * Class Fpc
@@ -25,17 +25,17 @@ class Fpc
      */
     public function __construct()
     {
-        WP_CLI::add_command('servebolt fpc status', [$this, 'command_nginx_fpc_status']);
-        WP_CLI::add_command('servebolt fpc activate', [$this, 'command_nginx_fpc_enable']);
-        WP_CLI::add_command('servebolt fpc deactivate', [$this, 'command_nginx_fpc_disable']);
+        WP_CLI::add_command('servebolt fpc status', [$this, 'commandNginxFpcStatus']);
+        WP_CLI::add_command('servebolt fpc activate', [$this, 'commandNginxFpcEnable']);
+        WP_CLI::add_command('servebolt fpc deactivate', [$this, 'commandNginxFpcDisable']);
 
-        WP_CLI::add_command('servebolt fpc post-types get', [$this, 'command_nginx_fpc_get_cache_post_types']);
-        WP_CLI::add_command('servebolt fpc post-types set', [$this, 'command_nginx_fpc_set_cache_post_types']);
-        WP_CLI::add_command('servebolt fpc post-types clear', [$this, 'command_nginx_fpc_clear_cache_post_types']);
+        WP_CLI::add_command('servebolt fpc post-types get', [$this, 'commandNginxFpcGetCachePostTypes']);
+        WP_CLI::add_command('servebolt fpc post-types set', [$this, 'commandNginxFpcSetCachePostTypes']);
+        WP_CLI::add_command('servebolt fpc post-types clear', [$this, 'commandNginxFpcClearCachePostTypes']);
 
-        WP_CLI::add_command('servebolt fpc excluded-posts get', [$this, 'command_nginx_fpc_get_excluded_posts']);
-        WP_CLI::add_command('servebolt fpc excluded-posts set', [$this, 'command_nginx_fpc_set_excluded_posts']);
-        WP_CLI::add_command('servebolt fpc excluded-posts clear', [$this, 'command_nginx_fpc_clear_excluded_posts']);
+        WP_CLI::add_command('servebolt fpc excluded-posts get', [$this, 'commandNginxFpcGetExcludedPosts']);
+        WP_CLI::add_command('servebolt fpc excluded-posts set', [$this, 'commandNginxFpcSetExcludedPosts']);
+        WP_CLI::add_command('servebolt fpc excluded-posts clear', [$this, 'commandNginxFpcClearExcludedPosts']);
     }
 
     /**
@@ -64,11 +64,11 @@ class Fpc
      *     wp servebolt fpc activate --post-types=all --all
      *
      */
-    public function command_nginx_fpc_enable($args, $assoc_args)
+    public function commandNginxFpcEnable($args, $assocArgs)
     {
-        $this->nginx_fpc_control(true, $assoc_args);
-        if (in_array('status', $assoc_args)) {
-            $this->get_nginx_fpc_status($assoc_args, false);
+        $this->nginxFpcControl(true, $assocArgs);
+        if (in_array('status', $assocArgs)) {
+            $this->getNginxFpcStatus($assocArgs, false);
         }
     }
 
@@ -92,11 +92,11 @@ class Fpc
      *     wp servebolt fpc deactivate --all
      *
      */
-    public function command_nginx_fpc_disable($args, $assoc_args)
+    public function commandNginxFpcDisable($args, $assocArgs)
     {
-        $this->nginx_fpc_control(false, $assoc_args);
-        if (in_array('status', $assoc_args)) {
-            $this->get_nginx_fpc_status($assoc_args, false);
+        $this->nginxFpcControl(false, $assocArgs);
+        if (in_array('status', $assocArgs)) {
+            $this->getGginxFpcStatus($assocArgs, false);
         }
     }
 
@@ -113,15 +113,15 @@ class Fpc
      *     wp servebolt fpc status
      *
      */
-    public function command_nginx_fpc_status($args, $assoc_args)
+    public function commandNginxFpcStatus($args, $assocArgs)
     {
-        if (CliHelpers::affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assocArgs)) {
             $sitesStatus = [];
             iterateSites(function ($site) use (&$sitesStatus) {
-                $sitesStatus[] = $this->get_nginx_fpc_status($site->blog_id);
+                $sitesStatus[] = $this->getGginxFpcStatus($site->blog_id);
             });
         } else {
-            $sitesStatus[] = $this->get_nginx_fpc_status();
+            $sitesStatus[] = $this->getGginxFpcStatus();
         }
         WP_CLI\Utils\format_items('table', $sitesStatus , array_keys(current($sitesStatus)));
     }
@@ -141,14 +141,15 @@ class Fpc
      *     wp servebolt fpc post-types get --all
      *
      */
-    public function command_nginx_fpc_get_cache_post_types($args, $assoc_args) {
-        if ( CliHelpers::affectAllSites($assoc_args) ) {
+    public function commandNginxFpcGetCachePostTypes($args, $assocArgs)
+    {
+        if (CliHelpers::affectAllSites($assocArgs)) {
             $sitesStatus = [];
             iterateSites(function ($site) use (&$sitesStatus) {
-                $sitesStatus[] = $this->nginx_fpc_get_cache_post_types($site->blog_id);
+                $sitesStatus[] = $this->nginxFpcGetCachePostTypes($site->blog_id);
             });
         } else {
-            $sitesStatus[] = $this->nginx_fpc_get_cache_post_types();
+            $sitesStatus[] = $this->nginxFpcGetCachePostTypes();
         }
         WP_CLI\Utils\format_items('table', $sitesStatus , array_keys(current($sitesStatus)));
     }
@@ -176,13 +177,14 @@ class Fpc
      *     wp servebolt fpc post-types set --all-post-types
      *
      */
-    public function command_nginx_fpc_set_cache_post_types($args, $assoc_args) {
-        $allPostTypes = array_key_exists('all-post-types', $assoc_args);
+    public function commandNginxFpcSetCachePostTypes($args, $assocArgs)
+    {
+        $allPostTypes = array_key_exists('all-post-types', $assocArgs);
 
         if ($allPostTypes) {
             $postTypes = ['all'];
         } else {
-            $postTypesString = arrayGet('post-types', $assoc_args, '');
+            $postTypesString = arrayGet('post-types', $assocArgs, '');
             $postTypes = formatCommaStringToArray($postTypesString);
         }
 
@@ -190,12 +192,12 @@ class Fpc
             WP_CLI::error(__('No post types specified', 'servebolt-wp'));
         }
 
-        if ( CliHelpers::affectAllSites($assoc_args) ) {
+        if ( CliHelpers::affectAllSites($assocArgs) ) {
             iterateSites(function ($site) use ($postTypes) {
-                $this->nginx_set_post_types($postTypes, $site->blog_id);
+                $this->nginxSetPostTypes($postTypes, $site->blog_id);
             });
         } else {
-            $this->nginx_set_post_types($postTypes);
+            $this->nginxSetPostTypes($postTypes);
         }
     }
 
@@ -216,13 +218,14 @@ class Fpc
      *     wp servebolt fpc post-types clear
      *
      */
-    public function command_nginx_fpc_clear_cache_post_types($args, $assoc_args) {
-        if (CliHelpers::affectAllSites($assoc_args)) {
+    public function commandNginxFpcClearCachePostTypes($args, $assocArgs)
+    {
+        if (CliHelpers::affectAllSites($assocArgs)) {
             iterateSites(function ($site) {
-                $this->nginx_set_post_types([], $site->blog_id);
+                $this->nginxSetPostTypes([], $site->blog_id);
             });
         } else {
-            $this->nginx_set_post_types([]);
+            $this->nginxSetPostTypes([]);
         }
     }
 
@@ -246,16 +249,16 @@ class Fpc
      *     wp servebolt fpc excluded-posts get --all
      *
      */
-    public function command_nginx_fpc_get_excluded_posts($args, $assoc_args)
+    public function commandNginxFpcGetExcludedPosts($args, $assocArgs)
     {
         $array = [];
-        $extended = array_key_exists('extended', $assoc_args);
-        if (CliHelpers::affectAllSites($assoc_args)) {
+        $extended = array_key_exists('extended', $assocArgs);
+        if (CliHelpers::affectAllSites($assocArgs)) {
             iterateSites(function ($site ) use (&$array, $extended) {
-                $array[] = $this->nginx_fpc_get_excluded_posts($site->blog_id, $extended);
+                $array[] = $this->nginxFpcGetExcludedPosts($site->blog_id, $extended);
             });
         } else {
-            $array[] = $this->nginx_fpc_get_excluded_posts(false, $extended);
+            $array[] = $this->nginxFpcGetExcludedPosts(false, $extended);
         }
         WP_CLI\Utils\format_items('table', $array, array_keys(current($array)));
     }
@@ -274,10 +277,10 @@ class Fpc
      *     wp servebolt fpc excluded-posts set 1,2,3
      *
      */
-    public function command_nginx_fpc_set_excluded_posts($args, $assoc_args)
+    public function commandNginxFpcSetExcludedPosts($args, $assocArgs)
     {
         list($postIdsRaw) = $args;
-        $this->nginx_set_exclude_ids($postIdsRaw);
+        $this->nginxSetExcludeIds($postIdsRaw);
     }
 
     /**
@@ -297,14 +300,14 @@ class Fpc
      *     wp servebolt fpc excluded-posts clear
      *
      */
-    public function command_nginx_fpc_clear_excluded_posts($args, $assoc_args)
+    public function commandNginxFpcClearExcludedPosts($args, $assocArgs)
     {
-        if (CliHelpers::affectAllSites($assoc_args)) {
+        if (CliHelpers::affectAllSites($assocArgs)) {
             iterateSites(function ($site) {
-                $this->nginx_set_exclude_ids(false, $site->blog_id);
+                $this->nginxSetExcludeIds(false, $site->blog_id);
             });
         } else {
-            $this->nginx_set_exclude_ids(false);
+            $this->nginxSetExcludeIds(false);
         }
     }
 
@@ -315,12 +318,12 @@ class Fpc
      *
      * @return array
      */
-    private function get_nginx_fpc_status($blogId = false)
+    private function getNginxFpcStatus($blogId = false)
     {
-        $status = nginxFpc()->fpc_is_active($blogId) ? 'Active' : 'Inactive';
-        $postTypes = nginxFpc()->get_post_types_to_cache(true, true, $blogId);
-        $enabledPostTypesString = $this->nginx_get_active_post_types_string($postTypes);
-        $excludedPosts = nginxFpc()->get_ids_to_exclude_from_cache($blogId);
+        $status = fullPageCache()->fpcIsActive($blogId) ? 'Active' : 'Inactive';
+        $postTypes = fullPageCache()->getPostTypesToCache(true, true, $blogId);
+        $enabledPostTypesString = $this->nginxGetActivePostTypesString($postTypes);
+        $excludedPosts = fullPageCache()->getIdsToExcludeFromCache($blogId);
         $array = [];
         if ($blogId) {
             $array['URL'] = get_site_url($blogId);
@@ -339,10 +342,10 @@ class Fpc
      *
      * @return array
      */
-    private function nginx_fpc_get_cache_post_types($blogId = false)
+    private function nginxFpcGetCachePostTypes($blogId = false)
     {
-        $postTypes = nginxFpc()->get_post_types_to_cache(true, true, $blogId);
-        $enabledPostTypesString = $this->nginx_get_active_post_types_string($postTypes);
+        $postTypes = fullPageCache()->getPostTypesToCache(true, true, $blogId);
+        $enabledPostTypesString = $this->nginxGetActivePostTypesString($postTypes);
         $array = [];
         if ($blogId) {
             $array['URL'] = get_site_url($blogId);
@@ -359,12 +362,12 @@ class Fpc
      *
      * @return string|void
      */
-    private function nginx_get_active_post_types_string($postTypes)
+    private function nginxGetActivePostTypesString($postTypes)
     {
 
         // Cache default post types
         if (!is_array($postTypes) || empty($postTypes)) {
-            return sprintf(__('Default [%s]', 'servebolt-wp'), nginxFpc()->get_default_post_types_to_cache('csv'));
+            return sprintf(__('Default [%s]', 'servebolt-wp'), fullPageCache()->get_default_post_types_to_cache('csv'));
         }
 
         // Cache all post types
@@ -380,14 +383,14 @@ class Fpc
      * @param $newCacheState
      * @param null $blogId
      */
-    private function nginx_toggle_cache_for_blog($newCacheState, $blogId = null)
+    private function nginxToggleCacheForBlog($newCacheState, $blogId = null)
     {
         $url = get_site_url($blogId);
         $cacheActiveString = booleanToStateString($newCacheState);
-        if ($cacheActiveString === nginxFpc()->fpc_is_active($blogId)) {
+        if ($cacheActiveString === fullPageCache()->fpcIsActive($blogId)) {
             WP_CLI::warning(sprintf( __('Full Page Cache already %s on site %s', 'servebolt-wp'), $cacheActiveString, $url ));
         } else {
-            nginxFpc()->fpc_toggle_active($newCacheState, $blogId);
+            fullPageCache()->fpcToggleActive($newCacheState, $blogId);
             WP_CLI::success(sprintf( __('Full Page Cache %s on site %s', 'servebolt-wp'), $cacheActiveString, $url ));
         }
     }
@@ -399,7 +402,7 @@ class Fpc
      *
      * @return array|bool
      */
-    private function nginx_prepare_post_type_argument(array $args)
+    private function nginxPreparePostTypeArgument(array $args)
     {
         if (array_key_exists('post-types', $args)) {
             $postTypes = formatCommaStringToArray($args['post-types']);
@@ -419,30 +422,30 @@ class Fpc
      * @param bool $cacheActive
      * @param array $args
      */
-    private function nginx_fpc_control(bool $cacheActive, array $args = [])
+    private function nginxFpcControl(bool $cacheActive, array $args = [])
     {
         $affectAllBlogs = array_key_exists('all', $args);
-        $postTypes = $this->nginx_prepare_post_type_argument($args);
+        $postTypes = $this->nginxPreparePostTypeArgument($args);
         $excludeIds = arrayGet('exclude', $args);
 
         if (is_multisite() && $affectAllBlogs) {
             WP_CLI::line(__('Applying settings to all blogs', 'servebolt-wp'));
             iterateSites(function($site) use ($cacheActive, $postTypes) {
-                $this->nginx_toggle_cache_for_blog($cacheActive, $site->blog_id);
+                $this->nginxToggleCacheForBlog($cacheActive, $site->blog_id);
                 if ($postTypes) {
-                    $this->nginx_set_post_types($postTypes, $site->blog_id);
+                    $this->nginxSetPostTypes($postTypes, $site->blog_id);
                 }
             });
             if ($excludeIds) {
                 WP_CLI::warning(__('Exclude ids were not set since ids are relative to each site.', 'servebolt-wp'));
             }
         } else {
-            $this->nginx_toggle_cache_for_blog($cacheActive);
+            $this->nginxToggleCacheForBlog($cacheActive);
             if ($postTypes) {
-                $this->nginx_set_post_types($postTypes);
+                $this->nginxSetPostTypes($postTypes);
             }
             if ($excludeIds) {
-                $this->nginx_set_exclude_ids($excludeIds);
+                $this->nginxSetExcludeIds($excludeIds);
             }
         }
     }
@@ -453,16 +456,17 @@ class Fpc
      * @param $postTypes
      * @param bool $blogId
      */
-    private function nginx_set_post_types($postTypes, $blogId = false) {
+    private function nginxSetPostTypes($postTypes, $blogId = false)
+    {
         if ($postTypes === false) {
             $postTypes = [];
         }
-        $allPostTypes = $this->nginx_get_all_post_types();
+        $allPostTypes = $this->nginxGetAllPostTypes();
         $allPostTypesKeys = array_keys($allPostTypes);
         $postTypes = array_filter($postTypes, function($postType) use ($allPostTypesKeys) {
             return in_array($postType, $allPostTypesKeys) || $postType === 'all';
         });
-        nginxFpc()->set_cacheable_post_types($postTypes, $blogId);
+        fullPageCache()->set_cacheable_post_types($postTypes, $blogId);
         if (empty($postTypes)) {
             if ($blogId) {
                 WP_CLI::success(sprintf(__('Cache post type(s) cleared on site %s'), get_site_url($blogId)));
@@ -483,12 +487,12 @@ class Fpc
      *
      * @return array|bool
      */
-    private function nginx_get_all_post_types()
+    private function nginxGetAllPostTypes()
     {
-        $allPostTypes = nginxFpc()->get_available_post_types_to_cache(false);
+        $allPostTypes = fullPageCache()->getAvailablePostTypesToCache(false);
         if (is_array($allPostTypes)) {
             return array_map(function($postType) {
-                return isset($post_type->name) ? $post_type->name : $postType;
+                return isset($postType->name) ? $postType->name : $postType;
             }, $allPostTypes);
         }
         return false;
@@ -500,16 +504,16 @@ class Fpc
      * @param $idsToExclude
      * @param bool|int $blogId
      */
-    private function nginx_set_exclude_ids($idsToExclude, $blogId = false)
+    private function nginxSetExcludeIds($idsToExclude, $blogId = false)
     {
         if (is_string($idsToExclude)) {
             $idsToExclude = formatCommaStringToArray($idsToExclude);
         }
-        $alreadyExcluded = nginxFpc()->get_ids_to_exclude_from_cache($blogId);
+        $alreadyExcluded = fullPageCache()->getIdsToExcludeFromCache($blogId);
         $clearAll = $idsToExclude === false;
 
         if ($clearAll) {
-            nginxFpc()->set_ids_to_exclude_from_cache([], $blogId);
+            fullPageCache()->set_ids_to_exclude_from_cache([], $blogId);
             WP_CLI::success(__('All excluded posts were cleared.', 'servebolt-wp'));
             return;
         } elseif (is_array($idsToExclude) && empty($idsToExclude)) {
@@ -530,7 +534,7 @@ class Fpc
                 $alreadyAdded[] = $id;
             }
         }
-        nginxFpc()->set_ids_to_exclude_from_cache($alreadyExcluded, $blogId);
+        fullPageCache()->set_ids_to_exclude_from_cache($alreadyExcluded, $blogId);
 
         if (!empty($alreadyAdded)) {
             WP_CLI::warning(sprintf(__('The following ids were already excluded: %s', 'servebolt-wp'), formatArrayToCsv($alreadyAdded)));
@@ -555,13 +559,14 @@ class Fpc
      *
      * @return array
      */
-    private function nginx_fpc_get_excluded_posts($blogId = false, $extended = false) {
+    private function nginxFpcGetExcludedPosts($blogId = false, $extended = false)
+    {
         if ($blogId) {
             $array = ['Blog' => $blogId];
         } else {
             $array = [];
         }
-        $alreadyExcluded = nginxFpc()->get_ids_to_exclude_from_cache($blogId);
+        $alreadyExcluded = fullPageCache()->getIdsToExcludeFromCache($blogId);
         if ( $extended ) {
             $alreadyExcluded = formatArrayToCsv(resolvePostIdsToTitleAndPostIdString($alreadyExcluded), ', ');
         } else {

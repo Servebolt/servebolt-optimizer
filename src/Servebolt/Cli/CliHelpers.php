@@ -55,45 +55,47 @@ class CliHelpers
     /**
      * Collect parameter interactively via CLI prompt.
      *
-     * @param $prompt_message
-     * @param $error_message
+     * @param $promptMessage
+     * @param $errorMessage
      * @param bool $validation
-     * @param bool $before_input_prompt
-     * @param bool $quit_on_fail
+     * @param bool|callable $beforeInputPrompt
+     * @param bool $quitOnFail
      *
      * @return string
      */
-    public static function collectParameter($prompt_message, $error_message, $validation = false, $before_input_prompt = false, $quit_on_fail = false)
+    public static function collectParameter($promptMessage, $errorMessage, bool $validation = false, $beforeInputPrompt = false, bool $quitOnFail = false)
     {
 
         // Determine validation
-        $default_validation = function($input) {
-            if ( empty($input) ) return false;
+        $defaultValidation = function($input) {
+            if (empty($input)) {
+                return false;
+            }
             return $input;
         };
-        $validation = ( is_callable($validation) ? $validation : $default_validation );
+        $validation = (is_callable($validation) ? $validation : $defaultValidation);
 
         $failCount = 1;
         $maxFailCount = 5;
         set_param:
 
         // Call before prompt-function
-        if ( is_callable($before_input_prompt) ) {
-            $before_input_prompt();
+        if (is_callable($beforeInputPrompt)) {
+            $beforeInputPrompt();
         }
 
-        if ( $failCount == $maxFailCount ) {
+        if ($failCount == $maxFailCount) {
             echo '[Last attempt] ';
         }
 
-        echo $prompt_message;
+        echo $promptMessage;
         $param = self::userInput($validation);
-        if ( ! $param ) {
-            if ( $failCount >= $maxFailCount ) {
+        if (!$param) {
+            if ($failCount >= $maxFailCount) {
                 WP_CLI::error('No input received, exiting.');
             }
             $failCount++;
-            WP_CLI::error($error_message, $quit_on_fail);
+            WP_CLI::error($errorMessage, $quitOnFail);
             goto set_param;
         }
         return $param;

@@ -34,15 +34,16 @@ class DatabaseChecks
 	/**
 	 * Check if a table is valid for InnoDB conversion.
 	 *
-	 * @param $table_name
+	 * @param string $tableName
 	 *
 	 * @return bool
 	 */
-	public function tableValidForInnodbConversion($table_name) {
-		$myisam_tables = $this->getMyisamTables();
-		if ( is_array($myisam_tables) ) {
-			foreach ( $myisam_tables as $myisam_table ) {
-				if ( $myisam_table->TABLE_NAME == $table_name ) {
+	public function tableValidForInnodbConversion(string $tableName)
+    {
+		$myisamTables = $this->getMyisamTables();
+		if (is_array($myisamTables)) {
+			foreach ($myisamTables as $myisamTable) {
+				if ($myisamTable->TABLE_NAME == $tableName) {
 					return true;
 				}
 			}
@@ -53,14 +54,15 @@ class DatabaseChecks
 	/**
 	 * Get column name to index for specific table.
 	 *
-	 * @param $table_name
+	 * @param string $tableName
 	 *
 	 * @return bool|mixed
 	 */
-	public function getIndexColumnFromTable($table_name) {
+	public function getIndexColumnFromTable(string $tableName)
+    {
 		$tables = $this->getTableIndexSetup();
-		if ( array_key_exists($table_name, $tables) ) {
-			return $tables[$table_name];
+		if ( array_key_exists($tableName, $tables) ) {
+			return $tables[$tableName];
 		}
 		return false;
 	}
@@ -76,9 +78,9 @@ class DatabaseChecks
 		$tablesToHaveIndex = [];
 		if ( is_multisite() ) {
 			$tables = $this->getAllTables();
-			foreach ( $tables as $blog_id => $value ) {
+			foreach ($tables as $blogId => $value) {
 				foreach ($indexTableTypes as $table => $index) {
-                    $tablesToHaveIndex[] = $this->checkIfTableHasIndex($table, $index, $blog_id);
+                    $tablesToHaveIndex[] = $this->checkIfTableHasIndex($table, $index, $blogId);
 				}
 			}
 		} else {
@@ -92,31 +94,31 @@ class DatabaseChecks
 	/**
 	 * Check if table has an index.
 	 *
-	 * @param $table_name
+	 * @param $tableName
 	 * @param $index
-	 * @param bool $blog_id
+	 * @param bool|int $blogId
 	 *
 	 * @return array
 	 */
-	private function checkIfTableHasIndex($table_name, $index, $blog_id = false)
+	private function checkIfTableHasIndex($tableName, $index, $blogId = false)
     {
 		global $wpdb;
-		if ($blog_id) {
-			switch_to_blog($blog_id);
-			$table = ['blog_id' => $blog_id];
+		if ($blogId) {
+			switch_to_blog($blogId);
+			$table = ['blog_id' => $blogId];
 		} else {
 			$table = [];
 		}
-		$db_table = $wpdb->{$table_name};
+		$dbTable = $wpdb->{$tableName};
 
-		$table['name']  = $db_table;
-		$table['table'] = $table_name;
+		$table['name']  = $dbTable;
+		$table['table'] = $tableName;
 		$table['index'] = $index;
-		$indexes  = $wpdb->get_results( "SHOW INDEX FROM {$db_table}" );
+		$indexes  = $wpdb->get_results( "SHOW INDEX FROM {$dbTable}" );
 		foreach ($indexes as $index) {
 			$table['has_index'] = ( $index->Column_name == $table['index'] );
 		}
-		if ($blog_id) {
+		if ($blogId) {
             restore_current_blog();
         }
 		return $table;

@@ -27,7 +27,8 @@ class FullPageCacheControl
     /**
      * Nginx_FPC_Controls constructor.
      */
-    private function __construct() {
+    private function __construct()
+    {
         $this->initSettings();
         $this->initAssets();
         $this->initAjax();
@@ -44,7 +45,8 @@ class FullPageCacheControl
     /**
      * Init assets.
      */
-    private function initAssets() {
+    private function initAssets()
+    {
         add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
     }
 
@@ -63,7 +65,8 @@ class FullPageCacheControl
     /**
      * Initialize settings.
      */
-    private function initSettings() {
+    private function initSettings(): void
+    {
         add_action( 'admin_init', [$this, 'registerSettings'] );
     }
 

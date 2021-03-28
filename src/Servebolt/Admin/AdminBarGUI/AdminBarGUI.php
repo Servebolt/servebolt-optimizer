@@ -178,8 +178,8 @@ class AdminBarGUI
      */
 	private function getSinglePostId(): ?int
     {
-		if (!is_admin() && is_singular() && $post_id = get_the_ID()) {
-			return $post_id;
+		if (!is_admin() && is_singular() && $postId = get_the_ID()) {
+			return $postId;
 		}
 		global $post, $pagenow;
 		if (is_admin() && $pagenow == 'post.php' && $post->ID) {

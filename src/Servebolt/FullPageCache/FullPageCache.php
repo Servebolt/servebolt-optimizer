@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\NginxFpc;
+namespace Servebolt\Optimizer\FullPageCache;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -13,17 +13,17 @@ use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\getOption;
-use function Servebolt\Optimizer\Helpers\nginxFpc;
+use function Servebolt\Optimizer\Helpers\fullPageCache;
 use function Servebolt\Optimizer\Helpers\writeLog;
 
 /**
- * Class NginxFpc
+ * Class FullPageCache
  * @package Servebolt
  *
  * This class handles the actual cache handling by passing headers from WordPress/Apache to the Nginx web server.
  * Note: Only relevant for websites hosted at Servebolt!
  */
-class NginxFpc
+class FullPageCache
 {
     use Singleton;
 
@@ -82,13 +82,13 @@ class NginxFpc
     }
 
 	/**
-	 * NginxFpc constructor.
+	 * FullPageCache constructor.
 	 */
 	private function __construct()
     {
 
 		// Handle "no_cache"-header for authenticated users.
-        NginxFpcAuthHandling::init();
+        FullPageCacheAuthHandling::init();
 
 		// Unauthenticated cache handling
 		add_filter('posts_results', [$this, 'setHeaders']);
@@ -347,12 +347,12 @@ class NginxFpc
 	private function cacheHeaders()
     {
 
-        // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $servebolt_nginx_cache_time if it is
+        // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $serveboltNginxCacheTime if it is
         if (defined('SERVEBOLT_FPC_CACHE_TIME')) {
 	        $this->fpcCacheTime = SERVEBOLT_FPC_CACHE_TIME;
         }
 
-        // Check if the constant SERVEBOLT_BROWSER_CACHE_TIME is set, and override $servebolt_browser_cache_time if it is
+        // Check if the constant SERVEBOLT_BROWSER_CACHE_TIME is set, and override $serveboltBrowserCacheTime if it is
         if (defined('SERVEBOLT_BROWSER_CACHE_TIME')) {
 	        $this->browserCacheTime = SERVEBOLT_BROWSER_CACHE_TIME;
         }
@@ -566,13 +566,13 @@ class NginxFpc
 	 */
 	public function excludePostsFromCache($posts, $blogId = false)
     {
-		$alreadyExcluded = nginxFpc()->getIdsToExcludeFromCache($blogId) ?: [];
+		$alreadyExcluded = fullPageCache()->getIdsToExcludeFromCache($blogId) ?: [];
 		foreach($posts as $postId) {
 			if ( ! in_array($postId, $alreadyExcluded) ) {
                 $alreadyExcluded[] = $postId;
 			}
 		}
-		return nginxFpc()->setIdsToExcludeFromCache($alreadyExcluded, $blogId);
+		return fullPageCache()->setIdsToExcludeFromCache($alreadyExcluded, $blogId);
 	}
 
 	/**

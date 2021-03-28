@@ -54,7 +54,7 @@ class CachePurgeControl
         view('cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive', 'queueBasedCachePurgeActiveStateIsOverridden', 'queueBasedCachePurgeIsActive'));
         /*
         $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
-        $numberOfCachePurgeQueueItems = sb_cf_cache()->count_items_to_purge();
+        $numberOfCachePurgeQueueItems = sb_cf_cache()->countItemsToPurge();
         Helpers\view('cache-purge/cache-purge', compact(
             'maxNumberOfCachePurgeQueueItems',
             'numberOfCachePurgeQueueItems'

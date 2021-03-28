@@ -97,7 +97,7 @@ abstract class HttpClient
             /*
             case 'DELETE':
                 $args['method'] = 'DELETE';
-                $response = wp_remote_request($request_url, $args);
+                $response = wp_remote_request($requestUrl, $args);
                 break;
             */
             default:

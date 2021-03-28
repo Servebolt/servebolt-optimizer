@@ -24,7 +24,8 @@ class SlugChangeTrigger
     /**
      * SB_CF_Cache_Purge_Permalink_Change constructor.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->registerPurgeActions();
     }
 

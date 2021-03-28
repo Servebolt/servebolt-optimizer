@@ -15,7 +15,8 @@ trait User
      * @param false $token
      * @return bool
      */
-    public function verifyApiToken($token = false) {
+    public function verifyApiToken($token = false)
+    {
         if ( ! $token ) {
             $token = $this->getCredential('apiToken');
         }

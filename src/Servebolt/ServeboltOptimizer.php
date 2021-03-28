@@ -17,7 +17,7 @@ use Servebolt\Optimizer\Admin\AdminBarGUI\AdminBarGUI;
 use Servebolt\Optimizer\Admin\Assets as AdminAssets;
 use Servebolt\Optimizer\Admin\AdminGuiController;
 use Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
-use Servebolt\Optimizer\NginxFpc\NginxFpc;
+use Servebolt\Optimizer\FullPageCache\FullPageCache;
 
 use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isAjax;
@@ -63,7 +63,7 @@ class ServeboltOptimizer
         }
 
         // Sets the correct cache headers for the Servebolt full page cache
-        NginxFpc::init();
+        FullPageCache::init();
 
         // Initialize image resizing
         if (featureIsActive('cf_image_resize')) {

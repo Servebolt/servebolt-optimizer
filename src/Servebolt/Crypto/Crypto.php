@@ -24,7 +24,8 @@ class Crypto
      *
      * @return bool|string
      */
-    private static function determineEncryptionMethod() {
+    private static function determineEncryptionMethod()
+    {
         if (function_exists('openssl_encrypt') && function_exists('openssl_decrypt')) {
             return 'openssl';
         }
@@ -69,11 +70,12 @@ class Crypto
      *
      * @param string $inputString
      * @param int|bool $blogId
-     * @param bool $method
+     * @param bool|string $method
      *
      * @return bool|string
      */
-    public static function decrypt(string $inputString, $blogId = false, $method = false) {
+    public static function decrypt(string $inputString, $blogId = false, $method = false)
+    {
         if (is_multisite() && (is_numeric($blogId) || $blogId === 'site')) {
             self::$blogId = $blogId;
         }
