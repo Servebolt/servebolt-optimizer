@@ -83,6 +83,6 @@ class FullPageCacheControl
     public function render(): void
     {
         $sbAdminUrl = getServeboltAdminUrl();
-        view('full-page-cache.full-page-cache', compact('sbAdminUrl'));
+        view('cache-settings.full-page-cache.full-page-cache', compact('sbAdminUrl'));
     }
 }

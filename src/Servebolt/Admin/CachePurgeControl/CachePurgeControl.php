@@ -15,9 +15,12 @@ use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\getOption;
 
+/**
+ * Class CachePurgeControl
+ * @package Servebolt\Optimizer\Admin\CachePurgeControl
+ */
 class CachePurgeControl
 {
-
     use Singleton;
 
     public static function init(): void
@@ -38,6 +41,9 @@ class CachePurgeControl
         }
     }
 
+    /**
+     * Flag "Cache"-page as active when on cache purge options page.
+     */
     private function rewriteHighlightedMenuItem(): void
     {
         add_filter('parent_file', function($parentFile) {
@@ -65,7 +71,7 @@ class CachePurgeControl
         $queueBasedCachePurgeActiveStateIsOverridden = CachePurge::queueBasedCachePurgeActiveStateIsOverridden();
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
 
-        view('cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive', 'queueBasedCachePurgeActiveStateIsOverridden', 'queueBasedCachePurgeIsActive'));
+        view('cache-settings.cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive', 'queueBasedCachePurgeActiveStateIsOverridden', 'queueBasedCachePurgeIsActive'));
         /*
         $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
         $numberOfCachePurgeQueueItems = sb_cf_cache()->countItemsToPurge();

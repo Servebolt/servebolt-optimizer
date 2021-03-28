@@ -17,7 +17,7 @@
 
 Keep in mind that purging the entire cache has a temporary impact on the loading speed for the website visitors, because the cache needs to be rebuilt by requesting fresh content and assets from the origin. <strong>When puring manually the best practice is to purge specific assets or pages by using the purge URL feature.</stong>', 'servebolt-wp'); ?>
 
-    <?php view('cache-purge.configuration.cache-purge-triggers'); ?>
+    <?php view('cache-settings.cache-purge.configuration.cache-purge-triggers'); ?>
 
     <h1><?php _e('Configuration', 'servebolt-wp'); ?></h1>
     <!--<p><?php _e('This feature can be set up using WP CLI or with the form below.', 'servebolt-wp'); ?></p>-->
@@ -81,13 +81,13 @@ Keep in mind that purging the entire cache has a temporary impact on the loading
                 </td>
             </tr>
 
-            <?php view('cache-purge.configuration.acd-configuration', $arguments); ?>
+            <?php view('cache-settings.cache-purge.configuration.acd-configuration', $arguments); ?>
 
-            <?php view('cache-purge.configuration.cloudflare-configuration', $arguments); ?>
+            <?php view('cache-settings.cache-purge.configuration.cloudflare-configuration', $arguments); ?>
 
-            <?php view('cache-purge.configuration.cron-configuration', $arguments); ?>
+            <?php view('cache-settings.cache-purge.configuration.cron-configuration', $arguments); ?>
 
-            <?php //view('cache-purge.queue.list', $arguments); ?>
+            <?php //view('cache-settings.cache-purge.queue.list', $arguments); ?>
 
 
             <!--</tbody>-->
