@@ -225,10 +225,17 @@ class FullPageCache
 	/**
 	 * Set a header by best effort.
 	 *
-	 * @param $string
+	 * @param string $key
+	 * @param null|string $value
 	 */
-	private function header($string)
+	private function header(string $key, ?string $value = null)
     {
+
+        if (!$value) {
+            $string = $key;
+        } else {
+            $string = $key . ': ' . $value;
+        }
 
 		// Abort if headers are already sent
 		if (headers_sent() && !$this->allowForceHeaders) {
@@ -347,6 +354,8 @@ class FullPageCache
 	private function cacheHeaders()
     {
 
+        do_action('sb_optimizer_fpc_cache_headers', $this);
+
         // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $serveboltNginxCacheTime if it is
         if (defined('SERVEBOLT_FPC_CACHE_TIME')) {
 	        $this->fpcCacheTime = SERVEBOLT_FPC_CACHE_TIME;
@@ -381,6 +390,8 @@ class FullPageCache
 	 */
 	private function noCacheHeaders(): void
     {
+
+        do_action('sb_optimizer_fpc_no_cache_headers', $this);
 		$this->header( 'Cache-Control: max-age=0,no-cache,s-maxage=0' );
 		$this->header( 'Pragma: no-cache' );
 		$this->header( 'X-Servebolt-Plugin: active' );
