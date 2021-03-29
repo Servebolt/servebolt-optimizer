@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Sdk\Cloudflare\Exceptions\ApiError;
 use Servebolt\Optimizer\Sdk\Cloudflare\ApiRequestHelpers;
 

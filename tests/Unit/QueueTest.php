@@ -5,7 +5,7 @@ namespace Unit;
 use Servebolt\Optimizer\Queue\QueueSystem\Queue;
 use Servebolt\Optimizer\Queue\Queues\UrlQueue;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
-use Servebolt\Optimizer\Database\MigrationRunner;
+use Servebolt\Optimizer\DatabaseMigration\MigrationRunner;
 use ServeboltWPUnitTestCase;
 use function Servebolt\Optimizer\Helpers\isQueueItem;
 

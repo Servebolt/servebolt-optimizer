@@ -19,7 +19,7 @@ class SqlBuilder
     /**
      * @var bool Whether we have added the "WHERE"-string to the query string already.
      */
-    private $firstWhereAdded = false;
+    private $firstWhereClauseAdded = false;
 
     /**
      * @var bool Whether this is a count query.
@@ -163,7 +163,7 @@ class SqlBuilder
     private function resetQueryBuild(): void
     {
         $this->query = '';
-        $this->firstWhereAdded = false;
+        $this->firstWhereClauseAdded = false;
         $this->prepareArguments = [];
     }
 
@@ -195,9 +195,9 @@ class SqlBuilder
 
     private function addPrefixToQuery($prefix): void
     {
-        if (!$this->firstWhereAdded) {
+        if (!$this->firstWhereClauseAdded) {
             $this->addToQuery("WHERE");
-            $this->firstWhereAdded = true;
+            $this->firstWhereClauseAdded = true;
         } else {
             $this->addToQuery($prefix);
         }
