@@ -228,7 +228,7 @@ class FullPageCache
 	 * @param string $key
 	 * @param null|string $value
 	 */
-	private function header(string $key, ?string $value = null)
+	public function header(string $key, ?string $value = null)
     {
 
         if (!$value) {

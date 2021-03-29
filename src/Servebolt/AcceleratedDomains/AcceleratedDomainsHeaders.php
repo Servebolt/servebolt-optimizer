@@ -40,7 +40,7 @@ class AcceleratedDomainsHeaders
 
     /**
      * Add headers to control the ACD-feature.
-     * 
+     *
      * @param $headers
      * @return array
      */
