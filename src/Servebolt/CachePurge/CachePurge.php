@@ -216,14 +216,25 @@ class CachePurge
      * @param int|null $blogId
      * @return mixed|void
      */
-    private static function getSelectedCachePurgeDriver(?int $blogId = null)
+    public static function getSelectedCachePurgeDriver(?int $blogId = null)
     {
         $key = 'cache_purge_driver';
         if (is_numeric($blogId)) {
-            return getBlogOption($blogId, $key);
+            $value = getBlogOption($blogId, $key);
         } else {
-            return getOption($key);
+            $value = getOption($key);
         }
+        return apply_filters('sb_optimizer_selected_cache_purge_driver', $value);
+    }
+
+    public static function cachePurgeIsLockedTo($driver)
+    {
+        return self::cachePurgeDriverIsOverridden() && self::getSelectedCachePurgeDriver() === $driver;
+    }
+
+    public static function cachePurgeDriverIsOverridden()
+    {
+        return has_filter('sb_optimizer_selected_cache_purge_driver');
     }
 
     /**

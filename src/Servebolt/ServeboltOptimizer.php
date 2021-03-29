@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
 use Servebolt\Optimizer\Database\MigrationRunner;
 use Servebolt\Optimizer\Crypto\OptionEncryption;
@@ -22,6 +23,7 @@ use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isAjax;
 use function Servebolt\Optimizer\Helpers\isCron;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\isWpRest;
 use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\isFrontEnd;
@@ -60,6 +62,10 @@ class ServeboltOptimizer
             // Make sure we dont certain options (like API credentials) in clear text.
             new OptionEncryption;
 
+        }
+
+        if (isHostedAtServebolt()) {
+            AcceleratedDomains::init();
         }
 
         // Sets the correct cache headers for the Servebolt full page cache
