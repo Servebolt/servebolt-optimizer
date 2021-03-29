@@ -27,6 +27,7 @@ class AcceleratedDomains
      */
     public function __construct()
     {
+        new AcceleratedDomainsHeaders;
         $this->cachePurgeDriverLockWhenAcdActive();
     }
 
@@ -39,6 +40,23 @@ class AcceleratedDomains
     public static function isActive(?int $blogId = null): bool
     {
         $key = 'acd_switch';
+        if (is_numeric($blogId)) {
+            $value = getBlogOption($blogId, $key);
+        } else {
+            $value = getOption($key);
+        }
+        return checkboxIsChecked($value);
+    }
+
+    /**
+     * Check whether the cache purge feature is active.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function htmlMinifyIsActive(?int $blogId = null): bool
+    {
+        $key = 'acd_minify_switch';
         if (is_numeric($blogId)) {
             $value = getBlogOption($blogId, $key);
         } else {
