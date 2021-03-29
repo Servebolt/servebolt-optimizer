@@ -91,7 +91,7 @@ Keep in mind that purging the entire cache has a temporary impact on the loading
 
             <?php view('cache-settings.cache-purge.configuration.cloudflare-configuration', $arguments); ?>
 
-            <?php view('cache-settings.cache-purge.configuration.cron-configuration', $arguments); ?>
+            <?php //view('cache-settings.cache-purge.configuration.cron-configuration', $arguments); ?>
 
             <?php //view('cache-settings.cache-purge.queue.list', $arguments); ?>
 

@@ -278,6 +278,7 @@ class CachePurge
      */
     public static function queueBasedCachePurgeActiveStateIsOverridden(): bool
     {
+        return false;
         return
             (defined('SERVEBOLT_CF_PURGE_CRON') && is_bool(SERVEBOLT_CF_PURGE_CRON)) // Legacy
             || (defined('SERVEBOLT_QUEUE_BASED_CACHE_PURGE') && is_bool(SERVEBOLT_QUEUE_BASED_CACHE_PURGE));
@@ -311,6 +312,7 @@ class CachePurge
      */
     public static function queueBasedCachePurgeIsActive(bool $respectOverride = true, ?int $blogId = null): bool
     {
+        return false;
         $activeStateOverride = self::queueBasedCachePurgeActiveStateOverride();
         if ($respectOverride && is_bool($activeStateOverride)) {
             return $activeStateOverride;
