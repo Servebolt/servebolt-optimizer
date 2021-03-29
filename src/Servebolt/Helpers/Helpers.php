@@ -209,7 +209,7 @@ function camelCaseToSnakeCase(string $string): string
 function getServeboltAdminUrl() :string
 {
     if (!function_exists('get_home_path')) {
-        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        require_once ABSPATH . 'wp-admin/includes/file.php';
     }
     $webRootPath = isDevDebug() ? '/kunder/serveb_1234/custom_4321/public' : get_home_path();
     if (preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $webRootPath, $matches) && isset($matches[1])) {
