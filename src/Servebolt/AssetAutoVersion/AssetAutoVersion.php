@@ -12,6 +12,11 @@ class AssetAutoVersion {
      */
     private $parameterName = 'sb-version';
 
+    public static function init()
+    {
+        new self;
+    }
+
     /**
      * SB_WP_Automatic_Asset_Versioning constructor.
      */

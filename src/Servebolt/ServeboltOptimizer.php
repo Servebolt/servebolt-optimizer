@@ -128,7 +128,7 @@ class ServeboltOptimizer
 
             // Feature to automatically version all enqueued script/style-tags
             if (featureIsActive('sb_asset_auto_version')) {
-                new AssetAutoVersion;
+                AssetAutoVersion::init();
             }
 
         }
