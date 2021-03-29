@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
-use Servebolt\Optimizer\Database\MigrationRunner;
+use Servebolt\Optimizer\DatabaseMigration\MigrationRunner;
 use Servebolt\Optimizer\Crypto\OptionEncryption;
 use Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Queue\QueueEventHandler;
