@@ -96,7 +96,7 @@ class Fpc
     {
         $this->nginxFpcControl(false, $assocArgs);
         if (in_array('status', $assocArgs)) {
-            $this->getGginxFpcStatus($assocArgs, false);
+            $this->getNginxFpcStatus($assocArgs, false);
         }
     }
 
@@ -118,10 +118,10 @@ class Fpc
         if (CliHelpers::affectAllSites($assocArgs)) {
             $sitesStatus = [];
             iterateSites(function ($site) use (&$sitesStatus) {
-                $sitesStatus[] = $this->getGginxFpcStatus($site->blog_id);
+                $sitesStatus[] = $this->getNginxFpcStatus($site->blog_id);
             });
         } else {
-            $sitesStatus[] = $this->getGginxFpcStatus();
+            $sitesStatus[] = $this->getNginxFpcStatus();
         }
         WP_CLI\Utils\format_items('table', $sitesStatus , array_keys(current($sitesStatus)));
     }

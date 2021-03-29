@@ -37,8 +37,46 @@ class CfSetup
     }
 
     /**
-     * @param $args
-     * @param $assocArgs
+     * Setup procedure for Cloudflare-based cache purge feature.
+     *
+     * ## OPTIONS
+     *
+     * [--all]
+     * : Setup on all sites in multisite.
+     *
+     * [--auth-type[=<auth-type>]]
+     * : The way we want to authenticate with the Cloudflare API.
+     * ---
+     * default: token
+     * options:
+     *   - token
+     *   - key
+     * ---
+     *
+     * [--api-token=<api-token>]
+     * : Cloudflare API token.
+     *
+     * [--email=<email>]
+     * : Cloudflare e-mail.
+     *
+     * [--api-key=<api-key>]
+     * : Cloudflare API key.
+     *
+     * [--zone-id=<zone-id>]
+     * : Cloudflare Zone.
+     *
+     * [--disable-validation]
+     * : Whether to validate the input data or not.
+     *
+     * ## EXAMPLES
+     *
+     *     # Set up feature using API key authentication
+     *     wp servebolt cf setup --auth-type=key --email="your@email.com" --api-key="your-api-token" --zone-id="your-zone-id"
+     *
+     *     # Set up feature using API token authentication, applying configuration to all sites in a multisite
+     *     wp servebolt cf setup --auth-type=token --api-token="your-api-token" --zone-id="your-zone-id" --all
+     *
+     *
      */
     public function setup($args, $assocArgs): void
     {
@@ -50,10 +88,7 @@ class CfSetup
         $zoneId            = arrayGet('zone-id', $assocArgs);
         $disableValidation = array_key_exists( 'disable-validation', $assocArgs );
 
-        $individualZones = arrayGet('individual-zones', $assocArgs);
-        $individualZones = array_key_exists( 'individual-zones', $assocArgs ) ? ( empty($individualZones) ? true : filter_var($individualZones, FILTER_VALIDATE_BOOLEAN) ) : null;
-
-        $params = compact('affectAllSites', 'authType', 'apiToken', 'email', 'apiKey', 'zoneId', 'disableValidation', 'individualZones');
+        $params = compact('affectAllSites', 'authType', 'apiToken', 'email', 'apiKey', 'zoneId', 'disableValidation');
 
         self::cfCachePurgeSetup($params);
     }

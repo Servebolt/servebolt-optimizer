@@ -46,7 +46,7 @@ class CfLegacyCommands
     }
 
     /**
-     * Display message about these commands being deprecated and replaced with the cache-namespace.
+     * Cloudflare outdated command.
      */
     public function cfLegacyMessage(): void
     {

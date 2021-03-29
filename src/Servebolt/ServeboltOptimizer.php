@@ -19,6 +19,7 @@ use Servebolt\Optimizer\Admin\Assets as AdminAssets;
 use Servebolt\Optimizer\Admin\AdminGuiController;
 use Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
 use Servebolt\Optimizer\FullPageCache\FullPageCache;
+use Servebolt\Optimizer\Cli\Cli;
 
 use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isAjax;
@@ -134,8 +135,7 @@ class ServeboltOptimizer
 
         // Initialize CLI-commands
         if (isCli()) {
-            require_once SERVEBOLT_PLUGIN_DIR_PATH . 'cli/cli.class.php';
-            \Servebolt_CLI::get_instance();
+            Cli::init();
         }
     }
 }
