@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 /**
  * Trait Zone
  * @package Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods

@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\EnvFile;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Traits\Singleton;
 
 class Reader
