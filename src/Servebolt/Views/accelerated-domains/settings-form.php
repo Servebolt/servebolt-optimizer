@@ -20,6 +20,7 @@
                 </fieldset>
             </td>
         </tr>
+        <?php /*
         <tr>
             <th scope="row"><?php _e('Minify HTML?', 'servebolt-wp'); ?></th>
             <td>
@@ -32,6 +33,7 @@
                 </fieldset>
             </td>
         </tr>
+        */ ?>
     </table>
 
     <p class="submit">

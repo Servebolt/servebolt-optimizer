@@ -50,7 +50,7 @@ class AcceleratedDomainsHeaders
             $this->handleTtlHeaders();
             $headers['x-acd-cms'] = 'wordpress';
             if (AcceleratedDomains::htmlMinifyIsActive()) {
-                $headers['x-acd-minify'] = true;
+                //$headers['x-acd-minify'] = true;
             }
         }
         return $headers;

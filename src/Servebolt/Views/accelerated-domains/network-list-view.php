@@ -1,6 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
-<?php use function Servebolt\Optimizer\Helpers\formatPostTypeSlug; ?>
-<?php use function Servebolt\Optimizer\Helpers\fullPageCache; ?>
+<?php use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains; ?>
 
 <table class="wp-list-table widefat striped">
     <thead>
@@ -20,12 +19,12 @@
     </tr>
     </tfoot>
     <tbody>
-    <?php foreach (get_sites() as $site) : ?>
+    <?php foreach (get_sites() as $site): ?>
         <tr>
             <td><?php echo $site->blog_id; ?></td>
             <td><?php echo $site->domain . $site->path; ?></td>
-            <td><?php echo false ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
-            <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-acd' ); ?>" class="button btn"><?php _e('Go to site FPC settings', 'servebolt-wp'); ?></a></td>
+            <td><?php echo AcceleratedDomains::isActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
+            <td><a href="<?php echo get_admin_url($site->blog_id, 'admin.php?page=servebolt-acd'); ?>" class="button btn"><?php _e('Go to site FPC settings', 'servebolt-wp'); ?></a></td>
         </tr>
     <?php endforeach; ?>
     </tbody>

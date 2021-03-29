@@ -15,7 +15,7 @@
 <p><?php _e("Servebolt Optimizer supports cache purging of Cloudflare and Accelerated Domains cache. Cache purging can be done both manually and automatically.", 'servebolt-wp'); ?></p>
 <p><?php _e('When purging manually you can purge specific URLs, or even purge the entire cache.
 
-Keep in mind that purging the entire cache has a temporary impact on the loading speed for the website visitors, because the cache needs to be rebuilt by requesting fresh content and assets from the origin. <strong>When puring manually the best practice is to purge specific assets or pages by using the purge URL feature.</stong>', 'servebolt-wp'); ?>
+Keep in mind that purging the entire cache has a temporary impact on the loading speed for the website visitors, because the cache needs to be rebuilt by requesting fresh content and assets from the origin. <strong>When purging manually the best practice is to purge specific assets or pages by using the purge URL feature.</stong>', 'servebolt-wp'); ?>
 
     <?php view('cache-settings.cache-purge.configuration.cache-purge-triggers'); ?>
 
