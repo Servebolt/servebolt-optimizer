@@ -8,6 +8,8 @@ use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getOption;
+use function Servebolt\Optimizer\Helpers\updateBlogOption;
+use function Servebolt\Optimizer\Helpers\updateOption;
 
 /**
  * Class AcceleratedDomains
@@ -29,6 +31,20 @@ class AcceleratedDomains
     {
         new AcceleratedDomainsHeaders;
         $this->cachePurgeDriverLockWhenAcdActive();
+    }
+
+    /**
+     * @param bool $state
+     * @param int|null $blogId
+     */
+    public static function toggleActive(bool $state, ?int $blogId = null): void
+    {
+        $key = 'acd_switch';
+        if (is_numeric($blogId)) {
+            updateBlogOption($blogId, $key, $state);
+        } else {
+            updateOption($key, $state);
+        }
     }
 
     /**
