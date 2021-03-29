@@ -17,6 +17,11 @@ class AcceleratedDomains
     {
         WP_CLI::add_command('servebolt acd activate', [$this, 'activateAcd']);
         WP_CLI::add_command('servebolt acd deactivate', [$this, 'deactivateAcd']);
+
+        /*
+        WP_CLI::add_command('servebolt acd html-minify activate', [$this, 'activateAcdHtmlMinify']);
+        WP_CLI::add_command('servebolt acd html-minify deactivate', [$this, 'deactivateAcdHtmlMinify']);
+        */
     }
 
     /**
@@ -42,6 +47,32 @@ class AcceleratedDomains
         } else {
             AcceleratedDomainsClass::toggleActive(false);
             WP_CLI::success('Accelerated Domains deactivated.');
+        }
+    }
+
+    /**
+     * Activate Accelerated Domains HTML minify-feature.
+     */
+    public function activateAcdHtmlMinify($args, $assocArgs)
+    {
+        if (AcceleratedDomainsClass::htmlMinifyIsActive()) {
+            WP_CLI::success('Accelerated Domains HTML minify-feature already active.');
+        } else {
+            AcceleratedDomainsClass::htmlMinifyToggleActive(true);
+            WP_CLI::success('Accelerated Domains HTML minify-feature activated.');
+        }
+    }
+
+    /**
+     * Deactivate Accelerated Domains HTML minify-feature.
+     */
+    public function deactivateAcdHtmlMinify($args, $assocArgs)
+    {
+        if (!AcceleratedDomainsClass::htmlMinifyIsActive()) {
+            WP_CLI::success('Accelerated Domains HTML minify-feature already inactive.');
+        } else {
+            AcceleratedDomainsClass::htmlMinifyToggleActive(false);
+            WP_CLI::success('Accelerated Domains HTML minify-feature deactivated.');
         }
     }
 }

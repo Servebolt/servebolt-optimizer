@@ -37,6 +37,20 @@ class AcceleratedDomains
      * @param bool $state
      * @param int|null $blogId
      */
+    public static function htmlMinifyToggleActive(bool $state, ?int $blogId = null): void
+    {
+        $key = 'acd_minify_switch';
+        if (is_numeric($blogId)) {
+            updateBlogOption($blogId, $key, $state);
+        } else {
+            updateOption($key, $state);
+        }
+    }
+
+    /**
+     * @param bool $state
+     * @param int|null $blogId
+     */
     public static function toggleActive(bool $state, ?int $blogId = null): void
     {
         $key = 'acd_switch';
