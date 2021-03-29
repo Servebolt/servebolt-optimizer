@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare\Exceptions;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Exception;
 
 /**

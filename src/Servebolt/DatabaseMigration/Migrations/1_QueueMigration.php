@@ -1,14 +1,14 @@
 <?php
 
-namespace Servebolt\Optimizer\Database\Migrations;
+namespace Servebolt\Optimizer\DatabaseMigration\Migrations;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Database\AbstractMigration;
+use Servebolt\Optimizer\DatabaseMigration\AbstractMigration;
 
 /**
  * Class QueueMigration
- * @package Servebolt\Optimizer\Database\Migrations
+ * @package Servebolt\Optimizer\DatabaseMigration\Migrations
  */
 class QueueMigration extends AbstractMigration
 {

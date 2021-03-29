@@ -2,10 +2,11 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods\CachePurge as CachePurgeMethods;
 use Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods\Zone as ZoneMethods;
 use Servebolt\Optimizer\Sdk\Cloudflare\ApiMethods\User as UserMethods;
-
 
 /**
  * Class Cloudflare

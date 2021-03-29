@@ -2,7 +2,7 @@
 
 namespace Unit;
 
-use Servebolt\Optimizer\Database\MigrationRunner;
+use Servebolt\Optimizer\DatabaseMigration\MigrationRunner;
 use Servebolt\Optimizer\Queue\QueueSystem\Queue;
 use Servebolt\Optimizer\SqlBuilder\SqlBuilder;
 use Servebolt\Optimizer\SqlBuilder\WpSqlBuilder;

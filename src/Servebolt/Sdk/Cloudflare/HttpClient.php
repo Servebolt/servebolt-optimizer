@@ -2,6 +2,12 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+/**
+ * Class HttpClient
+ * @package Servebolt\Optimizer\Sdk\Cloudflare
+ */
 abstract class HttpClient
 {
     /**

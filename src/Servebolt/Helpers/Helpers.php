@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Helpers;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
-use Servebolt\Optimizer\Database\MigrationRunner;
+use Servebolt\Optimizer\DatabaseMigration\MigrationRunner;
 use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling;
 
