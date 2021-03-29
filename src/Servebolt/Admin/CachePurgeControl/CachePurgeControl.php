@@ -68,10 +68,11 @@ class CachePurgeControl
         $cfZones = $this->getCfZones($settings);
         $cachePurgeIsActive = CachePurge::isActive();
         $autoCachePurgeIsActive = CachePurge::automaticCachePurgeOnContentUpdateIsActive();
+        $acdLock = CachePurge::cachePurgeIsLockedTo('acd');
         $queueBasedCachePurgeActiveStateIsOverridden = CachePurge::queueBasedCachePurgeActiveStateIsOverridden();
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
 
-        view('cache-settings.cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive', 'queueBasedCachePurgeActiveStateIsOverridden', 'queueBasedCachePurgeIsActive'));
+        view('cache-settings.cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive', 'queueBasedCachePurgeActiveStateIsOverridden', 'queueBasedCachePurgeIsActive', 'acdLock'));
         /*
         $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
         $numberOfCachePurgeQueueItems = sb_cf_cache()->countItemsToPurge();
@@ -213,7 +214,8 @@ class CachePurgeControl
                     if (!isHostedAtServebolt()) {
                         $value = $this->getDefaultCachePurgeDriver(); // Only allow Cloudflare when not hosted at Servebolt
                     } else {
-                        $value = getOption($item);
+                        //$value = getOption($item);
+                        $value = CachePurge::getSelectedCachePurgeDriver();
                     }
                     $itemsWithValues['cache_purge_driver'] = $value ?: $this->getDefaultCachePurgeDriver();
                     break;
