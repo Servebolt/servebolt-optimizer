@@ -3,4 +3,4 @@
 
 <p><?php _e('Please navigate to each blog to control settings regarding automatic cache purging.', 'servebolt-wp'); ?></p>
 
-<?php view('cache-purge.network-admin.list', $arguments); ?>
+<?php view('cache-settings.cache-purge.network-admin.list', $arguments); ?>

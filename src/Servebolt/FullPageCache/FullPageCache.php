@@ -231,8 +231,8 @@ class FullPageCache
     {
 
 		// Abort if headers are already sent
-		if (headers_sent() && ! $this->allowForceHeaders) {
-            writeLog(sprintf('Servebolt Optimizer attempted to set header "%s", but headers already sent.', $string));
+		if (headers_sent() && !$this->allowForceHeaders) {
+            writeLog(sprintf('Servebolt Optimizer attempted to set header "%s", but headers were already sent.', $string));
 			return;
 		}
 

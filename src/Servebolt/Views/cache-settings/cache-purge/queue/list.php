@@ -27,7 +27,7 @@
         </div>
 
         <table class="wp-list-table widefat striped" id="purge-items-table">
-            <?php Helpers\view('cache-purge.queue.list-header-columns'); ?>
+            <?php Helpers\view('cache-settings.cache-purge.queue.list-header-columns'); ?>
             <?php sb_cf_cache_admin_controls()->purge_queue_list($itemsToPurge); ?>
         </table>
 
