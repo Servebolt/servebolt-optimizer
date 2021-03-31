@@ -6,8 +6,8 @@
     <h1><?php _e('Cloudflare Image Resizing', 'servebolt-wp'); ?> <sup style="font-size: 12px;">BETA</sup></h1>
 
     <?php settings_errors(); ?>
-    <p><?php echo sprintf(__('This feature will use %sCloudflare Image Resizing%s to resize the images uploaded in WordPress. Note that this is a <strong>beta feature</strong> and might not work as expected.', 'servebolt-wp'), '<a href="https://servebo.lt/lzlmr" target="_blank">', '</a>'); ?></a>
-    <p><?php echo sprintf(__('Cloudflare Image Resize requires your domain to have an active %sCloudflare Business subscription%s, have the Image Resizing feature active, and that your traffic is proxied through Cloudflare.', 'servebolt-wp'), '<a href="https://servebo.lt/agg0t" target="_blank">', '</a>'); ?></a>
+    <p><?php echo sprintf(__('This feature will use %sCloudflare Image Resizing%s to resize the images uploaded in WordPress. Note that this is a <strong>beta feature</strong> and might not work as expected.', 'servebolt-wp'), '<a href="https://servebo.lt/lzlmr" target="_blank">', '</a>'); ?></p>
+    <p><?php echo sprintf(__('Cloudflare Image Resize requires your domain to have an active %sCloudflare Business subscription%s, have the Image Resizing feature active, and that your traffic is proxied through Cloudflare.', 'servebolt-wp'), '<a href="https://servebo.lt/agg0t" target="_blank">', '</a>'); ?></p>
 
     <p></p>
 
