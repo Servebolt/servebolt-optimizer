@@ -31,6 +31,7 @@ class AcceleratedDomains
     {
         new AcceleratedDomainsHeaders;
         $this->cachePurgeDriverLockWhenAcdActive();
+        $this->htmlCacheActiveLockWhenAcdActive();
     }
 
     /**
@@ -95,12 +96,27 @@ class AcceleratedDomains
         return checkboxIsChecked($value);
     }
 
+    /**
+     * Lock cache purge driver to ACD whenever ACD-feature is active.
+     */
     private function cachePurgeDriverLockWhenAcdActive(): void
     {
         if (self::isActive()) {
             add_filter('sb_optimizer_selected_cache_purge_driver', function() {
                 return 'acd';
-            });
+            }, 10, 0);
+        }
+    }
+
+    /**
+     * Lock html cache as active whenever ACD-feature is active.
+     */
+    private function htmlCacheActiveLockWhenAcdActive(): void
+    {
+        if (self::isActive()) {
+            add_filter('sb_optimizer_fpc_is_active', function() {
+                return true;
+            }, 10, 0);
         }
     }
 }

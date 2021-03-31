@@ -135,7 +135,7 @@ class CloudflareImageResize
             return;
         }
 
-        if ($cloudflareImageResize->toggleActive($state, $blogId)) {
+        if (CloudflareImageResizeAdmin::toggleActive($state, $blogId)) {
             if ($blogId) {
                 WP_CLI::success(sprintf(__('Cloudflare image resize feature was set to %s on site %s', 'servebolt-wp'), $stateString, get_site_url($blogId)));
             } else {

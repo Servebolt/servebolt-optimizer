@@ -37,7 +37,7 @@ trait CachePurge
     {
 
         $zoneId = $this->getZoneId();
-        if ( ! $zoneId ) {
+        if (!$zoneId) {
             return false;
         }
 
@@ -50,7 +50,7 @@ trait CachePurge
         // A hacky way of limiting so that we don't get an error from the Cloudflare API about too many URLs in purge request.
         // Future solution will be to queue up all URLs and purge them in chunks the size of 30 each.
         $maxNumber = apply_filters('sb_optimizer_max_number_of_urls_to_be_purged', false);
-        if ( is_int($maxNumber) ) {
+        if (is_int($maxNumber)) {
             $urls = array_slice($urls, 0, $maxNumber);
         }
 

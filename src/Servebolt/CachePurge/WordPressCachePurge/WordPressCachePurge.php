@@ -45,6 +45,29 @@ class WordPressCachePurge
     }
 
     /**
+     * Purge cache by URLs.
+     *
+     * @param array $urls
+     * @return bool
+     */
+    public static function purgeByUrls(array $urls)
+    {
+        if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
+            $queueInstance = WpObjectQueue::getInstance();
+            foreach($urls as $url) {
+                isQueueItem($queueInstance->add([
+                    'type' => 'url',
+                    'url' => $url,
+                ]));
+            }
+            return true;
+        } else {
+            $cachePurgeDriver = CachePurgeDriver::getInstance();
+            return $cachePurgeDriver->purgeByUrls($urls);
+        }
+    }
+
+    /**
      * Alias for method "purgeTermCache".
      *
      * @param int $termId

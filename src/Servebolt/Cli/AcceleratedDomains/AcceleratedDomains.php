@@ -15,6 +15,7 @@ class AcceleratedDomains
 {
     public function __construct()
     {
+        WP_CLI::add_command('servebolt acd status', [$this, 'statusAcd']);
         WP_CLI::add_command('servebolt acd activate', [$this, 'activateAcd']);
         WP_CLI::add_command('servebolt acd deactivate', [$this, 'deactivateAcd']);
 
@@ -22,6 +23,11 @@ class AcceleratedDomains
         WP_CLI::add_command('servebolt acd html-minify activate', [$this, 'activateAcdHtmlMinify']);
         WP_CLI::add_command('servebolt acd html-minify deactivate', [$this, 'deactivateAcdHtmlMinify']);
         */
+    }
+
+    public function statusAcd()
+    {
+
     }
 
     /**

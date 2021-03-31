@@ -148,7 +148,7 @@ class QueueItem
     private function registerItemData($item): void
     {
         $this->id = isset($item->id) ? (int) $item->id : null;
-        $this->parent_id = is_numeric($item->parent_id) ? (int) $item->parent_id : $item->parent_id;
+        $this->parent_id = isset($item->parent_id) ? (int) $item->parent_id : $item->parent_id;
         $this->parent_queue_name = $item->parent_queue_name;
         $this->queue = $item->queue;
         $this->payload = unserialize($item->payload);

@@ -15,7 +15,6 @@ class Cache
      */
     public function __construct()
     {
-        new CfLegacyCommands;
         new CfSetup;
         new PurgeActions;
         new CacheSettings;
