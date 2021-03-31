@@ -14,7 +14,7 @@ class AcceleratedDomainsHeaders
     /**
      * @var int Default TTL for ACD cache.
      */
-    private $defaultTtl = 43200;
+    private $defaultTtl = 86000;
 
     /**
      * AcceleratedDomainsHeaders constructor.

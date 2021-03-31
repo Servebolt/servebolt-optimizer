@@ -40,7 +40,10 @@ class Servebolt implements CachePurgeInterface
      */
     public function purgeByUrl(string $url): bool
     {
-        $response = $this->apiInstance->environment()->purgeCache([$url]);
+        $response = $this->apiInstance->environment()->purgeCache(
+            $this->apiInstance->getEnvironmentId(),
+            [$url]
+        );
         if ($response->wasSuccessful()) {
             return true;
         } else {
