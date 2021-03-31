@@ -17,7 +17,10 @@ $availablePostTypes = fullPageCache()->getAvailablePostTypesToCache(true);
             <tr>
                 <th scope="row"><?php _e('HTML Cache', 'servebolt-wp'); ?></th>
                 <td>
-                    <input id="sb-fpc_switch" name="<?php echo getOptionName('fpc_switch')?>" type="checkbox"<?php echo $fpcActive ? ' checked' : ''; ?>><label for="sb-fpc_switch"><?php _e('Enabled', 'servebolt-wp'); ?></label>
+                    <input id="sb-fpc_switch" name="<?php echo getOptionName('fpc_switch')?>"<?php if ($fpcActiveOverridden) echo ' disabled'; ?> type="checkbox"<?php if ($fpcActive) echo ' checked'; ?>><label for="sb-fpc_switch"><?php _e('Enabled', 'servebolt-wp'); ?></label>
+                    <?php if ($fpcActiveOverridden): ?>
+                    <p class="description">HTML cache is automatically enabled when Accelerated Domain-feature is active.</p>
+                    <?php endif; ?>
                 </td>
             </tr>
         </tbody>
@@ -28,7 +31,7 @@ $availablePostTypes = fullPageCache()->getAvailablePostTypesToCache(true);
                     <?php $allChecked = in_array('all', (array) $postTypesToCache); ?>
                     <?php foreach ($availablePostTypes as $postType => $postTypeName) : ?>
                         <?php $checked = in_array($postType, (array) $postTypesToCache) ? ' checked' : ''; ?>
-                        <span class="<?php if ( $allChecked && $postType !== 'all' ) echo ' disabled'; ?>"><input id="sb-cache_post_type_<?php echo $postType; ?>" class="servebolt_fpc_settings_item" name="servebolt_fpc_settings[<?php echo $postType; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="sb-cache_post_type_<?php echo $postType; ?>"><?php echo $postTypeName; ?></label></span><br>
+                        <span class="<?php if ( $allChecked && $postType !== 'all' ) echo ' disabled'; ?>"><input id="sb-cache_post_type_<?php echo $postType; ?>" class="servebolt_fpc_settings_item" name="<?php echo getOptionName('fpc_settings')?>[<?php echo $postType; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="sb-cache_post_type_<?php echo $postType; ?>"><?php echo $postTypeName; ?></label></span><br>
                     <?php endforeach; ?>
                     <p><?php _e('By default this plugin enables HTML caching of posts, pages and products.
                                 Activate post types here if you want a different cache setup. If none of the post types above is checked the plugin will use default settings.

@@ -1,7 +1,7 @@
 jQuery(document).ready(function($) {
 
   // Toggle Nginx cache active/inactive
-  $('.sb-content #sb-fpc_switch').change(function(){
+  $('.sb-content #sb-fpc_switch').change(function() {
     sb_toggle_nginx_cache_switch($(this).is(':checked'));
   });
 
