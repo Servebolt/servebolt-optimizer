@@ -13,6 +13,7 @@ use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\resolvePostIdsToTitleAndPostIdString;
 use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
 use function Servebolt\Optimizer\Helpers\fullPageCache;
+use Servebolt\Optimizer\FullPageCache\FullPageCache;
 
 /**
  * Class Fpc
@@ -330,7 +331,7 @@ class Fpc
      */
     private function getNginxFpcStatus($blogId = false)
     {
-        $status = fullPageCache()->fpcIsActive($blogId) ? 'Active' : 'Inactive';
+        $status = FullPageCache::fpcIsActive($blogId) ? 'Active' : 'Inactive';
         $postTypes = fullPageCache()->getPostTypesToCache(true, true, $blogId);
         $enabledPostTypesString = $this->nginxGetActivePostTypesString($postTypes);
         $excludedPosts = fullPageCache()->getIdsToExcludeFromCache($blogId);
@@ -397,7 +398,7 @@ class Fpc
     {
         $url = get_site_url($blogId);
         $cacheActiveString = booleanToStateString($newCacheState);
-        if ($cacheActiveString === fullPageCache()->fpcIsActive($blogId)) {
+        if ($cacheActiveString === FullPageCache::fpcIsActive($blogId)) {
             WP_CLI::warning(sprintf( __('Full Page Cache already %s on site %s', 'servebolt-wp'), $cacheActiveString, $url ));
         } else {
             fullPageCache()->fpcToggleActive($newCacheState, $blogId);

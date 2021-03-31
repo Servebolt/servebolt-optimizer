@@ -21,7 +21,6 @@ use function Servebolt\Optimizer\Helpers\generateRandomPermanentKey;
 use function Servebolt\Optimizer\Helpers\generateRandomString;
 use function Servebolt\Optimizer\Helpers\getAjaxNonce;
 use function Servebolt\Optimizer\Helpers\getAjaxNonceKey;
-use function Servebolt\Optimizer\Helpers\getPostTitleByBlog;
 use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
 use function Servebolt\Optimizer\Helpers\isAjax;
 use function Servebolt\Optimizer\Helpers\isCli;

@@ -1,29 +1,27 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup; ?>
 <?php use function Servebolt\Optimizer\Helpers\fullPageCache; ?>
+<?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
+<?php use Servebolt\Optimizer\FullPageCache\FullPageCache; ?>
 <?php
-$nginxFpcActive = fullPageCache()->fpcIsActive();
+$fpcActive = FullPageCache::fpcIsActive();
+$fpcActiveOverridden = FullPageCache::fpcActiveStateIsOverridden();
 $postTypesToCache  = fullPageCache()->getPostTypesToCache(false, false);
 $availablePostTypes = fullPageCache()->getAvailablePostTypesToCache(true);
 ?>
 <form method="post" action="options.php">
     <?php settings_fields( 'fpc-options-page' ) ?>
     <?php do_settings_sections( 'fpc-options-page' ) ?>
-    <div class="nginx_switch">
-        <table class="form-table">
-
-        </table>
-    </div>
     <table class="form-table">
         <tbody>
             <tr>
                 <th scope="row"><?php _e('HTML Cache', 'servebolt-wp'); ?></th>
                 <td>
-                    <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginxFpcActive ? ' checked' : ''; ?>><label for="sb-nginx_cache_switch"><?php _e('Enabled', 'servebolt-wp'); ?></label>
+                    <input id="sb-fpc_switch" name="<?php echo getOptionName('fpc_switch')?>" type="checkbox"<?php echo $fpcActive ? ' checked' : ''; ?>><label for="sb-fpc_switch"><?php _e('Enabled', 'servebolt-wp'); ?></label>
                 </td>
             </tr>
         </tbody>
-        <tbody id="sb-nginx-fpc-form"<?php echo ( $nginxFpcActive ? '' : ' style="display: none;"' ); ?>>
+        <tbody id="sb-fpc-form"<?php echo ( $fpcActive ? '' : ' style="display: none;"' ); ?>>
             <tr>
                 <th scope="row">Cache post types</th>
                 <td>
@@ -52,11 +50,11 @@ $availablePostTypes = fullPageCache()->getAvailablePostTypesToCache(true);
                         <div class="alignleft actions bulkactions">
                             <button class="button button-primary sb-add-exclude-post" type="button">Add post to exclude</button>
                         </div>
-                        <span class="spinner flush-fpc-exlcude-list-loading-spinner"></span>
+                        <span class="spinner flush-fpc-exclude-list-loading-spinner"></span>
                         <br class="clear">
                     </div>
 
-                    <table class="wp-list-table widefat striped" id="nginx-fpc-ids-to-exclude-table">
+                    <table class="wp-list-table widefat striped" id="fpc-ids-to-exclude-table">
 
                         <thead>
                         <tr>

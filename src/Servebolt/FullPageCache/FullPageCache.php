@@ -103,14 +103,14 @@ class FullPageCache
 	 *
 	 * @return bool
 	 */
-	public function fpcIsActive($blogId = false)
+	public static function fpcIsActive($blogId = false): bool
     {
 		if (is_numeric($blogId)) {
-            $value = checkboxIsChecked(getBlogOption($blogId, $this->fpcActiveOptionKey()));
+            $value = checkboxIsChecked(getBlogOption($blogId, self::fpcActiveOptionKey()));
 		} else {
-			$value = checkboxIsChecked(getOption($this->fpcActiveOptionKey()));
+			$value = checkboxIsChecked(getOption(self::fpcActiveOptionKey()));
 		}
-		return apply_filters('sb_optimizer_fpc_is_active', $value);
+		return (bool) apply_filters('sb_optimizer_fpc_is_active', $value);
 	}
 
     /**
@@ -142,7 +142,7 @@ class FullPageCache
 		$this->headersAlreadySet = true;
 
         // No cache if FPC is not active, or if we are logged in
-        if (!$this->fpcIsActive() || is_admin() || isAjax() || is_user_logged_in()) {
+        if (!self::fpcIsActive() || is_admin() || isAjax() || is_user_logged_in()) {
             $this->noCacheHeaders();
             if ($debug) {
                 $this->header('No-cache-trigger: 1');
@@ -620,7 +620,7 @@ class FullPageCache
 	 *
 	 * @return string
 	 */
-	private function fpcActiveOptionKey(): string
+	private static function fpcActiveOptionKey(): string
     {
 		return 'fpc_switch';
 	}
