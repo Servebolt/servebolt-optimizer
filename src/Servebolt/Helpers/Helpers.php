@@ -9,6 +9,22 @@ use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling;
 
 /**
+ * @param $templatePath
+ * @return string|null
+ */
+function resolveViewPath($templatePath): ?string
+{
+    $templatePath = str_replace('.', '/', $templatePath);
+    $suffix = '.php';
+    $basePath = SERVEBOLT_PLUGIN_PSR4_PATH . 'Views/';
+    $filePath = $basePath . $templatePath . $suffix;
+    if (file_exists($filePath) && is_readable($filePath)) {
+        return $filePath;
+    }
+    return null;
+}
+
+/**
  * Display a view, Laravel style.
  *
  * @param string $templatePath
@@ -18,11 +34,7 @@ use Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling;
  */
 function view(string $templatePath, $arguments = [], $echo = true): ?string
 {
-    $templatePath = str_replace('.', '/', $templatePath);
-    $suffix = '.php';
-    $basePath = SERVEBOLT_PLUGIN_PSR4_PATH . 'Views/';
-    $filePath = $basePath . $templatePath . $suffix;
-    if (file_exists($filePath) && is_readable($filePath)) {
+    if ($filePath = resolveViewPath($templatePath)) {
         extract($arguments, EXTR_SKIP);
         if (!$echo) {
             ob_start();
@@ -425,7 +437,7 @@ function generateRandomPermanentKey(string $name, $blogId = false)
     } else {
         $key = getOption($name);
     }
-    if ( ! $key ) {
+    if (!$key) {
         $key = generateRandomString(36);
         if (is_multisite() && is_numeric($blogId)) {
             updateBlogOption($blogId, $name, $key);
@@ -496,9 +508,13 @@ function booleanToStateString(bool $state): string
  */
 function getPostTitleByBlog($postId, $blogId = false)
 {
-    if ( $blogId ) switch_to_blog($blogId);
+    if ($blogId) {
+        switch_to_blog($blogId);
+    }
     $title = get_the_title($postId);
-    if ( $blogId ) restore_current_blog();
+    if ($blogId) {
+        restore_current_blog();
+    }
     return $title;
 }
 
@@ -595,15 +611,15 @@ function featureIsActive(string $feature): ?bool
     switch ($feature) {
         case 'cf_image_resize':
             return ( CloudflareImageResize::getInstance() )->resizingIsActive();
-            break;
         case 'sb_asset_auto_version':
         case 'asset_auto_version':
             $generalSettings = GeneralSettings::getInstance();
             return $generalSettings->assetAutoVersion();
-            break;
+        /*
         case 'cf_cache':
             return true;
             break;
+        */
     }
     return null;
 
@@ -712,7 +728,6 @@ function formatArrayToCsv($array, $glue = ','): string
  */
 function isDevDebug(): bool
 {
-    return true;
     return ( defined('SB_DEBUG') && SB_DEBUG === true ) || ( array_key_exists('debug', $_GET ) );
 }
 
@@ -720,16 +735,19 @@ function isDevDebug(): bool
  * Join strings together in a natural readable way.
  *
  * @param array $list
- * @param string $conjunction
+ * @param string|null $conjunction
  * @param string $quotes
  *
  * @return string
  */
-function naturalLanguageJoin(array $list, $conjunction = 'and', $quotes = '"'): string
+function naturalLanguageJoin(array $list, ?string $conjunction = null, ?string $quotes = '"'): string
 {
+    if (is_null($conjunction)) {
+        $conjunction = 'and';
+    }
     $last = array_pop($list);
     if ($list) {
-        return $quotes . implode($quotes . ', ' . $quotes, $list) . '" ' . $conjunction . ' ' . $quotes . $last . $quotes;
+        return $quotes . implode($quotes . ', ' . $quotes, $list) . $quotes . ' ' . $conjunction . ' ' . $quotes . $last . $quotes;
     }
     return $quotes . $last . $quotes;
 }

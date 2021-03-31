@@ -79,12 +79,12 @@ class CloudflareImageResize
      *
      * @return bool
      */
-    public function toggleActive(bool $state, $blogId = false)
+    public static function toggleActive(bool $state, $blogId = false)
     {
         if ( is_numeric($blogId) ) {
-            return updateBlogOption($blogId, $this->cfResizingActiveOptionKey(), $state);
+            return updateBlogOption($blogId, self::cfResizingActiveOptionKey(), $state);
         } else {
-            return updateOption($this->cfResizingActiveOptionKey(), $state);
+            return updateOption(self::cfResizingActiveOptionKey(), $state);
         }
     }
 
