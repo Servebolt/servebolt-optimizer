@@ -71,9 +71,9 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testDisplayValueHelper()
     {
-        $this->assertEquals('true', displayValue(true, true));
-        $this->assertEquals('false', displayValue(false, true));
-        $this->assertEquals('string', displayValue('string', true));
+        $this->assertEquals('true', displayValue(true));
+        $this->assertEquals('false', displayValue(false));
+        $this->assertEquals('string', displayValue('string'));
     }
 
     public function testCamelCaseToSnakeCase()

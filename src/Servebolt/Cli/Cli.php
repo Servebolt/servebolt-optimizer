@@ -18,11 +18,6 @@ use Servebolt\Optimizer\Cli\Optimizations\Optimizations;
  */
 class Cli
 {
-    public static function init()
-    {
-        new self;
-    }
-
     /**
      * Cli constructor.
      */
@@ -35,5 +30,10 @@ class Cli
         new General;
         new GeneralSettings;
         new Optimizations;
+    }
+
+    public static function init()
+    {
+        new self;
     }
 }

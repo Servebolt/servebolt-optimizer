@@ -97,7 +97,7 @@ function generateRandomString($length): string
  * @param bool $return
  * @return bool|false|string|null
  */
-function displayValue($value, bool $return = false)
+function displayValue($value, bool $return = true)
 {
     if (is_bool($value)) {
         $value = booleanToString($value);
@@ -810,13 +810,12 @@ function getBlogName($blogId)
  *
  * @param $blogId
  * @param $option
- * @param bool $default
  *
  * @return mixed
  */
-function deleteBlogOption($blogId, $option, $default = false)
+function deleteBlogOption($blogId, $option)
 {
-    return delete_blog_option($blogId, getOptionName($option), $default);
+    return delete_blog_option($blogId, getOptionName($option));
 }
 
 /**
@@ -1020,6 +1019,24 @@ function smartUpdateOption($blogId, $optionName, $value, $assertUpdate = true)
 }
 
 /**
+ * A function that will delete the option at the right place (in current blog or a specified blog).
+ *
+ * @param $blogId
+ * @param $optionName
+ *
+ * @return bool|mixed
+ */
+function smartDeleteOption($blogId, $optionName)
+{
+    if (is_numeric($blogId)) {
+        $result = deleteBlogOption($blogId, $optionName);
+    } else {
+        $result = deleteOption($optionName);
+    }
+    return $result;
+}
+
+/**
  * A function that will get the option at the right place (in current blog or a specified blog).
  *
  * @param $blogId
@@ -1028,7 +1045,7 @@ function smartUpdateOption($blogId, $optionName, $value, $assertUpdate = true)
  *
  * @return mixed|void
  */
-function smartGetOption($blogId, $optionName, $default = false)
+function smartGetOption($blogId, $optionName, $default = null)
 {
     if (is_numeric($blogId)) {
         $result = getBlogOption($blogId, $optionName, $default);
