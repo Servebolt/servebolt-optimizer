@@ -442,9 +442,9 @@ function getAjaxNonceKey(): string
  * @param string $name
  * @param null|int|string $blogId
  *
- * @return mixed|string|void
+ * @return string
  */
-function generateRandomPermanentKey(string $name, $blogId = null)
+function generateRandomPermanentKey(string $name, $blogId = null): string
 {
     if (is_multisite() && is_numeric($blogId)) {
         $key = getBlogOption($blogId, $name);
