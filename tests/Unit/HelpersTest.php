@@ -242,10 +242,13 @@ class HelpersTest extends WP_UnitTestCase
     public function testCountSitesHelper()
     {
         $this->assertEquals(1, countSites());
+        $this->createBlogs(3);
+        $this->assertEquals(4, countSites());
     }
 
     public function testSmartOptionsHelpersMultisite()
     {
+        $this->createBlogs(3);
         iterateSites(function ($site) {
             $key = 'some-option-for-testing';
             $this->assertNull(smartGetOption($site->blog_id, $key));
@@ -278,6 +281,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testBlogOptionsOverride()
     {
+        $this->createBlogs(2);
         iterateSites(function ($site) {
             $override = function ($value) {
                 return 'override';
@@ -318,6 +322,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testDefaultValuesForBlogOptionsHelpers()
     {
+        $this->createBlogs(3);
         iterateSites(function ($site) {
             $key = 'default-options-value-test-key';
             $this->assertEquals('default-value', getBlogOption($site->blog_id, $key, 'default-value'));
@@ -359,6 +364,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testOptionsHelpersMultisite()
     {
+        $this->createBlogs(2);
         iterateSites(function ($site) {
             $key = 'some-option-for-testing-multisite';
             $this->assertNull(getBlogOption($site->blog_id, $key));
@@ -377,5 +383,14 @@ class HelpersTest extends WP_UnitTestCase
         $this->assertEquals('some-value', smartGetOption(null, $key));
         $this->assertTrue(smartDeleteOption(null, $key));
         $this->assertNull(smartGetOption(null, $key));
+    }
+
+    private function createBlogs(int $numberOfBlogs = 1): void
+    {
+        $siteCount = countSites();
+        for ($i = 1; $i <= $numberOfBlogs; $i++) {
+            $number = $i + $siteCount;
+            $this->factory()->blog->create( [ 'domain' => 'foo-' . $number , 'path' => '/', 'title' => 'Blog ' . $number ] );
+        }
     }
 }
