@@ -100,9 +100,9 @@ class CloudflareImageResize
     /**
      * Check if Cloudflare image resize feature is active/inactive.
      *
-     * @param bool|int $blogId
+     * @param null|int $blogId
      */
-    protected function imageResizeStatus($blogId = false)
+    protected function imageResizeStatus(?int $blogId = null)
     {
         $cloudflareImageResize = CloudflareImageResizeAdmin::getInstance();
         $currentState = $cloudflareImageResize->resizingIsActive($blogId);
@@ -118,9 +118,9 @@ class CloudflareImageResize
      * Activate/deactivate Cloudflare image resize feature.
      *
      * @param bool $state
-     * @param bool $blogId
+     * @param int|null $blogId
      */
-    protected function toggleActive(bool $state, $blogId = false)
+    protected function toggleActive(bool $state, ?int $blogId = null)
     {
         $cloudflareImageResize = CloudflareImageResizeAdmin::getInstance();
         $stateString = booleanToStateString($state);

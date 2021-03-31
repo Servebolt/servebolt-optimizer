@@ -39,7 +39,7 @@ class Crypto
      * Encrypt string.
      *
      * @param string|null $inputString
-     * @param int|bool $blogId
+     * @param int|bool|string $blogId
      * @param bool $method
      *
      * @return bool|string
@@ -72,7 +72,7 @@ class Crypto
      * Decrypt string.
      *
      * @param string|null $inputString
-     * @param int|bool $blogId
+     * @param int|bool|string $blogId
      * @param bool|string $method
      *
      * @return bool|string

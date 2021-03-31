@@ -364,7 +364,7 @@ class MigrationRunner
         }
     }
 
-    public function getCurrentMigratedVersion(): string
+    public function getCurrentMigratedVersion(): ?string
     {
         if (is_multisite()) {
             return getSiteOption($this->migrationVersionOptionsKey());

@@ -24,7 +24,7 @@
     </tfoot>
     <tbody>
     <?php foreach (get_sites() as $site) : ?>
-        <?php $sbFpcSettings = fullPageCache()->getPostTypesToCache(false, false, $site->blog_id); ?>
+        <?php $sbFpcSettings = FullPageCache::getPostTypesToCache(false, false, $site->blog_id); ?>
         <tr>
             <td><?php echo $site->blog_id; ?></td>
             <td><?php echo $site->domain . $site->path; ?></td>

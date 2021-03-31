@@ -5,15 +5,13 @@ namespace Servebolt\Optimizer\Admin\GeneralSettings;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
+use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
 use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\getOptionName;
-use function Servebolt\Optimizer\Helpers\updateBlogOption;
-use function Servebolt\Optimizer\Helpers\getBlogOption;
-use function Servebolt\Optimizer\Helpers\updateOption;
-use function Servebolt\Optimizer\Helpers\getOption;
 
 /**
  * Class SB_General_Settings
@@ -133,10 +131,10 @@ class GeneralSettings
     /**
      * Get all general settings in array.
      *
-     * @param bool|int $blogId
+     * @param null|int $blogId
      * @return array
      */
-    public function getAllSettingsItems($blogId = false): array
+    public function getAllSettingsItems(?int $blogId = null): array
     {
         $settingsItems = $this->getRegisteredSettingsItems();
         $values = [];
@@ -154,21 +152,17 @@ class GeneralSettings
      * Get value of specific general setting, with override taken into consideration.
      *
      * @param $item
-     * @param bool|int $blogId
+     * @param null|int $blogId
      * @param bool $type
      * @param bool $respectOverride
      * @return bool|mixed|void
      */
-    public function getSettingsItem($item, $blogId = false, $type = false, $respectOverride = true)
+    public function getSettingsItem($item, ?int $blogId = null, $type = false, $respectOverride = true)
     {
         if ($respectOverride && $this->settingIsOverridden($item)) {
             $value = $this->getOverrideConstantValue($item);
         } else {
-            if (is_numeric($blogId)) {
-                $value = getBlogOption($blogId, $item);
-            } else {
-                $value = getOption($item);
-            }
+            $value = smartGetOption($blogId, $item);
         }
         if (!$type) {
             $type = $this->resolveSettingsItemType($item);
@@ -187,11 +181,11 @@ class GeneralSettings
      *
      * @param $item
      * @param $value
-     * @param bool|int $blogId
+     * @param null|int $blogId
      * @param bool $type
      * @return bool|mixed|void
      */
-    public function setSettingsItem($item, $value, $blogId = false, $type = false)
+    public function setSettingsItem($item, $value, ?int $blogId = null, $type = false)
     {
         if (!$type) {
             $type = $this->resolveSettingsItemType($item);
@@ -206,11 +200,7 @@ class GeneralSettings
                 $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
                 break;
         }
-        if (is_numeric($blogId)) {
-            updateBlogOption($blogId, $item, $value);
-        } else {
-            updateOption($item, $value);
-        }
+        smartUpdateOption($blogId, $item, $value);
         return true;
     }
 

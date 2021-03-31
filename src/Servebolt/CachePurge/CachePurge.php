@@ -11,8 +11,7 @@ use Servebolt\Optimizer\CachePurge\Drivers\Servebolt as ServeboltDriver;
 use Servebolt\Optimizer\CachePurge\Drivers\Cloudflare as CloudflareDriver;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
-use function Servebolt\Optimizer\Helpers\getBlogOption;
-use function Servebolt\Optimizer\Helpers\getOption;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
 
 /**
  * Class CachePurge
@@ -161,12 +160,7 @@ class CachePurge
     public static function automaticCachePurgeOnContentUpdateIsActive(?int $blogId = null): bool
     {
         $noExistKey = 'value-does-not-exist';
-        $key = 'cache_purge_auto';
-        if (is_numeric($blogId)) {
-            $value = getBlogOption($blogId, $key, $noExistKey);
-        } else {
-            $value = getOption($key, $noExistKey);
-        }
+        $value = smartGetOption($blogId, 'cache_purge_auto', $noExistKey);
         if ($value === $noExistKey) {
             return true; // Default value
         }
@@ -182,19 +176,9 @@ class CachePurge
     public static function isActive(?int $blogId = null): bool
     {
         $noExistKey = 'value-does-not-exist';
-        $key = 'cache_purge_switch';
-        if (is_numeric($blogId)) {
-            $value = getBlogOption($blogId, $key, $noExistKey);
-        } else {
-            $value = getOption($key, $noExistKey);
-        }
+        $value = smartGetOption($blogId, 'cache_purge_switch', $noExistKey);
         if ($value === $noExistKey) {
-            $key = 'cf_switch';
-            if (is_numeric($blogId)) {
-                $value = getBlogOption($blogId, $key);
-            } else {
-                $value = getOption($key);
-            }
+            $value = smartGetOption($blogId, 'cf_switch');
         }
         return checkboxIsChecked($value);
     }
@@ -218,12 +202,7 @@ class CachePurge
      */
     public static function getSelectedCachePurgeDriver(?int $blogId = null)
     {
-        $key = 'cache_purge_driver';
-        if (is_numeric($blogId)) {
-            $value = getBlogOption($blogId, $key);
-        } else {
-            $value = getOption($key);
-        }
+        $value = smartGetOption($blogId, 'cache_purge_driver');
         return apply_filters('sb_optimizer_selected_cache_purge_driver', $value);
     }
 
@@ -319,19 +298,9 @@ class CachePurge
         }
 
         $noExistKey = 'value-does-not-exist';
-        $key = 'queue_based_cache_purge';
-        if (is_numeric($blogId)) {
-            $value = getBlogOption($blogId, $key, $noExistKey);
-        } else {
-            $value = getOption($key, $noExistKey);
-        }
+        $value = smartGetOption($blogId, 'queue_based_cache_purge', $noExistKey);
         if ($value === $noExistKey) {
-            $key = 'cf_cron_purge';
-            if (is_numeric($blogId)) {
-                $value = getBlogOption($blogId, $key);
-            } else {
-                $value = getOption($key);
-            }
+            $value = smartGetOption($blogId, 'cf_cron_purge');
         }
         return checkboxIsChecked($value);
     }

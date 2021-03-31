@@ -6,10 +6,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
-use function Servebolt\Optimizer\Helpers\getBlogOption;
-use function Servebolt\Optimizer\Helpers\getOption;
-use function Servebolt\Optimizer\Helpers\updateBlogOption;
-use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
+use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 
 /**
  * Class AcceleratedDomains
@@ -40,12 +38,7 @@ class AcceleratedDomains
      */
     public static function htmlMinifyToggleActive(bool $state, ?int $blogId = null): void
     {
-        $key = 'acd_minify_switch';
-        if (is_numeric($blogId)) {
-            updateBlogOption($blogId, $key, $state);
-        } else {
-            updateOption($key, $state);
-        }
+        smartUpdateOption($blogId, 'acd_minify_switch', $state);
     }
 
     /**
@@ -54,12 +47,7 @@ class AcceleratedDomains
      */
     public static function toggleActive(bool $state, ?int $blogId = null): void
     {
-        $key = 'acd_switch';
-        if (is_numeric($blogId)) {
-            updateBlogOption($blogId, $key, $state);
-        } else {
-            updateOption($key, $state);
-        }
+        smartUpdateOption($blogId, 'acd_switch', $state);
     }
 
     /**
@@ -70,13 +58,7 @@ class AcceleratedDomains
      */
     public static function isActive(?int $blogId = null): bool
     {
-        $key = 'acd_switch';
-        if (is_numeric($blogId)) {
-            $value = getBlogOption($blogId, $key);
-        } else {
-            $value = getOption($key);
-        }
-        return checkboxIsChecked($value);
+        return checkboxIsChecked(smartGetOption($blogId, 'acd_switch'));
     }
 
     /**
@@ -87,13 +69,7 @@ class AcceleratedDomains
      */
     public static function htmlMinifyIsActive(?int $blogId = null): bool
     {
-        $key = 'acd_minify_switch';
-        if (is_numeric($blogId)) {
-            $value = getBlogOption($blogId, $key);
-        } else {
-            $value = getOption($key);
-        }
-        return checkboxIsChecked($value);
+        return checkboxIsChecked(smartGetOption($blogId, 'acd_minify_switch'));
     }
 
     /**

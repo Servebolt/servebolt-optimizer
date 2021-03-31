@@ -440,11 +440,11 @@ function getAjaxNonceKey(): string
  * Generate a random key stored in the database.
  *
  * @param string $name
- * @param bool $blogId
+ * @param null|int|string $blogId
  *
  * @return mixed|string|void
  */
-function generateRandomPermanentKey(string $name, $blogId = false)
+function generateRandomPermanentKey(string $name, $blogId = null)
 {
     if (is_multisite() && is_numeric($blogId)) {
         $key = getBlogOption($blogId, $name);
@@ -518,11 +518,11 @@ function booleanToStateString(bool $state): string
  * Get the title with optional blog-parameter.
  *
  * @param $postId
- * @param bool|int $blogId
+ * @param null|int $blogId
  *
  * @return string
  */
-function getPostTitleByBlog($postId, $blogId = false)
+function getPostTitleByBlog($postId, ?int $blogId = null)
 {
     if ($blogId) {
         switch_to_blog($blogId);
@@ -550,11 +550,11 @@ function checkboxIsChecked($value, string $onString = 'on'): bool
  * Convert an array of post IDs into array of title and Post ID.
  *
  * @param $posts
- * @param bool|int $blogId
+ * @param null|int $blogId
  *
  * @return array
  */
-function resolvePostIdsToTitleAndPostIdString($posts, $blogId = false): array
+function resolvePostIdsToTitleAndPostIdString($posts, ?int $blogId = null): array
 {
     return array_map(function($postId) use ($blogId) {
         $title = getPostTitleByBlog($postId, $blogId);
@@ -1085,14 +1085,4 @@ function smartGetOption($blogId, $optionName, $default = null)
         $result = getOption($optionName, $default);
     }
     return $result;
-}
-
-/**
- * Get FullPageCache-instance.
- *
- * @return FullPageCache|null
- */
-function fullPageCache()
-{
-    return FullPageCache::getInstance();
 }

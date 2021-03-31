@@ -6,14 +6,13 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
 use Servebolt\Optimizer\Cli\CliKeyValueStorage\CliKeyValueStorage;
-use Servebolt\Optimizer\Cli\CliKeyValueStorage\CliKeyValueStorageInterface;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings as GeneralSettingsAdmin;
 
 /**
  * Class GeneralSettings
  * @package Servebolt\Optimizer\Cli\GeneralSettings
  */
-class GeneralSettings extends CliKeyValueStorage implements CliKeyValueStorageInterface
+class GeneralSettings extends CliKeyValueStorage
 {
 
     /**

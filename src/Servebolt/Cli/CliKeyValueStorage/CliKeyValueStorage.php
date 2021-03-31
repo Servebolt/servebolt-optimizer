@@ -264,10 +264,10 @@ abstract class CliKeyValueStorage
     }
 
     /**
-     * @param null $blogId
+     * @param null|int $blogId
      * @param callable|null $closure
      */
-    private function printSettingsList($blogId = null, $closure = null): void
+    private function printSettingsList(?ont $blogId = null, $closure = null): void
     {
         $items = $this->storage->getSettings($blogId, true, true);
         $columns = array_keys(current($items));

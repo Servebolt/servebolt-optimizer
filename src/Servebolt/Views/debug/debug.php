@@ -22,7 +22,7 @@
 
 	<strong>URL's / ID's to purge cache for</strong>
 	<?php foreach ( sb_cf_cache()->get_items_to_purge() as $item ) : ?>
-		<?php if ( is_numeric($item) ) : ?>
+		<?php if (is_numeric($item)): ?>
 		<pre><a href="<?php echo get_permalink($item); ?>"><?php echo get_the_title($item); ?> (<?php echo $item; ?>)</a></pre>
 		<?php else : ?>
 		<pre><a href="<?php echo esc_url($item); ?>"><?php echo esc_html($item); ?></a></pre>
@@ -35,14 +35,14 @@
 	<h2>Nginx FPC</h2>
 
 	<?php
-		$selectedPostTypesToCache  = fullPageCache()->getPostTypesToCache(false, false);
+		$selectedPostTypesToCache  = FullPageCache::getPostTypesToCache(false, false);
 		$selectedPostTypesToCacheWithoutAll = $selectedPostTypesToCache ? array_filter($selectedPostTypesToCache, function($postType) {
 			return $postType !== 'all';
 		}) : [];
-		$postTypesThatWillBeCached  = fullPageCache()->getPostTypesToCache();
-		$availablePostTypes = fullPageCache()->getAvailablePostTypesToCache(false);
-		$idsToExcludeFromCache = fullPageCache()->getIdsToExcludeFromCache();
-		$defaultPostTypesToCache = fullPageCache()->getDefaultPostTypesToCache();
+		$postTypesThatWillBeCached  = FullPageCache::getPostTypesToCache();
+		$availablePostTypes = FullPageCache::getAvailablePostTypesToCache(false);
+		$idsToExcludeFromCache = FullPageCache::getIdsToExcludeFromCache();
+		$defaultPostTypesToCache = FullPageCache::getDefaultPostTypesToCache();
 	?>
 
 	<p>Feature is active? - <?php echo FullPageCache::fpcIsActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>

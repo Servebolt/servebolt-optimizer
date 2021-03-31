@@ -6,8 +6,8 @@
 <?php
 $fpcActive = FullPageCache::fpcIsActive();
 $fpcActiveOverridden = FullPageCache::fpcActiveStateIsOverridden();
-$postTypesToCache  = fullPageCache()->getPostTypesToCache(false, false);
-$availablePostTypes = fullPageCache()->getAvailablePostTypesToCache(true);
+$postTypesToCache  = FullPageCache::getPostTypesToCache(false, false);
+$availablePostTypes = FullPageCache::getAvailablePostTypesToCache(true);
 ?>
 <form method="post" action="options.php">
     <?php settings_fields( 'fpc-options-page' ) ?>
@@ -41,7 +41,7 @@ $availablePostTypes = fullPageCache()->getAvailablePostTypesToCache(true);
             <tr>
                 <th scope="row">Posts to exclude from caching</th>
                 <td>
-                    <?php $idsToExclude = fullPageCache()->getIdsToExcludeFromCache() ?: []; ?>
+                    <?php $idsToExclude = FullPageCache::getIdsToExcludeFromCache() ?: []; ?>
 
                     <div class="tablenav top">
                         <div class="alignleft actions bulkactions">

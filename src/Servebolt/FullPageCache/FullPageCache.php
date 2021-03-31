@@ -9,9 +9,9 @@ use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\isAjax;
 use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
-use function Servebolt\Optimizer\Helpers\updateBlogOption;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
+use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
-use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\fullPageCache;
 use function Servebolt\Optimizer\Helpers\writeLog;
@@ -46,7 +46,7 @@ class FullPageCache
 	 *
 	 * @var null
 	 */
-	private $idsToExcludeCache = null;
+	private static $idsToExcludeCache = null;
 
 	/**
 	 * The default browser cache time.
@@ -99,18 +99,13 @@ class FullPageCache
 	/**
 	 * Check if full page caching is active with optional blog check.
 	 *
-	 * @param bool|int $blogId
+	 * @param null|int $blogId
 	 *
 	 * @return bool
 	 */
-	public static function fpcIsActive($blogId = false): bool
+	public static function fpcIsActive(?int $blogId = null): bool
     {
-		if (is_numeric($blogId)) {
-            $value = checkboxIsChecked(getBlogOption($blogId, self::fpcActiveOptionKey()));
-		} else {
-			$value = checkboxIsChecked(getOption(self::fpcActiveOptionKey()));
-		}
-		return (bool) apply_filters('sb_optimizer_fpc_is_active', $value);
+        return (bool) apply_filters('sb_optimizer_fpc_is_active', checkboxIsChecked(smartGetOption($blogId, self::fpcActiveOptionKey())));
 	}
 
     /**
@@ -172,7 +167,7 @@ class FullPageCache
 			if ($debug) {
                 $this->header('Cache-trigger: 11');
             }
-		} elseif ($this->shouldExcludePostFromCache(get_the_ID())) {
+		} elseif (self::shouldExcludePostFromCache(get_the_ID())) {
 			$this->noCacheHeaders();
 			if ($debug) {
                 $this->header('No-cache-trigger: 3');
@@ -197,18 +192,18 @@ class FullPageCache
 			if ($debug) {
                 $this->header('Cache-trigger: 6');
             }
-		} elseif (empty($this->getPostTypesToCache())) {
+		} elseif (empty(self::getPostTypesToCache())) {
 			$this->postTypes[] = $postType;
 			if ($debug) {
                 $this->header('Cache-trigger: 7');
             }
-			if (in_array($postType , $this->getDefaultPostTypesToCache())) {
+			if (in_array($postType , self::getDefaultPostTypesToCache())) {
 				$this->cacheHeaders();
 				if ($debug) {
                     $this->header('Cache-trigger: 8');
                 }
 			}
-		} elseif (empty($this->getPostTypesToCache()) && (is_front_page() || is_singular() || is_page())) {
+		} elseif (empty(self::getPostTypesToCache()) && (is_front_page() || is_singular() || is_page())) {
 			$this->cacheHeaders();
 			if ($debug) {
                 $this->header('Cache-trigger: 9');
@@ -286,9 +281,9 @@ class FullPageCache
 	 *
 	 * @return bool
 	 */
-	public function shouldExcludePostFromCache($postId)
+	public static function shouldExcludePostFromCache($postId)
     {
-		$idsToExclude = $this->getIdsToExcludeFromCache();
+		$idsToExclude = self::getIdsToExcludeFromCache();
 		return is_array($idsToExclude) && in_array($postId, $idsToExclude);
 	}
 
@@ -311,7 +306,7 @@ class FullPageCache
 	 */
 	private function cacheActiveForPostType($postType): bool
     {
-		if (in_array($postType, (array) $this->getPostTypesToCache())) {
+		if (in_array($postType, (array) self::getPostTypesToCache())) {
 			return true;
 		}
 		return false;
@@ -336,7 +331,7 @@ class FullPageCache
 	private function shouldCacheArchive($posts): bool
     {
 		foreach ($posts as $post) {
-            if (!in_array($post->post_type, $this->getPostTypesToCache())) {
+            if (!in_array($post->post_type, self::getPostTypesToCache())) {
 				return false;
 			} elseif (!in_array($post->post_type, (array) $this->postTypes)) {
 				$this->postTypes[] = $post->post_type;
@@ -416,7 +411,7 @@ class FullPageCache
 	 *
 	 * @return string
 	 */
-	private function fpcCacheablePostTypesOptionKey(): string
+	private static function fpcCacheablePostTypesOptionKey(): string
     {
 		return 'fpc_settings';
 	}
@@ -425,17 +420,13 @@ class FullPageCache
 	 * Set cacheable post types.
 	 *
 	 * @param $postTypes
-	 * @param bool $blogId
+	 * @param null|int $blogId
 	 *
 	 * @return bool|mixed
 	 */
-	public function setCacheablePostTypes($postTypes, $blogId = false)
+	public static function setCacheablePostTypes($postTypes, ?int $blogId = null)
     {
-		if (is_numeric($blogId)) {
-			return updateBlogOption($blogId, $this->fpcCacheablePostTypesOptionKey(), $postTypes);
-		} else {
-			return updateOption($this->fpcCacheablePostTypesOptionKey(), $postTypes);
-		}
+        return smartUpdateOption($blogId, self::fpcCacheablePostTypesOptionKey(), $postTypes);
 	}
 
 	/**
@@ -445,7 +436,7 @@ class FullPageCache
 	 *
 	 * @return mixed
 	 */
-	public function getAvailablePostTypesToCache($includeAll = false)
+	public static function getAvailablePostTypesToCache($includeAll = false)
     {
         $postTypes = get_post_types(['public' => true], 'objects');
 		$array = [];
@@ -462,31 +453,26 @@ class FullPageCache
 	 * Get the post types to cache.
 	 *
 	 * @param bool $respectDefaultFallback Whether to fall back on default post types.
-
 	 * @param bool $respectAll Whether to return all post types if all is selected.
-	 * @param bool $blogId The ID of the blog we would like to interact with.
+	 * @param null|int $blogId The ID of the blog we would like to interact with.
 	 *
 	 * @return array|mixed|string|void|null A list of cacheable post types.
 	 */
-	public function getPostTypesToCache($respectDefaultFallback = true, $respectAll = true, $blogId = false)
+	public static function getPostTypesToCache(bool $respectDefaultFallback = true, bool $respectAll = true, ?int $blogId = null)
     {
 
-		if (is_numeric($blogId)) {
-			$postTypesToCache = getBlogOption($blogId, $this->fpcCacheablePostTypesOptionKey());
-		} else {
-            $postTypesToCache = getOption($this->fpcCacheablePostTypesOptionKey());
-		}
+        $postTypesToCache = smartGetOption($blogId, self::fpcCacheablePostTypesOptionKey());
 
 		// Make sure we migrate from old array structure
-        $postTypesToCache = $this->maybeFixPostTypeArrayStructure($postTypesToCache);
+        $postTypesToCache = self::maybeFixPostTypeArrayStructure($postTypesToCache);
 
 		if ($respectAll && in_array('all', (array) $postTypesToCache)) {
-			return array_keys($this->getAvailablePostTypesToCache());
+			return array_keys(self::getAvailablePostTypesToCache());
 		}
 
 		// Check if we should return default post types instead of not post types are set
 		if ($respectDefaultFallback && (!is_array($postTypesToCache) || empty($postTypesToCache))) {
-            $postTypesToCache = $this->getDefaultPostTypesToCache();
+            $postTypesToCache = self::getDefaultPostTypesToCache();
 		}
 
 		return $postTypesToCache;
@@ -499,7 +485,7 @@ class FullPageCache
 	 *
 	 * @return array
 	 */
-	private function maybeFixPostTypeArrayStructure($array)
+	private static function maybeFixPostTypeArrayStructure($array)
     {
 		if (!is_array($array)) {
             return $array;
@@ -525,7 +511,7 @@ class FullPageCache
 	 *
 	 * @return array|string
 	 */
-	public function getDefaultPostTypesToCache($format = 'array')
+	public static function getDefaultPostTypesToCache(string $format = 'array')
     {
 	    $defaults = [
 	        'post',
@@ -542,11 +528,11 @@ class FullPageCache
 	/**
 	 * Ids of posts to exclude from cache.
 	 *
-	 * @param bool|int $blogId
+	 * @param null|int $blogId
 	 *
 	 * @return array|mixed|void|null
 	 */
-	public function getIdsToExcludeFromCache($blogId = false)
+	public static function getIdsToExcludeFromCache(?int $blogId = null)
     {
 		if (is_numeric($blogId)) {
 			$idsToExclude = getBlogOption($blogId, 'fpc_exclude');
@@ -555,64 +541,60 @@ class FullPageCache
             }
 			return $idsToExclude;
 		}
-		if (is_null($this->idsToExcludeCache)) {
+		if (is_null(self::$idsToExcludeCache)) {
 			$idsToExclude = getOption( 'fpc_exclude');
 			if (!is_array($idsToExclude)) {
                 $idsToExclude = [];
             }
-			$this->idsToExcludeCache = $idsToExclude;
+            self::$idsToExcludeCache = $idsToExclude;
 		}
-		return $this->idsToExcludeCache;
+		return self::$idsToExcludeCache;
 	}
 
 	/**
 	 * Exclude post from FPC.
 	 *
 	 * @param int $postId
-	 * @param bool $blogId
+	 * @param null|int $blogId
 	 *
 	 * @return bool
 	 */
-	public function excludePostFromCache($postId, $blogId = false)
+	public static function excludePostFromCache($postId, ?int $blogId = null)
     {
-		return $this->excludePostsFromCache([$postId], $blogId);
+		return self::excludePostsFromCache([$postId], $blogId);
 	}
 
 	/**
 	 * Exclude posts from FPC.
 	 *
 	 * @param $posts
-	 * @param bool|int $blogId
+	 * @param null|int $blogId
 	 *
 	 * @return bool
 	 */
-	public function excludePostsFromCache($posts, $blogId = false)
+	public static function excludePostsFromCache($posts, ?int $blogId = null)
     {
-		$alreadyExcluded = fullPageCache()->getIdsToExcludeFromCache($blogId) ?: [];
+		$alreadyExcluded = self::getIdsToExcludeFromCache($blogId) ?: [];
 		foreach($posts as $postId) {
-			if ( ! in_array($postId, $alreadyExcluded) ) {
+			if (!in_array($postId, $alreadyExcluded)) {
                 $alreadyExcluded[] = $postId;
 			}
 		}
-		return fullPageCache()->setIdsToExcludeFromCache($alreadyExcluded, $blogId);
+		return self::setIdsToExcludeFromCache($alreadyExcluded, $blogId);
 	}
 
 	/**
 	 * Set posts to exclude from cache.
 	 *
 	 * @param $idsToExclude
-	 * @param bool|int $blogId
+	 * @param null|int $blogId
 	 *
 	 * @return bool
 	 */
-	public function setIdsToExcludeFromCache($idsToExclude, $blogId = false)
+	public static function setIdsToExcludeFromCache($idsToExclude, ?int $blogId = null)
     {
-		$this->idsToExcludeCache = $idsToExclude;
-		if ( is_numeric($blogId) ) {
-			return updateBlogOption($blogId, 'fpc_exclude', $idsToExclude);
-		} else {
-			return updateOption('fpc_exclude', $idsToExclude);
-		}
+		self::$idsToExcludeCache = $idsToExclude;
+		return smartUpdateOption($blogId, 'fpc_exclude', $idsToExclude);
 	}
 
 	/**
@@ -629,17 +611,13 @@ class FullPageCache
 	 * Set full page caching is active/inactive, either for current blog or specified blog.
 	 *
 	 * @param bool $state
-	 * @param bool|int $blogId
+	 * @param null|int $blogId
 	 *
 	 * @return bool|mixed
 	 */
-	public function fpcToggleActive(bool $state, $blogId = false)
+	public static function fpcToggleActive(bool $state, ?int $blogId = null)
     {
-		if (is_numeric($blogId)) {
-			return updateBlogOption($blogId, $this->fpcActiveOptionKey(), $state);
-		} else {
-			return updateOption($this->fpcActiveOptionKey(), $state);
-		}
+        return smartUpdateOption($blogId, self::fpcActiveOptionKey(), $state);
 	}
 
 	/**

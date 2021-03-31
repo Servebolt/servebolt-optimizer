@@ -10,8 +10,6 @@ use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
-use function Servebolt\Optimizer\Helpers\snakeCaseToCamelCase;
-use function Webmozart\Assert\Tests\StaticAnalysis\propertyExists;
 
 /**
  * Class KeyValueStorage

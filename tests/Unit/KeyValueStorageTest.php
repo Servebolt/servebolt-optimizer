@@ -9,10 +9,10 @@ class KeyValueStorageTest extends ServeboltWPUnitTestCase
 {
 
     private $settingsItemsExtended = [
-        'some_value' => [
+        'a_key' => [
             'type' => 'boolean',
         ],
-        'some_other_value' => [
+        'another_key' => [
             'type' => 'string',
         ],
         'radio_value' => [
@@ -26,8 +26,8 @@ class KeyValueStorageTest extends ServeboltWPUnitTestCase
     ];
 
     private $settingsItems = [
-        'some_value' => 'boolean',
-        'some_other_value' => 'string',
+        'a_key' => 'boolean',
+        'another_key' => 'string',
     ];
 
     public function testSettingsRegisterExtendedDefinition(): void
@@ -55,60 +55,67 @@ class KeyValueStorageTest extends ServeboltWPUnitTestCase
     {
         $instance = KeyValueStorage::init($this->settingsItems);
 
-        $this->assertNull($instance->getValue('some_value', null));
-        $this->assertFalse($instance->getValue('some_value', null, false));
-        $this->assertTrue($instance->setValue('some_value', true));
-        $this->assertTrue($instance->getValue('some_value'));
+        $this->assertFalse($instance->getValue('a_key', null));
+        $this->assertFalse($instance->getValue('a_key', null, false));
+        $this->assertTrue($instance->setValue('a_key', true));
+        $this->assertTrue($instance->getValue('a_key'));
 
-        $this->assertFalse($instance->setValue('some_value', 'non-boolean-value'));
+        $this->assertFalse($instance->setValue('a_key', 'non-boolean-value'));
 
-        $this->assertTrue($instance->setValue('some_value', false));
-        $this->assertFalse($instance->getValue('some_value'));
+        $this->assertTrue($instance->setValue('a_key', false));
+        $this->assertFalse($instance->getValue('a_key'));
     }
 
     public function testBooleanKeyValueStorageExtended(): void
     {
         $instance = KeyValueStorage::init($this->settingsItemsExtended);
 
-        $this->assertNull($instance->getValue('some_value'));
-        $this->assertFalse($instance->getValue('some_value', null, false));
-        $this->assertTrue($instance->setValue('some_value', true));
-        $this->assertTrue($instance->getValue('some_value'));
+        $this->assertFalse($instance->getValue('a_key'));
+        $this->assertFalse($instance->getValue('a_key', null, false));
+        $this->assertTrue($instance->setValue('a_key', true));
+        $this->assertTrue($instance->getValue('a_key'));
 
-        $this->assertFalse($instance->setValue('some_value', 'non-boolean-value'));
+        $this->assertFalse($instance->setValue('a_key', 'non-boolean-value'));
 
-        $this->assertTrue($instance->setValue('some_value', false));
-        $this->assertFalse($instance->getValue('some_value'));
+        $this->assertTrue($instance->setValue('a_key', false));
+        $this->assertFalse($instance->getValue('a_key'));
     }
 
     public function testStringKeyValueStorage(): void
     {
         $instance = KeyValueStorage::init($this->settingsItems);
 
-        $this->assertNull($instance->getValue('some_other_value'));
-        $this->assertEquals('default-value', $instance->getValue('some_other_value', null, 'default-value'));
-        $this->assertTrue($instance->setValue('some_other_value', 'some-value'));
-        $this->assertEquals('some-value', $instance->getValue('some_other_value'));
+        $this->assertEquals('', $instance->getValue('another-key'));
+        $this->assertEquals('default-value', $instance->getValue('another-key', null, 'default-value'));
+        $this->assertTrue($instance->setValue('another-key', 'some-value'));
+        $this->assertEquals('some-value', $instance->getValue('another-key'));
 
-        $this->assertFalse($instance->setValue('some_other_value', true));
+        $this->assertFalse($instance->setValue('another-key', true));
 
-        $this->assertTrue($instance->setValue('some_other_value', 'some-other-value'));
-        $this->assertEquals('some-other-value', $instance->getValue('some_other_value'));
+        $this->assertTrue($instance->setValue('another-key', 'some-other-value'));
+        $this->assertEquals('some-other-value', $instance->getValue('another-key'));
     }
 
     public function testStringKeyValueStorageExtended(): void
     {
         $instance = KeyValueStorage::init($this->settingsItems);
 
-        $this->assertNull($instance->getValue('some_other_value'));
-        $this->assertEquals('default-value', $instance->getValue('some_other_value', null, 'default-value'));
-        $this->assertTrue($instance->setValue('some_other_value', 'some-value'));
-        $this->assertEquals('some-value', $instance->getValue('some_other_value'));
+        $this->assertEquals('', $instance->getValue('another-key'));
+        $this->assertEquals('default-value', $instance->getValue('another-key', null, 'default-value'));
+        $this->assertTrue($instance->setValue('another-key', 'some-value'));
+        $this->assertEquals('some-value', $instance->getValue('another-key'));
 
-        $this->assertFalse($instance->setValue('some_other_value', true));
+        $this->assertFalse($instance->setValue('another-key', true));
 
-        $this->assertTrue($instance->setValue('some_other_value', 'some-other-value'));
-        $this->assertEquals('some-other-value', $instance->getValue('some_other_value'));
+        $this->assertTrue($instance->setValue('another-key', 'some-other-value'));
+        $this->assertEquals('some-other-value', $instance->getValue('another-key'));
+    }
+
+    public function testThatUnderscoreAndHyphenWorksInItemName()
+    {
+        $instance = KeyValueStorage::init($this->settingsItems);
+        $this->assertEquals('', $instance->getValue('another-key'));
+        $this->assertEquals('', $instance->getValue('another_key'));
     }
 
     public function testRadioKeyValueStorage(): void
@@ -118,8 +125,9 @@ class KeyValueStorageTest extends ServeboltWPUnitTestCase
         $this->assertTrue($instance->settingExists('radio-value'));
         $this->assertFalse($instance->settingExists('radio-value-not-existing'));
 
-        $this->assertNull($instance->getValue('radio-value'));
-        $this->assertEquals('default-value', $instance->getValue('radio-value', null, 'default-value'));
+        $this->assertFalse($instance->getValue('radio-value'));
+        $this->assertFalse($instance->getValue('radio-value', null, 'default-value'));
+        $this->assertEquals('value-1', $instance->getValue('radio-value', null, 'value-1'));
 
         $this->assertTrue($instance->setValue('radio-value', 'value-1'));
         $this->assertEquals('value-1', $instance->getValue('radio-value'));
