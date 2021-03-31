@@ -45,7 +45,7 @@ class CfSetup
      * : Setup on all sites in multisite.
      *
      * [--auth-type[=<auth-type>]]
-     * : The way we want to authenticate with the Cloudflare API.
+     * : The way we want to authenticate with the Cloudflare API. Required parameter.
      * ---
      * default: token
      * options:
@@ -54,16 +54,16 @@ class CfSetup
      * ---
      *
      * [--api-token=<api-token>]
-     * : Cloudflare API token.
+     * : Cloudflare API token. Required when auth type is set to "token".
      *
      * [--email=<email>]
-     * : Cloudflare e-mail.
+     * : Cloudflare e-mail. Required when auth type is set to "key".
      *
      * [--api-key=<api-key>]
-     * : Cloudflare API key.
+     * : Cloudflare API key. Required when auth type is set to "key".
      *
      * [--zone-id=<zone-id>]
-     * : Cloudflare Zone.
+     * : Cloudflare Zone. Required parameter.
      *
      * [--disable-validation]
      * : Whether to validate the input data or not.
@@ -180,7 +180,6 @@ class CfSetup
         if (!self::authTypeValid($params['authType'], true, false)) {
             $messages[] = __('Authentication type invalid. Must be either "token" or "key".', 'servebolt-wp');
         }
-
 
         switch ($params['authType']) {
             case 'key':

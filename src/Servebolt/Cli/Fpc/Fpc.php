@@ -25,6 +25,16 @@ class Fpc
      */
     public function __construct()
     {
+        // servebolt cache status
+        // servebolt cache activate
+        // servebolt cache deactivate
+
+
+        // servebolt cache settings set post-types post,page,media
+        // servebolt cache settings set post-types post,page,media
+        // servebolt cache settings get post-types
+        // servebolt cache settings clear post-types
+
         WP_CLI::add_command('servebolt fpc status', [$this, 'commandNginxFpcStatus']);
         WP_CLI::add_command('servebolt fpc activate', [$this, 'commandNginxFpcEnable']);
         WP_CLI::add_command('servebolt fpc deactivate', [$this, 'commandNginxFpcDisable']);

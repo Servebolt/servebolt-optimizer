@@ -23,9 +23,9 @@
 	</div>
 
 	<?php if ( is_network_admin() ) : ?>
-        <?php view('cache-settings.full-page-cache.network-list-view'); ?>
+        <?php view('cache-settings.cache-settings.network-list-view'); ?>
     <?php else : ?>
-        <?php view('cache-settings.full-page-cache.settings-form'); ?>
+        <?php view('cache-settings.cache-settings.settings-form'); ?>
 	<?php endif; ?>
 
 </div>

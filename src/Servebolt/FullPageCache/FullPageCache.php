@@ -106,11 +106,22 @@ class FullPageCache
 	public function fpcIsActive($blogId = false)
     {
 		if (is_numeric($blogId)) {
-			return checkboxIsChecked(getBlogOption($blogId, $this->fpcActiveOptionKey()));
+            $value = checkboxIsChecked(getBlogOption($blogId, $this->fpcActiveOptionKey()));
 		} else {
-			return checkboxIsChecked(getOption($this->fpcActiveOptionKey()));
+			$value = checkboxIsChecked(getOption($this->fpcActiveOptionKey()));
 		}
+		return apply_filters('sb_optimizer_fpc_is_active', $value);
 	}
+
+    /**
+     * Check whether we have overridden the active status for full page cache.
+     *
+     * @return bool
+     */
+	public static function fpcActiveStateIsOverridden(): bool
+    {
+        return has_filter('sb_optimizer_fpc_is_active');
+    }
 
 	/**
 	 * Set cache headers - Determine and set the type of headers to be used.
