@@ -9,6 +9,17 @@ use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
+use function Servebolt\Optimizer\Helpers\deleteBlogOption;
+use function Servebolt\Optimizer\Helpers\deleteOption;
+use function Servebolt\Optimizer\Helpers\deleteSiteOption;
+use function Servebolt\Optimizer\Helpers\getBlogOption;
+use function Servebolt\Optimizer\Helpers\getOption;
+use function Servebolt\Optimizer\Helpers\getSiteOption;
+use function Servebolt\Optimizer\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\smartDeleteOption;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
+use function Servebolt\Optimizer\Helpers\smartUpdateOption;
+use function Servebolt\Optimizer\Helpers\snakeCaseToCamelCase;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\countSites;
 use function Servebolt\Optimizer\Helpers\displayValue;
@@ -33,6 +44,9 @@ use function Servebolt\Optimizer\Helpers\naturalLanguageJoin;
 use function Servebolt\Optimizer\Helpers\resolveViewPath;
 use function Servebolt\Optimizer\Helpers\isUrl;
 use function Servebolt\Optimizer\Helpers\getOptionName;
+use function Servebolt\Optimizer\Helpers\updateBlogOption;
+use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\updateSiteOption;
 
 class HelpersTest extends WP_UnitTestCase
 {
@@ -79,6 +93,12 @@ class HelpersTest extends WP_UnitTestCase
     public function testCamelCaseToSnakeCase()
     {
         $this->assertEquals('some_method_with_camel_case', camelCaseToSnakeCase('someMethodWithCamelCase'));
+    }
+
+    public function testSnakeCaseToCamelCase()
+    {
+        $this->assertEquals('someMethodWithCamelCase', snakeCaseToCamelCase('some_method_with_camel_case'));
+        $this->assertEquals('SomeMethodWithCamelCase', snakeCaseToCamelCase('some_method_with_camel_case', true));
     }
 
     public function testIsQueueItemHelper()
@@ -222,5 +242,140 @@ class HelpersTest extends WP_UnitTestCase
     public function testCountSitesHelper()
     {
         $this->assertEquals(1, countSites());
+    }
+
+    public function testSmartOptionsHelpersMultisite()
+    {
+        iterateSites(function ($site) {
+            $key = 'some-option-for-testing';
+            $this->assertNull(smartGetOption($site->blog_id, $key));
+            $this->assertTrue(smartUpdateOption($site->blog_id, $key, 'some-value'));
+            $this->assertEquals('some-value', smartGetOption($site->blog_id, $key));
+            $this->assertTrue(smartDeleteOption($site->blog_id, $key));
+            $this->assertNull(smartGetOption($site->blog_id, $key));
+        }, true);
+    }
+
+    public function testOptionsOverride()
+    {
+        $override = function($value) {
+            return 'override';
+        };
+        $key = 'some-overrideable-options-key';
+        $fullKey = 'servebolt_' . $key;
+        $this->assertEquals('some-default-value', getOption($key, 'some-default-value'));
+        add_filter('sb_optimizer_get_option_' . $fullKey, $override);
+        $this->assertEquals('override', getOption($key));
+        $this->assertNotEquals('some-default-value', getOption($key, 'some-default-value'));
+
+        updateOption($key, 'a-value');
+        $this->assertEquals('override', getOption($key));
+        $this->assertNotEquals('a-value', getOption($key, 'some-default-value'));
+
+        remove_filter('sb_optimizer_get_option_' . $fullKey, $override);
+        $this->assertEquals('a-value', getOption($key));
+    }
+
+    public function testBlogOptionsOverride()
+    {
+        iterateSites(function ($site) {
+            $override = function ($value) {
+                return 'override';
+            };
+            $key = 'some-overrideable-blog-options-key';
+            $fullKey = 'servebolt_' . $key;
+            $this->assertEquals('some-default-value', getBlogOption($site->blog_id, $key, 'some-default-value'));
+            add_filter('sb_optimizer_get_blog_option_' . $fullKey, $override);
+            $this->assertEquals('override', getBlogOption($site->blog_id, $key));
+            $this->assertNotEquals('some-default-value', getBlogOption($site->blog_id, $key, 'some-default-value'));
+
+            updateBlogOption($site->blog_id, $key, 'a-value');
+            $this->assertEquals('override', getBlogOption($site->blog_id, $key));
+            $this->assertNotEquals('a-value', getBlogOption($site->blog_id, $key, 'some-default-value'));
+
+            remove_filter('sb_optimizer_get_blog_option_' . $fullKey, $override);
+            $this->assertEquals('a-value', getBlogOption($site->blog_id, $key));
+        }, true);
+    }
+
+    public function testDefaultValuesForOptionsHelpers()
+    {
+        $key = 'default-options-value-test-key';
+        $this->assertEquals('default-value', getOption($key, 'default-value'));
+        updateOption($key, 'an-actual-value');
+        $this->assertNotEquals('default-value', getOption($key, 'default-value'));
+        $this->assertEquals('an-actual-value', getOption($key, 'default-value'));
+    }
+
+    public function testDefaultValuesForSiteOptionsHelpers()
+    {
+        $key = 'default-options-value-test-key';
+        $this->assertEquals('default-value', getSiteOption($key, 'default-value'));
+        updateSiteOption($key, 'an-actual-value');
+        $this->assertNotEquals('default-value', getSiteOption($key, 'default-value'));
+        $this->assertEquals('an-actual-value', getSiteOption($key, 'default-value'));
+    }
+
+    public function testDefaultValuesForBlogOptionsHelpers()
+    {
+        iterateSites(function ($site) {
+            $key = 'default-options-value-test-key';
+            $this->assertEquals('default-value', getBlogOption($site->blog_id, $key, 'default-value'));
+            updateBlogOption($site->blog_id, $key, 'an-actual-value');
+            $this->assertNotEquals('default-value', getBlogOption($site->blog_id, $key, 'default-value'));
+            $this->assertEquals('an-actual-value', getBlogOption($site->blog_id, $key, 'default-value'));
+        }, true);
+    }
+
+    public function testDefaultValuesForSmartOptionsHelpers()
+    {
+        $key = 'default-options-value-test-key';
+        $this->assertEquals('default-value', smartGetOption(null, $key, 'default-value'));
+        smartUpdateOption(null, $key, 'an-actual-value');
+        $this->assertNotEquals('default-value', smartGetOption(null, $key, 'default-value'));
+        $this->assertEquals('an-actual-value', smartGetOption(null, $key, 'default-value'));
+    }
+
+    public function testSiteOptionsHelpers()
+    {
+        $key = 'some-option-for-testing-site-wide';
+        $this->assertNull(getSiteOption($key));
+        $this->assertTrue(updateSiteOption($key, 'some-value'));
+        $this->assertEquals('some-value', getSiteOption($key));
+        $this->assertTrue(deleteSiteOption($key));
+        $this->assertNotEquals('some-value', getSiteOption($key));
+        $this->assertNull(getSiteOption($key));
+    }
+
+    public function testOptionsHelpers()
+    {
+        $key = 'some-option-for-testing-single-site-option';
+        $this->assertNull(getOption($key));
+        $this->assertTrue(updateOption($key, 'some-value'));
+        $this->assertEquals('some-value', getOption($key));
+        $this->assertTrue(deleteOption($key));
+        $this->assertNull(getOption($key));
+    }
+
+    public function testOptionsHelpersMultisite()
+    {
+        iterateSites(function ($site) {
+            $key = 'some-option-for-testing-multisite';
+            $this->assertNull(getBlogOption($site->blog_id, $key));
+            $this->assertTrue(updateBlogOption($site->blog_id, $key, 'some-value'));
+            $this->assertEquals('some-value', getBlogOption($site->blog_id, $key));
+            $this->assertTrue(deleteBlogOption($site->blog_id, $key));
+            $this->assertNull(getBlogOption($site->blog_id, $key));
+        }, true);
+    }
+
+    public function testSmartOptionsHelpers()
+    {
+        $key = 'some-option-for-testing-smart-option';
+        $this->assertNull(smartGetOption(null, $key));
+        $this->assertTrue(smartUpdateOption(null, $key, 'some-value'));
+        $this->assertEquals('some-value', smartGetOption(null, $key));
+        $this->assertTrue(smartDeleteOption(null, $key));
+        $this->assertNull(smartGetOption(null, $key));
     }
 }

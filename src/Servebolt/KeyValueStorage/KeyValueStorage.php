@@ -6,9 +6,12 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\displayValue;
+use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
+use function Servebolt\Optimizer\Helpers\snakeCaseToCamelCase;
+use function Webmozart\Assert\Tests\StaticAnalysis\propertyExists;
 
 /**
  * Class KeyValueStorage
@@ -87,21 +90,28 @@ class KeyValueStorage
 
             $type = $this->resolveSettingsItemType($settingItem);
             $typeString = $type;
-            switch ($type) {
-                case 'radio':
-                    $properties = $this->resolveSettingsItemProperties($settingItem) ?: [];
-                    $values = arrayGet('values', $properties, false);
-                    if ($values) {
-                        $typeString .= sprintf(' (%s)', implode(', ', $values));
-                    }
-                    break;
+            $value = $this->getValue($settingItem, $blogId);
+
+            if ($humanReadable) {
+                switch ($type) {
+                    case 'radio':
+                        $properties = $this->resolveSettingsItemProperties($settingItem) ?: [];
+                        $values = arrayGet('values', $properties, false);
+                        if ($values) {
+                            $typeString .= sprintf(' (%s)', implode(', ', $values));
+                        }
+                        break;
+                    case 'multi':
+                        $value = formatArrayToCsv(array_keys($value));
+                        break;
+                }
             }
 
-            $value = $this->getValue($settingItem, $blogId);
             if ($humanReadable) {
                 $value = displayValue($value);
                 $settingItem = str_replace('_', '-', $settingItem);
             }
+
             if ($extendedInformation) {
                 $settings[] = [
                     'name' => $settingItem,
@@ -230,7 +240,18 @@ class KeyValueStorage
      */
     public function hasValueConstraints(string $settingsKey): bool
     {
+        if ($this->hasValueConstraintsViaFilter($settingsKey)) {
+            return true;
+        }
         return $this->itemIsType($settingsKey, 'radio');
+    }
+
+    private function hasValueConstraintsViaFilter(string $settingsKey): bool
+    {
+        if (has_filter('servebolt_optimizer_key_value_storage_constraints_for_' . $settingsKey)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -242,12 +263,45 @@ class KeyValueStorage
     public function getValueConstraints(string $settingsKey): ?array
     {
         $itemType = $this->resolveSettingsItemType($settingsKey);
+        if ($this->hasValueConstraintsViaFilter($settingsKey)) {
+            return apply_filters('servebolt_optimizer_key_value_storage_constraints_for_' . $settingsKey, $itemType);
+        }
         switch ($itemType) {
             case 'radio':
                 $properties = $this->resolveSettingsItemProperties($settingsKey);
                 return arrayGet('values', $properties, null);
         }
         return null;
+    }
+
+    /**
+     * @param $value
+     * @param $itemType
+     * @param $properties
+     * @return false|mixed
+     */
+    private function formatValueBasedOnType($value, $itemType, $properties)
+    {
+        switch ($itemType) {
+            case 'radio':
+                $allowedValues = arrayGet('values', $properties, []);
+                if (!in_array($value, $allowedValues)) {
+                    return false;
+                }
+                break;
+            case 'string':
+                if (is_null($value)) {
+                    $value = ''; // Return empty string on null
+                }
+                break;
+            case 'multi':
+                break;
+            case 'boolean':
+            case 'bool':
+                $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+                break;
+        }
+        return $value;
     }
 
     /**
@@ -260,32 +314,16 @@ class KeyValueStorage
      */
     public function getValue(string $itemName, ?int $blogId = null, $defaultValue = null)
     {
-        if ($settingsName = $this->resolveSettingsName($itemName)) {
-            $value = smartGetOption($blogId, $settingsName);
+        if ($itemName = $this->resolveSettingsName($itemName)) {
+            $value = smartGetOption($blogId, $itemName);
+            $value = apply_filters('servebolt_optimizer_key_value_storage_get_format_' . $itemName, $value, $itemName, $blogId, $defaultValue);
             $properties = $this->resolveSettingsItemProperties($itemName);
             $itemType = $this->resolveSettingsItemType($itemName);
             $hasValue = !is_null($value);
-            $skipDefaultValueValidation = true;
             if (!$hasValue) {
-                if ($skipDefaultValueValidation) {
-                    return $defaultValue;
-                } else {
-                    $value = $defaultValue;
-                }
+                return $this->formatValueBasedOnType($defaultValue, $itemType, $properties); // Return default value with validation
             }
-            switch ($itemType) {
-                case 'radio':
-                    $allowedValues = arrayGet('values', $properties, []);
-                    if (!in_array($value, $allowedValues)) {
-                        return false;
-                    }
-                    break;
-                case 'boolean':
-                case 'bool':
-                    $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-                    break;
-            }
-            return $value;
+            return $this->formatValueBasedOnType($value, $itemType, $properties);
         }
         return null;
     }
@@ -325,19 +363,26 @@ class KeyValueStorage
      * @param string $itemName
      * @param $value
      * @param int|null $blogId
-     * @param null $defaultValue
      * @return false
      */
-    public function setValue(string $itemName, $value, ?int $blogId = null, $defaultValue = null)
+    public function setValue(string $itemName, $value, ?int $blogId = null)
     {
-        if ($settingsName = $this->resolveSettingsName($itemName)) {
+        if ($itemName = $this->resolveSettingsName($itemName)) {
             $properties = $this->resolveSettingsItemProperties($itemName);
             $itemType = $this->resolveSettingsItemType($itemName);
+
+            if (!apply_filters('servebolt_optimizer_key_value_storage_set_validate_' . $itemName, true, $value, $itemName, $blogId, $itemType)) {
+                return false;
+            }
+
             switch ($itemType) {
                 case 'string':
                     if (!is_string($value)) {
                         return false;
                     }
+                    break;
+                case 'multi':
+                    $value = array_filter(array_map('trim', explode(',')));
                     break;
                 case 'radio':
                     $allowedValues = arrayGet('values', $properties, []);
@@ -356,7 +401,8 @@ class KeyValueStorage
                     }
                     break;
             }
-            return smartUpdateOption($blogId, $settingsName, $value);
+            $value = apply_filters('servebolt_optimizer_key_value_storage_set_format_' . $itemName, $value, $itemName, $blogId, $itemType);
+            return smartUpdateOption($blogId, $itemName, $value);
         }
         return false;
     }

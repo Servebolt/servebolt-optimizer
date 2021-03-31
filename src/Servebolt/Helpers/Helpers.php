@@ -214,6 +214,22 @@ function camelCaseToSnakeCase(string $string): string
 }
 
 /**
+ * Convert string from snake case to camel case.
+ *
+ * @param string $string
+ * @param bool $capitalizeFirst
+ * @return string
+ */
+function snakeCaseToCamelCase(string $string, bool $capitalizeFirst = false): string
+{
+    $string = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $string))));
+    if ($capitalizeFirst) {
+        $string = ucfirst($string);
+    }
+    return $string;
+}
+
+/**
  * Get a link to the Servebolt admin panel.
  *
  * @return string
@@ -810,12 +826,17 @@ function getBlogName($blogId)
  *
  * @param $blogId
  * @param $option
+ * @param bool $assertUpdate
  *
  * @return mixed
  */
-function deleteBlogOption($blogId, $option)
+function deleteBlogOption($blogId, $option, bool $assertUpdate = true)
 {
-    return delete_blog_option($blogId, getOptionName($option));
+    $result = delete_blog_option($blogId, getOptionName($option));
+    if ($assertUpdate) {
+        return is_null(get_blog_option($blogId, getOptionName($option), null));
+    }
+    return $result;
 }
 
 /**
@@ -897,7 +918,7 @@ function updateBlogOption($blogId, $optionName, $value, $assertUpdate = true)
  *
  * @return mixed
  */
-function getBlogOption($blogId, $optionName, $default = false)
+function getBlogOption($blogId, $optionName, $default = null)
 {
     $fullOptionName = getOptionName($optionName);
     $value = get_blog_option($blogId, $fullOptionName, $default);
@@ -908,12 +929,17 @@ function getBlogOption($blogId, $optionName, $default = false)
  * Delete option.
  *
  * @param $option
+ * @param bool $assertUpdate
  *
  * @return bool
  */
-function deleteOption($option)
+function deleteOption($option, bool $assertUpdate = true)
 {
-    return delete_option(getOptionName($option));
+    $result = delete_option(getOptionName($option));
+    if ($assertUpdate) {
+        return is_null(get_option(getOptionName($option), null));
+    }
+    return $result;
 }
 
 /**
@@ -944,7 +970,7 @@ function updateOption($optionName, $value, $assertUpdate = true)
  *
  * @return mixed|void
  */
-function getOption($optionName, $default = false)
+function getOption($optionName, $default = null)
 {
     $fullOptionName = getOptionName($optionName);
     $value = get_option($fullOptionName, $default);
@@ -955,12 +981,17 @@ function getOption($optionName, $default = false)
  * Delete site option.
  *
  * @param $option
+ * @param bool $assertUpdate
  *
  * @return bool
  */
-function deleteSiteOption($option)
+function deleteSiteOption($option, bool $assertUpdate = true)
 {
-    return delete_site_option(getOptionName($option));
+    $result = delete_site_option(getOptionName($option));
+    if ($assertUpdate) {
+        return is_null(get_site_option(getOptionName($option), null));
+    }
+    return $result;
 }
 
 /**
@@ -991,7 +1022,7 @@ function updateSiteOption($optionName, $value, $assertUpdate = true)
  *
  * @return mixed|void
  */
-function getSiteOption($optionName, $default = false)
+function getSiteOption($optionName, $default = null)
 {
     $fullOptionName = getOptionName($optionName);
     $value = get_site_option($fullOptionName, $default);
@@ -1008,7 +1039,7 @@ function getSiteOption($optionName, $default = false)
  *
  * @return bool|mixed
  */
-function smartUpdateOption($blogId, $optionName, $value, $assertUpdate = true)
+function smartUpdateOption($blogId, $optionName, $value, bool $assertUpdate = true)
 {
     if (is_numeric($blogId)) {
         $result = updateBlogOption($blogId, $optionName, $value, $assertUpdate);
@@ -1023,15 +1054,16 @@ function smartUpdateOption($blogId, $optionName, $value, $assertUpdate = true)
  *
  * @param $blogId
  * @param $optionName
+ * @param bool $assertUpdate
  *
  * @return bool|mixed
  */
-function smartDeleteOption($blogId, $optionName)
+function smartDeleteOption($blogId, $optionName, bool $assertUpdate = true)
 {
     if (is_numeric($blogId)) {
-        $result = deleteBlogOption($blogId, $optionName);
+        $result = deleteBlogOption($blogId, $optionName, $assertUpdate);
     } else {
-        $result = deleteOption($optionName);
+        $result = deleteOption($optionName, $assertUpdate);
     }
     return $result;
 }

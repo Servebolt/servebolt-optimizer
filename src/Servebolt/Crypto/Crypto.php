@@ -38,16 +38,19 @@ class Crypto
     /**
      * Encrypt string.
      *
-     * @param string $inputString
+     * @param string|null $inputString
      * @param int|bool $blogId
      * @param bool $method
      *
      * @return bool|string
      */
-    public static function encrypt(string $inputString, $blogId = false, $method = false)
+    public static function encrypt(?string $inputString, $blogId = false, $method = false)
     {
         if (is_multisite() && (is_numeric($blogId) || $blogId === 'site')) {
             self::$blogId = $blogId;
+        }
+        if (empty($inputString)) {
+            return $inputString;
         }
         try {
             if (!$method) {
@@ -68,16 +71,19 @@ class Crypto
     /**
      * Decrypt string.
      *
-     * @param string $inputString
+     * @param string|null $inputString
      * @param int|bool $blogId
      * @param bool|string $method
      *
      * @return bool|string
      */
-    public static function decrypt(string $inputString, $blogId = false, $method = false)
+    public static function decrypt(?string $inputString, $blogId = false, $method = false)
     {
         if (is_multisite() && (is_numeric($blogId) || $blogId === 'site')) {
             self::$blogId = $blogId;
+        }
+        if (empty($inputString)) {
+            return $inputString;
         }
         try {
             if (!$method) {

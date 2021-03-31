@@ -21,13 +21,18 @@ class CacheSettings extends CliKeyValueStorage
      * @var array Settings items.
      */
     protected $settingsItems = [
-        'acd_switch' => [
-            'type' => 'boolean',
-        ],
+
+        // Accelerated domains
+        'acd_switch' => 'boolean',
+        'acd_minify_switch' => 'boolean',
+
+        // HTML / cache
+        'fpc_switch' => 'boolean',
+        'fpc_settings' => 'multi',
+
+        // Cache purge
         'cache_purge_switch' => 'boolean',
-        'cache_purge_auto' => [
-            'type' => 'boolean',
-        ],
+        'cache_purge_auto' => 'boolean',
         'cache_purge_driver' => [
             'type' => 'radio',
             'values' => [
@@ -35,6 +40,18 @@ class CacheSettings extends CliKeyValueStorage
                 'acd',
             ]
         ],
+        'cf_zone_id' => 'string',
+        'cf_auth_type' => [
+            'type' => 'radio',
+            'values' => [
+                'api_token',
+                'api_key',
+            ]
+        ],
+        'cf_email' => 'string',
+        'cf_api_key' => 'string',
+        'cf_api_token' => 'string',
+        'queue_based_cache_purge' => 'boolean',
     ];
 
     /**
