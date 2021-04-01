@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Cli\CliKeyValueStorage;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
+use Servebolt\Optimizer\Cli\Cli;
 use Servebolt\Optimizer\Utils\KeyValueStorage\KeyValueStorage;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use function Servebolt\Optimizer\Helpers\naturalLanguageJoin;
@@ -76,18 +77,24 @@ abstract class CliKeyValueStorage
         if (CliHelpers::affectAllSites($assocArgs)) {
             iterateSites(function ($site) {
                 $this->printSettingsList($site->blog_id, function($items) use ($site) {
-                    return sprintf('%s setting(s) for site "%s":', count($items), get_site_url($site->blog_id));
+                    if (!Cli::returnJson()) {
+                        return sprintf('%s setting(s) for site "%s":', count($items), get_site_url($site->blog_id));
+                    }
                 });
             });
         } else {
             $this->printSettingsList(null, function($items) {
-                return sprintf('%s setting(s):', count($items));
+                if (!Cli::returnJson()) {
+                    return sprintf('%s setting(s):', count($items));
+                }
             });
         }
-        WP_CLI::line(__('Available commands:', 'servebolt-wp'));
-        WP_CLI::line(__('wp servebolt ' . $this->namespace . ' get [name]', 'servebolt-wp'));
-        WP_CLI::line(__('wp servebolt ' . $this->namespace . ' set [name] [value]', 'servebolt-wp'));
-        WP_CLI::line(__('wp servebolt ' . $this->namespace . ' clear [name]', 'servebolt-wp'));
+        if (!Cli::returnJson()) {
+            WP_CLI::line(__('Available commands:', 'servebolt-wp'));
+            WP_CLI::line(__('wp servebolt ' . $this->namespace . ' get [name]', 'servebolt-wp'));
+            WP_CLI::line(__('wp servebolt ' . $this->namespace . ' set [name] [value]', 'servebolt-wp'));
+            WP_CLI::line(__('wp servebolt ' . $this->namespace . ' clear [name]', 'servebolt-wp'));
+        }
     }
 
     /**
@@ -116,14 +123,32 @@ abstract class CliKeyValueStorage
         if (CliHelpers::affectAllSites($assocArgs)) {
             $settings = [];
             iterateSites(function ($site) use ($settingsKey, &$settings) {
-                $settings[] = [
-                    'Blog' => get_site_url($site->blog_id),
-                    'Value' => $this->storage->getHumanReadableValue($settingsKey, $site->blog_id, null, true),
-                ];
+                if (Cli::returnJson()) {
+                    $settings[] = [
+                        'blog_id' => $site->blog_id,
+                        'value' => $this->storage->getValue($settingsKey, $site->blog_id),
+                    ];
+                } else {
+                    $settings[] = [
+                        'Blog' => get_site_url($site->blog_id),
+                        'Value' => $this->storage->getHumanReadableValue($settingsKey, $site->blog_id),
+                    ];
+                }
+
             });
-            WP_CLI_FormatItems('table', $settings, array_keys(current($settings)));
+            if (Cli::returnJson()) {
+                $this->printJson($settings);
+            } else {
+                WP_CLI_FormatItems('table', $settings, array_keys(current($settings)));
+            }
         } else {
-            WP_CLI::line(sprintf(__('Value set to "%s".', 'servebolt-wp'), $this->storage->getHumanReadableValue($settingsKey)));
+            if (Cli::returnJson()) {
+                $this->printJson([
+                    'value' => $this->getValue($settingsKey)
+                ]);
+            } else {
+                WP_CLI::line(sprintf(__('Value set to "%s".', 'servebolt-wp'), $this->storage->getHumanReadableValue($settingsKey)));
+            }
         }
     }
 
@@ -225,9 +250,14 @@ abstract class CliKeyValueStorage
     protected function clearSettingResponse(string $settingKey, ?int $blogId = null): bool
     {
         if ($blogId) {
-            WP_CLI::success(sprintf(__('Setting "%s" was cleared on site %s', 'servebolt-wp'), $settingKey, get_site_url($blogId)));
+            $message = sprintf(__('Setting "%s" was cleared on site %s', 'servebolt-wp'), $settingKey, get_site_url($blogId));
         } else {
-            WP_CLI::success(sprintf(__('Setting "%s" was cleared', 'servebolt-wp'), $settingKey));
+            $message = sprintf(__('Setting "%s" was cleared', 'servebolt-wp'), $settingKey);
+        }
+        if (Cli::returnJson()) {
+            $this->printJson(compact('message'), 'success');
+        } else {
+            WP_CLI::success($message);
         }
         return true;
     }
@@ -243,16 +273,26 @@ abstract class CliKeyValueStorage
     {
         if (!$result) {
             if ($blogId) {
-                WP_CLI::error(sprintf(__('Could not set setting "%s" to value "%s" on site %s', 'servebolt-wp'), $settingKey, $value, get_site_url($blogId)), false);
+                $errorMessage = sprintf(__('Could not set setting "%s" to value "%s" on site %s', 'servebolt-wp'), $settingKey, $value, get_site_url($blogId));
             } else {
-                WP_CLI::error(sprintf(__('Could not set setting "%s" to value "%s"', 'servebolt-wp'), $settingKey, $value), false);
+                $errorMessage = sprintf(__('Could not set setting "%s" to value "%s"', 'servebolt-wp'), $settingKey, $value);
+            }
+            if (Cli::returnJson()) {
+                $this->printJson(compact('errorMessage'), 'error');
+            } else {
+                WP_CLI::error($errorMessage, false);
             }
             return false;
         }
         if ($blogId) {
-            WP_CLI::success(sprintf(__('Setting "%s" set to value "%s" on site %s', 'servebolt-wp'), $settingKey, $value, get_site_url($blogId)));
+            $message = sprintf(__('Setting "%s" set to value "%s" on site %s', 'servebolt-wp'), $settingKey, $value, get_site_url($blogId));
         } else {
-            WP_CLI::success(sprintf(__('Setting "%s" set to value "%s"', 'servebolt-wp'), $settingKey, $value));
+            $message = sprintf(__('Setting "%s" set to value "%s"', 'servebolt-wp'), $settingKey, $value);
+        }
+        if (Cli::returnJson()) {
+            $this->printJson(compact('message'), 'success');
+        } else {
+            WP_CLI::success($message);
         }
         return true;
     }
@@ -263,13 +303,19 @@ abstract class CliKeyValueStorage
      */
     private function printSettingsList(?int $blogId = null, $closure = null): void
     {
-        $items = $this->storage->getSettings($blogId, true, true);
-        $columns = array_keys(current($items));
+        $items = $this->storage->getSettings($blogId, true, !Cli::returnJson());
         if (is_callable($closure)) {
             WP_CLI::line($closure($items));
         }
-        WP_CLI_FormatItems('table', $items, $columns);
-        WP_CLI::line('');
+        if (Cli::returnJson()) {
+            $this->printJson($items);
+        } else {
+            $columns = array_keys(current($items));
+            WP_CLI_FormatItems('table', $items, $columns);
+        }
+        if (!Cli::returnJson()) {
+            WP_CLI::line('');
+        }
     }
 
     /**
@@ -279,7 +325,15 @@ abstract class CliKeyValueStorage
      */
     protected function unresolvedSetting($setting): void
     {
-        WP_CLI::error(sprintf(__('Setting "%s" not found. Please run "wp servebolt ' . $this->namespace . ' list" to see available settings.', 'servebolt-wp'), $setting));
+        $errorMessage = sprintf(__('Setting "%s" not found. Please run "wp servebolt ' . $this->namespace . ' list" to see available settings.', 'servebolt-wp'), $setting);
+        if (Cli::returnJson()) {
+            $this->printJson([
+                'error' => $errorMessage
+            ], 'error');
+        } else {
+            WP_CLI::error($errorMessage, false);
+        }
+
     }
 
     /**
@@ -294,25 +348,36 @@ abstract class CliKeyValueStorage
             $valueConstraints = $this->storage->getValueConstraints($settingsKey);
             if (!empty($valueConstraints)) {
                 if (count($valueConstraints) > 1) {
-                    WP_CLI::error(sprintf(__('Values need to be either %s', 'servebolt-wp'), naturalLanguageJoin($valueConstraints, 'or')), false);
+                    $errorMessage = sprintf(__('Values need to be either %s', 'servebolt-wp'), naturalLanguageJoin($valueConstraints, 'or'));
                 } else {
-                    WP_CLI::error(sprintf(__('Values need to be "%s"', 'servebolt-wp'), current($valueConstraints)), false);
+                    $errorMessage = sprintf(__('Values need to be "%s"', 'servebolt-wp'), current($valueConstraints));
+                }
+                if (Cli::returnJson()) {
+                    $this->printJson([
+                        'error' => $errorMessage
+                    ], 'error');
+                } else {
+                    WP_CLI::error($errorMessage, false);
                 }
             }
         }
     }
 
-    /*
-    protected function formatSettings(array $types): array
+    /**
+     * Print pretty JSON.
+     *
+     * @param $array
+     * @param string $method
+     */
+    private function printJson($array, $method = 'line'): void
     {
-        $formattedItems = [];
-        foreach ($types as $name => $type) {
-            $formattedItems[] = [
-                'name' => str_replace('_', '-', $name),
-                'type' => $type,
-            ];
+        if (!method_exists('WP_CLI', $method)) {
+            $method = 'line';
         }
-        return $formattedItems;
+        if ($method == 'error') {
+            WP_CLI::error(json_encode($array, JSON_PRETTY_PRINT), false);
+        } else {
+            WP_CLI::$method(json_encode($array, JSON_PRETTY_PRINT));
+        }
     }
-    */
 }

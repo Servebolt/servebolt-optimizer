@@ -185,14 +185,21 @@ class KeyValueStorage
      * Resolve setting name from item name.
      *
      * @param string $itemName
+     * @param bool $returnOnlyArray
      * @return string|null|array
      */
-    public function resolveSettingsItemProperties(string $itemName)
+    public function resolveSettingsItemProperties(string $itemName, bool $returnOnlyArray = true)
     {
         $itemName = $this->ensureCorrectItemName($itemName);
         $items = $this->getSettingsItems();
         if (array_key_exists($itemName, $items)) {
-            return $items[$itemName];
+            $item = $items[$itemName];
+            if (!$returnOnlyArray) {
+                return $item;
+            }
+            if (is_array($items[$itemName])) {
+                return $item;
+            }
         }
         return null;
     }
@@ -205,7 +212,7 @@ class KeyValueStorage
      */
     public function resolveSettingsItemType(string $itemName): ?string
     {
-        if ($properties = $this->resolveSettingsItemProperties($itemName)) {
+        if ($properties = $this->resolveSettingsItemProperties($itemName, false)) {
             if (is_string($properties)) {
                 return $properties; // Type
             }
