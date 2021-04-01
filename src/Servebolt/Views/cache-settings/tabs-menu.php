@@ -1,15 +1,16 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\view; ?>
 <?php
+    $urlMethod = is_multisite() && is_network_admin() ? 'network_admin_url' : 'admin_url';
     $tabs = [
         [
             'id' => 'cache-settings',
-            'url' => admin_url('admin.php?page=servebolt-fpc'),
+            'url' => $urlMethod('admin.php?page=servebolt-fpc'),
             'title' => 'Cache settings',
         ],
         [
             'id' => 'cache-purge-settings',
-            'url' => admin_url('admin.php?page=servebolt-cache-purge-control'),
+            'url' => $urlMethod('admin.php?page=servebolt-cache-purge-control'),
             'title' => 'Cache purging',
         ],
     ];

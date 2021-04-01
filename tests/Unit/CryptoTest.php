@@ -3,7 +3,7 @@
 namespace Unit;
 
 use WP_UnitTestCase;
-use Servebolt\Optimizer\Crypto\Crypto;
+use Servebolt\Optimizer\Utils\Crypto\Crypto;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 
@@ -16,7 +16,7 @@ class CryptoTest extends WP_UnitTestCase
         $optionName = 'test_option';
         $fullOptionName = getOptionName($optionName);
 
-        add_filter('pre_update_option_' . $fullOptionName, ['\\Servebolt\\Optimizer\\Crypto\\OptionEncryption', 'encryptOption'], 10, 1);
+        add_filter('pre_update_option_' . $fullOptionName, ['\\Servebolt\\Optimizer\\Utils\\Crypto\\OptionEncryption', 'encryptOption'], 10, 1);
 
         $encryptedString = Crypto::encrypt($string);
         update_option($fullOptionName, $string);
@@ -24,7 +24,7 @@ class CryptoTest extends WP_UnitTestCase
         $this->assertEquals($encryptedString, get_option($fullOptionName));
         $this->assertEquals($encryptedString, getOption($optionName));
 
-        add_filter('sb_optimizer_get_option_' . $fullOptionName, ['\\Servebolt\\Optimizer\\Crypto\\OptionEncryption', 'decryptOption'], 10, 1);
+        add_filter('sb_optimizer_get_option_' . $fullOptionName, ['\\Servebolt\\Optimizer\\Utils\\Crypto\\OptionEncryption', 'decryptOption'], 10, 1);
         $this->assertEquals($string, getOption($optionName));
     }
 

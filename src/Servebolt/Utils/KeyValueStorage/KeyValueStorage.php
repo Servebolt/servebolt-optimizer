@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\KeyValueStorage;
+namespace Servebolt\Optimizer\Utils\KeyValueStorage;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -13,7 +13,7 @@ use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 
 /**
  * Class KeyValueStorage
- * @package Servebolt\Optimizer\KeyValueStorage
+ * @package Servebolt\Optimizer\Utils\KeyValueStorage
  */
 class KeyValueStorage
 {

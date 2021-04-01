@@ -116,7 +116,7 @@ class GeneralSettings
     {
         $name = camelCaseToSnakeCase($name);
         if ( in_array($name, array_keys($this->getRegisteredSettingsItems())) ) {
-            $blogId = arrayGet(0, $arguments, false);
+            $blogId = arrayGet(0, $arguments, null);
             return $this->getSettingsItem($name, $blogId);
         }
 

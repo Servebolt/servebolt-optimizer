@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\Crypto;
+namespace Servebolt\Optimizer\Utils\Crypto;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 

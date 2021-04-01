@@ -5,7 +5,7 @@ namespace Servebolt\Optimizer\Cli\CliKeyValueStorage;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
-use Servebolt\Optimizer\KeyValueStorage\KeyValueStorage;
+use Servebolt\Optimizer\Utils\KeyValueStorage\KeyValueStorage;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use function Servebolt\Optimizer\Helpers\naturalLanguageJoin;
 use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;

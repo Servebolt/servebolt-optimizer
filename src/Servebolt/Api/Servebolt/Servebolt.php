@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Api\Servebolt;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\EnvFile\Reader as EnvFileReader;
+use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Traits\ClientMethodProxy;
 use Servebolt\Sdk\Client as ServeboltSdk;

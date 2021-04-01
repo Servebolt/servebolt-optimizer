@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\EnvFile;
+namespace Servebolt\Optimizer\Utils\EnvFile;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 

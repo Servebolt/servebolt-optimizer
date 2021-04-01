@@ -1,12 +1,12 @@
 <?php
 
-namespace Servebolt\Optimizer\SqlBuilder;
+namespace Servebolt\Optimizer\Utils\SqlBuilder;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class SqlBuilder
- * @package Servebolt\Optimizer\Queue\QueueSystem
+ * @package Servebolt\Optimizer\Utils\Queue
  */
 class SqlBuilder
 {

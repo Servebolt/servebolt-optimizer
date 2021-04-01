@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Helpers;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
-use Servebolt\Optimizer\DatabaseMigration\MigrationRunner;
+use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling;
 
@@ -350,7 +350,7 @@ function activatePlugin(): void
  */
 function isQueueItem($var): bool
 {
-    return is_a($var, '\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem');
+    return is_a($var, '\\Servebolt\\Optimizer\\Utils\\Queue\\QueueItem');
 }
 
 /**
@@ -1032,14 +1032,14 @@ function getSiteOption($optionName, $default = null)
 /**
  * A function that will store the option at the right place (in current blog or a specified blog).
  *
- * @param $blogId
+ * @param null|int $blogId
  * @param $optionName
  * @param $value
  * @param bool $assertUpdate
  *
  * @return bool|mixed
  */
-function smartUpdateOption($blogId, $optionName, $value, bool $assertUpdate = true)
+function smartUpdateOption(?int $blogId = null, $optionName, $value, bool $assertUpdate = true)
 {
     if (is_numeric($blogId)) {
         $result = updateBlogOption($blogId, $optionName, $value, $assertUpdate);
@@ -1052,13 +1052,13 @@ function smartUpdateOption($blogId, $optionName, $value, bool $assertUpdate = tr
 /**
  * A function that will delete the option at the right place (in current blog or a specified blog).
  *
- * @param $blogId
+ * @param int|null $blogId
  * @param $optionName
  * @param bool $assertUpdate
  *
  * @return bool|mixed
  */
-function smartDeleteOption($blogId, $optionName, bool $assertUpdate = true)
+function smartDeleteOption(?int $blogId = null, $optionName, bool $assertUpdate = true)
 {
     if (is_numeric($blogId)) {
         $result = deleteBlogOption($blogId, $optionName, $assertUpdate);
@@ -1071,13 +1071,13 @@ function smartDeleteOption($blogId, $optionName, bool $assertUpdate = true)
 /**
  * A function that will get the option at the right place (in current blog or a specified blog).
  *
- * @param $blogId
+ * @param int|null $blogId
  * @param $optionName
  * @param bool $default
  *
  * @return mixed|void
  */
-function smartGetOption($blogId, $optionName, $default = null)
+function smartGetOption(?int $blogId = null, $optionName, $default = null)
 {
     if (is_numeric($blogId)) {
         $result = getBlogOption($blogId, $optionName, $default);

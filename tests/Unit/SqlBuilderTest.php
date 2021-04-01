@@ -2,10 +2,10 @@
 
 namespace Unit;
 
-use Servebolt\Optimizer\DatabaseMigration\MigrationRunner;
-use Servebolt\Optimizer\Queue\QueueSystem\Queue;
-use Servebolt\Optimizer\SqlBuilder\SqlBuilder;
-use Servebolt\Optimizer\SqlBuilder\WpSqlBuilder;
+use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
+use Servebolt\Optimizer\Utils\Queue\Queue;
+use Servebolt\Optimizer\Utils\SqlBuilder\SqlBuilder;
+use Servebolt\Optimizer\Utils\SqlBuilder\WpSqlBuilder;
 use ServeboltWPUnitTestCase;
 
 /**

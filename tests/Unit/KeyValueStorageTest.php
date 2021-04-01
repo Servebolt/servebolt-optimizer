@@ -2,7 +2,7 @@
 
 namespace Unit;
 
-use Servebolt\Optimizer\KeyValueStorage\KeyValueStorage;
+use Servebolt\Optimizer\Utils\KeyValueStorage\KeyValueStorage;
 use ServeboltWPUnitTestCase;
 
 class KeyValueStorageTest extends ServeboltWPUnitTestCase

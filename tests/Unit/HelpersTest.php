@@ -3,7 +3,7 @@
 namespace Unit;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
-use Servebolt\Optimizer\Queue\QueueSystem\QueueItem;
+use Servebolt\Optimizer\Utils\Queue\QueueItem;
 use WP_UnitTestCase;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
