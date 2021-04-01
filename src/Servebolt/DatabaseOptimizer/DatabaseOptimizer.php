@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\DatabaseOptimizer;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
+use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 
@@ -142,7 +143,7 @@ class DatabaseOptimizer
 							WP_CLI::error($value['message'], false);
 							break;
 						case 'table':
-							WP_CLI\Utils\format_items( 'table', $value['table'], array_keys(current($value['table'])));
+                            WP_CLI_FormatItems( 'table', $value['table'], array_keys(current($value['table'])));
 							break;
 					}
 				}

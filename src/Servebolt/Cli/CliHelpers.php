@@ -19,22 +19,21 @@ class CliHelpers
     private static $returnJson = false;
 
     /**
-     * Set initial JSON return state.
-     */
-    public static function setReturnJsonInitState(): void
-    {
-        $instance = \Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings::getInstance();
-        self::$returnJson = $instance->returnJsonInCli();
-    }
-
-    /**
-     * Whether to return JSON in CLI.
-     *
      * @return bool
      */
     public static function returnJson(): bool
     {
-        return self::$returnJson;
+        return self::$returnJson === true;
+    }
+
+    /**
+     * Set parameter to decide whether to return JSON or not.
+     *
+     * @param array $assocArgs
+     */
+    public static function setReturnJson(array $assocArgs): void
+    {
+        self::$returnJson = array_key_exists('format', $assocArgs) && $assocArgs['format'] == 'json';
     }
 
     /**

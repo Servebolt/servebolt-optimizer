@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Cli\CliHelpers;
 use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;
 use WP_CLI;
+use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
@@ -126,7 +127,7 @@ class CfSetup
                         ];
                     }
                     WP_CLI::warning(__('Action complete, but we failed to apply config to some sites:', 'servebolt-wp'));
-                    WP_CLI\Utils\format_items( 'table', $table, array_keys(current($table)));
+                    WP_CLI_FormatItems( 'table', $table, array_keys(current($table)));
                 }
             } else {
                 WP_CLI::success(__('Configuration on all sites!', 'servebolt-wp'));
