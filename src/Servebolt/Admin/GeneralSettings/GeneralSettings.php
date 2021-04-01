@@ -29,7 +29,6 @@ class GeneralSettings
         'use_native_js_fallback' => 'boolean',
         'asset_auto_version' => 'boolean',
         'use_cloudflare_apo' => 'boolean',
-        'return_json_in_cli' => 'boolean',
     ];
 
     public static function init(): void
