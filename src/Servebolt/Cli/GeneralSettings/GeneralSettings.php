@@ -4,7 +4,6 @@ namespace Servebolt\Optimizer\Cli\GeneralSettings;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use WP_CLI;
 use Servebolt\Optimizer\Cli\CliKeyValueStorage\CliKeyValueStorage;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings as GeneralSettingsAdmin;
 
@@ -21,11 +20,11 @@ class GeneralSettings extends CliKeyValueStorage
     protected $namespace = 'general-settings';
 
     /**
-     * GeneralSettings constructor.
+     * @return array
      */
-    public function __construct()
+    protected function getSettingsItems(): array
     {
-        parent::__construct();
+        return GeneralSettingsAdmin::$settingsItems;
     }
 
     /**
@@ -92,62 +91,23 @@ class GeneralSettings extends CliKeyValueStorage
     }
 
     /**
-     * Get the setting from general settings instance.
+     * Clear the value of a setting.
      *
-     * @param string $settingKey
-     * @param int|null $blogId
-     * @return bool|mixed|void
-     */
-    public function getSetting(string $settingKey, ?int $blogId = null)
-    {
-        $generalSettings = GeneralSettingsAdmin::getInstance();
-        $rawValue = $generalSettings->getSettingsItem($settingKey, $blogId);
-        return $this->getSettingResponse($settingKey, $blogId, $rawValue);
-    }
-
-    /**
-     * Set the setting from general settings instance.
+     * ## OPTIONS
      *
-     * @param string $settingKey
-     * @param mixed $value
-     * @param int|null $blogId
-     * @return bool|mixed|void
-     */
-    public function setSetting(string $settingKey, $value, ?int $blogId = null): bool
-    {
-        $generalSettings = GeneralSettingsAdmin::getInstance();
-        $result = $generalSettings->setSettingsItem(
-            $settingKey,
-            $value,
-            $blogId
-        );
-        return $this->setSettingResponse(
-            $settingKey,
-            $value,
-            $blogId,
-            $result
-        );
-    }
-
-    /**
-     * Get only the keys of the available settings.
+     * <setting>
+     * : The name of the setting to set.
      *
-     * @return array
-     */
-    public function getSettingsKeys(): array
-    {
-        $generalSettings = GeneralSettingsAdmin::getInstance();
-        return array_keys($generalSettings->getAllSettingsItems());
-    }
-
-    /**
-     * Get all the settings in an array.
+     * [--all]
+     * : Display the setting for all sites.
      *
-     * @return array
+     * ## EXAMPLES
+     *
+     *     wp servebolt general-settings clear use-native-js-fallback
+     *
      */
-    public function getSettings(): array
+    public function clear($args, $assocArgs)
     {
-        $generalSettings = GeneralSettingsAdmin::getInstance();
-        return $this->formatSettings($generalSettings->getRegisteredSettingsItems());
+        parent::clear($args, $assocArgs);
     }
 }

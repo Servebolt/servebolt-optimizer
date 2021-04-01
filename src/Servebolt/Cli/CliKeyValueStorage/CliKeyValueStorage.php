@@ -38,6 +38,9 @@ abstract class CliKeyValueStorage
      */
     public function __construct()
     {
+        if (method_exists($this, 'getSettingsItems')) {
+            $this->settingsItems = $this->getSettingsItems();
+        }
         $this->storage = KeyValueStorage::init($this->settingsItems);
         $this->registerBaseCommands();
     }
@@ -206,34 +209,25 @@ abstract class CliKeyValueStorage
         if (CliHelpers::affectAllSites($assocArgs)) {
             iterateSites(function ($site) use ($settingsKey) {
                 $this->storage->clearValue($settingsKey, $site->blog_id);
-                $this->clearSettingResponse();
+                $this->clearSettingResponse($settingsKey, $site->blog_id);
             });
         } else {
             $this->storage->clearValue($settingsKey);
+            $this->clearSettingResponse($settingsKey);
         }
     }
 
     /**
      * @param string $settingKey
-     * @param mixed $value
      * @param int|null $blogId
-     * @param bool $result
      * @return bool
      */
-    protected function clearSettingResponse(string $settingKey, $value, ?int $blogId = null, bool $result): bool
+    protected function clearSettingResponse(string $settingKey, ?int $blogId = null): bool
     {
-        if (!$result) {
-            if ($blogId) {
-                WP_CLI::error(sprintf(__('Could not set setting "%s" to value "%s" on site %s', 'servebolt-wp'), $settingKey, $value, get_site_url($blogId)), false);
-            } else {
-                WP_CLI::error(sprintf(__('Could not set setting "%s" to value "%s"', 'servebolt-wp'), $settingKey, $value), false);
-            }
-            return false;
-        }
         if ($blogId) {
-            WP_CLI::success(sprintf(__('Setting "%s" set to value "%s" on site %s', 'servebolt-wp'), $settingKey, $value, get_site_url($blogId)));
+            WP_CLI::success(sprintf(__('Setting "%s" was cleared on site %s', 'servebolt-wp'), $settingKey, get_site_url($blogId)));
         } else {
-            WP_CLI::success(sprintf(__('Setting "%s" set to value "%s"', 'servebolt-wp'), $settingKey, $value));
+            WP_CLI::success(sprintf(__('Setting "%s" was cleared', 'servebolt-wp'), $settingKey));
         }
         return true;
     }
@@ -267,7 +261,7 @@ abstract class CliKeyValueStorage
      * @param null|int $blogId
      * @param callable|null $closure
      */
-    private function printSettingsList(?ont $blogId = null, $closure = null): void
+    private function printSettingsList(?int $blogId = null, $closure = null): void
     {
         $items = $this->storage->getSettings($blogId, true, true);
         $columns = array_keys(current($items));

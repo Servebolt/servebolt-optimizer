@@ -11,7 +11,7 @@ use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 
 /**
- * Class Nginx_FPC_Controls
+ * Class FullPageCacheControl
  *
  * This class displays the Nginx Full Page Cache control GUI  - only works for sites hosted at Servebolt.
  */
@@ -25,7 +25,7 @@ class FullPageCacheControl
     }
 
     /**
-     * Nginx_FPC_Controls constructor.
+     * FullPageCacheControl constructor.
      */
     private function __construct()
     {

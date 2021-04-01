@@ -273,12 +273,12 @@ class KeyValueStorage
     }
 
     /**
-     * @param $value
-     * @param $itemType
-     * @param $properties
+     * @param mixed $value
+     * @param string $itemType
+     * @param null|array $properties
      * @return false|mixed
      */
-    private function formatValueBasedOnType($value, $itemType, $properties)
+    public static function formatValueBasedOnType($value, string $itemType, ?array $properties)
     {
         switch ($itemType) {
             case 'radio':
@@ -319,9 +319,9 @@ class KeyValueStorage
             $itemType = $this->resolveSettingsItemType($itemName);
             $hasValue = !is_null($value);
             if (!$hasValue) {
-                return $this->formatValueBasedOnType($defaultValue, $itemType, $properties); // Return default value with validation
+                return self::formatValueBasedOnType($defaultValue, $itemType, $properties); // Return default value with validation
             }
-            return $this->formatValueBasedOnType($value, $itemType, $properties);
+            return self::formatValueBasedOnType($value, $itemType, $properties);
         }
         return null;
     }

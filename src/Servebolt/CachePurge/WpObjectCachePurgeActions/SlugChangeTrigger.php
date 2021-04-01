@@ -22,7 +22,7 @@ class SlugChangeTrigger
     private $previousPostPermalink = null;
 
     /**
-     * SB_CF_Cache_Purge_Permalink_Change constructor.
+     * SlugChangeTrigger constructor.
      */
     public function __construct()
     {

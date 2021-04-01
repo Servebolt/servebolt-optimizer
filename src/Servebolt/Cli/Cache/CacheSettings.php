@@ -55,14 +55,6 @@ class CacheSettings extends CliKeyValueStorage
     ];
 
     /**
-     * GeneralSettings constructor.
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Display all available settings.
      *
      * ## OPTIONS

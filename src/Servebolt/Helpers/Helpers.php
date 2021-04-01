@@ -627,7 +627,6 @@ function featureIsActive(string $feature): ?bool
     switch ($feature) {
         case 'cf_image_resize':
             return ( CloudflareImageResize::getInstance() )->resizingIsActive();
-        case 'sb_asset_auto_version':
         case 'asset_auto_version':
             $generalSettings = GeneralSettings::getInstance();
             return $generalSettings->assetAutoVersion();
