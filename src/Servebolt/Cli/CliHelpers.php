@@ -37,6 +37,25 @@ class CliHelpers
     }
 
     /**
+     * Print pretty JSON.
+     *
+     * @param $array
+     * @param string $method
+     */
+    public static function printJson($array, $method = 'line'): void
+    {
+        if (!method_exists('WP_CLI', $method)) {
+            $method = 'line';
+        }
+        $jsonString = json_encode($array, JSON_PRETTY_PRINT);
+        if ($method == 'error') {
+            WP_CLI::error($jsonString, false);
+        } else {
+            WP_CLI::$method($jsonString);
+        }
+    }
+
+    /**
      * Check if we should affect all sites in multisite-network.
      *
      * @param array $assocArgs

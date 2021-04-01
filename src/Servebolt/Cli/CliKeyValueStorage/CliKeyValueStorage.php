@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Cli\CliKeyValueStorage;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Cli\Cli;
 use WP_CLI;
 use Servebolt\Optimizer\Utils\KeyValueStorage\KeyValueStorage;
 use Servebolt\Optimizer\Cli\CliHelpers;
@@ -171,13 +172,13 @@ abstract class CliKeyValueStorage
 
             });
             if (CliHelpers::returnJson()) {
-                $this->printJson($settings);
+                CliHelpers::printJson($settings);
             } else {
                 WP_CLI_FormatItems('table', $settings, array_keys(current($settings)));
             }
         } else {
             if (CliHelpers::returnJson()) {
-                $this->printJson([
+                CliHelpers::printJson([
                     'value' => $this->storage->getValue($settingsKey)
                 ]);
             } else {
@@ -325,7 +326,7 @@ abstract class CliKeyValueStorage
             $message = sprintf(__('Setting "%s" was cleared.', 'servebolt-wp'), $settingKey);
         }
         if (CliHelpers::returnJson()) {
-            $this->printJson(compact('message'));
+            CliHelpers::printJson(compact('message'));
         } else {
             WP_CLI::success($message);
         }
@@ -350,7 +351,7 @@ abstract class CliKeyValueStorage
                 $errorMessage = sprintf(__('Could not set setting "%s" to value "%s".', 'servebolt-wp'), $settingKey, $value);
             }
             if (CliHelpers::returnJson()) {
-                $this->printJson(compact('errorMessage'));
+                CliHelpers::printJson(compact('errorMessage'));
             } else {
                 WP_CLI::error($errorMessage, false);
             }
@@ -362,7 +363,7 @@ abstract class CliKeyValueStorage
             $message = sprintf(__('Setting "%s" set to value "%s".', 'servebolt-wp'), $settingKey, $value);
         }
         if (CliHelpers::returnJson()) {
-            $this->printJson(compact('message'));
+            CliHelpers::printJson(compact('message'));
         } else {
             WP_CLI::success($message);
         }
@@ -382,7 +383,7 @@ abstract class CliKeyValueStorage
             WP_CLI::line($closure($items));
         }
         if (CliHelpers::returnJson()) {
-            $this->printJson($items);
+            CliHelpers::printJson($items);
         } else {
             $columns = array_keys(current($items));
             WP_CLI_FormatItems('table', $items, $columns);
@@ -401,7 +402,7 @@ abstract class CliKeyValueStorage
     {
         $errorMessage = sprintf(__('Setting "%s" not found. Please run "wp servebolt ' . $this->namespace . ' list" to see available settings.', 'servebolt-wp'), $setting);
         if (CliHelpers::returnJson()) {
-            $this->printJson([
+            CliHelpers::printJson([
                 'error' => $errorMessage
             ]);
         } else {
@@ -426,32 +427,13 @@ abstract class CliKeyValueStorage
                     $errorMessage = sprintf(__('Values need to be "%s".', 'servebolt-wp'), current($valueConstraints));
                 }
                 if (CliHelpers::returnJson()) {
-                    $this->printJson([
+                    CliHelpers::printJson([
                         'error' => $errorMessage
                     ]);
                 } else {
                     WP_CLI::error($errorMessage, false);
                 }
             }
-        }
-    }
-
-    /**
-     * Print pretty JSON.
-     *
-     * @param $array
-     * @param string $method
-     */
-    private function printJson($array, $method = 'line'): void
-    {
-        if (!method_exists('WP_CLI', $method)) {
-            $method = 'line';
-        }
-        $jsonString = json_encode($array, JSON_PRETTY_PRINT);
-        if ($method == 'error') {
-            WP_CLI::error($jsonString, false);
-        } else {
-            WP_CLI::$method($jsonString);
         }
     }
 }

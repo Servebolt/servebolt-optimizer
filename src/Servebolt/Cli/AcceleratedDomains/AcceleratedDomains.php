@@ -6,6 +6,9 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains as AcceleratedDomainsClass;
 use WP_CLI;
+use Servebolt\Optimizer\Cli\CliHelpers;
+use function Servebolt\Optimizer\Helpers\booleanToStateString;
+use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
  * Class AcceleratedDomains
@@ -25,21 +28,63 @@ class AcceleratedDomains
         */
     }
 
-    public function statusAcd()
+    /**
+     * Display whether ACD is active or not.
+     *
+     * ## OPTIONS
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
+     * ## EXAMPLES
+     *
+     *     wp servebolt acd status
+     */
+    public function statusAcd($args, $assocArgs): void
     {
+        CliHelpers::setReturnJson($assocArgs);
+        if (CliHelpers::affectAllSites($assocArgs)) {
+            iterateSites(function ($site) {
 
+            });
+        } else {
+        }
+        $activeState = booleanToStateString(AcceleratedDomainsClass::isActive());
+        $message = sprintf(__('Accelerated Domains is %s.', 'servebolt-wp'), $activeState);
+        if (CliHelpers::returnJson()) {
+            CliHelpers::printJson(compact('message'));
+        } else {
+            WP_CLI::success($message);
+        }
     }
 
     /**
      * Activate Accelerated Domains-feature.
      */
-    public function activateAcd($args, $assocArgs)
+    public function activateAcd($args, $assocArgs): void
     {
+        CliHelpers::setReturnJson($assocArgs);
         if (AcceleratedDomainsClass::isActive()) {
-            WP_CLI::success('Accelerated Domains already active.');
+            $message = __('Accelerated Domains already active.', 'servebolt-wp');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson(compact('message'));
+            } else {
+                WP_CLI::success($message);
+            }
         } else {
             AcceleratedDomainsClass::toggleActive(true);
-            WP_CLI::success('Accelerated Domains activated.');
+            $message = __('Accelerated Domains activated.', 'servebolt-wp');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson(compact('message'));
+            } else {
+                WP_CLI::success($message);
+            }
         }
     }
 
@@ -48,11 +93,22 @@ class AcceleratedDomains
      */
     public function deactivateAcd($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         if (!AcceleratedDomainsClass::isActive()) {
-            WP_CLI::success('Accelerated Domains already inactive.');
+            $message = __('Accelerated Domains already inactive.', 'servebolt-wp');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson(compact('message'));
+            } else {
+                WP_CLI::success($message);
+            }
         } else {
             AcceleratedDomainsClass::toggleActive(false);
-            WP_CLI::success('Accelerated Domains deactivated.');
+            $message = __('Accelerated Domains deactivated.', 'servebolt-wp');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson(compact('message'));
+            } else {
+                WP_CLI::success($message);
+            }
         }
     }
 
@@ -62,10 +118,20 @@ class AcceleratedDomains
     public function activateAcdHtmlMinify($args, $assocArgs)
     {
         if (AcceleratedDomainsClass::htmlMinifyIsActive()) {
-            WP_CLI::success('Accelerated Domains HTML minify-feature already active.');
+            $message = __('Accelerated Domains HTML minify-feature already active.', 'servebolt-wp');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson(compact('message'));
+            } else {
+                WP_CLI::success($message);
+            }
         } else {
             AcceleratedDomainsClass::htmlMinifyToggleActive(true);
-            WP_CLI::success('Accelerated Domains HTML minify-feature activated.');
+            $message = __('Accelerated Domains HTML minify-feature activated.', 'servebolt-wp');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson(compact('message'));
+            } else {
+                WP_CLI::success($message);
+            }
         }
     }
 
@@ -75,10 +141,20 @@ class AcceleratedDomains
     public function deactivateAcdHtmlMinify($args, $assocArgs)
     {
         if (!AcceleratedDomainsClass::htmlMinifyIsActive()) {
-            WP_CLI::success('Accelerated Domains HTML minify-feature already inactive.');
+            $message = __('Accelerated Domains HTML minify-feature already inactive.');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson(compact('message'));
+            } else {
+                WP_CLI::success($message);
+            }
         } else {
             AcceleratedDomainsClass::htmlMinifyToggleActive(false);
-            WP_CLI::success('Accelerated Domains HTML minify-feature deactivated.');
+            $message = __('Accelerated Domains HTML minify-feature deactivated.');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson(compact('message'));
+            } else {
+                WP_CLI::success($message);
+            }
         }
     }
 }
