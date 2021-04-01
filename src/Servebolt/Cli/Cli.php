@@ -20,16 +20,11 @@ class Cli
 {
 
     /**
-     * @var bool Whether to return JSON in CLI.
-     */
-    private static $returnJson = false;
-
-    /**
      * Cli constructor.
      */
     public function __construct()
     {
-        self::returnJsonInitState();
+        CliHelpers::setReturnJsonInitState();
         new AcceleratedDomains;
         new Cache;
         new CloudflareImageResize;
@@ -37,25 +32,6 @@ class Cli
         new General;
         new GeneralSettings;
         new Optimizations;
-    }
-
-    /**
-     * Set initial JSON return state.
-     */
-    private static function returnJsonInitState(): void
-    {
-        $instance = \Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings::getInstance();
-        self::$returnJson = $instance->returnJsonInCli();
-    }
-
-    /**
-     * Whether to return JSON in CLI.
-     *
-     * @return bool
-     */
-    public static function returnJson(): bool
-    {
-        return self::$returnJson;
     }
 
     public static function init()

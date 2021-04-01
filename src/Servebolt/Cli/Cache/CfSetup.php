@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Cli\CliHelpers;
 use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;
 use WP_CLI;
+
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
@@ -102,7 +103,7 @@ class CfSetup
     {
         // Validate data
         $validation = self::validateSetupParams($params);
-        if ( $validation !== true ) {
+        if ($validation !== true) {
             WP_CLI::error_multi_line($validation);
             return;
         }
