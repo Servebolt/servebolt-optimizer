@@ -1,36 +1,37 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup; ?>
 <?php use function Servebolt\Optimizer\Helpers\fullPageCache; ?>
+<?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
+<?php use Servebolt\Optimizer\FullPageCache\FullPageCache; ?>
 <?php
-$nginxFpcActive = fullPageCache()->fpcIsActive();
-$postTypesToCache  = fullPageCache()->getPostTypesToCache(false, false);
-$availablePostTypes = fullPageCache()->getAvailablePostTypesToCache(true);
+$fpcActive = FullPageCache::fpcIsActive();
+$fpcActiveOverridden = FullPageCache::fpcActiveStateIsOverridden();
+$postTypesToCache  = FullPageCache::getPostTypesToCache(false, false);
+$availablePostTypes = FullPageCache::getAvailablePostTypesToCache(true);
 ?>
 <form method="post" action="options.php">
     <?php settings_fields( 'fpc-options-page' ) ?>
     <?php do_settings_sections( 'fpc-options-page' ) ?>
-    <div class="nginx_switch">
-        <table class="form-table">
-
-        </table>
-    </div>
     <table class="form-table">
         <tbody>
             <tr>
                 <th scope="row"><?php _e('HTML Cache', 'servebolt-wp'); ?></th>
                 <td>
-                    <input id="sb-nginx_cache_switch" name="servebolt_fpc_switch" type="checkbox"<?php echo $nginxFpcActive ? ' checked' : ''; ?>><label for="sb-nginx_cache_switch"><?php _e('Enabled', 'servebolt-wp'); ?></label>
+                    <input id="sb-fpc_switch" name="<?php echo getOptionName('fpc_switch')?>"<?php if ($fpcActiveOverridden) echo ' disabled'; ?> type="checkbox"<?php if ($fpcActive) echo ' checked'; ?>><label for="sb-fpc_switch"><?php _e('Enabled', 'servebolt-wp'); ?></label>
+                    <?php if ($fpcActiveOverridden): ?>
+                    <p class="description">HTML cache is automatically enabled when Accelerated Domain-feature is active.</p>
+                    <?php endif; ?>
                 </td>
             </tr>
         </tbody>
-        <tbody id="sb-nginx-fpc-form"<?php echo ( $nginxFpcActive ? '' : ' style="display: none;"' ); ?>>
+        <tbody id="sb-fpc-form"<?php echo ( $fpcActive ? '' : ' style="display: none;"' ); ?>>
             <tr>
                 <th scope="row">Cache post types</th>
                 <td>
                     <?php $allChecked = in_array('all', (array) $postTypesToCache); ?>
                     <?php foreach ($availablePostTypes as $postType => $postTypeName) : ?>
                         <?php $checked = in_array($postType, (array) $postTypesToCache) ? ' checked' : ''; ?>
-                        <span class="<?php if ( $allChecked && $postType !== 'all' ) echo ' disabled'; ?>"><input id="sb-cache_post_type_<?php echo $postType; ?>" class="servebolt_fpc_settings_item" name="servebolt_fpc_settings[<?php echo $postType; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="sb-cache_post_type_<?php echo $postType; ?>"><?php echo $postTypeName; ?></label></span><br>
+                        <span class="<?php if ( $allChecked && $postType !== 'all' ) echo ' disabled'; ?>"><input id="sb-cache_post_type_<?php echo $postType; ?>" class="servebolt_fpc_settings_item" name="<?php echo getOptionName('fpc_settings')?>[<?php echo $postType; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="sb-cache_post_type_<?php echo $postType; ?>"><?php echo $postTypeName; ?></label></span><br>
                     <?php endforeach; ?>
                     <p><?php _e('By default this plugin enables HTML caching of posts, pages and products.
                                 Activate post types here if you want a different cache setup. If none of the post types above is checked the plugin will use default settings.
@@ -40,7 +41,7 @@ $availablePostTypes = fullPageCache()->getAvailablePostTypesToCache(true);
             <tr>
                 <th scope="row">Posts to exclude from caching</th>
                 <td>
-                    <?php $idsToExclude = fullPageCache()->getIdsToExcludeFromCache() ?: []; ?>
+                    <?php $idsToExclude = FullPageCache::getIdsToExcludeFromCache() ?: []; ?>
 
                     <div class="tablenav top">
                         <div class="alignleft actions bulkactions">
@@ -52,11 +53,11 @@ $availablePostTypes = fullPageCache()->getAvailablePostTypesToCache(true);
                         <div class="alignleft actions bulkactions">
                             <button class="button button-primary sb-add-exclude-post" type="button">Add post to exclude</button>
                         </div>
-                        <span class="spinner flush-fpc-exlcude-list-loading-spinner"></span>
+                        <span class="spinner flush-fpc-exclude-list-loading-spinner"></span>
                         <br class="clear">
                     </div>
 
-                    <table class="wp-list-table widefat striped" id="nginx-fpc-ids-to-exclude-table">
+                    <table class="wp-list-table widefat striped" id="fpc-ids-to-exclude-table">
 
                         <thead>
                         <tr>

@@ -5,18 +5,16 @@ namespace Servebolt\Optimizer\Admin\GeneralSettings;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
+use Servebolt\Optimizer\Utils\KeyValueStorage\KeyValueStorage;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
 use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\getOptionName;
-use function Servebolt\Optimizer\Helpers\updateBlogOption;
-use function Servebolt\Optimizer\Helpers\getBlogOption;
-use function Servebolt\Optimizer\Helpers\updateOption;
-use function Servebolt\Optimizer\Helpers\getOption;
 
 /**
- * Class SB_General_Settings
+ * Class GeneralSettings
  *
  * This class displays the general settings control GUI.
  */
@@ -24,13 +22,23 @@ class GeneralSettings
 {
     use Singleton;
 
+    /**
+     * @var string[]
+     */
+    public static $settingsItems = [
+        'use_native_js_fallback' => 'boolean',
+        'asset_auto_version' => 'boolean',
+        'use_cloudflare_apo' => 'boolean',
+        'return_json_in_cli' => 'boolean',
+    ];
+
     public static function init(): void
     {
         self::getInstance();
     }
 
     /**
-     * Nginx_FPC_Controls constructor.
+     * GeneralSettings constructor.
      */
     private function __construct()
     {
@@ -50,23 +58,19 @@ class GeneralSettings
      */
     public function registerSettings(): void
     {
-        foreach ($this->getRegisteredSettingsItems() as $key => $type) {
-            register_setting('sb-general-settings-options-page', getOptionName($key));
+        foreach (self::getRegisteredSettingsItemKeys() as $itemName) {
+            register_setting('sb-general-settings-options-page', getOptionName($itemName));
         }
     }
 
     /**
-     * Settings items for general settings.
+     * Get settings items for general settings, keys only.
      *
      * @return array
      */
-    public function getRegisteredSettingsItems(): array
+    public static function getRegisteredSettingsItemKeys(): array
     {
-        return [
-            'use_native_js_fallback' => 'boolean',
-            'asset_auto_version'     => 'boolean',
-            'use_cloudflare_apo'     => 'boolean',
-        ];
+        return array_keys(self::$settingsItems);
     }
 
     /**
@@ -76,7 +80,7 @@ class GeneralSettings
      * @param string $prefix
      * @return bool
      */
-    public function settingIsOverridden($name, $prefix = 'SERVEBOLT')
+    public function settingIsOverridden($name, $prefix = 'SERVEBOLT'): bool
     {
         $name = $this->getOverrideConstantName($name, $prefix);
         return defined($name);
@@ -102,7 +106,7 @@ class GeneralSettings
      * @param string $prefix
      * @return string
      */
-    private function getOverrideConstantName($name, $prefix = 'SERVEBOLT')
+    private function getOverrideConstantName($name, $prefix = 'SERVEBOLT'): string
     {
         return rtrim($prefix, '_') . '_' . mb_strtoupper($name);
     }
@@ -117,8 +121,8 @@ class GeneralSettings
     public function __call($name, $arguments)
     {
         $name = camelCaseToSnakeCase($name);
-        if ( in_array($name, array_keys($this->getRegisteredSettingsItems())) ) {
-            $blogId = arrayGet(0, $arguments, false);
+        if (in_array($name, self::getRegisteredSettingsItemKeys())) {
+            $blogId = arrayGet(0, $arguments, null);
             return $this->getSettingsItem($name, $blogId);
         }
 
@@ -133,12 +137,12 @@ class GeneralSettings
     /**
      * Get all general settings in array.
      *
-     * @param bool|int $blogId
+     * @param null|int $blogId
      * @return array
      */
-    public function getAllSettingsItems($blogId = false): array
+    public function getAllSettingsItems(?int $blogId = null): array
     {
-        $settingsItems = $this->getRegisteredSettingsItems();
+        $settingsItems = self::$settingsItems;
         $values = [];
         foreach ($settingsItems as $item => $type) {
             switch ($item) {
@@ -154,64 +158,22 @@ class GeneralSettings
      * Get value of specific general setting, with override taken into consideration.
      *
      * @param $item
-     * @param bool|int $blogId
+     * @param null|int $blogId
      * @param bool $type
      * @param bool $respectOverride
      * @return bool|mixed|void
      */
-    public function getSettingsItem($item, $blogId = false, $type = false, $respectOverride = true)
+    public function getSettingsItem($item, ?int $blogId = null, $type = false, $respectOverride = true)
     {
         if ($respectOverride && $this->settingIsOverridden($item)) {
             $value = $this->getOverrideConstantValue($item);
         } else {
-            if (is_numeric($blogId)) {
-                $value = getBlogOption($blogId, $item);
-            } else {
-                $value = getOption($item);
-            }
+            $value = smartGetOption($blogId, $item);
         }
         if (!$type) {
             $type = $this->resolveSettingsItemType($item);
         }
-        switch ($type) {
-            case 'boolean':
-            case 'bool':
-                $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-                break;
-        }
-        return $value;
-    }
-
-    /**
-     * Set value of specific general setting.
-     *
-     * @param $item
-     * @param $value
-     * @param bool|int $blogId
-     * @param bool $type
-     * @return bool|mixed|void
-     */
-    public function setSettingsItem($item, $value, $blogId = false, $type = false)
-    {
-        if (!$type) {
-            $type = $this->resolveSettingsItemType($item);
-        }
-        $value = trim($value);
-        switch ($type) {
-            case 'boolean':
-            case 'bool':
-                if ( ! in_array($value, ['true', 'false', '0', '1']) ) {
-                    return false; // Invalid value
-                }
-                $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-                break;
-        }
-        if (is_numeric($blogId)) {
-            updateBlogOption($blogId, $item, $value);
-        } else {
-            updateOption($item, $value);
-        }
-        return true;
+        return KeyValueStorage::formatValueBasedOnType($value, $type, null);
     }
 
     /**
@@ -222,8 +184,8 @@ class GeneralSettings
      */
     private function resolveSettingsItemType($item)
     {
-        $items = $this->getRegisteredSettingsItems();
-        if ( array_key_exists($item, $items) ) {
+        $items = self::$settingsItems;
+        if (array_key_exists($item, $items)) {
             return $items[$item];
         }
         return false;
@@ -239,5 +201,4 @@ class GeneralSettings
             'generalSettings' => $this,
         ]);
     }
-
 }

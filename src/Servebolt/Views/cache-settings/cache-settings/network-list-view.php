@@ -1,6 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\formatPostTypeSlug; ?>
 <?php use function Servebolt\Optimizer\Helpers\fullPageCache; ?>
+<?php use Servebolt\Optimizer\FullPageCache\FullPageCache; ?>
 
 <table class="wp-list-table widefat striped">
     <thead>
@@ -23,11 +24,11 @@
     </tfoot>
     <tbody>
     <?php foreach (get_sites() as $site) : ?>
-        <?php $sbFpcSettings = fullPageCache()->getPostTypesToCache(false, false, $site->blog_id); ?>
+        <?php $sbFpcSettings = FullPageCache::getPostTypesToCache(false, false, $site->blog_id); ?>
         <tr>
             <td><?php echo $site->blog_id; ?></td>
             <td><?php echo $site->domain . $site->path; ?></td>
-            <td><?php echo fullPageCache()->fpcIsActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
+            <td><?php echo FullPageCache::fpcIsActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
             <td>
                 <?php if ( ! empty($sbFpcSettings) ) : ?>
                     <?php if ( in_array('all', $sbFpcSettings) ) : ?>

@@ -1,13 +1,13 @@
 <?php
 
-namespace Servebolt\Optimizer\Crypto;
+namespace Servebolt\Optimizer\Utils\Crypto;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\getOptionName;
 
 /**
- * Class SB_Option_Encryption.
+ * Class OptionEncryption.
  *
  * This class is used to prevent clear-text storage of strings in the options-table.
  */
@@ -32,7 +32,7 @@ class OptionEncryption
 	private $encryptedSiteOptionItems = [];
 
 	/**
-	 * SB_Option_Encryption constructor.
+	 * OptionEncryption constructor.
 	 */
 	public function __construct()
     {

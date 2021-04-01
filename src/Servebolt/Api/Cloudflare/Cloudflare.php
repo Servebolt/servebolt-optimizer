@@ -131,13 +131,9 @@ class Cloudflare
      *
      * @return mixed|void
      */
-    private function getZoneId($blogId = null)
+    private function getZoneId(?int $blogId = null)
     {
-        if (is_numeric($blogId)) {
-            return getBlogOption($blogId, 'cf_zone_id');
-        } else {
-            return getOption('cf_zone_id');
-        }
+        return smartGetOption($blogId, 'cf_zone_id');
     }
 
     /**
@@ -148,7 +144,7 @@ class Cloudflare
      *
      * @return bool|mixed|void
      */
-    private function getCredential($key, $blogId = null)
+    private function getCredential($key, ?int $blogId = null)
     {
         switch ($key) {
             case 'email':
@@ -174,7 +170,7 @@ class Cloudflare
      * @param null|int $blogId
      * @return array|null
      */
-    private function getCredentialsForAuthType($authType, $blogId = null): ?array
+    private function getCredentialsForAuthType($authType, ?int $blogId = null): ?array
     {
         switch ($authType) {
             case 'api_token':
@@ -211,9 +207,9 @@ class Cloudflare
      *
      * @return string|null
      */
-    private function getAuthType($blogId = null): ?string
+    private function getAuthType(?int $blogId = null): ?string
     {
-        if ( is_numeric($blogId) ) {
+        if (is_numeric($blogId)) {
             return $this->ensureAuthTypeIntegrity(
                 getBlogOption($blogId, 'cf_auth_type', $this->getDefaultAuthType())
             );

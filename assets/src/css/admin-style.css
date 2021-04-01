@@ -17,10 +17,10 @@
     display: block;
 }
 
-.sb-content #sb-nginx-fpc-form .disabled {
+.sb-content #sb-fpc-form .disabled {
     pointer-events: none;
 }
-.sb-content #sb-nginx-fpc-form .disabled input {
+.sb-content #sb-fpc-form .disabled input {
     opacity: 0.5;
 }
 
@@ -123,7 +123,7 @@
 }
 
 
-#sb-nginx-fpc-form .spinner.flush-fpc-exlcude-list-loading-spinner,
+#sb-fpc-form .spinner.flush-fpc-exclude-list-loading-spinner,
 #sb-configuration .spinner.purge-queue-loading-spinner {
     float: none;
     height: 20px;
@@ -150,7 +150,7 @@
 }
 */
 
-#sb-nginx-fpc-form #nginx-fpc-ids-to-exclude-table .fpc-exclude-item-column,
+#sb-fpc-form #fpc-ids-to-exclude-table .fpc-exclude-item-column,
 #sb-configuration #purge-items-table .purge-item-column {
     padding-left: 0;
     padding-top: 10px;
@@ -184,12 +184,12 @@
     text-align: center;
 }
 
-#sb-nginx-fpc-form > tbody > tr:hover .row-actions,
+#sb-fpc-form > tbody > tr:hover .row-actions,
 #sb-configuration-table > tbody > tr:hover .row-actions {
     position: relative;
 }
 
-#sb-nginx-fpc-form > tbody > tr tr:hover .row-actions,
+#sb-fpc-form > tbody > tr tr:hover .row-actions,
 #sb-configuration-table > tbody > tr tr:hover .row-actions {
     position: static;
 }

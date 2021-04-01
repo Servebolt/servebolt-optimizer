@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Traits\Singleton;
-use Servebolt\Optimizer\Queue\QueueSystem\Queue;
+use Servebolt\Optimizer\Utils\Queue\Queue;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**

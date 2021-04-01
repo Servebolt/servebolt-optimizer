@@ -1,14 +1,14 @@
 <?php
 
-namespace Servebolt\Optimizer\Queue\QueueSystem;
+namespace Servebolt\Optimizer\Utils\Queue;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\SqlBuilder\WpSqlBuilder;
+use Servebolt\Optimizer\Utils\SqlBuilder\WpSqlBuilder;
 
 /**
  * Class QueueQuery
- * @package Servebolt\Optimizer\Queue\QueueSystem
+ * @package Servebolt\Optimizer\Utils\Queue
  */
 class QueueQuery extends WpSqlBuilder
 {

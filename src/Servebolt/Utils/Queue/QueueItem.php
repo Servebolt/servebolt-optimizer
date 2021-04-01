@@ -1,12 +1,14 @@
 <?php
 
-namespace Servebolt\Optimizer\Queue\QueueSystem;
+namespace Servebolt\Optimizer\Utils\Queue;
+
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
 
 /**
  * Class QueueItem
- * @package Servebolt\Optimizer\Queue\QueueSystem
+ * @package Servebolt\Optimizer\Utils\Queue
  */
 class QueueItem
 {

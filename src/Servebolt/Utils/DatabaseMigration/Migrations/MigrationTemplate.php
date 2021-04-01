@@ -1,10 +1,10 @@
 <?php
 
-namespace Servebolt\Optimizer\DatabaseMigration\Migrations;
+namespace Servebolt\Optimizer\Utils\DatabaseMigration\Migrations;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\DatabaseMigration\AbstractMigration;
+use Servebolt\Optimizer\Utils\DatabaseMigration\AbstractMigration;
 
 /**
  * Class MigrationTemplate
@@ -13,7 +13,7 @@ use Servebolt\Optimizer\DatabaseMigration\AbstractMigration;
  * "migration-number" should be an incremental number starting at 1 and upwards.
  * Example: 8_SomethingMigration.php
  *
- * @package Servebolt\Optimizer\DatabaseMigration\Migrations
+ * @package Servebolt\Optimizer\Utils\DatabaseMigration\Migrations
  */
 class MigrationTemplate extends AbstractMigration
 {

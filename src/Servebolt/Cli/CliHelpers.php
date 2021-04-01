@@ -12,6 +12,31 @@ use WP_CLI;
  */
 class CliHelpers
 {
+
+    /**
+     * @var bool Whether to return JSON in CLI.
+     */
+    private static $returnJson = false;
+
+    /**
+     * Set initial JSON return state.
+     */
+    public static function setReturnJsonInitState(): void
+    {
+        $instance = \Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings::getInstance();
+        self::$returnJson = $instance->returnJsonInCli();
+    }
+
+    /**
+     * Whether to return JSON in CLI.
+     *
+     * @return bool
+     */
+    public static function returnJson(): bool
+    {
+        return self::$returnJson;
+    }
+
     /**
      * Check if we should affect all sites in multisite-network.
      *

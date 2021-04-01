@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
+use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
@@ -38,7 +39,7 @@ class FpcPostExclusion extends SharedAjaxMethods
 
         $itemsToRemove = arrayGet('items', $_POST);
         if ($itemsToRemove === 'all') {
-            fullPageCache()->setIdsToExcludeFromCache([]);
+            FullPageCache::setIdsToExcludeFromCache([]);
             wp_send_json_success();
         }
         if (!$itemsToRemove || empty($itemsToRemove)) {
@@ -50,14 +51,14 @@ class FpcPostExclusion extends SharedAjaxMethods
         $itemsToRemove = array_filter($itemsToRemove, function ($item) {
             return is_numeric($item);
         });
-        $currentItems = fullPageCache()->getIdsToExcludeFromCache();
+        $currentItems = FullPageCache::getIdsToExcludeFromCache();
         if (!is_array($currentItems)) {
             $currentItems = [];
         }
         $updatedItems = array_filter($currentItems, function($item) use ($itemsToRemove) {
             return ! in_array($item, $itemsToRemove);
         });
-        fullPageCache()->setIdsToExcludeFromCache($updatedItems);
+        FullPageCache::setIdsToExcludeFromCache($updatedItems);
         wp_send_json_success();
     }
 
@@ -93,13 +94,13 @@ class FpcPostExclusion extends SharedAjaxMethods
                 continue;
             }
 
-            if (fullPageCache()->shouldExcludePostFromCache($postId)) {
+            if (FullPageCache::shouldExcludePostFromCache($postId)) {
                 $alreadyExcluded[] = $postId;
                 $success[] = $postId;
                 continue;
             }
 
-            if (fullPageCache()->excludePostFromCache($postId)) {
+            if (FullPageCache::excludePostFromCache($postId)) {
                 $newMarkup .= fpcExcludePostTableRowMarkup($postId, false);
                 $success[] = $postId;
                 $added[] = $postId;

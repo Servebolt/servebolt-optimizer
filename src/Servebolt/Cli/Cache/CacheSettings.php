@@ -4,37 +4,137 @@ namespace Servebolt\Optimizer\Cli\Cache;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use WP_CLI;
+use Servebolt\Optimizer\Cli\CliKeyValueStorage\CliKeyValueStorage;
 
 /**
  * Class CacheSettings
  * @package Servebolt\Optimizer\Cli\Cache
  */
-class CacheSettings
+class CacheSettings extends CliKeyValueStorage
 {
+    /**
+     * @var string The CLI namespace used when interacting with the key-value-storage class.
+     */
+    protected $namespace = 'cache settings';
 
     /**
-     * CacheSettings constructor.
+     * @var array Settings items.
      */
-    public function __construct()
+    protected $settingsItems = [
+
+        // Accelerated domains
+        'acd_switch' => 'boolean',
+        'acd_minify_switch' => 'boolean',
+
+        // HTML / cache
+        'fpc_switch' => 'boolean',
+        'fpc_settings' => 'multi',
+
+        // Cache purge
+        'cache_purge_switch' => 'boolean',
+        'cache_purge_auto' => 'boolean',
+        'cache_purge_driver' => [
+            'type' => 'radio',
+            'values' => [
+                'cloudflare',
+                'acd',
+            ]
+        ],
+        'cf_zone_id' => 'string',
+        'cf_auth_type' => [
+            'type' => 'radio',
+            'values' => [
+                'api_token',
+                'api_key',
+            ]
+        ],
+        'cf_email' => 'string',
+        'cf_api_key' => 'string',
+        'cf_api_token' => 'string',
+        'queue_based_cache_purge' => 'boolean',
+    ];
+
+    /**
+     * Display all available settings.
+     *
+     * ## OPTIONS
+     *
+     * [--all]
+     * : Display the setting for all sites.
+     *
+     * ## EXAMPLES
+     *
+     *     wp servebolt cache settings list --all
+     *
+     */
+    public function list($args, $assocArgs)
     {
-        WP_CLI::add_command('servebolt cache settings list', [$this, 'list']);
-        WP_CLI::add_command('servebolt cache settings set', [$this, 'set']);
-        WP_CLI::add_command('servebolt cache settings get', [$this, 'get']);
+        parent::list($args, $assocArgs);
     }
 
-    public function list()
+    /**
+     * Get the value of a setting.
+     *
+     * ## OPTIONS
+     *
+     * <setting>
+     * : The name of the setting to get.
+     *
+     * [--all]
+     * : Set the setting for all sites.
+     *
+     * ## EXAMPLES
+     *
+     *     wp servebolt cache settings get use-native-js-fallback
+     *
+     */
+    public function get($args, $assocArgs)
     {
-
+        parent::get($args, $assocArgs);
     }
 
-    public function set()
+    /**
+     * Set the value of a setting.
+     *
+     * ## OPTIONS
+     *
+     * <setting>
+     * : The name of the setting to set.
+     *
+     * <value>
+     * : The value of the setting.
+     *
+     * [--all]
+     * : Display the setting for all sites.
+     *
+     * ## EXAMPLES
+     *
+     *     wp servebolt cache settings set use-native-js-fallback true
+     *
+     */
+    public function set($args, $assocArgs)
     {
-
+        parent::set($args, $assocArgs);
     }
 
-    public function get()
+    /**
+     * Clear the value of a setting.
+     *
+     * ## OPTIONS
+     *
+     * <setting>
+     * : The name of the setting to set.
+     *
+     * [--all]
+     * : Display the setting for all sites.
+     *
+     * ## EXAMPLES
+     *
+     *     wp servebolt cache settings clear use-native-js-fallback
+     *
+     */
+    public function clear($args, $assocArgs)
     {
-
+        parent::clear($args, $assocArgs);
     }
 }

@@ -4,31 +4,31 @@ namespace Servebolt\Optimizer\Cli\GeneralSettings;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use WP_CLI;
-use Servebolt\Optimizer\Cli\CliHelpers;
+use Servebolt\Optimizer\Cli\CliKeyValueStorage\CliKeyValueStorage;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings as GeneralSettingsAdmin;
-use function Servebolt\Optimizer\Helpers\displayValue;
-use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
  * Class GeneralSettings
  * @package Servebolt\Optimizer\Cli\GeneralSettings
  */
-class GeneralSettings
+class GeneralSettings extends CliKeyValueStorage
 {
 
     /**
-     * GeneralSettings constructor.
+     * @var string The CLI namespace used when interacting with the key-value-storage class.
      */
-    public function __construct()
+    protected $namespace = 'general-settings';
+
+    /**
+     * @return array
+     */
+    protected function getSettingsItems(): array
     {
-        WP_CLI::add_command('servebolt general-settings list', [$this, 'list']);
-        WP_CLI::add_command('servebolt general-settings get', [$this, 'get']);
-        WP_CLI::add_command('servebolt general-settings set', [$this, 'set']);
+        return GeneralSettingsAdmin::$settingsItems;
     }
 
     /**
-     * Display all available general settings.
+     * Display all available settings.
      *
      * ## OPTIONS
      *
@@ -42,23 +42,7 @@ class GeneralSettings
      */
     public function list($args, $assocArgs)
     {
-        $columns = [
-            'Name',
-            'Type',
-            'Value',
-        ];
-        if (CliHelpers::affectAllSites($assocArgs)) {
-            iterateSites(function ($site) use ($columns) {
-                $this->printSettingsList($site->blog_id, $columns, function($items) use ($site) {
-                    return sprintf('%s setting(s) for site "%s":', count($items), get_site_url($site->blog_id));
-                });
-            });
-        } else {
-            $this->printSettingsList(null, $columns, function($items) {
-                return sprintf('%s setting(s):', count($items));
-            });
-        }
-        WP_CLI::line(__('Use "wp servebolt general-settings get [name]" and "wp servebolt general-settings set [name]" to get/set value of a settings.', 'servebolt-wp'));
+        parent::list($args, $assocArgs);
     }
 
     /**
@@ -79,21 +63,7 @@ class GeneralSettings
      */
     public function get($args, $assocArgs)
     {
-        list($setting) = $args;
-        $settingsKey = $this->resolveSettingsKey($setting);
-        if (!$settingsKey) {
-            $this->unresolvedSetting($setting);
-            return;
-        }
-        if (CliHelpers::affectAllSites($assocArgs)) {
-            $sitesSetting = [];
-            iterateSites(function ($site) use ($settingsKey, &$sitesSetting) {
-                $sitesSetting[] = $this->getSetting($settingsKey, $site->blog_id);
-            });
-        } else {
-            $sitesSetting[] = $this->getSetting($settingsKey);
-        }
-        WP_CLI\Utils\format_items('table', $sitesSetting, array_keys(current($sitesSetting)));
+        parent::get($args, $assocArgs);
     }
 
     /**
@@ -117,140 +87,27 @@ class GeneralSettings
      */
     public function set($args, $assocArgs)
     {
-        list($setting, $value) = $args;
-        $settingsKey = $this->resolveSettingsKey($setting);
-        if (!$settingsKey) {
-            $this->unresolvedSetting($setting);
-            return;
-        }
-        if (CliHelpers::affectAllSites($assocArgs)) {
-            iterateSites(function ($site) use ($settingsKey, $value) {
-                $this->setSetting($settingsKey, $value, $site->blog_id);
-            });
-        } else {
-            $this->setSetting($settingsKey, $value);
-        }
+        parent::set($args, $assocArgs);
     }
 
     /**
-     * @param null $blogId
-     * @param $columns
-     * @param $closure
-     */
-    private function printSettingsList($blogId = null, $columns, $closure): void
-    {
-        $items = array_map(function($item) use ($columns, $blogId) {
-            $settingsKey = $this->resolveSettingsKey($item['name']);
-            $resolveSettingsValues = $this->getSetting($settingsKey, $blogId);
-            $item['value'] = $resolveSettingsValues[$settingsKey];
-            return array_combine($columns, $item);
-        }, $this->getSettings());
-        WP_CLI::line($closure($items));
-        WP_CLI\Utils\format_items( 'table', $items, $columns);
-        WP_CLI::line('');
-    }
-
-    /**
-     * Get only the keys of the available settings.
+     * Clear the value of a setting.
      *
-     * @return array
-     */
-    protected function getSettingsKeys()
-    {
-        $generalSettings = GeneralSettingsAdmin::getInstance();
-        return array_keys($generalSettings->getAllSettingsItems());
-    }
-
-    /**
-     * Get the setting from general settings instance.
+     * ## OPTIONS
      *
-     * @param $settingKey
-     * @param bool $blogId
-     * @return bool|mixed|void
-     */
-    protected function getSetting($settingKey, $blogId = false)
-    {
-
-        $generalSettings = GeneralSettingsAdmin::getInstance();
-        $rawValue = $generalSettings->getSettingsItem($settingKey, $blogId);
-        $value = displayValue($rawValue, true);
-        $array = [];
-        if ($blogId) {
-            $array['URL'] = get_site_url($blogId);
-        }
-        $array[$settingKey] = $value;
-        return $array;
-    }
-
-    /**
-     * Set the setting from general settings instance.
+     * <setting>
+     * : The name of the setting to set.
      *
-     * @param $settingKey
-     * @param $value
-     * @param bool $blogId
-     * @return bool|mixed|void
-     */
-    protected function setSetting($settingKey, $value, $blogId = false)
-    {
-        $generalSettings = GeneralSettingsAdmin::getInstance();
-        $result = $generalSettings->setSettingsItem($settingKey, $value, $blogId);
-        if (!$result) {
-            if ($blogId) {
-                WP_CLI::error(sprintf(__('Could not set setting "%s" to value "%s" on site %s', 'servebolt-wp'), $settingKey, $value, get_site_url($blogId)), false);
-            } else {
-                WP_CLI::error(sprintf(__('Could not set setting "%s" to value "%s"', 'servebolt-wp'), $settingKey, $value), false);
-            }
-            return false;
-        }
-        if ($blogId) {
-            WP_CLI::success(sprintf(__('Setting "%s" set to value "%s" on site %s', 'servebolt-wp'), $settingKey, $value, get_site_url($blogId)));
-        } else {
-            WP_CLI::success(sprintf(__('Setting "%s" set to value "%s"', 'servebolt-wp'), $settingKey, $value));
-        }
-        return true;
-    }
-
-    /**
-     * Get all the settings in a conformative array.
+     * [--all]
+     * : Display the setting for all sites.
      *
-     * @return array
-     */
-    protected function getSettings(): array
-    {
-        $generalSettings = GeneralSettingsAdmin::getInstance();
-        $types = $generalSettings->getRegisteredSettingsItems();
-        $formattedItems = [];
-        foreach ($types as $name => $type) {
-            $formattedItems[] = [
-                'name' => str_replace('_', '-', $name),
-                'type' => $type,
-            ];
-        }
-        return $formattedItems;
-    }
-
-    /**
-     * Resolve the settings key for the specified setting.
+     * ## EXAMPLES
      *
-     * @param $setting
-     * @return bool|string|string[]
-     */
-    private function resolveSettingsKey($setting)
-    {
-        $setting = str_replace('-', '_', $setting);
-        if (in_array($setting, $this->getSettingsKeys())) {
-            return $setting;
-        }
-        return false;
-    }
-
-    /**
-     * Display error about a setting that is not defined.
+     *     wp servebolt general-settings clear use-native-js-fallback
      *
-     * @param $setting
      */
-    private function unresolvedSetting($setting): void
+    public function clear($args, $assocArgs)
     {
-        WP_CLI::error(sprintf(__('Setting "%s" not found. Please run "wp servebolt general-settings list" to see available settings.', 'servebolt-wp'), $setting));
+        parent::clear($args, $assocArgs);
     }
 }

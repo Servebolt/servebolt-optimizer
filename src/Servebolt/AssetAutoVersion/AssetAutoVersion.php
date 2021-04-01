@@ -18,7 +18,7 @@ class AssetAutoVersion {
     }
 
     /**
-     * SB_WP_Automatic_Asset_Versioning constructor.
+     * AssetAutoVersion constructor.
      */
     public function __construct()
     {

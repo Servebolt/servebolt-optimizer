@@ -3,7 +3,7 @@
 namespace Unit\EnvFile;
 
 use WP_UnitTestCase;
-use Servebolt\Optimizer\EnvFile\Reader;
+use Servebolt\Optimizer\Utils\EnvFile\Reader;
 
 class EnvironmentFileReaderTest extends WP_UnitTestCase
 {

@@ -81,6 +81,19 @@ class WordPressCachePurge
     }
 
     /**
+     * Alias for method "purgeByPostId".
+     *
+     * @param int $postId
+     * @param bool $returnWpError
+     * @return bool
+     */
+    public static function purgeByPost(int $postId, bool $returnWpError = false)
+    {
+        return self::purgeByPostId($postId, $returnWpError);
+    }
+
+
+    /**
      * Alias for method "purgePostCache".
      *
      * @param int $postId

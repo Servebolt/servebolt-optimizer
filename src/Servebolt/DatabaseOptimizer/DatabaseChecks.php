@@ -96,11 +96,11 @@ class DatabaseChecks
 	 *
 	 * @param $tableName
 	 * @param $index
-	 * @param bool|int $blogId
+	 * @param null|int $blogId
 	 *
 	 * @return array
 	 */
-	private function checkIfTableHasIndex($tableName, $index, $blogId = false)
+	private function checkIfTableHasIndex($tableName, $index, ?int $blogId = null)
     {
 		global $wpdb;
 		if ($blogId) {

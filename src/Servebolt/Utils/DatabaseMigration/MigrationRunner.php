@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\DatabaseMigration;
+namespace Servebolt\Optimizer\Utils\DatabaseMigration;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -226,7 +226,7 @@ class MigrationRunner
                 continue;
             }
             list($migrationNumber, $migrationName) = $fileNameParts;
-            $className = '\\Servebolt\\Optimizer\\DatabaseMigration\\Migrations\\' . $migrationName;
+            $className = '\\Servebolt\\Optimizer\\Utils\\DatabaseMigration\\Migrations\\' . $migrationName;
             require_once $migrationFile;
             if ($this->shouldRunMigration($className)) {
                 $migrations[$migrationNumber] = $className;
@@ -364,7 +364,7 @@ class MigrationRunner
         }
     }
 
-    public function getCurrentMigratedVersion(): string
+    public function getCurrentMigratedVersion(): ?string
     {
         if (is_multisite()) {
             return getSiteOption($this->migrationVersionOptionsKey());

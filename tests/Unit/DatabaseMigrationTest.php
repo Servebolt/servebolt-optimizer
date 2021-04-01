@@ -2,7 +2,7 @@
 
 namespace Unit;
 
-use Servebolt\Optimizer\DatabaseMigration\MigrationRunner;
+use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use ServeboltWPUnitTestCase;
 
 class DatabaseMigrationTest extends ServeboltWPUnitTestCase

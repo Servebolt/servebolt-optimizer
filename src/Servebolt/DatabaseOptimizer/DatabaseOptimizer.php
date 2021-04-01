@@ -496,11 +496,11 @@ class DatabaseOptimizer
 	/**
 	 * Add options autoload index to the options table.
 	 *
-	 * @param bool|int $blogId
+	 * @param null|int $blogId
 	 *
 	 * @return bool
 	 */
-	public function addOptionsAutoloadIndex($blogId = false)
+	public function addOptionsAutoloadIndex(?int $blogId = null)
     {
 		if ($blogId) {
 		    switch_to_blog($blogId);
@@ -516,11 +516,11 @@ class DatabaseOptimizer
 	/**
 	 * Add options autoload index to the options table.
 	 *
-	 * @param bool|int $blogId
+	 * @param null|int $blogId
 	 *
 	 * @return bool
 	 */
-	public function removeOptionsAutoloadIndex($blogId = false)
+	public function removeOptionsAutoloadIndex(?int $blogId = null)
     {
 		if ($blogId) {
 		    switch_to_blog($blogId);
@@ -536,11 +536,11 @@ class DatabaseOptimizer
 	/**
 	 * Add post meta value index to the post meta table.
 	 *
-	 * @param bool|int $blogId
+	 * @param null|int $blogId
 	 *
 	 * @return bool
 	 */
-	public function addPostMetaIndex($blogId = false)
+	public function addPostMetaIndex(?int $blogId = null)
     {
 		if ($blogId) {
 		    switch_to_blog($blogId);
@@ -556,11 +556,11 @@ class DatabaseOptimizer
 	/**
 	 * Remove post meta value index to the post meta table.
 	 *
-	 * @param bool|int $blogId
+	 * @param null|int $blogId
 	 *
 	 * @return bool
 	 */
-	public function removePostMetaIndex($blogId = false)
+	public function removePostMetaIndex(?int $blogId = null)
     {
 		if ($blogId) {
 		    switch_to_blog($blogId);

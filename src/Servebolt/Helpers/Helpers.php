@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Helpers;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
-use Servebolt\Optimizer\DatabaseMigration\MigrationRunner;
+use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling;
 
@@ -97,7 +97,7 @@ function generateRandomString($length): string
  * @param bool $return
  * @return bool|false|string|null
  */
-function displayValue($value, bool $return = false)
+function displayValue($value, bool $return = true)
 {
     if (is_bool($value)) {
         $value = booleanToString($value);
@@ -211,6 +211,22 @@ function paginateLinksAsArray($url, $pagesNeeded, $args = [])
 function camelCaseToSnakeCase(string $string): string
 {
     return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $string));
+}
+
+/**
+ * Convert string from snake case to camel case.
+ *
+ * @param string $string
+ * @param bool $capitalizeFirst
+ * @return string
+ */
+function snakeCaseToCamelCase(string $string, bool $capitalizeFirst = false): string
+{
+    $string = lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $string))));
+    if ($capitalizeFirst) {
+        $string = ucfirst($string);
+    }
+    return $string;
 }
 
 /**
@@ -334,7 +350,7 @@ function activatePlugin(): void
  */
 function isQueueItem($var): bool
 {
-    return is_a($var, '\\Servebolt\\Optimizer\\Queue\\QueueSystem\\QueueItem');
+    return is_a($var, '\\Servebolt\\Optimizer\\Utils\\Queue\\QueueItem');
 }
 
 /**
@@ -424,11 +440,11 @@ function getAjaxNonceKey(): string
  * Generate a random key stored in the database.
  *
  * @param string $name
- * @param bool $blogId
+ * @param null|int|string $blogId
  *
- * @return mixed|string|void
+ * @return string
  */
-function generateRandomPermanentKey(string $name, $blogId = false)
+function generateRandomPermanentKey(string $name, $blogId = null): string
 {
     if (is_multisite() && is_numeric($blogId)) {
         $key = getBlogOption($blogId, $name);
@@ -502,11 +518,11 @@ function booleanToStateString(bool $state): string
  * Get the title with optional blog-parameter.
  *
  * @param $postId
- * @param bool|int $blogId
+ * @param null|int $blogId
  *
  * @return string
  */
-function getPostTitleByBlog($postId, $blogId = false)
+function getPostTitleByBlog($postId, ?int $blogId = null)
 {
     if ($blogId) {
         switch_to_blog($blogId);
@@ -534,11 +550,11 @@ function checkboxIsChecked($value, string $onString = 'on'): bool
  * Convert an array of post IDs into array of title and Post ID.
  *
  * @param $posts
- * @param bool|int $blogId
+ * @param null|int $blogId
  *
  * @return array
  */
-function resolvePostIdsToTitleAndPostIdString($posts, $blogId = false): array
+function resolvePostIdsToTitleAndPostIdString($posts, ?int $blogId = null): array
 {
     return array_map(function($postId) use ($blogId) {
         $title = getPostTitleByBlog($postId, $blogId);
@@ -611,7 +627,6 @@ function featureIsActive(string $feature): ?bool
     switch ($feature) {
         case 'cf_image_resize':
             return ( CloudflareImageResize::getInstance() )->resizingIsActive();
-        case 'sb_asset_auto_version':
         case 'asset_auto_version':
             $generalSettings = GeneralSettings::getInstance();
             return $generalSettings->assetAutoVersion();
@@ -810,13 +825,17 @@ function getBlogName($blogId)
  *
  * @param $blogId
  * @param $option
- * @param bool $default
+ * @param bool $assertUpdate
  *
  * @return mixed
  */
-function deleteBlogOption($blogId, $option, $default = false)
+function deleteBlogOption($blogId, $option, bool $assertUpdate = true)
 {
-    return delete_blog_option($blogId, getOptionName($option), $default);
+    $result = delete_blog_option($blogId, getOptionName($option));
+    if ($assertUpdate) {
+        return is_null(get_blog_option($blogId, getOptionName($option), null));
+    }
+    return $result;
 }
 
 /**
@@ -898,7 +917,7 @@ function updateBlogOption($blogId, $optionName, $value, $assertUpdate = true)
  *
  * @return mixed
  */
-function getBlogOption($blogId, $optionName, $default = false)
+function getBlogOption($blogId, $optionName, $default = null)
 {
     $fullOptionName = getOptionName($optionName);
     $value = get_blog_option($blogId, $fullOptionName, $default);
@@ -909,12 +928,17 @@ function getBlogOption($blogId, $optionName, $default = false)
  * Delete option.
  *
  * @param $option
+ * @param bool $assertUpdate
  *
  * @return bool
  */
-function deleteOption($option)
+function deleteOption($option, bool $assertUpdate = true)
 {
-    return delete_option(getOptionName($option));
+    $result = delete_option(getOptionName($option));
+    if ($assertUpdate) {
+        return is_null(get_option(getOptionName($option), null));
+    }
+    return $result;
 }
 
 /**
@@ -945,7 +969,7 @@ function updateOption($optionName, $value, $assertUpdate = true)
  *
  * @return mixed|void
  */
-function getOption($optionName, $default = false)
+function getOption($optionName, $default = null)
 {
     $fullOptionName = getOptionName($optionName);
     $value = get_option($fullOptionName, $default);
@@ -956,12 +980,17 @@ function getOption($optionName, $default = false)
  * Delete site option.
  *
  * @param $option
+ * @param bool $assertUpdate
  *
  * @return bool
  */
-function deleteSiteOption($option)
+function deleteSiteOption($option, bool $assertUpdate = true)
 {
-    return delete_site_option(getOptionName($option));
+    $result = delete_site_option(getOptionName($option));
+    if ($assertUpdate) {
+        return is_null(get_site_option(getOptionName($option), null));
+    }
+    return $result;
 }
 
 /**
@@ -992,7 +1021,7 @@ function updateSiteOption($optionName, $value, $assertUpdate = true)
  *
  * @return mixed|void
  */
-function getSiteOption($optionName, $default = false)
+function getSiteOption($optionName, $default = null)
 {
     $fullOptionName = getOptionName($optionName);
     $value = get_site_option($fullOptionName, $default);
@@ -1002,14 +1031,14 @@ function getSiteOption($optionName, $default = false)
 /**
  * A function that will store the option at the right place (in current blog or a specified blog).
  *
- * @param $blogId
+ * @param null|int $blogId
  * @param $optionName
  * @param $value
  * @param bool $assertUpdate
  *
  * @return bool|mixed
  */
-function smartUpdateOption($blogId, $optionName, $value, $assertUpdate = true)
+function smartUpdateOption(?int $blogId = null, $optionName, $value, bool $assertUpdate = true)
 {
     if (is_numeric($blogId)) {
         $result = updateBlogOption($blogId, $optionName, $value, $assertUpdate);
@@ -1020,15 +1049,34 @@ function smartUpdateOption($blogId, $optionName, $value, $assertUpdate = true)
 }
 
 /**
+ * A function that will delete the option at the right place (in current blog or a specified blog).
+ *
+ * @param int|null $blogId
+ * @param $optionName
+ * @param bool $assertUpdate
+ *
+ * @return bool|mixed
+ */
+function smartDeleteOption(?int $blogId = null, $optionName, bool $assertUpdate = true)
+{
+    if (is_numeric($blogId)) {
+        $result = deleteBlogOption($blogId, $optionName, $assertUpdate);
+    } else {
+        $result = deleteOption($optionName, $assertUpdate);
+    }
+    return $result;
+}
+
+/**
  * A function that will get the option at the right place (in current blog or a specified blog).
  *
- * @param $blogId
+ * @param int|null $blogId
  * @param $optionName
  * @param bool $default
  *
  * @return mixed|void
  */
-function smartGetOption($blogId, $optionName, $default = false)
+function smartGetOption(?int $blogId = null, $optionName, $default = null)
 {
     if (is_numeric($blogId)) {
         $result = getBlogOption($blogId, $optionName, $default);
@@ -1036,14 +1084,4 @@ function smartGetOption($blogId, $optionName, $default = false)
         $result = getOption($optionName, $default);
     }
     return $result;
-}
-
-/**
- * Get FullPageCache-instance.
- *
- * @return FullPageCache|null
- */
-function fullPageCache()
-{
-    return FullPageCache::getInstance();
 }

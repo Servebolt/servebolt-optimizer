@@ -102,7 +102,7 @@ class CfSetup
     {
         // Validate data
         $validation = self::validateSetupParams($params);
-        if ( $validation !== true ) {
+        if ($validation !== true) {
             WP_CLI::error_multi_line($validation);
             return;
         }

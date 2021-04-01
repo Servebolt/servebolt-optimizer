@@ -2,8 +2,8 @@
 
 namespace Unit;
 
-use Servebolt\Optimizer\DatabaseMigration\MigrationRunner;
-use Servebolt\Optimizer\Queue\QueueSystem\Queue;
+use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
+use Servebolt\Optimizer\Utils\Queue\Queue;
 use ServeboltWPUnitTestCase;
 
 /**

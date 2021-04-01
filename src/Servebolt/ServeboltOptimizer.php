@@ -6,8 +6,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
-use Servebolt\Optimizer\DatabaseMigration\MigrationRunner;
-use Servebolt\Optimizer\Crypto\OptionEncryption;
+use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
+use Servebolt\Optimizer\Utils\Crypto\OptionEncryption;
 use Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Queue\QueueEventHandler;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
@@ -111,15 +111,6 @@ class ServeboltOptimizer
 
         }
 
-        /*
-        if (isset($_GET['a'])) {
-            add_action('init', function() {
-                (\Servebolt\Optimizer\Queue\Queues\WpObjectQueue::getInstance())->parseQueue();
-                die;
-            });
-        }
-        */
-
         // Only front-end
         if (
             isFrontEnd()
@@ -127,7 +118,7 @@ class ServeboltOptimizer
         ){
 
             // Feature to automatically version all enqueued script/style-tags
-            if (featureIsActive('sb_asset_auto_version')) {
+            if (featureIsActive('asset_auto_version')) {
                 AssetAutoVersion::init();
             }
 

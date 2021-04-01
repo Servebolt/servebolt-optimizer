@@ -6,10 +6,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
-use function Servebolt\Optimizer\Helpers\getBlogOption;
-use function Servebolt\Optimizer\Helpers\getOption;
-use function Servebolt\Optimizer\Helpers\updateBlogOption;
-use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\smartUpdateOption;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 
@@ -75,32 +73,24 @@ class CloudflareImageResize
      * Check if Cloudflare image resize feature is active.
      *
      * @param bool $state
-     * @param bool|int $blogId
+     * @param null|int $blogId
      *
      * @return bool
      */
-    public static function toggleActive(bool $state, $blogId = false)
+    public static function toggleActive(bool $state, ?int $blogId = null)
     {
-        if ( is_numeric($blogId) ) {
-            return updateBlogOption($blogId, self::cfResizingActiveOptionKey(), $state);
-        } else {
-            return updateOption(self::cfResizingActiveOptionKey(), $state);
-        }
+        return smartUpdateOption($blogId, self::cfResizingActiveOptionKey(), $state);
     }
 
     /**
      * Check if Cloudflare image resize feature is active.
      *
-     * @param bool|int $blogId
+     * @param null|int $blogId
      *
      * @return bool
      */
-    public function resizingIsActive($blogId = false): bool
+    public function resizingIsActive(?int $blogId = null): bool
     {
-        if (is_numeric($blogId)) {
-            return checkboxIsChecked(getBlogOption($blogId, $this->cfResizingActiveOptionKey()));
-        } else {
-            return checkboxIsChecked(getOption($this->cfResizingActiveOptionKey()));
-        }
+        return checkboxIsChecked(smartGetOption($blogId, $this->cfResizingActiveOptionKey()));
     }
 }
