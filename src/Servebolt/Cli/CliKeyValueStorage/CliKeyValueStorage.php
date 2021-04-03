@@ -169,7 +169,6 @@ abstract class CliKeyValueStorage
                         'Value' => $this->storage->getHumanReadableValue($settingsKey, $site->blog_id),
                     ];
                 }
-
             });
             if (CliHelpers::returnJson()) {
                 CliHelpers::printJson($settings);
