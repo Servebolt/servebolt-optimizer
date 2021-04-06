@@ -103,7 +103,15 @@ class CachePurge
         if ($driver === 'acd') {
             return ServeboltDriver::getInstance();
         }
-        // Handle when no driver is given?
+        return $this->defaultDriver();
+    }
+
+    /**
+     * @return mixed
+     */
+    private function defaultDriver()
+    {
+        return CloudflareDriver::getInstance();
     }
 
     /**

@@ -34,7 +34,7 @@ class CacheSettingsConstraints
     /**
      * Validate and constrain the possible values for setting "fpc_settings".
      */
-    private function fpcSettingsConstraint()
+    private function fpcSettingsConstraint(): void
     {
         add_filter('sb_optimizer_key_value_storage_multi_value_constraints_for_fpc_settings', '__return_true');
         add_filter('sb_optimizer_key_value_storage_set_multi_value_fpc_settings', function($value) {

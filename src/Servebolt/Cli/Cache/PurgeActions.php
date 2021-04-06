@@ -7,7 +7,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use WP_CLI;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
-use Servebolt\Optimizer\Exceptions\ApiError;
+#use Servebolt\Optimizer\Exceptions\ApiError;
+use Exception;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 
 /**
@@ -47,10 +48,9 @@ class PurgeActions
         try {
             WordPressCachePurge::purgeByUrl($url);
             WP_CLI::success(sprintf(__('Cache purged for URL "%s".', 'servebolt-wp'), $url));
-        } catch (ApiError $e) {
-            // TODO: Handle error
         } catch (Exception $e) {
-            // TODO: Handle error
+            // TODO: Handle error better
+            WP_CLI::error(sprintf(__('Could not purge cache for URL "%s".', 'servebolt-wp'), $url));
         }
     }
 
@@ -82,10 +82,9 @@ class PurgeActions
         try {
             WordPressCachePurge::purgeByUrls($urls);
             WP_CLI::success(sprintf(__('Cache purged for %s URLs.', 'servebolt-wp'), count($urls)));
-        } catch (ApiError $e) {
-            // TODO: Handle error
-        } catch (Exception $e) {
-            // TODO: Handle error
+        } catch (ApiError|Exception $e) {
+            // TODO: Handle error better
+            WP_CLI::error(sprintf(__('Could not purge cahce for %s URLs.', 'servebolt-wp'), count($urls)));
         }
     }
 
@@ -97,27 +96,25 @@ class PurgeActions
                 (int) $postId
             );
             WP_CLI::success(sprintf(__('Cache purged for post "%s" (ID %s).', 'servebolt-wp'), get_the_title($postId), $postId));
-        } catch (ApiError $e) {
-            // TODO: Handle error
-        } catch (Exception $e) {
-            // TODO: Handle error
+        } catch (ApiError|Exception $e) {
+            // TODO: Handle error better
+            WP_CLI::error(sprintf(__('Could not purge cache for post "%s" (ID %s).', 'servebolt-wp'), get_the_title($postId), $postId));
         }
     }
 
     public function purgeTerm(array $args, array $assocArgs): void
     {
         list($termId, $taxonomySlug) = $args;
+        $termName = get_term($termId)->name;
         try {
             WordPressCachePurge::purgeTermCache(
                 (int) $termId,
                 $taxonomySlug
             );
-            $termName = get_term($termId)->name;
             WP_CLI::success(sprintf(__('Cache purged for term "%s" (ID %s).', 'servebolt-wp'), $termName, $termId));
-        } catch (ApiError $e) {
-            // TODO: Handle error
-        } catch (Exception $e) {
-            // TODO: Handle error
+        } catch (ApiError|Exception $e) {
+            // TODO: Handle error better
+            WP_CLI::error(sprintf(__('Could not purge cache for term "%s" (ID %s).', 'servebolt-wp'), $termName, $termId));
         }
     }
 
@@ -132,10 +129,9 @@ class PurgeActions
                 WordPressCachePurge::purgeAll();
                 WP_CLI::success(__('All cache purged.', 'servebolt-wp'));
             }
-        } catch (ApiError $e) {
-            // TODO: Handle error
-        } catch (Exception $e) {
-            // TODO: Handle error
+        } catch (ApiError|Exception $e) {
+            // TODO: Handle error better
+            WP_CLI::error(__('Could not purge all cache cache.', 'servebolt-wp'));
         }
     }
 }
