@@ -795,17 +795,19 @@ function requireSuperadmin()
  */
 function isHostedAtServebolt(): bool
 {
+    $isHostedAtServebolt = false;
     if (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
-        return HOST_IS_SERVEBOLT_OVERRIDE;
-    }
-    foreach (['SERVER_ADMIN', 'SERVER_NAME'] as $key) {
-        if (array_key_exists($key, $_SERVER)) {
-            if ((boolean) preg_match('/(servebolt|raskesider)\.([\w]{2,63})$/', $_SERVER[$key])) {
-                return true;
+        $isHostedAtServebolt = HOST_IS_SERVEBOLT_OVERRIDE;
+    } else {
+        foreach (['SERVER_ADMIN', 'SERVER_NAME'] as $key) {
+            if (array_key_exists($key, $_SERVER)) {
+                if ((boolean) preg_match('/(servebolt|raskesider)\.([\w]{2,63})$/', $_SERVER[$key])) {
+                    $isHostedAtServebolt = true;
+                }
             }
         }
     }
-    return false;
+    return apply_filters('sb_optimizer_is_hosted_at_servebolt', $isHostedAtServebolt);
 }
 
 /**

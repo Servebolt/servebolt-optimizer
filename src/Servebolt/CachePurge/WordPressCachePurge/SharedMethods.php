@@ -19,7 +19,7 @@ trait SharedMethods
      */
     private static function driverIsAcd($cachePurgeDriver): bool
     {
-        return is_a($cachePurgeDriver, '\\Servebolt\\Optimizer\\CachePurge\\Drivers\\Servebolt');
+        return is_a($cachePurgeDriver->getDriverObject(), '\\Servebolt\\Optimizer\\CachePurge\\Drivers\\Servebolt');
     }
 
     /**
