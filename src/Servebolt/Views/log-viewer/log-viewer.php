@@ -1,4 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
+<?php use function Servebolt\Optimizer\Helpers\arrayGet; ?>
 <div class="wrap">
 	<h2><?php _e('Errorlog', 'servebolt-wp'); ?></h2>
 	<p>Log file path: <?php echo $logFilePath; ?></p>
@@ -21,9 +22,13 @@
 			<tbody>
 			<?php foreach ($entries as $entry) : ?>
 				<tr>
+                    <?php if ($unparsedLine = arrayGet('unparsed_line', $entry)): ?>
+                    <td colspan="100%" title="Could not parse error line, showing raw content"><?php echo $unparsedLine; ?></td>
+                    <?php else: ?>
 					<td><?php echo $entry->date; ?></td>
 					<td><?php echo $entry->ip; ?></td>
 					<td><?php echo $entry->error; ?></td>
+                    <?php endif; ?>
 				</tr>
 			<?php endforeach; ?>
 			</tbody>
