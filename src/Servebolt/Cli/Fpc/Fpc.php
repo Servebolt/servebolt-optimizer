@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Cli\Fpc;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
+use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
@@ -134,7 +135,7 @@ class Fpc
         } else {
             $sitesStatus[] = $this->getNginxFpcStatus();
         }
-        WP_CLI\Utils\format_items('table', $sitesStatus , array_keys(current($sitesStatus)));
+        WP_CLI_FormatItems('table', $sitesStatus , array_keys(current($sitesStatus)));
     }
 
     /**
@@ -162,7 +163,7 @@ class Fpc
         } else {
             $sitesStatus[] = $this->nginxFpcGetCachePostTypes();
         }
-        WP_CLI\Utils\format_items('table', $sitesStatus , array_keys(current($sitesStatus)));
+        WP_CLI_FormatItems('table', $sitesStatus , array_keys(current($sitesStatus)));
     }
 
     /**
@@ -271,7 +272,7 @@ class Fpc
         } else {
             $array[] = $this->nginxFpcGetExcludedPosts(false, $extended);
         }
-        WP_CLI\Utils\format_items('table', $array, array_keys(current($array)));
+        WP_CLI_FormatItems('table', $array, array_keys(current($array)));
     }
 
     /**

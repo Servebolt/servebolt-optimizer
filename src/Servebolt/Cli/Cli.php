@@ -24,7 +24,6 @@ class Cli
      */
     public function __construct()
     {
-        CliHelpers::setReturnJsonInitState();
         new AcceleratedDomains;
         new Cache;
         new CloudflareImageResize;

@@ -28,7 +28,10 @@ class CacheSettings extends CliKeyValueStorage
 
         // HTML / cache
         'fpc_switch' => 'boolean',
-        'fpc_settings' => 'multi',
+        'fpc_settings' => [
+            'type' => 'multi',
+            'validation' => true,
+        ],
 
         // Cache purge
         'cache_purge_switch' => 'boolean',
@@ -55,6 +58,15 @@ class CacheSettings extends CliKeyValueStorage
     ];
 
     /**
+     * CacheSettings constructor.
+     */
+    public function __construct()
+    {
+        new CacheSettingsConstraints;
+        parent::__construct();
+    }
+
+    /**
      * Display all available settings.
      *
      * ## OPTIONS
@@ -62,9 +74,25 @@ class CacheSettings extends CliKeyValueStorage
      * [--all]
      * : Display the setting for all sites.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
+     *     # List all settings
+     *     wp servebolt cache settings list
+     *
+     *     # List all settings for all sites in multisite
      *     wp servebolt cache settings list --all
+     *
+     *     # List all settings in JSON-format
+     *     wp servebolt cache settings list --format=json
      *
      */
     public function list($args, $assocArgs)
@@ -83,9 +111,25 @@ class CacheSettings extends CliKeyValueStorage
      * [--all]
      * : Set the setting for all sites.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
+     *     # Get settings value
      *     wp servebolt cache settings get use-native-js-fallback
+     *
+     *     # Get settings value for all sites in multisite
+     *     wp servebolt cache settings get use-native-js-fallback --all
+     *
+     *     # Get settings value in JSON-format
+     *     wp servebolt cache settings get use-native-js-fallback --format=json
      *
      */
     public function get($args, $assocArgs)
@@ -107,9 +151,25 @@ class CacheSettings extends CliKeyValueStorage
      * [--all]
      * : Display the setting for all sites.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
+     *     # Set setting
      *     wp servebolt cache settings set use-native-js-fallback true
+     *
+     *     # Set setting on all sites in multisite
+     *     wp servebolt cache settings set use-native-js-fallback true --all
+     *
+     *     # Set setting and return result in JSON-format
+     *     wp servebolt cache settings set use-native-js-fallback true --format=json
      *
      */
     public function set($args, $assocArgs)
@@ -128,9 +188,25 @@ class CacheSettings extends CliKeyValueStorage
      * [--all]
      * : Display the setting for all sites.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
+     *     # Clear setting
      *     wp servebolt cache settings clear use-native-js-fallback
+     *
+     *     # Clear setting for all sites in multisite
+     *     wp servebolt cache settings clear use-native-js-fallback --all
+     *
+     *     # Clear setting and return result in JSON-format
+     *     wp servebolt cache settings clear use-native-js-fallback --format=json
      *
      */
     public function clear($args, $assocArgs)
