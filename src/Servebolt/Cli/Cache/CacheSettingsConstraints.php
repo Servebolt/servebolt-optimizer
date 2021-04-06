@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Cli\Cache;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\FullPageCache\FullPageCache;
 
 /**
@@ -19,6 +20,18 @@ class CacheSettingsConstraints
     public function __construct()
     {
         $this->fpcSettingsConstraint();
+        $this->getValueOverrides();
+    }
+
+    /**
+     * Add value overrides.
+     */
+    private function getValueOverrides(): void
+    {
+        // Override value for setting "cache_purge_auto"
+        add_filter('sb_optimizer_key_value_storage_get_value_cache_purge_auto', function(?int $blogId = null) {
+            return CachePurge::automaticCachePurgeOnContentUpdateIsActive($blogId);
+        }, 10, 1);
     }
 
     /**

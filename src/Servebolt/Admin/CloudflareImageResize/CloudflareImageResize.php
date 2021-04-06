@@ -89,8 +89,8 @@ class CloudflareImageResize
      *
      * @return bool
      */
-    public function resizingIsActive(?int $blogId = null): bool
+    public static function resizingIsActive(?int $blogId = null): bool
     {
-        return checkboxIsChecked(smartGetOption($blogId, $this->cfResizingActiveOptionKey()));
+        return checkboxIsChecked(smartGetOption($blogId, self::cfResizingActiveOptionKey()));
     }
 }

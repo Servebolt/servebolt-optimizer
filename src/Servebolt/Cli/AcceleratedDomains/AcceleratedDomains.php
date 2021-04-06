@@ -62,25 +62,25 @@ class AcceleratedDomains
     {
         CliHelpers::setReturnJson($assocArgs);
         if (CliHelpers::affectAllSites($assocArgs)) {
-            $settings = [];
-            iterateSites(function ($site) use (&$settings) {
+            $statusArray = [];
+            iterateSites(function ($site) use (&$statusArray) {
                 $activeBoolean = AcceleratedDomainsClass::isActive($site->blog_id);
                 if (CliHelpers::returnJson()) {
-                    $settings[] = [
+                    $statusArray[] = [
                         'blog_id' => $site->blog_id,
                         'active' => $activeBoolean,
                     ];
                 } else {
-                    $settings[] = [
+                    $statusArray[] = [
                         'Blog' => get_site_url($site->blog_id),
                         'Active' => booleanToStateString($activeBoolean),
                     ];
                 }
             });
             if (CliHelpers::returnJson()) {
-                CliHelpers::printJson($settings);
+                CliHelpers::printJson($statusArray);
             } else {
-                WP_CLI_FormatItems('table', $settings, array_keys(current($settings)));
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
             }
         } else {
             $activeBoolean = AcceleratedDomainsClass::isActive();

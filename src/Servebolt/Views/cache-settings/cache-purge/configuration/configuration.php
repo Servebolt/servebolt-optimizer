@@ -55,7 +55,7 @@ Keep in mind that purging the entire cache has a temporary impact on the loading
                     <fieldset>
                         <legend class="screen-reader-text"><span><?php _e('Automatic cache purge on content update', 'servebolt-wp'); ?></span></legend>
                         <label for="cache_purge_auto">
-                            <input name="<?php echo getOptionName('cache_purge_auto'); ?>" type="checkbox" id="cache_purge_auto" value="1" <?php checked($settings['cache_purge_auto']); ?>>
+                            <input name="<?php echo getOptionName('cache_purge_auto'); ?>" type="checkbox" id="cache_purge_auto" value="1" <?php checked($automaticCachePurgeOnContentUpdateIsActive); ?>>
                             <?php _e('Enabled', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>

@@ -4,7 +4,6 @@ namespace Servebolt\Optimizer\Cli\CliKeyValueStorage;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Cli\Cli;
 use WP_CLI;
 use Servebolt\Optimizer\Utils\KeyValueStorage\KeyValueStorage;
 use Servebolt\Optimizer\Cli\CliHelpers;

@@ -362,7 +362,11 @@ class KeyValueStorage
     public function getValue(string $itemName, ?int $blogId = null, $defaultValue = null)
     {
         if ($itemName = $this->resolveSettingsName($itemName)) {
-            $value = smartGetOption($blogId, $itemName);
+            if (has_filter('sb_optimizer_key_value_storage_get_value_' . $itemName)) {
+                $value = apply_filters('sb_optimizer_key_value_storage_get_value_' . $itemName, $blogId);
+            } else {
+                $value = smartGetOption($blogId, $itemName);
+            }
             $value = apply_filters('sb_optimizer_key_value_storage_get_format_' . $itemName, $value, $itemName, $blogId, $defaultValue);
             $properties = $this->resolveSettingsItemProperties($itemName);
             $itemType = $this->resolveSettingsItemType($itemName);
