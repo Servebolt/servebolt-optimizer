@@ -29,7 +29,7 @@ class SqlBuilderTest extends ServeboltWPUnitTestCase
         MigrationRunner::migrateFresh();
     }
 
-    public function testSqlBuilder()
+    public function testSqlBuilderSelect()
     {
         $query = SqlBuilder::query('sb_queue')
             ->selectCount()
@@ -46,6 +46,24 @@ class SqlBuilderTest extends ServeboltWPUnitTestCase
         $sql = $query->buildQuery();
         $this->assertIsString($sql);
         $this->assertEquals("SELECT COUNT(*) FROM `sb_queue` WHERE `reserved_at_gmt` IS NOT NULL OR (`payload` = '1' OR (`payload` = '2' OR `payload` = '3')) ORDER BY id ASC", $sql);
+    }
+
+    public function testSqlBuilderDelete()
+    {
+        $query = SqlBuilder::query('sb_queue')
+            ->delete()
+            ->from('sb_queue')
+            ->where('reserved_at_gmt', 'IS NOT', 'NULL')
+            ->orWhere(function($query) {
+                $query->where('payload', '1')
+                    ->orWhere(function($query) {
+                        $query->where('payload', '2')
+                            ->orWhere('payload', '3');
+                    });
+            });
+        $sql = $query->buildQuery();
+        $this->assertIsString($sql);
+        $this->assertEquals("DELETE FROM `sb_queue` WHERE `reserved_at_gmt` IS NOT NULL OR (`payload` = '1' OR (`payload` = '2' OR `payload` = '3'))", $sql);
     }
 
     public function testThatCountWorks()

@@ -95,9 +95,10 @@ function generateRandomString($length): string
  *
  * @param $value
  * @param bool $return
+ * @param bool $arrayToCsv
  * @return bool|false|string|null
  */
-function displayValue($value, bool $return = true)
+function displayValue($value, bool $return = true, bool $arrayToCsv = false)
 {
     if (is_bool($value)) {
         $value = booleanToString($value);
@@ -897,7 +898,7 @@ function iterateSites($function, bool $runBlogSwitch = false): bool
  * @param bool $assertUpdate
  * @return bool
  */
-function updateBlogOption($blogId, $optionName, $value, $assertUpdate = true)
+function updateBlogOption($blogId, $optionName, $value, $assertUpdate = true): bool
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_blog_option($blogId, $fullOptionName, $value);
@@ -947,10 +948,9 @@ function deleteOption($option, bool $assertUpdate = true)
  * @param $optionName
  * @param $value
  * @param bool $assertUpdate
- *
  * @return bool
  */
-function updateOption($optionName, $value, $assertUpdate = true)
+function updateOption($optionName, $value, $assertUpdate = true): bool
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_option($fullOptionName, $value);
@@ -1035,10 +1035,9 @@ function getSiteOption($optionName, $default = null)
  * @param $optionName
  * @param $value
  * @param bool $assertUpdate
- *
- * @return bool|mixed
+ * @return bool
  */
-function smartUpdateOption(?int $blogId = null, $optionName, $value, bool $assertUpdate = true)
+function smartUpdateOption(?int $blogId = null, $optionName, $value, bool $assertUpdate = true): bool
 {
     if (is_numeric($blogId)) {
         $result = updateBlogOption($blogId, $optionName, $value, $assertUpdate);

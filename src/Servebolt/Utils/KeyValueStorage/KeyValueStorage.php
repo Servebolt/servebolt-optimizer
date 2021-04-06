@@ -100,6 +100,10 @@ class KeyValueStorage
                         }
                         break;
                     case 'multi':
+                        $values = apply_filters('sb_optimizer_key_value_storage_constraints_for_' . $settingItem, null);
+                        if ($values) {
+                            $typeString .= sprintf(' (%s)', implode(',', $values));
+                        }
                         $value = formatArrayToCsv(array_keys($value));
                         break;
                 }
@@ -251,12 +255,46 @@ class KeyValueStorage
         return $this->itemIsType($settingsKey, 'radio');
     }
 
+    /**
+     * Check whether there is a multi-value constraint for given setting.
+     *
+     * @param string $settingsKey
+     * @return bool
+     */
+    public function hasMultiValueConstraints(string $settingsKey): bool
+    {
+        $settingsKey = $this->ensureCorrectItemName($settingsKey);
+        return apply_filters('sb_optimizer_key_value_storage_multi_value_constraints_for_' . $settingsKey, false) === true;
+    }
+
+    /**
+     * Check whether there is a value constraint for given setting.
+     *
+     * @param string $settingsKey
+     * @return bool
+     */
     private function hasValueConstraintsViaFilter(string $settingsKey): bool
     {
-        if (has_filter('servebolt_optimizer_key_value_storage_constraints_for_' . $settingsKey)) {
+        $settingsKey = $this->ensureCorrectItemName($settingsKey);
+        if (has_filter('sb_optimizer_key_value_storage_constraints_for_' . $settingsKey)) {
             return true;
         }
         return false;
+    }
+
+    /**
+     * @param string $settingsKey
+     * @param string $itemType
+     * @return array|null
+     */
+    private function getValueConstraintsViaFilters(string $settingsKey, string $itemType): ?array
+    {
+        $settingsKey = $this->ensureCorrectItemName($settingsKey);
+        $constraints = apply_filters('sb_optimizer_key_value_storage_constraints_for_' . $settingsKey, null, $itemType);
+        if (is_array($constraints)) {
+            return $constraints;
+        }
+        return null;
     }
 
     /**
@@ -269,7 +307,10 @@ class KeyValueStorage
     {
         $itemType = $this->resolveSettingsItemType($settingsKey);
         if ($this->hasValueConstraintsViaFilter($settingsKey)) {
-            return apply_filters('servebolt_optimizer_key_value_storage_constraints_for_' . $settingsKey, $itemType);
+            if ($constraints = $this->getValueConstraintsViaFilters($settingsKey, $itemType)) {
+                return $constraints;
+            }
+            return null;
         }
         switch ($itemType) {
             case 'radio':
@@ -300,6 +341,7 @@ class KeyValueStorage
                 }
                 break;
             case 'multi':
+                // TODO: Only allow allowed values
                 break;
             case 'boolean':
             case 'bool':
@@ -321,7 +363,7 @@ class KeyValueStorage
     {
         if ($itemName = $this->resolveSettingsName($itemName)) {
             $value = smartGetOption($blogId, $itemName);
-            $value = apply_filters('servebolt_optimizer_key_value_storage_get_format_' . $itemName, $value, $itemName, $blogId, $defaultValue);
+            $value = apply_filters('sb_optimizer_key_value_storage_get_format_' . $itemName, $value, $itemName, $blogId, $defaultValue);
             $properties = $this->resolveSettingsItemProperties($itemName);
             $itemType = $this->resolveSettingsItemType($itemName);
             $hasValue = !is_null($value);
@@ -334,16 +376,56 @@ class KeyValueStorage
     }
 
     /**
-     * Convert value to human readable value.
+     * Set value.
      *
      * @param string $itemName
+     * @param $value
      * @param int|null $blogId
-     * @param null $defaultValue
-     * @return bool|string|null
+     * @return bool
      */
-    public function getHumanReadableValue(string $itemName, ?int $blogId = null, $defaultValue = null)
+    public function setValue(string $itemName, $value, ?int $blogId = null): bool
     {
-        return displayValue($this->getValue($itemName, $blogId, $defaultValue));
+        if ($itemName = $this->resolveSettingsName($itemName)) {
+            $properties = $this->resolveSettingsItemProperties($itemName);
+            $itemType = $this->resolveSettingsItemType($itemName);
+
+            $doValidation = arrayGet('validation', $properties, true);
+
+            if ($doValidation && !apply_filters('sb_optimizer_key_value_storage_set_validate_' . $itemName, true, $value, $itemName, $blogId, $itemType)) {
+                return false;
+            }
+
+            switch ($itemType) {
+                case 'string':
+                    if (!is_string($value)) {
+                        return false;
+                    }
+                    break;
+                case 'multi':
+                    $value = array_filter(array_map('trim', explode(',', $value)));
+                    $value = apply_filters('sb_optimizer_key_value_storage_set_multi_value_' . $itemName, $value);
+                    break;
+                case 'radio':
+                    $allowedValues = arrayGet('values', $properties, []);
+                    if (!in_array($value, $allowedValues)) {
+                        return false; // Invalid
+                    }
+                    break;
+                case 'boolean':
+                case 'bool':
+                    if (in_array($value, [true, 'true', '1'], true)) {
+                        $value = 1;
+                    } elseif (in_array($value, [false, 'false', '0'], true)) {
+                        $value = 0;
+                    } else {
+                        return false;
+                    }
+                    break;
+            }
+            $value = apply_filters('sb_optimizer_key_value_storage_set_format_' . $itemName, $value, $itemName, $blogId, $itemType);
+            return smartUpdateOption($blogId, $itemName, $value);
+        }
+        return false;
     }
 
     /**
@@ -363,52 +445,16 @@ class KeyValueStorage
     }
 
     /**
-     * Set value.
+     * Convert value to human readable value.
      *
      * @param string $itemName
-     * @param $value
      * @param int|null $blogId
-     * @return false
+     * @param null $defaultValue
+     * @return bool|string|null
      */
-    public function setValue(string $itemName, $value, ?int $blogId = null)
+    public function getHumanReadableValue(string $itemName, ?int $blogId = null, $defaultValue = null)
     {
-        if ($itemName = $this->resolveSettingsName($itemName)) {
-            $properties = $this->resolveSettingsItemProperties($itemName);
-            $itemType = $this->resolveSettingsItemType($itemName);
-
-            if (!apply_filters('servebolt_optimizer_key_value_storage_set_validate_' . $itemName, true, $value, $itemName, $blogId, $itemType)) {
-                return false;
-            }
-
-            switch ($itemType) {
-                case 'string':
-                    if (!is_string($value)) {
-                        return false;
-                    }
-                    break;
-                case 'multi':
-                    $value = array_filter(array_map('trim', explode(',')));
-                    break;
-                case 'radio':
-                    $allowedValues = arrayGet('values', $properties, []);
-                    if (!in_array($value, $allowedValues)) {
-                        return false; // Invalid
-                    }
-                    break;
-                case 'boolean':
-                case 'bool':
-                    if (in_array($value, [true, 'true', '1'], true)) {
-                        $value = 1;
-                    } elseif (in_array($value, [false, 'false', '0'], true)) {
-                        $value = 0;
-                    } else {
-                        return false;
-                    }
-                    break;
-            }
-            $value = apply_filters('servebolt_optimizer_key_value_storage_set_format_' . $itemName, $value, $itemName, $blogId, $itemType);
-            return smartUpdateOption($blogId, $itemName, $value);
-        }
-        return false;
+        $value = $this->getValue($itemName, $blogId, $defaultValue);
+        return displayValue($value);
     }
 }

@@ -256,6 +256,7 @@ class SqlBuilder
     public function delete()
     {
         $this->statementType = 'DELETE';
+        return $this;
     }
 
     public function selectCount()

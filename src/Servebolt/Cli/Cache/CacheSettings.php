@@ -28,7 +28,10 @@ class CacheSettings extends CliKeyValueStorage
 
         // HTML / cache
         'fpc_switch' => 'boolean',
-        'fpc_settings' => 'multi',
+        'fpc_settings' => [
+            'type' => 'multi',
+            'validation' => true,
+        ],
 
         // Cache purge
         'cache_purge_switch' => 'boolean',
@@ -53,6 +56,15 @@ class CacheSettings extends CliKeyValueStorage
         'cf_api_token' => 'string',
         'queue_based_cache_purge' => 'boolean',
     ];
+
+    /**
+     * CacheSettings constructor.
+     */
+    public function __construct()
+    {
+        new CacheSettingsConstraints;
+        parent::__construct();
+    }
 
     /**
      * Display all available settings.

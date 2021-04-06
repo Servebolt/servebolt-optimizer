@@ -420,17 +420,21 @@ abstract class CliKeyValueStorage
         if ($hasFailed && $this->storage->hasValueConstraints($settingsKey)) {
             $valueConstraints = $this->storage->getValueConstraints($settingsKey);
             if (!empty($valueConstraints)) {
-                if (count($valueConstraints) > 1) {
-                    $errorMessage = sprintf(__('Values need to be either %s.', 'servebolt-wp'), naturalLanguageJoin($valueConstraints, 'or'));
+                if ($this->storage->hasMultiValueConstraints($settingsKey)) {
+                    $errorMessage = sprintf(__('Available values are: %s', 'servebolt-wp'), implode(', ', $valueConstraints));
                 } else {
-                    $errorMessage = sprintf(__('Values need to be "%s".', 'servebolt-wp'), current($valueConstraints));
+                    if (count($valueConstraints) > 1) {
+                        $errorMessage = sprintf(__('Value need to be either %s.', 'servebolt-wp'), naturalLanguageJoin($valueConstraints, 'or'));
+                    } else {
+                        $errorMessage = sprintf(__('Value need to be "%s".', 'servebolt-wp'), current($valueConstraints));
+                    }
                 }
                 if (CliHelpers::returnJson()) {
                     CliHelpers::printJson([
                         'error' => $errorMessage
                     ]);
                 } else {
-                    WP_CLI::error($errorMessage, false);
+                    WP_CLI::line($errorMessage, false);
                 }
             }
         }

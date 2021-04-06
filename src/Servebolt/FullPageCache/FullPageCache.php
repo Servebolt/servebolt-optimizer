@@ -434,9 +434,9 @@ class FullPageCache
 	 *
 	 * @param bool $includeAll
 	 *
-	 * @return mixed
+	 * @return array
 	 */
-	public static function getAvailablePostTypesToCache($includeAll = false)
+	public static function getAvailablePostTypesToCache($includeAll = false): array
     {
         $postTypes = get_post_types(['public' => true], 'objects');
 		$array = [];
