@@ -17,7 +17,7 @@ This project is maintained on [Github](https://servebo.lt/sog).
 = Features =
 - Database optimization - Convert tables to InnoDB
 - Database optimization - Add performance improving indexes
-- Automatic Cloudflare cache purge
+- Automatic cache purge with Cloudflare and Servebolt Accelerated Domain
 - Cloudflare Image Resize-support (beta feature)
 - Recommendations on additional performance improvements
 - Rewrite headers to allow down stream full page caching (Servebolt clients only)
@@ -54,6 +54,11 @@ This plugin can be controlled via WP Admin, WP CLI, various filters and PHP cons
 The plugin has various filters and PHP constants that allows third-party developers to alter the behaviour of the plugin. Please read the article [Filters and PHP constants](https://servebo.lt/servebolt-optimizer-filters-and-php-constants) in our help center to learn more.
 
 == Changelog ==
+= 2.2.0 =
+* Added Servebolt Accelerated Domains-feature to plugin
+* Improved cache purge feature
+* Various bugfixes and improvements
+
 = 2.1.5 =
 * Hotfix in Cloudflare cache purge feature
 
