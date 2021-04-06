@@ -36,7 +36,7 @@ class CachePurge
      * CachePurge constructor.
      * @param int|null $blogId
      */
-    private function __construct(?int $blogId = null)
+    public function __construct(?int $blogId = null)
     {
         $this->driver = $this->resolveDriverObject($blogId);
     }
@@ -254,6 +254,9 @@ class CachePurge
      */
     private static function acdIsConfigured(): bool
     {
+        if (apply_filters('sb_optimizer_acd_is_configured', false)) {
+            return true;
+        }
         $sbApi = ServeboltApi::getInstance();
         return $sbApi->isConfigured();
     }
