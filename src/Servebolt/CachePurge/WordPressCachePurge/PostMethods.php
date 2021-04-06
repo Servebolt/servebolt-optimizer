@@ -15,6 +15,7 @@ use function Servebolt\Optimizer\Helpers\isQueueItem;
  */
 trait PostMethods
 {
+    use SharedMethods;
 
     /**
      * Get all the URLs to purge for a given post.
@@ -54,6 +55,7 @@ trait PostMethods
         } else {
             $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
             $cachePurgeDriver = CachePurgeDriver::getInstance();
+            $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'post', $cachePurgeDriver);
             return $cachePurgeDriver->purgeByUrls($urlsToPurge);
         }
     }

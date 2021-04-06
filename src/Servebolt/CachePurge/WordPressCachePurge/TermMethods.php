@@ -15,6 +15,7 @@ use function Servebolt\Optimizer\Helpers\isQueueItem;
  */
 trait TermMethods
 {
+    use SharedMethods;
 
     /**
      * Get all the URLs to purge for a given term.
@@ -52,6 +53,7 @@ trait TermMethods
         } else {
             $urlsToPurge = self::getUrlsToPurgeByTermId($termId, $taxonomySlug);
             $cachePurgeDriver = CachePurgeDriver::getInstance();
+            $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'term', $cachePurgeDriver);
             return $cachePurgeDriver->purgeByUrls($urlsToPurge);
         }
     }

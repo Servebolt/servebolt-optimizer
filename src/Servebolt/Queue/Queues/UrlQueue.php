@@ -30,7 +30,7 @@ class UrlQueue
     /**
      * @var int The size of the URLs being purged at a time.
      */
-    private $urlChunkSize = 30;
+    private $urlChunkSize;
 
     /**
      * @var Queue
@@ -52,12 +52,22 @@ class UrlQueue
      */
     public function __construct()
     {
+        $this->setUrlChunkSize();
         $this->queue = Queue::getInstance(self::$queueName);
+    }
+
+    /**
+     * Set the size of the chunks of URLs sent to be purged.
+     */
+    private function setUrlChunkSize(): void
+    {
+        // TODO: Set this to 500 if driver is ACD
+        $this->urlChunkSize = apply_filters('sb_optimizer_url_queue_chunk_size', 30);
     }
 
     public function add($itemData, $parentQueueName = null, $parentId = null): ?object
     {
-        // TODO: Prehaps add duplicate handling
+        // TODO: Perhaps add duplicate handling
         return $this->queue->add($itemData, $parentQueueName, $parentId);
     }
 
