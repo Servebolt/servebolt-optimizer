@@ -473,11 +473,12 @@ function generateRandomPermanentKey(string $name, $blogId = null): string
  * @param $key
  * @param $array
  * @param bool $defaultValue
- *
- * @return bool
  */
 function arrayGet($key, $array, $defaultValue = false)
 {
+    if (!is_array($array)) {
+        return null;
+    }
     return array_key_exists($key, $array) ? $array[$key] : $defaultValue;
 }
 
