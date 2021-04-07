@@ -188,7 +188,11 @@ class AdminGuiController
     private function cfImageResizeMenu(): void
     {
         if (featureIsAvailable('cf_image_resize')) {
-            add_submenu_page('servebolt-wp', __('Cloudflare Image Resizing', 'servebolt-wp'), __('Cloudflare Image Resizing', 'servebolt-wp'), 'manage_options', 'servebolt-cf-image-resizing', [CloudflareImageResize::getInstance(), 'render']);
+            if (isDevDebug()) {
+                add_submenu_page('servebolt-wp', __('Cloudflare Image Resizing', 'servebolt-wp'), __('Cloudflare Image Resizing', 'servebolt-wp'), 'manage_options', 'servebolt-cf-image-resizing', [CloudflareImageResize::getInstance(), 'render']);
+            } else {
+                add_submenu_page(null, null, null, 'manage_options', 'servebolt-cf-image-resizing', [CloudflareImageResize::getInstance(), 'render']);
+            }
         }
     }
 

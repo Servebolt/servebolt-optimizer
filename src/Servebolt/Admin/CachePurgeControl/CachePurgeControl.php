@@ -183,7 +183,7 @@ class CachePurgeControl
     public function enqueueScripts(): void
     {
         $screen = get_current_screen();
-        if ($screen->id != 'servebolt_page_servebolt-cache-purge-control') {
+        if ($screen->id != 'admin_page_servebolt-cache-purge-control') {
             return;
         }
         wp_enqueue_script(
