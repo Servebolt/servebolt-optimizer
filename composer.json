@@ -27,7 +27,7 @@
   "require": {
     "php": "^7.3",
     "composer/installers": "~1.2",
-    "servebolt/sdk": "1.0.0-beta.3"
+    "servebolt/sdk": "1.0.0-beta.4"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "*",
