@@ -27,7 +27,7 @@
   "require": {
     "php": "^7.3",
     "composer/installers": "~1.2",
-    "servebolt/php-sdk": "1.0.0-beta.2"
+    "servebolt/sdk": "1.0.0-beta.3"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "*",
@@ -59,6 +59,9 @@
       "src/Servebolt/Helpers/Helpers.php",
       "src/Servebolt/CachePurge/ThirdPartyFunctions.php"
     ],
+    "classmap": [
+      "vendor_prefixed/"
+    ],
     "psr-4": {
       "Servebolt\\Optimizer\\": "src/Servebolt"
     },
@@ -83,6 +86,20 @@
     ],
     "post-update-cmd": [
       "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true"
+    ],
+    "prefix-dependencies": [
+      "composer prefix-guzzlehttp-client"
+    ],
+    "prefix-guzzlehttp-client": [
+      "vendor/servebolt/sdk/ci/php-scoper.phar add-prefix --prefix=ServeboltOptimizer_Vendor --output-dir=./vendor_prefixed/guzzlehttp --config=vendor/servebolt/sdk/config/php-scoper/guzzlehttp.inc.php --force --quiet",
+      "vendor/servebolt/sdk/ci/php-scoper.phar add-prefix --prefix=ServeboltOptimizer_Vendor --output-dir=./vendor_prefixed/psr --config=vendor/servebolt/sdk/config/php-scoper/psr.inc.php --force --quiet"
+    ],
+    "compile-di": [
+      "composer du --no-scripts"
+    ],
+    "post-autoload-dump": [
+      "composer prefix-dependencies",
+      "composer compile-di"
     ]
   }
 }

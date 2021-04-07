@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ff684de2cd16646606c6996d18735131",
+    "content-hash": "ecb7daec643104674812828e09b7d891",
     "packages": [
         {
             "name": "composer/installers",
@@ -643,17 +643,17 @@
             "time": "2019-03-08T08:55:37+00:00"
         },
         {
-            "name": "servebolt/php-sdk",
-            "version": "1.0.0-beta.2",
+            "name": "servebolt/sdk",
+            "version": "1.0.0-beta.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Servebolt/php-sdk.git",
-                "reference": "a344446d89d55cadb26b2df04c433d44c5233b36"
+                "reference": "a4052d7c10f376915c21386a8f2651fa5f9b9952"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/a344446d89d55cadb26b2df04c433d44c5233b36",
-                "reference": "a344446d89d55cadb26b2df04c433d44c5233b36",
+                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/a4052d7c10f376915c21386a8f2651fa5f9b9952",
+                "reference": "a4052d7c10f376915c21386a8f2651fa5f9b9952",
                 "shasum": ""
             },
             "require": {
@@ -676,9 +676,26 @@
             "autoload": {
                 "psr-4": {
                     "Servebolt\\Sdk\\": "src/Servebolt"
-                }
+                },
+                "classmap": [
+                    "vendor_prefixed/"
+                ]
             },
             "scripts": {
+                "prefix-dependencies": [
+                    "composer prefix-guzzlehttp-client"
+                ],
+                "prefix-guzzlehttp-client": [
+                    "ci/php-scoper.phar add-prefix --prefix=ServeboltOptimizer_Vendor --output-dir=./vendor_prefixed/guzzlehttp --config=config/php-scoper/guzzlehttp.inc.php --force --quiet",
+                    "ci/php-scoper.phar add-prefix --prefix=ServeboltOptimizer_Vendor --output-dir=./vendor_prefixed/psr --config=config/php-scoper/psr.inc.php --force --quiet"
+                ],
+                "compile-di": [
+                    "composer du --no-scripts"
+                ],
+                "post-autoload-dump": [
+                    "composer prefix-dependencies",
+                    "composer compile-di"
+                ],
                 "phpunit": [
                     "ci/runtests"
                 ],
@@ -701,10 +718,10 @@
             "description": "A PHP SDK for communicating with the Servebolt API.",
             "homepage": "https://servebolt.com",
             "support": {
-                "source": "https://github.com/Servebolt/php-sdk/tree/1.0.0-beta.2",
+                "source": "https://github.com/Servebolt/php-sdk/tree/1.0.0-beta.3",
                 "issues": "https://github.com/Servebolt/php-sdk/issues"
             },
-            "time": "2021-03-25T10:08:32+00:00"
+            "time": "2021-04-07T09:18:25+00:00"
         }
     ],
     "packages-dev": [
