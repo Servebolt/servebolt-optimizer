@@ -150,7 +150,7 @@ class PurgeActions
      * Purges all cache.
      *
      * ## OPTIONS
-     * 
+     *
      * [--all]
      * : Display the setting for all sites.
      *
