@@ -40,8 +40,8 @@ class ServeboltOptimizer
     {
 
         // Register events for activation and deactivation of this plugin
-        register_activation_hook(__FILE__, '\\Servebolt\\Optimizer\\Helpers\\activatePlugin');
-        register_deactivation_hook(__FILE__, '\\Servebolt\\Optimizer\\Helpers\\deactivatePlugin');
+        register_activation_hook(SERVEBOLT_PLUGIN_FILE, '\\Servebolt\\Optimizer\\Helpers\\activatePlugin');
+        register_deactivation_hook(SERVEBOLT_PLUGIN_FILE, '\\Servebolt\\Optimizer\\Helpers\\deactivatePlugin');
 
         // Add various improvements/optimizations
         new GenericOptimizations;

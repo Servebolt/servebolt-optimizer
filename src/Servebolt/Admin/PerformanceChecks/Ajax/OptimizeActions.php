@@ -2,11 +2,13 @@
 
 namespace Servebolt\Optimizer\Admin\PerformanceChecks\Ajax;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks;
 use Servebolt\Optimizer\DatabaseOptimizer\DatabaseOptimizer;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
-use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
+use function Servebolt\Optimizer\Helpers\isDevDebug;
 
 /**
  * Class OptimizeActions
@@ -20,8 +22,9 @@ class OptimizeActions extends SharedAjaxMethods
      */
     public function __construct()
     {
-        add_action('wp_ajax_servebolt_wreak_havoc', [$this, 'wreakHavocCallback']);
-        add_action('wp_ajax_servebolt_clear_all_settings', [$this, 'clearAllSettingsCallback']);
+        if (isDevDebug()) {
+            add_action('wp_ajax_servebolt_wreak_havoc', [$this, 'wreakHavocCallback']);
+        }
         add_action('wp_ajax_servebolt_create_index', [$this, 'createIndexCallback']);
         add_action('wp_ajax_servebolt_optimize_db', [$this, 'optimizeDbCallback']);
         add_action('wp_ajax_servebolt_convert_table_to_innodb', [$this, 'convertTableToInnodbCallback']);
@@ -37,17 +40,6 @@ class OptimizeActions extends SharedAjaxMethods
         $instance = DatabaseOptimizer::getInstance();
         $instance->deoptimizeIndexedTables();
         $instance->convertTablesToNonInnodb();
-        wp_send_json_success();
-    }
-
-    /**
-     * Clear all plugin settings.
-     */
-    public function clearAllSettingsCallback(): void
-    {
-        $this->checkAjaxReferer();
-        ajaxUserAllowed();
-        deleteAllSettings();
         wp_send_json_success();
     }
 

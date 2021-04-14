@@ -272,11 +272,12 @@ function fullPageCacheAuthHandling(): object
 }
 
 /**
- * Delete plugin settings.
+ * Get all options names.
  *
- * @param bool $allSites
+ * @param bool $includeMigrationOptions Whether to delete the options related to database migrations.
+ * @return string[]
  */
-function deleteAllSettings(bool $allSites = true): void
+function getAllOptionsNames(bool $includeMigrationOptions = false): array
 {
     $optionNames = [
         // General settings
@@ -288,10 +289,16 @@ function deleteAllSettings(bool $allSites = true): void
         'ajax_nonce',
         'record_max_num_pages_nonce',
 
+        // Legacy
+        'sb_optimizer_record_max_num_pages',
+
         // Wipe encryption keys
         'mcrypt_key',
         'openssl_key',
         'openssl_iv',
+
+        // CF Image resizing
+        'cf_image_resizing',
 
         // Wipe Cache purge-related options
         'cache_purge_switch',
@@ -307,14 +314,37 @@ function deleteAllSettings(bool $allSites = true): void
         'cf_cron_purge',
         'queue_based_cache_purge',
 
+        // Accelerated Domains
+        'acd_switch',
+        'acd_minify_switch',
+
         // Wipe SB FPC-related options
         'fpc_switch',
         'fpc_settings',
         'fpc_exclude',
-
-        // Migration related
-        'migration_version',
     ];
+
+    if ($includeMigrationOptions) {
+        $optionNames = array_merge($optionNames, [
+
+            // Migration related
+            'migration_version',
+
+        ]);
+    }
+
+    return $optionNames;
+}
+
+/**
+ * Delete plugin settings.
+ *
+ * @param bool $allSites Whether to delete all settings on all sites in multisite.
+ * @param bool $includeMigrationOptions Whether to delete the options related to database migrations.
+ */
+function deleteAllSettings(bool $allSites = true, bool $includeMigrationOptions = false): void
+{
+    $optionNames = getAllOptionsNames($includeMigrationOptions);
     foreach ($optionNames as $optionName) {
         if (is_multisite() && $allSites) {
             iterateSites(function ($site) use ($optionName) {
