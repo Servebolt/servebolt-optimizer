@@ -55,3 +55,4 @@ assets/dist
 
 # Composer
 vendor
+src/Dependencies
