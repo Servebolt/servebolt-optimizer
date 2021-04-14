@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a5a5d96e4aff4a3367a98d6aac4ccf0a",
+    "content-hash": "e1c669affcbb63a40f6c8e1eebf23464",
     "packages": [
         {
             "name": "composer/installers",
@@ -644,16 +644,16 @@
         },
         {
             "name": "servebolt/sdk",
-            "version": "1.0.0-beta.9",
+            "version": "1.0.0-beta.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Servebolt/php-sdk.git",
-                "reference": "29527a17fe7dd07829f99e5dfe01eabccca3fb1b"
+                "reference": "8e299fdca295ac348b600888546b12fbffaf913c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/29527a17fe7dd07829f99e5dfe01eabccca3fb1b",
-                "reference": "29527a17fe7dd07829f99e5dfe01eabccca3fb1b",
+                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/8e299fdca295ac348b600888546b12fbffaf913c",
+                "reference": "8e299fdca295ac348b600888546b12fbffaf913c",
                 "shasum": ""
             },
             "require": {
@@ -692,9 +692,9 @@
             "homepage": "https://servebolt.com",
             "support": {
                 "issues": "https://github.com/Servebolt/php-sdk/issues",
-                "source": "https://github.com/Servebolt/php-sdk/tree/1.0.0-beta.9"
+                "source": "https://github.com/Servebolt/php-sdk/tree/1.0.0-beta.10"
             },
-            "time": "2021-04-13T22:11:32+00:00"
+            "time": "2021-04-14T06:58:15+00:00"
         }
     ],
     "packages-dev": [

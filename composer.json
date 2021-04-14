@@ -64,10 +64,14 @@
     "install-wp-test": ["ci/install-wp-tests.sh"],
     "test": ["ci/phpcs.sh","ci/phplint.sh","ci/phan.sh"],
     "post-install-cmd": [
-      "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true"
+      "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true",
+      "@php mozart.phar compose",
+      "composer dump-autoload --optimize"
     ],
     "post-update-cmd": [
       "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true",
+      "@php mozart.phar compose",
+      "composer dump-autoload --optimize"
     ]
   },
   "extra": {
@@ -82,8 +86,12 @@
     "mozart": {
       "dep_namespace": "Servebolt\\Optimizer\\Dependencies\\",
       "dep_directory": "/src/Dependencies/",
-      "classmap_directory": "/classes/dependencies/",
+      "classmap_directory": "/src/Dependencies/classes",
       "classmap_prefix": "SB_Optimizer_",
+      "packages": [
+        "guzzlehttp/guzzle",
+        "servebolt/sdk"
+      ],
       "delete_vendor_directories": true
     }
   }
