@@ -8,10 +8,10 @@ jobs:
     name: New tag
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
       - name: Build
+        uses: actions/checkout@master
         run: |
-          composer install --no-dev
+          composer install --no-dev --optimize-autoloader
           yarn install
           yarn production
           ./cleanup.sh

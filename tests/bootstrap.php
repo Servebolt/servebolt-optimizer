@@ -5,6 +5,7 @@
  * @package Servebolt_Optimizer
  */
 
+define('WP_TESTS_IS_RUNNING', true);
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 
 if ( ! $_tests_dir ) {

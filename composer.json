@@ -4,12 +4,6 @@
   "license": "GPLv3 or later",
   "description": "A plugin that implements Servebolt Security & Performance best practises for WordPress.",
   "minimum-stability": "dev",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "git@github.com:Servebolt/php-sdk.git"
-    }
-  ],
   "authors": [
     {
       "name": "Robert Sæther",
@@ -27,7 +21,7 @@
   "require": {
     "php": "^7.3",
     "composer/installers": "~1.2",
-    "servebolt/sdk": "1.0.0-beta.5"
+    "servebolt/sdk": "1.0.0-beta.10"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "*",
@@ -36,16 +30,6 @@
     "phpunit/phpunit": "7.5.20",
     "phan/phan": "^4.0",
     "overtrue/phplint": "9999999-dev"
-  },
-  "extra": {
-    "installer-name": "servebolt-wp-optimize-plugin",
-    "hooks": {
-      "pre-push": [
-        "test",
-        "phpunit"
-      ],
-      "post-merge": "composer update"
-    }
   },
   "keywords": [
     "blocks",
@@ -59,13 +43,11 @@
       "src/Servebolt/Helpers/Helpers.php",
       "src/Servebolt/CachePurge/ThirdPartyFunctions.php"
     ],
-    "classmap": [
-      "vendor_prefixed/"
-    ],
     "psr-4": {
-      "Servebolt\\Optimizer\\": "src/Servebolt"
+      "Servebolt\\Optimizer\\": "src/Servebolt",
+      "Servebolt\\Optimizer\\Dependencies\\": "src/Dependencies"
     },
-    "exclude-from-classmap": ["src/Servebolt/Database/Migrations/"]
+    "exclude-from-classmap": ["src/Servebolt/Utils/DatabaseMigration/Migrations/"]
   },
   "config": {
     "platform": {
@@ -82,24 +64,35 @@
     "install-wp-test": ["ci/install-wp-tests.sh"],
     "test": ["ci/phpcs.sh","ci/phplint.sh","ci/phan.sh"],
     "post-install-cmd": [
-      "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true"
+      "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true",
+      "@php mozart.phar compose",
+      "composer dump-autoload --optimize"
     ],
     "post-update-cmd": [
-      "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true"
-    ],
-    "prefix-dependencies": [
-      "composer prefix-guzzlehttp-client"
-    ],
-    "prefix-guzzlehttp-client": [
-      "vendor/servebolt/sdk/ci/php-scoper.phar add-prefix --prefix=ServeboltOptimizer_Vendor --output-dir=./vendor_prefixed/guzzlehttp --config=vendor/servebolt/sdk/config/php-scoper/guzzlehttp.inc.php --force --quiet",
-      "vendor/servebolt/sdk/ci/php-scoper.phar add-prefix --prefix=ServeboltOptimizer_Vendor --output-dir=./vendor_prefixed/psr --config=vendor/servebolt/sdk/config/php-scoper/psr.inc.php --force --quiet"
-    ],
-    "compile-di": [
-      "composer du --no-scripts"
-    ],
-    "post-autoload-dump": [
-      "composer prefix-dependencies",
-      "composer compile-di"
+      "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true",
+      "@php mozart.phar compose",
+      "composer dump-autoload --optimize"
     ]
+  },
+  "extra": {
+    "installer-name": "servebolt-wp-optimize-plugin",
+    "hooks": {
+      "pre-push": [
+        "test",
+        "phpunit"
+      ],
+      "post-merge": "composer update"
+    },
+    "mozart": {
+      "dep_namespace": "Servebolt\\Optimizer\\Dependencies\\",
+      "dep_directory": "/src/Dependencies/",
+      "classmap_directory": "/src/Dependencies/classes",
+      "classmap_prefix": "SB_Optimizer_",
+      "packages": [
+        "guzzlehttp/guzzle",
+        "servebolt/sdk"
+      ],
+      "delete_vendor_directories": true
+    }
   }
 }
