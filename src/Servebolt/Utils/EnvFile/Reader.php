@@ -184,10 +184,10 @@ class Reader
     /**
      * Resolve the path to the folder where the environment files are stored.
      *
-     * @param $folderPath
+     * @param null|string $folderPath
      * @return string
      */
-    private function resolveFolderPath($folderPath) : string
+    private function resolveFolderPath(?string $folderPath) : string
     {
         if (is_null($folderPath)) {
             $this->folderPath = rtrim($this->getDefaultFolderPath(), '/')  . '/';
@@ -204,6 +204,12 @@ class Reader
      */
     private function getDefaultFolderPath() : string
     {
-        return defined('ABSPATH') ? dirname(ABSPATH) : '';
+        if (isset($_SERVER['DOCUMENT_ROOT'])) {
+            return dirname($_SERVER['DOCUMENT_ROOT']);
+        }
+        if (defined('ABSPATH')) {
+            return dirname(ABSPATH);
+        }
+        return '';
     }
 }
