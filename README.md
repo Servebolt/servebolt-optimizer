@@ -9,6 +9,14 @@ This repository contains the WordPress plugin Servebolt Optimizer - a plugin tha
 
 ## Development
 
+### Testing
+
+Set up the test environment by running the command:
+``composer install-wp-test sboptimizer_test sboptimizer_test sboptimizer_test 127.0.0.1 latest true``
+
+Make sure you also ran ``composer install`` first.
+You should now be able to run ``composer phpunit``.
+
 ### Build assets
 1. Run `yarn install`
 2. Run `yarn build` for local or `yarn production` for production

@@ -19,16 +19,17 @@
     }
   ],
   "require": {
-    "composer/installers": "~1.2"
+    "php": "^7.3",
+    "composer/installers": "~1.2",
+    "servebolt/sdk": "1.0.0-beta.10"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "*",
     "wp-coding-standards/wpcs": "*",
     "phpcompatibility/php-compatibility": "*",
-    "phan/phan": "dev-master"
-  },
-  "extra": {
-    "installer-name": "servebolt-wp-optimize-plugin"
+    "phpunit/phpunit": "7.5.20",
+    "phan/phan": "^4.0",
+    "overtrue/phplint": "9999999-dev"
   },
   "keywords": [
     "blocks",
@@ -37,15 +38,64 @@
     "plugin",
     "wordpress"
   ],
-  "scripts": {
-    "test": [
-      "./vendor/bin/phan --allow-polyfill-parser"
+  "autoload": {
+    "files": [
+      "src/Servebolt/Helpers/Helpers.php",
+      "src/Servebolt/CachePurge/ThirdPartyFunctions.php"
     ],
+    "psr-4": {
+      "Servebolt\\Optimizer\\": "src/Servebolt",
+      "Servebolt\\Optimizer\\Dependencies\\": "src/Dependencies"
+    },
+    "exclude-from-classmap": ["src/Servebolt/Utils/DatabaseMigration/Migrations/"]
+  },
+  "config": {
+    "platform": {
+      "php": "7.3"
+    }
+  },
+  "scripts": {
+    "phpunit": [
+      "./vendor/phpunit/phpunit/phpunit -c phpunit.xml"
+    ],
+    "phpunit-mu": [
+      "./vendor/phpunit/phpunit/phpunit -c phpunit-mu.xml"
+    ],
+    "install-wp-test": ["ci/install-wp-tests.sh"],
+    "test": ["composer test-phpcs","composer test-phplint","composer test-phan"],
+    "test-phpcs": "ci/phpcs.sh",
+    "test-phplint": "ci/phplint.sh",
+    "test-phan": "ci/phan.sh",
     "post-install-cmd": [
-      "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true"
+      "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true",
+      "@php mozart.phar compose",
+      "composer dump-autoload --optimize"
     ],
     "post-update-cmd": [
-      "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true"
+      "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true",
+      "@php mozart.phar compose",
+      "composer dump-autoload --optimize"
     ]
+  },
+  "extra": {
+    "installer-name": "servebolt-wp-optimize-plugin",
+    "hooks": {
+      "pre-push": [
+        "test",
+        "phpunit"
+      ],
+      "post-merge": "composer update"
+    },
+    "mozart": {
+      "dep_namespace": "Servebolt\\Optimizer\\Dependencies\\",
+      "dep_directory": "/src/Dependencies/",
+      "classmap_directory": "/src/Dependencies/classes",
+      "classmap_prefix": "SB_Optimizer_",
+      "packages": [
+        "guzzlehttp/guzzle",
+        "servebolt/sdk"
+      ],
+      "delete_vendor_directories": true
+    }
   }
 }

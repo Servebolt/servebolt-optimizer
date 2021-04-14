@@ -34,8 +34,8 @@ jQuery(document).ready(function($) {
    * Run full optimization.
    */
   function sb_optimize() {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Are you sure?' + "\n" + 'This will add any missing indexes and convert all tables to use modern storage engines.') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Are you sure?' + "\n" + 'This will add any missing indexes and convert all tables to use modern storage engines.')) {
         sb_optimize_confirmed();
       }
     } else {
@@ -99,7 +99,7 @@ jQuery(document).ready(function($) {
           message += "\n" + '- ' + window.sb_strip(task);
         });
       }
-      alert('All good!' + message);
+      window.alert('All good!' + message);
       location.reload();
     } else {
       var message = response.data.message;
@@ -129,9 +129,9 @@ jQuery(document).ready(function($) {
    * Debug function to remove indexes and change DB engine.
    */
   function sb_deoptimize() {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Are you sure?' + "\n" + 'WARNING: This functionality is added for development purposes and will remove indexes and convert table engines to MyISAM. This is not something you really want unless you are debugging/developing. Do you want to proceed?') ) {
-        if ( confirm('Are you sure?' + "\n" + 'Last warning? You really want to proceed?') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Are you sure?' + "\n" + 'WARNING: This functionality is added for development purposes and will remove indexes and convert table engines to MyISAM. This is not something you really want unless you are debugging/developing. Do you want to proceed?')) {
+        if (window.confirm('Are you sure?' + "\n" + 'Last warning? You really want to proceed?')) {
           sb_deoptimize_confirmed();
         }
       }
@@ -173,7 +173,7 @@ jQuery(document).ready(function($) {
    */
   function sb_deoptimize_confirmed_success() {
     if ( window.sb_use_native_js_fallback() ) {
-      alert('All good!');
+      window.alert('All good!');
       location.reload();
     } else {
       Swal.fire({
@@ -194,7 +194,7 @@ jQuery(document).ready(function($) {
    */
   function sb_deoptimize_confirmed_error() {
     if ( window.sb_use_native_js_fallback() ) {
-      alert('Ouch, we got an error' + "\n" + 'Unknown error');
+      window.alert('Ouch, we got an error' + "\n" + 'Unknown error');
     } else {
       Swal.fire({
         icon: 'error',
@@ -236,10 +236,12 @@ jQuery(document).ready(function($) {
 
   /**
    * Convert a table to InnoDB.
+   *
+   * @param element
    */
   function sb_convert_table(element) {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Are you sure?' + "\n" + 'Do you really want to convert the table?') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Are you sure?' + "\n" + 'Do you really want to convert the table?')) {
         sb_convert_table_confirmed(element);
       }
     } else {
@@ -254,7 +256,7 @@ jQuery(document).ready(function($) {
         },
         buttonsStyling: false
       }).then((result) => {
-        if ( result.value ) {
+        if (result.value) {
           sb_convert_table_confirmed(element);
         }
       });
@@ -267,8 +269,8 @@ jQuery(document).ready(function($) {
    * @param message
    */
   function sb_convert_table_confirmed_success(message) {
-    if ( window.sb_use_native_js_fallback() ) {
-      alert('All good!' + "\n" + window.sb_strip(message, true));
+    if (window.sb_use_native_js_fallback()) {
+      window.alert('All good!' + "\n" + window.sb_strip(message, true));
       location.reload();
     } else {
       Swal.fire({
@@ -321,10 +323,12 @@ jQuery(document).ready(function($) {
 
   /**
    * Create index on table.
+   *
+   * @param element
    */
   function sb_create_index(element) {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Are you sure?' + "\n" + 'Do you really want to create index?') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Are you sure?' + "\n" + 'Do you really want to create index?')) {
         sb_create_index_confirmed(element);
       }
     } else {
@@ -353,7 +357,7 @@ jQuery(document).ready(function($) {
    */
   function sb_create_index_confirmed_success(message) {
     if ( window.sb_use_native_js_fallback() ) {
-      alert('All good!' + "\n" + window.sb_strip(message, true));
+      window.alert('All good!' + "\n" + window.sb_strip(message, true));
       location.reload();
     } else {
       Swal.fire({
@@ -408,9 +412,9 @@ jQuery(document).ready(function($) {
    * Clear all plugin settings.
    */
   function sb_clear_all_settings() {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Are you sure?' + "\n" + 'Warning: this will clear all settings and essentially reset the whole plugin. You want to proceed?') ) {
-        if ( confirm('Last warning' + "\n" + 'Do you really want to proceed?') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Are you sure?' + "\n" + 'Warning: this will clear all settings and essentially reset the whole plugin. You want to proceed?')) {
+        if (window.confirm('Last warning' + "\n" + 'Do you really want to proceed?')) {
           sb_clear_all_settings_confirmed();
         }
       }
@@ -474,7 +478,7 @@ jQuery(document).ready(function($) {
    */
   function sb_clear_all_settings_confirmed_success() {
     if ( window.sb_use_native_js_fallback() ) {
-      alert('Done!');
+      window.alert('Done!');
       location.reload();
     } else {
       Swal.fire({

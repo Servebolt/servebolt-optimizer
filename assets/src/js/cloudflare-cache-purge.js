@@ -1,9 +1,16 @@
 jQuery(document).ready(function($) {
 
-  // Toggle Cloudflare feature active/inactive
-  // Toggle Cloudflare feature active/inactive
-  $('#sb-configuration #cloudflare_switch').change(function() {
-    sb_toggle_cf_feature_active($(this).is(':checked'));
+  // Toggle cache purge feature active/inactive
+  $('#sb-configuration #cache_purge_switch').change(function() {
+    sbToggleCachePurgeFeatureActive($(this).is(':checked'));
+    if ($(this).is(':checked')) {
+      $('#sb-configuration input[name="servebolt_cache_purge_driver"]:checked').change();
+    }
+  });
+
+  // Toggle cache purge driver
+  $('#sb-configuration input[name="servebolt_cache_purge_driver"]').change(function() {
+    sbToggleCachePurgeDriver($(this).val());
   });
 
   // Toggle between API key and API token authentication
@@ -43,8 +50,8 @@ jQuery(document).ready(function($) {
   // Select purge item
   $('#sb-configuration #purge-items-table').on('change', 'input[type="checkbox"]', function() {
     var checkboxCount = $('#sb-configuration #purge-items-table input[type="checkbox"]:checked').length,
-        itemCount = $('#sb-configuration #purge-items-table tbody .purge-item').length,
-        buttons = $('#sb-configuration .remove-selected-purge-items');
+      itemCount = $('#sb-configuration #purge-items-table tbody .purge-item').length,
+      buttons = $('#sb-configuration .remove-selected-purge-items');
     buttons.prop('disabled', (checkboxCount === 0 || itemCount === 0));
   });
 
@@ -120,12 +127,12 @@ jQuery(document).ready(function($) {
     var auth_type = $('#sb-configuration input[name="servebolt_cf_auth_type"]:checked').val();
     switch (auth_type) {
       case 'api_token':
-        var api_token = $('#sb-configuration #api_token').val();
+        var api_token = $('#sb-configuration #sb_cf_api_token').val();
         return api_token != '';
         break;
       case 'api_key':
-        var email = $('#sb-configuration #email').val(),
-          api_key = $('#sb-configuration #api_key').val();
+        var email = $('#sb-configuration #sb_cf_email').val(),
+          api_key = $('#sb-configuration #sb_cf_api_key').val();
         return email != '' && api_key != '';
         break;
     }
@@ -179,16 +186,39 @@ jQuery(document).ready(function($) {
   }
 
   /**
-   * Toggle CF-related form elements to show/hide based on active state.
+   * Toggle visibility of certain fields on or off.
    *
-   * @param boolean
+   * @param {string} itemName - The suffix of the field(s).
+   * @param {boolean} isVisible - Whether the field should be visible or not.
    */
-  function sb_toggle_cf_feature_active(boolean) {
-    var items = $('#sb-configuration .sb-toggle-active-cf-item');
-    if ( boolean ) {
-      items.removeClass('cf-hidden');
+  function sbToggleConfigItemVisibility(itemName, isVisible) {
+    var items = $('#sb-configuration .sb-config-field-' + itemName);
+    if (isVisible) {
+      items.removeClass('sb-config-field-hidden');
     } else {
-      items.addClass('cf-hidden');
+      items.addClass('sb-config-field-hidden');
+    }
+  }
+
+  /**
+   * Toggle cache purge-related form elements to show/hide based on active state.
+   *
+   * @param {boolean} isVisible - Whether the fields should be visible or not.
+   */
+  function sbToggleCachePurgeFeatureActive(isVisible) {
+    sbToggleConfigItemVisibility('general', isVisible);
+  }
+
+  function sbToggleCachePurgeDriver(driver) {
+    switch (driver) {
+    case 'acd':
+      sbToggleConfigItemVisibility('acd', true);
+      sbToggleConfigItemVisibility('cloudflare', false);
+      break;
+    case 'cloudflare':
+      sbToggleConfigItemVisibility('acd', false);
+      sbToggleConfigItemVisibility('cloudflare', true);
+      break;
     }
   }
 
@@ -236,6 +266,7 @@ jQuery(document).ready(function($) {
       auth_type: auth_type,
       credentials: credentials
     };
+    // TODO: Abort any current requests
     $.ajax({
       type: 'POST',
       url: sb_ajax_object.ajaxurl,
@@ -261,21 +292,21 @@ jQuery(document).ready(function($) {
     var auth_type = $('#sb-configuration input[name="servebolt_cf_auth_type"]:checked').val();
     switch (auth_type) {
       case 'api_token':
-        var api_token = $('#sb-configuration #api_token').val();
+        var api_token = $('#sb-configuration #sb_cf_api_token').val();
         if ( api_token ) {
           api_credentials_zone_lookup_type_wait_timeout = setTimeout(function () {
-            fetch_and_display_available_zones(auth_type, { api_token: api_token });
+            fetch_and_display_available_zones(auth_type, { apiToken: api_token });
           }, 1000);
         } else {
           toggle_available_zones(false);
         }
         break;
       case 'api_key':
-        var email = $('#sb-configuration #email').val(),
-          api_key = $('#sb-configuration #api_key').val();
+        var email = $('#sb-configuration #sb_cf_email').val(),
+          api_key = $('#sb-configuration #sb_cf_api_key').val();
         if ( email && api_key ) {
           api_credentials_zone_lookup_type_wait_timeout = setTimeout(function () {
-            fetch_and_display_available_zones(auth_type, { email: email, api_key: api_key });
+            fetch_and_display_available_zones(auth_type, { email: email, apiKey: api_key });
           }, 1000);
         } else {
           toggle_available_zones(false);
@@ -299,15 +330,15 @@ jQuery(document).ready(function($) {
       case 'api_key':
         api_token_container.hide();
         api_key_container.show();
-        var email = $('#sb-configuration #email').val(),
-          api_key = $('#sb-configuration #api_key').val();
+        var email = $('#sb-configuration #sb_cf_email').val(),
+          api_key = $('#sb-configuration #sb_cf_api_key').val();
         fetch_and_display_available_zones(auth_type, { email: email, api_key: api_key });
         break;
       case 'api_token':
         api_token_container.show();
         api_key_container.hide();
         zone_selector_container.hide();
-        var api_token = $('#sb-configuration #api_token').val();
+        var api_token = $('#sb-configuration #sb_cf_api_token').val();
         fetch_and_display_available_zones(auth_type, { api_token: api_token });
     }
     sb_resolve_zone_name();
@@ -322,13 +353,13 @@ jQuery(document).ready(function($) {
     var auth_type = $('#sb-configuration input[name="servebolt_cf_auth_type"]:checked').val();
     switch (auth_type) {
       case 'api_key':
-        var api_token_element = $('#sb-configuration .feature_cf_auth_type-api_token #api_token');
+        var api_token_element = $('#sb-configuration .feature_cf_auth_type-api_token #sb_cf_api_token');
         api_token_element.val(api_token_element.data('original-value'));
         break;
       case 'api_token':
         var api_key_container = $('#sb-configuration .feature_cf_auth_type-api_key'),
-          api_key_element = api_key_container.find('#api_key'),
-          email_element = api_key_container.find('#email');
+          api_key_element = api_key_container.find('#sb_cf_api_key'),
+          email_element = api_key_container.find('#sb_cf_email');
         api_key_element.val(api_key_element.data('original-value'));
         email_element.val(email_element.data('original-value'));
         break;
@@ -438,7 +469,7 @@ jQuery(document).ready(function($) {
         window.sb_validate_cf_configuration_form_can_submit = false;
         window.sb_validate_cf_configuration_form_validation_is_running = false;
         spinner.removeClass('is-active');
-        window.sb_warning('Ouch!', 'An unkown error occurred. Please try agin or contact support.');
+        window.sb_warning('Ouch!', 'An unkown error occurred. Please try again or contact support.');
         form.find('input[type="submit"]').prop('disabled', false);
       }
     });
@@ -450,8 +481,8 @@ jQuery(document).ready(function($) {
    * @param obj
    */
   function remove_purge_item(obj) {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Are you sure?' + "\n" + 'Do you really want to remove the item?') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Are you sure?' + "\n" + 'Do you really want to remove the item?')) {
         remove_purge_item_confirmed(obj);
       }
     } else {
@@ -490,8 +521,8 @@ jQuery(document).ready(function($) {
    * Remove selected purge items from purge queue.
    */
   function remove_selected_purge_items() {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Are you sure?' + "\n" + 'Do you really want remove the selected items?') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Are you sure?' + "\n" + 'Do you really want remove the selected items?')) {
         remove_selected_purge_items_confirmed();
       }
     } else {
@@ -542,8 +573,8 @@ jQuery(document).ready(function($) {
    * Flush cache purge queue.
    */
   function flush_purge_queue() {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Are you sure?' + "\n" + 'Do you really want to empty cache purge queue?') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Are you sure?' + "\n" + 'Do you really want to empty cache purge queue?')) {
         flush_purge_queue_confirmed();
       }
     } else {
