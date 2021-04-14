@@ -56,13 +56,16 @@
   },
   "scripts": {
     "phpunit": [
-      "./vendor/phpunit/phpunit/phpunit"
+      "./vendor/phpunit/phpunit/phpunit -c phpunit.xml"
     ],
     "phpunit-mu": [
       "./vendor/phpunit/phpunit/phpunit -c phpunit-mu.xml"
     ],
     "install-wp-test": ["ci/install-wp-tests.sh"],
-    "test": ["ci/phpcs.sh","ci/phplint.sh","ci/phan.sh"],
+    "test": ["composer test-phpcs","composer test-phplint","composer test-phan"],
+    "test-phpcs": "ci/phpcs.sh",
+    "test-phplint": "ci/phplint.sh",
+    "test-phan": "ci/phan.sh",
     "post-install-cmd": [
       "[ -f vendor/bin/phpcs ] && \"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs || true",
       "@php mozart.phar compose",
