@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Compatibility\WooCommerce\WooCommerce as WooCommerceCompatibility;
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
@@ -50,6 +51,11 @@ class ServeboltOptimizer
             // Make sure to hold the database and data structure in sync with the version number
             MigrationRunner::run();
         }
+
+        // Plugin compatibility
+        add_action('plugins_loaded', function () {
+            new WooCommerceCompatibility;
+        });
 
         // We don't always need all files - only in WP Admin, in CLI-mode or when running the WP Cron.
         if (
