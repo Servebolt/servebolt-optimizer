@@ -204,9 +204,15 @@ class FullPageCache
                 }
 			}
 		} elseif (empty(self::getPostTypesToCache()) && (is_front_page() || is_singular() || is_page())) {
-			$this->cacheHeaders();
-			if ($debug) {
+            $this->cacheHeaders();
+            if ($debug) {
                 $this->header('Cache-trigger: 9');
+            }
+        } elseif (is_search()) {
+            // Default to no-cache headers
+            $this->noCacheHeaders();
+            if ($debug) {
+                $this->header('No-cache-trigger: 11');
             }
 		} else {
 			// Default to no-cache headers
