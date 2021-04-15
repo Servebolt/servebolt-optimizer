@@ -1,6 +1,6 @@
 import '../../css/gutenberg-menu.scss';
 
-import ServeboltCachePurgeMenuComponent from './gutenberg-menu-component.js';
+import ServeboltCachePurgeMenuComponent from './gutenberg-cache-purge-menu-component.js';
 import ServeboltCachePurgeMenuElementIcon from '../../images/servebolt-icon.svg';
 
 const { registerPlugin } = wp.plugins;

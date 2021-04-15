@@ -93,7 +93,7 @@ class Assets {
 	public function pluginAdminScripts(): void
     {
         if ($this->isGutenberg() && apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true)) {
-            wp_enqueue_script('servebolt-optimizer-gutenberg-menu-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/gutenberg-menu.js', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/gutenberg-menu.js'), true);
+            wp_enqueue_script('servebolt-optimizer-gutenberg-cache-purge-menu-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/gutenberg-cache-purge-menu.js', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/gutenberg-menu.js'), true);
         }
     }
 
