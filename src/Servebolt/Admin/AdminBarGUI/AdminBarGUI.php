@@ -163,7 +163,7 @@ class AdminBarGUI
                     $nodeText = sprintf(__('Purge %s cache', 'servebolt-wp'), $objectName);
                     $nodes[] = [
                         'id'    => 'servebolt-clear-current-term-cache',
-                        'title' => sprintf('<span data-object-name="%s" data-id="%s">%s</span>', $objectName, $postId, $nodeText),
+                        'title' => sprintf('<span data-object-name="%s" data-id="%s">%s</span>', $objectName, $termId, $nodeText),
                         'href'  => '#',
                         'meta'  => [
                             'class' => 'sb-admin-button sb-purge-current-term-cache',

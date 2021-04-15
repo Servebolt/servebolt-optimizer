@@ -216,8 +216,9 @@ class PurgeActions extends SharedAjaxMethods
 
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
         try {
-            $termName = get_term($termId)->name;
-            WordPressCachePurge::purgeByTerm($termId);
+            $term = get_term($termId);
+            $termName = $term->name;
+            WordPressCachePurge::purgeByTerm($termId, $term->taxonomy);
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
                     'title'   => 'Just a moment',
