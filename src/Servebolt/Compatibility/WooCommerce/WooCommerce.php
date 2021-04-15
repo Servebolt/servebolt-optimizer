@@ -17,10 +17,10 @@ class WooCommerce
      */
     public function __construct()
     {
-        if (!woocommerceIsActive()) {
+        if (!apply_filters('sb_optimizer_acd_woocommerce_compatibility', true)) {
             return;
         }
-        if (!apply_filters('sb_optimizer_acd_woocommerce_compatibility', true)) {
+        if (!woocommerceIsActive()) {
             return;
         }
         new ProductCachePurgeOnStockChange;
