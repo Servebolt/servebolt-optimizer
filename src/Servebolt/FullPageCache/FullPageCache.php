@@ -208,11 +208,10 @@ class FullPageCache
             if ($debug) {
                 $this->header('Cache-trigger: 9');
             }
-        } elseif (is_search()) {
-            // Default to no-cache headers
-            $this->noCacheHeaders();
+        } elseif (is_search() && apply_filters('sb_optimizer_fpc_should_cache_search', true)) {
+            $this->cacheHeaders();
             if ($debug) {
-                $this->header('No-cache-trigger: 11');
+                $this->header('Cache-trigger: 12');
             }
 		} else {
 			// Default to no-cache headers
