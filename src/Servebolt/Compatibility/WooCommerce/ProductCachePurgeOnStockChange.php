@@ -31,6 +31,8 @@ class ProductCachePurgeOnStockChange
      */
     public function productStockChange($product): void
     {
-        WordPressCachePurge::purgeByPostId($product->get_id());
+        if (is_object($product) && method_exists($product, 'get_id')) {
+            WordPressCachePurge::purgeByPostId($product->get_id());
+        }
     }
 }
