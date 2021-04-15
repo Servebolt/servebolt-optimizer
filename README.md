@@ -19,7 +19,7 @@ You should now be able to run ``composer phpunit``.
 
 ### Build assets
 1. Run `yarn install`
-2. Run `yarn build` for local or `yarn production` for production
+2. Run `yarn build` / `yarn watch` for dev build or `yarn production` for production build
 
 ### Phan - static analyzer for PHP
 Phan helps identifying errors in your code.

@@ -28,7 +28,7 @@ class AdminBarGUI
 	 */
 	private function __construct()
     {
-        add_action( 'admin_bar_menu', [ $this, 'adminBar' ], 100 );
+        add_action('admin_bar_menu', [ $this, 'adminBar' ], 100);
 	}
 
 	/**
@@ -92,7 +92,7 @@ class AdminBarGUI
 
 		if ($adminUrl = getServeboltAdminUrl()) {
 			$nodes[] = [
-				'id'    => 'servebolt-crontrol-panel',
+				'id'    => 'servebolt-control-panel',
 				'title' => __('Servebolt Control Panel', 'servebolt-wp'),
 				'href'  => $adminUrl,
 				'meta'  => [
@@ -145,16 +145,31 @@ class AdminBarGUI
 
         if (!is_network_admin()) {
             if ($cachePurgeAvailable) {
-				if ($postId = $this->getSinglePostId()) {
+				if (apply_filters('sb_optimizer_allow_admin_bar_cache_purge_for_post', true) && $postId = $this->getSinglePostId()) {
+				    $objectName = $this->getPostTypeSingularName($postId);
+				    $nodeText = sprintf(__('Purge %s cache', 'servebolt-wp'), $objectName);
 					$nodes[] = [
-						'id'    => 'servebolt-clear-current-cf-cache',
-						'title' => '<span data-id="' . $postId . '">' . __('Purge current post cache', 'servebolt-wp') . '</span>',
+						'id'    => 'servebolt-clear-current-post-cache',
+						'title' => sprintf('<span data-object-name="%s" data-id="%s">%s</span>', $objectName, $postId, $nodeText),
 						'href'  => '#',
 						'meta'  => [
-							'class' => 'sb-admin-button sb-purge-current-post-cache'
+							'class' => 'sb-admin-button sb-purge-current-post-cache',
 						]
 					];
 				}
+
+                if (apply_filters('sb_optimizer_allow_admin_bar_cache_purge_term_post', true) && $termId = $this->getSingleTermId()) {
+                    $objectName = $this->getTaxonomySingularName($termId);
+                    $nodeText = sprintf(__('Purge %s cache', 'servebolt-wp'), $objectName);
+                    $nodes[] = [
+                        'id'    => 'servebolt-clear-current-term-cache',
+                        'title' => sprintf('<span data-object-name="%s" data-id="%s">%s</span>', $objectName, $termId, $nodeText),
+                        'href'  => '#',
+                        'meta'  => [
+                            'class' => 'sb-admin-button sb-purge-current-term-cache',
+                        ]
+                    ];
+                }
 			}
 		}
 
@@ -171,8 +186,44 @@ class AdminBarGUI
 		return $nodes;
 	}
 
+    /**
+     * Get post type singular name.
+     *
+     * @param int $postId
+     * @return string
+     */
+	private function getPostTypeSingularName(int $postId): string
+    {
+        if ($postType = get_post_type($postId)) {
+            if ($postTypeObject = get_post_type_object($postType)) {
+                if (isset($postTypeObject->labels->singular_name) && $postTypeObject->labels->singular_name) {
+                    return mb_strtolower($postTypeObject->labels->singular_name);
+                }
+            }
+        }
+        return 'post';
+    }
+
+    /**
+     * Get taxonomy singular name by term.
+     *
+     * @param int $termId
+     * @return string
+     */
+    private function getTaxonomySingularName(int $termId): string
+    {
+        if ($term = get_term($termId)) {
+            if ($taxonomyObject = get_taxonomy($term->taxonomy)) {
+                if (isset($taxonomyObject->labels->singular_name) && $taxonomyObject->labels->singular_name) {
+                    return mb_strtolower($taxonomyObject->labels->singular_name);
+                }
+            }
+        }
+        return 'term';
+    }
+
 	/**
-	 * Check whether we should allow post purge of current post (if there is any).
+	 * Check whether we should allow cache purge of current post (if there is any).
 	 *
      * @return int|null
      */
@@ -184,6 +235,28 @@ class AdminBarGUI
 		global $post, $pagenow;
 		if (is_admin() && $pagenow == 'post.php' && $post->ID) {
 			return $post->ID;
+		}
+		return null;
+	}
+
+    /**
+	 * Check whether we should allow cache purge of current term (if there is any).
+	 *
+     * @return int|null
+     */
+	private function getSingleTermId(): ?int
+    {
+        if (!is_admin()) {
+            $queriedObject = get_queried_object();
+            if (is_a($queriedObject, 'WP_Term')) {
+                return $queriedObject->term_id;
+            }
+        }
+		global $pagenow;
+		if (is_admin() && $pagenow == 'term.php') {
+            if ($termId = absint($_REQUEST['tag_ID'])) {
+                return $termId;
+            }
 		}
 		return null;
 	}
