@@ -20,6 +20,9 @@ class WooCommerce
         if (!woocommerceIsActive()) {
             return;
         }
+        if (!apply_filters('sb_optimizer_acd_woocommerce_compatibility', true)) {
+            return;
+        }
         new ProductCachePurgeOnStockChange;
     }
 }
