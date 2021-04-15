@@ -20,8 +20,18 @@ jQuery(document).ready(function($) {
   $('#wpadminbar .sb-purge-current-post-cache').click(function (e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
-    var postId = $(this).find('span').data('id');
-    window.sb_purge_post_cache(postId);
+    var postId = $(this).find('span').data('id'),
+        objectName = $(this).find('span').data('object-name');
+    window.sb_purge_post_cache(postId, objectName);
+  });
+
+  // Purge current term cache
+  $('#wpadminbar .sb-purge-current-term-cache').click(function (e) {
+    e.preventDefault();
+    sb_close_admin_bar_menu();
+    var termId = $(this).find('span').data('id'),
+        objectName = $(this).find('span').data('object-name');
+    window.sb_purge_term_cache(termId, objectName);
   });
 
   // Purge URL cache
@@ -243,15 +253,22 @@ jQuery(document).ready(function($) {
    * Clear cache by post ID in Cloudflare.
    *
    * @param postId
+   * @param objectName
    */
-  window.sb_purge_post_cache = function(postId) {
+  window.sb_purge_post_cache = function(postId, objectName) {
+    if (objectName) {
+      var confirmText = 'Do you want to purge cache for ' + objectName + '?';
+
+    } else {
+      var confirmText = 'Do you want to purge cache for post?';
+    }
     if (window.sb_use_native_js_fallback()) {
-      if (window.confirm('Do you want to purge cache for current post?')) {
+      if (window.confirm(confirmText)) {
         sb_purge_post_cache_confirmed(postId);
       }
     } else {
       Swal.fire({
-        title: 'Do you want to purge cache for current post?',
+        title: confirmText,
         icon: 'warning',
         showCancelButton: true,
         customClass: {
