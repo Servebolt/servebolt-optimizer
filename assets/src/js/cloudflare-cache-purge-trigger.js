@@ -22,7 +22,7 @@ jQuery(document).ready(function($) {
     sb_close_admin_bar_menu();
     const postId = $(this).find('span').data('id'),
       objectName = $(this).find('span').data('object-name');
-    window.sb_purge_post_cache(postId, objectName);
+    window.sbPurgePostCache(postId, objectName);
   });
 
   // Purge current term cache
@@ -241,11 +241,13 @@ jQuery(document).ready(function($) {
 
   /**
    * Clear cache for the current post.
+   *
+   * @param {string|null} objectName  The post type label in singular form.
    */
-  window.sb_purge_post_cache_with_auto_resolve = function() {
+  window.sbPurgePostCacheWithAutoResolve = function(objectName) {
     var postId = document.getElementById('post_ID').value;
     if (postId) {
-      window.sb_purge_post_cache(postId);
+      window.sbPurgePostCache(postId, objectName);
     }
   };
 
@@ -283,16 +285,11 @@ jQuery(document).ready(function($) {
   /**
    * Purge cache by post ID.
    *
-   * @param postId
-   * @param objectName
+   * @param {int} postId              The post Id of the post that should be purged cache for.
+   * @param {string|null} objectName  The post type label in singular form.
    */
-  window.sb_purge_post_cache = function(postId, objectName) {
-    if (objectName) {
-      var confirmText = 'Do you want to purge cache for ' + objectName + '?';
-
-    } else {
-      var confirmText = 'Do you want to purge cache for post?';
-    }
+  window.sbPurgePostCache = function(postId, objectName) {
+    var confirmText = 'Do you want to purge cache for ' + (objectName ? objectName : 'post') + '?';
     if (window.sb_use_native_js_fallback()) {
       if (window.confirm(confirmText)) {
         sb_purge_post_cache_confirmed(postId);
