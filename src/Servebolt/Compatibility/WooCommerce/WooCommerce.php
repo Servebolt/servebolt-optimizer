@@ -17,7 +17,7 @@ class WooCommerce
      */
     public function __construct()
     {
-        if (!apply_filters('sb_optimizer_acd_woocommerce_compatibility', true)) {
+        if (!apply_filters('sb_optimizer_woocommerce_compatibility', true)) {
             return;
         }
         if (!woocommerceIsActive()) {

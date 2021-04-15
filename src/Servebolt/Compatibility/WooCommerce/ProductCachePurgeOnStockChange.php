@@ -17,7 +17,7 @@ class ProductCachePurgeOnStockChange
      */
     public function __construct()
     {
-        if (!apply_filters('sb_optimizer_acd_woocommerce_cache_purge_on_stock_change', true)) {
+        if (!apply_filters('sb_optimizer_woocommerce_cache_purge_on_stock_change', true)) {
             return;
         }
         add_filter('woocommerce_product_set_stock', [$this, 'productStockChange']);
