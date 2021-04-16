@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Compatibility\WooCommerce\WooCommerce as WooCommerceCompatibility;
+use Servebolt\Optimizer\Compatibility\WpRocket\WpRocket as WpRocketCompatibility;
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
@@ -56,6 +57,7 @@ class ServeboltOptimizer
         // Plugin compatibility
         add_action('plugins_loaded', function () {
             new WooCommerceCompatibility;
+            new WpRocketCompatibility;
         });
 
         // Make sure we don't store certain options (like API credentials) in clear text.
