@@ -1100,3 +1100,13 @@ function woocommerceIsActive(): bool
 {
     return class_exists('WooCommerce');
 }
+
+/**
+ * Check whether plugin WP Rocket is active.
+ *
+ * @return bool
+ */
+function wpRocketIsActive(): bool
+{
+    return defined('WP_ROCKET_VERSION');
+}

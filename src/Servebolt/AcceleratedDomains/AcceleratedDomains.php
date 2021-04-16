@@ -28,7 +28,6 @@ class AcceleratedDomains
     public function __construct()
     {
         new AcceleratedDomainsHeaders;
-        new WpRocketAcdCompatibility;
         $this->cachePurgeDriverLockWhenAcdActive();
         $this->htmlCacheActiveLockWhenAcdActive();
     }

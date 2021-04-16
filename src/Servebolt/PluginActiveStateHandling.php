@@ -2,11 +2,11 @@
 
 namespace Servebolt\Optimizer;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use function Servebolt\Optimizer\Helpers\checkAllCookies;
 use function Servebolt\Optimizer\Helpers\clearAllCookies;
-
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class PluginActiveStateHandling
