@@ -54,7 +54,7 @@ class ProductCachePurgeOnStockChange
      */
     public function productVariationStockChange($productVariation): void
     {
-        if ($parentProduct = $this->resolveProductFromVariation($productVariation)) {
+        if ($parentProduct = $this->resolveProductFromProductVariation($productVariation)) {
             $this->productStockChange($parentProduct);
         }
     }
@@ -161,12 +161,12 @@ class ProductCachePurgeOnStockChange
     }
 
     /**
-     * Get WC product from variation.
+     * Get product from product variation.
      *
      * @param WC_Product_Variation $productVariation
      * @return null|WC_Product|WC_Product_Simple|WC_Product_Grouped|WC_Product_External|WC_Product_Variable
      */
-    private function resolveProductFromVariation($productVariation): ?object
+    private function resolveProductFromProductVariation($productVariation): ?object
     {
         if (is_object($productVariation) && method_exists($productVariation, 'get_parent_id')) {
             if ($parentProductId = $productVariation->get_parent_id() && function_exists('wc_get_product')) {
