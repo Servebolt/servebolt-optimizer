@@ -105,6 +105,11 @@ class Post extends SharedMethods
                 $this->addDateArchive();
             }
         }
+
+        // Allow for third parties to add URLs to be purged
+        do_action('sb_optimizer_cache_purge_3rd_party_urls', $this->getId(), $this);
+        do_action('sb_optimizer_post_cache_purge_3rd_party_urls', $this->getId(), $this);
+        do_action('sb_optimizer_term_cache_purge_3rd_party_urls_post_type_' . $this->getPostType(), $this->getId(), $this);
     }
 
     /**

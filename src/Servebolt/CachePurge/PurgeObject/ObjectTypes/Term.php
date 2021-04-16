@@ -88,6 +88,11 @@ class Term extends SharedMethods
     {
         // The URL to the front page
         $this->addFrontPage();
+
+        // Allow for third parties to add URLs to be purged
+        do_action('sb_optimizer_cache_purge_3rd_party_urls', $this->getId(), $this);
+        do_action('sb_optimizer_term_cache_purge_3rd_party_urls', $this->getId(), $this);
+        do_action('sb_optimizer_term_cache_purge_3rd_party_urls_taxonomy_' . $this->getArgument('taxonomySlug'), $this->getId(), $this);
     }
 
     /**

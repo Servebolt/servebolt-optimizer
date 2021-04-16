@@ -23,6 +23,7 @@ class WooCommerce
         if (!woocommerceIsActive()) {
             return;
         }
+        new ProductVariationCachePurge;
         new ProductCachePurgeOnStockChange;
     }
 }
