@@ -23,6 +23,6 @@ class WpRocket
         if (!wpRocketIsActive()) {
             return;
         }
-
+        new DisableWpRocketCache;
     }
 }

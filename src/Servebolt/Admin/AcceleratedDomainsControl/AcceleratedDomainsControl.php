@@ -28,6 +28,37 @@ class AcceleratedDomainsControl
     public function __construct()
     {
         $this->initSettings();
+        $this->initSettingsActions();
+    }
+
+    /**
+     * Add listeners for settings change.
+     */
+    private function initSettingsActions(): void
+    {
+        add_filter('pre_update_option_' . getOptionName('acd_switch'), [$this, 'detectAcdActivation'], 10, 2);
+    }
+
+    /**
+     * Detect when ACD gets activated/deactivated.
+     *
+     * @param $newValue
+     * @param $oldValue
+     * @return mixed
+     */
+    function detectAcdActivation($newValue, $oldValue)
+    {
+        $wasActive = filter_var($oldValue, FILTER_VALIDATE_BOOLEAN);
+        $isActive = filter_var($newValue, FILTER_VALIDATE_BOOLEAN);
+        $didChange = $wasActive !== $isActive;
+        if ($didChange) {
+            if ($isActive) {
+                do_action('sb_optimizer_acd_enable');
+            } else {
+                do_action('sb_optimizer_acd_disable');
+            }
+        }
+        return $newValue;
     }
 
     /**
