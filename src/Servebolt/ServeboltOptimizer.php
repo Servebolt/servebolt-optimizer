@@ -42,9 +42,8 @@ class ServeboltOptimizer
     public static function boot()
     {
 
-        // Register events for activation and deactivation of this plugin
-        register_activation_hook(SERVEBOLT_PLUGIN_FILE, '\\Servebolt\\Optimizer\\Helpers\\activatePlugin');
-        register_deactivation_hook(SERVEBOLT_PLUGIN_FILE, '\\Servebolt\\Optimizer\\Helpers\\deactivatePlugin');
+        // Handle activation/deactivation
+        new PluginActiveStateHandling();
 
         // Add various improvements/optimizations
         new GenericOptimizations;

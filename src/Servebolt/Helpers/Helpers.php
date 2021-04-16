@@ -4,8 +4,6 @@ namespace Servebolt\Optimizer\Helpers;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
-use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
-use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling;
 
 /**
@@ -252,7 +250,7 @@ function getServeboltAdminUrl() :string
  */
 function clearAllCookies(): void
 {
-    fullPageCacheAuthHandling()->clearNoCacheCookie();
+    (FullPageCacheAuthHandling::getInstance())->clearNoCacheCookie();
 }
 
 /**
@@ -260,15 +258,7 @@ function clearAllCookies(): void
  */
 function checkAllCookies(): void
 {
-    fullPageCacheAuthHandling()->cacheCookieCheck();
-}
-
-/**
- * @return FullPageCacheAuthHandling
- */
-function fullPageCacheAuthHandling(): object
-{
-    return FullPageCacheAuthHandling::getInstance();
+    (FullPageCacheAuthHandling::getInstance())->cacheCookieCheck();
 }
 
 /**
@@ -354,23 +344,6 @@ function deleteAllSettings(bool $allSites = true, bool $includeMigrationOptions 
             deleteOption($optionName);
         }
     }
-}
-
-/**
- * Plugin deactivation event.
- */
-function deactivatePlugin(): void
-{
-    clearAllCookies();
-}
-
-/**
- * Plugin activation event.
- */
-function activatePlugin(): void
-{
-    MigrationRunner::migrate(); // Run database migrations
-    checkAllCookies();
 }
 
 /**
