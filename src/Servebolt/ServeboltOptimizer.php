@@ -56,7 +56,7 @@ class ServeboltOptimizer
 
         // Plugin compatibility
         add_action('plugins_loaded', function () {
-            new WooCommerceCompatibility;
+            //new WooCommerceCompatibility;
         });
 
         // Make sure we don't store certain options (like API credentials) in clear text.
