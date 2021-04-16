@@ -54,7 +54,6 @@ class ProductCachePurgeOnStockChange
      */
     public function productVariationStockChange($productVariation): void
     {
-        die('b');
         if ($parentProduct = $this->resolveProductFromVariation($productVariation)) {
             $this->productStockChange($parentProduct);
         }
