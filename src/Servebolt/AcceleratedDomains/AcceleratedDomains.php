@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 
@@ -28,8 +29,39 @@ class AcceleratedDomains
     public function __construct()
     {
         new AcceleratedDomainsHeaders;
+        $this->activeStateEvent();
         $this->cachePurgeDriverLockWhenAcdActive();
         $this->htmlCacheActiveLockWhenAcdActive();
+    }
+
+    /**
+     * Add listeners for ACD active state change.
+     */
+    private function activeStateEvent(): void
+    {
+        add_filter('pre_update_option_' . getOptionName('acd_switch'), [$this, 'detectAcdActivation'], 10, 2);
+    }
+
+    /**
+     * Detect when ACD gets activated/deactivated.
+     *
+     * @param $newValue
+     * @param $oldValue
+     * @return mixed
+     */
+    function detectAcdActivation($newValue, $oldValue)
+    {
+        $wasActive = filter_var($oldValue, FILTER_VALIDATE_BOOLEAN);
+        $isActive = filter_var($newValue, FILTER_VALIDATE_BOOLEAN);
+        $didChange = $wasActive !== $isActive;
+        if ($didChange) {
+            if ($isActive) {
+                do_action('sb_optimizer_acd_enable');
+            } else {
+                do_action('sb_optimizer_acd_disable');
+            }
+        }
+        return $newValue;
     }
 
     /**
