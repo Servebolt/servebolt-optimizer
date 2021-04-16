@@ -1117,3 +1117,13 @@ function smartGetOption(?int $blogId = null, $optionName, $default = null)
     }
     return $result;
 }
+
+/**
+ * Check if WooCommerce is active.
+ *
+ * @return bool
+ */
+function woocommerceIsActive(): bool
+{
+    return class_exists('WooCommerce');
+}

@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Compatibility\WooCommerce\WooCommerce as WooCommerceCompatibility;
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
@@ -22,8 +23,6 @@ use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use Servebolt\Optimizer\Cli\Cli;
 
 use function Servebolt\Optimizer\Helpers\isCli;
-use function Servebolt\Optimizer\Helpers\isAjax;
-use function Servebolt\Optimizer\Helpers\isCron;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\isWpRest;
 use function Servebolt\Optimizer\Helpers\isTesting;
@@ -36,6 +35,10 @@ use function Servebolt\Optimizer\Helpers\featureIsActive;
  */
 class ServeboltOptimizer
 {
+
+    /**
+     * Boot the plugin.
+     */
     public static function boot()
     {
 
@@ -51,20 +54,15 @@ class ServeboltOptimizer
             MigrationRunner::run();
         }
 
-        // We don't always need all files - only in WP Admin, in CLI-mode or when running the WP Cron.
-        if (
-            is_admin()
-            || isCli()
-            || isAjax()
-            || isCron()
-            || isTesting()
-        ) {
+        // Plugin compatibility
+        add_action('plugins_loaded', function () {
+            new WooCommerceCompatibility;
+        });
 
-            // Make sure we dont certain options (like API credentials) in clear text.
-            new OptionEncryption;
+        // Make sure we don't store certain options (like API credentials) in clear text.
+        new OptionEncryption;
 
-        }
-
+        // ACD Init
         if (isHostedAtServebolt()) {
             AcceleratedDomains::init();
         }
@@ -90,8 +88,8 @@ class ServeboltOptimizer
             || isTesting()
         ) {
             // Register cache purge event for various hooks
-            new ContentChangeTrigger;
-            new SlugChangeTrigger;
+            ContentChangeTrigger::getInstance();
+            SlugChangeTrigger::getInstance();
         }
 
         // Load this admin bar interface
@@ -115,7 +113,7 @@ class ServeboltOptimizer
         if (
             isFrontEnd()
             || isTesting()
-        ){
+        ) {
 
             // Feature to automatically version all enqueued script/style-tags
             if (featureIsActive('asset_auto_version')) {

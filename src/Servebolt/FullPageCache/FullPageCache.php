@@ -14,6 +14,7 @@ use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\fullPageCache;
+use function Servebolt\Optimizer\Helpers\woocommerceIsActive;
 use function Servebolt\Optimizer\Helpers\writeLog;
 
 /**
@@ -285,16 +286,6 @@ class FullPageCache
     {
 		$idsToExclude = self::getIdsToExcludeFromCache();
 		return is_array($idsToExclude) && in_array($postId, $idsToExclude);
-	}
-
-	/**
-	 * Check if WooCommerce is active.
-	 *
-	 * @return bool
-	 */
-	private function woocommerceIsActive(): bool
-    {
-		return class_exists('WooCommerce');
 	}
 
 	/**
@@ -627,7 +618,7 @@ class FullPageCache
 	 */
 	private function isWoocommerceNoCachePage(): bool
     {
-		return apply_filters('sb_optimizer_fpc_woocommerce_pages_no_cache_bool', ($this->woocommerceIsActive() && (is_cart() || is_checkout() || is_account_page())));
+		return apply_filters('sb_optimizer_fpc_woocommerce_pages_no_cache_bool', (woocommerceIsActive() && (is_cart() || is_checkout() || is_account_page())));
 	}
 
 	/**
@@ -637,6 +628,6 @@ class FullPageCache
 	 */
 	private function isWoocommerceCachePage(): bool
     {
-		return apply_filters('sb_optimizer_fpc_woocommerce_pages_cache_bool', ($this->woocommerceIsActive() && (is_shop() || is_product_category() || is_product_tag() || is_product())));
+		return apply_filters('sb_optimizer_fpc_woocommerce_pages_cache_bool', (woocommerceIsActive() && (is_shop() || is_product_category() || is_product_tag() || is_product())));
 	}
 }
