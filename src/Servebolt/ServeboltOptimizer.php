@@ -59,7 +59,7 @@ class ServeboltOptimizer
             new WooCommerceCompatibility;
         });
 
-        // Make sure we dont certain options (like API credentials) in clear text.
+        // Make sure we don't store certain options (like API credentials) in clear text.
         new OptionEncryption;
 
         // ACD Init
