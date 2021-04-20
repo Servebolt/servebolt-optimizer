@@ -8,6 +8,7 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\ContentChangeTrigger;
 use function Servebolt\Optimizer\Helpers\isAjax;
+use function Servebolt\Optimizer\Helpers\isCron;
 use function Servebolt\Optimizer\Helpers\isWpRest;
 
 /**
@@ -28,8 +29,8 @@ class ProductCachePurgeOnStockChange
         }
 
         if ($this->shouldPurgeCacheOnStockStatusChange()) {
-            add_action('woocommerce_variation_set_stock_status', [$this, 'productStockStatusChange'], 10, 3);
             add_action('woocommerce_product_set_stock_status', [$this, 'productVariationStockStatusChange'], 10, 3);
+            add_action('woocommerce_variation_set_stock_status', [$this, 'productStockStatusChange'], 10, 3);
         }
     }
 
@@ -116,14 +117,13 @@ class ProductCachePurgeOnStockChange
      */
     private function shouldPurgeCacheOnStockCommonCondition(): bool
     {
-
         if (!CachePurge::featureIsAvailable()) {
             return false; // Cache feature is not available or insufficiently configured
         }
 
         $isCheckout = function_exists('is_checkout') && is_checkout();
 
-        if (!$isCheckout && (is_admin() || isAjax() || isWpRest()) && !$this->pluginIsPurgingOnPostSave()) {
+        if (!$isCheckout && (is_admin() || isCron() || isAjax() || isWpRest()) && !$this->pluginIsPurgingOnPostSave()) {
             return true; // We're not at checkout, that we're in WP Admin/API-context and we're not listening for posts being updated in the ContentChangeTrigger::class, so let's act on this ourselves without the help of the "post_updated"-action
         }
 
