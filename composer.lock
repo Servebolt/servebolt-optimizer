@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ddb89398ae136f7efee3d21efc0bc2c4",
+    "content-hash": "2ba26dee2c3b51f17244c3bba1c0698c",
     "packages": [
         {
             "name": "composer/installers",
@@ -644,16 +644,16 @@
         },
         {
             "name": "servebolt/sdk",
-            "version": "1.0.0-beta.10",
+            "version": "1.0.0-beta.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Servebolt/php-sdk.git",
-                "reference": "8e299fdca295ac348b600888546b12fbffaf913c"
+                "reference": "20c9707b2490e1a3c39c8a732bccb3025a85d867"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/8e299fdca295ac348b600888546b12fbffaf913c",
-                "reference": "8e299fdca295ac348b600888546b12fbffaf913c",
+                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/20c9707b2490e1a3c39c8a732bccb3025a85d867",
+                "reference": "20c9707b2490e1a3c39c8a732bccb3025a85d867",
                 "shasum": ""
             },
             "require": {
@@ -692,9 +692,9 @@
             "homepage": "https://servebolt.com",
             "support": {
                 "issues": "https://github.com/Servebolt/php-sdk/issues",
-                "source": "https://github.com/Servebolt/php-sdk/tree/1.0.0-beta.10"
+                "source": "https://github.com/Servebolt/php-sdk/tree/1.0.0-beta.11"
             },
-            "time": "2021-04-14T06:58:15+00:00"
+            "time": "2021-04-14T16:44:08+00:00"
         }
     ],
     "packages-dev": [
@@ -782,16 +782,16 @@
         },
         {
             "name": "composer/xdebug-handler",
-            "version": "1.4.x-dev",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/xdebug-handler.git",
-                "reference": "f27e06cd9675801df441b3656569b328e04aa37c"
+                "reference": "31d57697eb1971712a08031cfaff5a846d10bdf5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/xdebug-handler/zipball/f27e06cd9675801df441b3656569b328e04aa37c",
-                "reference": "f27e06cd9675801df441b3656569b328e04aa37c",
+                "url": "https://api.github.com/repos/composer/xdebug-handler/zipball/31d57697eb1971712a08031cfaff5a846d10bdf5",
+                "reference": "31d57697eb1971712a08031cfaff5a846d10bdf5",
                 "shasum": ""
             },
             "require": {
@@ -826,7 +826,7 @@
             "support": {
                 "irc": "irc://irc.freenode.org/composer",
                 "issues": "https://github.com/composer/xdebug-handler/issues",
-                "source": "https://github.com/composer/xdebug-handler/tree/1.4.6"
+                "source": "https://github.com/composer/xdebug-handler/tree/2.0.0"
             },
             "funding": [
                 {
@@ -842,7 +842,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-03-25T17:01:18+00:00"
+            "time": "2021-04-09T19:40:06+00:00"
         },
         {
             "name": "dealerdirect/phpcodesniffer-composer-installer",
@@ -1300,17 +1300,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phan/phan.git",
-                "reference": "385dcefd4096d772a23e0c62b09351a4c38f675a"
+                "reference": "7e370476df625f9f876d43e1351fe6d298a503f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phan/phan/zipball/385dcefd4096d772a23e0c62b09351a4c38f675a",
-                "reference": "385dcefd4096d772a23e0c62b09351a4c38f675a",
+                "url": "https://api.github.com/repos/phan/phan/zipball/7e370476df625f9f876d43e1351fe6d298a503f2",
+                "reference": "7e370476df625f9f876d43e1351fe6d298a503f2",
                 "shasum": ""
             },
             "require": {
                 "composer/semver": "^1.4|^2.0|^3.0",
-                "composer/xdebug-handler": "^1.3.2",
+                "composer/xdebug-handler": "^2.0.0",
                 "ext-filter": "*",
                 "ext-json": "*",
                 "ext-tokenizer": "*",
@@ -1370,7 +1370,7 @@
                 "issues": "https://github.com/phan/phan/issues",
                 "source": "https://github.com/phan/phan/tree/v4"
             },
-            "time": "2021-03-13T15:41:30+00:00"
+            "time": "2021-04-14T16:39:03+00:00"
         },
         {
             "name": "phar-io/manifest",

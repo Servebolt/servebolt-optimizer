@@ -25,8 +25,11 @@ class Cloudflare implements CachePurgeInterface
     {
         try {
             $instance = CloudflareApi::getInstance();
-            $instance->purgeUrl($url);
-            return true;
+            if ($instance->isConfigured()) {
+                $instance->purgeUrl($url);
+                return true;
+            }
+            return false;
         } catch (CloudflareSdkApiError $e) {
             throw new CloudflareApiError(
                 $e->getErrors(),
@@ -46,8 +49,11 @@ class Cloudflare implements CachePurgeInterface
     {
         try {
             $instance = CloudflareApi::getInstance();
-            $instance->purgeUrls($urls);
-            return true;
+            if ($instance->isConfigured()) {
+                $instance->purgeUrls($urls);
+                return true;
+            }
+            return false;
         } catch (CloudflareSdkApiError $e) {
             throw new CloudflareApiError(
                 $e->getErrors(),
@@ -65,8 +71,11 @@ class Cloudflare implements CachePurgeInterface
     {
         try {
             $instance = CloudflareApi::getInstance();
-            $instance->purgeAll();
-            return true;
+            if ($instance->isConfigured()) {
+                $instance->purgeAll();
+                return true;
+            }
+            return false;
         } catch (CloudflareSdkApiError $e) {
             throw new CloudflareApiError(
                 $e->getErrors(),
