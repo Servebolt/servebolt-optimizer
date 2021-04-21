@@ -22,6 +22,7 @@ class ProductCachePurgeOnStockChange
      */
     public function __construct()
     {
+        // Note: Might be sufficient with just listening to woocommerce_product_update
         if ($this->shouldPurgeCacheOnStockAmountChange()) {
             // These actions are only triggered if global setting "manage_stock" is set to true
             add_action('woocommerce_product_set_stock', [$this, 'productStockChange']);
