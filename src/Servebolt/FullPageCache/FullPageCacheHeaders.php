@@ -8,6 +8,8 @@ use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\isAjax;
 use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
+use function Servebolt\Optimizer\Helpers\isCron;
+use function Servebolt\Optimizer\Helpers\isWpRest;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 use function Servebolt\Optimizer\Helpers\woocommerceIsActive;
@@ -77,10 +79,24 @@ class FullPageCacheHeaders
         FullPageCacheAuthHandling::init();
 
 		// Unauthenticated cache handling
-		add_filter('posts_results', [$this, 'setHeaders']);
-		add_filter('template_include', [$this, 'lastCall']);
-
+        if ($this->isFrontEnd()) {
+            add_filter('posts_results', [$this, 'setHeaders']);
+            add_filter('template_include', [$this, 'lastCall']);
+        }
 	}
+
+    /**
+     * Check whether we are front-end or not.
+     *
+     * @return bool
+     */
+	private function isFrontEnd(): bool
+    {
+        if (is_admin() || isAjax() || isWpRest() || isCron()) {
+            return false;
+        }
+        return true;
+    }
 
 	/**
 	 * Set cache headers - Determine and set the type of headers to be used.
@@ -91,7 +107,6 @@ class FullPageCacheHeaders
 	 */
 	public function setHeaders($posts)
     {
-
 		$debug = $this->shouldDebug();
 
 		// Abort if cache headers are already set
