@@ -22,6 +22,7 @@ class ProductCachePurgeOnStockChange
      */
     public function __construct()
     {
+
         // Note: Might be sufficient with just listening to woocommerce_product_update
         if ($this->shouldPurgeCacheOnStockAmountChange()) {
             // These actions are only triggered if global setting "manage_stock" is set to true
@@ -44,7 +45,9 @@ class ProductCachePurgeOnStockChange
     {
         if ($productId = $this->resolveProductPostId($product)) {
             if (ContentChangeTrigger::shouldPurgePostCache($productId)) { // Check if we should purge cache for the current product in regards to rules in ContentChangeTrigger::class
-                WordPressCachePurge::purgeByPostId($productId);
+                try {
+                    WordPressCachePurge::purgeByPostId($productId);
+                } catch (Exception $e) {}
             }
         }
     }
@@ -122,13 +125,11 @@ class ProductCachePurgeOnStockChange
             return false; // Cache feature is not available or insufficiently configured
         }
 
-        $isCheckout = function_exists('is_checkout') && is_checkout();
-
-        if (!$isCheckout && (is_admin() || isCron() || isAjax() || isWpRest()) && !$this->pluginIsPurgingOnPostSave()) {
-            return true; // We're not at checkout, that we're in WP Admin/API-context and we're not listening for posts being updated in the ContentChangeTrigger::class, so let's act on this ourselves without the help of the "post_updated"-action
+        if (is_admin() || isCron() || isAjax() || isWpRest()) {
+            return true;
         }
 
-        if ($isCheckout) {
+        if ($this->isWooCommerceCheckout()) {
             return true; // We're doing a WooCommerce checkout, let's update the stock
         }
 
@@ -136,13 +137,19 @@ class ProductCachePurgeOnStockChange
     }
 
     /**
-     * Check if we're purging cache on post save in the ContentChangeTrigger::class.
+     * Check if we're currently doing a WooCommerce checkout.
      *
      * @return bool
      */
-    private function pluginIsPurgingOnPostSave(): bool
+    private function isWooCommerceCheckout(): bool
     {
-        return has_filter('post_updated', [ContentChangeTrigger::getInstance(), 'purgePostOnSave'], 99, 3);
+        if (is_admin()) {
+            return false;
+        }
+        if (function_exists('is_checkout')) {
+            return is_checkout();
+        }
+        return false;
     }
 
     /**
