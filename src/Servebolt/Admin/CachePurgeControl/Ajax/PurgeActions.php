@@ -31,6 +31,7 @@ class PurgeActions extends SharedAjaxMethods
         add_action('wp_ajax_servebolt_purge_all_cache', [$this, 'purgeAllCacheCallback']);
         add_action('wp_ajax_servebolt_purge_url_cache', [$this, 'purgeUrlCacheCallback']);
         add_action('wp_ajax_servebolt_purge_post_cache', [$this, 'purgePostCacheCallback']);
+        add_action('wp_ajax_servebolt_purge_term_cache', [$this, 'purgeTermCacheCallback']);
         /*
         // TODO: Make this feature work with the new cache purge driver
         if ( is_multisite() ) {
@@ -150,7 +151,7 @@ class PurgeActions extends SharedAjaxMethods
     }
 
     /**
-     * Purge specific post in Cloudflare cache.
+     * Purge cache for post.
      */
     public function purgePostCacheCallback() : void
     {
@@ -177,7 +178,54 @@ class PurgeActions extends SharedAjaxMethods
                     'message' => sprintf(__('A cache purge-request for the post "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), get_the_title($postId)),
                 ] );
             } else {
-                wp_send_json_success(['message' => sprintf(__('Cache was purged for the post post "%s".', 'servebolt-wp'), get_the_title($postId))]);
+                wp_send_json_success(['message' => sprintf(__('Cache was purged for the post "%s".', 'servebolt-wp'), get_the_title($postId))]);
+            }
+        } catch (QueueError $e) {
+            // TODO: Handle response from queue system
+        } catch (ApiMessage $e) {
+            // TODO: Handle messages from API.
+        } catch (ApiError $e) {
+            if ($e->hasMultipleErrors()) {
+                wp_send_json_error($e->getErrors());
+            } else {
+                wp_send_json_error(['message' => $e->getMessage()]);
+            }
+        } catch (Exception $e) {
+            wp_send_json_error(['message' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Purge cache for term.
+     */
+    public function purgeTermCacheCallback() : void
+    {
+        $this->checkAjaxReferer();
+        ajaxUserAllowed();
+        $termId = intval(arrayGet('term_id', $_POST));
+
+        $this->ensureCachePurgeFeatureIsActive();
+
+        if (!$termId || empty($termId)) {
+            wp_send_json_error(['message' => 'Please specify the term you would like to purge cache for.']);
+            return;
+        } elseif (!term_exists($termId)) {
+            wp_send_json_error(['message' => 'The specified term does not exist.']);
+            return;
+        }
+
+        $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
+        try {
+            $term = get_term($termId);
+            $termName = $term->name;
+            WordPressCachePurge::purgeByTerm($termId, $term->taxonomy);
+            if ($queueBasedCachePurgeIsActive) {
+                wp_send_json_success( [
+                    'title'   => 'Just a moment',
+                    'message' => sprintf(__('A cache purge-request for the term "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), $termName),
+                ] );
+            } else {
+                wp_send_json_success(['message' => sprintf(__('Cache was purged for the term "%s".', 'servebolt-wp'), $termName)]);
             }
         } catch (QueueError $e) {
             // TODO: Handle response from queue system

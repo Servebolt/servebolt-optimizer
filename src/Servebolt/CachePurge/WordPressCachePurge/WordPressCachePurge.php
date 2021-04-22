@@ -73,6 +73,19 @@ class WordPressCachePurge
     }
 
     /**
+     * Alias for method "purgeByTermId".
+     *
+     * @param int $termId
+     * @param string $taxonomySlug
+     * @param bool $returnWpError
+     * @return bool
+     */
+    public static function purgeByTerm(int $termId, string $taxonomySlug, bool $returnWpError = false)
+    {
+        return self::purgeByTermId($termId, $taxonomySlug, $returnWpError);
+    }
+
+    /**
      * Alias for method "purgeTermCache".
      *
      * @param int $termId
@@ -96,7 +109,6 @@ class WordPressCachePurge
     {
         return self::purgeByPostId($postId, $returnWpError);
     }
-
 
     /**
      * Alias for method "purgePostCache".

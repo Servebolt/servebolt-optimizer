@@ -147,11 +147,11 @@ module.exports = [
 
 	Object.assign( {
 		entry: {
-			plugin: [ './assets/src/js/gutenberg/gutenberg-menu.js' ],
+			plugin: [ './assets/src/js/gutenberg/gutenberg-cache-purge-menu.js' ],
 		},
 		output: {
 			path: path.resolve( __dirname, './assets/dist/' ),
-			filename: 'js/gutenberg-menu.js',
+			filename: 'js/gutenberg-cache-purge-menu.js',
 		},
 	}, config ),
 
