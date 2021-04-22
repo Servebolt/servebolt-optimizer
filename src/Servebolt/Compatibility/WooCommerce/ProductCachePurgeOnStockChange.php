@@ -133,7 +133,8 @@ class ProductCachePurgeOnStockChange
         }
         */
 
-        return false;
+        //return false;
+        return true;
     }
 
     /**

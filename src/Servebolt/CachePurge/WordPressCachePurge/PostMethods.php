@@ -52,7 +52,7 @@ trait PostMethods
     {
 
         // If this is just a revision, don't purge anything.
-        if ( ! $postId || wp_is_post_revision( $postId ) ) {
+        if (!$postId || wp_is_post_revision($postId)) {
             return false;
         }
 
