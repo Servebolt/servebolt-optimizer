@@ -8,9 +8,6 @@ use Exception;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\ContentChangeTrigger;
-use function Servebolt\Optimizer\Helpers\isAjax;
-use function Servebolt\Optimizer\Helpers\isCron;
-use function Servebolt\Optimizer\Helpers\isWpRest;
 
 /**
  * Class ProductCachePurgeOnStockChange
@@ -126,13 +123,15 @@ class ProductCachePurgeOnStockChange
             return false; // Cache feature is not available or insufficiently configured
         }
 
-        if (is_admin() || isCron() || isAjax() || isWpRest()) {
-            return true;
+        if (apply_filters('sb_optimizer_woocommerce_product_cache_purge_on_stock_change', true) === false) {
+            return false; // We're not suppose to purge cache on WooCommerce stock status change
         }
 
+        /*
         if ($this->isWooCommerceCheckout()) {
             return true; // We're doing a WooCommerce checkout, let's update the stock
         }
+        */
 
         return false;
     }
@@ -142,6 +141,7 @@ class ProductCachePurgeOnStockChange
      *
      * @return bool
      */
+    /*
     private function isWooCommerceCheckout(): bool
     {
         if (is_admin()) {
@@ -152,6 +152,7 @@ class ProductCachePurgeOnStockChange
         }
         return false;
     }
+    */
 
     /**
      * Get post Id from WC product.
