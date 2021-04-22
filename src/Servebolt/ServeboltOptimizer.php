@@ -45,7 +45,7 @@ class ServeboltOptimizer
     {
 
         // Handle activation/deactivation
-        new PluginActiveStateHandling();
+        new PluginActiveStateHandling;
 
         // Add various improvements/optimizations
         new GenericOptimizations;

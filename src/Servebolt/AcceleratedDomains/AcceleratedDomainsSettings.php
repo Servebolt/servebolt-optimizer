@@ -20,7 +20,6 @@ class AcceleratedDomainsSettings
      */
     public function __construct()
     {
-        $this->initSettings();
         $this->initSettingsActions();
     }
 
@@ -52,49 +51,5 @@ class AcceleratedDomainsSettings
             }
         }
         return $newValue;
-    }
-
-    private function initSettings(): void
-    {
-        add_action('admin_init', [$this, 'registerSettings']);
-    }
-
-    /**
-     * Get all plugin settings in array.
-     *
-     * @return array
-     */
-    public function getSettingsItemsWithValues(): array
-    {
-        $items = $this->getSettingsItems();
-        $itemsWithValues = [];
-        foreach ($items as $item) {
-            switch ($item) {
-                default:
-                    $itemsWithValues[$item] = getOption($item);
-                    break;
-            }
-        }
-        return $itemsWithValues;
-    }
-
-    public function registerSettings(): void
-    {
-        foreach ($this->getSettingsItems() as $key) {
-            register_setting('sb-accelerated-domains-options-page', getOptionName($key));
-        }
-    }
-
-    /**
-     * Settings items for Accelerated Domains.
-     *
-     * @return array
-     */
-    private function getSettingsItems(): array
-    {
-        return [
-            'acd_switch',
-            'acd_minify_switch',
-        ];
     }
 }

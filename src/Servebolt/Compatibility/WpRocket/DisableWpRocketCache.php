@@ -4,7 +4,8 @@ namespace Servebolt\Optimizer\Compatibility\WpRocket;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
+//use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
+use Servebolt\Optimizer\FullPageCache\FullPageCacheSettings;
 
 /**
  * Class DisableWpRocketCache
@@ -17,21 +18,37 @@ class DisableWpRocketCache
      */
     public function __construct()
     {
-        if (AcceleratedDomains::isActive()) {
+        if ($this->shouldDisableCache()) {
+            // Disable WP Rocket cache
             add_filter('do_rocket_generate_caching_files', '__return_false');
-            register_activation_hook(SERVEBOLT_PLUGIN_FILE, __CLASS__ . '::wpRocketClearAllCache'); // Clear all WP Rocket cache upon plugin activation (if ACD is active).
         }
-        //add_action('sb_optimizer_acd_enable', __CLASS__ . '::wpRocketClearAllCache'); // Clear all WP Rocket cache upon ACD activation.
+
+        // Clear WP Rocket cache every time we enable FPC / ACD
+        add_action('sb_optimizer_fpc_enable', [$this, 'wpRocketClearAllCache']);
+    }
+
+    /**
+     * Check whether we should disable WP Rocket cache.
+     *
+     * @return bool
+     */
+    private function shouldDisableCache(): bool
+    {
+        //return AcceleratedDomains::isActive();
+        return FullPageCacheSettings::fpcIsActive();
     }
 
     /**
      * Clear all cache in WP Rocket (given that WP Rocket is present).
+     *
+     * @return bool
      */
-    public static function wpRocketClearAllCache(): void
+    public function wpRocketClearAllCache(): bool
     {
         if (function_exists('rocket_clean_domain')) {
             // Purge all WP Rocket cache
-            rocket_clean_domain();
+            return rocket_clean_domain();
         }
+        return false;
     }
 }
