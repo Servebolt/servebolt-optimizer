@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Exceptions\ErrorTranslator;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 /**
  * Class ErrorTranslator
  * @package Servebolt\Optimizer\Exceptions\ErrorTranslator

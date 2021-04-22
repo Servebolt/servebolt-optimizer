@@ -5,7 +5,6 @@ namespace Servebolt\Optimizer\Queue\Queues;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
-use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Utils\Queue\Queue;
 

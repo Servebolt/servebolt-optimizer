@@ -1300,12 +1300,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phan/phan.git",
-                "reference": "7e370476df625f9f876d43e1351fe6d298a503f2"
+                "reference": "37d1ffa99abaf034bd35f43ea7bbc468cb430a3f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phan/phan/zipball/7e370476df625f9f876d43e1351fe6d298a503f2",
-                "reference": "7e370476df625f9f876d43e1351fe6d298a503f2",
+                "url": "https://api.github.com/repos/phan/phan/zipball/37d1ffa99abaf034bd35f43ea7bbc468cb430a3f",
+                "reference": "37d1ffa99abaf034bd35f43ea7bbc468cb430a3f",
                 "shasum": ""
             },
             "require": {
@@ -1368,9 +1368,9 @@
             ],
             "support": {
                 "issues": "https://github.com/phan/phan/issues",
-                "source": "https://github.com/phan/phan/tree/v4"
+                "source": "https://github.com/phan/phan/tree/4.0.4"
             },
-            "time": "2021-04-14T16:39:03+00:00"
+            "time": "2021-04-14T16:54:05+00:00"
         },
         {
             "name": "phar-io/manifest",

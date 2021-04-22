@@ -17,27 +17,31 @@ class AcceleratedDomainsHeaders
     private $defaultTtl = 86000;
 
     /**
+     * @var string The header name used to specify TTL for ACD cache.
+     */
+    private $ttlHeaderkey = 'x-acd-ttl';
+
+    /**
      * AcceleratedDomainsHeaders constructor.
      */
     public function __construct()
     {
-        add_action('wp_headers', [$this, 'addAcdHeaders']);
         if (AcceleratedDomains::isActive()) {
-            $this->handleTtlHeaders();
+            add_action('wp_headers', [$this, 'addAcdHeaders']);
+            $this->addAcdTtlHeaders();
         }
     }
 
     /**
-     * Set TTL conditionally based on the FullPageCache-class.
+     * Set ACD TTL conditionally using on the FullPageCache-class.
      */
-    private function handleTtlHeaders(): void
+    private function addAcdTtlHeaders(): void
     {
-        $headerKey = 'x-acd-ttl';
-        add_action('sb_optimizer_fpc_no_cache_headers', function ($fpc) use ($headerKey) {
-            $fpc->header($headerKey, 'no-cache');
+        add_action('sb_optimizer_fpc_no_cache_headers', function ($fpc) {
+            $fpc->header($this->ttlHeaderkey, 'no-cache');
         });
-        add_action('sb_optimizer_fpc_cache_headers', function ($fpc) use ($headerKey) {
-            $fpc->header($headerKey, $this->defaultTtl);
+        add_action('sb_optimizer_fpc_cache_headers', function ($fpc) {
+            $fpc->header($this->ttlHeaderkey, $this->defaultTtl);
         });
     }
 
@@ -49,14 +53,12 @@ class AcceleratedDomainsHeaders
      */
     public function addAcdHeaders($headers): array
     {
-        if (AcceleratedDomains::isActive()) {
-            $headers['x-acd-cms'] = 'wordpress';
-            /*
-            if (AcceleratedDomains::htmlMinifyIsActive()) {
-                $headers['x-acd-minify'] = true;
-            }
-            */
+        $headers['x-acd-cms'] = 'wordpress';
+        /*
+        if (AcceleratedDomains::htmlMinifyIsActive()) {
+            $headers['x-acd-minify'] = true;
         }
+        */
         return $headers;
     }
 }
