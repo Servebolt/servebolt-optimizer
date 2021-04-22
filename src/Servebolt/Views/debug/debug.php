@@ -1,6 +1,8 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use Servebolt\Optimizer\CachePurge\CachePurge; ?>
 <?php use  Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders; ?>
+<?php use  Servebolt\Optimizer\FullPageCache\CachePostExclusion; ?>
+<?php use  Servebolt\Optimizer\FullPageCache\FullPageCacheSettings; ?>
 <div class="wrap sb-content" id="sb-configuration">
 
 	<h1><?php _e('Servebolt Optimizer - Debug information', 'servebolt-wp'); ?></h1>
@@ -40,11 +42,11 @@
 		}) : [];
 		$postTypesThatWillBeCached  = FullPageCacheHeaders::getPostTypesToCache();
 		$availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(false);
-		$idsToExcludeFromCache = FullPageCacheHeaders::getIdsToExcludeFromCache();
+		$idsToExcludeFromCache = CachePostExclusion::getIdsToExcludeFromCache();
 		$defaultPostTypesToCache = FullPageCacheHeaders::getDefaultPostTypesToCache();
 	?>
 
-	<p>Feature is active? - <?php echo FullPageCacheHeaders::fpcIsActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
+	<p>Feature is active? - <?php echo FullPageCacheSettings::fpcIsActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 	<p>Cache all post types? - <?php echo ( is_array($selectedPostTypesToCache) && in_array('all', $selectedPostTypesToCache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 	<p>Any specific post types set? - <?php echo ( is_array($selectedPostTypesToCacheWithoutAll) && ! empty($selectedPostTypesToCacheWithoutAll ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>
 	<p>Default post types used? - <?php echo ( ! is_array($selectedPostTypesToCache) || empty($selectedPostTypesToCache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>

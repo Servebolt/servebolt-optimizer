@@ -2,9 +2,11 @@
 <?php use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup; ?>
 <?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 <?php use Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders; ?>
+<?php use Servebolt\Optimizer\FullPageCache\CachePostExclusion; ?>
+<?php use Servebolt\Optimizer\FullPageCache\FullPageCacheSettings; ?>
 <?php
-$fpcActive = FullPageCacheHeaders::fpcIsActive();
-$fpcActiveOverridden = FullPageCacheHeaders::fpcActiveStateIsOverridden();
+$fpcActive = FullPageCacheSettings::fpcIsActive();
+$fpcActiveOverridden = FullPageCacheSettings::fpcActiveStateIsOverridden();
 $postTypesToCache  = FullPageCacheHeaders::getPostTypesToCache(false, false);
 $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
 ?>
@@ -40,7 +42,7 @@ $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
             <tr>
                 <th scope="row">Posts to exclude from caching</th>
                 <td>
-                    <?php $idsToExclude = FullPageCacheHeaders::getIdsToExcludeFromCache() ?: []; ?>
+                    <?php $idsToExclude = CachePostExclusion::getIdsToExcludeFromCache() ?: []; ?>
 
                     <div class="tablenav top">
                         <div class="alignleft actions bulkactions">

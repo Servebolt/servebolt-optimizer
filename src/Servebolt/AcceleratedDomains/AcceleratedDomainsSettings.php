@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\AcceleratedDomains;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders;
+use Servebolt\Optimizer\FullPageCache\FullPageCacheSettings;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 
@@ -29,7 +29,7 @@ class AcceleratedDomainsSettings
      */
     private function initSettingsActions(): void
     {
-        add_filter('pre_update_option_' . getOptionName('acd_switch'), [$this, 'detectAcdActivation'], 10, 2);
+        add_filter('pre_update_option_' . getOptionName('acd_switch'), [$this, 'detectAcdStateChange'], 10, 2);
     }
 
     /**
@@ -39,7 +39,7 @@ class AcceleratedDomainsSettings
      * @param $oldValue
      * @return mixed
      */
-    public function detectAcdActivation($newValue, $oldValue)
+    public function detectAcdStateChange($newValue, $oldValue)
     {
         $wasActive = filter_var($oldValue, FILTER_VALIDATE_BOOLEAN);
         $isActive = filter_var($newValue, FILTER_VALIDATE_BOOLEAN);
@@ -47,14 +47,8 @@ class AcceleratedDomainsSettings
         if ($didChange) {
             if ($isActive) {
                 do_action('sb_optimizer_acd_enable');
-                if (!FullPageCacheHeaders::fpcIsActive()) {
-                    do_action('sb_optimizer_fpc_enable');
-                }
             } else {
                 do_action('sb_optimizer_acd_disable');
-                if (!FullPageCacheHeaders::fpcIsActive()) {
-                    do_action('sb_optimizer_fpc_disable');
-                }
             }
         }
         return $newValue;

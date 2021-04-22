@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Compatibility\WooCommerce\WooCommerce as WooCommerceCompatibility;
 use Servebolt\Optimizer\Compatibility\WpRocket\WpRocket as WpRocketCompatibility;
+use Servebolt\Optimizer\Compatibility\Cloudflare\Cloudflare as CloudflareCompatibility;
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
@@ -21,7 +22,6 @@ use Servebolt\Optimizer\Admin\AdminBarGUI\AdminBarGUI;
 use Servebolt\Optimizer\Admin\Assets as AdminAssets;
 use Servebolt\Optimizer\Admin\AdminGuiController;
 use Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
-use Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders;
 use Servebolt\Optimizer\Cli\Cli;
 
 use function Servebolt\Optimizer\Helpers\isCli;
@@ -59,6 +59,7 @@ class ServeboltOptimizer
         add_action('plugins_loaded', function () {
             new WooCommerceCompatibility;
             new WpRocketCompatibility;
+            new CloudflareCompatibility;
         });
 
         // Make sure we don't store certain options (like API credentials) in clear text.
@@ -67,10 +68,10 @@ class ServeboltOptimizer
         if (isHostedAtServebolt()) {
             // ACD Init
             AcceleratedDomains::init();
-
-            // Sets the correct cache headers for the Servebolt full page cache
-            FullPageCache::getInstance();
         }
+
+        // Sets the correct cache headers for the Servebolt full page cache
+        FullPageCache::getInstance();
 
         // Initialize image resizing
         if (featureIsActive('cf_image_resize')) {

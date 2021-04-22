@@ -4,15 +4,12 @@ namespace Servebolt\Optimizer\FullPageCache;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\isAjax;
 use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
-use function Servebolt\Optimizer\Helpers\getBlogOption;
-use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\woocommerceIsActive;
 use function Servebolt\Optimizer\Helpers\writeLog;
 
@@ -42,13 +39,6 @@ class FullPageCacheHeaders
 	private $headersAlreadySet = false;
 
 	/**
-	 * Cache the post ids to exclude from cache.
-	 *
-	 * @var null
-	 */
-	private static $idsToExcludeCache = null;
-
-	/**
 	 * The default browser cache time.
 	 *
 	 * @var int
@@ -69,6 +59,9 @@ class FullPageCacheHeaders
 	 */
 	private $allowForceHeaders = false;
 
+    /**
+     * Alias for "getInstance".
+     */
     public static function init(): void
     {
         self::getInstance();
@@ -108,7 +101,7 @@ class FullPageCacheHeaders
 		$this->headersAlreadySet = true;
 
         // No cache if FPC is not active, or if we are logged in
-        if (!self::fpcIsActive() || is_admin() || isAjax() || is_user_logged_in()) {
+        if (!FullPageCacheSettings::fpcIsActive() || is_admin() || isAjax() || is_user_logged_in()) {
             $this->noCacheHeaders();
             if ($debug) {
                 $this->header('No-cache-trigger: 1');
@@ -138,7 +131,7 @@ class FullPageCacheHeaders
 			if ($debug) {
                 $this->header('Cache-trigger: 11');
             }
-		} elseif (self::shouldExcludePostFromCache(get_the_ID())) {
+		} elseif (CachePostExclusion::shouldExcludePostFromCache(get_the_ID())) {
 			$this->noCacheHeaders();
 			if ($debug) {
                 $this->header('No-cache-trigger: 3');
@@ -188,6 +181,26 @@ class FullPageCacheHeaders
 		}
 		return $posts;
 	}
+
+    /**
+     * Check if we are in a WooCommerce-context and check if we should not cache.
+     *
+     * @return bool
+     */
+    private function isWoocommerceNoCachePage(): bool
+    {
+        return apply_filters('sb_optimizer_fpc_woocommerce_pages_no_cache_bool', (woocommerceIsActive() && (is_cart() || is_checkout() || is_account_page())));
+    }
+
+    /**
+     * Check if we are in a WooCommerce-context and check if we should cache.
+     *
+     * @return bool
+     */
+    private function isWoocommerceCachePage(): bool
+    {
+        return apply_filters('sb_optimizer_fpc_woocommerce_pages_cache_bool', (woocommerceIsActive() && (is_shop() || is_product_category() || is_product_tag() || is_product())));
+    }
 
 	/**
 	 * Whether we should debug headers or not.
@@ -246,19 +259,6 @@ class FullPageCacheHeaders
 	}
 
 	/**
-	 * Check if we should exclude post from cache.
-	 *
-	 * @param $postId
-	 *
-	 * @return bool
-	 */
-	public static function shouldExcludePostFromCache($postId)
-    {
-		$idsToExclude = self::getIdsToExcludeFromCache();
-		return is_array($idsToExclude) && in_array($postId, $idsToExclude);
-	}
-
-	/**
 	 * Check if cache is active for given post type.
 	 *
 	 * @param $postType
@@ -301,55 +301,37 @@ class FullPageCacheHeaders
 		return true;
 	}
 
-    /**
-     * Whether to use the Cloudflare APO-feature.
-     *
-     * @return bool
-     */
-	private function cfApoActive()
-    {
-	    if (is_null($this->cfApoActive)) {
-            $generalSettings = GeneralSettings::getInstance();
-            $this->cfApoActive = $generalSettings->useCloudflareApo();
-        }
-	    return $this->cfApoActive;
-    }
-
 	/**
 	 * Cache headers - Print headers that encourage caching.
 	 */
 	private function cacheHeaders()
     {
-
         do_action('sb_optimizer_fpc_cache_headers', $this);
 
-        // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $serveboltNginxCacheTime if it is
-        if (defined('SERVEBOLT_FPC_CACHE_TIME')) {
-	        $this->fpcCacheTime = SERVEBOLT_FPC_CACHE_TIME;
+        if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true)) {
+            // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $serveboltNginxCacheTime if it is
+            if (defined('SERVEBOLT_FPC_CACHE_TIME')) {
+                $this->fpcCacheTime = SERVEBOLT_FPC_CACHE_TIME;
+            }
+
+            // Check if the constant SERVEBOLT_BROWSER_CACHE_TIME is set, and override $serveboltBrowserCacheTime if it is
+            if (defined('SERVEBOLT_BROWSER_CACHE_TIME')) {
+                $this->browserCacheTime = SERVEBOLT_BROWSER_CACHE_TIME;
+            }
+
+            header_remove('Cache-Control');
+            header_remove('Pragma');
+            header_remove('Expires');
+
+            // Allow browser to cache content for 10 minutes, or the set browser cache time constant
+            $this->header(sprintf('Cache-Control: max-age=%s, public, s-maxage=%s', $this->browserCacheTime, $this->fpcCacheTime));
+            $this->header('Pragma: public');
+
+            // Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
+            $expiryString = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $this->fpcCacheTime) . ' GMT';
+            $this->header(sprintf('Expires: %s', $expiryString));
+            $this->header('X-Servebolt-Plugin: active');
         }
-
-        // Check if the constant SERVEBOLT_BROWSER_CACHE_TIME is set, and override $serveboltBrowserCacheTime if it is
-        if (defined('SERVEBOLT_BROWSER_CACHE_TIME')) {
-	        $this->browserCacheTime = SERVEBOLT_BROWSER_CACHE_TIME;
-        }
-
-        // Cloudflare APO-support
-        if ($this->cfApoActive()) {
-            $this->header( 'cf-edge-cache: cache, platform=wordpress' );
-        }
-
-		header_remove('Cache-Control');
-		header_remove('Pragma');
-		header_remove('Expires');
-
-		// Allow browser to cache content for 10 minutes, or the set browser cache time constant
-		$this->header(sprintf('Cache-Control: max-age=%s, public, s-maxage=%s', $this->browserCacheTime, $this->fpcCacheTime));
-		$this->header('Pragma: public');
-
-		// Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
-		$expiryString = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $this->fpcCacheTime) . ' GMT';
-		$this->header(sprintf('Expires: %s', $expiryString));
-		$this->header('X-Servebolt-Plugin: active');
 	}
 
 	/**
@@ -358,12 +340,11 @@ class FullPageCacheHeaders
 	private function noCacheHeaders(): void
     {
         do_action('sb_optimizer_fpc_no_cache_headers', $this);
-		$this->header( 'Cache-Control: max-age=0,no-cache,s-maxage=0' );
-		$this->header( 'Pragma: no-cache' );
-		$this->header( 'X-Servebolt-Plugin: active' );
-
-		// Cloudflare APO-support
-        $this->header( 'cf-edge-cache: no-cache, platform=wordpress' );
+        if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true)) {
+            $this->header( 'Cache-Control: max-age=0,no-cache,s-maxage=0' );
+            $this->header( 'Pragma: no-cache' );
+            $this->header( 'X-Servebolt-Plugin: active' );
+        }
 	}
 
 	/**
@@ -484,119 +465,4 @@ class FullPageCacheHeaders
 		    return formatArrayToCsv($defaults);
 	    }
     }
-
-	/**
-	 * Ids of posts to exclude from cache.
-	 *
-	 * @param null|int $blogId
-	 *
-	 * @return array|mixed|void|null
-	 */
-	public static function getIdsToExcludeFromCache(?int $blogId = null)
-    {
-		if (is_numeric($blogId)) {
-			$idsToExclude = getBlogOption($blogId, 'fpc_exclude');
-			if (!is_array($idsToExclude)) {
-                $idsToExclude = [];
-            }
-			return $idsToExclude;
-		}
-		if (is_null(self::$idsToExcludeCache)) {
-			$idsToExclude = getOption( 'fpc_exclude');
-			if (!is_array($idsToExclude)) {
-                $idsToExclude = [];
-            }
-            self::$idsToExcludeCache = $idsToExclude;
-		}
-		return self::$idsToExcludeCache;
-	}
-
-	/**
-	 * Exclude post from FPC.
-	 *
-	 * @param int $postId
-	 * @param null|int $blogId
-	 *
-	 * @return bool
-	 */
-	public static function excludePostFromCache($postId, ?int $blogId = null)
-    {
-		return self::excludePostsFromCache([$postId], $blogId);
-	}
-
-	/**
-	 * Exclude posts from FPC.
-	 *
-	 * @param $posts
-	 * @param null|int $blogId
-	 *
-	 * @return bool
-	 */
-	public static function excludePostsFromCache($posts, ?int $blogId = null)
-    {
-		$alreadyExcluded = self::getIdsToExcludeFromCache($blogId) ?: [];
-		foreach($posts as $postId) {
-			if (!in_array($postId, $alreadyExcluded)) {
-                $alreadyExcluded[] = $postId;
-			}
-		}
-		return self::setIdsToExcludeFromCache($alreadyExcluded, $blogId);
-	}
-
-	/**
-	 * Set posts to exclude from cache.
-	 *
-	 * @param $idsToExclude
-	 * @param null|int $blogId
-	 *
-	 * @return bool
-	 */
-	public static function setIdsToExcludeFromCache($idsToExclude, ?int $blogId = null)
-    {
-		self::$idsToExcludeCache = $idsToExclude;
-		return smartUpdateOption($blogId, 'fpc_exclude', $idsToExclude);
-	}
-
-	/**
-	 * The option name/key we use to store the active state for the Nginx FPC cache.
-	 *
-	 * @return string
-	 */
-	private static function fpcActiveOptionKey(): string
-    {
-		return 'fpc_switch';
-	}
-
-	/**
-	 * Set full page caching is active/inactive, either for current blog or specified blog.
-	 *
-	 * @param bool $state
-	 * @param null|int $blogId
-	 *
-	 * @return bool|mixed
-	 */
-	public static function fpcToggleActive(bool $state, ?int $blogId = null)
-    {
-        return smartUpdateOption($blogId, self::fpcActiveOptionKey(), $state);
-	}
-
-	/**
-	 * Check if we are in a WooCommerce-context and check if we should not cache.
-	 *
-	 * @return bool
-	 */
-	private function isWoocommerceNoCachePage(): bool
-    {
-		return apply_filters('sb_optimizer_fpc_woocommerce_pages_no_cache_bool', (woocommerceIsActive() && (is_cart() || is_checkout() || is_account_page())));
-	}
-
-	/**
-	 * Check if we are in a WooCommerce-context and check if we should cache.
-	 *
-	 * @return bool
-	 */
-	private function isWoocommerceCachePage(): bool
-    {
-		return apply_filters('sb_optimizer_fpc_woocommerce_pages_cache_bool', (woocommerceIsActive() && (is_shop() || is_product_category() || is_product_tag() || is_product())));
-	}
 }

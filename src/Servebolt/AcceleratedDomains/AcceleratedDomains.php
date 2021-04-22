@@ -18,6 +18,9 @@ class AcceleratedDomains
 {
     use Singleton;
 
+    /**
+     * Alias for "getInstance".
+     */
     public static function init()
     {
         self::getInstance();
@@ -93,9 +96,7 @@ class AcceleratedDomains
     private function htmlCacheActiveLockWhenAcdActive(): void
     {
         if (self::isActive()) {
-            add_filter('sb_optimizer_fpc_is_active', function() {
-                return true;
-            }, 10, 0);
+            add_filter('sb_optimizer_fpc_is_active', '__return_true');
         }
     }
 }
