@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Cli\Cache;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\FullPageCache\FullPageCache;
+use Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders;
 
 /**
  * Class CacheSettingsConstraints
@@ -28,7 +28,7 @@ class CacheSettingsConstraints
      */
     private function fpcSettingsValues(): array
     {
-        return array_keys(FullPageCache::getAvailablePostTypesToCache(true));
+        return array_keys(FullPageCacheHeaders::getAvailablePostTypesToCache(true));
     }
 
     /**
