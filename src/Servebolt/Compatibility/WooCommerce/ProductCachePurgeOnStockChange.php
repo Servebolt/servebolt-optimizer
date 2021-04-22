@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Compatibility\WooCommerce;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Exception;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\ContentChangeTrigger;
