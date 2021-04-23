@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Utils\Crypto;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\getOptionName;
+use function Servebolt\Optimizer\Helpers\isTesting;
 
 /**
  * Class OptionEncryption.
@@ -77,15 +78,25 @@ class OptionEncryption
 		}
 	}
 
+    /**
+     * @return array
+     */
     private function encryptedSiteOptionItems(): array
     {
-        $this->encryptedSiteOptionItems[] = 'sb-test-options-key';
+        if (isTesting()) {
+            $this->encryptedSiteOptionItems[] = 'sb-test-options-key';
+        }
         return $this->encryptedSiteOptionItems;
     }
 
+    /**
+     * @return array|string[]
+     */
     private function encryptedOptionItems(): array
     {
-        $this->encryptedOptionItems[] = 'sb-test-options-key';
+        if (isTesting()) {
+            $this->encryptedOptionItems[] = 'sb-test-options-key';
+        }
         return $this->encryptedOptionItems;
     }
 

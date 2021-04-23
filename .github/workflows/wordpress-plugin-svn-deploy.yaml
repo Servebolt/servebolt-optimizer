@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@master
       - name: Build
         run: |
-          composer install --no-dev
+          composer install --no-dev --optimize-autoloader
           yarn install
           yarn production
           ./cleanup.sh
