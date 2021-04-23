@@ -13,8 +13,9 @@ use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\resolvePostIdsToTitleAndPostIdString;
 use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
-use function Servebolt\Optimizer\Helpers\fullPageCache;
-use Servebolt\Optimizer\FullPageCache\FullPageCache;
+use Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders;
+use Servebolt\Optimizer\FullPageCache\FullPageCacheSettings;
+use Servebolt\Optimizer\FullPageCache\CachePostExclusion;
 
 /**
  * Class Fpc
@@ -332,10 +333,10 @@ class Fpc
      */
     private function getNginxFpcStatus(?int $blogId = null)
     {
-        $status = FullPageCache::fpcIsActive($blogId) ? 'Active' : 'Inactive';
-        $postTypes = FullPageCache::getPostTypesToCache(true, true, $blogId);
+        $status = FullPageCacheSettings::fpcIsActive($blogId) ? 'Active' : 'Inactive';
+        $postTypes = FullPageCacheHeaders::getPostTypesToCache(true, true, $blogId);
         $enabledPostTypesString = $this->nginxGetActivePostTypesString($postTypes);
-        $excludedPosts = FullPageCache::getIdsToExcludeFromCache($blogId);
+        $excludedPosts = CachePostExclusion::getIdsToExcludeFromCache($blogId);
         $array = [];
         if ($blogId) {
             $array['URL'] = get_site_url($blogId);
@@ -356,7 +357,7 @@ class Fpc
      */
     private function nginxFpcGetCachePostTypes(?int $blogId = null)
     {
-        $postTypes = FullPageCache::getPostTypesToCache(true, true, $blogId);
+        $postTypes = FullPageCacheHeaders::getPostTypesToCache(true, true, $blogId);
         $enabledPostTypesString = $this->nginxGetActivePostTypesString($postTypes);
         $array = [];
         if ($blogId) {
@@ -379,7 +380,7 @@ class Fpc
 
         // Cache default post types
         if (!is_array($postTypes) || empty($postTypes)) {
-            return sprintf(__('Default [%s]', 'servebolt-wp'), FullPageCache::getDefaultPostTypesToCache('csv'));
+            return sprintf(__('Default [%s]', 'servebolt-wp'), FullPageCacheHeaders::getDefaultPostTypesToCache('csv'));
         }
 
         // Cache all post types
@@ -399,10 +400,10 @@ class Fpc
     {
         $url = get_site_url($blogId);
         $cacheActiveString = booleanToStateString($newCacheState);
-        if ($cacheActiveString === FullPageCache::fpcIsActive($blogId)) {
+        if ($cacheActiveString === FullPageCacheSettings::fpcIsActive($blogId)) {
             WP_CLI::warning(sprintf( __('Full Page Cache already %s on site %s', 'servebolt-wp'), $cacheActiveString, $url ));
         } else {
-            FullPageCache::fpcToggleActive($newCacheState, $blogId);
+            FullPageCacheSettings::fpcToggleActive($newCacheState, $blogId);
             WP_CLI::success(sprintf( __('Full Page Cache %s on site %s', 'servebolt-wp'), $cacheActiveString, $url ));
         }
     }
@@ -478,7 +479,7 @@ class Fpc
         $postTypes = array_filter($postTypes, function($postType) use ($allPostTypesKeys) {
             return in_array($postType, $allPostTypesKeys) || $postType === 'all';
         });
-        FullPageCache::setCacheablePostTypes($postTypes, $blogId);
+        FullPageCacheHeaders::setCacheablePostTypes($postTypes, $blogId);
         if (empty($postTypes)) {
             if ($blogId) {
                 WP_CLI::success(sprintf(__('Cache post type(s) cleared on site %s'), get_site_url($blogId)));
@@ -501,7 +502,7 @@ class Fpc
      */
     private function nginxGetAllPostTypes()
     {
-        $allPostTypes = FullPageCache::getAvailablePostTypesToCache(false);
+        $allPostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(false);
         if (is_array($allPostTypes)) {
             return array_map(function($postType) {
                 return isset($postType->name) ? $postType->name : $postType;
@@ -521,11 +522,11 @@ class Fpc
         if (is_string($idsToExclude)) {
             $idsToExclude = formatCommaStringToArray($idsToExclude);
         }
-        $alreadyExcluded = FullPageCache::getIdsToExcludeFromCache($blogId);
+        $alreadyExcluded = CachePostExclusion::getIdsToExcludeFromCache($blogId);
         $clearAll = $idsToExclude === false;
 
         if ($clearAll) {
-            FullPageCache::setIdsToExcludeFromCache([], $blogId);
+            CachePostExclusion::setIdsToExcludeFromCache([], $blogId);
             WP_CLI::success(__('All excluded posts were cleared.', 'servebolt-wp'));
             return;
         } elseif (is_array($idsToExclude) && empty($idsToExclude)) {
@@ -546,7 +547,7 @@ class Fpc
                 $alreadyAdded[] = $id;
             }
         }
-        FullPageCache::setIdsToExcludeFromCache($alreadyExcluded, $blogId);
+        CachePostExclusion::setIdsToExcludeFromCache($alreadyExcluded, $blogId);
 
         if (!empty($alreadyAdded)) {
             WP_CLI::warning(sprintf(__('The following ids were already excluded: %s', 'servebolt-wp'), formatArrayToCsv($alreadyAdded)));
@@ -578,7 +579,7 @@ class Fpc
         } else {
             $array = [];
         }
-        $alreadyExcluded = FullPageCache::getIdsToExcludeFromCache($blogId);
+        $alreadyExcluded = CachePostExclusion::getIdsToExcludeFromCache($blogId);
         if ($extended) {
             $alreadyExcluded = formatArrayToCsv(resolvePostIdsToTitleAndPostIdString($alreadyExcluded), ', ');
         } else {

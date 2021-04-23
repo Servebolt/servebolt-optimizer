@@ -8,5 +8,5 @@ use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 use function Servebolt\Optimizer\Helpers\clearAllCookies;
 
 MigrationRunner::cleanup();
-deleteAllSettings();
+deleteAllSettings(true, true);
 clearAllCookies();

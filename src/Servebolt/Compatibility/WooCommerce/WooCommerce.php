@@ -2,9 +2,9 @@
 
 namespace Servebolt\Optimizer\Compatibility\WooCommerce;
 
-use function Servebolt\Optimizer\Helpers\woocommerceIsActive;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\woocommerceIsActive;
 
 /**
  * Class WooCommerce

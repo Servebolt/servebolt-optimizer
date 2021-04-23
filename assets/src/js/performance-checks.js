@@ -1,11 +1,5 @@
 jQuery(document).ready(function($) {
 
-  // Clear all plugin settings
-  $('.sb-content .sb-clear-all-settings').click(function(e) {
-    e.preventDefault();
-    sb_clear_all_settings();
-  });
-
   // Revert all optimizations
   $('.sb-content .sb-deoptimize-database').click(function(e) {
     e.preventDefault();
@@ -13,19 +7,19 @@ jQuery(document).ready(function($) {
   });
 
   // Run full optimization
-  $('.sb-content .sb-optimize-now').click(function(e){
+  $('.sb-content .sb-optimize-now').click(function(e) {
     e.preventDefault();
     sb_optimize();
   });
 
   // Convert specific table
-  $('.sb-content .sb-convert-table').click(function(e){
+  $('.sb-content .sb-convert-table').click(function(e) {
     e.preventDefault();
     sb_convert_table(this);
   });
 
   // Create index for specific table
-  $('.sb-content .sb-create-index').click(function(e){
+  $('.sb-content .sb-create-index').click(function(e) {
     e.preventDefault();
     sb_create_index(this);
   });
@@ -406,92 +400,6 @@ jQuery(document).ready(function($) {
         sb_optimization_error();
       }
     });
-  }
-
-  /**
-   * Clear all plugin settings.
-   */
-  function sb_clear_all_settings() {
-    if (window.sb_use_native_js_fallback()) {
-      if (window.confirm('Are you sure?' + "\n" + 'Warning: this will clear all settings and essentially reset the whole plugin. You want to proceed?')) {
-        if (window.confirm('Last warning' + "\n" + 'Do you really want to proceed?')) {
-          sb_clear_all_settings_confirmed();
-        }
-      }
-    } else {
-      Swal.fire({
-        title: 'Are you sure?',
-        text: 'Warning: this will clear all settings and essentially reset the whole plugin. You want to proceed?',
-        icon: 'warning',
-        showCancelButton: true,
-        customClass: {
-          confirmButton: 'servebolt-button yellow',
-          cancelButton: 'servebolt-button light'
-        },
-        buttonsStyling: false
-      }).then((result) => {
-        if ( result.value ) {
-          Swal.fire({
-            title: 'Last warning',
-            text: 'Do you really want to proceed?',
-            icon: 'warning',
-            showCancelButton: true,
-            customClass: {
-              confirmButton: 'servebolt-button yellow',
-              cancelButton: 'servebolt-button light'
-            },
-            buttonsStyling: false
-          }).then((result) => {
-            if ( result.value ) {
-              sb_clear_all_settings_confirmed();
-            }
-          });
-        }
-      });
-    }
-  }
-
-  /**
-   * Confirm callback for function "sb_clear_all_settings".
-   */
-  function sb_clear_all_settings_confirmed() {
-    window.sb_loading(true);
-    var data = {
-      action: 'servebolt_clear_all_settings',
-      security: sb_ajax_object.ajax_nonce,
-    };
-    $.ajax({
-      type: 'POST',
-      url: sb_ajax_object.ajaxurl,
-      data: data,
-      success: function (response) {
-        window.sb_loading(false);
-        setTimeout(function () {
-          sb_clear_all_settings_confirmed_success();
-        }, 100);
-      }
-    });
-  }
-
-  /**
-   * Success callback for function "sb_clear_all_settings_confirmed".
-   */
-  function sb_clear_all_settings_confirmed_success() {
-    if ( window.sb_use_native_js_fallback() ) {
-      window.alert('Done!');
-      location.reload();
-    } else {
-      Swal.fire({
-        icon: 'success',
-        title: 'Done!',
-        customClass: {
-          confirmButton: 'servebolt-button yellow'
-        },
-        buttonsStyling: false
-      }).then(function () {
-        location.reload();
-      });
-    }
   }
 
   /**

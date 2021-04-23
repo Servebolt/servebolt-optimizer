@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Admin\GeneralSettings;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Admin\GeneralSettings\Ajax\GeneralSettingsActions;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Utils\KeyValueStorage\KeyValueStorage;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
@@ -41,6 +42,7 @@ class GeneralSettings
      */
     private function __construct()
     {
+        $this->initAjax();
         $this->initSettings();
     }
 
@@ -50,6 +52,14 @@ class GeneralSettings
     private function initSettings()
     {
         add_action('admin_init', [$this, 'registerSettings']);
+    }
+
+    /**
+     * Add AJAX handling.
+     */
+    private function initAjax(): void
+    {
+        new GeneralSettingsActions;
     }
 
     /**

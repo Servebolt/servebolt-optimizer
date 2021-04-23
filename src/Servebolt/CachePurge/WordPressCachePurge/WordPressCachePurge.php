@@ -21,6 +21,11 @@ class WordPressCachePurge
     use PostMethods, TermMethods;
 
     /**
+     * @var bool Whether to prevent the same post/term from being purge more than once during the execution.
+     */
+    private static $preventDoublePurge = true;
+
+    /**
      * Purge cache by URL.
      *
      * @param string $url

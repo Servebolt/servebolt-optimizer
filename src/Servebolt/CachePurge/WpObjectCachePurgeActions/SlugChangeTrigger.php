@@ -2,7 +2,7 @@
 
 namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
-if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
+if (!defined( 'ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;

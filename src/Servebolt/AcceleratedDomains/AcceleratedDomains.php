@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 
@@ -17,6 +18,9 @@ class AcceleratedDomains
 {
     use Singleton;
 
+    /**
+     * Alias for "getInstance".
+     */
     public static function init()
     {
         self::getInstance();
@@ -28,6 +32,8 @@ class AcceleratedDomains
     public function __construct()
     {
         new AcceleratedDomainsHeaders;
+        new AcceleratedDomainsSettings;
+
         $this->cachePurgeDriverLockWhenAcdActive();
         $this->htmlCacheActiveLockWhenAcdActive();
     }
@@ -90,9 +96,7 @@ class AcceleratedDomains
     private function htmlCacheActiveLockWhenAcdActive(): void
     {
         if (self::isActive()) {
-            add_filter('sb_optimizer_fpc_is_active', function() {
-                return true;
-            }, 10, 0);
+            add_filter('sb_optimizer_fpc_is_active', '__return_true');
         }
     }
 }

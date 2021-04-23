@@ -67,7 +67,7 @@ class FullPageCacheControl
      */
     private function initSettings(): void
     {
-        add_action( 'admin_init', [$this, 'registerSettings'] );
+        add_action('admin_init', [$this, 'registerSettings']);
     }
 
     /**
