@@ -18,6 +18,16 @@ trait PostMethods
     use SharedMethods;
 
     /**
+     * @var bool Whether to prevent the same post from being purge more than once during the execution.
+     */
+    private static $preventPostDoublePurge = true;
+
+    /**
+     * @var array Array of recently purged posts.
+     */
+    private static $recentlyPurgedPosts = [];
+
+    /**
      * Get all the URLs to purge for a given post.
      *
      * @param int $postId
@@ -42,7 +52,7 @@ trait PostMethods
     {
 
         // If this is just a revision, don't purge anything.
-        if ( ! $postId || wp_is_post_revision( $postId ) ) {
+        if (!$postId || wp_is_post_revision($postId)) {
             return false;
         }
 
@@ -53,10 +63,17 @@ trait PostMethods
                 'id' => $postId,
             ]));
         } else {
+            if (self::$preventDoublePurge && self::$preventPostDoublePurge && array_key_exists($postId, self::$recentlyPurgedPosts)) {
+                return self::$recentlyPurgedPosts[$postId];
+            }
             $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
             $cachePurgeDriver = CachePurgeDriver::getInstance();
             $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'post', $cachePurgeDriver);
-            return $cachePurgeDriver->purgeByUrls($urlsToPurge);
+            $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
+            if (self::$preventDoublePurge && self::$preventPostDoublePurge) {
+                self::$recentlyPurgedPosts[$postId] = $result;
+            }
+            return $result;
         }
     }
 }

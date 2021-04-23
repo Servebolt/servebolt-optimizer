@@ -219,7 +219,12 @@ class CachePurge
         return self::cachePurgeDriverIsOverridden() && self::getSelectedCachePurgeDriver() === $driver;
     }
 
-    public static function cachePurgeDriverIsOverridden()
+    /**
+     * Check whether cache purge driver is overriden using a filter.
+     *
+     * @return bool
+     */
+    public static function cachePurgeDriverIsOverridden(): bool
     {
         return has_filter('sb_optimizer_selected_cache_purge_driver');
     }

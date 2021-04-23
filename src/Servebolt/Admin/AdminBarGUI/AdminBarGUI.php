@@ -37,7 +37,7 @@ class AdminBarGUI
 	 * @param WP_Admin_Bar $wpAdminBar
      * @return void|null
      */
-	public function adminBar(WP_Admin_Bar $wpAdminBar): void
+	public function adminBar($wpAdminBar)
     {
 		if (!apply_filters('sb_optimizer_display_admin_bar_menu', true)) {
             return;

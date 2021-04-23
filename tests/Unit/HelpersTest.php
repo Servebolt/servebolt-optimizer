@@ -9,9 +9,11 @@ use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
+use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 use function Servebolt\Optimizer\Helpers\deleteBlogOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
+use function Servebolt\Optimizer\Helpers\getAllOptionsNames;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
@@ -385,12 +387,33 @@ class HelpersTest extends WP_UnitTestCase
         $this->assertNull(smartGetOption(null, $key));
     }
 
-    private function createBlogs(int $numberOfBlogs = 1): void
+    public function testThatAllSettingsGetsDeleted()
+    {
+        $this->createBlogs(2);
+        $allOptionsNames = getAllOptionsNames(true);
+        iterateSites(function ($site) use ($allOptionsNames) {
+            foreach ($allOptionsNames as $option) {
+                updateBlogOption($site->blog_id, $option, $option);
+                $this->assertEquals($option, getBlogOption($site->blog_id, $option));
+            }
+        });
+        deleteAllSettings(true, true);
+        iterateSites(function ($site) use ($allOptionsNames) {
+            foreach ($allOptionsNames as $option) {
+                $this->assertNull(getBlogOption($site->blog_id, $option));
+            }
+        });
+    }
+
+    private function createBlogs(int $numberOfBlogs = 1, $blogCreationAction = null): void
     {
         $siteCount = countSites();
         for ($i = 1; $i <= $numberOfBlogs; $i++) {
             $number = $i + $siteCount;
-            $this->factory()->blog->create( [ 'domain' => 'foo-' . $number , 'path' => '/', 'title' => 'Blog ' . $number ] );
+            $blogId = $this->factory()->blog->create( [ 'domain' => 'foo-' . $number , 'path' => '/', 'title' => 'Blog ' . $number ] );
+            if (is_callable($blogCreationAction)) {
+                $blogCreationAction($blogId);
+            }
         }
     }
 }

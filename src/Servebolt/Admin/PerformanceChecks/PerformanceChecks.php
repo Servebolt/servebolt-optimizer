@@ -45,6 +45,10 @@ class PerformanceChecks
      */
     public function enqueueScripts(): void
     {
+        $screen = get_current_screen();
+        if ($screen->id != 'servebolt_page_servebolt-performance-tools') {
+            return;
+        }
         wp_enqueue_script( 'servebolt-optimizer-performance-checks-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/performance-checks.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/performance-checks.js'), true );
     }
 

@@ -165,7 +165,6 @@ class ContentChangeTrigger
         if (!in_array($postStatus, ['publish'])) {
             return false;
         }
-
         return true;
     }
 
