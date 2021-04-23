@@ -54,7 +54,10 @@ class Assets {
 	 */
 	public function pluginPublicStyling(): void
     {
-		wp_enqueue_style('servebolt-optimizer-public-styling', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/css/public-style.css', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/css/public-style.css'));
+        $this->enqueueStyle(
+            'servebolt-optimizer-public-styling',
+            'assets/dist/css/public-style.css'
+        );
 	}
 
     /**
@@ -62,9 +65,15 @@ class Assets {
      */
     public function pluginAdminStyling(): void
     {
-        wp_enqueue_style('servebolt-optimizer-styling', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/css/admin-style.css', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/css/admin-style.css'));
-        if ( $this->isGutenberg() && apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true) ) {
-            wp_enqueue_style('servebolt-optimizer-gutenberg-menu-styling', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/css/gutenberg-menu.css', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/css/gutenberg-menu.css'));
+        $this->enqueueStyle(
+            'servebolt-optimizer-styling',
+            'assets/dist/css/admin-style.css'
+        );
+        if ($this->isGutenberg() && apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true)) {
+            $this->enqueueStyle(
+                'servebolt-optimizer-gutenberg-menu-styling',
+                'assets/dist/css/gutenberg-menu.css'
+            );
         }
     }
 
@@ -76,9 +85,15 @@ class Assets {
         if ($this->shouldLoadCommonAssets('styling')) {
             $generalSettings = GeneralSettings::getInstance();
             if (!$generalSettings->useNativeJsFallback()) {
-                wp_enqueue_style('sb-sweetalert2', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/css/sweetalert2.min.css', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/css/sweetalert2.min.css'));
+                $this->enqueueStyle(
+                    'sb-sweetalert2',
+                    'assets/dist/css/sweetalert2.min.css'
+                );
             }
-            wp_enqueue_style('servebolt-optimizer-common-styling', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/css/common-style.css', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/css/common-style.css'));
+            $this->enqueueStyle(
+                'servebolt-optimizer-common-styling',
+                'assets/dist/css/common-style.css'
+            );
         }
 	}
 
@@ -93,7 +108,12 @@ class Assets {
 	public function pluginAdminScripts(): void
     {
         if ($this->isGutenberg() && apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true)) {
-            wp_enqueue_script('servebolt-optimizer-gutenberg-cache-purge-menu-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/gutenberg-cache-purge-menu.js', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/gutenberg-menu.js'), true);
+            $this->enqueueScript(
+                'servebolt-optimizer-gutenberg-cache-purge-menu-scripts',
+                'assets/dist/js/gutenberg-cache-purge-menu.js',
+                [],
+                true
+            );
         }
     }
 
@@ -105,16 +125,31 @@ class Assets {
 	    if ($this->shouldLoadCommonAssets('scripts')) {
 	        $generalSettings = GeneralSettings::getInstance();
             if (!$generalSettings->useNativeJsFallback()) {
-                wp_enqueue_script('sb-sweetalert2', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/sweetalert2.all.min.js', [], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/sweetalert2.all.min.js'), true);
+                $this->enqueueScript(
+                    'sb-sweetalert2',
+                    'assets/dist/js/sweetalert2.all.min.js',
+                    [],
+                    true
+                );
             }
-            wp_enqueue_script('servebolt-optimizer-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/general.js', ['jquery'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/general.js'), true);
-            wp_enqueue_script('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/cloudflare-cache-purge-trigger.js', ['jquery'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/cloudflare-cache-purge-trigger.js'), true);
+            $this->enqueueScript(
+                'servebolt-optimizer-scripts',
+                'assets/dist/js/general.js',
+                ['jquery'],
+                true
+            );
+            $this->enqueueScript(
+                'servebolt-optimizer-cloudflare-cache-purge-trigger-scripts',
+                'assets/dist/js/cloudflare-cache-purge-trigger.js',
+                ['jquery'],
+                true
+            );
             wp_localize_script('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', 'sb_ajax_object', [
                 'ajax_nonce'                         => getAjaxNonce(),
                 'use_native_js_fallback'             => booleanToString($generalSettings->useNativeJsFallback()),
-                //'cron_purge_is_active'               => sb_cf_cache()->cron_purge_is_active(),
-                'cron_purge_is_active'               => false, // TODO: Add real boolean value
                 'ajaxurl'                            => admin_url('admin-ajax.php'),
+                'cron_purge_is_active'               => false, // TODO: Add real boolean value
+                //'cron_purge_is_active'               => sb_cf_cache()->cron_purge_is_active(),
             ]);
         }
 	}
@@ -128,6 +163,31 @@ class Assets {
     {
         $currentScreen = get_current_screen();
         return $currentScreen && method_exists($currentScreen, 'is_block_editor') && $currentScreen->is_block_editor();
+    }
+
+    /**
+     * Enqueue script.
+     *
+     * @param string $handle
+     * @param string $src
+     * @param array $deps
+     * @param bool $in_footer
+     */
+    private function enqueueScript($handle, $src, $deps = [], $in_footer = false): void
+    {
+        wp_enqueue_script($handle, SERVEBOLT_PLUGIN_DIR_URL . $src, $deps, filemtime(SERVEBOLT_PLUGIN_DIR_PATH . $src), $in_footer);
+    }
+
+    /**
+     * Enqueue style.
+     *
+     * @param string $handle
+     * @param string $src
+     * @param array $deps
+     */
+    private function enqueueStyle($handle, $src, $deps = []): void
+    {
+        wp_enqueue_style($handle, SERVEBOLT_PLUGIN_DIR_URL . $src, $deps, filemtime(SERVEBOLT_PLUGIN_DIR_PATH . $src));
     }
 
     /**
