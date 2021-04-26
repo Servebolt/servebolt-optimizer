@@ -241,12 +241,18 @@ class HelpersTest extends WP_UnitTestCase
         $this->assertTrue(isHostedAtServebolt());
         remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
         $this->assertFalse(isHostedAtServebolt());
+        $_SERVER['SERVER_ADMIN'] = 'support@servebolt.comz';
+        $this->assertFalse(isHostedAtServebolt());
         $_SERVER['SERVER_ADMIN'] = 'support@servebolt.com';
         $this->assertTrue(isHostedAtServebolt());
         unset($_SERVER['SERVER_ADMIN']);
         $this->assertFalse(isHostedAtServebolt());
+        $_SERVER['HOSTNAME'] = 'accele-13661.bolt53.servebolt.comz';
+        $this->assertFalse(isHostedAtServebolt());
         $_SERVER['HOSTNAME'] = 'accele-13661.bolt53.servebolt.com';
         $this->assertTrue(isHostedAtServebolt());
+        $_SERVER['HOSTNAME'] = 'sbopti-7393.wilhelm-osl.servebolt.cloudz';
+        $this->assertFalse(isHostedAtServebolt());
         $_SERVER['HOSTNAME'] = 'sbopti-7393.wilhelm-osl.servebolt.cloud';
         $this->assertTrue(isHostedAtServebolt());
         unset($_SERVER['HOSTNAME']);
