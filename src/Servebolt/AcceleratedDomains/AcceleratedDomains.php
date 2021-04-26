@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\AcceleratedDomains;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\getOptionName;
@@ -34,6 +35,8 @@ class AcceleratedDomains
         new AcceleratedDomainsHeaders;
         new AcceleratedDomainsSettings;
 
+        $this->disableApoWhenAcdActive();
+        $this->activateCachePurgeFeatureOnAcdActivation();
         $this->cachePurgeDriverLockWhenAcdActive();
         $this->htmlCacheActiveLockWhenAcdActive();
     }
@@ -79,14 +82,36 @@ class AcceleratedDomains
     }
 
     /**
+     * Disable APO whenever ACD is active.
+     */
+    private function disableApoWhenAcdActive(): void
+    {
+        if (self::isActive()) {
+            add_filter('pre_option_' . getOptionName('use_cloudflare_apo'), '__return_false');
+        }
+    }
+
+    /**
+     * Activate automatic cache purge feature on ACD activation.
+     */
+    private function activateCachePurgeFeatureOnAcdActivation(): void
+    {
+        add_action('sb_optimizer_acd_enable', function() {
+            CachePurge::setActiveState(true);
+        });
+    }
+
+    /**
      * Lock cache purge driver to ACD whenever ACD-feature is active.
      */
     private function cachePurgeDriverLockWhenAcdActive(): void
     {
         if (self::isActive()) {
-            add_filter('sb_optimizer_selected_cache_purge_driver', function() {
+            $acdFunction = function() {
                 return 'acd';
-            }, 10, 0);
+            };
+            add_filter('pre_option_' . getOptionName('cache_purge_driver'), $acdFunction);
+            add_filter('sb_optimizer_selected_cache_purge_driver', $acdFunction);
         }
     }
 
@@ -96,6 +121,7 @@ class AcceleratedDomains
     private function htmlCacheActiveLockWhenAcdActive(): void
     {
         if (self::isActive()) {
+            add_filter('pre_option_' . getOptionName('fpc_switch'), '__return_true');
             add_filter('sb_optimizer_fpc_is_active', '__return_true');
         }
     }
