@@ -800,18 +800,18 @@ function requireSuperadmin()
 function isHostedAtServebolt(): bool
 {
     $isHostedAtServebolt = false;
+    $context = null;
     if (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
         $isHostedAtServebolt = HOST_IS_SERVEBOLT_OVERRIDE;
-    } else {
-        foreach (['SERVER_ADMIN', 'SERVER_NAME'] as $key) {
-            if (array_key_exists($key, $_SERVER)) {
-                if ((boolean) preg_match('/(servebolt|raskesider)\.([\w]{2,63})$/', $_SERVER[$key])) {
-                    $isHostedAtServebolt = true;
-                }
-            }
-        }
+        $context = 'OVERRIDE';
+    } elseif (arrayGet('SERVER_ADMIN', $_SERVER) === 'support@servebolt.com') {
+        $isHostedAtServebolt = true;
+        $context = 'SERVER_ADMIN';
+    } elseif ((boolean) preg_match('/servebolt\.(com|cloud)$/', arrayGet('HOSTNAME', $_SERVER))) {
+        $isHostedAtServebolt = true;
+        $context = 'HOSTNAME';
     }
-    return apply_filters('sb_optimizer_is_hosted_at_servebolt', $isHostedAtServebolt);
+    return apply_filters('sb_optimizer_is_hosted_at_servebolt', $isHostedAtServebolt, $context);
 }
 
 /**
