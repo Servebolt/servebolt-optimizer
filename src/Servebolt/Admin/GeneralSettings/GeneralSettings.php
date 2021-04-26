@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Admin\GeneralSettings;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\GeneralSettings\Ajax\GeneralSettingsActions;
+use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Utils\KeyValueStorage\KeyValueStorage;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
@@ -208,6 +209,7 @@ class GeneralSettings
         view('general-settings.general-settings', [
             'sbAdminUrl' => getServeboltAdminUrl(),
             'generalSettings' => $this,
+            'acdActive' => AcceleratedDomains::isActive(),
         ]);
     }
 }

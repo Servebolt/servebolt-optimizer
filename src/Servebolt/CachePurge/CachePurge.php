@@ -12,6 +12,7 @@ use Servebolt\Optimizer\CachePurge\Drivers\Cloudflare as CloudflareDriver;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
+use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 
 /**
  * Class CachePurge
@@ -176,6 +177,18 @@ class CachePurge
     }
 
     /**
+     * Set cache purge feature state.
+     *
+     * @param bool $boolean
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function setActiveState($boolean, ?int $blogId = null): bool
+    {
+        return smartUpdateOption($blogId, 'cache_purge_switch', $boolean, true);
+    }
+
+    /**
      * Check whether the cache purge feature is active.
      *
      * @param int|null $blogId
@@ -188,7 +201,7 @@ class CachePurge
         if ($value === $noExistKey) {
             $value = smartGetOption($blogId, 'cf_switch');
         }
-        return checkboxIsChecked($value);
+        return apply_filters('sb_optimizer_cache_purge_feature_active', checkboxIsChecked($value));
     }
 
     /**
@@ -214,6 +227,12 @@ class CachePurge
         return apply_filters('sb_optimizer_selected_cache_purge_driver', $value);
     }
 
+    /**
+     * Check whether cache purge driver is locked to given driver.
+     *
+     * @param $driver
+     * @return bool
+     */
     public static function cachePurgeIsLockedTo($driver)
     {
         return self::cachePurgeDriverIsOverridden() && self::getSelectedCachePurgeDriver() === $driver;
