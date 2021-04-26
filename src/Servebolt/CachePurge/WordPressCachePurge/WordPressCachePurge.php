@@ -21,6 +21,11 @@ class WordPressCachePurge
     use PostMethods, TermMethods;
 
     /**
+     * @var bool Whether to prevent the same post/term from being purge more than once during the execution.
+     */
+    private static $preventDoublePurge = true;
+
+    /**
      * Purge cache by URL.
      *
      * @param string $url
@@ -68,6 +73,19 @@ class WordPressCachePurge
     }
 
     /**
+     * Alias for method "purgeByTermId".
+     *
+     * @param int $termId
+     * @param string $taxonomySlug
+     * @param bool $returnWpError
+     * @return bool
+     */
+    public static function purgeByTerm(int $termId, string $taxonomySlug, bool $returnWpError = false)
+    {
+        return self::purgeByTermId($termId, $taxonomySlug, $returnWpError);
+    }
+
+    /**
      * Alias for method "purgeTermCache".
      *
      * @param int $termId
@@ -91,7 +109,6 @@ class WordPressCachePurge
     {
         return self::purgeByPostId($postId, $returnWpError);
     }
-
 
     /**
      * Alias for method "purgePostCache".

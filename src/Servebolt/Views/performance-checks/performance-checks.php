@@ -7,7 +7,6 @@
 
   <?php if ( isDevDebug() ) : ?>
     <button class="sb-deoptimize-database button" style="margin-top: 10px;">De-optimize database!</button>
-    <button class="sb-clear-all-settings button" style="margin-top: 10px;">Reset all settings</button>
   <?php endif; ?>
 
 	<h3><?php _e('Database Indexes', 'servebolt-wp'); ?></h3>

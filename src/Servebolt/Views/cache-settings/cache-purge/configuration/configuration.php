@@ -55,7 +55,7 @@ Keep in mind that purging the entire cache has a temporary impact on the loading
                     <fieldset>
                         <legend class="screen-reader-text"><span><?php _e('Automatic cache purge on content update', 'servebolt-wp'); ?></span></legend>
                         <label for="cache_purge_auto">
-                            <input name="<?php echo getOptionName('cache_purge_auto'); ?>" type="checkbox" id="cache_purge_auto" value="1" <?php checked($settings['cache_purge_auto']); ?>>
+                            <input name="<?php echo getOptionName('cache_purge_auto'); ?>" type="checkbox" id="cache_purge_auto" value="1" <?php checked($autoCachePurgeIsActive); ?>>
                             <?php _e('Enabled', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
@@ -89,7 +89,9 @@ Keep in mind that purging the entire cache has a temporary impact on the loading
 
             <?php view('cache-settings.cache-purge.configuration.acd-configuration', $arguments); ?>
 
-            <?php view('cache-settings.cache-purge.configuration.cloudflare-configuration', $arguments); ?>
+            <?php if (!$acdLock): ?>
+                <?php view('cache-settings.cache-purge.configuration.cloudflare-configuration', $arguments); ?>
+            <?php endif; ?>
 
             <?php //view('cache-settings.cache-purge.configuration.cron-configuration', $arguments); ?>
 
@@ -106,7 +108,7 @@ Keep in mind that purging the entire cache has a temporary impact on the loading
 
     </form>
 
-    <?php if ( apply_filters('sb_optimizer_cf_cache_form_validation_active', true) ) : ?>
+    <?php if (apply_filters('sb_optimizer_cf_cache_form_validation_active', true)) : ?>
         <script>
             document.getElementById('sb-configuration-form').addEventListener('submit', function(event) {
                 window.sb_validate_cf_configuration_form(event);

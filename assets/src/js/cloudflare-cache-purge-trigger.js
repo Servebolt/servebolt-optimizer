@@ -17,11 +17,21 @@ jQuery(document).ready(function($) {
   });
 
   // Purge current post cache
-  $('#wpadminbar .sb-purge-current-post-cache').click(function (e) {
+  $('#wpadminbar .sb-purge-current-post-cache').click(function(e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
-    var postId = $(this).find('span').data('id');
-    window.sb_purge_post_cache(postId);
+    const postId = $(this).find('span').data('id'),
+      objectName = $(this).find('span').data('object-name');
+    window.sbPurgePostCache(postId, objectName);
+  });
+
+  // Purge current term cache
+  $('#wpadminbar .sb-purge-current-term-cache').click(function(e) {
+    e.preventDefault();
+    sb_close_admin_bar_menu();
+    const termId = $(this).find('span').data('id'),
+      objectName = $(this).find('span').data('object-name');
+    window.sbPurgeTermCache(termId, objectName);
   });
 
   // Purge URL cache
@@ -231,27 +241,62 @@ jQuery(document).ready(function($) {
 
   /**
    * Clear cache for the current post.
+   *
+   * @param {string|null} objectName  The post type label in singular form.
    */
-  window.sb_purge_post_cache_with_auto_resolve = function() {
+  window.sbPurgePostCacheWithAutoResolve = function(objectName) {
     var postId = document.getElementById('post_ID').value;
     if (postId) {
-      window.sb_purge_post_cache(postId);
+      window.sbPurgePostCache(postId, objectName);
+    }
+  };
+
+
+  /**
+   * Purge cache by term ID.
+   *
+   * @param {int} termId              The term Id of the term that should be purged cache for.
+   * @param {string|null} objectName  The taxonomy name of the term.
+   */
+  window.sbPurgeTermCache = function(termId, objectName) {
+    var confirmText = 'Do you want to purge cache for ' + (objectName ? objectName : 'term') + '?';
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm(confirmText)) {
+        sbPurgeTermCacheConfirmed(termId);
+      }
+    } else {
+      Swal.fire({
+        title: confirmText,
+        icon: 'warning',
+        showCancelButton: true,
+        customClass: {
+          confirmButton: 'servebolt-button yellow',
+          cancelButton: 'servebolt-button light',
+        },
+        buttonsStyling: false,
+      }).then((result) => {
+        if (result.value) {
+          sbPurgeTermCacheConfirmed(termId);
+        }
+      });
     }
   };
 
   /**
-   * Clear cache by post ID in Cloudflare.
+   * Purge cache by post ID.
    *
-   * @param postId
+   * @param {int} postId              The post Id of the post that should be purged cache for.
+   * @param {string|null} objectName  The post type label in singular form.
    */
-  window.sb_purge_post_cache = function(postId) {
+  window.sbPurgePostCache = function(postId, objectName) {
+    var confirmText = 'Do you want to purge cache for ' + (objectName ? objectName : 'post') + '?';
     if (window.sb_use_native_js_fallback()) {
-      if (window.confirm('Do you want to purge cache for current post?')) {
+      if (window.confirm(confirmText)) {
         sb_purge_post_cache_confirmed(postId);
       }
     } else {
       Swal.fire({
-        title: 'Do you want to purge cache for current post?',
+        title: confirmText,
         icon: 'warning',
         showCancelButton: true,
         customClass: {
@@ -266,6 +311,56 @@ jQuery(document).ready(function($) {
       });
     }
   };
+
+
+  /**
+   * Confirm callback for function "sbPurgeTermCache".
+   *
+   * @param {int} termId The term Id of the term that should be purged cache for.
+   */
+  function sbPurgeTermCacheConfirmed(termId) {
+    window.sb_loading(true);
+    const data = {
+      action: 'servebolt_purge_term_cache',
+      security: sb_ajax_object.ajax_nonce,
+      term_id: termId,
+    };
+    $.ajax({
+      type: 'POST',
+      url: sb_ajax_object.ajaxurl,
+      data: data,
+      success: function(response) {
+        window.sb_loading(false);
+        if (response.success) {
+          setTimeout(function() {
+            sb_cache_purge_success(
+              window.sb_get_message_from_response(response),
+              window.sb_get_from_response(response, 'title')
+            );
+            window.update_cache_purge_list();
+          }, 100);
+          return;
+        }
+        sb_cache_purge_error();
+        // TODO: Display errors to the user
+        /*
+        if ( message ) {
+          if ( response.data.type == 'warning' ) {
+            window.sb_warning(title, null, message);
+          } else {
+            sb_cache_purge_error(message);
+          }
+        } else {
+
+        }
+        */
+      },
+      error: function() {
+        window.sb_loading(false);
+        sb_cache_purge_error();
+      },
+    });
+  }
 
   /**
    * Confirm callback for function "sb_purge_post_cache".

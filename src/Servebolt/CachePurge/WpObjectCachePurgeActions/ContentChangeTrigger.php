@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
+use Servebolt\Optimizer\Traits\Singleton;
 use Exception;
 
 /**
@@ -15,6 +16,8 @@ use Exception;
  */
 class ContentChangeTrigger
 {
+    use Singleton;
+
     /**
      * CachePurgeWPActions constructor.
      */
@@ -35,26 +38,28 @@ class ContentChangeTrigger
         }
 
         // Should skip all automatic cache purge?
-        if ( apply_filters('sb_optimizer_disable_automatic_purge', false) ) return;
+        if (apply_filters('sb_optimizer_disable_automatic_purge', false)) {
+            return;
+        }
 
         // Purge post on post update
-        if ( apply_filters('sb_optimizer_automatic_purge_on_post_save', true) ) {
-            add_action( 'post_updated', [$this, 'purgePostOnSave'], 99, 3 );
+        if (apply_filters('sb_optimizer_automatic_purge_on_post_save', true)) {
+            add_action('post_updated', [$this, 'purgePostOnSave'], 99, 3);
         }
 
         // Purge post on comment post
-        if ( apply_filters('sb_optimizer_automatic_purge_on_comment', true) ) {
-            add_action( 'comment_post', [$this, 'purgePostOnCommentPost'], 99, 3 );
+        if (apply_filters('sb_optimizer_automatic_purge_on_comment', true)) {
+            add_action('comment_post', [$this, 'purgePostOnCommentPost'], 99, 3);
         }
 
         // Purge post when comment is approved
-        if ( apply_filters('sb_optimizer_automatic_purge_on_comment_approval', true) ) {
-            add_action( 'transition_comment_status', [$this, 'purgePostOnCommentApproval'], 99, 3 );
+        if (apply_filters('sb_optimizer_automatic_purge_on_comment_approval', true)) {
+            add_action('transition_comment_status', [$this, 'purgePostOnCommentApproval'], 99, 3);
         }
 
         // Purge post when term is edited (Work in progress)
-        if ( apply_filters('sb_optimizer_automatic_purge_on_term_save', true) ) {
-            add_action( 'edit_term', [ $this, 'purgeTermOnSave' ], 99, 3 );
+        if (apply_filters('sb_optimizer_automatic_purge_on_term_save', true)) {
+            add_action('edit_term', [$this, 'purgeTermOnSave'], 99, 3);
         }
     }
 
@@ -96,9 +101,9 @@ class ContentChangeTrigger
     {
 
         // Let users override the outcome
-        $override = apply_filters('sb_optimizer_should_purge_term_cache', null, $termId, $taxonomy);
-        if ( is_bool($override) ) {
-            return $override;
+        $overrideByTermId = apply_filters('sb_optimizer_should_purge_term_cache', null, $termId, $taxonomy);
+        if (is_bool($overrideByTermId)) {
+            return $overrideByTermId;
         }
 
         // Check that the taxonomy is public
@@ -112,21 +117,44 @@ class ContentChangeTrigger
     }
 
     /**
+     * Check if we should clear cache for a given post type.
+     *
+     * @param $postType
+     * @return bool
+     */
+    public static function shouldPurgePostTypeCache($postType): bool
+    {
+        $overrideByPostType = apply_filters('sb_optimizer_should_purge_post_cache_by_post_type', null, $postType);
+        if (is_bool($overrideByPostType)) {
+            return $overrideByPostType;
+        }
+
+        return true;
+    }
+
+    /**
      * Check if we should clear cache for post that is being updated.
      *
      * @param $postId
      *
      * @return bool|void
      */
-    private function shouldPurgePostCache($postId): bool
+    public static function shouldPurgePostCache($postId): bool
     {
 
         // Let users override the outcome
-        $override = apply_filters('sb_optimizer_should_purge_post_cache', null, $postId);
-        if ( is_bool($override) ) return $override;
+        $overrideByPostId = apply_filters('sb_optimizer_should_purge_post_cache', null, $postId);
+        if (is_bool($overrideByPostId)) {
+            return $overrideByPostId;
+        }
 
         // Check that the post type is public
         $postType = get_post_type($postId);
+
+        if (!self::shouldPurgePostTypeCache($postType)) {
+            return false;
+        }
+
         $postTypeObject = get_post_type_object($postType);
         if ($postTypeObject && ($postTypeObject->public !== true || $postTypeObject->publicly_queryable !== true)) {
             return false;
@@ -137,7 +165,6 @@ class ContentChangeTrigger
         if (!in_array($postStatus, ['publish'])) {
             return false;
         }
-
         return true;
     }
 
@@ -160,7 +187,7 @@ class ContentChangeTrigger
      */
     private function maybePurgePost($postId): void
     {
-        if (!$this->shouldPurgePostCache($postId)) {
+        if (!self::shouldPurgePostCache($postId)) {
             return;
         }
         try {
