@@ -803,11 +803,39 @@ function isHostedAtServebolt(): bool
     if (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
         $isHostedAtServebolt = HOST_IS_SERVEBOLT_OVERRIDE;
     } else {
-        foreach (['SERVER_ADMIN', 'SERVER_NAME'] as $key) {
+        $keys = [
+            'SERVER_ADMIN',
+            'HOSTNAME',
+            //'SERVER_NAME',
+        ];
+        foreach ($keys as $key) {
             if (array_key_exists($key, $_SERVER)) {
-                if ((boolean) preg_match('/(servebolt|raskesider)\.([\w]{2,63})$/', $_SERVER[$key])) {
-                    $isHostedAtServebolt = true;
+                $matchValue = $_SERVER[$key];
+                switch ($key) {
+                    // This case will cover CLI-request
+                    case 'HOSTNAME':
+                        if ((boolean) preg_match('/servebolt\.(com|cloud)$/', $matchValue)) {
+                            $isHostedAtServebolt = true;
+                            break 2;
+                        }
+                        break;
+                    // This case will cover HTTP requests
+                    case 'SERVER_ADMIN':
+                        if ($matchValue === 'support@servebolt.com') {
+                            $isHostedAtServebolt = true;
+                            break 2;
+                        }
+                        break;
+                    /*
+                    case 'SERVER_NAME':
+                        if ((boolean) preg_match('/(servebolt|raskesider)\.([\w]{2,63})$/', $matchValue)) {
+                            $isHostedAtServebolt = true;
+                            break 2;
+                        }
+                        break;
+                    */
                 }
+
             }
         }
     }
