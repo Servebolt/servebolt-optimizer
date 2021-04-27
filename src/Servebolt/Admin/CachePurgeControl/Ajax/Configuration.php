@@ -10,6 +10,10 @@ use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 use Exception;
 
+/**
+ * Class Configuration
+ * @package Servebolt\Optimizer\Admin\CachePurgeControl\Ajax
+ */
 class Configuration extends SharedAjaxMethods
 {
 
@@ -57,20 +61,31 @@ class Configuration extends SharedAjaxMethods
         ajaxUserAllowed();
 
         parse_str($_POST['form'], $formData);
-        $authType = sanitize_text_field($formData['servebolt_cf_auth_type']);
-        $apiToken = sanitize_text_field($formData['servebolt_cf_api_token']);
-        $email = sanitize_text_field($formData['servebolt_cf_email']);
-        $apiKey = sanitize_text_field($formData['servebolt_cf_api_key']);
-        $zoneId = sanitize_text_field($formData['servebolt_cf_zone_id']);
+        $authType = sanitize_text_field(arrayGet('servebolt_cf_auth_type', $formData));
+        $apiToken = sanitize_text_field(arrayGet('servebolt_cf_api_token', $formData));
+        $email = sanitize_text_field(arrayGet('servebolt_cf_email', $formData));
+        $apiKey = sanitize_text_field(arrayGet('servebolt_cf_api_key', $formData));
+        $zoneId = sanitize_text_field(arrayGet('servebolt_cf_zone_id', $formData));
+
+        if (!$authType || !$zoneId) {
+            wp_send_json_error();
+        }
+
         try {
             switch ($authType) {
                 case 'api_token':
+                    if (!$apiToken) {
+                        wp_send_json_error();
+                    }
                     $cfSdk = new CloudflareSdk([
                         'authType' => 'api_token',
                         'credentials' => compact('apiToken'),
                     ]);
                     break;
                 case 'api_key':
+                    if (!$email || $apiKey) {
+                        wp_send_json_error();
+                    }
                     $cfSdk = new CloudflareSdk([
                         'authType' => 'api_key',
                         'credentials' => compact('email', 'apiKey'),
@@ -80,7 +95,7 @@ class Configuration extends SharedAjaxMethods
                     throw new Exception;
             }
             $zone = $cfSdk->getZoneById($zoneId);
-            if ( $zone && isset($zone->name) ) {
+            if ($zone && isset($zone->name)) {
                 wp_send_json_success([
                     'zone' => $zone->name,
                 ]);
@@ -103,24 +118,26 @@ class Configuration extends SharedAjaxMethods
         parse_str($_POST['form'], $formData);
         $errors = [];
 
-        $featureIsActive = array_key_exists('servebolt_cache_purge_switch', $formData)
-            && filter_var($formData['servebolt_cache_purge_switch'], FILTER_VALIDATE_BOOLEAN) === true;
-        $cfIsActive = array_key_exists('servebolt_cache_purge_driver', $formData)
-            && $formData['servebolt_cache_purge_driver'] == 'cloudflare';
-        $authType = sanitize_text_field($formData['servebolt_cf_auth_type']);
-        $apiToken = sanitize_text_field($formData['servebolt_cf_api_token']);
-        $email = sanitize_text_field($formData['servebolt_cf_email']);
-        $apiKey = sanitize_text_field($formData['servebolt_cf_api_key']);
-        $zoneId = sanitize_text_field($formData['servebolt_cf_zone_id']);
+        $featureIsActive = arrayGet('servebolt_cache_purge_switch', $formData) === true;
+        $cfIsActive = arrayGet('servebolt_cache_purge_driver', $formData) == 'cloudflare';
+        $authType = sanitize_text_field(arrayGet('servebolt_cf_auth_type', $formData));
+        $apiToken = sanitize_text_field(arrayGet('servebolt_cf_api_token', $formData));
+        $email = sanitize_text_field(arrayGet('servebolt_cf_email', $formData));
+        $apiKey = sanitize_text_field(arrayGet('servebolt_cf_api_key', $formData));
+        $zoneId = sanitize_text_field(arrayGet('servebolt_cf_zone_id', $formData));
         $shouldCheckZone = false;
 
         if (!$featureIsActive || !$cfIsActive) {
             wp_send_json_success();
         }
 
+        if (!$authType) {
+            wp_send_json_error();
+        }
+
         switch ($authType) {
             case 'api_token':
-                if ( empty($apiToken) ) {
+                if (empty($apiToken)) {
                     $errors['api_token'] = __('You need to provide an API token.', 'servebolt-wp');
                 } else {
                     $cfSdk = new CloudflareSdk([
@@ -166,12 +183,12 @@ class Configuration extends SharedAjaxMethods
                 $errors[] = __('Invalid authentication type.', 'servebolt-wp');
         }
 
-        if ( $shouldCheckZone ) {
-            if ( empty($zoneId) ) {
+        if ($shouldCheckZone) {
+            if (empty($zoneId)) {
                 $errors['zone_id'] = __('You need to provide a zone.', 'servebolt-wp');
             } else {
                 try {
-                    if ( ! $zoneId = $cfSdk->getZoneById($zoneId) ) {
+                    if (!$zoneId = $cfSdk->getZoneById($zoneId)) {
                         throw new Exception;
                     }
                 } catch (Exception $e) {
@@ -185,7 +202,7 @@ class Configuration extends SharedAjaxMethods
             */
         }
 
-        if ( empty($errors) ) {
+        if (empty($errors)) {
             wp_send_json_success();
         } else {
             wp_send_json_error([
