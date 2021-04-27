@@ -52,7 +52,7 @@ $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
                             <button type="button" style="float:left;" class="button action sb-flush-fpc-exclude-items"<?php if ( count($idsToExclude) === 0 ) echo ' disabled'; ?>><?php _e('Flush posts', 'servebolt-wp'); ?></button>
                         </div>
                         <div class="alignleft actions bulkactions">
-                            <button class="button button-primary sb-add-exclude-post" type="button">Add post to exclude</button>
+                            <button type="button" class="button button-primary sb-add-exclude-post">Add post to exclude</button>
                         </div>
                         <span class="spinner flush-fpc-exclude-list-loading-spinner"></span>
                         <br class="clear">
