@@ -16,6 +16,22 @@ jQuery(document).ready(function($) {
     window.sb_purge_all_cache();
   });
 
+  // Purge post cache
+  $('#the-list .sb-purge-post-cache').click(function(e) {
+    e.preventDefault();
+    const postId = $(this).data('post-id'),
+      objectName = $(this).data('object-name');
+    window.sbPurgePostCache(postId, objectName);
+  });
+
+  // Purge term cache
+  $('#the-list .sb-purge-term-cache').click(function(e) {
+    e.preventDefault();
+    const termId = $(this).data('term-id'),
+      objectName = $(this).data('object-name');
+    window.sbPurgeTermCache(termId, objectName);
+  });
+
   // Purge current post cache
   $('#wpadminbar .sb-purge-current-post-cache').click(function(e) {
     e.preventDefault();

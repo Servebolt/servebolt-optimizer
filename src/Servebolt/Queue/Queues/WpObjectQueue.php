@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Utils\Queue\Queue;
+use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
@@ -97,6 +98,14 @@ class WpObjectQueue
     }
 
     /**
+     * @return array|null
+     */
+    public function getActiveItems(): ?array
+    {
+        return $this->queue->getActiveItems();
+    }
+
+    /**
      * Clear all active items from UrlQueue.
      */
     private function clearUrlQueue(): void
@@ -112,11 +121,10 @@ class WpObjectQueue
         if ($items = $this->getItemsToParse()) {
             foreach ($items as $item) {
                 $payload = $item->payload;
-                if ($payload['type'] === 'purge-all') {
-                    if ($payload['networkPurge']) {
-                        // TODO: Make sure this is working
+                if (arrayGet('type', $payload) === 'purge-all') {
+                    if (arrayGet('networkPurge', $payload)) {
                         iterateSites(function($site) use ($item) {
-                            $this->clearUrlQueue();
+                            $this->clearUrlQueue(); // Clear URL queue for each site in multisite network since we're clearing all cache
                             $this->urlQueue()->add([
                                 'type' => 'purge-all',
                             ], $item);
@@ -127,7 +135,8 @@ class WpObjectQueue
                             'type' => 'purge-all',
                         ], $item);
                     }
-                } else if ($urls = $this->resolveUrlsToPurgeFromWpObject($payload)) {
+                    break; // We're purging all cache, so no need to continue expanding WP objects to URL items
+                } elseif ($urls = $this->resolveUrlsToPurgeFromWpObject($payload)) {
                     foreach ($urls as $url) {
                         $this->urlQueue()->add([
                             'type' => 'url',
@@ -167,10 +176,11 @@ class WpObjectQueue
     }
 
     /**
-     * The UrlQueue queue-Instance;
+     * The UrlQueue queue-Instance.
+     *
      * @return mixed|Queue
      */
-    private function urlQueue()
+    private function urlQueue(): object
     {
         if (!$this->urlQueue) {
             $this->urlQueue = Queue::getInstance(UrlQueue::$queueName);
@@ -193,8 +203,95 @@ class WpObjectQueue
         return $this->queue->add($itemData);
     }
 
-    private function cleanUpQueue()
+    /**
+     * Clean up old queue items.
+     */
+    private function cleanUpQueue(): void
     {
         // TODO: Remove items older than x years(?), to prevent the database from filling up. Might be common with UrlQueue, so maybe share it between them.
+    }
+
+    /**
+     * Check whether there is a purge all request in the queue.
+     *
+     * @return bool
+     */
+    public function hasPurgeAllRequestInQueue(): bool
+    {
+        if ($items = $this->queue->getActiveItems()) {
+            foreach ($items as $item) {
+                if (arrayGet('type', $item->payload) === 'purge-all') {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if a term is already in the queue.
+     *
+     * @param int $termId
+     * @param string $taxonomySlug
+     * @return bool
+     */
+    public function hasTermInQueue(int $termId, string $taxonomySlug): bool
+    {
+        if ($items = $this->queue->getActiveItems()) {
+            foreach ($items as $item) {
+                $args = arrayGet('args', $this->payload);
+                if (
+                    arrayGet('type', $item->payload) === 'term'
+                    && arrayGet('id', $item->payload) === $termId
+                    && arrayGet('taxonomySlug', $args) === $taxonomySlug
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if a post is already in the queue.
+     *
+     * @param int $postId
+     * @return bool
+     */
+    public function hasPostInQueue(int $postId): bool
+    {
+        if ($items = $this->queue->getActiveItems()) {
+            foreach ($items as $item) {
+                if (
+                    arrayGet('type', $item->payload) === 'post'
+                    && arrayGet('id', $item->payload) === $postId
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if a URL is already in the queue.
+     *
+     * @param string $url
+     * @return bool
+     */
+    public function hasUrlInQueue(string $url): bool
+    {
+        $items = $this->queue->getActiveItems();
+        if ($items) {
+            foreach ($items as $item) {
+                if (
+                    arrayGet('type', $item->payload) === 'url'
+                    && arrayGet('url', $item->payload) === $url
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

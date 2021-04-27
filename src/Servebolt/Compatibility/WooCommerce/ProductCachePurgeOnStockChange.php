@@ -94,7 +94,6 @@ class ProductCachePurgeOnStockChange
         if (apply_filters('sb_optimizer_woocommerce_product_cache_purge_on_stock_amount_change', true) === false) {
             return false; // We're not suppose to purge cache on WooCommerce stock change
         }
-
         return $this->shouldPurgeCacheOnStockCommonCondition();
     }
 

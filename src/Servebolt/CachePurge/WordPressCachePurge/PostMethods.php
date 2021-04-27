@@ -60,7 +60,7 @@ trait PostMethods
             $queueInstance = WpObjectQueue::getInstance();
             return isQueueItem($queueInstance->add([
                 'type' => 'post',
-                'id' => $postId,
+                'id'   => $postId,
             ]));
         } else {
             if (self::$preventDoublePurge && self::$preventPostDoublePurge && array_key_exists($postId, self::$recentlyPurgedPosts)) {

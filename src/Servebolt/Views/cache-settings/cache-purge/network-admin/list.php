@@ -30,7 +30,7 @@
             <td><?php echo $site->blog_id; ?></td>
             <td><?php echo $site->domain . $site->path; ?></td>
             <td><?php echo CachePurge::isActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
-            <td><?php echo CachePurge::resolveDriver($site->blog_id, true); ?></td>
+            <td><?php echo CachePurge::resolveDriverName($site->blog_id, true); ?></td>
             <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-cache-purge-control' ); ?>" class="button btn"><?php _e('Go to site cache purge settings', 'servebolt-wp'); ?></a></td>
         </tr>
     <?php endforeach; ?>

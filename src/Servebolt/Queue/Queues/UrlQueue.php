@@ -42,6 +42,11 @@ class UrlQueue
     private $wpObjectQueue;
 
     /**
+     * @var array Items to retry attempt on.
+     */
+    private $itemsToRetry;
+
+    /**
      * @var string
      */
     public static $queueName = 'sb-cache-purge-url-queue';
@@ -60,10 +65,18 @@ class UrlQueue
      */
     private function setUrlChunkSize(): void
     {
-        // TODO: Set this to 500 if driver is ACD
-        $this->urlChunkSize = apply_filters('sb_optimizer_url_queue_chunk_size', 30);
+        $urlChunkSize = CachePurgeDriver::resolveDriverName() === 'acd' ? 500 : 30;
+        $this->urlChunkSize = apply_filters('sb_optimizer_url_queue_chunk_size', $urlChunkSize);
     }
 
+    /**
+     * Add URL to the queue.
+     *
+     * @param $itemData
+     * @param null $parentQueueName
+     * @param null $parentId
+     * @return object|null
+     */
     public function add($itemData, $parentQueueName = null, $parentId = null): ?object
     {
         // TODO: Perhaps add duplicate handling
@@ -71,6 +84,8 @@ class UrlQueue
     }
 
     /**
+     * Get the WP object queue instance.
+     *
      * @return mixed|Queue
      */
     private function wpObjectQueue()
@@ -90,11 +105,8 @@ class UrlQueue
             if ($items = $this->getItemsToParse()) {
                 $this->parseItems($items);
             }
-
         }
     }
-
-    private $itemsToRetry;
 
     private function havePreviouslyUnfinishedButAttemptedItems()
     {
@@ -117,7 +129,6 @@ class UrlQueue
                     break;
                 case 'url':
                     $urls[] = $item->payload['url'];
-
             }
         }
 
