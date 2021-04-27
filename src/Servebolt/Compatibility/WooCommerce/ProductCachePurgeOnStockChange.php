@@ -81,7 +81,7 @@ class ProductCachePurgeOnStockChange
      */
     public function productVariationStockStatusChange($productVariationId, $stockStatus, $productVariation): void
     {
-        $this->productVariationtockChange($productVariation);
+        $this->productVariationStockChange($productVariation);
     }
 
     /**
