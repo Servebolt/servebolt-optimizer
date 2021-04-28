@@ -18,6 +18,22 @@ class MinuteEvent
     public static $hook = 'servebolt_optimizer_every_minute_cron_event';
 
     /**
+     * MinuteEvent constructor.
+     */
+    public function __construct()
+    {
+        if (
+            $this->hasActionsRegistered()
+            && CachePurge::featureIsActive()
+            && CachePurge::queueBasedCachePurgeIsActive()
+        ) {
+            $this->registerEvent();
+        } else {
+            $this->deregisterEvent();
+        }
+    }
+
+    /**
      * Get for filter/actions on hook.
      *
      * @param string|null $hook
@@ -43,21 +59,10 @@ class MinuteEvent
     }
 
     /**
-     * MinuteEvent constructor.
+     * Register event.
+     *
+     * @param int|null $blogId
      */
-    public function __construct()
-    {
-        if (
-            $this->hasActionsRegistered()
-            && CachePurge::featureIsActive()
-            && CachePurge::queueBasedCachePurgeIsActive()
-        ) {
-            $this->registerEvent();
-        } else {
-            $this->deregisterEvent();
-        }
-    }
-
     private function registerEvent(?int $blogId = null): void
     {
         if ($blogId) {
@@ -71,6 +76,11 @@ class MinuteEvent
         }
     }
 
+    /**
+     * Deregister event.
+     *
+     * @param int|null $blogId
+     */
     private function deregisterEvent(?int $blogId = null): void
     {
         if ($blogId) {

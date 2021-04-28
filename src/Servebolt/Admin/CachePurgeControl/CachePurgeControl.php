@@ -9,7 +9,10 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\Configuration;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
 //use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\QueueHandling;
+use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\getPostTypeSingularName;
+use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\getOptionName;
@@ -36,9 +39,64 @@ class CachePurgeControl
         $this->initAjax();
         $this->initAssets();
         $this->initSettings();
+        $this->rowActionCachePurge();
         if (isHostedAtServebolt()) {
             $this->rewriteHighlightedMenuItem();
         }
+    }
+
+    /**
+     * Add cache purge-action to post/term row actions.
+     */
+    private function rowActionCachePurge(): void
+    {
+        // TODO: Do a better selection for taxonomies and post types rather than a hardcoded but filterable array
+        foreach(apply_filters('sb_optimizer_cache_purge_row_action_taxonomies', ['category']) as $taxonomy) {
+            add_filter($taxonomy . '_row_actions', [$this, 'addTermPurgeRowAction'], 10, 2);
+        }
+        foreach(apply_filters('sb_optimizer_cache_purge_row_action_post_types', ['post', 'page']) as $postType) {
+            add_filter($postType . '_row_actions', [$this, 'addPostPurgeRowAction'], 10, 2);
+        }
+    }
+
+    /**
+     * Add cache purge-action to post row actions for given post/post type.
+     *
+     * @param array $actions
+     * @param $term
+     * @return array
+     */
+    public function addTermPurgeRowAction(array $actions, $term): array
+    {
+        $actions['purge-cache'] = sprintf(
+            '<a href="%1$s" data-term-id="%2$s" data-object-name="%3$s" class="%4$s">%5$s</a>',
+            '#',
+            $term->term_id,
+            getTaxonomySingularName($term->term_id),
+            'sb-purge-term-cache',
+            esc_html( __( 'Purge cache', 'servebolt-wp' ) )
+        );
+        return $actions;
+    }
+
+    /**
+     * Add cache purge-action to post row actions for given post/post type.
+     *
+     * @param array $actions
+     * @param $post
+     * @return array
+     */
+    public function addPostPurgeRowAction(array $actions, $post): array
+    {
+        $actions['purge-cache'] = sprintf(
+            '<a href="%1$s" data-post-id="%2$s" data-object-name="%3$s" class="%4$s">%5$s</a>',
+            '#',
+            $post->ID,
+            getPostTypeSingularName($post->ID),
+            'sb-purge-post-cache',
+            esc_html( __( 'Purge cache', 'servebolt-wp' ) )
+        );
+        return $actions;
     }
 
     /**
@@ -48,11 +106,19 @@ class CachePurgeControl
     {
         add_filter('parent_file', function($parentFile) {
             global $plugin_page;
-            if ('servebolt-cache-purge-control' == $plugin_page) {
+            if ('servebolt-cache-purge-control' === $plugin_page) {
                 $plugin_page = 'servebolt-fpc';
             }
             return $parentFile;
         });
+        // Fix faulty page title
+        add_filter('admin_title', function($admin_title, $title) {
+            $screen = get_current_screen();
+            if ($screen->id === 'admin_page_servebolt-cache-purge-control') {
+                return 'Cache purging ' . $admin_title;
+            }
+            return $admin_title;
+        }, 10, 2);
     }
 
     /**
@@ -71,10 +137,25 @@ class CachePurgeControl
         $acdLock = CachePurge::cachePurgeIsLockedTo('acd');
         $queueBasedCachePurgeActiveStateIsOverridden = CachePurge::queueBasedCachePurgeActiveStateIsOverridden();
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
+        //$maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
 
-        view('cache-settings.cache-purge.cache-purge', compact('settings', 'cachePurge', 'isHostedAtServebolt', 'selectedCfZone', 'cfZones', 'cachePurgeIsActive', 'autoCachePurgeIsActive', 'queueBasedCachePurgeActiveStateIsOverridden', 'queueBasedCachePurgeIsActive', 'acdLock'));
+        view(
+            'cache-settings.cache-purge.cache-purge',
+            compact([
+                'settings',
+                'cachePurge',
+                'isHostedAtServebolt',
+                'selectedCfZone',
+                'cfZones',
+                'cachePurgeIsActive',
+                'autoCachePurgeIsActive',
+                'queueBasedCachePurgeActiveStateIsOverridden',
+                'queueBasedCachePurgeIsActive',
+                'acdLock',
+                //'maxNumberOfCachePurgeQueueItems',
+            ])
+        );
         /*
-        $maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
         $numberOfCachePurgeQueueItems = sb_cf_cache()->countItemsToPurge();
         Helpers\view('cache-purge/cache-purge', compact(
             'maxNumberOfCachePurgeQueueItems',
@@ -160,12 +241,10 @@ class CachePurgeControl
      *
      * @return int
      */
-    /*
     private function maxNumberOfCachePurgeQueueItems() : int
     {
         return (int) apply_filters('sb_optimizer_purge_item_list_limit', 500);
     }
-    */
 
     private function initAjax(): void
     {

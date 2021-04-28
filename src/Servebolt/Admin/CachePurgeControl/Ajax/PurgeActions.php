@@ -11,7 +11,9 @@ use Exception;
 use Servebolt\Optimizer\Exceptions\ApiError;
 use Servebolt\Optimizer\Exceptions\ApiMessage;
 use Servebolt\Optimizer\Exceptions\QueueError;
+use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\getPostTypeSingularName;
 use function Servebolt\Optimizer\Helpers\postExists;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 //use function Servebolt\Optimizer\Helpers\getBlogName;
@@ -55,6 +57,17 @@ class PurgeActions extends SharedAjaxMethods
     }
 
     /**
+     * Check if we already have a purge all request in queue.
+     *
+     * @return bool
+     */
+    private function hasPurgeAllRequestInQueue(): bool
+    {
+        $queueInstance = WpObjectQueue::getInstance();
+        return $queueInstance->hasPurgeAllRequestInQueue();
+    }
+
+    /**
      * Purge all cache cache.
      */
     public function purgeAllCacheCallback()
@@ -65,9 +78,8 @@ class PurgeActions extends SharedAjaxMethods
         $this->ensureCachePurgeFeatureIsActive();
 
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
-        $hasPurgeAllRequestInQueue = false; // TODO: Check if there is already a purge all request in the queue, if the cron feature is active.
 
-        if ($queueBasedCachePurgeIsActive && $hasPurgeAllRequestInQueue) {
+        if ($queueBasedCachePurgeIsActive && $this->hasPurgeAllRequestInQueue()) {
             wp_send_json_success([
                 'title' => 'All good!',
                 'message' => 'A purge all-request is already queued and should be executed shortly.',
@@ -109,6 +121,18 @@ class PurgeActions extends SharedAjaxMethods
     }
 
     /**
+     * Check if URL is already in queue.
+     *
+     * @param string $url
+     * @return bool
+     */
+    private function urlAlreadyInQueue(string $url): bool
+    {
+        $queueInstance = WpObjectQueue::getInstance();
+        return $queueInstance->hasUrlInQueue($url);
+    }
+
+    /**
      * Purge specific URL cache.
      */
     public function purgeUrlCacheCallback()
@@ -120,11 +144,20 @@ class PurgeActions extends SharedAjaxMethods
 
         $url = (string) arrayGet('url', $_POST);
         if (!$url || empty($url)) {
-            wp_send_json_error( [ 'message' => __('Please specify the URL you would like to purge cache for.', 'servebolt-wp') ] );
+            wp_send_json_error(['message' => __('Please specify the URL you would like to purge cache for.', 'servebolt-wp')]);
             return;
         }
 
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
+
+        if ($queueBasedCachePurgeIsActive && $this->urlAlreadyInQueue($url)) {
+            wp_send_json_success([
+                'title' => 'All good!',
+                'message' => sprintf(__('A cache purge-request for the URL "%s" is already added to the queue and should be executed shortly.'), $url)
+            ]);
+            return;
+        }
+
         try {
             WordPressCachePurge::purgeByUrl($url);
             if ($queueBasedCachePurgeIsActive) {
@@ -151,6 +184,18 @@ class PurgeActions extends SharedAjaxMethods
     }
 
     /**
+     * Check if post is already in queue.
+     *
+     * @param int $postId
+     * @return bool
+     */
+    private function postAlreadyInQueue(int $postId): bool
+    {
+        $queueInstance = WpObjectQueue::getInstance();
+        return $queueInstance->hasPostInQueue($postId);
+    }
+
+    /**
      * Purge cache for post.
      */
     public function purgePostCacheCallback() : void
@@ -170,15 +215,24 @@ class PurgeActions extends SharedAjaxMethods
         }
 
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
+
+        if ($queueBasedCachePurgeIsActive && $this->postAlreadyInQueue($postId)) {
+            wp_send_json_success([
+                'title' => 'All good!',
+                'message' => sprintf(__('A cache purge-request for the %s "%s" is already added to the queue and should be executed shortly.', 'servebolt-wp'), getPostTypeSingularName($postId), get_the_title($postId)),
+            ]);
+            return;
+        }
+
         try {
             WordPressCachePurge::purgeByPost($postId);
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
                     'title'   => 'Just a moment',
-                    'message' => sprintf(__('A cache purge-request for the post "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), get_the_title($postId)),
+                    'message' => sprintf(__('A cache purge-request for the %s "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), getPostTypeSingularName($postId), get_the_title($postId)),
                 ] );
             } else {
-                wp_send_json_success(['message' => sprintf(__('Cache was purged for the post "%s".', 'servebolt-wp'), get_the_title($postId))]);
+                wp_send_json_success(['message' => sprintf(__('Cache was purged for the %s "%s".', 'servebolt-wp'), getPostTypeSingularName($postId), get_the_title($postId))]);
             }
         } catch (QueueError $e) {
             // TODO: Handle response from queue system
@@ -193,6 +247,19 @@ class PurgeActions extends SharedAjaxMethods
         } catch (Exception $e) {
             wp_send_json_error(['message' => $e->getMessage()]);
         }
+    }
+
+    /**
+     * Check if term is already in queue.
+     *
+     * @param int $termId
+     * @param string $taxonomySlug
+     * @return bool
+     */
+    private function termAlreadyInQueue(int $termId, string $taxonomySlug): bool
+    {
+        $queueInstance = WpObjectQueue::getInstance();
+        return $queueInstance->hasTermInQueue($termId, $taxonomySlug);
     }
 
     /**
@@ -214,18 +281,26 @@ class PurgeActions extends SharedAjaxMethods
             return;
         }
 
+        $term = get_term($termId);
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
+
+        if ($queueBasedCachePurgeIsActive && $this->termAlreadyInQueue($termId, $term->taxonomy)) {
+            wp_send_json_success([
+                'title' => 'All good!',
+                'message' => sprintf(__('A cache purge-request for the term "%s" is already added to the queue and should be executed shortly.', 'servebolt-wp'), $term->name),
+            ]);
+            return;
+        }
+
         try {
-            $term = get_term($termId);
-            $termName = $term->name;
             WordPressCachePurge::purgeByTerm($termId, $term->taxonomy);
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
                     'title'   => 'Just a moment',
-                    'message' => sprintf(__('A cache purge-request for the term "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), $termName),
+                    'message' => sprintf(__('A cache purge-request for the term "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), $term->name),
                 ] );
             } else {
-                wp_send_json_success(['message' => sprintf(__('Cache was purged for the term "%s".', 'servebolt-wp'), $termName)]);
+                wp_send_json_success(['message' => sprintf(__('Cache was purged for the term "%s".', 'servebolt-wp'), $term->name)]);
             }
         } catch (QueueError $e) {
             // TODO: Handle response from queue system

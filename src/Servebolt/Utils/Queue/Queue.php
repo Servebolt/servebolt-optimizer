@@ -36,7 +36,9 @@ class Queue
     }
 
     /**
-     * @param bool $queueConstraint
+     * Return new QueueQuery-instance with optional queue constaint.
+     *
+     * @param bool $queueConstraint Whether to constrain the query to only cover the current queue.
      * @return QueueQuery
      */
     public function query(bool $queueConstraint = true)
@@ -48,12 +50,20 @@ class Queue
         return $query;
     }
 
+    /**
+     * Set queue table name.
+     */
     private function setTableName(): void
     {
         global $wpdb;
         $this->tableName = $wpdb->prefix . 'sb_queue';
     }
 
+    /**
+     * Get queue table name.
+     *
+     * @return string|null
+     */
     public function getTableName(): ?string
     {
         return $this->tableName;
@@ -62,30 +72,46 @@ class Queue
     /**
      * Get reserved unfinished items that have not been attempted more than $maxAttemptsBeforeIgnore.
      *
-     * @param int $maxAttemptsBeforeIgnore
-     * @param int|null $chunkSize
+     * @param int $maxAttemptsBeforeIgnore The maximum number of attempts for an item before it should be ignored.
+     * @param int|null $chunkSize The maximum number of items that should be returned.
+     * @param bool $doAttempt
      * @return array|null
      */
-    public function getUnfinishedPreviouslyAttemptedItems($maxAttemptsBeforeIgnore = 3, ?int $chunkSize = 30): ?array
+    public function getUnfinishedPreviouslyAttemptedItems($maxAttemptsBeforeIgnore = 3, ?int $chunkSize = 30, bool $doAttempt = false): ?array
     {
         $query = $this->query();
-        $query->whereShouldRun()
+
+        $query->whereShouldRun($maxAttemptsBeforeIgnore)
             ->isReserved()
-            ->isNotCompleted();
+            ->whereHasAttempts()
+            ->isNotCompleted()
+            ->hasNotFailed();
+
         if ($chunkSize) {
             $query->limit($chunkSize);
         }
         if ($result = $query->result()) {
+            if ($doAttempt) {
+                $this->doAttempts($result); // Increase the number of attempts by 1
+            }
             return $result;
         }
         return null;
     }
 
-    public function getUnfinishedItemsByParent(int $parentId, string $parentQueueName, ?int $chunkSize = 30): ?array
+    /**
+     * Get completed by parent queue item.
+     *
+     * @param int $parentId The ID of the parent queue item.
+     * @param string $parentQueueName The name of the parent queue.
+     * @param int|null $chunkSize The maximum number of items that should be returned.
+     * @return array|null
+     */
+    public function getCompletedItemsByParent(int $parentId, string $parentQueueName, ?int $chunkSize = 30): ?array
     {
         $query = $this->query();
-        $query->isActive()
-            ->byParentQueue($parentId, $parentQueueName);
+        $query->isCompleted()
+            ->byParentQueueItem($parentId, $parentQueueName);
         if ($chunkSize) {
             $query->limit($chunkSize);
         }
@@ -96,7 +122,69 @@ class Queue
     }
 
     /**
-     * @param int|null $chunkSize
+     * Get failed by parent queue item.
+     *
+     * @param int $parentId The ID of the parent queue item.
+     * @param string $parentQueueName The name of the parent queue.
+     * @param int|null $chunkSize The maximum number of items that should be returned.
+     * @return array|null
+     */
+    public function getFailedItemsByParent(int $parentId, string $parentQueueName, ?int $chunkSize = 30): ?array
+    {
+        $query = $this->query();
+        $query->hasFailed()
+            ->isNotCompleted()
+            ->byParentQueueItem($parentId, $parentQueueName);
+        if ($chunkSize) {
+            $query->limit($chunkSize);
+        }
+        if ($result = $query->result()) {
+            return $result;
+        }
+        return null;
+    }
+
+    /**
+     * Get items by parent queue item.
+     *
+     * @param int $parentId The ID of the parent queue item.
+     * @param string $parentQueueName The name of the parent queue.
+     * @param int|null $chunkSize The maximum number of items that should be returned.
+     * @return array|null
+     */
+    public function getItemsByParent(int $parentId, string $parentQueueName, ?int $chunkSize = 30): ?array
+    {
+        $query = $this->query();
+        $query->byParentQueueItem($parentId, $parentQueueName);
+        if ($chunkSize) {
+            $query->limit($chunkSize);
+        }
+        if ($result = $query->result()) {
+            return $result;
+        }
+        return null;
+    }
+
+    /**
+     * Get items older than given timestamp.
+     *
+     * @param $timestampThreshold
+     * @return mixed|null
+     */
+    public function getOldItems($timestampThreshold): ?array
+    {
+        $query = $this->query();
+        $query->where('created_at_gmt', '<=', $timestampThreshold);
+        if ($result = $query->result()) {
+            return $result;
+        }
+        return null;
+    }
+
+    /**
+     * Get reserved items.
+     *
+     * @param int|null $chunkSize The maximum number of items that should be returned.
      * @return QueueItem[]|null
      */
     public function getReservedItems(?int $chunkSize = 30): ?array
@@ -114,8 +202,10 @@ class Queue
     }
 
     /**
-     * @param int|null $chunkSize
-     * @param bool $onlyUnreserved
+     * Get items.
+     *
+     * @param int|null $chunkSize The maximum number of items that should be returned.
+     * @param bool $onlyUnreserved Whether to only get unreserved items.
      * @return QueueItem[]|null
      */
     public function getItems(?int $chunkSize = 30, $onlyUnreserved = true): ?array
@@ -135,6 +225,8 @@ class Queue
     }
 
     /**
+     * Delete given queue items.
+     *
      * @param QueueItem[] $items
      */
     public function deleteItems(array $items): void
@@ -146,24 +238,42 @@ class Queue
     }
 
     /**
-     * @param int|null $chunkSize
-     * @param bool $doAttempt
+     * Get active items.
+     *
+     * @param int|null $chunkSize The maximum number of items that should be returned.
+     * @return mixed|null
+     */
+    public function getActiveItems(?int $chunkSize = 30): ?array
+    {
+        $query = $this->query();
+        $query->isActive()
+            ->orderBy('id', 'DESC');
+        if ($chunkSize) {
+            $query->limit($chunkSize);
+        }
+        if ($result = $query->result()) {
+            return $result;
+        }
+        return null;
+    }
+
+    /**
+     * Get and reserve items.
+     *
+     * @param int|null $chunkSize The maximum number of items that should be returned.
+     * @param bool $doAttempt Whether to increment the number of attempts for the items returned in the query.
      * @return QueueItem[]|null
      */
     public function getAndReserveItems(?int $chunkSize = 30, bool $doAttempt = false): ?array
     {
         $query = $this->query();
         $query->isActive()
-            ->andWhere(function($query) {
-                $query->whereShouldForceRetry();
-                $query->orWhere(function($query) {
-                    $query->isNotReserved();
-                });
-            })
+            ->whereHasNoAttempts()
+            ->isNotReserved()
             ->orderBy('id', 'DESC');
-            if ($chunkSize) {
-                $query->limit($chunkSize);
-            }
+        if ($chunkSize) {
+            $query->limit($chunkSize);
+        }
         if ($result = $query->result()) {
             $this->reserveItems($result, $doAttempt);
             return $result;
@@ -172,6 +282,25 @@ class Queue
     }
 
     /**
+     * Flag items that has reached the max attempt threshold as failed.
+     *
+     * @param int $maxAttempts
+     * @return array|null
+     */
+    public function flagMaxAttemptedItemsAsFailed(int $maxAttempts = 3): ?array
+    {
+        $query = $this->query();
+        $query->isActive()
+            ->whereMaxAttemptAreExceeded($maxAttempts);
+        if ($result = $query->result()) {
+            $this->setItemsAsFailed($result);
+        }
+        return null;
+    }
+
+    /**
+     * Set multiple items as failed.
+     *
      * @param QueueItem[] $items
      * @return array
      */
@@ -184,6 +313,8 @@ class Queue
     }
 
     /**
+     * Set item as failed.
+     *
      * @param QueueItem|int $item
      * @return QueueItem|null
      */
@@ -199,6 +330,8 @@ class Queue
     }
 
     /**
+     * Reserve multiple items.
+     *
      * @param QueueItem[] $items
      * @param bool $doAttempt
      * @return array
@@ -212,6 +345,8 @@ class Queue
     }
 
     /**
+     * Reserve item.
+     *
      * @param QueueItem|int $item
      * @param bool $doAttempt
      * @return QueueItem|null
@@ -228,6 +363,20 @@ class Queue
     }
 
     /**
+     * Increment the number of attempts on multiple items.
+     *
+     * @param $items
+     */
+    public function doAttempts($items): void
+    {
+        array_map(function($item) {
+            $this->doAttempt($item);
+        }, $items);
+    }
+
+    /**
+     * Increment the number of attempts on an item.
+     *
      * @param $item
      * @return object|null
      */
@@ -243,6 +392,8 @@ class Queue
     }
 
     /**
+     * Flat multiple items as completed.
+     *
      * @param QueueItem[] $items
      * @return array
      */
@@ -255,6 +406,8 @@ class Queue
     }
 
     /**
+     * Flag item as completed.
+     *
      * @param QueueItem|int $item
      * @return QueueItem|null
      */
@@ -270,6 +423,8 @@ class Queue
     }
 
     /**
+     * Flag multiple items as updated.
+     *
      * @param QueueItem[] $items
      * @return array
      */
@@ -282,6 +437,8 @@ class Queue
     }
 
     /**
+     * Flag item as updated.
+     *
      * @param QueueItem|int $item
      * @return QueueItem|null
      */
@@ -297,6 +454,8 @@ class Queue
     }
 
     /**
+     * Release/unreserve multiple items.
+     *
      * @param QueueItem[] $items
      * @return array
      */
@@ -309,6 +468,8 @@ class Queue
     }
 
     /**
+     * Release/unreserve item.
+     *
      * @param QueueItem|int $item
      * @return QueueItem|null
      */
@@ -324,6 +485,8 @@ class Queue
     }
 
     /**
+     * Filter away any queue items from other queues than the one specified in the queue instance.
+     *
      * @param array $array
      * @return array
      */
@@ -335,6 +498,8 @@ class Queue
     }
 
     /**
+     * Resolve the queue item.
+     *
      * @param QueueItem|int $item
      * @return QueueItem|null
      */
@@ -350,6 +515,8 @@ class Queue
     }
 
     /**
+     * Persist queue item object to the queue.
+     *
      * @param QueueItem|int $item
      * @return bool
      */
@@ -362,6 +529,8 @@ class Queue
     }
 
     /**
+     * Update item in queue.
+     *
      * @param $item
      * @return bool|int
      */
@@ -376,6 +545,8 @@ class Queue
     }
 
     /**
+     * Get item from queue.
+     *
      * @param string|int $identifier
      * @param string $key
      * @param bool $ignoreCompleted
@@ -404,6 +575,8 @@ class Queue
     }
 
     /**
+     * Delete item from queue.
+     *
      * @param string|int $identifier
      * @param string $key
      * @return bool
@@ -422,6 +595,8 @@ class Queue
     }
 
     /**
+     * Check whether the queue is empty.
+     *
      * @return bool
      */
     public function isEmpty(): bool
@@ -449,6 +624,8 @@ class Queue
     }
 
     /**
+     * Add an item to the queue.
+     *
      * @param mixed $itemData
      * @param null|string $parentQueueName
      * @param null|int $parentId
@@ -477,6 +654,8 @@ class Queue
     }
 
     /**
+     * Check whether an item exists in the queue.
+     *
      * @param string|int $identifier
      * @param string $key
      * @return bool
@@ -486,6 +665,11 @@ class Queue
         return $this->get($identifier, $key) !== null;
     }
 
+    /**
+     * Count items in the queue.
+     *
+     * @return int
+     */
     public function countItems(): int
     {
         $query = $this->query();
@@ -493,6 +677,11 @@ class Queue
         return $query->getVar();
     }
 
+    /**
+     * Count available items.
+     *
+     * @return int
+     */
     public function countAvailableItems(): int
     {
         $query = $this->query();
@@ -501,6 +690,11 @@ class Queue
         return $query->getVar();
     }
 
+    /**
+     * Count reserved items.
+     *
+     * @return int
+     */
     public function countReservedItems(): int
     {
         $query = $this->query();
@@ -510,21 +704,41 @@ class Queue
         return $query->getVar();
     }
 
+    /**
+     * Check if queue has items.
+     *
+     * @return bool
+     */
     public function hasItems(): bool
     {
         return $this->countItems() > 0;
     }
 
+    /**
+     * CHeck if queue has available items.
+     *
+     * @return bool
+     */
     public function hasAvailable(): bool
     {
         return $this->countAvailableItems() > 0;
     }
 
+    /**
+     * Check if all items in the queue are completed.
+     *
+     * @return bool
+     */
     public function allCompleted(): bool
     {
         $this->countItems() === $this->countCompletedItems();
     }
 
+    /**
+     * Count completed items in the queue.
+     *
+     * @return int
+     */
     public function countCompletedItems(): int
     {
         $query = $this->query();
