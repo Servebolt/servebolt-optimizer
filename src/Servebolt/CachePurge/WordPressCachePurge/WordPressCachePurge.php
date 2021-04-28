@@ -33,7 +33,10 @@ class WordPressCachePurge
      */
     public static function purgeByUrl(string $url)
     {
-        if ($postId = url_to_postid($url)) {
+        if ($postId = url_to_postid($url)) { // Resolve URL to post ID, then purge by post ID
+            add_filter('sb_optimizer_purge_by_url_original_url', function() use ($url) {
+                return $url;
+            });
             return self::purgePostCache($postId);
         } else {
             if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {

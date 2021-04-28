@@ -58,10 +58,17 @@ trait PostMethods
 
         if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
             $queueInstance = WpObjectQueue::getInstance();
-            return isQueueItem($queueInstance->add([
+            $queueItemData = [
                 'type' => 'post',
-                'id'   => $postId,
-            ]));
+                'id' => $postId,
+            ];
+            if (has_filter('sb_optimizer_purge_by_url_original_url')) {
+                $originalUrl = apply_filters('sb_optimizer_purge_by_url_original_url', null);
+                if ($originalUrl && get_permalink($postId) !== $originalUrl) {
+                    $queueItemData['original_url'] = $originalUrl;
+                }
+            }
+            return isQueueItem($queueInstance->add($queueItemData));
         } else {
             if (self::$preventDoublePurge && self::$preventPostDoublePurge && array_key_exists($postId, self::$recentlyPurgedPosts)) {
                 return self::$recentlyPurgedPosts[$postId];

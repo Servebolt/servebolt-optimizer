@@ -80,10 +80,18 @@ class WpObjectQueue
     private function resolveUrlsToPurgeFromWpObject($payload): ?array
     {
         if (in_array($payload['type'], ['post', 'term'])) {
+
+            if ($payload['type'] === 'post' && $originalUrl = arrayGet('original_url', $payload)) {
+                add_filter('sb_optimizer_purge_by_url_original_url', function() use ($originalUrl) {
+                    return $originalUrl;
+                });
+            }
+
             $purgeObject = new PurgeObject(
-                $payload['id'],
-                $payload['type'],
+                arrayGet('id', $payload),
+                arrayGet('type', $payload),
             );
+
             if ($purgeObject->success() && $urls = $purgeObject->getUrls()) {
                 return $urls;
             }
