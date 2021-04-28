@@ -69,7 +69,7 @@ class Post extends SharedMethods
     protected function initObject(): bool
     {
         // The URL to the post itself
-        if ( $this->addPostUrl() ) {
+        if ($this->addPostUrl()) {
             $this->success(true); // Flag that found the post
             return true;
         } else {
@@ -132,9 +132,25 @@ class Post extends SharedMethods
         $postPermalink = $this->getBaseUrl();
         if ($postPermalink && !is_wp_error($postPermalink)) {
             $this->addUrl($postPermalink);
+            $this->handleUrlCachePurgeStringDifference($postPermalink);
             return true;
         }
         return false;
+    }
+
+    /**
+     * If this post purge originates from a URL, and that URL is defined differently than the one from get_permalink, then we need to include the originating URL.
+     *
+     * @param string $postPermalink
+     */
+    private function handleUrlCachePurgeStringDifference(string $postPermalink): void
+    {
+        if (has_filter('sb_optimizer_purge_by_url_original_url')) {
+            $originalUrl = apply_filters('sb_optimizer_purge_by_url_original_url', null);
+            if ($originalUrl && $postPermalink !== $originalUrl) {
+                $this->addUrl($originalUrl);
+            }
+        }
     }
 
     /**
