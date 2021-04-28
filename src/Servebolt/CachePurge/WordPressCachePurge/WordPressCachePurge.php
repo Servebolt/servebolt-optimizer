@@ -34,6 +34,13 @@ class WordPressCachePurge
     public static function purgeByUrl(string $url)
     {
         if ($postId = url_to_postid($url)) { // Resolve URL to post ID, then purge by post ID
+            /*
+            if ($url !== get_permalink($postId)) {
+                // Purge only URL, not post?
+            } else {
+                // Purge post, since specified URL is identical with post URL
+            }
+            */
             add_filter('sb_optimizer_purge_by_url_original_url', function() use ($url) {
                 return $url;
             });
