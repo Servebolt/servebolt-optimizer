@@ -74,14 +74,44 @@ class Queue
      *
      * @param int $maxAttemptsBeforeIgnore The maximum number of attempts for an item before it should be ignored.
      * @param int|null $chunkSize The maximum number of items that should be returned.
+     * @param bool $doAttempt
      * @return array|null
      */
-    public function getUnfinishedPreviouslyAttemptedItems($maxAttemptsBeforeIgnore = 3, ?int $chunkSize = 30): ?array
+    public function getUnfinishedPreviouslyAttemptedItems($maxAttemptsBeforeIgnore = 3, ?int $chunkSize = 30, bool $doAttempt = false): ?array
     {
         $query = $this->query();
-        $query->whereShouldRun()
+
+        $query->whereShouldRun($maxAttemptsBeforeIgnore)
             ->isReserved()
-            ->isNotCompleted();
+            ->whereHasAttempts()
+            ->isNotCompleted()
+            ->hasNotFailed();
+
+        if ($chunkSize) {
+            $query->limit($chunkSize);
+        }
+        if ($result = $query->result()) {
+            if ($doAttempt) {
+                $this->doAttempts($result); // Increase the number of attempts by 1
+            }
+            return $result;
+        }
+        return null;
+    }
+
+    /**
+     * Get completed by parent queue item.
+     *
+     * @param int $parentId The ID of the parent queue item.
+     * @param string $parentQueueName The name of the parent queue.
+     * @param int|null $chunkSize The maximum number of items that should be returned.
+     * @return array|null
+     */
+    public function getCompletedItemsByParent(int $parentId, string $parentQueueName, ?int $chunkSize = 30): ?array
+    {
+        $query = $this->query();
+        $query->isCompleted()
+            ->byParentQueueItem($parentId, $parentQueueName);
         if ($chunkSize) {
             $query->limit($chunkSize);
         }
@@ -92,21 +122,59 @@ class Queue
     }
 
     /**
-     * Get unfinished items by parent queue item.
+     * Get failed by parent queue item.
      *
      * @param int $parentId The ID of the parent queue item.
      * @param string $parentQueueName The name of the parent queue.
      * @param int|null $chunkSize The maximum number of items that should be returned.
      * @return array|null
      */
-    public function getUnfinishedItemsByParent(int $parentId, string $parentQueueName, ?int $chunkSize = 30): ?array
+    public function getFailedItemsByParent(int $parentId, string $parentQueueName, ?int $chunkSize = 30): ?array
     {
         $query = $this->query();
-        $query->isActive()
-            ->byParentQueue($parentId, $parentQueueName);
+        $query->hasFailed()
+            ->isNotCompleted()
+            ->byParentQueueItem($parentId, $parentQueueName);
         if ($chunkSize) {
             $query->limit($chunkSize);
         }
+        if ($result = $query->result()) {
+            return $result;
+        }
+        return null;
+    }
+
+    /**
+     * Get items by parent queue item.
+     *
+     * @param int $parentId The ID of the parent queue item.
+     * @param string $parentQueueName The name of the parent queue.
+     * @param int|null $chunkSize The maximum number of items that should be returned.
+     * @return array|null
+     */
+    public function getItemsByParent(int $parentId, string $parentQueueName, ?int $chunkSize = 30): ?array
+    {
+        $query = $this->query();
+        $query->byParentQueueItem($parentId, $parentQueueName);
+        if ($chunkSize) {
+            $query->limit($chunkSize);
+        }
+        if ($result = $query->result()) {
+            return $result;
+        }
+        return null;
+    }
+
+    /**
+     * Get items older than given timestamp.
+     *
+     * @param $timestampThreshold
+     * @return mixed|null
+     */
+    public function getOldItems($timestampThreshold): ?array
+    {
+        $query = $this->query();
+        $query->where('created_at_gmt', '<=', $timestampThreshold);
         if ($result = $query->result()) {
             return $result;
         }
@@ -200,12 +268,8 @@ class Queue
     {
         $query = $this->query();
         $query->isActive()
-            ->andWhere(function($query) {
-                $query->whereShouldForceRetry();
-                $query->orWhere(function($query) {
-                    $query->isNotReserved();
-                });
-            })
+            ->whereHasNoAttempts()
+            ->isNotReserved()
             ->orderBy('id', 'DESC');
         if ($chunkSize) {
             $query->limit($chunkSize);
@@ -213,6 +277,23 @@ class Queue
         if ($result = $query->result()) {
             $this->reserveItems($result, $doAttempt);
             return $result;
+        }
+        return null;
+    }
+
+    /**
+     * Flag items that has reached the max attempt threshold as failed.
+     *
+     * @param int $maxAttempts
+     * @return array|null
+     */
+    public function flagMaxAttemptedItemsAsFailed(int $maxAttempts = 3): ?array
+    {
+        $query = $this->query();
+        $query->isActive()
+            ->whereMaxAttemptAreExceeded($maxAttempts);
+        if ($result = $query->result()) {
+            $this->setItemsAsFailed($result);
         }
         return null;
     }
@@ -279,6 +360,18 @@ class Queue
             }
         }
         return null;
+    }
+
+    /**
+     * Increment the number of attempts on multiple items.
+     *
+     * @param $items
+     */
+    public function doAttempts($items): void
+    {
+        array_map(function($item) {
+            $this->doAttempt($item);
+        }, $items);
     }
 
     /**

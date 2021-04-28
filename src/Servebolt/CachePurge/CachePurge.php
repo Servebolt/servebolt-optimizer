@@ -105,7 +105,7 @@ class CachePurge
         } elseif ($driver === 'cloudflare') {
             return CloudflareDriver::getInstance();
         }
-        //return $this->defaultDriverObject();
+        return $this->defaultDriverObject();
     }
 
     /**
@@ -114,7 +114,7 @@ class CachePurge
      * @param bool $verbose
      * @return string
      */
-    private function defaultDriverName(bool $verbose)
+    private static function defaultDriverName(bool $verbose = false): string
     {
         return $verbose ? 'Cloudflare' : 'cloudflare';
     }
@@ -124,12 +124,10 @@ class CachePurge
      *
      * @return mixed
      */
-    /*
     private function defaultDriverObject()
     {
         return CloudflareDriver::getInstance();
     }
-    */
 
     /**
      * Check whether the cache purge feature is activated and configured (available for use).

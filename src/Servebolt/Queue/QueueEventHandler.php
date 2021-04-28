@@ -21,11 +21,7 @@ class QueueEventHandler
     {
         if ($this->shouldParseQueue()) {
             add_action(MinuteEvent::$hook, [$this, 'handleWpObjectQueue'], 10);
-            //add_action(MinuteEvent::$hook, [$this, 'handleUrlQueue'], 11);
-            add_action('admin_init', function() {
-                //$this->handleWpObjectQueue();
-                $this->handleUrlQueue();
-            });
+            add_action(MinuteEvent::$hook, [$this, 'handleUrlQueue'], 11);
         }
     }
 
