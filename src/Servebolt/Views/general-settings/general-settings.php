@@ -5,7 +5,7 @@
     <h1><?php _e('General settings', 'servebolt-wp'); ?></h1>
 
     <?php if (isDevDebug()) : ?>
-        <button class="sb-clear-all-settings button" style="margin-top: 10px;">Reset all settings</button>
+        <button type="button" class="sb-clear-all-settings button" style="margin-top: 10px;">Reset all settings</button>
     <?php endif; ?>
 
     <?php settings_errors(); ?>

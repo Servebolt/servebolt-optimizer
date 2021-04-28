@@ -5,8 +5,8 @@
 
 	<h1><?php _e('Performance Optimizer', 'servebolt-wp'); ?></h1>
 
-  <?php if ( isDevDebug() ) : ?>
-    <button class="sb-deoptimize-database button" style="margin-top: 10px;">De-optimize database!</button>
+  <?php if (isDevDebug()) : ?>
+    <button type="button" class="sb-deoptimize-database button" style="margin-top: 10px;">De-optimize database!</button>
   <?php endif; ?>
 
 	<h3><?php _e('Database Indexes', 'servebolt-wp'); ?></h3>

@@ -829,6 +829,25 @@ function requireSuperadmin()
 }
 
 /**
+ * Check if a string ends with a substring.
+ *
+ * @param $haystack
+ * @param $needle
+ * @return bool
+ */
+function strEndsWith($haystack, $needle): bool
+{
+    if (function_exists('str_ends_with')) {
+        return str_ends_with($haystack, $needle);
+    }
+    $length = mb_strlen($needle);
+    if(!$length) {
+        return true;
+    }
+    return mb_substr($haystack, -$length) === $needle;
+}
+
+/**
  * Check if the site is hosted at Servebolt.
  *
  * @return bool
@@ -837,15 +856,22 @@ function isHostedAtServebolt(): bool
 {
     $isHostedAtServebolt = false;
     $context = null;
-    if (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
-        $isHostedAtServebolt = HOST_IS_SERVEBOLT_OVERRIDE;
-        $context = 'OVERRIDE';
-    } elseif (arrayGet('SERVER_ADMIN', $_SERVER) === 'support@servebolt.com') {
+    /*if (file_exists('/etc/bolt-release')) {
+        $isHostedAtServebolt = true;
+        $context = 'file';
+    } else*/
+    if (arrayGet('SERVER_ADMIN', $_SERVER) === 'support@servebolt.com') {
         $isHostedAtServebolt = true;
         $context = 'SERVER_ADMIN';
-    } elseif ((boolean) preg_match('/servebolt\.(com|cloud)$/', arrayGet('HOSTNAME', $_SERVER))) {
+    } elseif (
+        strEndsWith(arrayGet('HOSTNAME', $_SERVER), 'servebolt.com')
+        || strEndsWith(arrayGet('HOSTNAME', $_SERVER), 'servebolt.cloud')
+    ) {
         $isHostedAtServebolt = true;
         $context = 'HOSTNAME';
+    } elseif (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
+        $isHostedAtServebolt = HOST_IS_SERVEBOLT_OVERRIDE;
+        $context = 'OVERRIDE';
     }
     return apply_filters('sb_optimizer_is_hosted_at_servebolt', $isHostedAtServebolt, $context);
 }
