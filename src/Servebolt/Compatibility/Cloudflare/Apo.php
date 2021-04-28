@@ -2,9 +2,9 @@
 
 namespace Servebolt\Optimizer\Compatibility\Cloudflare;
 
-use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 
 /**
  * Class Apo

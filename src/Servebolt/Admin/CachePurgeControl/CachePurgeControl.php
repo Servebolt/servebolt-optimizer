@@ -50,6 +50,7 @@ class CachePurgeControl
      */
     private function rowActionCachePurge(): void
     {
+        // TODO: Do a better selection for taxonomies and post types rather than a hardcoded but filterable array
         foreach(apply_filters('sb_optimizer_cache_purge_row_action_taxonomies', ['category']) as $taxonomy) {
             add_filter($taxonomy . '_row_actions', [$this, 'addTermPurgeRowAction'], 10, 2);
         }
@@ -110,6 +111,14 @@ class CachePurgeControl
             }
             return $parentFile;
         });
+        // Fix faulty page title
+        add_filter('admin_title', function($admin_title, $title) {
+            $screen = get_current_screen();
+            if ($screen->id === 'admin_page_servebolt-cache-purge-control') {
+                return 'Cache purging ' . $admin_title;
+            }
+            return $admin_title;
+        }, 10, 2);
     }
 
     /**
