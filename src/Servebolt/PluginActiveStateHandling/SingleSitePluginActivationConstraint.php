@@ -32,6 +32,16 @@ class SingleSitePluginActivationConstraint
     }
 
     /**
+     * Error message for attempting to activate on single site when running in a multisite-environment.
+     *
+     * @return string
+     */
+    private function activationErrorMessage(): string
+    {
+        return __('Servebolt Optimizer can only be network activated when running on a multisite.', 'servebolt-wp');
+    }
+
+    /**
      * Prevent the plugin from being activated via WP CLI on a single site when running in a multisite-environment.
      */
     private function wpCliHandling(): void
@@ -39,7 +49,7 @@ class SingleSitePluginActivationConstraint
         if (isCli()) {
             add_action('activate_' . SERVEBOLT_PLUGIN_BASENAME, function($network_wide) {
                 if (!$network_wide && $this->shouldPreventSingleSiteActivation()) {
-                    WP_CLI::error(__('Servebolt Optimizer can only be network activated when running on a multisite.', 'servebolt-wp'));
+                    WP_CLI::error($this->activationErrorMessage());
                     die;
                 }
             }, 10, 1);
@@ -61,7 +71,7 @@ class SingleSitePluginActivationConstraint
                 add_action('admin_notices', function() {
                     ?>
                     <div class="notice notice-warning is-dismissable">
-                        <p><?php echo __('Servebolt Optimizer can only be network activated when running on a multisite.', 'servebolt-wp'); ?></p>
+                        <p><?php echo $this->activationErrorMessage(); ?></p>
                     </div>
                     <?php
                 });
