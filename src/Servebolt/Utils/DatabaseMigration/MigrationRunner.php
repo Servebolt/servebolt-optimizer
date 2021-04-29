@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Utils\DatabaseMigration;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
@@ -148,7 +149,7 @@ class MigrationRunner
     private function setCurrentVersions(): void
     {
         $this->currentMigratedVersion = $this->getCurrentMigratedVersion();
-        $this->currentPluginVersion = $this->getCurrentPluginVersion();
+        $this->currentPluginVersion = getCurrentPluginVersion();
     }
 
     public function maybeRunMigrations(): void
@@ -344,7 +345,7 @@ class MigrationRunner
     public function updateMigratedVersion($version = null): void
     {
         if (!$version) {
-            $version = $this->getCurrentPluginVersion();
+            $version = getCurrentPluginVersion();
         }
         $this->currentMigratedVersion =  $version;
         if (is_multisite()) {
@@ -371,17 +372,5 @@ class MigrationRunner
         } else {
             return getOption($this->migrationVersionOptionsKey());
         }
-    }
-
-    public function getCurrentPluginVersion(bool $ignoreBetaVersion = true): string
-    {
-        if(!function_exists('get_plugin_data')) {
-            require_once(ABSPATH . 'wp-admin/includes/plugin.php');
-        }
-        $pluginData = get_plugin_data(SERVEBOLT_PLUGIN_FILE);
-        if ($ignoreBetaVersion) {
-            return preg_replace('/(.+)-(.+)/', '$1', $pluginData['Version']);
-        }
-        return $pluginData['Version'];
     }
 }

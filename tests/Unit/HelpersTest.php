@@ -15,6 +15,7 @@ use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
 use function Servebolt\Optimizer\Helpers\getAllOptionsNames;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
+use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\iterateSites;
@@ -268,6 +269,13 @@ class HelpersTest extends WP_UnitTestCase
         $this->assertFalse(isHostedAtServebolt());
         define('HOST_IS_SERVEBOLT_OVERRIDE', true);
         $this->assertTrue(isHostedAtServebolt());
+    }
+
+    public function testThatWeCanObtainPluginVersion()
+    {
+        $versionNumber = getCurrentPluginVersion(false);
+        $this->assertIsString($versionNumber);
+        $this->assertRegExp('/^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/', $versionNumber);
     }
 
     public function testCountSitesHelper()

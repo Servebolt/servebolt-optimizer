@@ -819,6 +819,28 @@ function isDebug(): bool
 }
 
 /**
+ * Get current version of the plugin.
+ *
+ * @param bool $ignoreBetaVersion
+ * @return string
+ */
+function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
+{
+    if(!function_exists('get_plugin_data')) {
+        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    }
+    $pluginData = get_plugin_data(SERVEBOLT_PLUGIN_FILE);
+    $version = arrayGet('Version', $pluginData);
+    if (!$version) {
+        return null;
+    }
+    if ($ignoreBetaVersion) {
+        return preg_replace('/(.+)-(.+)/', '$1', $version);
+    }
+    return $version;
+}
+
+/**
  * Require the user to be a super admin.
  */
 function requireSuperadmin()
