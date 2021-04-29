@@ -1,45 +1,24 @@
 <?php
 
-namespace Servebolt\Optimizer;
+namespace Servebolt\Optimizer\PluginActiveStateHandling;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
-use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
-use function Servebolt\Optimizer\Helpers\cacheCookieCheck;
-use function Servebolt\Optimizer\Helpers\clearNoCacheCookie;
 use function Servebolt\Optimizer\Helpers\isCli;
 
 /**
- * Class PluginActiveStateHandling
- * @package Servebolt\Optimizer
+ * Class SingleSitePluginActivationConstraint
  */
-class PluginActiveStateHandling
+class SingleSitePluginActivationConstraint
 {
+    /**
+     * SingleSitePluginActivationConstraint constructor.
+     */
     public function __construct()
     {
-        // Register events for activation and deactivation of this plugin
-        register_activation_hook(SERVEBOLT_PLUGIN_FILE, [$this, 'activatePlugin']);
-        register_deactivation_hook(SERVEBOLT_PLUGIN_FILE, [$this, 'deactivatePlugin']);
-
-        $this->preventSingleSitePluginActivationInMultisite();
-    }
-
-    /**
-     * Plugin activation.
-     */
-    public function activatePlugin(): void
-    {
-        MigrationRunner::migrate(); // Run database migrations
-        cacheCookieCheck();
-    }
-
-    /**
-     * Plugin deactivation.
-     */
-    public function deactivatePlugin(): void
-    {
-        clearNoCacheCookie();
+        $this->adminGuiHandling();
+        $this->wpCliHandling();
     }
 
     /**
@@ -53,9 +32,9 @@ class PluginActiveStateHandling
     }
 
     /**
-     * Prevent the plugin from being activated on a single site when running in a multisite-environment.
+     * Prevent the plugin from being activated via WP CLI on a single site when running in a multisite-environment.
      */
-    private function preventSingleSitePluginActivationInMultisite(): void
+    private function wpCliHandling(): void
     {
         if (isCli()) {
             add_action('activate_' . SERVEBOLT_PLUGIN_BASENAME, function($network_wide) {
@@ -65,6 +44,13 @@ class PluginActiveStateHandling
                 }
             }, 10, 1);
         }
+    }
+
+    /**
+     * Prevent the plugin from being activated from WP Admin on a single site when running in a multisite-environment.
+     */
+    private function adminGuiHandling(): void
+    {
         add_action('admin_init', function () {
             if ($this->shouldPreventSingleSiteActivation()) {
                 deactivate_plugins(SERVEBOLT_PLUGIN_BASENAME);
