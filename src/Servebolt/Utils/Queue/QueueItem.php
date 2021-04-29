@@ -50,7 +50,8 @@ class QueueItem
      */
     public function getParentItem(): ?object
     {
-        $parentQueue = Queue::getInstance($this->parent_queue_name, $this->parent_queue_name);
+        //$parentQueue = Queue::getInstance($this->parent_queue_name, $this->parent_queue_name);
+        $parentQueue = new Queue($this->parent_queue_name, $this->parent_queue_name);
         if ($parentItem = $parentQueue->get($this->parent_id)) {
             return $parentItem;
         }
@@ -108,7 +109,8 @@ class QueueItem
 
     private function getTableName(): ?string
     {
-        $queueInstance = Queue::getInstance($this->queue, $this->queue);
+        //$queueInstance = Queue::getInstance($this->queue, $this->queue);
+        $queueInstance = new Queue($this->queue, $this->queue);
         return $queueInstance->getTableName();
     }
 
