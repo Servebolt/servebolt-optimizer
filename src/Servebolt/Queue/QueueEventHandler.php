@@ -32,6 +32,7 @@ class QueueEventHandler
      */
     private function shouldParseQueue(): bool
     {
+        // TODO: Rename this to "SERVEBOLT_QUEUE_BASED_CACHE_PURGE_SHOULD_PARSE_QUEUE"
         if (defined('SERVEBOLT_QUEUE_BASED_CACHE_SHOULD_PARSE_QUEUE') && is_bool(SERVEBOLT_QUEUE_BASED_CACHE_SHOULD_PARSE_QUEUE)) {
             return SERVEBOLT_QUEUE_BASED_CACHE_SHOULD_PARSE_QUEUE;
         }
