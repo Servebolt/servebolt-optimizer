@@ -4,11 +4,10 @@ namespace Servebolt\Optimizer\Compatibility\WooCommerce;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Exception;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\ContentChangeTrigger;
-use function Servebolt\Optimizer\Helpers\isAjax;
-use function Servebolt\Optimizer\Helpers\isWpRest;
 
 /**
  * Class ProductCachePurgeOnStockChange
@@ -21,6 +20,8 @@ class ProductCachePurgeOnStockChange
      */
     public function __construct()
     {
+
+        // Note: Might be sufficient with just listening to woocommerce_product_update
         if ($this->shouldPurgeCacheOnStockAmountChange()) {
             // These actions are only triggered if global setting "manage_stock" is set to true
             add_action('woocommerce_product_set_stock', [$this, 'productStockChange']);
@@ -28,8 +29,8 @@ class ProductCachePurgeOnStockChange
         }
 
         if ($this->shouldPurgeCacheOnStockStatusChange()) {
-            add_action('woocommerce_variation_set_stock_status', [$this, 'productStockStatusChange'], 10, 3);
             add_action('woocommerce_product_set_stock_status', [$this, 'productVariationStockStatusChange'], 10, 3);
+            add_action('woocommerce_variation_set_stock_status', [$this, 'productStockStatusChange'], 10, 3);
         }
     }
 
@@ -42,7 +43,9 @@ class ProductCachePurgeOnStockChange
     {
         if ($productId = $this->resolveProductPostId($product)) {
             if (ContentChangeTrigger::shouldPurgePostCache($productId)) { // Check if we should purge cache for the current product in regards to rules in ContentChangeTrigger::class
-                WordPressCachePurge::purgeByPostId($productId);
+                try {
+                    WordPressCachePurge::purgeByPostId($productId);
+                } catch (Exception $e) {}
             }
         }
     }
@@ -78,7 +81,7 @@ class ProductCachePurgeOnStockChange
      */
     public function productVariationStockStatusChange($productVariationId, $stockStatus, $productVariation): void
     {
-        $this->productVariationtockChange($productVariation);
+        $this->productVariationStockChange($productVariation);
     }
 
     /**
@@ -91,7 +94,6 @@ class ProductCachePurgeOnStockChange
         if (apply_filters('sb_optimizer_woocommerce_product_cache_purge_on_stock_amount_change', true) === false) {
             return false; // We're not suppose to purge cache on WooCommerce stock change
         }
-
         return $this->shouldPurgeCacheOnStockCommonCondition();
     }
 
@@ -116,33 +118,41 @@ class ProductCachePurgeOnStockChange
      */
     private function shouldPurgeCacheOnStockCommonCondition(): bool
     {
-
         if (!CachePurge::featureIsAvailable()) {
             return false; // Cache feature is not available or insufficiently configured
         }
 
-        $isCheckout = function_exists('is_checkout') && is_checkout();
-
-        if (!$isCheckout && (is_admin() || isAjax() || isWpRest()) && !$this->pluginIsPurgingOnPostSave()) {
-            return true; // We're not at checkout, that we're in WP Admin/API-context and we're not listening for posts being updated in the ContentChangeTrigger::class, so let's act on this ourselves without the help of the "post_updated"-action
+        if (apply_filters('sb_optimizer_woocommerce_product_cache_purge_on_stock_change', true) === false) {
+            return false; // We're not suppose to purge cache on WooCommerce stock status change
         }
 
-        if ($isCheckout) {
+        /*
+        if ($this->isWooCommerceCheckout()) {
             return true; // We're doing a WooCommerce checkout, let's update the stock
         }
+        */
 
-        return false;
+        //return false;
+        return true;
     }
 
     /**
-     * Check if we're purging cache on post save in the ContentChangeTrigger::class.
+     * Check if we're currently doing a WooCommerce checkout.
      *
      * @return bool
      */
-    private function pluginIsPurgingOnPostSave(): bool
+    /*
+    private function isWooCommerceCheckout(): bool
     {
-        return has_filter('post_updated', [ContentChangeTrigger::getInstance(), 'purgePostOnSave'], 99, 3);
+        if (is_admin()) {
+            return false;
+        }
+        if (function_exists('is_checkout')) {
+            return is_checkout();
+        }
+        return false;
     }
+    */
 
     /**
      * Get post Id from WC product.

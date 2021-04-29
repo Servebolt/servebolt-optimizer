@@ -123,6 +123,18 @@ class SqlBuilder
     }
 
     /**
+     * Alias for "buildQuery".
+     *
+     * @return string
+     */
+    public function toSql(): string
+    {
+        return $this->buildQuery();
+    }
+
+    /**
+     * Build SQL-query.
+     *
      * @return string
      */
     public function buildQuery(): string
@@ -146,7 +158,7 @@ class SqlBuilder
                 $this->addOrderParameterToQuery();
                 $this->addLimitParameter();
                 break;
-
+            // TODO: Add support for UPDATE etc.?
         }
 
         return $this->prepareQuery();

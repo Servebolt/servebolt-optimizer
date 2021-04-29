@@ -2,7 +2,7 @@
 <?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 <?php $cfApi = Servebolt\Optimizer\Api\Cloudflare\Cloudflare::getInstance(); ?>
 
-<tbody class="sb-config-field-general sb-config-field-cloudflare <?php if (!$cachePurgeIsActive|| $settings['cache_purge_driver'] !== 'cloudflare') echo 'sb-config-field-hidden'; ?>">
+<tbody class="sb-config-field-general sb-config-field-cloudflare <?php if (!$cachePurgeIsActive || $settings['cache_purge_driver'] !== 'cloudflare') echo 'sb-config-field-hidden'; ?>">
     <tr>
         <th scope="row" colspan="100%" style="padding-bottom: 5px;">
             <h3 style="margin-bottom: 0;"><?php _e('Cloudflare API', 'servebolt-wp'); ?></h3>

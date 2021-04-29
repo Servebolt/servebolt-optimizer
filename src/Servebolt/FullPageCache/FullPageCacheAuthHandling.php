@@ -32,6 +32,9 @@ class FullPageCacheAuthHandling
 	 */
 	private $noCacheCookieName = 'no_cache';
 
+    /**
+     * Alias for "getInstance".
+     */
     public static function init(): void
     {
         self::getInstance();

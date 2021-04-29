@@ -9,9 +9,11 @@ use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
+use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 use function Servebolt\Optimizer\Helpers\deleteBlogOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
+use function Servebolt\Optimizer\Helpers\getAllOptionsNames;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
@@ -44,6 +46,7 @@ use function Servebolt\Optimizer\Helpers\naturalLanguageJoin;
 use function Servebolt\Optimizer\Helpers\resolveViewPath;
 use function Servebolt\Optimizer\Helpers\isUrl;
 use function Servebolt\Optimizer\Helpers\getOptionName;
+use function Servebolt\Optimizer\Helpers\strEndsWith;
 use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\updateSiteOption;
@@ -232,8 +235,36 @@ class HelpersTest extends WP_UnitTestCase
         $this->assertEquals("'Something', 'something' and 'another thing'", naturalLanguageJoin(['Something', 'something', 'another thing'], null, "'"));
     }
 
+    public function testThatStringEndsWith()
+    {
+        $this->assertTrue(strEndsWith('some-long-string', 'string', false));
+        $this->assertFalse(strEndsWith('some-long-string', 'string2', false));
+        $this->assertTrue(strEndsWith('some-long-string', 'string', true));
+        $this->assertFalse(strEndsWith('some-long-string', 'string2', true));
+    }
+
     public function testIsHostedAtServeboltHelper()
     {
+        $this->assertFalse(isHostedAtServebolt());
+        add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        $this->assertTrue(isHostedAtServebolt());
+        remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        $this->assertFalse(isHostedAtServebolt());
+        $_SERVER['SERVER_ADMIN'] = 'support@servebolt.comz';
+        $this->assertFalse(isHostedAtServebolt());
+        $_SERVER['SERVER_ADMIN'] = 'support@servebolt.com';
+        $this->assertTrue(isHostedAtServebolt());
+        unset($_SERVER['SERVER_ADMIN']);
+        $this->assertFalse(isHostedAtServebolt());
+        $_SERVER['HOSTNAME'] = 'accele-13661.bolt53.servebolt.comz';
+        $this->assertFalse(isHostedAtServebolt());
+        $_SERVER['HOSTNAME'] = 'accele-13661.bolt53.servebolt.com';
+        $this->assertTrue(isHostedAtServebolt());
+        $_SERVER['HOSTNAME'] = 'sbopti-7393.wilhelm-osl.servebolt.cloudz';
+        $this->assertFalse(isHostedAtServebolt());
+        $_SERVER['HOSTNAME'] = 'sbopti-7393.wilhelm-osl.servebolt.cloud';
+        $this->assertTrue(isHostedAtServebolt());
+        unset($_SERVER['HOSTNAME']);
         $this->assertFalse(isHostedAtServebolt());
         define('HOST_IS_SERVEBOLT_OVERRIDE', true);
         $this->assertTrue(isHostedAtServebolt());
@@ -385,12 +416,33 @@ class HelpersTest extends WP_UnitTestCase
         $this->assertNull(smartGetOption(null, $key));
     }
 
-    private function createBlogs(int $numberOfBlogs = 1): void
+    public function testThatAllSettingsGetsDeleted()
+    {
+        $this->createBlogs(2);
+        $allOptionsNames = getAllOptionsNames(true);
+        iterateSites(function ($site) use ($allOptionsNames) {
+            foreach ($allOptionsNames as $option) {
+                updateBlogOption($site->blog_id, $option, $option);
+                $this->assertEquals($option, getBlogOption($site->blog_id, $option));
+            }
+        });
+        deleteAllSettings(true, true);
+        iterateSites(function ($site) use ($allOptionsNames) {
+            foreach ($allOptionsNames as $option) {
+                $this->assertNull(getBlogOption($site->blog_id, $option));
+            }
+        });
+    }
+
+    private function createBlogs(int $numberOfBlogs = 1, $blogCreationAction = null): void
     {
         $siteCount = countSites();
         for ($i = 1; $i <= $numberOfBlogs; $i++) {
             $number = $i + $siteCount;
-            $this->factory()->blog->create( [ 'domain' => 'foo-' . $number , 'path' => '/', 'title' => 'Blog ' . $number ] );
+            $blogId = $this->factory()->blog->create( [ 'domain' => 'foo-' . $number , 'path' => '/', 'title' => 'Blog ' . $number ] );
+            if (is_callable($blogCreationAction)) {
+                $blogCreationAction($blogId);
+            }
         }
     }
 }

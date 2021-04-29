@@ -7,7 +7,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use WP_Admin_Bar;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\CachePurge\CachePurge;
+use function Servebolt\Optimizer\Helpers\getPostTypeSingularName;
 use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
+use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
 
 /**
  * Class Servebolt_Admin_Bar_Interface
@@ -37,7 +39,7 @@ class AdminBarGUI
 	 * @param WP_Admin_Bar $wpAdminBar
      * @return void|null
      */
-	public function adminBar(WP_Admin_Bar $wpAdminBar): void
+	public function adminBar($wpAdminBar)
     {
 		if (!apply_filters('sb_optimizer_display_admin_bar_menu', true)) {
             return;
@@ -146,7 +148,7 @@ class AdminBarGUI
         if (!is_network_admin()) {
             if ($cachePurgeAvailable) {
 				if (apply_filters('sb_optimizer_allow_admin_bar_cache_purge_for_post', true) && $postId = $this->getSinglePostId()) {
-				    $objectName = $this->getPostTypeSingularName($postId);
+				    $objectName = getPostTypeSingularName($postId);
 				    $nodeText = sprintf(__('Purge %s cache', 'servebolt-wp'), $objectName);
 					$nodes[] = [
 						'id'    => 'servebolt-clear-current-post-cache',
@@ -159,7 +161,7 @@ class AdminBarGUI
 				}
 
                 if (apply_filters('sb_optimizer_allow_admin_bar_cache_purge_term_post', true) && $termId = $this->getSingleTermId()) {
-                    $objectName = $this->getTaxonomySingularName($termId);
+                    $objectName = getTaxonomySingularName($termId);
                     $nodeText = sprintf(__('Purge %s cache', 'servebolt-wp'), $objectName);
                     $nodes[] = [
                         'id'    => 'servebolt-clear-current-term-cache',
@@ -185,42 +187,6 @@ class AdminBarGUI
 
 		return $nodes;
 	}
-
-    /**
-     * Get post type singular name.
-     *
-     * @param int $postId
-     * @return string
-     */
-	private function getPostTypeSingularName(int $postId): string
-    {
-        if ($postType = get_post_type($postId)) {
-            if ($postTypeObject = get_post_type_object($postType)) {
-                if (isset($postTypeObject->labels->singular_name) && $postTypeObject->labels->singular_name) {
-                    return mb_strtolower($postTypeObject->labels->singular_name);
-                }
-            }
-        }
-        return 'post';
-    }
-
-    /**
-     * Get taxonomy singular name by term.
-     *
-     * @param int $termId
-     * @return string
-     */
-    private function getTaxonomySingularName(int $termId): string
-    {
-        if ($term = get_term($termId)) {
-            if ($taxonomyObject = get_taxonomy($term->taxonomy)) {
-                if (isset($taxonomyObject->labels->singular_name) && $taxonomyObject->labels->singular_name) {
-                    return mb_strtolower($taxonomyObject->labels->singular_name);
-                }
-            }
-        }
-        return 'term';
-    }
 
 	/**
 	 * Check whether we should allow cache purge of current post (if there is any).

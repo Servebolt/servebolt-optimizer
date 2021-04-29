@@ -4,7 +4,6 @@ namespace Servebolt\Optimizer\Helpers;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
-use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling;
 
 /**
@@ -251,7 +250,7 @@ function getServeboltAdminUrl() :string
  */
 function clearAllCookies(): void
 {
-    fullPageCacheAuthHandling()->clearNoCacheCookie();
+    (FullPageCacheAuthHandling::getInstance())->clearNoCacheCookie();
 }
 
 /**
@@ -259,23 +258,52 @@ function clearAllCookies(): void
  */
 function checkAllCookies(): void
 {
-    fullPageCacheAuthHandling()->cacheCookieCheck();
+    (FullPageCacheAuthHandling::getInstance())->cacheCookieCheck();
 }
 
 /**
- * @return FullPageCacheAuthHandling
- */
-function fullPageCacheAuthHandling(): object
-{
-    return FullPageCacheAuthHandling::getInstance();
-}
-
-/**
- * Delete plugin settings.
+ * Get taxonomy singular name by term.
  *
- * @param bool $allSites
+ * @param int $termId
+ * @return string
  */
-function deleteAllSettings(bool $allSites = true): void
+function getTaxonomySingularName(int $termId): string
+{
+    if ($term = get_term($termId)) {
+        if ($taxonomyObject = get_taxonomy($term->taxonomy)) {
+            if (isset($taxonomyObject->labels->singular_name) && $taxonomyObject->labels->singular_name) {
+                return mb_strtolower($taxonomyObject->labels->singular_name);
+            }
+        }
+    }
+    return 'term';
+}
+
+/**
+ * Get post type singular name by post ID.
+ *
+ * @param int $postId
+ * @return string
+ */
+function getPostTypeSingularName(int $postId): string
+{
+    if ($postType = get_post_type($postId)) {
+        if ($postTypeObject = get_post_type_object($postType)) {
+            if (isset($postTypeObject->labels->singular_name) && $postTypeObject->labels->singular_name) {
+                return mb_strtolower($postTypeObject->labels->singular_name);
+            }
+        }
+    }
+    return 'post';
+}
+
+/**
+ * Get all options names.
+ *
+ * @param bool $includeMigrationOptions Whether to delete the options related to database migrations.
+ * @return string[]
+ */
+function getAllOptionsNames(bool $includeMigrationOptions = false): array
 {
     $optionNames = [
         // General settings
@@ -287,10 +315,16 @@ function deleteAllSettings(bool $allSites = true): void
         'ajax_nonce',
         'record_max_num_pages_nonce',
 
+        // Legacy
+        'sb_optimizer_record_max_num_pages',
+
         // Wipe encryption keys
         'mcrypt_key',
         'openssl_key',
         'openssl_iv',
+
+        // CF Image resizing
+        'cf_image_resizing',
 
         // Wipe Cache purge-related options
         'cache_purge_switch',
@@ -306,14 +340,37 @@ function deleteAllSettings(bool $allSites = true): void
         'cf_cron_purge',
         'queue_based_cache_purge',
 
+        // Accelerated Domains
+        'acd_switch',
+        'acd_minify_switch',
+
         // Wipe SB FPC-related options
         'fpc_switch',
         'fpc_settings',
         'fpc_exclude',
-
-        // Migration related
-        'migration_version',
     ];
+
+    if ($includeMigrationOptions) {
+        $optionNames = array_merge($optionNames, [
+
+            // Migration related
+            'migration_version',
+
+        ]);
+    }
+
+    return $optionNames;
+}
+
+/**
+ * Delete plugin settings.
+ *
+ * @param bool $allSites Whether to delete all settings on all sites in multisite.
+ * @param bool $includeMigrationOptions Whether to delete the options related to database migrations.
+ */
+function deleteAllSettings(bool $allSites = true, bool $includeMigrationOptions = false): void
+{
+    $optionNames = getAllOptionsNames($includeMigrationOptions);
     foreach ($optionNames as $optionName) {
         if (is_multisite() && $allSites) {
             iterateSites(function ($site) use ($optionName) {
@@ -323,23 +380,6 @@ function deleteAllSettings(bool $allSites = true): void
             deleteOption($optionName);
         }
     }
-}
-
-/**
- * Plugin deactivation event.
- */
-function deactivatePlugin(): void
-{
-    clearAllCookies();
-}
-
-/**
- * Plugin activation event.
- */
-function activatePlugin(): void
-{
-    MigrationRunner::migrate(); // Run database migrations
-    checkAllCookies();
 }
 
 /**
@@ -789,6 +829,26 @@ function requireSuperadmin()
 }
 
 /**
+ * Check if a string ends with a substring.
+ *
+ * @param string $haystack
+ * @param string $needle
+ * @param bool $php8Fallback
+ * @return bool
+ */
+function strEndsWith(string $haystack, string $needle, bool $php8Fallback = true): bool
+{
+    if (function_exists('str_ends_with') && $php8Fallback) {
+        return str_ends_with($haystack, $needle);
+    }
+    $length = mb_strlen($needle);
+    if(!$length) {
+        return true;
+    }
+    return mb_substr($haystack, -$length) === $needle;
+}
+
+/**
  * Check if the site is hosted at Servebolt.
  *
  * @return bool
@@ -796,18 +856,25 @@ function requireSuperadmin()
 function isHostedAtServebolt(): bool
 {
     $isHostedAtServebolt = false;
-    if (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
+    $context = null;
+    /*if (file_exists('/etc/bolt-release')) {
+        $isHostedAtServebolt = true;
+        $context = 'file';
+    } else*/
+    if (arrayGet('SERVER_ADMIN', $_SERVER) === 'support@servebolt.com') {
+        $isHostedAtServebolt = true;
+        $context = 'SERVER_ADMIN';
+    } elseif (
+        strEndsWith(arrayGet('HOSTNAME', $_SERVER), 'servebolt.com')
+        || strEndsWith(arrayGet('HOSTNAME', $_SERVER), 'servebolt.cloud')
+    ) {
+        $isHostedAtServebolt = true;
+        $context = 'HOSTNAME';
+    } elseif (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
         $isHostedAtServebolt = HOST_IS_SERVEBOLT_OVERRIDE;
-    } else {
-        foreach (['SERVER_ADMIN', 'SERVER_NAME'] as $key) {
-            if (array_key_exists($key, $_SERVER)) {
-                if ((boolean) preg_match('/(servebolt|raskesider)\.([\w]{2,63})$/', $_SERVER[$key])) {
-                    $isHostedAtServebolt = true;
-                }
-            }
-        }
+        $context = 'OVERRIDE';
     }
-    return apply_filters('sb_optimizer_is_hosted_at_servebolt', $isHostedAtServebolt);
+    return apply_filters('sb_optimizer_is_hosted_at_servebolt', $isHostedAtServebolt, $context);
 }
 
 /**
@@ -1095,4 +1162,14 @@ function smartGetOption(?int $blogId = null, $optionName, $default = null)
 function woocommerceIsActive(): bool
 {
     return class_exists('WooCommerce');
+}
+
+/**
+ * Check whether plugin WP Rocket is active.
+ *
+ * @return bool
+ */
+function wpRocketIsActive(): bool
+{
+    return defined('WP_ROCKET_VERSION');
 }

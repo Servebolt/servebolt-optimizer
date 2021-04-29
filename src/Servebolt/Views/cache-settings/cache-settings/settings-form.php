@@ -1,13 +1,14 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup; ?>
-<?php use function Servebolt\Optimizer\Helpers\fullPageCache; ?>
 <?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
-<?php use Servebolt\Optimizer\FullPageCache\FullPageCache; ?>
+<?php use Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders; ?>
+<?php use Servebolt\Optimizer\FullPageCache\CachePostExclusion; ?>
+<?php use Servebolt\Optimizer\FullPageCache\FullPageCacheSettings; ?>
 <?php
-$fpcActive = FullPageCache::fpcIsActive();
-$fpcActiveOverridden = FullPageCache::fpcActiveStateIsOverridden();
-$postTypesToCache  = FullPageCache::getPostTypesToCache(false, false);
-$availablePostTypes = FullPageCache::getAvailablePostTypesToCache(true);
+$fpcActive = FullPageCacheSettings::fpcIsActive();
+$fpcActiveOverridden = FullPageCacheSettings::fpcActiveStateIsOverridden();
+$postTypesToCache  = FullPageCacheHeaders::getPostTypesToCache(false, false);
+$availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
 ?>
 <form method="post" action="options.php">
     <?php settings_fields( 'fpc-options-page' ) ?>
@@ -41,7 +42,7 @@ $availablePostTypes = FullPageCache::getAvailablePostTypesToCache(true);
             <tr>
                 <th scope="row">Posts to exclude from caching</th>
                 <td>
-                    <?php $idsToExclude = FullPageCache::getIdsToExcludeFromCache() ?: []; ?>
+                    <?php $idsToExclude = CachePostExclusion::getIdsToExcludeFromCache() ?: []; ?>
 
                     <div class="tablenav top">
                         <div class="alignleft actions bulkactions">
@@ -51,7 +52,7 @@ $availablePostTypes = FullPageCache::getAvailablePostTypesToCache(true);
                             <button type="button" style="float:left;" class="button action sb-flush-fpc-exclude-items"<?php if ( count($idsToExclude) === 0 ) echo ' disabled'; ?>><?php _e('Flush posts', 'servebolt-wp'); ?></button>
                         </div>
                         <div class="alignleft actions bulkactions">
-                            <button class="button button-primary sb-add-exclude-post" type="button">Add post to exclude</button>
+                            <button type="button" class="button button-primary sb-add-exclude-post">Add post to exclude</button>
                         </div>
                         <span class="spinner flush-fpc-exclude-list-loading-spinner"></span>
                         <br class="clear">

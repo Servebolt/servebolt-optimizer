@@ -18,6 +18,16 @@ trait TermMethods
     use SharedMethods;
 
     /**
+     * @var bool Whether to prevent the same term from being purge more than once during the execution.
+     */
+    private static $preventTermDoublePurge = true;
+
+    /**
+     * @var array Array of recently purged terms.
+     */
+    private static $recentlyPurgedTerms = [];
+
+    /**
      * Get all the URLs to purge for a given term.
      *
      * @param int $termId
@@ -46,15 +56,22 @@ trait TermMethods
         if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
             $queueInstance = WpObjectQueue::getInstance();
             return isQueueItem($queueInstance->add([
-                $termId,
-                'term',
-                compact('taxonomySlug'),
+                'type' => 'term',
+                'id'   => $termId,
+                'args' => compact('taxonomySlug'),
             ]));
         } else {
+            if (self::$preventDoublePurge && self::$preventTermDoublePurge && array_key_exists($termId . '-' . $taxonomySlug, self::$recentlyPurgedTerms)) {
+                return self::$recentlyPurgedTerms[$termId . '-' . $taxonomySlug];
+            }
             $urlsToPurge = self::getUrlsToPurgeByTermId($termId, $taxonomySlug);
             $cachePurgeDriver = CachePurgeDriver::getInstance();
             $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'term', $cachePurgeDriver);
-            return $cachePurgeDriver->purgeByUrls($urlsToPurge);
+            $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
+            if (self::$preventDoublePurge && self::$preventTermDoublePurge) {
+                self::$recentlyPurgedTerms[$termId . '-' . $taxonomySlug] = $result;
+            }
+            return $result;
         }
     }
 }
