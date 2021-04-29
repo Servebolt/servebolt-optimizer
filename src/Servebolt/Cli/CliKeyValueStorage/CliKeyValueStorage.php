@@ -324,7 +324,10 @@ abstract class CliKeyValueStorage
             $message = sprintf(__('Setting "%s" was cleared.', 'servebolt-wp'), $settingKey);
         }
         if (CliHelpers::returnJson()) {
-            CliHelpers::printJson(compact('message'));
+            CliHelpers::printJson([
+                'success' => true,
+                'message' => $message,
+            ]);
         } else {
             WP_CLI::success($message);
         }
@@ -349,7 +352,10 @@ abstract class CliKeyValueStorage
                 $errorMessage = sprintf(__('Could not set setting "%s" to value "%s".', 'servebolt-wp'), $settingKey, $value);
             }
             if (CliHelpers::returnJson()) {
-                CliHelpers::printJson(compact('errorMessage'));
+                CliHelpers::printJson([
+                    'success' => false,
+                    'message' => $errorMessage,
+                ]);
             } else {
                 WP_CLI::error($errorMessage, false);
             }
@@ -361,7 +367,10 @@ abstract class CliKeyValueStorage
             $message = sprintf(__('Setting "%s" set to value "%s".', 'servebolt-wp'), $settingKey, $value);
         }
         if (CliHelpers::returnJson()) {
-            CliHelpers::printJson(compact('message'));
+            CliHelpers::printJson([
+                'success' => true,
+                'message' => $message,
+            ]);
         } else {
             WP_CLI::success($message);
         }
@@ -401,7 +410,8 @@ abstract class CliKeyValueStorage
         $errorMessage = sprintf(__('Setting "%s" not found. Please run "wp servebolt ' . $this->namespace . ' list" to see available settings.', 'servebolt-wp'), $setting);
         if (CliHelpers::returnJson()) {
             CliHelpers::printJson([
-                'error' => $errorMessage
+                'success' => false,
+                'error' => $errorMessage,
             ]);
         } else {
             WP_CLI::error($errorMessage, false);
@@ -430,6 +440,7 @@ abstract class CliKeyValueStorage
                 }
                 if (CliHelpers::returnJson()) {
                     CliHelpers::printJson([
+                        'success' => false,
                         'error' => $errorMessage
                     ]);
                 } else {
