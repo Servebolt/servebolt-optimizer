@@ -237,7 +237,11 @@ class CachePurge
      */
     public static function getSelectedCachePurgeDriver(?int $blogId = null)
     {
-        $value = smartGetOption($blogId, 'cache_purge_driver');
+        $noExistKey = 'value-does-not-exist';
+        $value = smartGetOption($blogId, 'cache_purge_driver', $noExistKey);
+        if ($value === $noExistKey) {
+            $value = self::defaultDriverName();
+        }
         return apply_filters('sb_optimizer_selected_cache_purge_driver', $value);
     }
 
