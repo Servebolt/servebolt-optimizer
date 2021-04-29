@@ -25,7 +25,8 @@ class AdminGuiController
      */
     public function __construct()
     {
-        add_action('init', [$this, 'adminInit']);
+        add_action('init', [$this, 'init']);
+        add_action('admin_init', [$this, 'adminInit']);
     }
 
     /**
@@ -33,12 +34,19 @@ class AdminGuiController
      */
     public function adminInit()
     {
+        $this->initPluginSettingsLink();
+    }
+
+    /**
+     * Init.
+     */
+    public function init()
+    {
         if (!is_user_logged_in()) {
             return;
         }
-        $this->initAdminMenus();
-        $this->initPluginSettingsLink();
 
+        $this->initAdminMenus();
         AcceleratedDomainsControl::init();
         CachePurgeControl::init();
         FullPageCacheControl::init();
@@ -52,7 +60,6 @@ class AdminGuiController
      */
     private function initAdminMenus(): void
     {
-
         // Multisite setup
         if (is_multisite()) {
 
@@ -258,7 +265,10 @@ class AdminGuiController
      */
     private function initPluginSettingsLink(): void
     {
-        add_filter('plugin_action_links_' . SERVEBOLT_PLUGIN_BASENAME, [$this, 'addSettingsLinkToPlugin']);
+        if (apply_filters('sb_optimizer_display_plugin_row_actions', true)) {
+            add_filter('plugin_action_links_' . SERVEBOLT_PLUGIN_BASENAME, [$this, 'addSettingsLinkToPlugin']);
+        }
+        add_filter('network_admin_plugin_action_links_' . SERVEBOLT_PLUGIN_BASENAME, [$this, 'addNetworkAdminSettingsLinkToPlugin']);
     }
 
     /**
@@ -271,6 +281,19 @@ class AdminGuiController
     public function addSettingsLinkToPlugin($links): array
     {
         $links[] = sprintf('<a href="%s">%s</a>', admin_url( 'options-general.php?page=servebolt-wp' ), __('Settings', 'servebolt-wp'));
+        return $links;
+    }
+
+    /**
+     * Add settings-link in network admin plugin list.
+     *
+     * @param $links
+     *
+     * @return array
+     */
+    public function addNetworkAdminSettingsLinkToPlugin($links): array
+    {
+        $links[] = sprintf('<a href="%s">%s</a>', network_admin_url('admin.php?page=servebolt-wp'), __('Settings', 'servebolt-wp'));
         return $links;
     }
 

@@ -23,6 +23,7 @@ use Servebolt\Optimizer\Admin\Assets as AdminAssets;
 use Servebolt\Optimizer\Admin\AdminGuiController;
 use Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
 use Servebolt\Optimizer\Cli\Cli;
+use Servebolt\Optimizer\PluginActiveStateHandling\PluginActiveStateHandling;
 
 use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
