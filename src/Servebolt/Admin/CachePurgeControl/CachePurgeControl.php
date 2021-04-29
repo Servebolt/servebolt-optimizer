@@ -115,7 +115,7 @@ class CachePurgeControl
         add_filter('admin_title', function($admin_title, $title) {
             $screen = get_current_screen();
             if ($screen->id === 'admin_page_servebolt-cache-purge-control') {
-                return 'Cache purging ' . $admin_title;
+                return __('Cache purging', 'servebolt-wp') . ' ' . $admin_title;
             }
             return $admin_title;
         }, 10, 2);
