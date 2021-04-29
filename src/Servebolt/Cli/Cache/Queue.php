@@ -5,7 +5,6 @@ namespace Servebolt\Optimizer\Cli\Cache;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
-use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
 use Servebolt\Optimizer\Cli\CliHelpers;
