@@ -103,6 +103,8 @@ class WpObjectQueue
     }
 
     /**
+     * Get items to parse.
+     *
      * @return array|null
      */
     public function getItemsToParse(): ?array
@@ -111,6 +113,8 @@ class WpObjectQueue
     }
 
     /**
+     * Get active items.
+     *
      * @return array|null
      */
     public function getActiveItems(): ?array
