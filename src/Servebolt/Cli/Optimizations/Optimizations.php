@@ -32,9 +32,9 @@ class Optimizations
      *
      *     wp servebolt db fix
      */
-    public function optimizeDatabaseAlias()
+    public function optimizeDatabaseAlias($args, $assocArgs)
     {
-        $this->optimizeDatabase();
+        $this->optimizeDatabase($args, $assocArgs);
     }
 
     /**
@@ -45,8 +45,9 @@ class Optimizations
      *     wp servebolt db optimize
      *
      */
-    public function optimizeDatabase()
+    public function optimizeDatabase($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         $instance = DatabaseOptimizer::getInstance();
         $instance->optimizeDb(true);
     }
@@ -59,13 +60,30 @@ class Optimizations
      *     wp servebolt db analyze
      *
      */
-    public function analyzeTables()
+    public function analyzeTables($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         $instance = DatabaseOptimizer::getInstance();
-        if (!$instance->analyzeTables(true)) {
-            WP_CLI::error(__('Could not analyze tables.', 'servebolt-wp'));
+        if ($instance->analyzeTables(true)) {
+            $message = __('Analyzed tables.', 'servebolt-wp');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson([
+                    'success' => true,
+                    'message' => $message,
+                ]);
+            } else {
+                WP_CLI::success($message);
+            }
         } else {
-            WP_CLI::success(__('Analyzed tables.', 'servebolt-wp'));
+            $errorMessage = __('Could not analyze tables.', 'servebolt-wp');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson([
+                    'success' => false,
+                    'message' => $errorMessage,
+                ]);
+            } else {
+                WP_CLI::error($errorMessage);
+            }
         }
     }
 }
