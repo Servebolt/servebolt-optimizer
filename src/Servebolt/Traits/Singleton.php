@@ -10,6 +10,14 @@ trait Singleton
     protected static $instance;
 
     /**
+     * Destroy singleton instance.
+     */
+    public static function destroyInstance(): void
+    {
+        self::$instance = null;
+    }
+
+    /**
      * @return mixed
      */
     public static function getInstance()

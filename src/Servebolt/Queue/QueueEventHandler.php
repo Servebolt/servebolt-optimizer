@@ -41,11 +41,17 @@ class QueueEventHandler
         return apply_filters('sb_optimizer_should_purge_cache_queue', true);
     }
 
+    /**
+     * Trigger WP Object queue parse.
+     */
     public function handleWpObjectQueue(): void
     {
         (WpObjectQueue::getInstance())->parseQueue();
     }
 
+    /**
+     * Trigger URL queue parse.
+     */
     public function handleUrlQueue(): void
     {
         (UrlQueue::getInstance())->parseQueue();

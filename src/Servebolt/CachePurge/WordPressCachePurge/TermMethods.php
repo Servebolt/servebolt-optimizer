@@ -56,9 +56,9 @@ trait TermMethods
         if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
             $queueInstance = WpObjectQueue::getInstance();
             return isQueueItem($queueInstance->add([
-                $termId,
-                'term',
-                compact('taxonomySlug'),
+                'type' => 'term',
+                'id'   => $termId,
+                'args' => compact('taxonomySlug'),
             ]));
         } else {
             if (self::$preventDoublePurge && self::$preventTermDoublePurge && array_key_exists($termId . '-' . $taxonomySlug, self::$recentlyPurgedTerms)) {

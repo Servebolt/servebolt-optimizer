@@ -262,6 +262,42 @@ function checkAllCookies(): void
 }
 
 /**
+ * Get taxonomy singular name by term.
+ *
+ * @param int $termId
+ * @return string
+ */
+function getTaxonomySingularName(int $termId): string
+{
+    if ($term = get_term($termId)) {
+        if ($taxonomyObject = get_taxonomy($term->taxonomy)) {
+            if (isset($taxonomyObject->labels->singular_name) && $taxonomyObject->labels->singular_name) {
+                return mb_strtolower($taxonomyObject->labels->singular_name);
+            }
+        }
+    }
+    return 'term';
+}
+
+/**
+ * Get post type singular name by post ID.
+ *
+ * @param int $postId
+ * @return string
+ */
+function getPostTypeSingularName(int $postId): string
+{
+    if ($postType = get_post_type($postId)) {
+        if ($postTypeObject = get_post_type_object($postType)) {
+            if (isset($postTypeObject->labels->singular_name) && $postTypeObject->labels->singular_name) {
+                return mb_strtolower($postTypeObject->labels->singular_name);
+            }
+        }
+    }
+    return 'post';
+}
+
+/**
  * Get all options names.
  *
  * @param bool $includeMigrationOptions Whether to delete the options related to database migrations.

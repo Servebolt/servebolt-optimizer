@@ -71,7 +71,7 @@ class CachePurge
      * @param bool $verbose
      * @return string
      */
-    public static function resolveDriver(?int $blogId = null, bool $verbose = false): ?string
+    public static function resolveDriverName(?int $blogId = null, bool $verbose = false): string
     {
         if (
             self::isActive($blogId)
@@ -88,29 +88,43 @@ class CachePurge
         ) {
             return $verbose ? 'Accelerated domains' : 'acd';
         }
-        return null;
+        return self::defaultDriverName($verbose);
     }
 
     /**
+     * Resolve driver object.
+     *
      * @param null|int $blogId
      * @return mixed
      */
     private function resolveDriverObject(?int $blogId = null)
     {
-        $driver = $this->resolveDriver($blogId);
-        if ($driver === 'cloudflare') {
-            return CloudflareDriver::getInstance();
-        }
+        $driver = self::resolveDriverName($blogId);
         if ($driver === 'acd') {
             return ServeboltDriver::getInstance();
+        } elseif ($driver === 'cloudflare') {
+            return CloudflareDriver::getInstance();
         }
-        return $this->defaultDriver();
+        return $this->defaultDriverObject();
     }
 
     /**
+     * Get default driver name.
+     *
+     * @param bool $verbose
+     * @return string
+     */
+    private static function defaultDriverName(bool $verbose = false): string
+    {
+        return $verbose ? 'Cloudflare' : 'cloudflare';
+    }
+
+    /**
+     * Get default driver object.
+     *
      * @return mixed
      */
-    private function defaultDriver()
+    private function defaultDriverObject()
     {
         return CloudflareDriver::getInstance();
     }
@@ -292,7 +306,6 @@ class CachePurge
      */
     public static function queueBasedCachePurgeActiveStateIsOverridden(): bool
     {
-        return false;
         return
             (defined('SERVEBOLT_CF_PURGE_CRON') && is_bool(SERVEBOLT_CF_PURGE_CRON)) // Legacy
             || (defined('SERVEBOLT_QUEUE_BASED_CACHE_PURGE') && is_bool(SERVEBOLT_QUEUE_BASED_CACHE_PURGE));
@@ -326,12 +339,10 @@ class CachePurge
      */
     public static function queueBasedCachePurgeIsActive(bool $respectOverride = true, ?int $blogId = null): bool
     {
-        return false;
         $activeStateOverride = self::queueBasedCachePurgeActiveStateOverride();
         if ($respectOverride && is_bool($activeStateOverride)) {
             return $activeStateOverride;
         }
-
         $noExistKey = 'value-does-not-exist';
         $value = smartGetOption($blogId, 'queue_based_cache_purge', $noExistKey);
         if ($value === $noExistKey) {

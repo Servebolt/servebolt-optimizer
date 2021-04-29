@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Utils\Queue\Queue;
+use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
@@ -46,6 +47,11 @@ class WpObjectQueue
     public static $queueName = 'sb-cache-purge-wp-object-queue';
 
     /**
+     * @var string The offset used with function "strtotime" to determine whether a queue item is old enough to be handled by garbage collection.
+     */
+    private $timestampOffsetCleanupThreshold = 'now - 1 month';
+
+    /**
      * WpObjectQueue constructor.
      */
     public function __construct()
@@ -61,7 +67,7 @@ class WpObjectQueue
         for ($i = 1; $i <= $this->numberOfRuns; $i++) {
             $this->parseQueueSegment();
         }
-        $this->flagItemsAsCompleted();
+        $this->flagItemsAsCompletedOrFailed();
         $this->cleanUpQueue();
     }
 
@@ -74,10 +80,18 @@ class WpObjectQueue
     private function resolveUrlsToPurgeFromWpObject($payload): ?array
     {
         if (in_array($payload['type'], ['post', 'term'])) {
+
+            if ($payload['type'] === 'post' && $originalUrl = arrayGet('original_url', $payload)) {
+                add_filter('sb_optimizer_purge_by_post_original_url', function() use ($originalUrl) {
+                    return $originalUrl;
+                });
+            }
+
             $purgeObject = new PurgeObject(
-                $payload['id'],
-                $payload['type'],
+                arrayGet('id', $payload),
+                arrayGet('type', $payload),
             );
+
             if ($purgeObject->success() && $urls = $purgeObject->getUrls()) {
                 return $urls;
             }
@@ -89,11 +103,23 @@ class WpObjectQueue
     }
 
     /**
+     * Get items to parse.
+     *
      * @return array|null
      */
     public function getItemsToParse(): ?array
     {
         return $this->queue->getAndReserveItems($this->chunkSize, true);
+    }
+
+    /**
+     * Get active items.
+     *
+     * @return array|null
+     */
+    public function getActiveItems(): ?array
+    {
+        return $this->queue->getActiveItems();
     }
 
     /**
@@ -112,11 +138,10 @@ class WpObjectQueue
         if ($items = $this->getItemsToParse()) {
             foreach ($items as $item) {
                 $payload = $item->payload;
-                if ($payload['type'] === 'purge-all') {
-                    if ($payload['networkPurge']) {
-                        // TODO: Make sure this is working
+                if (arrayGet('type', $payload) === 'purge-all') {
+                    if (arrayGet('networkPurge', $payload)) {
                         iterateSites(function($site) use ($item) {
-                            $this->clearUrlQueue();
+                            $this->clearUrlQueue(); // Clear URL queue for each site in multisite network since we're clearing all cache
                             $this->urlQueue()->add([
                                 'type' => 'purge-all',
                             ], $item);
@@ -127,7 +152,8 @@ class WpObjectQueue
                             'type' => 'purge-all',
                         ], $item);
                     }
-                } else if ($urls = $this->resolveUrlsToPurgeFromWpObject($payload)) {
+                    break; // We're purging all cache, so no need to continue expanding WP objects to URL items
+                } elseif ($urls = $this->resolveUrlsToPurgeFromWpObject($payload)) {
                     foreach ($urls as $url) {
                         $this->urlQueue()->add([
                             'type' => 'url',
@@ -140,37 +166,75 @@ class WpObjectQueue
     }
 
     /**
-     * Check whether we got unfinished item in the UrlQueue belonging to the item in the WpObjectQueue.
+     * Check if a WP Object queue item has only failed child items in URL queue.
      *
      * @param $id
      * @param $queue
      * @return bool
      */
-    private function itemHasActiveChildItemsInUrlQueue($id, $queue): bool
+    private function itemHasOnlyFailedChildItemsInUrlQueue($id, $queue): bool
     {
-        $childItems = $this->urlQueue()->getUnfinishedItemsByParent($id, $queue, null);
-        return !empty($childItems);
+        $totalChildren = $this->urlQueue()->getItemsByParent($id, $queue, null);
+        $totalChildrenCount = $totalChildren ? count($totalChildren) : 0;
+        $failedChildren = $this->urlQueue()->getFailedItemsByParent($id, $queue, null);
+        $failedChildrenCount = $failedChildren ? count($failedChildren) : 0;
+        return $totalChildrenCount === $failedChildrenCount;
+    }
+
+    /**
+     * Check if a WP Object queue item has some failed child items in URL queue.
+     *
+     * @param $id
+     * @param $queue
+     * @return bool
+     */
+    private function itemHasSomeFailedChildItemsInUrlQueue($id, $queue): bool
+    {
+        $failedChildren = $this->urlQueue()->getFailedItemsByParent($id, $queue, null);
+        $failedChildrenCount = $failedChildren ? count($failedChildren) : 0;
+        return $failedChildrenCount > 0;
+    }
+
+    /**
+     * Check if a WP Object queue item has only completed child items in URL queue.
+     *
+     * @param $id
+     * @param $queue
+     * @return bool
+     */
+    private function itemHasOnlyCompletedChildItemsInUrlQueue($id, $queue): bool
+    {
+        $totalChildren = $this->urlQueue()->getItemsByParent($id, $queue, null);
+        $totalChildrenCount = $totalChildren ? count($totalChildren) : 0;
+        $completedChildren = $this->urlQueue()->getCompletedItemsByParent($id, $queue, null);
+        $completedChildrenCount = $completedChildren ? count($completedChildren) : 0;
+        return $totalChildrenCount === $completedChildrenCount;
     }
 
     /**
      * Flag WP Object queue items as done as long as they have no unfinished Url Queue items.
      */
-    private function flagItemsAsCompleted(): void
+    private function flagItemsAsCompletedOrFailed(): void
     {
         if ($items = $this->queue->getReservedItems(null)) {
             foreach ($items as $item) {
-                if (!$this->itemHasActiveChildItemsInUrlQueue($item->id, $item->queue)) {
-                    $this->queue->completeItem($item); // This item does not have any active URL queue items, flag it as completed
+                if ($this->itemHasOnlyFailedChildItemsInUrlQueue($item->id, $item->queue)) {
+                    $this->queue->setItemAsFailed($item);
+                } elseif ($this->itemHasSomeFailedChildItemsInUrlQueue($item->id, $item->queue)) {
+                    $this->queue->setItemAsFailed($item);
+                } elseif ($this->itemHasOnlyCompletedChildItemsInUrlQueue($item->id, $item->queue)) {
+                    $this->queue->completeItem($item);
                 }
             }
         }
     }
 
     /**
-     * The UrlQueue queue-Instance;
+     * The UrlQueue queue-Instance.
+     *
      * @return mixed|Queue
      */
-    private function urlQueue()
+    private function urlQueue(): object
     {
         if (!$this->urlQueue) {
             $this->urlQueue = Queue::getInstance(UrlQueue::$queueName);
@@ -193,8 +257,101 @@ class WpObjectQueue
         return $this->queue->add($itemData);
     }
 
-    private function cleanUpQueue()
+    /**
+     * Clean up old queue items.
+     */
+    private function cleanUpQueue(): void
     {
-        // TODO: Remove items older than x years(?), to prevent the database from filling up. Might be common with UrlQueue, so maybe share it between them.
+        $threshold = strtotime($this->timestampOffsetCleanupThreshold);
+        if ($items = $this->queue->getOldItems($threshold)) {
+            foreach ($items as $item) {
+                $this->queue->delete($item);
+                $this->urlQueue()->delete($item->id, 'parent_id');
+            }
+        }
+    }
+
+    /**
+     * Check whether there is a purge all request in the queue.
+     *
+     * @return bool
+     */
+    public function hasPurgeAllRequestInQueue(): bool
+    {
+        if ($items = $this->queue->getActiveItems()) {
+            foreach ($items as $item) {
+                if (arrayGet('type', $item->payload) === 'purge-all') {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if a term is already in the queue.
+     *
+     * @param int $termId
+     * @param string $taxonomySlug
+     * @return bool
+     */
+    public function hasTermInQueue(int $termId, string $taxonomySlug): bool
+    {
+        if ($items = $this->queue->getActiveItems()) {
+            foreach ($items as $item) {
+                $args = arrayGet('args', $this->payload);
+                if (
+                    arrayGet('type', $item->payload) === 'term'
+                    && arrayGet('id', $item->payload) === $termId
+                    && arrayGet('taxonomySlug', $args) === $taxonomySlug
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if a post is already in the queue.
+     *
+     * @param int $postId
+     * @return bool
+     */
+    public function hasPostInQueue(int $postId): bool
+    {
+        if ($items = $this->queue->getActiveItems()) {
+            foreach ($items as $item) {
+                if (
+                    arrayGet('type', $item->payload) === 'post'
+                    && arrayGet('id', $item->payload) === $postId
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if a URL is already in the queue.
+     *
+     * @param string $url
+     * @return bool
+     */
+    public function hasUrlInQueue(string $url): bool
+    {
+        $items = $this->queue->getActiveItems();
+        if ($items) {
+            foreach ($items as $item) {
+                if (
+                    arrayGet('type', $item->payload) === 'url'
+                    && arrayGet('url', $item->payload) === $url
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

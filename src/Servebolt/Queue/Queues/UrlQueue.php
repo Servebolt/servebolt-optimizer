@@ -32,17 +32,17 @@ class UrlQueue
     private $urlChunkSize;
 
     /**
-     * @var Queue
+     * @var Queue The Queue instance.
      */
     private $queue;
 
     /**
-     * @var Queue
+     * @var array Items to retry attempt on.
      */
-    private $wpObjectQueue;
+    private $itemsToRetry;
 
     /**
-     * @var string
+     * @var string The name used for the URL queue.
      */
     public static $queueName = 'sb-cache-purge-url-queue';
 
@@ -52,33 +52,7 @@ class UrlQueue
     public function __construct()
     {
         $this->setUrlChunkSize();
-        $this->queue = Queue::getInstance(self::$queueName);
-    }
-
-    /**
-     * Set the size of the chunks of URLs sent to be purged.
-     */
-    private function setUrlChunkSize(): void
-    {
-        // TODO: Set this to 500 if driver is ACD
-        $this->urlChunkSize = apply_filters('sb_optimizer_url_queue_chunk_size', 30);
-    }
-
-    public function add($itemData, $parentQueueName = null, $parentId = null): ?object
-    {
-        // TODO: Perhaps add duplicate handling
-        return $this->queue->add($itemData, $parentQueueName, $parentId);
-    }
-
-    /**
-     * @return mixed|Queue
-     */
-    private function wpObjectQueue()
-    {
-        if (!$this->wpObjectQueue) {
-            $this->wpObjectQueue = Queue::getInstance(WpObjectQueue::$queueName);
-        }
-        return $this->wpObjectQueue;
+        $this->queue = Queue::getInstance(self::$queueName); // Initialize queue system
     }
 
     /**
@@ -90,51 +64,130 @@ class UrlQueue
             if ($items = $this->getItemsToParse()) {
                 $this->parseItems($items);
             }
-
+            $this->flagMaxAttemptedItemsAsFailed();
         }
     }
 
-    private $itemsToRetry;
-
-    private function havePreviouslyUnfinishedButAttemptedItems()
+    /**
+     * Get URL items from the queue system.
+     *
+     * @return array
+     */
+    private function getItemsToParse(): array
     {
-        if ($itemsToRetry = $this->queue->getUnfinishedPreviouslyAttemptedItems($this->maxAttemptsPerItem)) {
+        if ($this->haveUnfinishedAndPreviouslyAttemptedItems($this->urlChunkSize, true)) {
+            $items = $this->itemsToRetry;
+            $itemCount = count($items);
+        } else {
+            $items = [];
+            $itemCount = 0;
+        }
+        if ($itemCount < $this->urlChunkSize) { // Do we have room for more items?
+            $urlChunkSize = $this->urlChunkSize - $itemCount;
+            if ($newItems = $this->queue->getAndReserveItems($urlChunkSize, true)) {
+                $items = array_merge($items, $newItems);
+            }
+        }
+        return $items;
+    }
+
+    /**
+     * Check whether we have a purge all-request in the items-array.
+     *
+     * @param $items
+     * @return bool
+     */
+    private function hasPurgeAllRequestInQueueItems($items): bool
+    {
+        foreach ($items as $item) {
+            if ($item->payload['type'] === 'purge-all') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Parse URL items and send them for cache purging.
+     *
+     * @param $items
+     */
+    private function parseItems($items)
+    {
+        $cachePurgeDriver = CachePurgeDriver::getInstance();
+        if ($this->hasPurgeAllRequestInQueueItems($items)) {
+            if ($cachePurgeDriver->purgeAll()) {
+                $this->queue->completeItems($items); // We successfully purged all cache, flag all items as completed
+            }
+        } else {
+            $urls = [];
+            foreach ($items as $item) {
+                switch ($item->payload['type']) {
+                    case 'purge-all':
+                        break;
+                    case 'url':
+                        $urls[] = $item->payload['url'];
+                }
+            }
+            if (!empty($urls) && $cachePurgeDriver->purgeByUrls($urls)) {
+                $this->queue->completeItems($items);
+            }
+        }
+    }
+
+    /**
+     * Check if we have unfinished and previously attempted items.
+     *
+     * @param int|null $chunkSize
+     * @param bool $doAttempt
+     * @return bool
+     */
+    private function haveUnfinishedAndPreviouslyAttemptedItems(?int $chunkSize = 30, bool $doAttempt = false): bool
+    {
+        if ($itemsToRetry = $this->queue->getUnfinishedPreviouslyAttemptedItems($this->maxAttemptsPerItem, $chunkSize, $doAttempt)) {
             $this->itemsToRetry = $itemsToRetry;
             return true;
         }
         return false;
     }
 
-    private function parseItems($items)
+    /**
+     * Flag items that has reached the max attempt threshold as failed.
+     */
+    private function flagMaxAttemptedItemsAsFailed(): void
     {
-        // TODO: If purge-all request is present in WpObjectQueue, clear both queues, expand purge-all request to UrlQueue, parse UrlQueue
-        $cachePurgeDriver = CachePurgeDriver::getInstance();
-        $urls = [];
-        foreach ($items as $item) {
-            switch ($item->payload['type']) {
-                case 'purge-all':
-                    $cachePurgeDriver->purgeAll();
-                    break;
-                case 'url':
-                    $urls[] = $item->payload['url'];
-
-            }
-        }
-
-        // Parse URLs
-        if (!empty($urls)) {
-            $cachePurgeDriver->purgeByUrls($urls);
-            // TODO: Flag items as success
-        }
+        $this->queue->flagMaxAttemptedItemsAsFailed($this->maxAttemptsPerItem);
     }
 
-    private function getItemsToParse()
+    /**
+     * Set the size of the chunks of URLs sent to be purged.
+     */
+    private function setUrlChunkSize(): void
     {
-        if ($this->havePreviouslyUnfinishedButAttemptedItems($this->urlChunkSize)) {
-            return $this->itemsToRetry;
-        }
-        if ($items = $this->queue->getAndReserveItems($this->urlChunkSize)) {
-            return $items;
-        }
+        $urlChunkSize = CachePurgeDriver::resolveDriverName() === 'acd' ? 500 : 30;
+        $this->urlChunkSize = apply_filters('sb_optimizer_url_queue_chunk_size', $urlChunkSize);
+    }
+
+    /**
+     * Get the size of the chunks of URLs sent to be purged.
+     *
+     * @return int
+     */
+    public function getUrlChunkSize(): int
+    {
+        return $this->urlChunkSize;
+    }
+
+    /**
+     * Add URL to the queue.
+     *
+     * @param $itemData
+     * @param null $parentQueueName
+     * @param null $parentId
+     * @return object|null
+     */
+    public function add($itemData, $parentQueueName = null, $parentId = null): ?object
+    {
+        return $this->queue->add($itemData, $parentQueueName, $parentId);
     }
 }

@@ -26,6 +26,20 @@ class WordPressCachePurge
     private static $preventDoublePurge = true;
 
     /**
+     * Attempt to resolve post Id from URL.
+     *
+     * @param string $url
+     * @return int|null
+     */
+    public static function attemptToResolvePostIdFromUrl(string $url): ?int
+    {
+        if ($postId = url_to_postid($url)) {
+            return $postId;
+        }
+        return null;
+    }
+
+    /**
      * Purge cache by URL.
      *
      * @param string $url
@@ -33,7 +47,17 @@ class WordPressCachePurge
      */
     public static function purgeByUrl(string $url)
     {
-        if ($postId = url_to_postid($url)) {
+        if ($postId = self::attemptToResolvePostIdFromUrl($url)) { // Resolve URL to post ID, then purge by post ID
+            /*
+            if ($url !== get_permalink($postId)) {
+                // Purge only URL, not post?
+            } else {
+                // Purge post, since specified URL is identical with post URL
+            }
+            */
+            add_filter('sb_optimizer_purge_by_post_original_url', function() use ($url) {
+                return $url;
+            });
             return self::purgePostCache($postId);
         } else {
             if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {

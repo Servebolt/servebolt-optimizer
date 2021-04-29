@@ -9,7 +9,7 @@
 <tr class="sb-toggle-active-cron-item<?php if ( ! sb_cf_cache()->cronPurgeIsActive() ) echo ' cf-hidden-cron'; ?>">
     <td colspan="2" style="padding-top:0;padding-left:0;">
 
-        <?php $itemsToPurge = sb_cf_cache()->getItemsToPurge($maxNumberOfCachePurgeQueueItems); ?>
+        <?php //$itemsToPurge = sb_cf_cache()->getItemsToPurge($maxNumberOfCachePurgeQueueItems); ?>
 
         <div class="tablenav top">
             <div class="alignleft actions bulkactions">
@@ -28,7 +28,7 @@
 
         <table class="wp-list-table widefat striped" id="purge-items-table">
             <?php Helpers\view('cache-settings.cache-purge.queue.list-header-columns'); ?>
-            <?php sb_cf_cache_admin_controls()->purge_queue_list($itemsToPurge); ?>
+            <?php //sb_cf_cache_admin_controls()->purge_queue_list($itemsToPurge); ?>
         </table>
 
         <div class="tablenav bottom">
