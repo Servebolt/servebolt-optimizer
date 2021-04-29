@@ -2,7 +2,7 @@
 
 namespace Servebolt\Optimizer;
 
-if (!defined('ABSPATH')) exit; // Exit if accessed directly // phpcs:ignore
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Compatibility\WooCommerce\WooCommerce as WooCommerceCompatibility;
 use Servebolt\Optimizer\Compatibility\WpRocket\WpRocket as WpRocketCompatibility;
