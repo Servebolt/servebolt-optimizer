@@ -248,7 +248,7 @@ function getServeboltAdminUrl() :string
 /**
  * Clean the cookies we have been setting.
  */
-function clearAllCookies(): void
+function clearNoCacheCookie(): void
 {
     (FullPageCacheAuthHandling::getInstance())->clearNoCacheCookie();
 }
@@ -256,7 +256,7 @@ function clearAllCookies(): void
 /**
  * Check the cookies we have been set.
  */
-function checkAllCookies(): void
+function cacheCookieCheck(): void
 {
     (FullPageCacheAuthHandling::getInstance())->cacheCookieCheck();
 }

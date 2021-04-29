@@ -25,7 +25,8 @@ class AdminGuiController
      */
     public function __construct()
     {
-        add_action('init', [$this, 'adminInit']);
+        add_action('init', [$this, 'init']);
+        add_action('admin_init', [$this, 'adminInit']);
     }
 
     /**
@@ -33,11 +34,18 @@ class AdminGuiController
      */
     public function adminInit()
     {
+        $this->initPluginSettingsLink();
+    }
+
+    /**
+     * Init.
+     */
+    public function init()
+    {
         if (!is_user_logged_in()) {
             return;
         }
         $this->initAdminMenus();
-        $this->initPluginSettingsLink();
 
         AcceleratedDomainsControl::init();
         CachePurgeControl::init();
@@ -258,7 +266,9 @@ class AdminGuiController
      */
     private function initPluginSettingsLink(): void
     {
-        add_filter('plugin_action_links_' . SERVEBOLT_PLUGIN_BASENAME, [$this, 'addSettingsLinkToPlugin']);
+        if (apply_filters('sb_optimizer_display_plugin_row_actions', true)) {
+            add_filter('plugin_action_links_' . SERVEBOLT_PLUGIN_BASENAME, [$this, 'addSettingsLinkToPlugin']);
+        }
     }
 
     /**
