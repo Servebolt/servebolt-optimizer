@@ -38,7 +38,7 @@ class CloudflareImageResize
      */
     private function initSettings()
     {
-        add_action( 'admin_init', [$this, 'registerSettings'] );
+        add_action('admin_init', [$this, 'registerSettings']);
     }
 
     /**

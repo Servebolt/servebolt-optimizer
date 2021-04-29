@@ -9,9 +9,11 @@
 </a>
 
 <?php if (Servebolt\Optimizer\Helpers\featureIsActive('cf_image_resize')) : ?>
+    <!--
     <a href="<?php echo admin_url('admin.php?page=servebolt-cf-image-resizing'); ?>" class="sb-button yellow">
         <span style="position: relative;"><?php _e('Cloudflare Image Resizing', 'servebolt-wp'); ?> <span style="position: absolute;top: -8px;right: -30px;font-size: 10px;text-transform: uppercase;">Beta</span></span>
     </a>
+    -->
 <?php endif; ?>
 
 <?php if (isHostedAtServebolt()) : ?>

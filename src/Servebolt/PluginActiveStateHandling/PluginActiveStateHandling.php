@@ -1,12 +1,12 @@
 <?php
 
-namespace Servebolt\Optimizer;
+namespace Servebolt\Optimizer\PluginActiveStateHandling;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
-use function Servebolt\Optimizer\Helpers\checkAllCookies;
-use function Servebolt\Optimizer\Helpers\clearAllCookies;
+use function Servebolt\Optimizer\Helpers\cacheCookieCheck;
+use function Servebolt\Optimizer\Helpers\clearNoCacheCookie;
 
 /**
  * Class PluginActiveStateHandling
@@ -19,6 +19,10 @@ class PluginActiveStateHandling
         // Register events for activation and deactivation of this plugin
         register_activation_hook(SERVEBOLT_PLUGIN_FILE, [$this, 'activatePlugin']);
         register_deactivation_hook(SERVEBOLT_PLUGIN_FILE, [$this, 'deactivatePlugin']);
+
+        if (is_multisite()) {
+            new SingleSitePluginActivationConstraint;
+        }
     }
 
     /**
@@ -27,7 +31,7 @@ class PluginActiveStateHandling
     public function activatePlugin(): void
     {
         MigrationRunner::migrate(); // Run database migrations
-        checkAllCookies();
+        cacheCookieCheck();
     }
 
     /**
@@ -35,6 +39,6 @@ class PluginActiveStateHandling
      */
     public function deactivatePlugin(): void
     {
-        clearAllCookies();
+        clearNoCacheCookie();
     }
 }

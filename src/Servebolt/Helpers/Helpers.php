@@ -248,7 +248,7 @@ function getServeboltAdminUrl() :string
 /**
  * Clean the cookies we have been setting.
  */
-function clearAllCookies(): void
+function clearNoCacheCookie(): void
 {
     (FullPageCacheAuthHandling::getInstance())->clearNoCacheCookie();
 }
@@ -256,7 +256,7 @@ function clearAllCookies(): void
 /**
  * Check the cookies we have been set.
  */
-function checkAllCookies(): void
+function cacheCookieCheck(): void
 {
     (FullPageCacheAuthHandling::getInstance())->cacheCookieCheck();
 }
@@ -816,6 +816,28 @@ function naturalLanguageJoin(array $list, ?string $conjunction = null, ?string $
 function isDebug(): bool
 {
     return (defined('WP_DEBUG') && WP_DEBUG === true) || array_key_exists('debug', $_GET);
+}
+
+/**
+ * Get current version of the plugin.
+ *
+ * @param bool $ignoreBetaVersion
+ * @return string
+ */
+function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
+{
+    if(!function_exists('get_plugin_data')) {
+        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    }
+    $pluginData = get_plugin_data(SERVEBOLT_PLUGIN_FILE);
+    $version = arrayGet('Version', $pluginData);
+    if (!$version) {
+        return null;
+    }
+    if ($ignoreBetaVersion) {
+        return preg_replace('/(.+)-(.+)/', '$1', $version);
+    }
+    return $version;
 }
 
 /**
