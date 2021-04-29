@@ -97,7 +97,7 @@ class CfSetup
         $email             = arrayGet('email', $assocArgs);
         $apiKey            = arrayGet('api-key', $assocArgs);
         $zoneId            = arrayGet('zone-id', $assocArgs);
-        $disableValidation = array_key_exists( 'disable-validation', $assocArgs );
+        $disableValidation = array_key_exists('disable-validation', $assocArgs);
 
         $params = compact('affectAllSites', 'authType', 'apiToken', 'email', 'apiKey', 'zoneId', 'disableValidation');
 

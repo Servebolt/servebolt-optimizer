@@ -28,6 +28,20 @@ class Optimizations
     /**
      * Alias of "wp servebolt db optimize". Add database indexes and convert database tables to modern table types or delete transients.
      *
+     * ## OPTIONS
+     *
+     * [--dry-run]
+     * : Whether to run as a dry run.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     wp servebolt db fix
@@ -40,6 +54,18 @@ class Optimizations
     /**
      * Add database indexes and convert database tables to modern table types or delete transients.
      *
+     * [--dry-run]
+     * : Whether to run as a dry run.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     wp servebolt db optimize
@@ -48,12 +74,23 @@ class Optimizations
     public function optimizeDatabase($args, $assocArgs)
     {
         CliHelpers::setReturnJson($assocArgs);
+        $dryRun = array_key_exists('dry-run', $assocArgs);
         $instance = DatabaseOptimizer::getInstance();
-        $instance->optimizeDb(true);
+        $instance->setDryRun($dryRun)
+            ->optimizeDb(true);
     }
 
     /**
      * Analyze tables.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
      *
      * ## EXAMPLES
      *
