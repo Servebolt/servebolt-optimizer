@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare;
 
+use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
@@ -78,22 +80,23 @@ abstract class HttpClient
         $method = strtoupper($method);
         $requestUrl = $this->baseUri . $uri;
         $baseArgs = [
-            'headers' => $this->prepareRequestHeaders($headers)
+            'headers' => $this->prepareRequestHeaders($headers),
+            'user-agent' => sprintf('ServeboltOptimizer/%s (CloudflareSdk)', getCurrentPluginVersion(false)),
         ];
 
         // Convert data-parameters to JSON for selected request methods
-        if ( in_array($method, ['POST']) ) {
+        if (in_array($method, ['POST'])) {
             $data = json_encode($data);
         }
 
         // Add request data only if present
-        if ( ! empty($data) ) {
+        if (!empty($data)) {
             $baseArgs['body'] = $data;
         }
 
         $args = array_merge($baseArgs, $additionalArgs);
 
-        switch ( $method ) {
+        switch ($method) {
             case 'GET':
                 $response = wp_remote_get($requestUrl, $args);
                 break;
