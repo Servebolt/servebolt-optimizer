@@ -56,7 +56,8 @@ class WpObjectQueue
      */
     public function __construct()
     {
-        $this->queue = Queue::getInstance(self::$queueName);
+        //$this->queue = Queue::getInstance(self::$queueName);
+        $this->queue = new Queue(self::$queueName);
     }
 
     /**
@@ -120,6 +121,14 @@ class WpObjectQueue
     public function getActiveItems(): ?array
     {
         return $this->queue->getActiveItems();
+    }
+
+    /**
+     * Clear queue.
+     */
+    public function clearQueue(): void
+    {
+        $this->queue->clearQueue();
     }
 
     /**
@@ -237,7 +246,8 @@ class WpObjectQueue
     private function urlQueue(): object
     {
         if (!$this->urlQueue) {
-            $this->urlQueue = Queue::getInstance(UrlQueue::$queueName);
+            //$this->urlQueue = Queue::getInstance(UrlQueue::$queueName);
+            $this->urlQueue = new Queue(UrlQueue::$queueName);
         }
         return $this->urlQueue;
     }

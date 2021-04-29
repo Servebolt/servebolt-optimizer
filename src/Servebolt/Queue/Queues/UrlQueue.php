@@ -52,7 +52,8 @@ class UrlQueue
     public function __construct()
     {
         $this->setUrlChunkSize();
-        $this->queue = Queue::getInstance(self::$queueName); // Initialize queue system
+        //$this->queue = Queue::getInstance(self::$queueName); // Initialize queue system
+        $this->queue = new Queue(self::$queueName); // Initialize queue system
     }
 
     /**
@@ -149,6 +150,14 @@ class UrlQueue
             return true;
         }
         return false;
+    }
+
+    /**
+     * Clear queue.
+     */
+    public function clearQueue(): void
+    {
+        $this->queue->clearQueue();
     }
 
     /**

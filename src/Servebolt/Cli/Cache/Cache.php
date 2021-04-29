@@ -18,5 +18,6 @@ class Cache
         new CfSetup;
         new PurgeActions;
         new CacheSettings;
+        new Queue;
     }
 }
