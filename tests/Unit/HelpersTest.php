@@ -46,6 +46,7 @@ use function Servebolt\Optimizer\Helpers\naturalLanguageJoin;
 use function Servebolt\Optimizer\Helpers\resolveViewPath;
 use function Servebolt\Optimizer\Helpers\isUrl;
 use function Servebolt\Optimizer\Helpers\getOptionName;
+use function Servebolt\Optimizer\Helpers\strEndsWith;
 use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\updateSiteOption;
@@ -232,6 +233,14 @@ class HelpersTest extends WP_UnitTestCase
         $this->assertEquals('Something or Something', naturalLanguageJoin(['Something', 'Something'], 'or', ''));
         $this->assertEquals('Something, Something or Another thing', naturalLanguageJoin(['Something', 'Something', 'Another thing'], 'or', ''));
         $this->assertEquals("'Something', 'something' and 'another thing'", naturalLanguageJoin(['Something', 'something', 'another thing'], null, "'"));
+    }
+
+    public function testThatStringEndsWith()
+    {
+        $this->assertTrue(strEndsWith('some-long-string', 'string', false));
+        $this->assertFalse(strEndsWith('some-long-string', 'string2', false));
+        $this->assertTrue(strEndsWith('some-long-string', 'string', true));
+        $this->assertFalse(strEndsWith('some-long-string', 'string2', true));
     }
 
     public function testIsHostedAtServeboltHelper()

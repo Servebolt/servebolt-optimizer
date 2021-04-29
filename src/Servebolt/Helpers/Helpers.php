@@ -795,13 +795,14 @@ function requireSuperadmin()
 /**
  * Check if a string ends with a substring.
  *
- * @param $haystack
- * @param $needle
+ * @param string $haystack
+ * @param string $needle
+ * @param bool $php8Fallback
  * @return bool
  */
-function strEndsWith($haystack, $needle): bool
+function strEndsWith(string $haystack, string $needle, bool $php8Fallback = true): bool
 {
-    if (function_exists('str_ends_with')) {
+    if (function_exists('str_ends_with') && $php8Fallback) {
         return str_ends_with($haystack, $needle);
     }
     $length = mb_strlen($needle);
