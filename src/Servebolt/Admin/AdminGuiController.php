@@ -34,6 +34,7 @@ class AdminGuiController
      */
     public function adminInit()
     {
+        $this->initAdminMenus();
         $this->initPluginSettingsLink();
     }
 
@@ -45,7 +46,6 @@ class AdminGuiController
         if (!is_user_logged_in()) {
             return;
         }
-        $this->initAdminMenus();
 
         AcceleratedDomainsControl::init();
         CachePurgeControl::init();
