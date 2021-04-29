@@ -41,7 +41,7 @@ class WordPressCachePurge
                 // Purge post, since specified URL is identical with post URL
             }
             */
-            add_filter('sb_optimizer_purge_by_url_original_url', function() use ($url) {
+            add_filter('sb_optimizer_purge_by_post_original_url', function() use ($url) {
                 return $url;
             });
             return self::purgePostCache($postId);

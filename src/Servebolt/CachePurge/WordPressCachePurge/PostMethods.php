@@ -62,8 +62,8 @@ trait PostMethods
                 'type' => 'post',
                 'id' => $postId,
             ];
-            if (has_filter('sb_optimizer_purge_by_url_original_url')) {
-                $originalUrl = apply_filters('sb_optimizer_purge_by_url_original_url', null);
+            if (has_filter('sb_optimizer_purge_by_post_original_url')) {
+                $originalUrl = apply_filters('sb_optimizer_purge_by_post_original_url', null);
                 if ($originalUrl && get_permalink($postId) !== $originalUrl) {
                     $queueItemData['original_url'] = $originalUrl;
                 }
