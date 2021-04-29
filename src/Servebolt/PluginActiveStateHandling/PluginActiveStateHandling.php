@@ -20,7 +20,9 @@ class PluginActiveStateHandling
         register_activation_hook(SERVEBOLT_PLUGIN_FILE, [$this, 'activatePlugin']);
         register_deactivation_hook(SERVEBOLT_PLUGIN_FILE, [$this, 'deactivatePlugin']);
 
-        new SingleSitePluginActivationConstraint;
+        if (is_multisite()) {
+            new SingleSitePluginActivationConstraint;
+        }
     }
 
     /**

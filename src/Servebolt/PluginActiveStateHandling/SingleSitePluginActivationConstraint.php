@@ -22,13 +22,16 @@ class SingleSitePluginActivationConstraint
     }
 
     /**
-     * Check whether we should prevent plugin from being active.
+     * Check whether the plugin is network activated or not.
      *
      * @return bool
      */
-    private function shouldPreventSingleSiteActivation(): bool
+    private function pluginIsNetworkActivated(): bool
     {
-        return is_multisite() && !is_plugin_active_for_network(SERVEBOLT_PLUGIN_BASENAME);
+        if(!function_exists('is_plugin_active_for_network')) {
+            require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        }
+        return is_plugin_active_for_network(SERVEBOLT_PLUGIN_BASENAME);
     }
 
     /**
@@ -48,7 +51,7 @@ class SingleSitePluginActivationConstraint
     {
         if (isCli()) {
             add_action('activate_' . SERVEBOLT_PLUGIN_BASENAME, function($network_wide) {
-                if (!$network_wide && $this->shouldPreventSingleSiteActivation()) {
+                if (!$network_wide) {
                     WP_CLI::error($this->activationErrorMessage());
                     die;
                 }
@@ -62,12 +65,12 @@ class SingleSitePluginActivationConstraint
     private function adminGuiHandling(): void
     {
         add_action('admin_init', function () {
-            if ($this->shouldPreventSingleSiteActivation()) {
+            if (!$this->pluginIsNetworkActivated()) {
                 deactivate_plugins(SERVEBOLT_PLUGIN_BASENAME);
+                add_filter('sb_optimizer_display_plugin_row_actions', '__return_false');
                 if (isset($_GET['activate'])) {
                     unset($_GET['activate']);
                 }
-                add_filter('sb_optimizer_display_plugin_row_actions', '__return_false');
                 add_action('admin_notices', function() {
                     ?>
                     <div class="notice notice-warning is-dismissable">
