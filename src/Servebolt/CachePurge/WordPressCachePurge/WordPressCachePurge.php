@@ -26,6 +26,20 @@ class WordPressCachePurge
     private static $preventDoublePurge = true;
 
     /**
+     * Attempt to resolve post Id from URL.
+     *
+     * @param string $url
+     * @return int|null
+     */
+    public static function attemptToResolvePostIdFromUrl(string $url): ?int
+    {
+        if ($postId = url_to_postid($url)) {
+            return $postId;
+        }
+        return null;
+    }
+
+    /**
      * Purge cache by URL.
      *
      * @param string $url
@@ -33,7 +47,7 @@ class WordPressCachePurge
      */
     public static function purgeByUrl(string $url)
     {
-        if ($postId = url_to_postid($url)) { // Resolve URL to post ID, then purge by post ID
+        if ($postId = self::attemptToResolvePostIdFromUrl($url)) { // Resolve URL to post ID, then purge by post ID
             /*
             if ($url !== get_permalink($postId)) {
                 // Purge only URL, not post?
