@@ -111,11 +111,22 @@ class CfSetup
      */
     private static function cfCachePurgeSetup($params)
     {
+        //print_r($params);die;
         // Validate data
-        $validation = self::validateSetupParams($params);
-        if ($validation !== true) {
-            WP_CLI::error_multi_line($validation);
-            return;
+        if (!$params['disableValidation']) {
+            $validation = self::validateSetupParams($params);
+            if ($validation !== true) {
+                if (CliHelpers::returnJson()) {
+                    CliHelpers::printJson([
+                        'success' => false,
+                        'code' => 'cf_setup_parameters_validation_failture',
+                        'result' => $validation,
+                    ]);
+                } else {
+                    WP_CLI::error_multi_line($validation);
+                }
+                return;
+            }
         }
 
         if ( $params['affectAllSites'] ) {
