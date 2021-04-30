@@ -1,5 +1,4 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
-<?php use Servebolt\Optimizer\CachePurge\CachePurge; ?>
 <?php use function Servebolt\Optimizer\Helpers\booleanToString; ?>
 <?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 
