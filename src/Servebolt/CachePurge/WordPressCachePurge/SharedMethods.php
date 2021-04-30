@@ -5,7 +5,7 @@ namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
- * Trait PostMethods
+ * Trait SharedMethods
  * @package Servebolt\Optimizer\CachePurge\WordPressCachePurge
  */
 trait SharedMethods
