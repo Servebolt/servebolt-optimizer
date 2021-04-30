@@ -45,6 +45,7 @@ class Optimizations
      * ## EXAMPLES
      *
      *     wp servebolt db fix
+     *
      */
     public function optimizeDatabaseAlias($args, $assocArgs)
     {
@@ -53,6 +54,8 @@ class Optimizations
 
     /**
      * Add database indexes and convert database tables to modern table types or delete transients.
+     *
+     * ## OPTIONS
      *
      * [--dry-run]
      * : Whether to run as a dry run.
@@ -82,6 +85,8 @@ class Optimizations
 
     /**
      * Analyze tables.
+     *
+     * ## OPTIONS
      *
      * [--format=<format>]
      * : Return format.

@@ -32,7 +32,6 @@ class Fpc
         // servebolt cache activate
         // servebolt cache deactivate
 
-
         // servebolt cache settings set post-types post,page,media
         // servebolt cache settings set post-types post,page,media
         // servebolt cache settings get post-types
