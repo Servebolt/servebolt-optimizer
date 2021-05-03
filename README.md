@@ -7,6 +7,8 @@ This repository contains the WordPress plugin Servebolt Optimizer - a plugin tha
 - gives you neat features related to Cloudflare's services (cache purge, image resize)
 - gives you additional benefits when hosting your site at Servebolt
 
+Loosely based on: https://github.com/avillegasn/wp-beb
+
 ## Development
 
 ### Testing
