@@ -58,15 +58,6 @@ class Fpc
      * [--all]
      * : Check status on all sites in multisite-network.
      *
-     * [--format=<format>]
-     * : Return format.
-     * ---
-     * default: text
-     * options:
-     *   - text
-     *   - json
-     * ---
-     *
      * ## EXAMPLES
      *
      *     wp servebolt fpc status
@@ -111,15 +102,6 @@ class Fpc
      * [--status]
      * : Display status after command is executed.
      *
-     * [--format=<format>]
-     * : Return format.
-     * ---
-     * default: text
-     * options:
-     *   - text
-     *   - json
-     * ---
-     *
      * ## EXAMPLES
      *
      *     # Activate Servebolt Full Page Cache, but only for pages and posts
@@ -133,9 +115,6 @@ class Fpc
     {
         CliHelpers::setReturnJson($assocArgs);
         $this->nginxFpcControl(true, $assocArgs);
-        if (in_array('status', $assocArgs)) {
-            $this->getNginxFpcStatus($assocArgs, false);
-        }
     }
 
     /**
@@ -148,15 +127,6 @@ class Fpc
      *
      * [--status]
      * : Display status after command is executed.
-     *
-     * [--format=<format>]
-     * : Return format.
-     * ---
-     * default: text
-     * options:
-     *   - text
-     *   - json
-     * ---
      *
      * ## EXAMPLES
      *
@@ -171,9 +141,6 @@ class Fpc
     {
         CliHelpers::setReturnJson($assocArgs);
         $this->nginxFpcControl(false, $assocArgs);
-        if (in_array('status', $assocArgs)) {
-            $this->getNginxFpcStatus($assocArgs, false);
-        }
     }
 
     /**
@@ -183,15 +150,6 @@ class Fpc
      *
      * [--all]
      * : Get post types on all sites in multisite
-     *
-     * [--format=<format>]
-     * : Return format.
-     * ---
-     * default: text
-     * options:
-     *   - text
-     *   - json
-     * ---
      *
      * ## EXAMPLES
      *
@@ -226,15 +184,6 @@ class Fpc
      *
      * [--post-types]
      * : The post types we would like to cache.
-     *
-     * [--format=<format>]
-     * : Return format.
-     * ---
-     * default: text
-     * options:
-     *   - text
-     *   - json
-     * ---
      *
      * ## EXAMPLES
      *
@@ -278,15 +227,6 @@ class Fpc
      * [--all]
      * : Clear post types to cache on all sites in multisite.
      *
-     * [--format=<format>]
-     * : Return format.
-     * ---
-     * default: text
-     * options:
-     *   - text
-     *   - json
-     * ---
-     *
      * ## EXAMPLES
      *
      *     # Clear all post types to cache on all sites
@@ -318,15 +258,6 @@ class Fpc
      *
      * [--extended]
      * : Display more details about the excluded posts.
-     *
-     * [--format=<format>]
-     * : Return format.
-     * ---
-     * default: text
-     * options:
-     *   - text
-     *   - json
-     * ---
      *
      * ## EXAMPLES
      *
@@ -360,15 +291,6 @@ class Fpc
      * <post_ids>
      * : The posts to exclude from cache.
      *
-     * [--format=<format>]
-     * : Return format.
-     * ---
-     * default: text
-     * options:
-     *   - text
-     *   - json
-     * ---
-     *
      * ## EXAMPLES
      *
      *     # Exclude cache for posts with ID 1, 2 and 3
@@ -389,15 +311,6 @@ class Fpc
      *
      * [--all]
      * : Clear post to exclude from cachecache on all sites in multisite.
-     *
-     * [--format=<format>]
-     * : Return format.
-     * ---
-     * default: text
-     * options:
-     *   - text
-     *   - json
-     * ---
      *
      * ## EXAMPLES
      *
@@ -543,11 +456,11 @@ class Fpc
      */
     private function nginxFpcControl(bool $cacheActive, array $args = [])
     {
-        $affectAllBlogs = array_key_exists('all', $args);
+        $affectAllBlogs = CliHelpers::affectAllSites($args);
+        $displayStatus = array_key_exists('status', $args);
         $postTypes = $this->nginxPreparePostTypeArgument($args);
         $excludeIds = arrayGet('exclude', $args);
-
-        if (is_multisite() && $affectAllBlogs) {
+        if ($affectAllBlogs) {
             WP_CLI::line(__('Applying settings to all blogs', 'servebolt-wp'));
             iterateSites(function($site) use ($cacheActive, $postTypes) {
                 $this->nginxToggleCacheForBlog($cacheActive, $site->blog_id);
@@ -566,6 +479,9 @@ class Fpc
             if ($excludeIds) {
                 $this->nginxSetExcludeIds($excludeIds);
             }
+        }
+        if ($displayStatus) {
+            $this->getNginxFpcStatus($args, false);
         }
     }
 
