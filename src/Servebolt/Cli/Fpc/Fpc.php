@@ -458,14 +458,17 @@ class Fpc
     {
         $affectAllBlogs = CliHelpers::affectAllSites($args);
         $displayStatus = array_key_exists('status', $args);
-        $postTypes = $this->nginxPreparePostTypeArgument($args);
         $excludeIds = arrayGet('exclude', $args);
+        $postTypes = $this->nginxPreparePostTypeArgument($args);
         if ($affectAllBlogs) {
             WP_CLI::line(__('Applying settings to all blogs', 'servebolt-wp'));
-            iterateSites(function($site) use ($cacheActive, $postTypes) {
+            iterateSites(function($site) use ($cacheActive, $postTypes, $displayStatus, $args) {
                 $this->nginxToggleCacheForBlog($cacheActive, $site->blog_id);
                 if ($postTypes) {
                     $this->nginxSetPostTypes($postTypes, $site->blog_id);
+                }
+                if ($displayStatus) {
+                    $this->commandNginxFpcStatus([], $args);
                 }
             });
             if ($excludeIds) {
@@ -479,9 +482,9 @@ class Fpc
             if ($excludeIds) {
                 $this->nginxSetExcludeIds($excludeIds);
             }
-        }
-        if ($displayStatus) {
-            $this->getNginxFpcStatus($args, false);
+            if ($displayStatus) {
+                $this->commandNginxFpcStatus([], $args);
+            }
         }
     }
 
