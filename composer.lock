@@ -648,12 +648,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Servebolt/php-sdk.git",
-                "reference": "fbc905ebb919b846817c0444017afe62ed254e0f"
+                "reference": "38e084cb993edc1e1c0289d7603e7a91bd573b2b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/fbc905ebb919b846817c0444017afe62ed254e0f",
-                "reference": "fbc905ebb919b846817c0444017afe62ed254e0f",
+                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/38e084cb993edc1e1c0289d7603e7a91bd573b2b",
+                "reference": "38e084cb993edc1e1c0289d7603e7a91bd573b2b",
                 "shasum": ""
             },
             "require": {
@@ -694,7 +694,7 @@
                 "issues": "https://github.com/Servebolt/php-sdk/issues",
                 "source": "https://github.com/Servebolt/php-sdk/tree/1.0.0-beta.12"
             },
-            "time": "2021-05-03T09:43:41+00:00"
+            "time": "2021-05-03T09:49:03+00:00"
         }
     ],
     "packages-dev": [
