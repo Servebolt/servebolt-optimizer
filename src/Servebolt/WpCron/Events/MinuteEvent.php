@@ -24,6 +24,8 @@ class MinuteEvent
     {
         if (
             $this->hasActionsRegistered()
+
+            // TODO: Consider to move this somewhere else, prehaps to class "QueueEventHandler"
             && CachePurge::featureIsActive()
             && CachePurge::queueBasedCachePurgeIsActive()
         ) {
