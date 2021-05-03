@@ -169,7 +169,7 @@ class Configuration extends SharedAjaxMethods
                         'credentials' => compact('email', 'apiKey')
                     ]);
                     try {
-                        if ( ! $cfSdk->verifyUser() ) {
+                        if (!$cfSdk->verifyUser()) {
                             throw new Exception;
                         }
                         $shouldCheckZone = true;
