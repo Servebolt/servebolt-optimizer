@@ -160,7 +160,7 @@ module.exports = [
 // inProd?
 if (inProduction) {
 
-	exec('wp i18n make-pot . languages/servebolt-optimizer.pot --domain="servebolt-wp" --include="assets/src/,src/Servebolt/"');
+	exec('wp i18n make-pot . languages/servebolt-optimizer.pot --domain="servebolt-wp" --exclude=assets/dist,ci/,src/Dependencies,tests/,vendor/');
 
 	// Uglify JS.
 	config.optimization = {
