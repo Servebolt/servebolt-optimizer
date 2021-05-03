@@ -2,13 +2,15 @@
 
 namespace Servebolt\Optimizer\Cli\Cache;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use WP_CLI;
+use function Servebolt\Optimizer\Helpers\booleanToString;
+use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use Servebolt\Optimizer\Queue\Queues\UrlQueue;
 use function Servebolt\Optimizer\Helpers\iterateSites;
-
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class Queue
@@ -32,6 +34,15 @@ class Queue
      * [--all]
      * : Clear cache purge queue on all sites in multisite.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     # Clear cache purge queue
@@ -45,20 +56,37 @@ class Queue
     {
         CliHelpers::setReturnJson($assocArgs);
         if (CliHelpers::affectAllSites($assocArgs)) {
-            iterateSites(function ($site) use (&$settings) {
+            $statusArray = [];
+            iterateSites(function ($site) use (&$statusArray) {
                 $this->clearCachePurgeQueues();
                 $message = sprintf(__('Cache purge queue cleared on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 if (CliHelpers::returnJson()) {
-                    CliHelpers::printJson(compact('message'));
+                    $statusArray[] = [
+                        'blog_id' => $site->blog_id,
+                        'success' => true,
+                        'message' => $message,
+                    ];
                 } else {
-                    WP_CLI::success($message);
+                    $statusArray[] = [
+                        'Blog' => get_site_url($site->blog_id),
+                        'Success' => booleanToString(true),
+                        'Message' => $message,
+                    ];
                 }
             }, true);
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson($statusArray);
+            } else {
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
+            }
         } else {
             $this->clearCachePurgeQueues();
             $message = __('Cache purge queue cleared!', 'servebolt-wp');
             if (CliHelpers::returnJson()) {
-                CliHelpers::printJson(compact('message'));
+                CliHelpers::printJson([
+                    'success' => true,
+                    'message' => $message,
+                ]);
             } else {
                 WP_CLI::success($message);
             }

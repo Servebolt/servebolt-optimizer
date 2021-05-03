@@ -5,8 +5,9 @@ namespace Servebolt\Optimizer\DatabaseOptimizer;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
-use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
+use Servebolt\Optimizer\Cli\CliHelpers;
 use Servebolt\Optimizer\Traits\Singleton;
+use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
@@ -48,6 +49,11 @@ class DatabaseOptimizer
 	 */
 	private $cli = false;
 
+    /**
+     * @var array An array containing result from each optimization action (only used when retuning JSON).
+     */
+	private $actionOutput = [];
+
 	/**
 	 * DatabaseOptimizer constructor.
 	 */
@@ -55,6 +61,18 @@ class DatabaseOptimizer
     {
 		$this->addCronHandling();
 	}
+
+    /**
+     * Set dry run boolean.
+     *
+     * @param bool $dryRun
+     * @return $this
+     */
+	public function setDryRun(bool $dryRun)
+    {
+        $this->dryRun = $dryRun;
+        return $this;
+    }
 
 	/**
 	 * Run database optimization.
@@ -66,7 +84,7 @@ class DatabaseOptimizer
 	public function optimizeDb(bool $cli = false)
     {
 		$this->cli = $cli;
-		if ( $this->cli ) {
+		if ($this->cli && !CliHelpers::returnJson()) {
 			WP_CLI::line(__('Starting optimization...', 'servebolt-wp'));
 		}
 		$this->resetResultVariables();
@@ -107,7 +125,9 @@ class DatabaseOptimizer
 	private function returnResult($result, $message, $tasks = false)
     {
 		if ($this->cli) {
-			$this->out($message, ( $result ? 'success' : 'error' ));
+			$this->out($message, ($result ? 'success' : 'error'), [
+			    'actions' => $this->actionOutput,
+            ]);
 			return $result;
 		} else {
 			return compact('result', 'message', 'tasks');
@@ -123,32 +143,41 @@ class DatabaseOptimizer
     {
 		$result = $this->parseResult();
 
-		if ( is_null($result) ) {
+		if (is_null($result)) {
 			// No changes made
-			return $this->returnResult( true, __('No changes needed, database looks healthy, and everything is good!', 'servebolt-wp') );
-		} elseif ( $result === true ) {
+			return $this->returnResult(true, __('No changes needed, database looks healthy, and everything is good!', 'servebolt-wp'));
+		} elseif ($result === true) {
 			// Changes made and they were done successfully
-			return $this->returnResult( true, __('Nice, we got to do some changes to the database and it seems that we we\'re successful!', 'servebolt-wp'), $this->tasks );
+			return $this->returnResult(true, __('Nice, we got to do some changes to the database and it seems that we we\'re successful!', 'servebolt-wp'), $this->tasks);
 		} else {
-
 			// We did some changes, and got one or more errors
-			if ( $this->cli ) {
-				WP_CLI::line(str_repeat('-', 20) . PHP_EOL . __('Summary:', 'servebolt-wp'));
-				foreach($result as $key => $value) {
-					switch ($value['type']) {
-						case 'success':
-							WP_CLI::success($value['message']);
-							break;
-						case 'error':
-							WP_CLI::error($value['message'], false);
-							break;
-						case 'table':
-                            WP_CLI_FormatItems( 'table', $value['table'], array_keys(current($value['table'])));
-							break;
-					}
-				}
+			if ($this->cli) {
+			    if (CliHelpers::returnJson()) {
+
+			        CliHelpers::printJson([
+			            'success' => false,
+                        'result' => $result,
+                        'actions' => $this->actionOutput,
+                    ]);
+
+                } else {
+                    WP_CLI::line(str_repeat('-', 20) . PHP_EOL . __('Summary:', 'servebolt-wp'));
+                    foreach($result as $key => $value) {
+                        switch ($value['type']) {
+                            case 'success':
+                                WP_CLI::success($value['message']);
+                                break;
+                            case 'error':
+                                WP_CLI::error($value['message'], false);
+                                break;
+                            case 'table':
+                                WP_CLI_FormatItems( 'table', $value['table'], array_keys(current($value['table'])));
+                                break;
+                        }
+                    }
+                }
 			} else {
-				return $this->returnResult( true, __('', 'servebolt-wp'), $this->tasks );
+				return $this->returnResult(true, __('', 'servebolt-wp'), $this->tasks);
 			}
 
 		}
@@ -350,10 +379,8 @@ class DatabaseOptimizer
     {
 		if (is_multisite()) {
             iterateSites(function($site) {
-				switch_to_blog( $site->blog_id );
 				$this->removeIndexes();
-				restore_current_blog();
-			});
+			}, true);
 		} else {
 			$this->removeIndexes();
 		}
@@ -395,28 +422,58 @@ class DatabaseOptimizer
 	private function optimizePostMetaTables()
     {
 		$postMetaTablesWithPostMetaValueIndex = $this->tablesWithIndexOnColumn('postmeta', 'meta_value');
-		if ( is_multisite() ) {
+		if (is_multisite()) {
             iterateSites(function($site) use($postMetaTablesWithPostMetaValueIndex) {
-				switch_to_blog($site->blog_id);
 				if (!in_array($this->wpdb()->postmeta, $postMetaTablesWithPostMetaValueIndex)) {
 					$this->metaValueIndexAddition['count']++;
-					if ( $this->dryRun || $this->addPostMetaIndex() ) {
-						$this->out(sprintf( __('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blogIdentification($site), $site->blog_id), 'success');
+					if ($this->dryRun || $this->addPostMetaIndex()) {
+					    $message = sprintf( __('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blogIdentification($site), $site->blog_id);
+					    if (CliHelpers::returnJson()) {
+                            $this->actionOutput[] = [
+                                'success' => true,
+                                'message' => $message,
+                            ];
+                        } else {
+                            $this->out($message, 'success');
+                        }
 						$this->metaValueIndexAddition['success'][] = $site->blog_id;
 					} else {
-						$this->out(sprintf( __('Could not add index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blogIdentification($site), $site->blog_id), 'error');
+					    $errorMessage = sprintf( __('Could not add index to table "%s" on site %s (site ID %s)'), $this->wpdb()->postmeta, $this->blogIdentification($site), $site->blog_id);
+                        if (CliHelpers::returnJson()) {
+                            $this->actionOutput[] = [
+                                'success' => false,
+                                'message' => $errorMessage,
+                            ];
+                        } else {
+                            $this->out($errorMessage, 'error');
+                        }
 						$this->metaValueIndexAddition['fail'][] = $site->blog_id;
 					}
 				}
-				restore_current_blog();
-			});
+			}, true);
 		} else {
 			if (!in_array($this->wpdb()->postmeta, $postMetaTablesWithPostMetaValueIndex)) {
-				if ( $this->dryRun || $this->addPostMetaIndex() ) {
-					$this->out(sprintf(__('Added index to table "%s"', 'servebolt-wp'), $this->wpdb()->postmeta), 'success');
+				if ($this->dryRun || $this->addPostMetaIndex()) {
+				    $message = sprintf(__('Added index to table "%s"', 'servebolt-wp'), $this->wpdb()->postmeta);
+                    if (CliHelpers::returnJson()) {
+                        $this->actionOutput[] = [
+                            'success' => true,
+                            'message' => $message,
+                        ];
+                    } else {
+                        $this->out($message, 'success');
+                    }
 					$this->metaValueIndexAddition = true;
 				} else {
-					$this->out(sprintf(__('Could not add index to table "%s"', 'servebolt-wp'), $this->wpdb()->postmeta), 'error');
+				    $errorMessage = sprintf(__('Could not add index to table "%s"', 'servebolt-wp'), $this->wpdb()->postmeta);
+                    if (CliHelpers::returnJson()) {
+                        $this->actionOutput[] = [
+                            'success' => false,
+                            'message' => $errorMessage,
+                        ];
+                    } else {
+                        $this->out($errorMessage, 'error');
+                    }
 					$this->metaValueIndexAddition = false;
 				}
 			}
@@ -429,28 +486,58 @@ class DatabaseOptimizer
 	private function optimizeOptionsTables()
     {
 		$optionsTablesWithAutoloadIndex = $this->tablesWithIndexOnColumn('options', 'autoload');
-		if ( is_multisite() ) {
+		if (is_multisite()) {
             iterateSites(function($site) use ($optionsTablesWithAutoloadIndex) {
-				switch_to_blog($site->blog_id);
 				if (!in_array($this->wpdb()->options, $optionsTablesWithAutoloadIndex)) {
 					$this->autoloadIndexAddition['count']++;
 					if ( $this->dryRun || $this->addAptionsAutoloadIndex() ) {
-						$this->out(sprintf( __('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->options, $this->blogIdentification($site), $site->blog_id ), 'success');
+					    $message = sprintf(__('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->options, $this->blogIdentification($site), $site->blog_id);
+					    if (CliHelpers::returnJson()) {
+                            $this->actionOutput[] = [
+                                'success' => true,
+                                'message' => $message,
+                            ];
+                        } else {
+                            $this->out($message, 'success');
+                        }
 						$this->autoloadIndexAddition['success'][] = $site->blog_id;
 					} else {
-						$this->out(sprintf( __('Could not add index to table "%" on site %s (site ID %s)'), $this->wpdb()->options, $this->blogIdentification($site), $site->blog_id ), 'error');
+					    $errorMessage = sprintf(__('Could not add index to table "%" on site %s (site ID %s)'), $this->wpdb()->options, $this->blogIdentification($site), $site->blog_id);
+					    if (CliHelpers::returnJson()) {
+                            $this->actionOutput[] = [
+                                'success' => false,
+                                'message' => $errorMessage,
+                            ];
+                        } else {
+                            $this->out($errorMessage, 'error');
+                        }
 						$this->autoloadIndexAddition['fail'][] = $site->blog_id;
 					}
 				}
-				restore_current_blog();
-			});
+			}, true);
 		} else {
 			if (!in_array($this->wpdb()->options, $optionsTablesWithAutoloadIndex)) {
 				if ($this->dryRun || $this->addOptionsAutoloadIndex()) {
-					$this->out(__('Added index to table "options-table', 'servebolt-wp'), 'success');
+				    $message = __('Added index to table "options-table', 'servebolt-wp');
+				    if (CliHelpers::returnJson()) {
+                        $this->actionOutput[] = [
+                            'success' => true,
+                            'message' => $message,
+                        ];
+                    } else {
+                        $this->out($message, 'success');
+                    }
 					$this->autoloadIndexAddition = true;
 				} else {
-					$this->out(__('Could not add index to options-table', 'servebolt-wp'), 'error');
+				    $errorMessage = __('Could not add index to options-table', 'servebolt-wp');
+                    if (CliHelpers::returnJson()) {
+                        $this->actionOutput[] = [
+                            'success' => false,
+                            'message' => $errorMessage,
+                        ];
+                    } else {
+                        $this->out($errorMessage, 'error');
+                    }
 					$this->autoloadIndexAddition = false;
 				}
 
@@ -469,12 +556,10 @@ class DatabaseOptimizer
 	private function tablesWithIndexOnColumn(string $tableName, string $columnName)
     {
 		$tables = [];
-		if ( is_multisite() ) {
+		if (is_multisite()) {
             iterateSites(function($site) use ($tableName, &$tables) {
-				switch_to_blog($site->blog_id);
 				$tables[] = $this->wpdb()->get_results("SHOW INDEX FROM {$this->wpdb()->prefix}{$tableName}");
-				restore_current_blog();
-			});
+			}, true);
 		} else {
 			$tables[] = $this->wpdb()->get_results("SHOW INDEX FROM {$this->wpdb()->prefix}{$tableName}");
 		}
@@ -527,7 +612,7 @@ class DatabaseOptimizer
 		    switch_to_blog($blogId);
         }
 		$this->safeQuery("ALTER TABLE {$this->wpdb()->options} DROP INDEX `autoload`");
-		$result = ! $this->tableHasIndex($this->wpdb()->options, 'autoload');
+		$result = !$this->tableHasIndex($this->wpdb()->options, 'autoload');
 		if ($blogId) {
 		    restore_current_blog();
         }
@@ -774,15 +859,33 @@ class DatabaseOptimizer
 	private function convertTablesToInnodb()
     {
 		$tables = $this->getNonInnodbTables();
-		if( is_array($tables) && ! empty($tables) ) {
+		if(is_array($tables) && ! empty($tables)) {
 			foreach ( $tables as $table ) {
-				if ( ! isset($table->table_name) ) continue;
+				if (!isset($table->table_name)) {
+                    continue;
+                }
 				$this->innodbConversion['count']++;
-				if ( $this->dryRun || $this->convertTableToInnodb($table->table_name) ) {
-					$this->out(sprintf(__('Converted table "%s" to InnoDB', 'servebolt-wp'), $table->table_name), 'success');
-					$this->innodbConversion['success'][] = $table->table_name;
+				if ($this->dryRun || $this->convertTableToInnodb($table->table_name)) {
+				    $message = sprintf(__('Converted table "%s" to InnoDB', 'servebolt-wp'), $table->table_name);
+				    if (CliHelpers::returnJson()) {
+                        $this->actionOutput[] = [
+                            'success' => true,
+                            'message' => $message,
+                        ];
+                    } else {
+                        $this->out($message, 'success');
+                    }
+                    $this->innodbConversion['success'][] = $table->table_name;
 				} else {
-					$this->out(sprintf(__('Could not convert table "%s" to InnoDB', 'servebolt-wp'), $table->table_name), 'error');
+				    $errorMessage = sprintf(__('Could not convert table "%s" to InnoDB', 'servebolt-wp'), $table->table_name);
+				    if (CliHelpers::returnJson()) {
+                        $this->actionOutput[] = [
+                            'success' => false,
+                            'message' => $errorMessage,
+                        ];
+                    } else {
+                        $this->out($errorMessage, 'error');
+                    }
 					$this->innodbConversion['fail'][] = $table->table_name;
 				}
 			}
@@ -833,7 +936,7 @@ class DatabaseOptimizer
 	 *
 	 * @param string $tableName
 	 */
-	private function analyzeTable(string $tableName)
+	private function analyzeTable(string $tableName): void
     {
 		$this->wpdb()->query("ANALYZE TABLE {$tableName}");
 	}
@@ -843,15 +946,42 @@ class DatabaseOptimizer
 	 *
 	 * @param $string
 	 * @param string $type
+	 * @param array $additionalData
 	 */
-	private function out($string, string $type = 'line')
+	private function out($string, string $type = 'line', array $additionalData = []): void
     {
 		if ($this->cli) {
-			if ($type == 'error') {
-				WP_CLI::error($string, false);
-			} else {
-				WP_CLI::$type($string);
-			}
+		    switch ($type) {
+                case 'error':
+                    if (CliHelpers::returnJson()) {
+                        CliHelpers::printJson(array_merge($additionalData, [
+                            'success' => false,
+                            'message' => $string,
+                        ]));
+                    } else {
+                        WP_CLI::error($string, false);
+                    }
+                    break;
+                case 'success':
+                    if (CliHelpers::returnJson()) {
+                        CliHelpers::printJson(array_merge($additionalData, [
+                            'success' => true,
+                            'message' => $string,
+                        ]));
+                    } else {
+                        WP_CLI::success($string);
+                    }
+                    break;
+                default:
+                    if (CliHelpers::returnJson()) {
+                        CliHelpers::printJson(array_merge($additionalData, [
+                            'message' => $string,
+                        ]));
+                    } else {
+                        WP_CLI::$type($string);
+                    }
+                    break;
+            }
 		} else {
 			$this->tasks[] = $string;
 		}

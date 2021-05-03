@@ -69,25 +69,35 @@ class CfSetup
      * [--disable-validation]
      * : Whether to validate the input data or not.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     # Set up feature using API key authentication
      *     wp servebolt cf setup --auth-type=key --email="your@email.com" --api-key="your-api-token" --zone-id="your-zone-id"
      *
-     *     # Set up feature using API token authentication, applying configuration to all sites in a multisite
-     *     wp servebolt cf setup --auth-type=token --api-token="your-api-token" --zone-id="your-zone-id" --all
+     *     # Set up feature using API token authentication, applying configuration to all sites in a multisite. Return format JSON.
+     *     wp servebolt cf setup --auth-type=token --api-token="your-api-token" --zone-id="your-zone-id" --all --format=json
      *
      *
      */
     public function setup($args, $assocArgs): void
     {
+        CliHelpers::setReturnJson($assocArgs);
         $affectAllSites    = CliHelpers::affectAllSites($assocArgs);
         $authType          = arrayGet('auth-type', $assocArgs);
         $apiToken          = arrayGet('api-token', $assocArgs);
         $email             = arrayGet('email', $assocArgs);
         $apiKey            = arrayGet('api-key', $assocArgs);
         $zoneId            = arrayGet('zone-id', $assocArgs);
-        $disableValidation = array_key_exists( 'disable-validation', $assocArgs );
+        $disableValidation = array_key_exists('disable-validation', $assocArgs);
 
         $params = compact('affectAllSites', 'authType', 'apiToken', 'email', 'apiKey', 'zoneId', 'disableValidation');
 
@@ -101,11 +111,22 @@ class CfSetup
      */
     private static function cfCachePurgeSetup($params)
     {
+        //print_r($params);die;
         // Validate data
-        $validation = self::validateSetupParams($params);
-        if ($validation !== true) {
-            WP_CLI::error_multi_line($validation);
-            return;
+        if (!$params['disableValidation']) {
+            $validation = self::validateSetupParams($params);
+            if ($validation !== true) {
+                if (CliHelpers::returnJson()) {
+                    CliHelpers::printJson([
+                        'success' => false,
+                        'code' => 'cf_setup_parameters_validation_failture',
+                        'result' => $validation,
+                    ]);
+                } else {
+                    WP_CLI::error_multi_line($validation);
+                }
+                return;
+            }
         }
 
         if ( $params['affectAllSites'] ) {
@@ -117,7 +138,16 @@ class CfSetup
             $allFailed = !in_array(true, $result, true);
             if ($hasFailed) {
                 if ($allFailed) {
-                    WP_CLI::error(__('Could not set config on any sites.', 'servebolt-wp'));
+                    $errorMessage = __('Could not set configuration on any sites.', 'servebolt-wp');
+                    if (CliHelpers::returnJson()) {
+                        CliHelpers::printJson([
+                            'success' => false,
+                            'code' => 'configuration_failure_all',
+                            'message' => $errorMessage,
+                        ]);
+                    } else {
+                        WP_CLI::error($errorMessage);
+                    }
                 } else {
                     $table = [];
                     foreach($result as $key => $value) {
@@ -126,17 +156,51 @@ class CfSetup
                             __('Configuration', 'servebolt-wp') => $value ? __('Success', 'servebolt-wp') : __('Failed', 'servebolt-wp'),
                         ];
                     }
-                    WP_CLI::warning(__('Action complete, but we failed to apply config to some sites:', 'servebolt-wp'));
-                    WP_CLI_FormatItems( 'table', $table, array_keys(current($table)));
+                    if (CliHelpers::returnJson()) {
+                        CliHelpers::printJson([
+                            'success' => false,
+                            'code' => 'configuration_failure_partial',
+                            'message' => __('Action complete, but we failed to apply config to some sites.', 'servebolt-wp'),
+                            'result' => $table,
+                        ]);
+                    } else {
+                        WP_CLI::warning(__('Action complete, but we failed to apply config to some sites:', 'servebolt-wp'));
+                        WP_CLI_FormatItems('table', $table, array_keys(current($table)));
+                    }
                 }
             } else {
-                WP_CLI::success(__('Configuration on all sites!', 'servebolt-wp'));
+                $successMessage = __('Configuration set on all sites!', 'servebolt-wp');
+                if (CliHelpers::returnJson()) {
+                    CliHelpers::printJson([
+                        'success' => true,
+                        'message' => $successMessage,
+                    ]);
+                } else {
+                    WP_CLI::success($successMessage);
+                }
             }
         } else {
             if (self::storeCfConfiguration($params)) {
-                WP_CLI::success(__('Cloudflare configuration stored successfully.', 'servebolt-wp'));
+                $successMessage = __('Cloudflare configuration stored successfully.', 'servebolt-wp');
+                if (CliHelpers::returnJson()) {
+                    CliHelpers::printJson([
+                        'success' => true,
+                        'message' => $successMessage,
+                    ]);
+                } else {
+                    WP_CLI::success($successMessage);
+                }
             } else {
-                WP_CLI::error(__('Could not store Cloudflare configuration.', 'servebolt-wp'));
+                $errorMessage = __('Could not store Cloudflare configuration.', 'servebolt-wp');
+                if (CliHelpers::returnJson()) {
+                    CliHelpers::printJson([
+                        'success' => false,
+                        'code' => 'configuration_failure',
+                        'message' => $errorMessage,
+                    ]);
+                } else {
+                    WP_CLI::error($errorMessage);
+                }
             }
         }
     }

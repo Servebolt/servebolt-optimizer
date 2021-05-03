@@ -35,7 +35,7 @@
                 <tr>
                     <td><?php echo $site->blog_id; ?></td>
                     <td><?php echo $site->domain . $site->path; ?></td>
-                    <td><?php echo ( CloudflareImageResize::getInstance() )->resizingIsActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
+                    <td><?php echo CloudflareImageResize::resizingIsActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
                     <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-cf-image-resizing' ); ?>" class="button btn"><?php _e('Go to site settings', 'servebolt-wp'); ?></a></td>
                 </tr>
             <?php endforeach; ?>
@@ -55,7 +55,7 @@
                         <fieldset>
                             <legend class="screen-reader-text"><span><?php _e('Cloudflare cache-feature active?', 'servebolt-wp'); ?></span></legend>
                             <label for="cf_image_resizing">
-                                <input name="<?php echo getOptionName('cf_image_resizing'); ?>" type="checkbox" id="cf_image_resizing" value="1" <?php checked((CloudflareImageResize::getInstance())->resizingIsActive()); ?>>
+                                <input name="<?php echo getOptionName('cf_image_resizing'); ?>" type="checkbox" id="cf_image_resizing" value="1" <?php checked(CloudflareImageResize::resizingIsActive()); ?>>
                                 <?php _e('Enabled', 'servebolt-wp'); ?>
                             </label>
                         </fieldset>
