@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Compatibility\WooCommerce;
 
+use function Servebolt\Optimizer\Helpers\arrayGet;
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
@@ -19,7 +21,7 @@ class ProductVariationCachePurge
         if (apply_filters('sb_optimizer_woocommerce_cache_purge_for_variations', true) === false) {
             return false; // We're not suppose to purge cache for variations
         }
-        add_action('sb_optimizer_term_cache_purge_3rd_party_urls_post_type_product', [$this, 'addProductVariationUrls'], 10, 2);
+        add_action('sb_optimizer_post_cache_purge_3rd_party_urls_post_type_product', [$this, 'addProductVariationUrls'], 10, 2);
     }
 
     /**
@@ -42,8 +44,15 @@ class ProductVariationCachePurge
                 return;
             }
             foreach ($variations as $variation) {
-                if ($variationUrl = $variation->get_permalink()) {
-                    $purgeObject->addUrl($variationUrl);
+                $variationId = arrayGet('variation_id', $variation);
+                if ($variationId && $variationProduct = wc_get_product($variationId)) {
+                    if (
+                        is_object($variationProduct)
+                        && method_exists($variationProduct, 'get_permalink')
+                        && $variationUrl = $variationProduct->get_permalink()
+                    ) {
+                        $purgeObject->addUrl($variationUrl);
+                    }
                 }
             }
         }
