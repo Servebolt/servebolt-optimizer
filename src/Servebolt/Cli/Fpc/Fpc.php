@@ -84,7 +84,11 @@ class Fpc
             $sitesStatus[] = $this->getNginxFpcStatus();
         }
         if (CliHelpers::returnJson()) {
-            CliHelpers::printJson($sitesStatus);
+            if (CliHelpers::affectAllSites($assocArgs)) {
+                CliHelpers::printJson($sitesStatus);
+            } else {
+                CliHelpers::printJson(current($sitesStatus));
+            }
         } else {
             WP_CLI_FormatItems('table', $sitesStatus , array_keys(current($sitesStatus)));
         }
@@ -106,6 +110,15 @@ class Fpc
      *
      * [--status]
      * : Display status after command is executed.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
      *
      * ## EXAMPLES
      *
@@ -136,6 +149,15 @@ class Fpc
      * [--status]
      * : Display status after command is executed.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     # Deactivate Servebolt Full Page Cache
@@ -162,6 +184,14 @@ class Fpc
      * [--all]
      * : Get post types on all sites in multisite
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
      *
      * ## EXAMPLES
      *
@@ -196,6 +226,15 @@ class Fpc
      *
      * [--post-types]
      * : The post types we would like to cache.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
      *
      * ## EXAMPLES
      *
@@ -239,6 +278,15 @@ class Fpc
      * [--all]
      * : Clear post types to cache on all sites in multisite.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     # Clear all post types to cache on all sites
@@ -270,6 +318,15 @@ class Fpc
      *
      * [--extended]
      * : Display more details about the excluded posts.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
      *
      * ## EXAMPLES
      *
@@ -303,6 +360,15 @@ class Fpc
      * <post_ids>
      * : The posts to exclude from cache.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     # Exclude cache for posts with ID 1, 2 and 3
@@ -323,6 +389,15 @@ class Fpc
      *
      * [--all]
      * : Clear post to exclude from cachecache on all sites in multisite.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
      *
      * ## EXAMPLES
      *
@@ -352,7 +427,7 @@ class Fpc
      *
      * @return array
      */
-    private function getNginxFpcStatus(?int $blogId = null)
+    private function getNginxFpcStatus(?int $blogId = null): array
     {
         $status = booleanToStateString(FullPageCacheSettings::fpcIsActive($blogId));
         $postTypes = FullPageCacheHeaders::getPostTypesToCache(true, true, $blogId);
@@ -361,7 +436,7 @@ class Fpc
         $array = [];
         if (CliHelpers::returnJson()) {
             if ($blogId) {
-                $array['blog_id'] = get_site_url($blogId);
+                $array['blog_id'] = $blogId;
             }
             return array_merge($array, [
                 'active' => $status,
