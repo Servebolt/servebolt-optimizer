@@ -133,6 +133,7 @@ class CachePurgeControl
         $selectedCfZone = $this->getSelectedCfZone($settings);
         $cfZones = $this->getCfZones($settings);
         $cachePurgeIsActive = CachePurge::isActive();
+        $automaticCachePurgeOnContentUpdateIsActive = CachePurge::automaticCachePurgeOnContentUpdateIsActive();
         $autoCachePurgeIsActive = CachePurge::automaticCachePurgeOnContentUpdateIsActive();
         $acdLock = CachePurge::cachePurgeIsLockedTo('acd');
         $queueBasedCachePurgeActiveStateIsOverridden = CachePurge::queueBasedCachePurgeActiveStateIsOverridden();

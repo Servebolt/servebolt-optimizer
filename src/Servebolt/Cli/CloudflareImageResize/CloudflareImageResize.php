@@ -5,9 +5,11 @@ namespace Servebolt\Optimizer\Cli\CloudflareImageResize;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
+use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize as CloudflareImageResizeAdmin;
+use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
  * Class CloudflareImageResize
@@ -21,8 +23,8 @@ class CloudflareImageResize
     public function __construct()
     {
         WP_CLI::add_command('servebolt cf-image-resize status',     [$this, 'status']);
-        WP_CLI::add_command('servebolt cf-image-resize activate',   [$this, 'enable']);
-        WP_CLI::add_command('servebolt cf-image-resize deactivate', [$this, 'disable']);
+        WP_CLI::add_command('servebolt cf-image-resize activate',   [$this, 'activate']);
+        WP_CLI::add_command('servebolt cf-image-resize deactivate', [$this, 'deactivate']);
     }
 
     /**
@@ -33,6 +35,15 @@ class CloudflareImageResize
      * [--all]
      * : Check on all sites in multisite.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     wp servebolt cf-image-resize status
@@ -40,12 +51,40 @@ class CloudflareImageResize
      */
     public function status($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         if (CliHelpers::affectAllSites($assocArgs)) {
-            iterateSites(function ($site) {
-                $this->imageResizeStatus($site->blog_id);
+            $statusArray = [];
+            iterateSites(function ($site) use (&$statusArray) {
+                $currentState = CloudflareImageResizeAdmin::resizingIsActive($site->blog_id);
+                if (CliHelpers::returnJson()) {
+                    $statusArray[] = [
+                        'blog_id' => $site->blog_id,
+                        'active' => $currentState,
+                    ];
+                } else {
+                    $statusArray[] = [
+                        'Blog' => get_site_url($site->blog_id),
+                        'Active' => booleanToStateString($currentState),
+                    ];
+                }
             });
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson($statusArray);
+            } else {
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
+            }
         } else {
-            $this->imageResizeStatus();
+            $currentState = CloudflareImageResizeAdmin::resizingIsActive();
+            $stateString = booleanToStateString($currentState);
+            $message = sprintf(__('Cloudflare image resize feature is %s', 'servebolt-wp'), $stateString);
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson([
+                    'active' => $currentState,
+                    'message' => $message,
+                ]);
+            } else {
+                WP_CLI::success($message);
+            }
         }
     }
 
@@ -57,19 +96,66 @@ class CloudflareImageResize
      * [--all]
      * : Activate Cloudflare image resize feature on all sites in multisite-network.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     wp servebolt cf-image-resize activate
      *
      */
-    public function enable($args, $assocArgs)
+    public function activate($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         if (CliHelpers::affectAllSites($assocArgs)) {
-            iterateSites(function ($site) {
-                $this->toggleActive(true, $site->blog_id);
+            $statusArray = [];
+            iterateSites(function ($site) use (&$statusArray) {
+                if (CloudflareImageResizeAdmin::resizingIsActive($site->blog_id)) {
+                    $message = sprintf(__('Cloudflare image resize feature already active on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                } else {
+                    CloudflareImageResizeAdmin::toggleActive(true, $site->blog_id);
+                    $message = sprintf(__('Cloudflare image resize feature activated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                }
+                if (CliHelpers::returnJson()) {
+                    $statusArray[] = [
+                        'blog_id' => $site->blog_id,
+                        'active' => true,
+                        'message' => $message,
+                    ];
+                } else {
+                    $statusArray[] = [
+                        'Blog' => get_site_url($site->blog_id),
+                        'Active' => booleanToStateString(true),
+                        'Message' => $message,
+                    ];
+                }
             });
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson($statusArray);
+            } else {
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
+            }
         } else {
-            $this->toggleActive(true);
+            if (CloudflareImageResizeAdmin::resizingIsActive()) {
+                $message = __('Cloudflare image resize feature is already active.', 'servebolt-wp');
+            } else {
+                CloudflareImageResizeAdmin::toggleActive(true);
+                $message = __('Cloudflare image resize feature is activated.', 'servebolt-wp');
+            }
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson([
+                    'active' => true,
+                    'message' => $message,
+                ]);
+            } else {
+                WP_CLI::success($message);
+            }
         }
     }
 
@@ -81,71 +167,66 @@ class CloudflareImageResize
      * [--all]
      * : Deactivate Cloudflare image resize feature on all sites in multisite-network.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     wp servebolt cf-image-resize deactivate
      *
      */
-    public function disable($args, $assocArgs)
+    public function deactivate($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         if (CliHelpers::affectAllSites($assocArgs)) {
-            iterateSites(function ($site) {
-                $this->toggleActive(false, $site->blog_id);
+            $statusArray = [];
+            iterateSites(function ($site) use (&$statusArray) {
+                if (!CloudflareImageResizeAdmin::resizingIsActive($site->blog_id)) {
+                    $message = sprintf(__('Cloudflare image resize feature already inactive on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                } else {
+                    CloudflareImageResizeAdmin::toggleActive(false, $site->blog_id);
+                    $message = sprintf(__('Cloudflare image resize feature deactivated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                }
+                if (CliHelpers::returnJson()) {
+                    $statusArray[] = [
+                        'blog_id' => $site->blog_id,
+                        'active' => false,
+                        'message' => $message,
+                    ];
+                } else {
+                    $statusArray[] = [
+                        'Blog' => get_site_url($site->blog_id),
+                        'Active' => booleanToStateString(false),
+                        'Message' => $message,
+                    ];
+                }
             });
-        } else {
-            $this->toggleActive(false);
-        }
-    }
-
-    /**
-     * Check if Cloudflare image resize feature is active/inactive.
-     *
-     * @param null|int $blogId
-     */
-    protected function imageResizeStatus(?int $blogId = null)
-    {
-        $cloudflareImageResize = CloudflareImageResizeAdmin::getInstance();
-        $currentState = $cloudflareImageResize->resizingIsActive($blogId);
-        $stateString = booleanToStateString($currentState);
-        if ($blogId) {
-            WP_CLI::success(sprintf(__('Cloudflare image resize feature is %s for site %s', 'servebolt-wp'), $stateString, get_site_url($blogId)));
-        } else {
-            WP_CLI::success(sprintf(__('Cloudflare image resize feature is %s', 'servebolt-wp'), $stateString));
-        }
-    }
-
-    /**
-     * Activate/deactivate Cloudflare image resize feature.
-     *
-     * @param bool $state
-     * @param int|null $blogId
-     */
-    protected function toggleActive(bool $state, ?int $blogId = null)
-    {
-        $cloudflareImageResize = CloudflareImageResizeAdmin::getInstance();
-        $stateString = booleanToStateString($state);
-        $isActive = $cloudflareImageResize->resizingIsActive($blogId);
-
-        if ($isActive === $state) {
-            if ($blogId) {
-                WP_CLI::warning(sprintf(__('Cloudflare image resize feature is already set to %s on site %s', 'servebolt-wp'), $stateString, get_site_url($blogId)));
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson($statusArray);
             } else {
-                WP_CLI::warning(sprintf(__('Cloudflare image resize feature is already set to %s', 'servebolt-wp'), $stateString));
-            }
-            return;
-        }
-
-        if (CloudflareImageResizeAdmin::toggleActive($state, $blogId)) {
-            if ($blogId) {
-                WP_CLI::success(sprintf(__('Cloudflare image resize feature was set to %s on site %s', 'servebolt-wp'), $stateString, get_site_url($blogId)));
-            } else {
-                WP_CLI::success(sprintf(__('Cloudflare image resize feature was set to %s', 'servebolt-wp'), $stateString));
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
             }
         } else {
-            if ($blogId) {
-                WP_CLI::error(sprintf(__('Could not set Cloudflare image resize feature to %s on site %s', 'servebolt-wp'), $stateString, get_site_url($blogId)), false);
+
+            if (!CloudflareImageResizeAdmin::resizingIsActive()) {
+                $message = __('Cloudflare image resize feature is already inactive.', 'servebolt-wp');
             } else {
-                WP_CLI::error(sprintf(__('Could not set Cloudflare image resize feature to %s', 'servebolt-wp'), $stateString), false);
+                CloudflareImageResizeAdmin::toggleActive(false);
+                $message = __('Cloudflare image resize feature is deactivated.', 'servebolt-wp');
+            }
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson([
+                    'active' => false,
+                    'message' => $message,
+                ]);
+            } else {
+                WP_CLI::success($message);
             }
         }
     }

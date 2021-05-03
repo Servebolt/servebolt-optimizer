@@ -32,7 +32,6 @@ class Fpc
         // servebolt cache activate
         // servebolt cache deactivate
 
-
         // servebolt cache settings set post-types post,page,media
         // servebolt cache settings set post-types post,page,media
         // servebolt cache settings get post-types
@@ -49,6 +48,41 @@ class Fpc
         WP_CLI::add_command('servebolt fpc excluded-posts get', [$this, 'commandNginxFpcGetExcludedPosts']);
         WP_CLI::add_command('servebolt fpc excluded-posts set', [$this, 'commandNginxFpcSetExcludedPosts']);
         WP_CLI::add_command('servebolt fpc excluded-posts clear', [$this, 'commandNginxFpcClearExcludedPosts']);
+    }
+
+    /**
+     * Return status of the Servebolt Full Page Cache.
+     *
+     * ## OPTIONS
+     *
+     * [--all]
+     * : Check status on all sites in multisite-network.
+     *
+     * ## EXAMPLES
+     *
+     *     wp servebolt fpc status
+     *
+     */
+    public function commandNginxFpcStatus($args, $assocArgs)
+    {
+        CliHelpers::setReturnJson($assocArgs);
+        if (CliHelpers::affectAllSites($assocArgs)) {
+            $sitesStatus = [];
+            iterateSites(function ($site) use (&$sitesStatus) {
+                $sitesStatus[] = $this->getNginxFpcStatus($site->blog_id);
+            });
+        } else {
+            $sitesStatus[] = $this->getNginxFpcStatus();
+        }
+        if (CliHelpers::returnJson()) {
+            if (CliHelpers::affectAllSites($assocArgs)) {
+                CliHelpers::printJson($sitesStatus);
+            } else {
+                CliHelpers::printJson(current($sitesStatus));
+            }
+        } else {
+            WP_CLI_FormatItems('table', $sitesStatus , array_keys(current($sitesStatus)));
+        }
     }
 
     /**
@@ -79,10 +113,8 @@ class Fpc
      */
     public function commandNginxFpcEnable($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         $this->nginxFpcControl(true, $assocArgs);
-        if (in_array('status', $assocArgs)) {
-            $this->getNginxFpcStatus($assocArgs, false);
-        }
     }
 
     /**
@@ -107,36 +139,8 @@ class Fpc
      */
     public function commandNginxFpcDisable($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         $this->nginxFpcControl(false, $assocArgs);
-        if (in_array('status', $assocArgs)) {
-            $this->getNginxFpcStatus($assocArgs, false);
-        }
-    }
-
-    /**
-     * Return status of the Servebolt Full Page Cache.
-     *
-     * ## OPTIONS
-     *
-     * [--all]
-     * : Check status on all sites in multisite-network.
-     *
-     * ## EXAMPLES
-     *
-     *     wp servebolt fpc status
-     *
-     */
-    public function commandNginxFpcStatus($args, $assocArgs)
-    {
-        if (CliHelpers::affectAllSites($assocArgs)) {
-            $sitesStatus = [];
-            iterateSites(function ($site) use (&$sitesStatus) {
-                $sitesStatus[] = $this->getNginxFpcStatus($site->blog_id);
-            });
-        } else {
-            $sitesStatus[] = $this->getNginxFpcStatus();
-        }
-        WP_CLI_FormatItems('table', $sitesStatus , array_keys(current($sitesStatus)));
     }
 
     /**
@@ -147,7 +151,6 @@ class Fpc
      * [--all]
      * : Get post types on all sites in multisite
      *
-     *
      * ## EXAMPLES
      *
      *     # Get post types to cache on all sites
@@ -156,6 +159,7 @@ class Fpc
      */
     public function commandNginxFpcGetCachePostTypes($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         if (CliHelpers::affectAllSites($assocArgs)) {
             $sitesStatus = [];
             iterateSites(function ($site) use (&$sitesStatus) {
@@ -192,6 +196,7 @@ class Fpc
      */
     public function commandNginxFpcSetCachePostTypes($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         $allPostTypes = array_key_exists('all-post-types', $assocArgs);
 
         if ($allPostTypes) {
@@ -233,6 +238,7 @@ class Fpc
      */
     public function commandNginxFpcClearCachePostTypes($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         if (CliHelpers::affectAllSites($assocArgs)) {
             iterateSites(function ($site) {
                 $this->nginxSetPostTypes([], $site->blog_id);
@@ -264,6 +270,7 @@ class Fpc
      */
     public function commandNginxFpcGetExcludedPosts($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         $array = [];
         $extended = array_key_exists('extended', $assocArgs);
         if (CliHelpers::affectAllSites($assocArgs)) {
@@ -292,6 +299,7 @@ class Fpc
      */
     public function commandNginxFpcSetExcludedPosts($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         list($postIdsRaw) = $args;
         $this->nginxSetExcludeIds($postIdsRaw);
     }
@@ -315,6 +323,7 @@ class Fpc
      */
     public function commandNginxFpcClearExcludedPosts($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         if (CliHelpers::affectAllSites($assocArgs)) {
             iterateSites(function ($site) {
                 $this->nginxSetExcludeIds(false, $site->blog_id);
@@ -331,21 +340,32 @@ class Fpc
      *
      * @return array
      */
-    private function getNginxFpcStatus(?int $blogId = null)
+    private function getNginxFpcStatus(?int $blogId = null): array
     {
-        $status = FullPageCacheSettings::fpcIsActive($blogId) ? 'Active' : 'Inactive';
+        $status = booleanToStateString(FullPageCacheSettings::fpcIsActive($blogId));
         $postTypes = FullPageCacheHeaders::getPostTypesToCache(true, true, $blogId);
         $enabledPostTypesString = $this->nginxGetActivePostTypesString($postTypes);
         $excludedPosts = CachePostExclusion::getIdsToExcludeFromCache($blogId);
         $array = [];
-        if ($blogId) {
-            $array['URL'] = get_site_url($blogId);
+        if (CliHelpers::returnJson()) {
+            if ($blogId) {
+                $array['blog_id'] = $blogId;
+            }
+            return array_merge($array, [
+                'active' => $status,
+                'active_post_types' => $enabledPostTypesString,
+                'posts_to_exclude' => formatArrayToCsv($excludedPosts),
+            ]);
+        } else {
+            if ($blogId) {
+                $array['URL'] = get_site_url($blogId);
+            }
+            return array_merge($array, [
+                'Status' => $status,
+                'Active post types' => $enabledPostTypesString,
+                'Posts to exclude' => formatArrayToCsv($excludedPosts),
+            ]);
         }
-        return array_merge($array, [
-            'Status' => $status,
-            'Active post types' => $enabledPostTypesString,
-            'Posts to exclude' => formatArrayToCsv($excludedPosts),
-        ]);
     }
 
     /**
@@ -377,7 +397,6 @@ class Fpc
      */
     private function nginxGetActivePostTypesString($postTypes)
     {
-
         // Cache default post types
         if (!is_array($postTypes) || empty($postTypes)) {
             return sprintf(__('Default [%s]', 'servebolt-wp'), FullPageCacheHeaders::getDefaultPostTypesToCache('csv'));
@@ -437,11 +456,11 @@ class Fpc
      */
     private function nginxFpcControl(bool $cacheActive, array $args = [])
     {
-        $affectAllBlogs = array_key_exists('all', $args);
+        $affectAllBlogs = CliHelpers::affectAllSites($args);
+        $displayStatus = array_key_exists('status', $args);
         $postTypes = $this->nginxPreparePostTypeArgument($args);
         $excludeIds = arrayGet('exclude', $args);
-
-        if (is_multisite() && $affectAllBlogs) {
+        if ($affectAllBlogs) {
             WP_CLI::line(__('Applying settings to all blogs', 'servebolt-wp'));
             iterateSites(function($site) use ($cacheActive, $postTypes) {
                 $this->nginxToggleCacheForBlog($cacheActive, $site->blog_id);
@@ -460,6 +479,9 @@ class Fpc
             if ($excludeIds) {
                 $this->nginxSetExcludeIds($excludeIds);
             }
+        }
+        if ($displayStatus) {
+            $this->getNginxFpcStatus($args, false);
         }
     }
 

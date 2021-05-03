@@ -77,7 +77,7 @@ class CloudflareImageResize
 
         // Alter image src-attribute URL
         if ( apply_filters('sb_optimizer_cf_image_resize_alter_src', true ) ) {
-            add_filter( 'wp_get_attachment_image_src', [ $this, 'alterSingleImageUrl' ] );
+            add_filter('wp_get_attachment_image_src', [$this, 'alterSingleImageUrl']);
         }
 
         // Prevent certain image sizes to be created since we are using Cloudflare for resizing
@@ -179,10 +179,13 @@ class CloudflareImageResize
      *
      * @param $image
      *
-     * @return mixed
+     * @return array|false
      */
     public function alterSingleImageUrl($image)
     {
+        if (!$image) {
+            return $image;
+        }
 
         list($url, $width, $height, $isIntermediate) = $image;
 
@@ -211,7 +214,7 @@ class CloudflareImageResize
      */
     public function alterSrcsetImageUrls($sources)
     {
-        foreach ( $sources as $key => $value ) {
+        foreach ($sources as $key => $value) {
             $descriptor = $value['descriptor'] === 'h' ? 'height' : 'width';
             $cfParams = $this->defaultCfParams([
                 $descriptor => $value['value']

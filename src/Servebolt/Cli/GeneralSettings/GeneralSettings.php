@@ -35,6 +35,15 @@ class GeneralSettings extends CliKeyValueStorage
      * [--all]
      * : Display the setting for all sites.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     wp servebolt general-settings list --all
@@ -55,6 +64,15 @@ class GeneralSettings extends CliKeyValueStorage
      *
      * [--all]
      * : Set the setting for all sites.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
      *
      * ## EXAMPLES
      *
@@ -80,6 +98,15 @@ class GeneralSettings extends CliKeyValueStorage
      * [--all]
      * : Display the setting for all sites.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     wp servebolt general-settings set use-native-js-fallback true
@@ -100,6 +127,15 @@ class GeneralSettings extends CliKeyValueStorage
      *
      * [--all]
      * : Display the setting for all sites.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
      *
      * ## EXAMPLES
      *

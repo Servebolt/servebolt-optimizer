@@ -28,44 +28,104 @@ class Optimizations
     /**
      * Alias of "wp servebolt db optimize". Add database indexes and convert database tables to modern table types or delete transients.
      *
+     * ## OPTIONS
+     *
+     * [--dry-run]
+     * : Whether to run as a dry run.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     wp servebolt db fix
+     *
      */
-    public function optimizeDatabaseAlias()
+    public function optimizeDatabaseAlias($args, $assocArgs)
     {
-        $this->optimizeDatabase();
+        $this->optimizeDatabase($args, $assocArgs);
     }
 
     /**
      * Add database indexes and convert database tables to modern table types or delete transients.
+     *
+     * ## OPTIONS
+     *
+     * [--dry-run]
+     * : Whether to run as a dry run.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
      *
      * ## EXAMPLES
      *
      *     wp servebolt db optimize
      *
      */
-    public function optimizeDatabase()
+    public function optimizeDatabase($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
+        $dryRun = array_key_exists('dry-run', $assocArgs);
         $instance = DatabaseOptimizer::getInstance();
-        $instance->optimizeDb(true);
+        $instance->setDryRun($dryRun)
+            ->optimizeDb(true);
     }
 
     /**
      * Analyze tables.
+     *
+     * ## OPTIONS
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
      *
      * ## EXAMPLES
      *
      *     wp servebolt db analyze
      *
      */
-    public function analyzeTables()
+    public function analyzeTables($args, $assocArgs)
     {
+        CliHelpers::setReturnJson($assocArgs);
         $instance = DatabaseOptimizer::getInstance();
-        if (!$instance->analyzeTables(true)) {
-            WP_CLI::error(__('Could not analyze tables.', 'servebolt-wp'));
+        if ($instance->analyzeTables(true)) {
+            $message = __('Analyzed tables.', 'servebolt-wp');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson([
+                    'success' => true,
+                    'message' => $message,
+                ]);
+            } else {
+                WP_CLI::success($message);
+            }
         } else {
-            WP_CLI::success(__('Analyzed tables.', 'servebolt-wp'));
+            $errorMessage = __('Could not analyze tables.', 'servebolt-wp');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson([
+                    'success' => false,
+                    'message' => $errorMessage,
+                ]);
+            } else {
+                WP_CLI::error($errorMessage);
+            }
         }
     }
 }

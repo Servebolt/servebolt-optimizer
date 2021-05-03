@@ -649,7 +649,7 @@ function featureIsAvailable(string $feature): ?bool
 {
     switch ($feature) {
         case 'cf_image_resize':
-            //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || ( CloudflareImageResize::getInstance() )->resizingIsActive();
+            //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || CloudflareImageResize::resizingIsActive();
             return true;
             break;
     }
@@ -667,7 +667,7 @@ function featureIsActive(string $feature): ?bool
 {
     switch ($feature) {
         case 'cf_image_resize':
-            return ( CloudflareImageResize::getInstance() )->resizingIsActive();
+            return CloudflareImageResize::resizingIsActive();
         case 'asset_auto_version':
             $generalSettings = GeneralSettings::getInstance();
             return $generalSettings->assetAutoVersion();

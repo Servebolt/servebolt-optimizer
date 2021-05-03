@@ -27,18 +27,39 @@ class General
      * [--all]
      * : Delete all settings on all sites in multisite-network.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     wp servebolt delete-all-settings
      */
     public function commandDeleteAllSettings($args, $assocArgs)
     {
-        if ($affectAllSites = CliHelpers::affectAllSites($assocArgs)) {
-            WP_CLI::confirm(__('Do you really want to delete all settings? This will affect all sites in multisite-network.', 'servebolt-wp'));
-        } else {
-            WP_CLI::confirm(__('Do you really want to delete all settings?', 'servebolt-wp'));
+        CliHelpers::setReturnJson($assocArgs);
+        $affectAllSites = CliHelpers::affectAllSites($assocArgs);
+        if (!CliHelpers::returnJson()) { // Skip confirmation when returning JSON
+            if ($affectAllSites) {
+                WP_CLI::confirm(__('Do you really want to delete all settings? This will affect all sites in multisite-network.', 'servebolt-wp'));
+            } else {
+                WP_CLI::confirm(__('Do you really want to delete all settings?', 'servebolt-wp'));
+            }
         }
         deleteAllSettings($affectAllSites);
-        WP_CLI::success(__('All settings deleted!', 'servebolt-wp'));
+        $message = __('All settings deleted!', 'servebolt-wp');
+        if (CliHelpers::returnJson()) {
+            CliHelpers::printJson([
+                'success' => true,
+                'message' => $message,
+            ]);
+        } else {
+            WP_CLI::success($message);
+        }
     }
 }

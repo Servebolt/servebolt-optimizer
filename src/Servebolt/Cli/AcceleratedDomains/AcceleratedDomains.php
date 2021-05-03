@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains as AcceleratedDomainsClass;
 use WP_CLI;
+use function Servebolt\Optimizer\Helpers\booleanToString;
 use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
@@ -62,25 +63,25 @@ class AcceleratedDomains
     {
         CliHelpers::setReturnJson($assocArgs);
         if (CliHelpers::affectAllSites($assocArgs)) {
-            $settings = [];
-            iterateSites(function ($site) use (&$settings) {
+            $statusArray = [];
+            iterateSites(function ($site) use (&$statusArray) {
                 $activeBoolean = AcceleratedDomainsClass::isActive($site->blog_id);
                 if (CliHelpers::returnJson()) {
-                    $settings[] = [
+                    $statusArray[] = [
                         'blog_id' => $site->blog_id,
                         'active' => $activeBoolean,
                     ];
                 } else {
-                    $settings[] = [
+                    $statusArray[] = [
                         'Blog' => get_site_url($site->blog_id),
                         'Active' => booleanToStateString($activeBoolean),
                     ];
                 }
             });
             if (CliHelpers::returnJson()) {
-                CliHelpers::printJson($settings);
+                CliHelpers::printJson($statusArray);
             } else {
-                WP_CLI_FormatItems('table', $settings, array_keys(current($settings)));
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
             }
         } else {
             $activeBoolean = AcceleratedDomainsClass::isActive();
@@ -131,7 +132,7 @@ class AcceleratedDomains
         if (CliHelpers::affectAllSites($assocArgs)) {
             $statusArray = [];
             iterateSites(function ($site) use (&$statusArray) {
-                if (AcceleratedDomainsClass::isActive()) {
+                if (AcceleratedDomainsClass::isActive($site->blog_id)) {
                     $message = sprintf(__('Accelerated Domains already active on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 } else {
                     AcceleratedDomainsClass::toggleActive(true, $site->blog_id);
@@ -144,11 +145,17 @@ class AcceleratedDomains
                         'message' => $message,
                     ];
                 } else {
-                    WP_CLI::success($message);
+                    $statusArray[] = [
+                        'Blog' => get_site_url($site->blog_id),
+                        'Active' => booleanToStateString(true),
+                        'Message' => $message,
+                    ];
                 }
             });
             if (CliHelpers::returnJson()) {
                 CliHelpers::printJson($statusArray);
+            } else {
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
             }
         } else {
             if (AcceleratedDomainsClass::isActive()) {
@@ -202,7 +209,7 @@ class AcceleratedDomains
         if (CliHelpers::affectAllSites($assocArgs)) {
             $statusArray = [];
             iterateSites(function ($site) use (&$statusArray) {
-                if (!AcceleratedDomainsClass::isActive()) {
+                if (!AcceleratedDomainsClass::isActive($site->blog_id)) {
                     $message = sprintf(__('Accelerated Domains already inactive on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 } else {
                     AcceleratedDomainsClass::toggleActive(false, $site->blog_id);
@@ -215,11 +222,17 @@ class AcceleratedDomains
                         'message' => $message,
                     ];
                 } else {
-                    WP_CLI::success($message);
+                    $statusArray[] = [
+                        'Blog' => get_site_url($site->blog_id),
+                        'Active' => booleanToStateString(false),
+                        'Message' => $message,
+                    ];
                 }
             });
             if (CliHelpers::returnJson()) {
                 CliHelpers::printJson($statusArray);
+            } else {
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
             }
         } else {
             if (!AcceleratedDomainsClass::isActive()) {
