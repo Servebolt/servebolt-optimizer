@@ -134,7 +134,7 @@ class FullPageCacheHeaders
 		$this->headersAlreadySet(true);
 
         // Set "no cache"-headers if FPC is not active, or if we are logged in
-        if (!FullPageCacheSettings::fpcIsActive() || is_user_logged_in()) {
+        if (!FullPageCacheSettings::fpcIsActive() || $this->isAuthenticatedUser()) {
             $this->noCacheHeaders();
             if ($debug) {
                 $this->header('No-cache-trigger: 1');
@@ -539,5 +539,41 @@ class FullPageCacheHeaders
 	    } elseif ($format === 'csv') {
 		    return formatArrayToCsv($defaults);
 	    }
+    }
+
+    /**
+     * Check whether the user is authenticated.
+     *
+     * @return bool
+     */
+    private function isAuthenticatedUser(): bool
+    {
+        // Authentication check override
+        $customAuthenticationCheck = apply_filters('sb_optimizer_cache_authentication_check', null);
+        if (is_bool($customAuthenticationCheck)) {
+            return $customAuthenticationCheck;
+        }
+
+        // Authenticated user check
+        if (!is_user_logged_in()) {
+
+            // User not authenticated
+            return false;
+        }
+
+        // Handle roles that are just used for front-end authentication (subscribers, customers for WooCommerce etc.)
+        $rolesNotConsideredAuthenticated = apply_filters('sb_optimizer_roles_not_considered_authenticated', [
+            'subscriber',
+            'customer',
+        ]);
+        $user = wp_get_current_user();
+        foreach ($rolesNotConsideredAuthenticated as $role) {
+            if (in_array($role, $user->roles)) {
+                return false; // This user has a role that is not considered authenticated in regards to cache handling / logic
+            }
+        }
+
+        // User is considered authentication
+        return true;
     }
 }
