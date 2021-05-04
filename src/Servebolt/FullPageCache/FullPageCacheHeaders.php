@@ -59,7 +59,17 @@ class FullPageCacheHeaders
 	 *
 	 * @var bool
 	 */
-	private $allowForceHeaders = false;
+	private static $allowForceHeaders = false;
+
+    /**
+     * @var bool Whether to mock the cache set action (for testing purposes).
+     */
+    private static $mock = false;
+
+    /**
+     * @var array The mock headers.
+     */
+    private static $mockHeaders = [];
 
     /**
      * Alias for "getInstance".
@@ -86,7 +96,7 @@ class FullPageCacheHeaders
 	}
 
     /**
-     * Check whether we are front-end or not.
+     * Check whether we are front-end or not (disable cache when in WP Admin, AJAX-context, REST API-context or WP Cron-context).
      *
      * @return bool
      */
@@ -96,6 +106,14 @@ class FullPageCacheHeaders
             return false;
         }
         return true;
+    }
+
+    /**
+     * @param $boolean
+     */
+    public function headersAlreadySet($boolean): void
+    {
+        $this->headersAlreadySet = $boolean;
     }
 
 	/**
@@ -113,10 +131,10 @@ class FullPageCacheHeaders
 		if ($this->headersAlreadySet) {
             return $posts;
         }
-		$this->headersAlreadySet = true;
+		$this->headersAlreadySet(true);
 
-        // No cache if FPC is not active, or if we are logged in
-        if (!FullPageCacheSettings::fpcIsActive() || is_admin() || isAjax() || is_user_logged_in()) {
+        // Set "no cache"-headers if FPC is not active, or if we are logged in
+        if (!FullPageCacheSettings::fpcIsActive() || $this->isAuthenticatedUser()) {
             $this->noCacheHeaders();
             if ($debug) {
                 $this->header('No-cache-trigger: 1');
@@ -129,7 +147,7 @@ class FullPageCacheHeaders
 
 		// We don't have any posts at the time, abort
 		if (!isset($wp_query) || !$postType) {
-			$this->headersAlreadySet = false;
+            $this->headersAlreadySet(false);
 			return $posts;
 		}
 
@@ -146,30 +164,30 @@ class FullPageCacheHeaders
 			if ($debug) {
                 $this->header('Cache-trigger: 11');
             }
-		} elseif (CachePostExclusion::shouldExcludePostFromCache(get_the_ID())) {
-			$this->noCacheHeaders();
-			if ($debug) {
+		} elseif (is_archive() && $this->shouldCacheArchive($posts)) {
+            // Make sure the archive has only cacheable posts
+            $this->cacheHeaders();
+            if ($debug) {
+                $this->header('Cache-trigger: 6');
+            }
+        } elseif ((is_front_page() || is_singular() || is_page()) && $this->cacheActiveForPostType($postType)) {
+            // Make sure the post type can be cached
+            $this->postTypes[] = $postType;
+            $this->cacheHeaders();
+            if ($debug) {
+                $this->header('Cache-trigger: 5');
+            }
+        } elseif (get_the_ID() && CachePostExclusion::shouldExcludePostFromCache(get_the_ID())) {
+            $this->noCacheHeaders();
+            if ($debug) {
                 $this->header('No-cache-trigger: 3');
             }
-		} elseif ($this->cacheAllPostTypes()) {
+        } elseif ($this->cacheAllPostTypes()) {
 			// Make sure the post type can be cached
 			$this->postTypes[] = $postType;
 			$this->cacheHeaders();
 			if ($debug) {
                 $this->header('Cache-trigger: 4');
-            }
-		} elseif ((is_front_page() || is_singular() || is_page()) && $this->cacheActiveForPostType($postType)) {
-			// Make sure the post type can be cached
-			$this->postTypes[] = $postType;
-			$this->cacheHeaders();
-			if ($debug) {
-                $this->header('Cache-trigger: 5');
-            }
-		} elseif (is_archive() && $this->shouldCacheArchive($posts)) {
-			// Make sure the archive has only cacheable posts
-			$this->cacheHeaders();
-			if ($debug) {
-                $this->header('Cache-trigger: 6');
             }
 		} elseif (empty(self::getPostTypesToCache())) {
 			$this->postTypes[] = $postType;
@@ -243,22 +261,62 @@ class FullPageCacheHeaders
         }
 
 		// Abort if headers are already sent
-		if (headers_sent() && !$this->allowForceHeaders) {
+		if (headers_sent() && !self::$allowForceHeaders) {
             writeLog(sprintf('Servebolt Optimizer attempted to set header "%s", but headers were already sent.', $string));
 			return;
 		}
 
 		// WP action already passed but headers are not yet sent
 		if (did_action('send_headers')) {
-			header($string);
+		    self::printHeader($string);
 			return;
 		}
 
 		// Set headers using WP's "send_headers"-action
 		add_action('send_headers', function () use ($string) {
-			header($string);
+            self::printHeader($string);
 		});
 	}
+
+    /**
+     * Set whether to mock or not.
+     *
+     * @param bool $bool
+     */
+    public static function mock(bool $bool = true): void
+    {
+        if ($bool === true) {
+            self::$allowForceHeaders = true;
+            self::$mock = true;
+        } else {
+            self::$allowForceHeaders = false; // This needs to contain the default value when reverting from a mock-state
+            self::$mock = false;
+        }
+    }
+
+    /**
+     * Return an array of the mock headers.
+     *
+     * @return array
+     */
+	public static function getMockHeaders(): array
+    {
+        return self::$mockHeaders;
+    }
+
+    /**
+     * Print a header, with support for mocking (for testing purposes).
+     *
+     * @param $string
+     */
+	private static function printHeader($string): void
+    {
+        if (self::$mock === true) {
+            self::$mockHeaders[] = $string;
+        } else {
+            header($string);
+        }
+    }
 
 	/**
 	 * Last call - Run a last call to the set headers function before the template is loaded.
@@ -269,9 +327,9 @@ class FullPageCacheHeaders
 	 */
 	public function lastCall($template)
     {
-		$this->setHeaders([get_post()]);
-		return $template;
-	}
+        $this->setHeaders([get_post()]);
+        return $template;
+    }
 
 	/**
 	 * Check if cache is active for given post type.
@@ -282,6 +340,9 @@ class FullPageCacheHeaders
 	 */
 	private function cacheActiveForPostType($postType): bool
     {
+        if ($postType === 'all') {
+            return true;
+        }
 		if (in_array($postType, (array) self::getPostTypesToCache())) {
 			return true;
 		}
@@ -306,8 +367,9 @@ class FullPageCacheHeaders
 	 */
 	private function shouldCacheArchive($posts): bool
     {
+        $postTypesToCache = (array) self::getPostTypesToCache();
 		foreach ($posts as $post) {
-            if (!in_array($post->post_type, self::getPostTypesToCache())) {
+            if (!in_array($post->post_type, $postTypesToCache)) {
 				return false;
 			} elseif (!in_array($post->post_type, (array) $this->postTypes)) {
 				$this->postTypes[] = $post->post_type;
@@ -416,7 +478,6 @@ class FullPageCacheHeaders
 	 */
 	public static function getPostTypesToCache(bool $respectDefaultFallback = true, bool $respectAll = true, ?int $blogId = null)
     {
-
         $postTypesToCache = smartGetOption($blogId, self::fpcCacheablePostTypesOptionKey());
 
 		// Make sure we migrate from old array structure
@@ -479,5 +540,41 @@ class FullPageCacheHeaders
 	    } elseif ($format === 'csv') {
 		    return formatArrayToCsv($defaults);
 	    }
+    }
+
+    /**
+     * Check whether the user is authenticated.
+     *
+     * @return bool
+     */
+    private function isAuthenticatedUser(): bool
+    {
+        // Authentication check override
+        $customAuthenticationCheck = apply_filters('sb_optimizer_cache_authentication_check', null);
+        if (is_bool($customAuthenticationCheck)) {
+            return $customAuthenticationCheck;
+        }
+
+        // Authenticated user check
+        if (!is_user_logged_in()) {
+
+            // User not authenticated
+            return false;
+        }
+
+        // Handle roles that are just used for front-end authentication (subscribers, customers for WooCommerce etc.)
+        $rolesNotConsideredAuthenticated = apply_filters('sb_optimizer_roles_not_considered_authenticated', [
+            'subscriber',
+            'customer',
+        ]);
+        $user = wp_get_current_user();
+        foreach ($rolesNotConsideredAuthenticated as $role) {
+            if (in_array($role, $user->roles)) {
+                return false; // This user has a role that is not considered authenticated in regards to cache handling / logic
+            }
+        }
+
+        // User is considered authentication
+        return true;
     }
 }

@@ -103,4 +103,15 @@ class CachePostExclusion
         $idsToExclude = self::getIdsToExcludeFromCache();
         return is_array($idsToExclude) && in_array($postId, $idsToExclude);
     }
+
+    /**
+     * Clear all posts from the cache exclusion.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function clearExcludePostFromCache(?int $blogId = null)
+    {
+        return self::setIdsToExcludeFromCache([]);
+    }
 }
