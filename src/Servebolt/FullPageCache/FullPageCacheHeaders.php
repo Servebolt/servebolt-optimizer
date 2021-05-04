@@ -282,6 +282,9 @@ class FullPageCacheHeaders
 	 */
 	private function cacheActiveForPostType($postType): bool
     {
+        if ($postType === 'all') {
+            return true;
+        }
 		if (in_array($postType, (array) self::getPostTypesToCache())) {
 			return true;
 		}
