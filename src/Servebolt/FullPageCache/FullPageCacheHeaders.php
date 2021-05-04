@@ -367,8 +367,9 @@ class FullPageCacheHeaders
 	 */
 	private function shouldCacheArchive($posts): bool
     {
+        $postTypesToCache = (array) self::getPostTypesToCache();
 		foreach ($posts as $post) {
-            if (!in_array($post->post_type, (array) self::getPostTypesToCache())) {
+            if (!in_array($post->post_type, $postTypesToCache)) {
 				return false;
 			} elseif (!in_array($post->post_type, (array) $this->postTypes)) {
 				$this->postTypes[] = $post->post_type;
