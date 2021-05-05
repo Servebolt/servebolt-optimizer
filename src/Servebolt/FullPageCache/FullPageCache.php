@@ -22,6 +22,7 @@ class FullPageCache
     public function __construct()
     {
         new FullPageCacheSettings;
-        FullPageCacheHeaders::init();
+        //FullPageCacheHeaders::init();
+        FullPageCacheHeaders2::init();
     }
 }

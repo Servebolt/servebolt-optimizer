@@ -16,7 +16,7 @@ class CacheExclusionMigration extends AbstractMigration
     /**
      * @var bool Whether the migration is active (optional, defaults to true if omitted).
      */
-    public static $active = false;
+    public static $active = true;
 
     /**
      * @var string Table name (optional).
