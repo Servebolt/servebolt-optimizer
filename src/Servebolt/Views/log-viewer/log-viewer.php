@@ -4,7 +4,9 @@
 	<h2><?php _e('Errorlog', 'servebolt-wp'); ?></h2>
 	<p>Log file path: <?php echo $logFilePath; ?></p>
 	<?php if (!$logFileExists) : ?>
-		<p><?php _e('Log file does not exist.', 'servebolt-wp'); ?></p>
+    <div class="notice notice-warning">
+		<p><?php _e('The log file does not exist.', 'servebolt-wp'); ?></p>
+    </div>
 	<?php elseif (!$logFileReadable) : ?>
 		<p><?php _e('Log file is not readable.', 'servebolt-wp'); ?></p>
 	<?php elseif (!$log) : ?>
