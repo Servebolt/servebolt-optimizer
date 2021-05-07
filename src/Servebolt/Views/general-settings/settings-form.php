@@ -49,7 +49,7 @@
                     <legend class="screen-reader-text"><span><?php _e('Add automatic version parameter to asset URLs', 'servebolt-wp'); ?></span></legend>
                     <label for="asset_auto_version">
                         <input name="<?php echo getOptionName('asset_auto_version'); ?>" type="checkbox" id="asset_auto_version" value="1"<?php echo $generalSettings->assetAutoVersion() ? ' checked' : ''; ?>>
-                        <?php _e('Check this if you want to add an automatic version parameter (used for automatic cache busting) to the URLs of the script and style-files on this site. This is useful when dealing with issues related to cache.'); ?>
+                        <?php _e('Check this if you want to add an automatic version parameter (used for automatic cache busting) to the URLs of the script and style-files on this site. This is useful when dealing with issues related to cache. (NB! Can be slow on some installations)'); ?>
                     </label>
                 </fieldset>
             </td>
