@@ -44,7 +44,7 @@ class ContentChangeTrigger
 
         // Purge post on post update
         if (apply_filters('sb_optimizer_automatic_purge_on_post_save', true)) {
-            add_action('post_updated', [$this, 'purgePostOnSave'], 99, 3);
+            add_action('save_post', [$this, 'purgePostOnSave'], 99, 3);
         }
 
         // Purge post on comment post
@@ -171,11 +171,11 @@ class ContentChangeTrigger
     /**
      * Purge post on post save.
      *
-     * @param $postId
-     * @param $postAfter
-     * @param $postBefore
+     * @param int $postId
+     * @param WP_Post|object $post
+     * @param bool $update
      */
-    public function purgePostOnSave($postId, $postAfter, $postBefore): void
+    public function purgePostOnSave(int $postId, object $post, bool $update): void
     {
         $this->maybePurgePost($postId);
     }
