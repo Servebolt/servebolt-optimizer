@@ -1197,7 +1197,7 @@ function wpRocketIsActive(): bool
 }
 
 /**
- * Check whether plugin Yoast SEO Premium Rocket is active.
+ * Check whether plugin Yoast SEO Premium is active.
  *
  * @return bool
  */
