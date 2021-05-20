@@ -17,7 +17,7 @@ class YoastPremium
      */
     public function __construct()
     {
-        if (!apply_filters('sb_optimizer_yoast_seo_compatibility', true)) {
+        if (!apply_filters('sb_optimizer_yoast_seo_premium_compatibility', true)) {
             return;
         }
         if (!yoastSeoPremiumIsActive()) {
