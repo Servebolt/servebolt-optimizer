@@ -1195,3 +1195,16 @@ function wpRocketIsActive(): bool
 {
     return defined('WP_ROCKET_VERSION');
 }
+
+/**
+ * Check whether plugin Yoast SEO Premium Rocket is active.
+ *
+ * @return bool
+ */
+function yoastSeoPremiumIsActive(): bool
+{
+    if(!function_exists('is_plugin_active')) {
+        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    }
+    return is_plugin_active('wordpress-seo-premium/wp-seo-premium.php');
+}

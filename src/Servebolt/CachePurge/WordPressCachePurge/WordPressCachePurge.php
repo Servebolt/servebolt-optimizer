@@ -43,11 +43,12 @@ class WordPressCachePurge
      * Purge cache by URL.
      *
      * @param string $url
+     * @param bool $attemptToResolvePostIdFromUrl
      * @return bool
      */
-    public static function purgeByUrl(string $url)
+    public static function purgeByUrl(string $url, bool $attemptToResolvePostIdFromUrl = true)
     {
-        if ($postId = self::attemptToResolvePostIdFromUrl($url)) { // Resolve URL to post ID, then purge by post ID
+        if ($attemptToResolvePostIdFromUrl && $postId = self::attemptToResolvePostIdFromUrl($url)) { // Resolve URL to post ID, then purge by post ID
             /*
             if ($url !== get_permalink($postId)) {
                 // Purge only URL, not post?
