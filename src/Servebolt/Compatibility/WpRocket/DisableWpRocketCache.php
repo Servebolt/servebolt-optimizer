@@ -77,7 +77,7 @@ class DisableWpRocketCache
         }
         $allFoldersDeleted = true;
         foreach ($foldersToDelete as $folderToDelete) {
-            if (defined($folderToDelete)) {
+            if (!defined($folderToDelete)) {
                 continue;
             }
             $folderPath = constant($folderToDelete);
