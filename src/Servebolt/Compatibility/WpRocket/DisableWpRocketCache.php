@@ -46,9 +46,11 @@ class DisableWpRocketCache
     public function wpRocketClearAllCache(): bool
     {
         // Delete the cache folder completely
+        /*
         if ($this->deleteWpRocketCacheFolder()) {
             return true;
         }
+        */
         if (function_exists('rocket_clean_domain')) {
             // Purge all WP Rocket cache for current domain
             return rocket_clean_domain();
