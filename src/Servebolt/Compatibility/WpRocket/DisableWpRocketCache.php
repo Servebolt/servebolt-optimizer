@@ -5,7 +5,6 @@ namespace Servebolt\Optimizer\Compatibility\WpRocket;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 //use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
-use WP_Filesystem_Direct;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheSettings;
 
 /**
@@ -58,25 +57,35 @@ class DisableWpRocketCache
     }
 
     /**
-     * Delete the WP Rocket cache folder.
+     * Delete the WP Rocket cache folders.
      *
      * @return bool
      */
     private function deleteWpRocketCacheFolder(): bool
     {
-        if (!defined('WP_ROCKET_CACHE_ROOT_PATH')) {
+        $foldersToDelete = [
+            'WP_ROCKET_CACHE_PATH',
+            'WP_ROCKET_MINIFY_CACHE_PATH',
+            'WP_ROCKET_CACHE_BUSTING_PATH',
+            'WP_ROCKET_CRITICAL_CSS_PATH',
+        ];
+        if (!$filesystem = $this->wpDirectFilesystem()) {
             return false;
         }
-        $wpRocketCacheFolderPath = WP_ROCKET_CACHE_ROOT_PATH;
-        $filesystem = $this->wpDirectFilesystem();
-        if ($filesystem) {
-            if (!$filesystem->exists($wpRocketCacheFolderPath)) {
-                return true;
-            } elseif ($filesystem->delete($wpRocketCacheFolderPath, true)) {
-                return true;
+        $allFoldersDeleted = true;
+        foreach ($foldersToDelete as $folderToDelete) {
+            if (defined($folderToDelete)) {
+                continue;
+            }
+            $folderPath = constant($folderToDelete);
+            if (!$filesystem->exists($folderPath)) {
+                continue;
+            }
+            if (!$filesystem->delete($folderPath, true)) {
+                $allFoldersDeleted = false;
             }
         }
-        return false;
+        return $allFoldersDeleted;
     }
 
     /**
@@ -88,6 +97,6 @@ class DisableWpRocketCache
     {
         require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
         require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
-        return new WP_Filesystem_Direct(new \StdClass());
+        return new \WP_Filesystem_Direct(new \StdClass());
     }
 }
