@@ -63,12 +63,12 @@ class DisableWpRocketCache
      */
     private function deleteWpRocketCacheFolder(): bool
     {
-        $foldersToDelete = [
+        $foldersToDelete = apply_filters('sb_optimizer_wp_rocket_compatibility_cache_folders', [
             'WP_ROCKET_CACHE_PATH',
             'WP_ROCKET_MINIFY_CACHE_PATH',
             'WP_ROCKET_CACHE_BUSTING_PATH',
             'WP_ROCKET_CRITICAL_CSS_PATH',
-        ];
+        ]);
         if (!$filesystem = $this->wpDirectFilesystem()) {
             return false;
         }
