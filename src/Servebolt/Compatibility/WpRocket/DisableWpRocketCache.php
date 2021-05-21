@@ -72,7 +72,7 @@ class DisableWpRocketCache
         if ($filesystem) {
             if (!$filesystem->exists($wpRocketCacheFolderPath)) {
                 return true;
-            } elseif ($filesystem->delete($wpRocketCacheFolderPath)) {
+            } elseif ($filesystem->delete($wpRocketCacheFolderPath, true)) {
                 return true;
             }
         }
