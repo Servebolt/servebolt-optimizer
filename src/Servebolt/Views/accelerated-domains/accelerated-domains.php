@@ -25,10 +25,10 @@ use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
 
                 <div class="welcome-panel-column">
                     <h3><?php _e('Get started', 'servebolt-wp'); ?></h3>
-                    <a class="button button-primary button-hero" href="<?php echo getServeboltAdminUrl(); ?>">
+                    <a class="button button-primary button-hero" href="<?php echo getServeboltAdminUrl('accelerated-domains'); ?>">
                         <?= _e('Get started', 'servebolt-wp'); ?>
                     </a>
-                    <p>or <a href="<?php echo getServeboltAdminUrl(); ?>">
+                    <p>or <a href="<?php echo getServeboltAdminUrl('accelerated-domains'); ?>">
                             <?php _e('get in touch through the chat'); ?>
                         </a>
                 </div>
