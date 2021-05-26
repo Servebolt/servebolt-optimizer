@@ -59,6 +59,9 @@ class HelpersTest extends WP_UnitTestCase
     {
         define('SB_DEBUG', true);
         $this->assertEquals(getServeboltAdminUrl(), 'https://admin.servebolt.com/siteredirect/?site=4321');
+        $this->assertEquals(getServeboltAdminUrl(['page' => 'accelerated-domains']), 'https://admin.servebolt.com/siteredirect/?site=4321&page=accelerated-domains');
+        $this->assertEquals(getServeboltAdminUrl(['page' => 'accelerated-domains', 'some' => 'parameter', 'another' => 'one']), 'https://admin.servebolt.com/siteredirect/?site=4321&page=accelerated-domains&some=parameter&another=one');
+        $this->assertEquals(getServeboltAdminUrl('accelerated-domains'), 'https://admin.servebolt.com/siteredirect/?site=4321&page=accelerated-domains');
     }
 
     public function testThatTestConstantGetsSet(): void
