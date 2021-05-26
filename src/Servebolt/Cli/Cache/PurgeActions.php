@@ -230,11 +230,11 @@ class PurgeActions
      *
      * ## OPTIONS
      *
-     * <termId>
-     * : The Id of the term to be purged.
-     *
      * <taxonomySlug>
      * : The taxonomy slug.
+     *
+     * <termId>
+     * : The Id of the term to be purged.
      *
      * [--format=<format>]
      * : Return format.
@@ -248,12 +248,12 @@ class PurgeActions
      * ## EXAMPLES
      *
      *     # Purge term with ID 1 in category-taxonomy
-     *     wp servebolt cache purge term 1 category
+     *     wp servebolt cache purge term category 1
      */
     public function purgeTerm(array $args, array $assocArgs): void
     {
         CliHelpers::setReturnJson($assocArgs);
-        list($termId, $taxonomySlug) = $args;
+        list($taxonomySlug, $termId) = $args;
         $termName = get_term($termId)->name;
         try {
             if (WordPressCachePurge::purgeTermCache(
