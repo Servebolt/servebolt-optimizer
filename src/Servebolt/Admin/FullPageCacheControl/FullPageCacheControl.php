@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax\FpcPostExclusion;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\isScreen;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
 use function Servebolt\Optimizer\Helpers\getOptionName;
@@ -55,8 +56,7 @@ class FullPageCacheControl
      */
     public function enqueueScripts(): void
     {
-        $screen = get_current_screen();
-        if ($screen->id != 'servebolt_page_servebolt-fpc') {
+        if (!isScreen('servebolt_page_servebolt-fpc')) {
             return;
         }
         wp_enqueue_script('servebolt-optimizer-fpc-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/fpc.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/fpc.js'), true );
