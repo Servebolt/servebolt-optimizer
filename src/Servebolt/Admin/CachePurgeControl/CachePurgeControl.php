@@ -13,6 +13,7 @@ use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getPostTypeSingularName;
 use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
+use function Servebolt\Optimizer\Helpers\isScreen;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\getOptionName;
@@ -113,10 +114,15 @@ class CachePurgeControl
         });
         // Fix faulty page title
         add_filter('admin_title', function($admin_title, $title) {
+            if (isScreen('admin_page_servebolt-cache-purge-control')) {
+                return __('Cache purging', 'servebolt-wp') . ' ' . $admin_title;
+            }
+            /*
             $screen = get_current_screen();
             if ($screen->id === 'admin_page_servebolt-cache-purge-control') {
                 return __('Cache purging', 'servebolt-wp') . ' ' . $admin_title;
             }
+            */
             return $admin_title;
         }, 10, 2);
     }
@@ -261,8 +267,7 @@ class CachePurgeControl
 
     public function enqueueScripts(): void
     {
-        $screen = get_current_screen();
-        if ($screen->id != 'admin_page_servebolt-cache-purge-control') {
+        if (!isScreen('admin_page_servebolt-cache-purge-control')) {
             return;
         }
         wp_enqueue_script(

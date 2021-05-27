@@ -246,6 +246,28 @@ function getServeboltAdminUrl() :string
 }
 
 /**
+ * Check if we are currently viewing a given screen.
+ *
+ * @param string $screenId
+ * @param bool $networkSupport
+ * @return bool
+ */
+function isScreen(string $screenId, bool $networkSupport = true): bool
+{
+    $currentScreen = get_current_screen();
+    if ($screenId == $currentScreen->id) {
+        return true;
+    }
+    if ($networkSupport) {
+        $networkScreenId = $screenId . '-network';
+        if ($networkScreenId == $currentScreen->id) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Clean the cookies we have been setting.
  */
 function clearNoCacheCookie(): void
