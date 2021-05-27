@@ -232,9 +232,9 @@ function snakeCaseToCamelCase(string $string, bool $capitalizeFirst = false): st
  * Get a link to the Servebolt admin panel.
  *
  * @param array|string $argsOrPage Either an array of query parameter or the sub-page to redirect to.
- * @return string
+ * @return string|null
  */
-function getServeboltAdminUrl($argsOrPage = []) :string
+function getServeboltAdminUrl($argsOrPage = []) :? string
 {
     if (!function_exists('get_home_path')) {
         require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -242,15 +242,29 @@ function getServeboltAdminUrl($argsOrPage = []) :string
     if (is_string($argsOrPage)) {
         $argsOrPage = ['page' => $argsOrPage];
     }
-    $webRootPath = isDevDebug() ? '/kunder/serveb_1234/custom_4321/public' : get_home_path();
-    if (preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $webRootPath, $matches) && isset($matches[1])) {
-        $baseUrl = 'https://admin.servebolt.com/siteredirect/?';
-        $queryParameters = http_build_query(array_merge([
-            'site' => $matches[1],
-        ], $argsOrPage));
-        return $baseUrl . $queryParameters;
+    if (preg_match("@kunder/[a-z_]+(\d+)/[a-z_]+(\d+)/@", getWebrootPath(), $matches) && count($matches) === 3) {
+        list($path, $siteId, $boltId) = $matches;
+        if (empty($siteId) || empty($boltId)) {
+            return null;
+        }
+        $baseUrl = 'https://admin.servebolt.com/siteredirect/';
+        $queryParameters = http_build_query(array_merge($argsOrPage, [
+            'site' => $boltId, // this should be "vhost_id" instead of "site" since it is the bolt ID
+            'webhost_id' => $siteId,
+        ]));
+        return $baseUrl . '?' . $queryParameters;
     }
-    return false;
+    return null;
+}
+
+/**
+ * Get the path to the webroot.
+ *
+ * @return string
+ */
+function getWebrootPath(): string
+{
+    return apply_filters('sb_optimizer_wp_webroot_path', isDevDebug() ? '/kunder/serveb_1234/custom_4321/public' : get_home_path());
 }
 
 /**
