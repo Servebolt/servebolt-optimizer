@@ -6,6 +6,7 @@ use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Utils\Queue\QueueItem;
 use WP_UnitTestCase;
 use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\getWebrootPath;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
@@ -54,11 +55,32 @@ use function Servebolt\Optimizer\Helpers\updateSiteOption;
 
 class HelpersTest extends WP_UnitTestCase
 {
+    private function activateSbDebug(): void
+    {
+        if (!defined('SB_DEBUG')) {
+            define('SB_DEBUG', true);
+        }
+    }
+
+    public function testThastWeCanGetAdminUrlFromHomePath(): void
+    {
+        $this->assertEquals('/Users/havreflarn2/code/servebolt-optimizer/tests/bin/tmp/wordpress//', getWebrootPath());
+        $this->activateSbDebug();
+        $this->assertEquals('/kunder/serveb_1234/custom_4321/public', getWebrootPath());
+        add_filter('sb_optimizer_wp_webroot_path', function() {
+            return '/a/specified/path/';
+        });
+        $this->assertEquals('/a/specified/path/', getWebrootPath());
+    }
 
     public function testThatWeCanGetAdminUrlFromHomePath(): void
     {
-        define('SB_DEBUG', true);
-        $this->assertEquals(getServeboltAdminUrl(), 'https://admin.servebolt.com/siteredirect/?site=4321');
+        $this->activateSbDebug();
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=4321&webhost_id=1234', getServeboltAdminUrl());
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=4321&webhost_id=1234', getServeboltAdminUrl(['page' => 'accelerated-domains']));
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&some=parameter&another=one&site=4321&webhost_id=1234', getServeboltAdminUrl(['page' => 'accelerated-domains', 'some' => 'parameter', 'another' => 'one']));
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&webhost_id=1234&some=parameter&another=one&site=4321', getServeboltAdminUrl(['page' => 'accelerated-domains', 'webhost_id' => '69', 'some' => 'parameter', 'another' => 'one']));
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=4321&webhost_id=1234', getServeboltAdminUrl('accelerated-domains'));
     }
 
     public function testThatTestConstantGetsSet(): void
