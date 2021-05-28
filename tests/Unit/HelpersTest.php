@@ -4,7 +4,7 @@ namespace Unit;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Utils\Queue\QueueItem;
-use WP_UnitTestCase;
+use ServeboltWPUnitTestCase;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\booleanToString;
@@ -52,7 +52,7 @@ use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\updateSiteOption;
 
-class HelpersTest extends WP_UnitTestCase
+class HelpersTest extends ServeboltWPUnitTestCase
 {
 
     public function testThatWeCanGetAdminUrlFromHomePath(): void
@@ -280,6 +280,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testCountSitesHelper()
     {
+        $this->multisiteOnly();
         $this->assertEquals(1, countSites());
         $this->createBlogs(3);
         $this->assertEquals(4, countSites());
@@ -287,6 +288,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testSmartOptionsHelpersMultisite()
     {
+        $this->multisiteOnly();
         $this->createBlogs(3);
         iterateSites(function ($site) {
             $key = 'some-option-for-testing';
@@ -320,6 +322,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testBlogOptionsOverride()
     {
+        $this->multisiteOnly();
         $this->createBlogs(2);
         iterateSites(function ($site) {
             $override = function ($value) {
@@ -361,6 +364,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testDefaultValuesForBlogOptionsHelpers()
     {
+        $this->multisiteOnly();
         $this->createBlogs(3);
         iterateSites(function ($site) {
             $key = 'default-options-value-test-key';
@@ -403,6 +407,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testOptionsHelpersMultisite()
     {
+        $this->multisiteOnly();
         $this->createBlogs(2);
         iterateSites(function ($site) {
             $key = 'some-option-for-testing-multisite';
@@ -426,6 +431,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testThatAllSettingsGetsDeleted()
     {
+        $this->multisiteOnly();
         $this->createBlogs(2);
         $allOptionsNames = getAllOptionsNames(true);
         iterateSites(function ($site) use ($allOptionsNames) {
