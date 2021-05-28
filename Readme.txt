@@ -9,37 +9,69 @@ Stable tag: 2.1.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-This plugin adds functionality to implement Servebolt WordPress best practices. This includes database optimizations, log review, automatic cache purging, automatic image optimization/resizing, performance recommendations and support for down stream full page caching.
+This plugin implements Servebolt's WordPress best practices, and connects your site to the Servebolt Control Panel.
+
+== Description ==
+
+The Servebolt Optimizer plugin adds functionality to implement Servebolt's best practices for WordPress. This includes database optimizations, errorlog review, automatic cache purging, automatic image optimization and resizing, performance recommendations, and support for down stream HTML caching.
+
+Specifically, Servebolt Optimizer does two things for your site: 
+
+1. It connects your [WordPress hosted](https://servebo.lt/e3ke3) or [WooCommerce hosted](https://servebo.lt/724lz) Servebolt site to your [Servebolt Control Panel](https://servebo.lt/pf3hu). 
+2. Its features implement Servebolt's best practices for performance. These best practizes include database optimizations, error log review, automatic cache purging, automatic image optimization/resizing, performance recommendations and support for down stream HTML caching.
 
 This project is maintained on [Github](https://servebo.lt/sog).
 
-== Description ==
-= Features =
+### Features 
+
+- Configures HTML caching to speed up your site (**Servebolt clients only**)
+- Integrates with [Accelerated Domains](https://servebo.lt/4c9dw) (**Servebolt clients only**)
+- Rewrite headers to allow down stream full page caching (**Servebolt clients only**)
+- View Apache/PHP error log (**Servebolt clients only**)
 - Database optimization - Convert tables to InnoDB
 - Database optimization - Add performance improving indexes
-- Automatic cache purge with Cloudflare and Servebolt Accelerated Domain
-- Cloudflare Image Resize-support (beta feature)
+- Automatic Cloudflare cache purge
 - Recommendations on additional performance improvements
-- Rewrite headers to allow down stream full page caching (Servebolt clients only)
-- View Apache/PHP error log (Servebolt clients only)
 - Multisite support
 - WP CLI support
+- Cloudflare Image Resize-support (beta feature)
+- WP Rocket compatability (beta feature, **Servebolt clients only**)
 
-Read more about the plugin and its features in our [help center](https://servebo.lt/servebolt-optimize-documentation).
+Read more about the plugin and all its features in our [Help Center](https://servebo.lt/servebolt-optimize-documentation).
 
-= Automatic purge of Cloudflare cache =
-Full Page Cache is automatically purged when a post/term has been updated. You also have a purge-feature in the admin bar. This Cloudflare integration supports both the use of API key and API token authentication when communicating with the Cloudflare API.
+### Accelerated Domains
 
-= Full Page Caching =
-This plugin rewrites HTTP headers of HTML to allow for Full Page Caching, and for the browser to cache HTML. Full Page Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.
+The integration with our revolutionairy add-on performance and security enhancing service [Accelerated Domains](https://servebo.lt/4c9dw) is made possible by Servebolt Optimizer. Installing the Servebolt Optimizer will provide the required HTTP headers to make best us of Accelerated Domains.
+
+### Automatic purge of Cloudflare cache
+Servebolt Optimizer supports the most complete solution for Cloudflare cache purging. The HTML Cache is automatically purged when any post type or term has been updated. You can also purge directly from the admin bar. This Cloudflare integration supports both the use of API key and API token authentication when communicating with the Cloudflare API.
+
+### HTML Caching 
+This plugin rewrites HTTP headers of HTML to allow for HTML Caching, and for the browser to cache HTML. HTML Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.
+
+### Configuration 
+
+This plugin can be controlled via the WordPress Dashboard or WP CLI. Additonalaly there are various filters and PHP constants at your disposal.
+
+### Filter and constant reference
+
+The plugin has various filters and PHP constants that allows third-party developers to alter the behaviour of the plugin. Please read the article [Filters and PHP constants](https://servebo.lt/servebolt-optimizer-filters-and-php-constants) in our help center to learn more.
 
 == Installation ==
-1. Download this plugin and unzip
-1. Upload servebolt-optimizer folder to the `/wp-content/plugins/` directory
-2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Navigate to Servebolt > Performance Optimizer and run optimizations if necessary
 
-With WP-CLI
+Navigate to your WordPress Dashboard > Plugins > Add New and then search for **Servebolt** and follow instructions. 
+
+Alternatively, you can also install Servebolt Optimizer via sFTP or WP CLI:
+
+With sFTP:
+
+1. Download this plugin and unzip
+2. Upload servebolt-optimizer folder to the `/wp-content/plugins/` directory
+3. Activate the plugin through the 'Plugins' menu in WordPress
+4. Navigate to Servebolt > Performance Optimizer and run optimizations if necessary
+
+With WP-CLI: 
+
 1. Log in to your site with SSH
 2. cd to your sites root wordpress folder
 3. Run `wp plugin install servebolt-optimizer --activate`
@@ -47,11 +79,18 @@ With WP-CLI
 
 Run `wp help servebolt` to see all the available commands that can configure the plugin.
 
-== Configuration ==
-This plugin can be controlled via WP Admin, WP CLI, various filters and PHP constants.
+== Frequently Asked Questions ==
+= Will Servebolt Optimizer plugin make my site faster? = 
 
-=== Filter and constant reference ===
-The plugin has various filters and PHP constants that allows third-party developers to alter the behaviour of the plugin. Please read the article [Filters and PHP constants](https://servebo.lt/servebolt-optimizer-filters-and-php-constants) in our help center to learn more.
+The Servebolt Optimizer plugin is primarily designed to make best use of our [WordPress hosting](https://servebo.lt/e3ke3) or [WooCommerce hosting](https://servebo.lt/724lz). Its database optimizing feature does indeed help in making your database faster and thus your site.
+
+= Can I install this plugin if I'm not a Servebolt client? = 
+
+Yes, you can. The database optimizations are beneficial for everyone as well as the Cloudflare cache purge options. You would miss out on the [fastest WordPress hosting out there](https://servebo.lt/5xbqg), but you can use it on a non-Servebolt site.
+
+= What if I discover a bug? = 
+
+If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
 = 3.0.0 =
