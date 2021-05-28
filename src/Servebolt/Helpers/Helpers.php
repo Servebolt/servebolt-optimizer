@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Helpers;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling;
+use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 
 /**
  * @param $templatePath
@@ -229,20 +230,61 @@ function snakeCaseToCamelCase(string $string, bool $capitalizeFirst = false): st
 }
 
 /**
- * Get a link to the Servebolt admin panel.
+ * Get site ID, either from Env-file or from the webroot folder path.
+ *
+ * @return mixed|null
+ */
+function getSiteId()
+{
+    $env = EnvFileReader::getInstance();
+    if ($env->id) {
+        return $env->id;
+    }
+    if (preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", getWebrootPath(), $matches) && isset($matches[1])) {
+        return $matches[1];
+    }
+    return null;
+}
+
+/**
+ * Get the path to the webroot.
  *
  * @return string
  */
-function getServeboltAdminUrl() :string
+function getWebrootPath(): string
 {
-    if (!function_exists('get_home_path')) {
-        require_once ABSPATH . 'wp-admin/includes/file.php';
+    if (isDevDebug()) {
+        $path = '/kunder/serveb_1234/custom_4321/public';
+    } else {
+        if (!function_exists('get_home_path')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        $path = get_home_path();
     }
-    $webRootPath = isDevDebug() ? '/kunder/serveb_1234/custom_4321/public' : get_home_path();
-    if (preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $webRootPath, $matches) && isset($matches[1])) {
-        return 'https://admin.servebolt.com/siteredirect/?site='. $matches[1];
+    return apply_filters('sb_optimizer_wp_webroot_path', $path);
+}
+
+/**
+ * Get a link to the Servebolt admin panel.
+ *
+ * @param array|string $argsOrPage Either an array of query parameter or the sub-page to redirect to.
+ * @return string|null
+ */
+function getServeboltAdminUrl($argsOrPage = []) :? string
+{
+    if ($site = getSiteId()) {
+        if (is_string($argsOrPage)) {
+            $args = ['page' => $argsOrPage];
+        } elseif (is_array($argsOrPage)) {
+            $args = $argsOrPage;
+        } else {
+            $args = [];
+        }
+        $baseUrl = 'https://admin.servebolt.com/siteredirect/';
+        $queryParameters = http_build_query(array_merge($args, compact('site')));
+        return $baseUrl . '?' . $queryParameters;
     }
-    return false;
+    return null;
 }
 
 /**

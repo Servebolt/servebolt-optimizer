@@ -3,6 +3,7 @@
 namespace Unit;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
+use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 use Servebolt\Optimizer\Utils\Queue\QueueItem;
 use WP_UnitTestCase;
 use function Servebolt\Optimizer\Helpers\arrayGet;
@@ -47,6 +48,7 @@ use function Servebolt\Optimizer\Helpers\naturalLanguageJoin;
 use function Servebolt\Optimizer\Helpers\resolveViewPath;
 use function Servebolt\Optimizer\Helpers\isUrl;
 use function Servebolt\Optimizer\Helpers\getOptionName;
+use function Servebolt\Optimizer\Helpers\getWebrootPath;
 use function Servebolt\Optimizer\Helpers\strEndsWith;
 use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
@@ -54,11 +56,54 @@ use function Servebolt\Optimizer\Helpers\updateSiteOption;
 
 class HelpersTest extends WP_UnitTestCase
 {
+    private function activateSbDebug(): void
+    {
+        if (!defined('SB_DEBUG')) {
+            define('SB_DEBUG', true);
+        }
+    }
+
+    public function testThatWeCanGetTheWebrootFolderPath(): void
+    {
+        $this->assertContains('tests/bin/tmp/wordpress/', getWebrootPath());
+        $this->activateSbDebug();
+        $this->assertEquals('/kunder/serveb_1234/custom_4321/public', getWebrootPath());
+        add_filter('sb_optimizer_wp_webroot_path', function() {
+            return '/some/path/to/somewhere/';
+        });
+        $this->assertEquals('/some/path/to/somewhere/', getWebrootPath());
+    }
 
     public function testThatWeCanGetAdminUrlFromHomePath(): void
     {
-        define('SB_DEBUG', true);
-        $this->assertEquals(getServeboltAdminUrl(), 'https://admin.servebolt.com/siteredirect/?site=4321');
+        $this->activateSbDebug();
+
+        // Test with site ID extracted from webroot path
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=4321', getServeboltAdminUrl());
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=4321', getServeboltAdminUrl(['page' => 'accelerated-domains']));
+
+        // Create custom env file reader instance
+        EnvFileReader::destroyInstance();
+        EnvFileReader::getInstance(__DIR__ . '/EnvFile/');
+
+        // Test with site ID extracted from environment file
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl([]));
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=56789', getServeboltAdminUrl(['page' => 'accelerated-domains']));
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&some=parameter&another=one&site=56789', getServeboltAdminUrl(['page' => 'accelerated-domains', 'some' => 'parameter', 'another' => 'one']));
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&webhost_id=69&some=parameter&another=one&site=56789', getServeboltAdminUrl(['page' => 'accelerated-domains', 'webhost_id' => '69', 'some' => 'parameter', 'another' => 'one']));
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=56789', getServeboltAdminUrl('accelerated-domains'));
+
+        // Test with site ID extracted from webroot path
+        EnvFileReader::disable();
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=4321', getServeboltAdminUrl());
+
+        // Test with site ID extracted from environment file
+        EnvFileReader::enable();
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
+
+        // Revert env file reader to default state
+        EnvFileReader::destroyInstance();
+        EnvFileReader::getInstance();
     }
 
     public function testThatTestConstantGetsSet(): void
