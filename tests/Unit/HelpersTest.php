@@ -48,6 +48,7 @@ use function Servebolt\Optimizer\Helpers\naturalLanguageJoin;
 use function Servebolt\Optimizer\Helpers\resolveViewPath;
 use function Servebolt\Optimizer\Helpers\isUrl;
 use function Servebolt\Optimizer\Helpers\getOptionName;
+use function Servebolt\Optimizer\Helpers\getWebrootPath;
 use function Servebolt\Optimizer\Helpers\strEndsWith;
 use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
@@ -60,6 +61,17 @@ class HelpersTest extends WP_UnitTestCase
         if (!defined('SB_DEBUG')) {
             define('SB_DEBUG', true);
         }
+    }
+
+    public function testThatWeCanGetTheWebrootFolderPath(): void
+    {
+        $this->assertContains('tests/bin/tmp/wordpress/', getWebrootPath());
+        $this->activateSbDebug();
+        $this->assertEquals('/kunder/serveb_1234/custom_4321/public', getWebrootPath());
+        add_filter('sb_optimizer_wp_webroot_path', function() {
+            return '/some/path/to/somewhere/';
+        });
+        $this->assertEquals('/some/path/to/somewhere/', getWebrootPath());
     }
 
     public function testThatWeCanGetAdminUrlFromHomePath(): void
