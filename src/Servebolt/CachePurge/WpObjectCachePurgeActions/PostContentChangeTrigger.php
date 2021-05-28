@@ -10,16 +10,16 @@ use Servebolt\Optimizer\Traits\Singleton;
 use Exception;
 
 /**
- * Class CachePurgeWPActions
+ * Class PostContentChangeTrigger
  *
  * This class registers the WP events which purges the cache automatically (updating/create posts, terms etc.).
  */
-class ContentChangeTrigger
+class PostContentChangeTrigger
 {
     use Singleton;
 
     /**
-     * CachePurgeWPActions constructor.
+     * PostContentChangeTrigger constructor.
      */
     public function __construct()
     {

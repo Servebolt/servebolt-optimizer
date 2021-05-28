@@ -16,8 +16,9 @@ use Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Queue\QueueEventHandler;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
-use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\ContentChangeTrigger;
-use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\SlugChangeTrigger;
+use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\PostContentChangeTrigger;
+use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\PostSlugChangeTrigger;
+use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\AttachmentTrigger;
 use Servebolt\Optimizer\Admin\AdminBarGUI\AdminBarGUI;
 use Servebolt\Optimizer\Admin\Assets as AdminAssets;
 use Servebolt\Optimizer\Admin\AdminGuiController;
@@ -92,8 +93,9 @@ class ServeboltOptimizer
             || isTesting()
         ) {
             // Register cache purge event for various hooks
-            ContentChangeTrigger::getInstance();
-            SlugChangeTrigger::getInstance();
+            PostContentChangeTrigger::getInstance();
+            PostSlugChangeTrigger::getInstance();
+            AttachmentTrigger::getInstance();
         }
 
         // Load this admin bar interface

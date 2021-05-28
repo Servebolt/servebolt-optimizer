@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\CachePurge\PurgeObject;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Post;
+use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Attachment;
 use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Term;
 
 /**
@@ -96,7 +97,7 @@ class PurgeObject
      * @param array $args
      * @return bool|Post|Term
      */
-    public function addObject($id, $type = 'post', $args = [])
+    public function addObject($id, string $type = 'post', $args = [])
     {
         $purgeObject = $this->resolvePurgeObject($id, $type, $args);
         if ($purgeObject && !is_wp_error($purgeObject)) {

@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Exception;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
-use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\ContentChangeTrigger;
+use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\PostContentChangeTrigger;
 
 /**
  * Class ProductCachePurgeOnStockChange
@@ -42,7 +42,7 @@ class ProductCachePurgeOnStockChange
     public function productStockChange($product): void
     {
         if ($productId = $this->resolveProductPostId($product)) {
-            if (ContentChangeTrigger::shouldPurgePostCache($productId)) { // Check if we should purge cache for the current product in regards to rules in ContentChangeTrigger::class
+            if (PostContentChangeTrigger::shouldPurgePostCache($productId)) { // Check if we should purge cache for the current product in regards to rules in ContentChangeTrigger::class
                 try {
                     WordPressCachePurge::purgeByPostId($productId);
                 } catch (Exception $e) {}

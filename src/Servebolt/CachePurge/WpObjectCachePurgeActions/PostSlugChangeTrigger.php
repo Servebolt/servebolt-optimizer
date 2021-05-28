@@ -10,9 +10,9 @@ use Servebolt\Optimizer\Traits\Singleton;
 use Exception;
 
 /**
- * Class SlugChangeTrigger
+ * Class PostSlugChangeTrigger
  */
-class SlugChangeTrigger
+class PostSlugChangeTrigger
 {
     use Singleton;
 
@@ -24,7 +24,7 @@ class SlugChangeTrigger
     private $previousPostPermalink = null;
 
     /**
-     * SlugChangeTrigger constructor.
+     * PostSlugChangeTrigger constructor.
      */
     public function __construct()
     {
