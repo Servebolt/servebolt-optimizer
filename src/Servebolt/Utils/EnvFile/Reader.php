@@ -6,6 +6,10 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
 
+/**
+ * Class Reader
+ * @package Servebolt\Optimizer\Utils\EnvFile
+ */
 class Reader
 {
 
@@ -54,6 +58,11 @@ class Reader
      */
     private $folderPath;
 
+    /**
+     * @var bool Used for testing.
+     */
+    private static $enabled = true;
+
     public function __construct($folderPath = null, $desiredFileType = 'auto', $basename = null)
     {
         $this->setBasename($basename);
@@ -62,6 +71,16 @@ class Reader
         if ($filePath = $this->resolveEnvironmentFilePath()) {
             $this->readEnvironmentFile($filePath);
         }
+    }
+
+    public static function disable()
+    {
+        self::$enabled = false;
+    }
+
+    public static function enable()
+    {
+        self::$enabled = true;
     }
 
     public function isFileType($type) : bool
@@ -126,11 +145,16 @@ class Reader
     }
 
     /**
+     * Get property from env-file.
+     *
      * @param $name
      * @return mixed|null
      */
     public function __get($name)
     {
+        if (!self::$enabled) {
+            return null;
+        }
         if (array_key_exists($name, $this->extractedData)) {
             return $this->extractedData[$name];
         }
