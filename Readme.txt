@@ -35,7 +35,7 @@ This project is maintained on [Github](https://servebo.lt/sog).
 - Multisite support
 - WP CLI support
 - Cloudflare Image Resize-support (beta feature)
-- WP Rocket compatability (beta feature, **Servebolt clients only**)
+- WP Rocket compatability (**Servebolt clients only**)
 
 Read more about the plugin and all its features in our [Help Center](https://servebo.lt/servebolt-optimize-documentation).
 
@@ -94,6 +94,9 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 
 == Changelog ==
 = 3.0.0 =
+
+**Version 3.0.0 is a major rewrite of Servebolt Optimizer and we highly recommend you testing this update on staging before you update in on production.**
+
 * Rewritten codebase - The whole plugin code base is rewritten. This was done since the previous structure did not allow for automated testing (using PHP Unit) nor was it up to par with modern PHP. To achieve this the code base was rewritten to use PSR-4 autoloading as well as making the existing code testable. The code standard was also changed to PSR-1. The new required PHP version is 7.3 or higher.
 * PHP Unit tests - PHP Unit tests have been added as an attempt to prevent errors, speed up the development process, and ensure better overall code quality.
 * Accelerated Domains by Servebolt - The plugin has support for activating Accelerated Domains by Servebolt. The addition of this feature affects the cache purge system which previously only worked with Cloudflare, but now also supports Accelerated Domains and its cache feature. This can be controlled by selecting the cache provider in the cache purge settings.
