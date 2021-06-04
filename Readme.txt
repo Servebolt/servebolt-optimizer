@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, robsat91, servebolt
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, full page cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 5.7
+Tested up to: 5.7.2
 Requires PHP: 7.3
-Stable tag: 2.1.5
+Stable tag: 3.0.0
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -15,14 +15,14 @@ This plugin implements Servebolt's WordPress best practices, and connects your s
 
 The Servebolt Optimizer plugin adds functionality to implement Servebolt's best practices for WordPress. This includes database optimizations, errorlog review, automatic cache purging, automatic image optimization and resizing, performance recommendations, and support for down stream HTML caching.
 
-Specifically, Servebolt Optimizer does two things for your site: 
+Specifically, Servebolt Optimizer does two things for your site:
 
-1. It connects your [WordPress hosted](https://servebo.lt/e3ke3) or [WooCommerce hosted](https://servebo.lt/724lz) Servebolt site to your [Servebolt Control Panel](https://servebo.lt/pf3hu). 
+1. It connects your [WordPress hosted](https://servebo.lt/e3ke3) or [WooCommerce hosted](https://servebo.lt/724lz) Servebolt site to your [Servebolt Control Panel](https://servebo.lt/pf3hu).
 2. Its features implement Servebolt's best practices for performance. These best practizes include database optimizations, error log review, automatic cache purging, automatic image optimization/resizing, performance recommendations and support for down stream HTML caching.
 
 This project is maintained on [Github](https://servebo.lt/sog).
 
-### Features 
+### Features
 
 - Configures HTML caching to speed up your site (**Servebolt clients only**)
 - Integrates with [Accelerated Domains](https://servebo.lt/4c9dw) (**Servebolt clients only**)
@@ -35,7 +35,7 @@ This project is maintained on [Github](https://servebo.lt/sog).
 - Multisite support
 - WP CLI support
 - Cloudflare Image Resize-support (beta feature)
-- WP Rocket compatability (beta feature, **Servebolt clients only**)
+- WP Rocket compatability (**Servebolt clients only**)
 
 Read more about the plugin and all its features in our [Help Center](https://servebo.lt/servebolt-optimize-documentation).
 
@@ -46,10 +46,10 @@ The integration with our revolutionairy add-on performance and security enhancin
 ### Automatic purge of Cloudflare cache
 Servebolt Optimizer supports the most complete solution for Cloudflare cache purging. The HTML Cache is automatically purged when any post type or term has been updated. You can also purge directly from the admin bar. This Cloudflare integration supports both the use of API key and API token authentication when communicating with the Cloudflare API.
 
-### HTML Caching 
+### HTML Caching
 This plugin rewrites HTTP headers of HTML to allow for HTML Caching, and for the browser to cache HTML. HTML Caching may introduce all sorts of problems for end users, so installation and testing should be performed by a professional.
 
-### Configuration 
+### Configuration
 
 This plugin can be controlled via the WordPress Dashboard or WP CLI. Additonalaly there are various filters and PHP constants at your disposal.
 
@@ -59,7 +59,7 @@ The plugin has various filters and PHP constants that allows third-party develop
 
 == Installation ==
 
-Navigate to your WordPress Dashboard > Plugins > Add New and then search for **Servebolt** and follow instructions. 
+Navigate to your WordPress Dashboard > Plugins > Add New and then search for **Servebolt** and follow instructions.
 
 Alternatively, you can also install Servebolt Optimizer via sFTP or WP CLI:
 
@@ -70,7 +70,7 @@ With sFTP:
 3. Activate the plugin through the 'Plugins' menu in WordPress
 4. Navigate to Servebolt > Performance Optimizer and run optimizations if necessary
 
-With WP-CLI: 
+With WP-CLI:
 
 1. Log in to your site with SSH
 2. cd to your sites root wordpress folder
@@ -80,20 +80,23 @@ With WP-CLI:
 Run `wp help servebolt` to see all the available commands that can configure the plugin.
 
 == Frequently Asked Questions ==
-= Will Servebolt Optimizer plugin make my site faster? = 
+= Will Servebolt Optimizer plugin make my site faster? =
 
 The Servebolt Optimizer plugin is primarily designed to make best use of our [WordPress hosting](https://servebo.lt/e3ke3) or [WooCommerce hosting](https://servebo.lt/724lz). Its database optimizing feature does indeed help in making your database faster and thus your site.
 
-= Can I install this plugin if I'm not a Servebolt client? = 
+= Can I install this plugin if I'm not a Servebolt client? =
 
 Yes, you can. The database optimizations are beneficial for everyone as well as the Cloudflare cache purge options. You would miss out on the [fastest WordPress hosting out there](https://servebo.lt/5xbqg), but you can use it on a non-Servebolt site.
 
-= What if I discover a bug? = 
+= What if I discover a bug? =
 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
 = 3.0.0 =
+
+**Version 3.0.0 is a major rewrite of Servebolt Optimizer and we highly recommend you testing this update on staging before you update in on production.**
+
 * Rewritten codebase - The whole plugin code base is rewritten. This was done since the previous structure did not allow for automated testing (using PHP Unit) nor was it up to par with modern PHP. To achieve this the code base was rewritten to use PSR-4 autoloading as well as making the existing code testable. The code standard was also changed to PSR-1. The new required PHP version is 7.3 or higher.
 * PHP Unit tests - PHP Unit tests have been added as an attempt to prevent errors, speed up the development process, and ensure better overall code quality.
 * Accelerated Domains by Servebolt - The plugin has support for activating Accelerated Domains by Servebolt. The addition of this feature affects the cache purge system which previously only worked with Cloudflare, but now also supports Accelerated Domains and its cache feature. This can be controlled by selecting the cache provider in the cache purge settings.
