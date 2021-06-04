@@ -6,6 +6,7 @@
  */
 
 define('WP_TESTS_IS_RUNNING', true);
+//define('WP_TESTS_THEME', 'twentytwentyone');
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 
 if ( ! $_tests_dir ) {
@@ -28,6 +29,20 @@ function _manually_load_plugin() {
 	require dirname( dirname( __FILE__ ) ) . '/servebolt-optimizer.php';
 }
 tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
+
+if (defined('WP_TESTS_THEME') && !empty(WP_TESTS_THEME)) {
+    /**
+     * Manually set theme.
+     *
+     * @return string
+     */
+    function _set_theme() {
+        return WP_TESTS_THEME;
+    }
+
+    tests_add_filter( 'stylesheet', '_set_theme' );
+    tests_add_filter( 'template', '_set_theme' );
+}
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
