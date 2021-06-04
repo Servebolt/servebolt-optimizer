@@ -1259,3 +1259,15 @@ function wpRocketIsActive(): bool
 {
     return defined('WP_ROCKET_VERSION');
 }
+
+/**
+ * Instantiate the filesystem class
+ *
+ * @return object WP_Filesystem_Direct instance
+ */
+function wpDirectFilesystem(): object
+{
+    require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+    require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+    return new \WP_Filesystem_Direct(new \StdClass());
+}

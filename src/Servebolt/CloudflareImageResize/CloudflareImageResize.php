@@ -140,7 +140,7 @@ class CloudflareImageResize
     }
 
     /**
-     * @param $data
+     * @param array $data
      * @return array
      */
     public function reAddImageSizes(array $data): array
