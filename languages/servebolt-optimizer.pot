@@ -1,17 +1,17 @@
 # Copyright (C) 2021 Servebolt
-# This file is distributed under the same license as the Servebolt Optimizer plugin.
+# This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Servebolt Optimizer 2.2.0-beta.25\n"
+"Project-Id-Version: Servebolt Optimizer 3.0.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/servebolt-optimizer\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2021-05-03T14:20:08+00:00\n"
+"POT-Creation-Date: 2021-06-08T11:42:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.4.0\n"
+"X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: servebolt-wp\n"
 
 #. Plugin Name of the plugin
@@ -70,13 +70,13 @@ msgstr ""
 
 #: src/Servebolt/Admin/AdminGuiController.php:199
 #: src/Servebolt/Views/cloudflare-image-resize/configration.php:6
-#: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:10
-#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:14
-#: src/Servebolt/Views/dashboard/dashboard-single-site.php:14
 msgid "Cloudflare Image Resizing"
 msgstr ""
 
 #: src/Servebolt/Admin/AdminGuiController.php:211
+#: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:22
+#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:22
+#: src/Servebolt/Views/dashboard/dashboard-single-site.php:22
 msgid "Cache settings"
 msgstr ""
 
@@ -88,6 +88,9 @@ msgstr ""
 
 #: src/Servebolt/Admin/AdminGuiController.php:220
 #: src/Servebolt/Views/accelerated-domains/settings-form.php:12
+#: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:16
+#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:16
+#: src/Servebolt/Views/dashboard/dashboard-single-site.php:16
 msgid "Accelerated domains"
 msgstr ""
 
@@ -108,9 +111,9 @@ msgid "General"
 msgstr ""
 
 #: src/Servebolt/Admin/AdminGuiController.php:260
-#: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:26
-#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:29
-#: src/Servebolt/Views/dashboard/dashboard-single-site.php:29
+#: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:37
+#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:37
+#: src/Servebolt/Views/dashboard/dashboard-single-site.php:37
 #: src/Servebolt/Views/general-settings/general-settings.php:5
 msgid "General settings"
 msgstr ""
@@ -183,8 +186,8 @@ msgstr ""
 msgid "Cache was purged for the term \"%s\"."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/CachePurgeControl.php:77
-#: src/Servebolt/Admin/CachePurgeControl/CachePurgeControl.php:97
+#: src/Servebolt/Admin/CachePurgeControl/CachePurgeControl.php:78
+#: src/Servebolt/Admin/CachePurgeControl/CachePurgeControl.php:98
 msgid "Purge cache"
 msgstr ""
 
@@ -571,7 +574,7 @@ msgid "Default [%s]"
 msgstr ""
 
 #: src/Servebolt/Cli/Fpc/Fpc.php:407
-#: src/Servebolt/FullPageCache/FullPageCacheHeaders.php:400
+#: src/Servebolt/FullPageCache/FullPageCacheHeaders.php:462
 msgid "All"
 msgstr ""
 
@@ -747,20 +750,20 @@ msgstr ""
 msgid "Could not convert table \"%s\" to InnoDB"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:733
-#: src/Servebolt/Helpers/Helpers.php:745
+#: src/Servebolt/Helpers/Helpers.php:797
+#: src/Servebolt/Helpers/Helpers.php:809
 msgid "Delete"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:734
+#: src/Servebolt/Helpers/Helpers.php:798
 msgid "View"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:736
+#: src/Servebolt/Helpers/Helpers.php:800
 msgid "Edit"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:743
+#: src/Servebolt/Helpers/Helpers.php:807
 msgid "Post does not exist."
 msgstr ""
 
@@ -768,9 +771,22 @@ msgstr ""
 msgid "Servebolt Optimizer can only be network activated when running on a multisite."
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/accelerated-domains.php:5
+#: src/Servebolt/Views/accelerated-domains/accelerated-domains.php:7
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:78
 msgid "Accelerated Domains"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/accelerated-domains.php:24
+#: src/Servebolt/Views/accelerated-domains/accelerated-domains.php:26
+msgid "Get started"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/accelerated-domains.php:35
+msgid "What is Accelerated Domains?"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/accelerated-domains.php:44
+msgid "What does this plugin do?"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/network-list-view.php:7
@@ -1157,30 +1173,24 @@ msgstr ""
 msgid "Cloudflare cache-feature active?"
 msgstr ""
 
-#: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:4
-#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:8
-#: src/Servebolt/Views/dashboard/dashboard-single-site.php:8
+#: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:27
+#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:27
+#: src/Servebolt/Views/dashboard/dashboard-single-site.php:27
 msgid "Cache Purging"
 msgstr ""
 
-#: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:17
-#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:21
-#: src/Servebolt/Views/dashboard/dashboard-single-site.php:21
-msgid "Full Page Cache settings"
-msgstr ""
-
-#: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:21
-#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:25
-#: src/Servebolt/Views/dashboard/dashboard-single-site.php:25
+#: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:32
+#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:32
+#: src/Servebolt/Views/dashboard/dashboard-single-site.php:32
 msgid "Review the error log"
 msgstr ""
 
-#: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:31
+#: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:42
 msgid "Go to network admin for more options"
 msgstr ""
 
-#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:4
-#: src/Servebolt/Views/dashboard/dashboard-single-site.php:4
+#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:5
+#: src/Servebolt/Views/dashboard/dashboard-single-site.php:5
 #: src/Servebolt/Views/performance-checks/performance-checks.php:6
 msgid "Performance Optimizer"
 msgstr ""
@@ -1255,31 +1265,31 @@ msgstr ""
 msgid "Errorlog"
 msgstr ""
 
-#: src/Servebolt/Views/log-viewer/log-viewer.php:7
-msgid "Log file does not exist."
-msgstr ""
-
-#: src/Servebolt/Views/log-viewer/log-viewer.php:9
-msgid "Log file is not readable."
+#: src/Servebolt/Views/log-viewer/log-viewer.php:8
+msgid "The log file does not exist."
 msgstr ""
 
 #: src/Servebolt/Views/log-viewer/log-viewer.php:11
-msgid "Your error log is empty."
+msgid "Log file is not readable."
 msgstr ""
 
 #: src/Servebolt/Views/log-viewer/log-viewer.php:13
+msgid "Your error log is empty."
+msgstr ""
+
+#: src/Servebolt/Views/log-viewer/log-viewer.php:15
 msgid "This table lists the %s last entries from today's logs/Errorlog"
 msgstr ""
 
-#: src/Servebolt/Views/log-viewer/log-viewer.php:17
+#: src/Servebolt/Views/log-viewer/log-viewer.php:19
 msgid "Timestamp"
 msgstr ""
 
-#: src/Servebolt/Views/log-viewer/log-viewer.php:18
+#: src/Servebolt/Views/log-viewer/log-viewer.php:20
 msgid "IP"
 msgstr ""
 
-#: src/Servebolt/Views/log-viewer/log-viewer.php:19
+#: src/Servebolt/Views/log-viewer/log-viewer.php:21
 msgid "Error"
 msgstr ""
 
