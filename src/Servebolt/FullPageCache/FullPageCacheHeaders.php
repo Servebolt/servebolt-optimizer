@@ -100,7 +100,7 @@ class FullPageCacheHeaders
      *
      * @return bool
      */
-	private function shouldSetCacheHeaders(): bool
+	public function shouldSetCacheHeaders(): bool
     {
         if (is_admin() || isAjax() || isWpRest() || isCron()) {
             return false;
