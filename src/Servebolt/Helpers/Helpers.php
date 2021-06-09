@@ -890,11 +890,16 @@ function isDebug(): bool
  */
 function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
 {
-    if(!function_exists('get_plugin_data')) {
-        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    static $version = null;
+
+    if ($version === null) {
+        if(!function_exists('get_plugin_data')) {
+            require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        }
+        $pluginData = get_plugin_data(SERVEBOLT_PLUGIN_FILE);
+        $version = arrayGet('Version', $pluginData);
     }
-    $pluginData = get_plugin_data(SERVEBOLT_PLUGIN_FILE);
-    $version = arrayGet('Version', $pluginData);
+
     if (!$version) {
         return null;
     }
