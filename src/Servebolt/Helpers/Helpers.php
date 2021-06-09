@@ -905,6 +905,34 @@ function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
 }
 
 /**
+ * Get the version string to use for static assets in the Servebolt plugin.
+ *
+ * @param string $assetSrc
+ *
+ * @return string
+ *
+ * @internal This function is inteded for use in the Servebolt plugin and should not be used by others.
+ */
+function getVersionForStaticAsset(string $assetSrc): string
+{
+    $pluginVersion = getCurrentPluginVersion(false);
+
+    // Fallback to using `filemtime` if we could not resolve the current plugin version
+    if ($pluginVersion === null) {
+        $filemtime = filemtime($assetSrc);
+
+        // If even `filemtime` bails out make sure the asset is cache busted by using the current unix timestamp
+        if ($filemtime === false) {
+            return (string)time();
+        }
+
+        return (string)$filemtime;
+    }
+
+    return $pluginVersion;
+}
+
+/**
  * Require the user to be a super admin.
  */
 function requireSuperadmin()

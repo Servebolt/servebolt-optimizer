@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks;
 use Servebolt\Optimizer\Admin\PerformanceChecks\Ajax\OptimizeActions;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 use function Servebolt\Optimizer\Helpers\isScreen;
 use function Servebolt\Optimizer\Helpers\view;
 
@@ -49,7 +50,7 @@ class PerformanceChecks
         if (!isScreen('servebolt_page_servebolt-performance-tools')) {
             return;
         }
-        wp_enqueue_script( 'servebolt-optimizer-performance-checks-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/performance-checks.js', ['servebolt-optimizer-scripts'], filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/performance-checks.js'), true );
+        wp_enqueue_script( 'servebolt-optimizer-performance-checks-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/performance-checks.js', ['servebolt-optimizer-scripts'], getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/performance-checks.js'), true );
     }
 
     /**
