@@ -35,7 +35,7 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
         FullPageCacheHeaders::destroyInstance();
         $instance = FullPageCacheHeaders::getInstance();
         FullPageCacheHeaders::mock();
-        $instance->headersAlreadySet(false);
+        $instance->shouldSetCacheHeaders(false);
         return $instance;
     }
 

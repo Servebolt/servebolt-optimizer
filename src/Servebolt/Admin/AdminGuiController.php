@@ -219,7 +219,7 @@ class AdminGuiController
      */
     private function acceleratedDomainsMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Accelerated domains', 'servebolt-wp'), __('Accelerated domains', 'servebolt-wp'), 'manage_options', 'servebolt-acd', [AcceleratedDomainsControl::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Accelerated Domains', 'servebolt-wp'), __('Accelerated Domains', 'servebolt-wp'), 'manage_options', 'servebolt-acd', [AcceleratedDomainsControl::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-acd-image-resize', [AcceleratedDomainsImageResizeControl::getInstance(), 'render']);
     }
 

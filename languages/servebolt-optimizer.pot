@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2021-06-08T11:42:37+00:00\n"
+"POT-Creation-Date: 2021-06-08T12:16:57+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: servebolt-wp\n"
@@ -87,11 +87,13 @@ msgid "Cache"
 msgstr ""
 
 #: src/Servebolt/Admin/AdminGuiController.php:220
+#: src/Servebolt/Views/accelerated-domains/accelerated-domains.php:7
 #: src/Servebolt/Views/accelerated-domains/settings-form.php:12
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:78
 #: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:16
 #: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:16
 #: src/Servebolt/Views/dashboard/dashboard-single-site.php:16
-msgid "Accelerated domains"
+msgid "Accelerated Domains"
 msgstr ""
 
 #: src/Servebolt/Admin/AdminGuiController.php:228
@@ -771,11 +773,6 @@ msgstr ""
 msgid "Servebolt Optimizer can only be network activated when running on a multisite."
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/accelerated-domains.php:7
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:78
-msgid "Accelerated Domains"
-msgstr ""
-
 #: src/Servebolt/Views/accelerated-domains/accelerated-domains.php:24
 #: src/Servebolt/Views/accelerated-domains/accelerated-domains.php:26
 msgid "Get started"
@@ -876,7 +873,7 @@ msgid "Go to site ACD settings"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/settings-form.php:15
-msgid "Accelerated domains-feature active?"
+msgid "Accelerated Domains-feature active?"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/settings-form.php:18
