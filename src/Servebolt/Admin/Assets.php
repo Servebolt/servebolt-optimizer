@@ -7,7 +7,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\getAjaxNonce;
-use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 
 /**
