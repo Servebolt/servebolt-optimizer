@@ -30,6 +30,14 @@ You should now be able to run ``composer phpunit`` WP single site or ``composer 
 Phan, PHPCS and PHPLint should be installed by composer.
 You can run the tests with this command: `composer test`
 
+### Deployment
+If you want to deploy to WordPress.org then all you got to do is create a tag in Git. Please use semantic versioning according to semver.org. When you push the tag to Github we use Github Actions that will "forward" the tag to WordPress.org SVN repository. You can see the deployment instructions in `.github/workflows/wordpress-plugin-svn-deploy.yaml`.
+
+Credentials for the SVN repository is stored in the password manager. The credentials are already stored as secrets in the Github repository, but you might need them if you want to interact with the SVN repository from your local machine.
+
+#### Local build
+If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to Wordpress.org.
+
 ## Changelog
 #### 3.0.0 
 * Rewritten codebase - The whole plugin code base is rewritten. This was done since the previous structure did not allow for automated testing (using PHP Unit) nor was it up to par with modern PHP. To achieve this the code base was rewritten to use PSR-4 autoloading as well as making the existing code testable. The code standard was also changed to PSR-1. The new required PHP version is 7.3 or higher.

@@ -61,6 +61,7 @@
     "phpunit-mu": [
       "./vendor/phpunit/phpunit/phpunit -c phpunit-mu.xml"
     ],
+    "local-build": "ci/local-build.sh",
     "install-wp-test": ["ci/install-wp-tests.sh"],
     "test": ["composer test-phpcs","composer test-phplint","composer test-phan"],
     "test-phpcs": "ci/phpcs.sh",

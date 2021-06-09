@@ -5,8 +5,7 @@ cd build
 composer install --no-dev --optimize-autoloader
 yarn install
 yarn production
-./cleanup.sh
-rm cleanup.sh
+./ci/cleanup.sh
 cd ..
 zip -r -9 servebolt-optimizer.zip build
 rm -rf build
