@@ -34,18 +34,18 @@ class Assets {
         }
 
 		// Front-end only assets
-		add_action('wp_enqueue_scripts', [$this, 'pluginPublicStyling'], 100);
-		add_action('wp_enqueue_scripts', [$this, 'pluginPublicScripts'], 100);
+		add_action('wp_enqueue_scripts', [$this, 'pluginPublicStyling']);
+		add_action('wp_enqueue_scripts', [$this, 'pluginPublicScripts']);
 
         // Admin only assets
-        add_action('admin_enqueue_scripts', [$this, 'pluginAdminStyling'], 100);
-        add_action('admin_enqueue_scripts', [$this, 'pluginAdminScripts'], 100);
+        add_action('admin_enqueue_scripts', [$this, 'pluginAdminStyling']);
+        add_action('admin_enqueue_scripts', [$this, 'pluginAdminScripts']);
 
 		// Common assets (both public and admin)
-		add_action('wp_enqueue_scripts', [$this, 'pluginCommonStyling'], 100);
-		add_action('wp_enqueue_scripts', [$this, 'pluginCommonScripts'], 100);
-		add_action('admin_enqueue_scripts', [$this, 'pluginCommonStyling'], 100);
-        add_action('admin_enqueue_scripts', [$this, 'pluginCommonScripts'], 100);
+		add_action('wp_enqueue_scripts', [$this, 'pluginCommonStyling']);
+		add_action('wp_enqueue_scripts', [$this, 'pluginCommonScripts']);
+		add_action('admin_enqueue_scripts', [$this, 'pluginCommonStyling']);
+        add_action('admin_enqueue_scripts', [$this, 'pluginCommonScripts']);
 
 	}
 
