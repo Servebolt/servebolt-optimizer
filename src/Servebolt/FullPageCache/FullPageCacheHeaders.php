@@ -9,6 +9,7 @@ use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\isAjax;
 use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
 use function Servebolt\Optimizer\Helpers\isCron;
+use function Servebolt\Optimizer\Helpers\isDebug;
 use function Servebolt\Optimizer\Helpers\isWpRest;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
@@ -242,7 +243,7 @@ class FullPageCacheHeaders
 	 */
 	private function shouldDebug(): bool
     {
-		return apply_filters('sb_optimizer_fpc_should_debug_headers', false);
+		return apply_filters('sb_optimizer_fpc_should_debug_headers', isDebug());
 	}
 
 	/**
