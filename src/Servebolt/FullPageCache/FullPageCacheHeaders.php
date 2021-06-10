@@ -242,7 +242,7 @@ class FullPageCacheHeaders
 	 */
 	private function shouldDebug(): bool
     {
-		return apply_filters('sb_optimizer_fpc_should_debug_headers', true);
+		return apply_filters('sb_optimizer_fpc_should_debug_headers', false);
 	}
 
 	/**
