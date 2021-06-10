@@ -21,5 +21,4 @@ rm -rf yarn.lock 2> /dev/null
 rm -rf mozart.phar 2> /dev/null
 rm -rf tests 2> /dev/null
 rm -rf ci 2> /dev/null
-rm -rf local-build.sh 2> /dev/null
 
