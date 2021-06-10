@@ -29,7 +29,7 @@
     "phpcompatibility/php-compatibility": "*",
     "phpunit/phpunit": "7.5.20",
     "phan/phan": "^4.0",
-    "overtrue/phplint": "9999999-dev"
+    "overtrue/phplint": "^2.0"
   },
   "keywords": [
     "blocks",
