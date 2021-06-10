@@ -890,11 +890,16 @@ function isDebug(): bool
  */
 function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
 {
-    if(!function_exists('get_plugin_data')) {
-        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    static $version = null;
+
+    if ($version === null) {
+        if(!function_exists('get_plugin_data')) {
+            require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        }
+        $pluginData = get_plugin_data(SERVEBOLT_PLUGIN_FILE);
+        $version = arrayGet('Version', $pluginData);
     }
-    $pluginData = get_plugin_data(SERVEBOLT_PLUGIN_FILE);
-    $version = arrayGet('Version', $pluginData);
+
     if (!$version) {
         return null;
     }
@@ -902,6 +907,34 @@ function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
         return preg_replace('/(.+)-(.+)/', '$1', $version);
     }
     return $version;
+}
+
+/**
+ * Get the version string to use for static assets in the Servebolt plugin.
+ *
+ * @param string $assetSrc
+ *
+ * @return string
+ *
+ * @internal This function is inteded for use in the Servebolt plugin and should not be used by others.
+ */
+function getVersionForStaticAsset(string $assetSrc): string
+{
+    $pluginVersion = apply_filters('sb_optimizer_static_asset_plugin_version', getCurrentPluginVersion(false));
+
+    // Fallback to using `filemtime` if we could not resolve the current plugin version
+    if ($pluginVersion === null) {
+        $filemtime = filemtime($assetSrc);
+
+        // If even `filemtime` bails out make sure the asset is cache busted by using the current unix timestamp
+        if ($filemtime === false) {
+            return (string) time();
+        }
+
+        return (string) $filemtime;
+    }
+
+    return $pluginVersion;
 }
 
 /**
