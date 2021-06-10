@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Servebolt Optimizer 3.0.0\n"
+"Project-Id-Version: Servebolt Optimizer 3.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/servebolt-optimizer\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2021-06-08T12:16:57+00:00\n"
+"POT-Creation-Date: 2021-06-10T13:32:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: servebolt-wp\n"
@@ -63,7 +63,7 @@ msgid "Settings"
 msgstr ""
 
 #: src/Servebolt/Admin/AdminGuiController.php:163
-#: src/Servebolt/Admin/CachePurgeControl/CachePurgeControl.php:118
+#: src/Servebolt/Admin/CachePurgeControl/CachePurgeControl.php:119
 #: src/Servebolt/Views/cache-settings/cache-purge/cache-purge.php:10
 msgid "Cache purging"
 msgstr ""
@@ -188,8 +188,8 @@ msgstr ""
 msgid "Cache was purged for the term \"%s\"."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/CachePurgeControl.php:78
-#: src/Servebolt/Admin/CachePurgeControl/CachePurgeControl.php:98
+#: src/Servebolt/Admin/CachePurgeControl/CachePurgeControl.php:79
+#: src/Servebolt/Admin/CachePurgeControl/CachePurgeControl.php:99
 msgid "Purge cache"
 msgstr ""
 
