@@ -9,14 +9,14 @@ use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\getAjaxNonce;
 
 /**
- * Class Servebolt_Optimizer_Assets
+ * Class Assets
  *
  * This class includes the CSS and JavaScript of the plugin.
  */
 class Assets {
 
 	/**
-	 * Servebolt_Optimizer_Assets constructor.
+	 * Assets constructor.
 	 */
 	public function __construct()
     {
