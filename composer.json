@@ -41,7 +41,9 @@
   "autoload": {
     "files": [
       "src/Servebolt/Helpers/Helpers.php",
-      "src/Servebolt/CachePurge/ThirdPartyFunctions.php"
+      "src/Servebolt/CachePurge/ThirdPartyFunctions.php",
+      "vendor/jakeasmith/http_build_url/src/http_build_url.php",
+      "vendor/ralouphie/getallheaders/src/getallheaders.php"
     ],
     "psr-4": {
       "Servebolt\\Optimizer\\": "src/Servebolt",
