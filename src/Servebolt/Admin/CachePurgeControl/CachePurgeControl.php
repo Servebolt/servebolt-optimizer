@@ -13,6 +13,7 @@ use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getPostTypeSingularName;
 use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
+use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 use function Servebolt\Optimizer\Helpers\isScreen;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
@@ -268,7 +269,7 @@ class CachePurgeControl
             'servebolt-optimizer-cloudflare-cache-purge-scripts',
             SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/cloudflare-cache-purge.js',
             ['servebolt-optimizer-scripts'],
-            filemtime(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/cloudflare-cache-purge.js'),
+            getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/cloudflare-cache-purge.js'),
             true
         );
     }
