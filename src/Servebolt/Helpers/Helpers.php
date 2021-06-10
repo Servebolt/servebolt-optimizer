@@ -928,10 +928,10 @@ function getVersionForStaticAsset(string $assetSrc): string
 
         // If even `filemtime` bails out make sure the asset is cache busted by using the current unix timestamp
         if ($filemtime === false) {
-            return (string)time();
+            return (string) time();
         }
 
-        return (string)$filemtime;
+        return (string) $filemtime;
     }
 
     return $pluginVersion;
