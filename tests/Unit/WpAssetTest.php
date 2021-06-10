@@ -34,13 +34,17 @@ class WpAssetTest extends ServeboltWPUnitTestCase
 
     public function testThatVersionNumberIsAppliedToUrlOfEnqueuedStyleAssets()
     {
+        $this->assertArrayHasKey('servebolt-optimizer-public-styling', wp_styles()->registered);
         $this->assertEquals($this->currentPluginVersionNumber, wp_styles()->registered['servebolt-optimizer-public-styling']->ver);
+        $this->assertArrayHasKey('servebolt-optimizer-styling', wp_styles()->registered);
         $this->assertEquals($this->currentPluginVersionNumber, wp_styles()->registered['servebolt-optimizer-styling']->ver);
     }
 
     public function testThatVersionNumberIsAppliedToUrlOfEnqueuedScriptAssets()
     {
+        $this->assertArrayHasKey('servebolt-optimizer-scripts', wp_scripts()->registered);
         $this->assertEquals($this->currentPluginVersionNumber, wp_scripts()->registered['servebolt-optimizer-scripts']->ver);
+        $this->assertArrayHasKey('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', wp_scripts()->registered);
         $this->assertEquals($this->currentPluginVersionNumber, wp_scripts()->registered['servebolt-optimizer-cloudflare-cache-purge-trigger-scripts']->ver);
     }
 }
