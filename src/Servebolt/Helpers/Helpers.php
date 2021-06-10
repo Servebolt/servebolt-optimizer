@@ -920,7 +920,7 @@ function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
  */
 function getVersionForStaticAsset(string $assetSrc): string
 {
-    $pluginVersion = getCurrentPluginVersion(false);
+    $pluginVersion = apply_filters('sb_optimizer_static_asset_plugin_version', getCurrentPluginVersion(false));
 
     // Fallback to using `filemtime` if we could not resolve the current plugin version
     if ($pluginVersion === null) {
