@@ -24,14 +24,23 @@ class Assets {
 		add_action('init', [$this, 'initAssets']);
 	}
 
+    /**
+     * Determine whether we should enqueue plugin assets in general.
+     *
+     * @return bool
+     */
+	private function shouldInitAssets(): bool
+    {
+        return apply_filters('sb_optimizer_should_init_assets', is_user_logged_in());
+    }
+
 	/**
 	 * Init assets.
 	 */
-	public function initAssets()
+	public function initAssets(): void
     {
-
-		if (!is_user_logged_in()) {
-		    return;
+        if (!$this->shouldInitAssets()) {
+            return;
         }
 
 		// Front-end only assets
