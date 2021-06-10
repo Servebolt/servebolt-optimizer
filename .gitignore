@@ -52,7 +52,9 @@ node_modules
 # Ignore compiled stuff
 assets/dist
 #assets/dist # We should ignore this and implement the build procedure into the Github action when we deploy to wordpress.org
-build/
+
+# Local build files
+servebolt-optimizer/
 servebolt-optimizer.zip
 
 # Composer
