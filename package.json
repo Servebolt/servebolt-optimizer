@@ -40,7 +40,7 @@
     "eslint": "^5.16.0",
     "eslint-config-wordpress": "^2.0.0",
     "eslint-plugin-react": "^7.13.0",
-    "expose-loader": "latest",
+    "expose-loader": "^3.0.0",
     "file-loader": "^3.0.1",
     "gist-embed": "^2.6.0",
     "imagemin-webpack-plugin": "^2.4.2",
