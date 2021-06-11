@@ -1,11 +1,13 @@
 jQuery(document).ready(function($) {
 
   // Purge all cache on all sites in a multisite-network
+  /*
   $('.sb-purge-network-cache').click(function (e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
     sb_purge_network_cache();
   });
+  */
 
   // Purge all cache
   $('#sb-configuration .sb-purge-all-cache, #wpadminbar .sb-purge-all-cache').click(function (e) {
@@ -14,12 +16,38 @@ jQuery(document).ready(function($) {
     window.sb_purge_all_cache();
   });
 
+  // Purge post cache
+  $('#the-list .sb-purge-post-cache').click(function(e) {
+    e.preventDefault();
+    const postId = $(this).data('post-id'),
+      objectName = $(this).data('object-name');
+    window.sbPurgePostCache(postId, objectName);
+  });
+
+  // Purge term cache
+  $('#the-list .sb-purge-term-cache').click(function(e) {
+    e.preventDefault();
+    const termId = $(this).data('term-id'),
+      objectName = $(this).data('object-name');
+    window.sbPurgeTermCache(termId, objectName);
+  });
+
   // Purge current post cache
-  $('#wpadminbar .sb-purge-current-post-cache').click(function (e) {
+  $('#wpadminbar .sb-purge-current-post-cache').click(function(e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
-    var post_id = $(this).find('span').data('id');
-    window.sb_purge_post_cache(post_id);
+    const postId = $(this).find('span').data('id'),
+      objectName = $(this).find('span').data('object-name');
+    window.sbPurgePostCache(postId, objectName);
+  });
+
+  // Purge current term cache
+  $('#wpadminbar .sb-purge-current-term-cache').click(function(e) {
+    e.preventDefault();
+    sb_close_admin_bar_menu();
+    const termId = $(this).find('span').data('id'),
+      objectName = $(this).find('span').data('object-name');
+    window.sbPurgeTermCache(termId, objectName);
   });
 
   // Purge URL cache
@@ -68,8 +96,8 @@ jQuery(document).ready(function($) {
    * Purge Cloudflare cache on all sites in multisite.
    */
   function sb_purge_network_cache() {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Do you want to purge all cache?' + "\n" + 'This includes all your sites in the network') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Do you want to purge all cache?' + "\n" + 'This includes all your sites in the network')) {
         sb_purge_network_cache_confirmed();
       }
     } else {
@@ -131,8 +159,8 @@ jQuery(document).ready(function($) {
    * Clear all cache in Cloudflare.
    */
   window.sb_purge_all_cache = function() {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Do you want to purge all cache?') ) {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Do you want to purge all cache?')) {
         sb_purge_all_cache_confirmed();
       }
     } else {
@@ -168,52 +196,123 @@ jQuery(document).ready(function($) {
       data: data,
       success: function(response) {
         window.sb_loading(false);
-        var title = window.sb_get_from_response(response, 'title'),
-            message = window.sb_get_message_from_response(response);
-        if ( response.success ) {
+        if (response.success) {
           setTimeout(function () {
-            sb_cache_purge_success(message, title);
-            window.update_cache_purge_list();
+            sb_cache_purge_success(
+              window.sb_get_message_from_response(response),
+              window.sb_get_from_response(response, 'title')
+            );
+            //window.update_cache_purge_list();
           }, 100);
-        } else {
-          var type = window.sb_get_from_response(response, 'type');
-          if ( type == 'warning' ) {
-            sb_cache_purge_warning(message, title);
-          } else {
-            sb_cache_purge_error(message, false, title);
-          }
+          return;
         }
+        sb_cache_purge_error();
+        // TODO: Display errors to the user
+        //window.handle_unsuccessful_cache_purge(response);
       },
       error: function() {
         window.sb_loading(false);
-        sb_cache_purge_error(null, false);
+        sb_cache_purge_error(); // General error
       }
     });
-  }
+  };
+
+  window.handle_unsuccessful_cache_purge = function(response) {
+    var type = window.sb_get_from_response(response, 'type', 'error'),
+        message = window.sb_get_message_from_response(response);
+    if (message) {
+      // TODO: Display single message
+      return;
+      switch(type) {
+        case 'error':
+          sb_cache_purge_error();
+          break;
+        case 'warning':
+          sb_cache_purge_warning();
+          break;
+      }
+    }
+    var messages = window.sb_get_messages_from_response(response);
+    if (messages) {
+      // TODO: Handle multiple messages
+      return;
+      switch(type) {
+        case 'error':
+          sb_cache_purge_error();
+          break;
+        case 'warning':
+          sb_cache_purge_warning();
+          break;
+      }
+    }
+    /*
+    var type = window.sb_get_from_response(response, 'type');
+    if ( type == 'warning' ) {
+      sb_cache_purge_warning(message, title);
+    } else {
+      sb_cache_purge_error(message, false, title);
+    }
+    */
+  };
 
   /**
    * Clear cache for the current post.
    *
-   * @param post_id
+   * @param {string|null} objectName  The post type label in singular form.
    */
-  window.sb_purge_post_cache_with_auto_resolve = function(post_id) {
-    var post_id = document.getElementById('post_ID').value;
-    if ( post_id ) {
-      window.sb_purge_post_cache(post_id);
+  window.sbPurgePostCacheWithAutoResolve = function(objectName) {
+    var postId = document.getElementById('post_ID').value;
+    if (postId) {
+      window.sbPurgePostCache(postId, objectName);
     }
-  }
+  };
+
 
   /**
-   * Clear cache by post ID in Cloudflare.
+   * Purge cache by term ID.
+   *
+   * @param {int} termId              The term Id of the term that should be purged cache for.
+   * @param {string|null} objectName  The taxonomy name of the term.
    */
-  window.sb_purge_post_cache = function(post_id) {
-    if ( window.sb_use_native_js_fallback() ) {
-      if ( confirm('Do you want to purge cache for current post?') ) {
-        sb_purge_post_cache_confirmed(post_id);
+  window.sbPurgeTermCache = function(termId, objectName) {
+    var confirmText = 'Do you want to purge cache for ' + (objectName ? objectName : 'term') + '?';
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm(confirmText)) {
+        sbPurgeTermCacheConfirmed(termId);
       }
     } else {
       Swal.fire({
-        title: 'Do you want to purge cache for current post?',
+        title: confirmText,
+        icon: 'warning',
+        showCancelButton: true,
+        customClass: {
+          confirmButton: 'servebolt-button yellow',
+          cancelButton: 'servebolt-button light',
+        },
+        buttonsStyling: false,
+      }).then((result) => {
+        if (result.value) {
+          sbPurgeTermCacheConfirmed(termId);
+        }
+      });
+    }
+  };
+
+  /**
+   * Purge cache by post ID.
+   *
+   * @param {int} postId              The post Id of the post that should be purged cache for.
+   * @param {string|null} objectName  The post type label in singular form.
+   */
+  window.sbPurgePostCache = function(postId, objectName) {
+    var confirmText = 'Do you want to purge cache for ' + (objectName ? objectName : 'post') + '?';
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm(confirmText)) {
+        sb_purge_post_cache_confirmed(postId);
+      }
+    } else {
+      Swal.fire({
+        title: confirmText,
         icon: 'warning',
         showCancelButton: true,
         customClass: {
@@ -223,10 +322,60 @@ jQuery(document).ready(function($) {
         buttonsStyling: false
       }).then((result) => {
         if ( result.value ) {
-          sb_purge_post_cache_confirmed(post_id);
+          sb_purge_post_cache_confirmed(postId);
         }
       });
     }
+  };
+
+
+  /**
+   * Confirm callback for function "sbPurgeTermCache".
+   *
+   * @param {int} termId The term Id of the term that should be purged cache for.
+   */
+  function sbPurgeTermCacheConfirmed(termId) {
+    window.sb_loading(true);
+    const data = {
+      action: 'servebolt_purge_term_cache',
+      security: sb_ajax_object.ajax_nonce,
+      term_id: termId,
+    };
+    $.ajax({
+      type: 'POST',
+      url: sb_ajax_object.ajaxurl,
+      data: data,
+      success: function(response) {
+        window.sb_loading(false);
+        if (response.success) {
+          setTimeout(function() {
+            sb_cache_purge_success(
+              window.sb_get_message_from_response(response),
+              window.sb_get_from_response(response, 'title')
+            );
+            window.update_cache_purge_list();
+          }, 100);
+          return;
+        }
+        sb_cache_purge_error();
+        // TODO: Display errors to the user
+        /*
+        if ( message ) {
+          if ( response.data.type == 'warning' ) {
+            window.sb_warning(title, null, message);
+          } else {
+            sb_cache_purge_error(message);
+          }
+        } else {
+
+        }
+        */
+      },
+      error: function() {
+        window.sb_loading(false);
+        sb_cache_purge_error();
+      },
+    });
   }
 
   /**
@@ -247,24 +396,29 @@ jQuery(document).ready(function($) {
       data: data,
       success: function(response) {
         window.sb_loading(false);
-        var title = window.sb_get_from_response(response, 'title'),
-            message = window.sb_get_message_from_response(response);
         if ( response.success ) {
           setTimeout(function () {
-            sb_cache_purge_success(message, title);
+            sb_cache_purge_success(
+                window.sb_get_message_from_response(response),
+                window.sb_get_from_response(response, 'title')
+            );
             window.update_cache_purge_list();
           }, 100);
-        } else {
-          if ( message ) {
-            if ( response.data.type == 'warning' ) {
-              window.sb_warning(title, null, message);
-            } else {
-              sb_cache_purge_error(message);
-            }
-          } else {
-            sb_cache_purge_error();
-          }
+          return;
         }
+        sb_cache_purge_error();
+        // TODO: Display errors to the user
+        /*
+        if ( message ) {
+          if ( response.data.type == 'warning' ) {
+            window.sb_warning(title, null, message);
+          } else {
+            sb_cache_purge_error(message);
+          }
+        } else {
+
+        }
+        */
       },
       error: function() {
         window.sb_loading(false);
@@ -278,9 +432,9 @@ jQuery(document).ready(function($) {
    */
   window.sb_purge_url_cache = function() {
     if ( window.sb_use_native_js_fallback() ) {
-      var value = prompt('Which URL do you wish to purge?' + "\n" + 'Please use full URL including "http://"');
+      var value = window.prompt('Which URL do you wish to purge?' + "\n" + 'Please use full URL including "http://"');
       if ( ! value ) {
-        alert('Please enter a URL.');
+        window.alert('Please enter a URL.');
         return;
       }
       sb_purge_url_cache_confirmed(value);
@@ -326,24 +480,29 @@ jQuery(document).ready(function($) {
       data: data,
       success: function(response) {
         window.sb_loading(false);
-        var title = window.sb_get_from_response(response, 'title'),
-            message = window.sb_get_message_from_response(response);
-        if ( response.success ) {
-          setTimeout(function () {
+        if (response.success) {
+          setTimeout(function() {
+            var title = window.sb_get_from_response(response, 'title'),
+                message = window.sb_get_message_from_response(response);
             sb_cache_purge_success(message, title);
             window.update_cache_purge_list();
           }, 100);
-        } else {
-          if ( message ) {
-            if ( response.data.type == 'warning' ) {
-              window.sb_warning(title, null, message);
-            } else {
-              sb_cache_purge_error(message);
-            }
-          } else {
-            sb_cache_purge_error();
-          }
+          return;
         }
+        sb_cache_purge_error();
+        // TODO: Display errors to the user
+        /*
+        return;
+        if ( message ) {
+          if ( response.data.type == 'warning' ) {
+            window.sb_warning(title, null, message);
+          } else {
+            sb_cache_purge_error(message);
+          }
+        } else {
+          sb_cache_purge_error();
+        }
+        */
       },
       error: function() {
         window.sb_loading(false);
@@ -390,10 +549,16 @@ jQuery(document).ready(function($) {
    * @param title
    */
   function sb_cache_purge_error(message, include_url_message, title) {
-    if ( typeof include_url_message === 'undefined' ) include_url_message = true;
-    if ( typeof title === 'undefined' || ! title ) title = 'Unknown error';
-    var generic_message = 'Something went wrong. Please check that you:<br><ul style="text-align: left;max-width:350px;margin: 20px auto;">' + ( include_url_message ? '<li>- Specified a valid URL</li>' : '' ) + '<li>- Have added valid API credentials</li><li>- Have selected an active zone</li></ul> If the error still persist then please check the error logs and/or contact support.';
-    window.sb_error(title, null, ( message ? message : generic_message ));
+    if ( typeof include_url_message === 'undefined' ) {
+      include_url_message = true;
+    }
+    if ( typeof title === 'undefined' || ! title ) {
+      title = 'Unknown error';
+    }
+    if (!message) {
+      var message = 'Something went wrong. Please check that you:<br><ul style="text-align: left;max-width:350px;margin: 20px auto;">' + ( include_url_message ? '<li>- Specified a valid URL</li>' : '' ) + '<li>- Have configured the cache purge feature</li></ul> If the error still persist then please check the error logs and/or contact support.';
+    }
+    window.sb_error(title, null, message);
   }
 
 });
