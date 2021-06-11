@@ -13,6 +13,8 @@
 .vi
 ~
 .sass-cache
+.phplint-cache
+.phpunit.result.cache
 
 # OS or Editor folders
 .DS_Store
@@ -44,6 +46,7 @@ dwsync.xml
 intermediate
 .idea
 cache
+!src/Servebolt/Cli/Cache
 node_modules
 
 # Ignore compiled stuff
@@ -52,3 +55,4 @@ assets/dist
 
 # Composer
 vendor
+src/Dependencies

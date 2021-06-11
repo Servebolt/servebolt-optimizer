@@ -1,14 +1,24 @@
-const path = require( 'path' );
-const webpack = require( 'webpack' );
-const CopyWebpackPlugin = require( 'copy-webpack-plugin' );
-const MiniCssExtractPlugin = require( 'mini-css-extract-plugin' );
+const path = require('path');
+const webpack = require('webpack');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+//const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const ImageminPlugin = require( 'imagemin-webpack-plugin' ).default;
+const ImageminPlugin = require('imagemin-webpack-plugin').default;
 //const WebpackRTLPlugin = require( 'webpack-rtl-plugin' );
-const ProgressBarPlugin = require( 'progress-bar-webpack-plugin' );
-const { exec } = require( 'child_process' );
+const ProgressBarPlugin = require('progress-bar-webpack-plugin');
+const {exec} = require('child_process');
 
-const inProduction = ( 'production' === process.env.NODE_ENV );
+const inProduction = ('production' === process.env.NODE_ENV);
+
+/*
+	// Removed these packages due to the lack of need for a SASS-parser
+    "node-sass": "^4.12.0",
+    "sass-loader": "^7.1.0",
+    "mini-css-extract-plugin": "^0.6.0",
+    "css-loader": "^2.1.1",
+    "postcss-loader": "^3.0.0",
+    "cssnano": "^4.1.10",
+ */
 
 const config = {
 	// https://github.com/webpack-contrib/css-loader/issues/447
@@ -40,39 +50,41 @@ const config = {
 
 			// Create RTL styles.
 			/*
-			{
-				test: /\.css$/,
-				use: [
-		          {
-		            loader: MiniCssExtractPlugin.loader,
-		            options: {
-		              // you can specify a publicPath here
-		              // by default it uses publicPath in webpackOptions.output
-		              publicPath: '../',
-		              hmr: process.env.NODE_ENV === 'development',
-		            },
-		          },
-		          'css-loader',
-		        ],
-			},
-			*/
+            {
+                test: /\.css$/,
+                use: [
+                  {
+                    loader: MiniCssExtractPlugin.loader,
+                    options: {
+                      // you can specify a publicPath here
+                      // by default it uses publicPath in webpackOptions.output
+                      publicPath: '../',
+                      hmr: process.env.NODE_ENV === 'development',
+                    },
+                  },
+                  'css-loader',
+                ],
+            },
+            */
 
 			// SASS to CSS.
+			/*
 			{
 				test: /\.scss$/,
 
 				use: [
-		          {
-		            loader: MiniCssExtractPlugin.loader,
-		            options: {
-		              hmr: process.env.NODE_ENV === 'development',
-		            },
-		          },
-		          'css-loader',
-		          'postcss-loader',
-		          'sass-loader',
-		        ],
+					{
+						loader: MiniCssExtractPlugin.loader,
+						options: {
+							hmr: process.env.NODE_ENV === 'development',
+						},
+					},
+					'css-loader',
+					'postcss-loader',
+					'sass-loader',
+				],
 			},
+			*/
 
 			// Image files.
 			{
@@ -103,28 +115,28 @@ const config = {
 	// Plugins. Gotta have em'.
 	plugins: [
 
-		new ProgressBarPlugin( { clear: false } ),
+		new ProgressBarPlugin({clear: false}),
 
-		new MiniCssExtractPlugin( {filename:'css/gutenberg-menu.css'} ),
+		//new MiniCssExtractPlugin({filename: 'css/gutenberg-menu.css'}),
 
 		// Copy CSS-files
-		new CopyWebpackPlugin( [ { from: '*.css', to: 'css', 'context': 'assets/src/css/' } ] ),
+		new CopyWebpackPlugin([{from: '*.css', to: 'css', 'context': 'assets/src/css/'}]),
 
 		// Copy JS-files
-		new CopyWebpackPlugin( [ { from: '*.js', to: 'js', 'context': 'assets/src/js/' } ] ),
+		new CopyWebpackPlugin([{from: '*.js', to: 'js', 'context': 'assets/src/js/'}]),
 
 		// Copy images and SVGs
-		new CopyWebpackPlugin( [ { from: 'assets/src/images', to: 'images' } ] ),
+		new CopyWebpackPlugin([{from: 'assets/src/images', to: 'images'}]),
 
 		// Copy index.php to all dist directories.
-		new CopyWebpackPlugin( [ { from: 'index.php', to: '.' } ] ),
-		new CopyWebpackPlugin( [ { from: 'index.php', to: './images' } ] ),
-		new CopyWebpackPlugin( [ { from: 'index.php', to: './js' } ] ),
-		new CopyWebpackPlugin( [ { from: 'index.php', to: './css' } ] ),
+		new CopyWebpackPlugin([{from: 'index.php', to: '.'}]),
+		new CopyWebpackPlugin([{from: 'index.php', to: './images'}]),
+		new CopyWebpackPlugin([{from: 'index.php', to: './js'}]),
+		new CopyWebpackPlugin([{from: 'index.php', to: './css'}]),
 
 		// Minify images.
 		// Must go after CopyWebpackPlugin above: https://github.com/Klathmon/imagemin-webpack-plugin#example-usage
-		new ImageminPlugin( { test: /\.(jpe?g|png|gif|svg)$/i } ),
+		new ImageminPlugin({test: /\.(jpe?g|png|gif|svg)$/i}),
 
 	],
 };
@@ -132,46 +144,46 @@ const config = {
 module.exports = [
 
 	/*
-	Object.assign( {
-		entry: {
-			blocks: './packages/blocks/index.js',
-		},
+    Object.assign( {
+        entry: {
+            blocks: './packages/blocks/index.js',
+        },
 
-		// Tell webpack where to output.
-		output: {
-			path: path.resolve( __dirname, './assets/dist/' ),
-			filename: 'js/[name].js',
-		},
-	}, config ),
-	*/
+        // Tell webpack where to output.
+        output: {
+            path: path.resolve( __dirname, './assets/dist/' ),
+            filename: 'js/[name].js',
+        },
+    }, config ),
+    */
 
-	Object.assign( {
+	Object.assign({
 		entry: {
-			plugin: [ './assets/src/js/gutenberg/gutenberg-menu.js' ],
+			plugin: ['./assets/src/js/gutenberg/gutenberg-cache-purge-menu.js'],
 		},
 		output: {
-			path: path.resolve( __dirname, './assets/dist/' ),
-			filename: 'js/gutenberg-menu.js',
+			path: path.resolve(__dirname, './assets/dist/'),
+			filename: 'js/gutenberg-cache-purge-menu.js',
 		},
-	}, config ),
+	}, config),
 
 ];
 
 // inProd?
-if ( inProduction ) {
+if (inProduction) {
 
-	//exec( 'wp i18n make-pot . languages/servebolt-optimizer.pot --exclude=assets/dist' );
+	exec('wp i18n make-pot . languages/servebolt-optimizer.pot --domain="servebolt-wp" --exclude=assets/dist,ci/,src/Dependencies,tests/,vendor/');
 
 	// Uglify JS.
 	config.optimization = {
 		minimizer: [
-			new UglifyJsPlugin( { sourceMap: true } )
+			new UglifyJsPlugin({sourceMap: true})
 		]
 	};
 
 	//config.plugins.push(  );
 
 	// Minify CSS.
-	config.plugins.push( new webpack.LoaderOptionsPlugin( { minimize: true } ) );
+	config.plugins.push(new webpack.LoaderOptionsPlugin({minimize: true}));
 
 }
