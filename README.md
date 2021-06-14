@@ -31,6 +31,9 @@ Phan, PHPCS and PHPLint should be installed by composer.
 You can run the tests with this command: `composer test`
 
 ## Changelog
+#### 3.0.2
+* Fixed bug in compatibility code for older versions of WP Rocket
+
 #### 3.0.1
 * Corrected typo in string “Accelerated domains” to use uppercase in first character of each word.
 * Fixed issue in cache headers - the feature to exclude posts from cache was broken due to wrong order in conditions in the cache header logic. This is now fixed.
