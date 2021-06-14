@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.7.2
 Requires PHP: 7.3
-Stable tag: 3.0.1
+Stable tag: 3.0.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.0.2 =
+* Fixed bug in compatibility code for older versions of WP Rocket
+* Fixed bug that caused post cache not to be purged when scheduling posts
+* Updated composer and NPM packages (affecting development environment only)
+
 = 3.0.1 =
 * Corrected typo in string “Accelerated domains” to use uppercase in first character of each word.
 * Fixed issue in cache headers - the feature to exclude posts from cache was broken due to wrong order in conditions in the cache header logic. This is now fixed.
