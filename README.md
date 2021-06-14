@@ -34,6 +34,7 @@ You can run the tests with this command: `composer test`
 #### 3.0.2
 * Fixed bug in compatibility code for older versions of WP Rocket
 * Fixed bug that caused post cache not to be purged when scheduling posts
+* Updated composer and NPM packages (affecting development environment only)
 
 #### 3.0.1
 * Corrected typo in string “Accelerated domains” to use uppercase in first character of each word.
