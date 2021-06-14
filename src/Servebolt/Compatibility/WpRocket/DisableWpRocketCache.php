@@ -54,7 +54,11 @@ class DisableWpRocketCache
         */
         if (function_exists('rocket_clean_domain')) {
             // Purge all WP Rocket cache for current domain
-            return rocket_clean_domain();
+            $purgeResult = rocket_clean_domain();
+            if (is_bool($purgeResult)) {
+                return $purgeResult;
+            }
+            return true; // We don't really know how the purge went, so unfortunately we have to assume that it went okay
         }
         return false;
     }

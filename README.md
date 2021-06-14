@@ -40,6 +40,11 @@ Credentials for the SVN repository is stored in the password manager. The creden
 If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to Wordpress.org.
 
 ## Changelog
+#### 3.0.2
+* Fixed bug in compatibility code for older versions of WP Rocket
+* Fixed bug that caused post cache not to be purged when scheduling posts
+* Updated composer and NPM packages (affecting development environment only)
+
 #### 3.0.1
 * Corrected typo in string “Accelerated domains” to use uppercase in first character of each word.
 * Fixed issue in cache headers - the feature to exclude posts from cache was broken due to wrong order in conditions in the cache header logic. This is now fixed.
