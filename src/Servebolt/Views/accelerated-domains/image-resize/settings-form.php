@@ -1,0 +1,58 @@
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
+<?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
+<?php use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageResize; ?>
+
+<?php settings_errors(); ?>
+
+<form method="post" autocomplete="off" action="options.php">
+    <?php settings_fields('sb-accelerated-domains-image-resize-options-page'); ?>
+    <?php do_settings_sections('sb-accelerated-domains-image-resize-options-page'); ?>
+
+    <table class="form-table" role="presentation">
+        <tr>
+            <th scope="row"><?php _e('Image resize', 'servebolt-wp'); ?></th>
+            <td>
+                <fieldset>
+                    <legend class="screen-reader-text"><span><?php _e('Image resize-feature active?', 'servebolt-wp'); ?></span></legend>
+                    <label for="acd_img_resize_switch">
+                        <input name="<?php echo getOptionName('acd_img_resize_switch'); ?>" type="checkbox" id="acd_img_resize_switch" value="1" <?php checked($settings['acd_img_resize_switch']); ?>>
+                        <?php _e('Enabled', 'servebolt-wp'); ?>
+                    </label>
+                </fieldset>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row"><label for="acd_image_resize_quality"><?php _e('Image quality', 'servebolt-wp'); ?></label></th>
+            <td>
+                <input type="number" name="<?php echo getOptionName('acd_image_resize_quality'); ?>" min="1" max="100" id="acd_image_resize_quality" value="<?php echo esc_attr($settings['acd_image_resize_quality']); ?>" placeholder="Default value: <?php echo ImageResize::$defaultImageQuality; ?>" class="regular-text">
+                <p class="invalid-message"></p>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row"><?php _e('Metadata optimization', 'servebolt-wp'); ?></th>
+            <td>
+                <fieldset>
+                    <legend class="screen-reader-text"><span><?php _e('Keep all metadata', 'servebolt-wp'); ?></span></legend>
+                    <label>
+                        <input type="radio" name="<?php echo getOptionName('acd_image_resize_metadata_optimization_level'); ?>" value="keep_all" <?php checked($settings['acd_image_resize_metadata_optimization_level'] == 'keep_all'); ?>> <code><?php _e('Keep all metadata', 'servebolt-wp'); ?></code>
+                    </label><br>
+
+                    <legend class="screen-reader-text"><span><?php _e('Keep copyright metadata', 'servebolt-wp'); ?></span></legend>
+                    <label>
+                        <input type="radio" name="<?php echo getOptionName('acd_image_resize_metadata_optimization_level'); ?>" value="keep_copyright" <?php checked($settings['acd_image_resize_metadata_optimization_level'] == 'keep_copyright'); ?>> <code><?php _e('Keep copyright metadata', 'servebolt-wp'); ?></code>
+                    </label><br>
+
+                    <legend class="screen-reader-text"><span><?php _e('No metadata', 'servebolt-wp'); ?></span></legend>
+                    <label>
+                        <input type="radio" name="<?php echo getOptionName('acd_image_resize_metadata_optimization_level'); ?>" value="no_metadata" <?php checked($settings['acd_image_resize_metadata_optimization_level'] == 'no_metadata'); ?>> <code><?php _e('No metadata', 'servebolt-wp'); ?></code>
+                    </label>
+                </fieldset>
+            </td>
+        </tr>
+    </table>
+
+    <p class="submit">
+        <?php submit_button(null, 'primary', 'form-submit', false); ?>
+    </p>
+
+</form>

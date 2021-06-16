@@ -12,6 +12,4 @@ use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
         <?php view('accelerated-domains.tabs-menu', ['selectedTab' => 'servebolt-acd-image-resize']); ?>
         <?php view('accelerated-domains.image-resize.settings-form', compact('settings')); ?>
     <?php endif; ?>
-
-
 </div>
