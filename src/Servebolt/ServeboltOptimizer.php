@@ -63,9 +63,6 @@ class ServeboltOptimizer
             new CloudflareCompatibility;
         });
 
-        // TODO: Load this conditionally
-        new \Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageResize;
-
         // Make sure we don't store certain options (like API credentials) in clear text.
         new OptionEncryption;
 
