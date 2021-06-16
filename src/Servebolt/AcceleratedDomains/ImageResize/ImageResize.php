@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\AcceleratedDomains\ImageResize;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 /**
  * Class ImageResize
  * @package Servebolt\Optimizer\AcceleratedDomains\ImageResize
@@ -38,36 +40,43 @@ class ImageResize
      *
      * @var int
      */
-    private $defaultQuality = 85;
+    public static $defaultImageQuality = 85;
 
     /**
-     * ImageResize constructor.
+     * The image quality.
+     *
+     * @var int
      */
-    public function __construct(bool $init = true)
-    {
-        if ($init) {
-            $this->imageResize();
-        }
-    }
+    private $imageQuality;
 
     /**
-     * Register image resize hooks.
+     * @var string The level of metadata optimization.
      */
-    private function imageResize(): void
+    private $imageMetadataOptimizationLevel;
+
+    /**
+     * @var string The level of metadata optimization.
+     */
+    public static $defaultImageMetadataOptimizationLevel = 'keep_copyright';
+
+    /**
+     * Add image resize hooks with WordPress.
+     */
+    public function addHooks(): void
     {
         // Alter image src-attribute URL
         if (apply_filters('sb_optimizer_acd_image_resize_alter_src', true)) {
-            add_filter('wp_get_attachment_image_src', [$this, 'alterSingleImageUrl']);
+            add_filter('wp_get_attachment_image_src', [$this->imageResize, 'alterSingleImageUrl']);
         }
 
         // Alter srcset-attribute URLs
         if (apply_filters('sb_optimizer_acd_image_resize_alter_srcset', true)) {
-            add_filter('wp_calculate_image_srcset', [$this, 'alterSrcsetImageUrls']);
+            add_filter('wp_calculate_image_srcset', [$this->imageResize, 'alterSrcsetImageUrls'], 10, 5);
         }
 
         // Prevent certain image sizes to be created since we are using ACD / Cloudflare for resizing
         if (apply_filters('sb_optimizer_acd_image_resize_alter_intermediate_sizes', true)) {
-            add_filter('intermediate_image_sizes_advanced', [$this, 'overrideImageSizeCreation'], 10, 2);
+            add_filter('intermediate_image_sizes_advanced', [$this->imageResize, 'overrideImageSizeCreation'], 10, 2);
         }
     }
 
@@ -78,7 +87,7 @@ class ImageResize
      *
      * @return array
      */
-    public function alterSrcsetImageUrls($sources): array
+    public function alterSrcsetImageUrls($sources, $size_array, $image_src, $image_meta, $attachment_id): array
     {
         foreach ($sources as $key => $value) {
             $descriptor = $value['descriptor'] === 'h' ? 'height' : 'width';
@@ -88,6 +97,30 @@ class ImageResize
             $sources[$key]['url'] = $this->buildImageUrl($value['url'], $resizeParameters);
         }
         return $sources;
+    }
+
+    /**
+     * Set metadata optimization level.
+     *
+     * @param string $optimizationLevel
+     * @return $this
+     */
+    public function setMetadataOptimizationLevel(string $optimizationLevel)
+    {
+        $this->imageMetadataOptimizationLevel = $optimizationLevel;
+        return $this;
+    }
+
+    /**
+     * Set image quality.
+     *
+     * @param int $imageQuality
+     * @return $this
+     */
+    public function setImageQuality(int $imageQuality)
+    {
+        $this->imageQuality = $imageQuality;
+        return $this;
     }
 
     /**
@@ -137,6 +170,29 @@ class ImageResize
     }
 
     /**
+     * Get image quality.
+     *
+     * @return int
+     */
+    private function getImageQuality(): int
+    {
+        if (is_int($this->imageQuality)) {
+            return $this->imageQuality;
+        }
+        return self::defaultImageQuality;
+    }
+
+    /**
+     * Get image metadata optimization level.
+     *
+     * @return null|string
+     */
+    private function getMetadataOptimizationLevel()
+    {
+        return $this->imageMetadataOptimizationLevel ?? self::$defaultImageMetadataOptimizationLevel;
+    }
+
+    /**
      * @param $additionalParams
      * @return array
      */
@@ -144,7 +200,7 @@ class ImageResize
     {
         $additionalParams = apply_filters('sb_optimizer_acd_image_resize_additional_params', $additionalParams);
         $defaultParams = apply_filters('sb_optimizer_acd_image_resize_default_params', [
-            'quality' => $this->defaultQuality,
+            'quality' => $this->getImageQuality(),
             'format'  => 'auto',
         ]);
         return apply_filters('sb_optimizer_acd_image_resize_params_concatenated', wp_parse_args($additionalParams, $defaultParams),$additionalParams, $defaultParams);
