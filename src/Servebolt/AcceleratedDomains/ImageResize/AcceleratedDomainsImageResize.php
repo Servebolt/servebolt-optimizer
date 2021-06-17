@@ -8,6 +8,7 @@ use Servebolt\Optimizer\Utils\ImageUpscale;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
+use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 
 /**
  * Class AcceleratedDomainsImageResize
@@ -137,4 +138,14 @@ class AcceleratedDomainsImageResize
         return checkboxIsChecked(smartGetOption($blogId, 'acd_img_resize_upscale'));
     }
 
+    /**
+     * Toggle image resize feature active/inactive.
+     *
+     * @param bool $state
+     * @param int|null $blogId
+     */
+    public static function toggleActive(bool $state, ?int $blogId = null): void
+    {
+        smartUpdateOption($blogId, 'acd_img_resize_switch', $state);
+    }
 }

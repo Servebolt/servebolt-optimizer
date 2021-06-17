@@ -201,7 +201,7 @@ class ImageResize
         if (is_int($this->imageQuality)) {
             return $this->imageQuality;
         }
-        return self::defaultImageQuality;
+        return self::$defaultImageQuality;
     }
 
     /**
@@ -278,7 +278,7 @@ class ImageResize
      *
      * @return string
      */
-    public function buildImageUrlSmart(string $url, array $resizeParameters = []): string
+    public function buildImageUrl(string $url, array $resizeParameters = []): string
     {
         $urlParts = wp_parse_url($url);
         $resizeParametersString = $this->buildQueryStringFromArray($resizeParameters);
