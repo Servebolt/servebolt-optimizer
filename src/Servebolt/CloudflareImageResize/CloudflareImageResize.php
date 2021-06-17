@@ -2,6 +2,9 @@
 
 namespace Servebolt\Optimizer\CloudflareImageResize;
 
+use Servebolt\Optimizer\Utils\ImageSizeCreationOverride;
+use Servebolt\Optimizer\Utils\ImageUpscale;
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
@@ -61,7 +64,7 @@ class CloudflareImageResize
     private function init()
     {
         $this->initImageResize();
-        $this->initImageUpscale();
+        ImageUpscale::getInstance();
     }
 
     /**
@@ -82,61 +85,8 @@ class CloudflareImageResize
 
         // Prevent certain image sizes to be created since we are using Cloudflare for resizing
         if ( apply_filters('sb_optimizer_cf_image_resize_alter_intermediate_sizes', true ) ) {
-            add_filter( 'intermediate_image_sizes_advanced', [ $this, 'overrideImageSizeCreation' ], 10, 2 );
+            ImageSizeCreationOverride::getInstance();
         }
-    }
-
-    /**
-     * Initialize image upscaling when resizing to a cropped size (if the image is too small to fill the cropped proportions).
-     */
-    public function initImageUpscale(): void
-    {
-
-        // Whether we should upscale images that are too small to fill the proportions of an image size
-        if (apply_filters('sb_optimizer_cf_image_resize_upscale_images', true)) {
-            add_filter('image_resize_dimensions', [$this, 'imageUpscale'], 10, 6);
-        }
-    }
-
-    /**
-     * Only resize images when needed.
-     *
-     * @param $sizes
-     * @param $imageMeta
-     *
-     * @return array
-     */
-    public function overrideImageSizeCreation($sizes, $imageMeta)
-    {
-
-        // Store the image sizes for later use
-        $this->originalSizes = $sizes;
-
-        // Re-add image sizes after file creation
-        add_filter( 'wp_get_attachment_metadata', [ $this, 'reAddImageSizes' ] );
-
-        // Determine which image sizes we should generate files for
-        $uploadedImageRatio = $imageMeta['width'] / $imageMeta['height'];
-        return array_filter($sizes, function ($size, $key) use ($imageMeta, $uploadedImageRatio) {
-
-            // Check if this is a size that we should always generate
-            if ( in_array($key, (array) apply_filters('sb_optimizer_cf_image_resize_always_create_sizes', $this->alwaysCreateSizes) ) ) {
-                return true;
-            }
-
-            $imageSizeRatio = $size['width'] / $size['height'];
-            $uploadedImageHasSameRatioAsCurrentImageSize = $uploadedImageRatio == $imageSizeRatio;
-            $uploadedImageIsBiggerThanCurrentImageSize = $imageMeta['width'] >= $size['width'] && $imageMeta['height'] >= $size['height'];
-
-            // If uploaded image has same the ratio as the original and it is bigger than the current size then we can downscale the original file with Cloudflare instead, therefore we dont need to generate the size
-            if ( $uploadedImageHasSameRatioAsCurrentImageSize && $uploadedImageIsBiggerThanCurrentImageSize ) {
-                return false;
-            }
-
-            // If the image proportions are changed the we need to generate it (and later we can scale the size with Cloudflare using only width since the proportions of the image is correct)
-            return $size['crop'];
-        }, ARRAY_FILTER_USE_BOTH);
-
     }
 
     /**
@@ -272,34 +222,5 @@ class CloudflareImageResize
             'onerror' => 'redirect',
         ]);
         return apply_filters('sb_optimizer_cf_image_resize_default_params_concatenated', wp_parse_args($additionalParams, $defaultParams));
-    }
-
-    /**
-     * When generating cropped image sizes then upscale the image if the original is too small, so that we get the proportion specified in the image size.
-     *
-     * @param $default
-     * @param $origW
-     * @param $origH
-     * @param $newW
-     * @param $newH
-     * @param $crop
-     *
-     * @return array|null
-     */
-    function imageUpscale($default, $origW, $origH, $newW, $newH, $crop)
-    {
-        if (!$crop) {
-            return $default; // Let the WordPress default function handle this
-        }
-
-        $sizeRatio = max($newW / $origW, $newH / $origH);
-
-        $cropW = round($newW / $sizeRatio);
-        $cropH = round($newH / $sizeRatio);
-
-        $sx = floor( ($origW - $cropW) / 2 );
-        $sy = floor( ($origH - $cropH) / 2 );
-
-        return apply_filters('sb_optimizer_cf_image_resize_upscale_dimensions', [0, 0, (int) $sx, (int) $sy, (int) $newW, (int) $newH, (int) $cropW, (int) $cropH]);
     }
 }

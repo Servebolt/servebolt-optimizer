@@ -79,8 +79,11 @@ class AcceleratedDomainsImageResizeControl
     {
         return [
             'acd_img_resize_switch',
+            'acd_img_resize_src_tag_switch',
+            'acd_img_resize_srcset_tag_switch',
             'acd_image_resize_quality',
             'acd_image_resize_metadata_optimization_level',
+            'acd_img_resize_upscale',
         ];
     }
 }

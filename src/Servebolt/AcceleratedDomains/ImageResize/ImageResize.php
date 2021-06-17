@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\AcceleratedDomains\ImageResize;
 
+use Servebolt\Optimizer\Utils\ImageSizeCreationOverride;
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
@@ -12,12 +14,16 @@ class ImageResize
 {
 
     /**
-     * @var string Resize service base URL.
+     * Resize service base URL.
+     *
+     * @var string
      */
     private $cgiPrefix = 'acd-cgi/img';
 
     /**
-     * @var string Resize service version.
+     * Resize service version.
+     *
+     * @var string
      */
     private $version = 'v1';
 
@@ -50,7 +56,9 @@ class ImageResize
     private $imageQuality;
 
     /**
-     * @var string The level of metadata optimization.
+     * The level of metadata optimization.
+     *
+     * @var string
      */
     private $imageMetadataOptimizationLevel;
 
@@ -59,42 +67,56 @@ class ImageResize
      */
     public static $defaultImageMetadataOptimizationLevel = 'keep_copyright';
 
+    public function addSingleImageUrlHook(): void
+    {
+        if (apply_filters('sb_optimizer_acd_image_resize_alter_src', true)) {
+            add_filter('wp_get_attachment_image_src', [$this, 'alterSingleImageUrl']);
+        }
+    }
+
+    public function addSrcsetImageUrlsHook(): void
+    {
+        if (apply_filters('sb_optimizer_acd_image_resize_alter_srcset', true)) {
+            add_filter('wp_calculate_image_srcset', [$this, 'alterSrcsetImageUrls'], 10, 5);
+        }
+    }
+
+    /**
+     * Prevent certain image sizes to be created since we are using Cloudflare for resizing.
+     */
+    public function addOverrideImageSizeCreationHook()
+    {
+        if (apply_filters('sb_optimizer_acd_image_resize_alter_intermediate_sizes', true)) {
+            ImageSizeCreationOverride::getInstance();
+        }
+    }
+
     /**
      * Add image resize hooks with WordPress.
      */
     public function addHooks(): void
     {
-        // Alter image src-attribute URL
-        if (apply_filters('sb_optimizer_acd_image_resize_alter_src', true)) {
-            add_filter('wp_get_attachment_image_src', [$this->imageResize, 'alterSingleImageUrl']);
-        }
-
-        // Alter srcset-attribute URLs
-        if (apply_filters('sb_optimizer_acd_image_resize_alter_srcset', true)) {
-            add_filter('wp_calculate_image_srcset', [$this->imageResize, 'alterSrcsetImageUrls'], 10, 5);
-        }
-
-        // Prevent certain image sizes to be created since we are using ACD / Cloudflare for resizing
-        if (apply_filters('sb_optimizer_acd_image_resize_alter_intermediate_sizes', true)) {
-            add_filter('intermediate_image_sizes_advanced', [$this->imageResize, 'overrideImageSizeCreation'], 10, 2);
-        }
+        $this->addSingleImageUrlHook();
+        $this->addSrcsetImageUrlsHook();
+        $this->addOverrideImageSizeCreationHook();
     }
 
     /**
-     * Alter srcset-attribute.
-     *
-     * @param $sources
-     *
+     * @param array $sources
+     * @param array $sizeArray
+     * @param string $imageSrc
+     * @param array $imageMeta
+     * @param int $attachmentId
      * @return array
      */
-    public function alterSrcsetImageUrls($sources, $size_array, $image_src, $image_meta, $attachment_id): array
+    public function alterSrcsetImageUrls(array $sources, array $sizeArray, string $imageSrc, array $imageMeta, int $attachmentId): array
     {
         foreach ($sources as $key => $value) {
             $descriptor = $value['descriptor'] === 'h' ? 'height' : 'width';
             $resizeParameters = $this->defaultImageResizeParameters([
                 $descriptor => $value['value']
             ]);
-            $sources[$key]['url'] = $this->buildImageUrl($value['url'], $resizeParameters);
+            $sources[$key]['url'] = $this->buildImageUrl($sources[$key]['url'], $resizeParameters);
         }
         return $sources;
     }
@@ -185,11 +207,22 @@ class ImageResize
     /**
      * Get image metadata optimization level.
      *
-     * @return null|string
+     * @return string
      */
-    private function getMetadataOptimizationLevel()
+    private function getMetadataOptimizationLevel(): string
     {
-        return $this->imageMetadataOptimizationLevel ?? self::$defaultImageMetadataOptimizationLevel;
+        switch ($this->imageMetadataOptimizationLevel) {
+            case 'keep':
+            case 'keep_all':
+                return 'keep';
+            case 'copyright':
+            case 'keep_copyright':
+                return 'copyright';
+            case 'no_metadata':
+            case 'none':
+                return 'none';
+        }
+        return self::$defaultImageMetadataOptimizationLevel;
     }
 
     /**
@@ -201,6 +234,7 @@ class ImageResize
         $additionalParams = apply_filters('sb_optimizer_acd_image_resize_additional_params', $additionalParams);
         $defaultParams = apply_filters('sb_optimizer_acd_image_resize_default_params', [
             'quality' => $this->getImageQuality(),
+            'metadata' => $this->getMetadataOptimizationLevel(),
             'format'  => 'auto',
         ]);
         return apply_filters('sb_optimizer_acd_image_resize_params_concatenated', wp_parse_args($additionalParams, $defaultParams),$additionalParams, $defaultParams);
@@ -227,46 +261,6 @@ class ImageResize
     }
 
     /**
-     * Only resize images when needed.
-     *
-     * @param $sizes
-     * @param $imageMeta
-     *
-     * @return array
-     */
-    public function overrideImageSizeCreation($sizes, $imageMeta)
-    {
-
-        // Store the image sizes for later use
-        $this->originalSizes = $sizes;
-
-        // Re-add image sizes after file creation
-        add_filter( 'wp_get_attachment_metadata', [ $this, 'reAddImageSizes' ] );
-
-        // Determine which image sizes we should generate files for
-        $uploadedImageRatio = $imageMeta['width'] / $imageMeta['height'];
-        return array_filter($sizes, function ($size, $key) use ($imageMeta, $uploadedImageRatio) {
-
-            // Check if this is a size that we should always generate
-            if ( in_array($key, (array) apply_filters('sb_optimizer_acd_image_resize_always_create_sizes', $this->alwaysCreateSizes) ) ) {
-                return true;
-            }
-
-            $imageSizeRatio = $size['width'] / $size['height'];
-            $uploadedImageHasSameRatioAsCurrentImageSize = $uploadedImageRatio == $imageSizeRatio;
-            $uploadedImageIsBiggerThanCurrentImageSize = $imageMeta['width'] >= $size['width'] && $imageMeta['height'] >= $size['height'];
-
-            // If uploaded image has same the ratio as the original and it is bigger than the current size then we can downscale the original file with Cloudflare instead, therefore we dont need to generate the size
-            if ( $uploadedImageHasSameRatioAsCurrentImageSize && $uploadedImageIsBiggerThanCurrentImageSize ) {
-                return false;
-            }
-
-            // If the image proportions are changed the we need to generate it (and later we can scale the size with Cloudflare using only width since the proportions of the image is correct)
-            return $size['crop'];
-        }, ARRAY_FILTER_USE_BOTH);
-    }
-
-    /**
      * Get image resize service path prefix.
      *
      * @return string
@@ -284,7 +278,7 @@ class ImageResize
      *
      * @return string
      */
-    public function buildImageUrl(string $url, array $resizeParameters = []): string
+    public function buildImageUrlSmart(string $url, array $resizeParameters = []): string
     {
         $urlParts = wp_parse_url($url);
         $resizeParametersString = $this->buildQueryStringFromArray($resizeParameters);

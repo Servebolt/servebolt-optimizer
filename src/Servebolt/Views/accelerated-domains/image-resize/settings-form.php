@@ -17,6 +17,32 @@
                     <label for="acd_img_resize_switch">
                         <input name="<?php echo getOptionName('acd_img_resize_switch'); ?>" type="checkbox" id="acd_img_resize_switch" value="1" <?php checked($settings['acd_img_resize_switch']); ?>>
                         <?php _e('Enabled', 'servebolt-wp'); ?>
+                    </label><br>
+
+                    <legend class="screen-reader-text"><span><?php _e('Apply to src-attribute', 'servebolt-wp'); ?></span></legend>
+                    <label for="acd_img_resize_src_tag_switch">
+                        <input name="<?php echo getOptionName('acd_img_resize_src_tag_switch'); ?>" type="checkbox" id="acd_img_resize_src_tag_switch" value="1" <?php checked($settings['acd_img_resize_src_tag_switch']); ?>>
+                        <code><?php _e('Apply to src-attribute', 'servebolt-wp'); ?></code>
+                    </label><br>
+
+                    <legend class="screen-reader-text"><span><?php _e('Apply to srcset-attribute', 'servebolt-wp'); ?></span></legend>
+                    <label for="acd_img_resize_srcset_tag_switch">
+                        <input name="<?php echo getOptionName('acd_img_resize_srcset_tag_switch'); ?>" type="checkbox" id="acd_img_resize_srcset_tag_switch" value="1" <?php checked($settings['acd_img_resize_srcset_tag_switch']); ?>>
+                        <code><?php _e('Apply to srcset-attribute', 'servebolt-wp'); ?></code>
+                    </label>
+
+                </fieldset>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row"><?php _e('Upscale images?', 'servebolt-wp'); ?></th>
+            <td>
+                <fieldset>
+                    <legend class="screen-reader-text"><span><?php _e('Upscale images?', 'servebolt-wp'); ?></span></legend>
+                    <label for="acd_img_resize_upscale">
+                        <input name="<?php echo getOptionName('acd_img_resize_upscale'); ?>" type="checkbox" id="acd_img_resize_upscale" value="1" <?php checked($settings['acd_img_resize_upscale']); ?>>
+                        <?php _e('Enabled', 'servebolt-wp'); ?><br>
+                        <p>This will scale up the dimension of images that are too small.</p>
                     </label>
                 </fieldset>
             </td>
@@ -32,10 +58,12 @@
             <th scope="row"><?php _e('Metadata optimization', 'servebolt-wp'); ?></th>
             <td>
                 <fieldset>
+
+                    <?php /*
                     <legend class="screen-reader-text"><span><?php _e('Keep all metadata', 'servebolt-wp'); ?></span></legend>
                     <label>
                         <input type="radio" name="<?php echo getOptionName('acd_image_resize_metadata_optimization_level'); ?>" value="keep_all" <?php checked($settings['acd_image_resize_metadata_optimization_level'] == 'keep_all'); ?>> <code><?php _e('Keep all metadata', 'servebolt-wp'); ?></code>
-                    </label><br>
+                    </label><br>*/ ?>
 
                     <legend class="screen-reader-text"><span><?php _e('Keep copyright metadata', 'servebolt-wp'); ?></span></legend>
                     <label>

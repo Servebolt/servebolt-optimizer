@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\AcceleratedDomains\ImageResize;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Utils\ImageUpscale;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
@@ -25,21 +26,49 @@ class AcceleratedDomainsImageResize
      */
     public function __construct()
     {
-        $this->defaultImageOptimizationLevels();
+        $this->defaultOptionValues();
         if (self::isActive()) {
             $this->imageResize = new ImageResize();
-            $this->imageResize->setImageQuality($this->getImageQuality())
-                ->setMetadataOptimizationLevel($this->getMetadataOptimizationLevel())
-                ->addHooks();
+            if ($imageQuality = $this->getImageQuality()) {
+                $this->imageResize->setImageQuality($imageQuality);
+            }
+            if ($metadataOptimizationLevel = $this->getMetadataOptimizationLevel()) {
+                $this->imageResize->setMetadataOptimizationLevel($metadataOptimizationLevel);
+            }
+
+            $this->imageResize->addOverrideImageSizeCreationHook();
+            if (self::srcAlteringIsActive()) {
+                $this->imageResize->addSingleImageUrlHook();
+            }
+            if (self::srcsetAlteringIsActive()) {
+                $this->imageResize->addSrcsetImageUrlsHook();
+            }
+            if (self::doImageUpscale()) {
+                ImageUpscale::getInstance();
+            }
         }
     }
 
     /**
-     * Make sure to return default value if no value is set.
+     * Check if user has access to resize feature.
+     *
+     * @return bool
      */
-    private function defaultImageOptimizationLevels(): void
+    public function hasAccessToFeature(): bool
+    {
+        // TODO: Check if the user has access to this feature.
+        return true;
+    }
+
+    /**
+     * Set default option values.
+     */
+    private function defaultOptionValues(): void
     {
         setDefaultOption('acd_image_resize_metadata_optimization_level', ImageResize::$defaultImageMetadataOptimizationLevel);
+        setDefaultOption('acd_img_resize_upscale', '__return_true');
+        setDefaultOption('acd_img_resize_src_tag_switch', '__return_true');
+        setDefaultOption('acd_img_resize_srcset_tag_switch', '__return_true');
     }
 
     /**
@@ -65,7 +94,29 @@ class AcceleratedDomainsImageResize
     }
 
     /**
-     * Check whether the cache purge feature is active.
+     * Check whether we should alter the srcset-tag for images.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function srcsetAlteringIsActive(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(smartGetOption($blogId, 'acd_img_resize_srcset_tag_switch'));
+    }
+
+    /**
+     * Check whether we should alter the src-tag for images.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function srcAlteringIsActive(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(smartGetOption($blogId, 'acd_img_resize_src_tag_switch'));
+    }
+
+    /**
+     * Check whether we should resize images.
      *
      * @param int|null $blogId
      * @return bool
@@ -74,4 +125,16 @@ class AcceleratedDomainsImageResize
     {
         return checkboxIsChecked(smartGetOption($blogId, 'acd_img_resize_switch'));
     }
+
+    /**
+     * Check whether we should resize images.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function doImageUpscale(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(smartGetOption($blogId, 'acd_img_resize_upscale'));
+    }
+
 }

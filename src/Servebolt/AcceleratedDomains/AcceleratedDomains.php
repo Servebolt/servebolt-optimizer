@@ -37,7 +37,9 @@ class AcceleratedDomains
         new AcceleratedDomainsHeaders;
         new AcceleratedDomainsSettings;
 
-        new AcceleratedDomainsImageResize;
+        if (AcceleratedDomainsImageResize::hasAccessToFeature()) {
+            new AcceleratedDomainsImageResize;
+        }
 
         $this->disableApoWhenAcdActive();
         $this->activateCachePurgeFeatureOnAcdActivation();
