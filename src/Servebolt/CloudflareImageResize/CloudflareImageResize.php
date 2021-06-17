@@ -218,7 +218,7 @@ class CloudflareImageResize
         $additionalParams = apply_filters('sb_optimizer_cf_image_resize_default_params_additional', $additionalParams);
         $defaultParams = apply_filters('sb_optimizer_cf_image_resize_default_params', [
             'quality' => '60',
-            'format'  => 'auto',
+            'format' => 'auto',
             'onerror' => 'redirect',
         ]);
         return apply_filters('sb_optimizer_cf_image_resize_default_params_concatenated', wp_parse_args($additionalParams, $defaultParams));

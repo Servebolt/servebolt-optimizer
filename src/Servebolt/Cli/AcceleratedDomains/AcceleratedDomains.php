@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Cli\AcceleratedDomains;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains as AcceleratedDomainsClass;
+use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize;
 use WP_CLI;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
@@ -23,6 +24,10 @@ class AcceleratedDomains
         WP_CLI::add_command('servebolt acd status', [$this, 'statusAcd']);
         WP_CLI::add_command('servebolt acd activate', [$this, 'activateAcd']);
         WP_CLI::add_command('servebolt acd deactivate', [$this, 'deactivateAcd']);
+
+        WP_CLI::add_command('servebolt acd image-resize status', [$this, 'statusAcdImageResize']);
+        WP_CLI::add_command('servebolt acd image-resize activate', [$this, 'activateAcdImageResize']);
+        WP_CLI::add_command('servebolt acd image-resize deactivate', [$this, 'deactivateAcdImageResize']);
 
         /*
         WP_CLI::add_command('servebolt acd html-minify status', [$this, 'statusAcdHtmlMinify']);
@@ -240,6 +245,227 @@ class AcceleratedDomains
             } else {
                 AcceleratedDomainsClass::toggleActive(false);
                 $message = __('Accelerated Domains deactivated.', 'servebolt-wp');
+            }
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson([
+                    'active' => false,
+                    'message' => $message,
+                ]);
+            } else {
+                WP_CLI::success($message);
+            }
+        }
+    }
+
+    /**
+     * Display whether ACD Image Resize-feature is active or not.
+     *
+     * ## OPTIONS
+     *
+     * [--all]
+     * : Get the status for all sites.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
+     * ## EXAMPLES
+     *
+     *     # Return whether the feature is active.
+     *     wp servebolt acd image-resize status
+     *
+     *     # Return whether the feature is active for all sites in multisite.
+     *     wp servebolt acd image-resize status --all
+     *
+     *     # Return whether the feature is active, in JSON-format
+     *     wp servebolt acd image-resize status --format=json
+     */
+    public function statusAcdImageResize($args, $assocArgs): void
+    {
+        CliHelpers::setReturnJson($assocArgs);
+        if (CliHelpers::affectAllSites($assocArgs)) {
+            $statusArray = [];
+            iterateSites(function ($site) use (&$statusArray) {
+                $activeBoolean = AcceleratedDomainsImageResize::isActive($site->blog_id);
+                if (CliHelpers::returnJson()) {
+                    $statusArray[] = [
+                        'blog_id' => $site->blog_id,
+                        'active' => $activeBoolean,
+                    ];
+                } else {
+                    $statusArray[] = [
+                        'Blog' => get_site_url($site->blog_id),
+                        'Active' => booleanToStateString($activeBoolean),
+                    ];
+                }
+            });
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson($statusArray);
+            } else {
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
+            }
+        } else {
+            $activeBoolean = AcceleratedDomainsImageResize::isActive();
+            $activeState = booleanToStateString($activeBoolean);
+            $message = sprintf(__('Accelerated Domains Image Resize-feature is %s.', 'servebolt-wp'), $activeState);
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson([
+                    'active' => $activeBoolean,
+                    'message' => $message,
+                ]);
+            } else {
+                WP_CLI::success($message);
+            }
+        }
+    }
+
+    /**
+     * Activate Accelerated Domains Image Resize-feature.
+     *
+     * ## OPTIONS
+     *
+     * [--all]
+     * : Activate on all sites.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
+     * ## EXAMPLES
+     *
+     *     # Activate the feature.
+     *     wp servebolt acd image-resize activate
+     *
+     *     # Activate the feature for all sites in multisite.
+     *     wp servebolt acd image-resize activate --all
+     *
+     *     # Activate the feature, get response in JSON-format.
+     *     wp servebolt acd image-resize activate --format=json
+     */
+    public function activateAcdImageResize($args, $assocArgs): void
+    {
+        CliHelpers::setReturnJson($assocArgs);
+        if (CliHelpers::affectAllSites($assocArgs)) {
+            $statusArray = [];
+            iterateSites(function ($site) use (&$statusArray) {
+                if (AcceleratedDomainsImageResize::isActive($site->blog_id)) {
+                    $message = sprintf(__('Accelerated Domains Image Resize-feature already active on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                } else {
+                    AcceleratedDomainsImageResize::toggleActive(true, $site->blog_id);
+                    $message = sprintf(__('Accelerated Domains Image Resize-feature activated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                }
+                if (CliHelpers::returnJson()) {
+                    $statusArray[] = [
+                        'blog_id' => $site->blog_id,
+                        'active' => true,
+                        'message' => $message,
+                    ];
+                } else {
+                    $statusArray[] = [
+                        'Blog' => get_site_url($site->blog_id),
+                        'Active' => booleanToStateString(true),
+                        'Message' => $message,
+                    ];
+                }
+            });
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson($statusArray);
+            } else {
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
+            }
+        } else {
+            if (AcceleratedDomainsImageResize::isActive()) {
+                $message = __('Accelerated Domains Image Resize-feature already active.', 'servebolt-wp');
+            } else {
+                AcceleratedDomainsImageResize::toggleActive(true);
+                $message = __('Accelerated Domains Image Resize-feature activated.', 'servebolt-wp');
+            }
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson([
+                    'active' => true,
+                    'message' => $message,
+                ]);
+            } else {
+                WP_CLI::success($message);
+            }
+        }
+    }
+
+    /**
+     * Deactivate Accelerated Domains Image Resize-feature.
+     *
+     * ## OPTIONS
+     *
+     * [--all]
+     * : Deactivate on all sites.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
+     * ## EXAMPLES
+     *
+     *     # Deactivate the feature.
+     *     wp servebolt acd image-resize deactivate
+     *
+     *     # Deactivate the feature for all sites in multisite.
+     *     wp servebolt acd image-resize deactivate --all
+     *
+     *     # Deactivate the feature, get response in JSON-format.
+     *     wp servebolt acd image-resize deactivate --format=json
+     */
+    public function deactivateAcdImageResize($args, $assocArgs)
+    {
+        CliHelpers::setReturnJson($assocArgs);
+        if (CliHelpers::affectAllSites($assocArgs)) {
+            $statusArray = [];
+            iterateSites(function ($site) use (&$statusArray) {
+                if (!AcceleratedDomainsImageResize::isActive($site->blog_id)) {
+                    $message = sprintf(__('Accelerated Domains Image Resize-feature already inactive on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                } else {
+                    AcceleratedDomainsImageResize::toggleActive(false, $site->blog_id);
+                    $message = sprintf(__('Accelerated Domains Image Resize-feature deactivated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                }
+                if (CliHelpers::returnJson()) {
+                    $statusArray[] = [
+                        'blog_id' => $site->blog_id,
+                        'active' => false,
+                        'message' => $message,
+                    ];
+                } else {
+                    $statusArray[] = [
+                        'Blog' => get_site_url($site->blog_id),
+                        'Active' => booleanToStateString(false),
+                        'Message' => $message,
+                    ];
+                }
+            });
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson($statusArray);
+            } else {
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
+            }
+        } else {
+            if (!AcceleratedDomainsImageResize::isActive()) {
+                $message = __('Accelerated Domains Image Resize-feature already inactive.', 'servebolt-wp');
+            } else {
+                AcceleratedDomainsImageResize::toggleActive(false);
+                $message = __('Accelerated Domains Image Resize-feature deactivated.', 'servebolt-wp');
             }
             if (CliHelpers::returnJson()) {
                 CliHelpers::printJson([
