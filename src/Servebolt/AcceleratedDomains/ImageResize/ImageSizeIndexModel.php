@@ -7,10 +7,10 @@ use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\updateOption;
 
 /**
- * Class ImageIndex
+ * Class ImageSizeIndexModel
  * @package Servebolt\Optimizer\AcceleratedDomains\ImageResize
  */
-class ImageIndex
+class ImageSizeIndexModel
 {
     /**
      * The option name used to store the index.

@@ -58,7 +58,7 @@ class AcceleratedDomainsImageResize
      *
      * @return bool
      */
-    public function hasAccessToFeature(): bool
+    public static function hasAccessToFeature(): bool
     {
         // TODO: Check if the user has access to this feature.
         return true;

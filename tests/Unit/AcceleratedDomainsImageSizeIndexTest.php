@@ -2,20 +2,20 @@
 
 namespace Unit;
 
-use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageIndex;
+use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageSizeIndexModel;
 use WP_UnitTestCase;
 
 class AcceleratedDomainsImageSizeIndexTest extends WP_UnitTestCase
 {
     public function testThatWeCanAddASize(): void
     {
-        $i = new ImageIndex;
+        $i = new ImageSizeIndexModel;
         $this->assertTrue($i->addSize(69, 'w'));
     }
 
     public function testThatWeCanGetSizes(): void
     {
-        $i = new ImageIndex;
+        $i = new ImageSizeIndexModel;
         $i->addSize(69, 'w');
         $this->assertEquals([
             [
@@ -27,7 +27,7 @@ class AcceleratedDomainsImageSizeIndexTest extends WP_UnitTestCase
 
     public function testThatDuplicateSizesAreIgnored()
     {
-        $i = new ImageIndex;
+        $i = new ImageSizeIndexModel;
         $i->addSize(69, 'w');
         $i->addSize(69, 'w');
         $i->addSize(512, 'w');
@@ -37,7 +37,7 @@ class AcceleratedDomainsImageSizeIndexTest extends WP_UnitTestCase
 
     public function testThatWeCanRemoveASize(): void
     {
-        $i = new ImageIndex;
+        $i = new ImageSizeIndexModel;
         $i->addSize(69, 'w');
         $i->addSize(512, 'w');
         $i->addSize(1024, 'h');

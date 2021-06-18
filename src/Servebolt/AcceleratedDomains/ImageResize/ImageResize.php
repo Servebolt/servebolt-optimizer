@@ -110,7 +110,7 @@ class ImageResize
     public function addHalfSizesToSrcset(array $sources): array
     {
         foreach ($sources as $key => $value) {
-            $newKey = round($key / 2);
+            $newKey = (int) round($key / 2);
             if (!array_key_exists($newKey, $sources)) {
                 $sources[$newKey] = array_merge($value, [
                     //'half-size' => true,
@@ -119,11 +119,6 @@ class ImageResize
             }
         }
         ksort($sources);
-        /*
-        echo '<pre>';
-        print_r($sources);
-        die;
-        */
         return $sources;
     }
 

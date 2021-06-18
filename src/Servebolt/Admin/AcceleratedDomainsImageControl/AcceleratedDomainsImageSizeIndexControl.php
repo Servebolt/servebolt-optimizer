@@ -7,14 +7,14 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Traits\Singleton;
 
 /**
- * Class AcceleratedDomainsImageIndexControl
+ * Class AcceleratedDomainsImageSizeIndexControl
  */
-class AcceleratedDomainsImageIndexControl
+class AcceleratedDomainsImageSizeIndexControl
 {
     use Singleton;
 
     /**
-     * AcceleratedDomainsImageIndexControl constructor.
+     * AcceleratedDomainsImageSizeIndexControl constructor.
      */
     public function __construct()
     {

@@ -27,7 +27,7 @@ class AcceleratedDomainsImageResizeControl
      */
     public function __construct()
     {
-        AcceleratedDomainsImageIndexControl::getInstance();
+        AcceleratedDomainsImageSizeIndexControl::getInstance();
         $this->initSettings();
     }
 
