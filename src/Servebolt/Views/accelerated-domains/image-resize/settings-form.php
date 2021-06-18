@@ -48,6 +48,19 @@
             </td>
         </tr>
         <tr>
+            <th scope="row"><?php _e('Add half sizes to srcset-attribute?', 'servebolt-wp'); ?></th>
+            <td>
+                <fieldset>
+                    <legend class="screen-reader-text"><span><?php _e('Add half sizes to srcset-attribute?', 'servebolt-wp'); ?></span></legend>
+                    <label for="acd_img_resize_half_size_switch">
+                        <input name="<?php echo getOptionName('acd_img_resize_half_size_switch'); ?>" type="checkbox" id="acd_img_resize_half_size_switch" value="1" <?php checked($settings['acd_img_resize_half_size_switch']); ?>>
+                        <?php _e('Enabled', 'servebolt-wp'); ?><br>
+                        <p>This will take the existing sizes in the srcset-attribute and add doubles that are half the size.</p>
+                    </label>
+                </fieldset>
+            </td>
+        </tr>
+        <tr>
             <th scope="row"><label for="acd_image_resize_quality"><?php _e('Image quality', 'servebolt-wp'); ?></label></th>
             <td>
                 <input type="number" name="<?php echo getOptionName('acd_image_resize_quality'); ?>" min="1" max="100" id="acd_image_resize_quality" value="<?php echo esc_attr($settings['acd_image_resize_quality']); ?>" placeholder="Default value: <?php echo ImageResize::$defaultImageQuality; ?>" class="regular-text">
