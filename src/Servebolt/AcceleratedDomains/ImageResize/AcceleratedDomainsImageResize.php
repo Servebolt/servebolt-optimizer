@@ -36,8 +36,11 @@ class AcceleratedDomainsImageResize
             if ($metadataOptimizationLevel = $this->getMetadataOptimizationLevel()) {
                 $this->imageResize->setMetadataOptimizationLevel($metadataOptimizationLevel);
             }
-
-            $this->imageResize->addOverrideImageSizeCreationHook();
+            
+            if (self::doHalfSizes()) {
+                $this->imageResize->addHalfSizesToSrcsetHook();
+            }
+            //$this->imageResize->addOverrideImageSizeCreationHook();
             if (self::srcAlteringIsActive()) {
                 $this->imageResize->addSingleImageUrlHook();
             }
@@ -68,6 +71,7 @@ class AcceleratedDomainsImageResize
     {
         setDefaultOption('acd_image_resize_metadata_optimization_level', ImageResize::$defaultImageMetadataOptimizationLevel);
         setDefaultOption('acd_img_resize_upscale', '__return_true');
+        setDefaultOption('acd_img_resize_half_size_switch', '__return_true');
         setDefaultOption('acd_img_resize_src_tag_switch', '__return_true');
         setDefaultOption('acd_img_resize_srcset_tag_switch', '__return_true');
     }
@@ -125,6 +129,17 @@ class AcceleratedDomainsImageResize
     public static function isActive(?int $blogId = null): bool
     {
         return checkboxIsChecked(smartGetOption($blogId, 'acd_img_resize_switch'));
+    }
+
+    /**
+     * Check whether we should create half sizes.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function doHalfSizes(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(smartGetOption($blogId, 'acd_img_resize_half_size_switch'));
     }
 
     /**

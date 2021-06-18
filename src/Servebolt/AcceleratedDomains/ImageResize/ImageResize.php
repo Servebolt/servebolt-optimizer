@@ -84,11 +84,42 @@ class ImageResize
     /**
      * Prevent certain image sizes to be created since we are using Cloudflare for resizing.
      */
-    public function addOverrideImageSizeCreationHook()
+    public function addOverrideImageSizeCreationHook(): void
     {
         if (apply_filters('sb_optimizer_acd_image_resize_alter_intermediate_sizes', true)) {
             ImageSizeCreationOverride::getInstance();
         }
+    }
+
+    /**
+     * Add hook to duplicate all existing sizes in the srcset-array to contain half the size.
+     */
+    public function addHalfSizesToSrcsetHook(): void
+    {
+        if (apply_filters('sb_optimizer_acd_image_resize_add_half_sizes', true)) {
+            add_filter('wp_calculate_image_srcset', [$this, 'addHalfSizesToSrcset'], 9);
+        }
+    }
+
+    /**
+     * Duplicate all existing sizes in the srcset-array to contain half the size.
+     *
+     * @param array $sources
+     * @return array
+     */
+    public function addHalfSizesToSrcset(array $sources): array
+    {
+        foreach ($sources as $key => $value) {
+            $newKey = round($key / 2);
+            if (!array_key_exists($newKey, $sources)) {
+                $sources[$newKey] = array_merge($value, [
+                    //'half-size' => true,
+                    'value' => round($value['value'] / 2)
+                ]);
+            }
+        }
+        ksort($sources);
+        return $sources;
     }
 
     /**
