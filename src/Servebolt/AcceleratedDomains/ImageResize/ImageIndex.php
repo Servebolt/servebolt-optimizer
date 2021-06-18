@@ -17,7 +17,7 @@ class ImageIndex
      *
      * @var string
      */
-    private $optionName = 'acd_image_size_index';
+    private $optionName = 'acd_image_resize_size_index';
 
     /**
      * Get the option name.
