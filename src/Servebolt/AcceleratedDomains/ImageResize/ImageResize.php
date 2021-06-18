@@ -2,9 +2,9 @@
 
 namespace Servebolt\Optimizer\AcceleratedDomains\ImageResize;
 
-use Servebolt\Optimizer\Utils\ImageSizeCreationOverride;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use Servebolt\Optimizer\Utils\ImageSizeCreationOverride;
 
 /**
  * Class ImageResize
@@ -119,6 +119,11 @@ class ImageResize
             }
         }
         ksort($sources);
+        /*
+        echo '<pre>';
+        print_r($sources);
+        die;
+        */
         return $sources;
     }
 

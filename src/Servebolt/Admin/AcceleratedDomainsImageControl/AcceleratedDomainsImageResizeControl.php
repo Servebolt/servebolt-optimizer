@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\Admin\AcceleratedDomainsImageResizeControl;
+namespace Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -27,6 +27,7 @@ class AcceleratedDomainsImageResizeControl
      */
     public function __construct()
     {
+        AcceleratedDomainsImageIndexControl::getInstance();
         $this->initSettings();
     }
 

@@ -3,7 +3,7 @@
 namespace Servebolt\Optimizer\Admin;
 
 use Servebolt\Optimizer\Admin\AcceleratedDomainsControl\AcceleratedDomainsControl;
-use Servebolt\Optimizer\Admin\AcceleratedDomainsImageResizeControl\AcceleratedDomainsImageResizeControl;
+use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\AcceleratedDomainsImageResizeControl;
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\FullPageCacheControl;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;

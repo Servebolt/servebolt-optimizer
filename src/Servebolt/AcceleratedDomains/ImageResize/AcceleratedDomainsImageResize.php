@@ -36,7 +36,7 @@ class AcceleratedDomainsImageResize
             if ($metadataOptimizationLevel = $this->getMetadataOptimizationLevel()) {
                 $this->imageResize->setMetadataOptimizationLevel($metadataOptimizationLevel);
             }
-            
+
             if (self::doHalfSizes()) {
                 $this->imageResize->addHalfSizesToSrcsetHook();
             }
