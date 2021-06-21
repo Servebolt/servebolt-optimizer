@@ -9,39 +9,44 @@ class AcceleratedDomainsImageSizeIndexTest extends WP_UnitTestCase
 {
     public function testThatWeCanAddASize(): void
     {
-        $i = new ImageSizeIndexModel;
-        $this->assertTrue($i->addSize(69, 'w'));
+        $this->assertTrue(ImageSizeIndexModel::addSize(69, 'w'));
     }
 
     public function testThatWeCanGetSizes(): void
     {
-        $i = new ImageSizeIndexModel;
-        $i->addSize(69, 'w');
+        ImageSizeIndexModel::addSize(69, 'w');
         $this->assertEquals([
             [
                 'value' => 69,
                 'descriptor' => 'w',
             ]
-        ], $i->getSizes());
+        ], ImageSizeIndexModel::getSizes());
     }
 
     public function testThatDuplicateSizesAreIgnored()
     {
-        $i = new ImageSizeIndexModel;
-        $i->addSize(69, 'w');
-        $i->addSize(69, 'w');
-        $i->addSize(512, 'w');
-        $this->assertCount(2, $i->getSizes());
+        ImageSizeIndexModel::addSize(69, 'w');
+        ImageSizeIndexModel::addSize(69, 'w');
+        ImageSizeIndexModel::addSize(512, 'w');
+        $this->assertCount(2, ImageSizeIndexModel::getSizes());
     }
 
+    public function testThatWeCanCheckIfASizeExists()
+    {
+        ImageSizeIndexModel::addSize(69, 'w');
+        ImageSizeIndexModel::addSize(512, 'w');
+        ImageSizeIndexModel::addSize(1024, 'h');
+        $this->assertTrue(ImageSizeIndexModel::sizeExists(69, 'w'));
+        $this->assertFalse(ImageSizeIndexModel::sizeExists(67, 'w'));
+        $this->assertTrue(ImageSizeIndexModel::sizeExists(1024, 'h'));
+    }
 
     public function testThatWeCanRemoveASize(): void
     {
-        $i = new ImageSizeIndexModel;
-        $i->addSize(69, 'w');
-        $i->addSize(512, 'w');
-        $i->addSize(1024, 'h');
-        $this->assertTrue($i->removeSize(69, 'w'));
+        ImageSizeIndexModel::addSize(69, 'w');
+        ImageSizeIndexModel::addSize(512, 'w');
+        ImageSizeIndexModel::addSize(1024, 'h');
+        $this->assertTrue(ImageSizeIndexModel::removeSize(69, 'w'));
         $this->assertEquals([
             [
                 'value' => 512,
@@ -51,6 +56,6 @@ class AcceleratedDomainsImageSizeIndexTest extends WP_UnitTestCase
                 'value' => 1024,
                 'descriptor' => 'h',
             ]
-        ], array_values($i->getSizes()));
+        ], array_values(ImageSizeIndexModel::getSizes()));
     }
 }
