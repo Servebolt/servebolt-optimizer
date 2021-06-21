@@ -26,7 +26,7 @@ class AcceleratedDomainsImageSizeIndex
      *
      * @var string
      */
-    private $validationRegex = '/^([0-9]{1,5})(w|h)$/';
+    private $validationRegex = '/^([0-9]{1,4})(w|h)$/';
 
     /**
      * AcceleratedDomainsImageResize constructor.
@@ -92,7 +92,7 @@ class AcceleratedDomainsImageSizeIndex
      * ## OPTIONS
      *
      * <Value>
-     * : Numeric value with a descriptor-suffix which defines whether the value is width or height.
+     * : Numeric value (max. 9999) with a descriptor-suffix which defines whether the value is width or height.
      *
      * [--format=<format>]
      * : Return format.
@@ -159,7 +159,7 @@ class AcceleratedDomainsImageSizeIndex
      * ## OPTIONS
      *
      * <Value>
-     * : Numeric value with a descriptor-suffix which defines whether the value is width or height.
+     * : Numeric value (max. 9999) with a descriptor-suffix which defines whether the value is width or height.
      *
      * [--format=<format>]
      * : Return format.
