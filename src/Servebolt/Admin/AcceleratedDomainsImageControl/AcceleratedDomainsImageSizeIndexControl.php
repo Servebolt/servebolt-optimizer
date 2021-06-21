@@ -4,7 +4,10 @@ namespace Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\Ajax\ImageSizeIndex;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
+use function Servebolt\Optimizer\Helpers\isScreen;
 
 /**
  * Class AcceleratedDomainsImageSizeIndexControl
@@ -18,6 +21,31 @@ class AcceleratedDomainsImageSizeIndexControl
      */
     public function __construct()
     {
+        $this->initAjax();
+        $this->initAssets();
+    }
 
+    private function initAjax(): void
+    {
+        new ImageSizeIndex;
+    }
+
+    private function initAssets(): void
+    {
+        add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
+    }
+
+    public function enqueueScripts(): void
+    {
+        if (!isScreen('admin_page_servebolt-acd-image-resize')) {
+            return;
+        }
+        wp_enqueue_script(
+            'servebolt-optimizer-acd-image-size-index',
+            SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/acd-image-size-index.js',
+            ['servebolt-optimizer-scripts'],
+            getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/acd-image-size-index.js'),
+            true
+        );
     }
 }

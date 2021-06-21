@@ -4,7 +4,7 @@
         <button type="button" class="button action sb-remove-selected-exclude-items" disabled><?php _e('Remove selected', 'servebolt-wp'); ?></button>
     </div>
     <div class="alignleft actions bulkactions">
-        <button type="button" class="button button-primary sb-add-exclude-post">Add size</button>
+        <button type="button" class="button button-primary" id="sb-add-acd-image-size">Add size</button>
     </div>
     <span class="spinner acd-image-size-index-loading-spinner"></span>
     <br class="clear">
@@ -40,7 +40,7 @@
             <td class="column-image-size has-row-actions">
                 <?php echo $size['value'] . $size['descriptor'] ?>
                 <div class="row-actions">
-                    <span class="trash"><a href="#" class="sb-remove-image-size"><?php _e('Delete', 'servebolt-wp'); ?></a></span>
+                    <span class="trash"><a href="#" class="sb-remove-acd-image-size"><?php _e('Delete', 'servebolt-wp'); ?></a></span>
                 </div>
             </td>
         </tr>
