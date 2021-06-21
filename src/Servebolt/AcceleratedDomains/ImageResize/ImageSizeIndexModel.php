@@ -17,16 +17,16 @@ class ImageSizeIndexModel
      *
      * @var string
      */
-    private $optionName = 'acd_image_resize_size_index';
+    private static $optionName = 'acd_image_resize_size_index';
 
     /**
      * Get the option name.
      *
      * @return string
      */
-    private function getOptionName(): string
+    private static function getOptionName(): string
     {
-        return getOptionName($this->optionName);
+        return getOptionName(self::$optionName);
     }
 
     /**
@@ -34,9 +34,9 @@ class ImageSizeIndexModel
      *
      * @return array
      */
-    public function getSizes(): array
+    public static function getSizes(): array
     {
-        return getOption($this->getOptionName(), []);
+        return getOption(self::getOptionName(), []);
     }
 
     /**
@@ -46,15 +46,15 @@ class ImageSizeIndexModel
      * @param $descriptor
      * @return bool
      */
-    public function addSize($value, $descriptor): bool
+    public static function addSize($value, $descriptor): bool
     {
         $sizeData = compact('value', 'descriptor');
-        $sizes = $this->getSizes();
+        $sizes = self::getSizes();
         if (in_array($sizeData, $sizes)) {
             return true;
         }
         $sizes[] = $sizeData;
-        updateOption($this->getOptionName(), $sizes);
+        updateOption(self::getOptionName(), $sizes);
         return true;
     }
 
@@ -65,17 +65,36 @@ class ImageSizeIndexModel
      * @param $descriptor
      * @return bool
      */
-    public function removeSize($value, $descriptor): bool
+    public static function removeSize($value, $descriptor): bool
     {
         $sizeData = compact('value', 'descriptor');
-        $originalSizes = $this->getSizes();
+        $originalSizes = self::getSizes();
         $sizes = array_filter($originalSizes, function($size) use ($sizeData) {
             return $size != $sizeData;
         });
         if (count($originalSizes) == count($sizes)) {
             return false;
         }
-        updateOption($this->getOptionName(), $sizes);
+        updateOption(self::getOptionName(), $sizes);
         return true;
+    }
+
+    /**
+     * Check if size exists in index.
+     *
+     * @param $value
+     * @param $descriptor
+     * @return bool
+     */
+    public static function sizeExists($value, $descriptor): bool
+    {
+        $sizeData = compact('value', 'descriptor');
+        $sizes = self::getSizes();
+        foreach ($sizes as $size) {
+            if ($size === $sizeData) {
+                return true;
+            }
+        }
+        return false;
     }
 }
