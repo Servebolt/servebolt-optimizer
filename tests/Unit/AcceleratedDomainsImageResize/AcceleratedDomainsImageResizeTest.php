@@ -4,7 +4,9 @@ namespace Unit;
 
 use DOMDocument;
 use WP_UnitTestCase;
+use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageResize;
+use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\wpDirectFilesystem;
 
 class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
@@ -12,7 +14,10 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
     public function setUp()
     {
         parent::setUp();
-        $this->ir = new ImageResize(false);
+        $this->ir = new ImageResize;
+        setOptionOverride('acd_image_resize_switch', '__return_true');
+        setOptionOverride('acd_image_resize_src_tag_switch', '__return_true');
+        new AcceleratedDomainsImageResize;
     }
 
     public function testThatTheResizeServicePrefixIsAddedToAUrlString()
@@ -45,7 +50,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
 
     public function testThatImageDimensionsAreAppliedToQueryString()
     {
-        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&format=auto&width=800';
+        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep_copyright&format=auto&width=800';
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', 800, 800, false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
@@ -74,7 +79,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
             return 2000;
         });
 
-        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&format=auto&width=2000&height=2000';
+        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep_copyright&format=auto&width=2000&height=2000';
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', 2500, 2500, false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
@@ -86,19 +91,19 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
     public function testThatMaxHeightAndWidthDimensionsGetsApplied()
     {
         // Width and height exceeds the max dimension
-        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&format=auto&width=1920&height=1080';
+        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep_copyright&format=auto&width=1920&height=1080';
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', '2000', '2000', false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
 
         // Only width exceeds the max dimension
-        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&format=auto&width=1920';
+        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep_copyright&format=auto&width=1920';
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', 2000, 1000, false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
 
         // Only height exceeds the max dimension
-        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&format=auto&width=1000&height=1080';
+        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep_copyright&format=auto&width=1000&height=1080';
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', 1000, 2000, false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
@@ -116,7 +121,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
     public function testThatHeightIsIncludedWhenUsingAFilterOverride()
     {
         add_filter('sb_optimizer_acd_image_resize_force_add_height', '__return_true');
-        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&format=auto&width=1000&height=1000';
+        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep_copyright&format=auto&width=1000&height=1000';
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', '1000', '1000', false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
@@ -132,7 +137,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
                 return;
             }
             $this->assertContains('/acd-cgi/img/v1/', $image->getAttribute('src'));
-            //$this->assertContains('/acd-cgi/img/v1', $image->getAttribute('srcset')); // Cannot get srcset-for some reason
+            $this->assertContains('/acd-cgi/img/v1', $image->getAttribute('srcset')); // Cannot get srcset-for some reason
             $this->deleteAttachment($attachmentId);
         }
     }
@@ -159,6 +164,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
         $uploadFolderPath = trailingslashit($uploadFolder['basedir']);
         $filesystem = wpDirectFilesystem();
         $filesystem->delete($uploadFolderPath, true);
+        mkdir($uploadFolderPath);
     }
 
     /**

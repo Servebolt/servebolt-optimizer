@@ -408,6 +408,16 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'acd_switch',
         'acd_minify_switch',
 
+        // Accelerated Domains Image Resize
+        'acd_image_resize_switch',
+        'acd_image_resize_half_size_switch',
+        'acd_image_resize_src_tag_switch',
+        'acd_image_resize_srcset_tag_switch',
+        'acd_image_resize_quality',
+        'acd_image_resize_metadata_optimization_level',
+        'acd_image_resize_upscale',
+        'acd_image_resize_size_index',
+
         // Wipe SB FPC-related options
         'fpc_switch',
         'fpc_settings',

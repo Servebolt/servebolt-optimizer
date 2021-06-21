@@ -29,14 +29,14 @@ class AcceleratedDomainsImageResize
     {
         $this->defaultOptionValues();
         if (self::isActive()) {
-            $this->imageResize = new ImageResize();
+            $this->imageResize = new WpImageResize;
             if ($imageQuality = $this->getImageQuality()) {
                 $this->imageResize->setImageQuality($imageQuality);
             }
             if ($metadataOptimizationLevel = $this->getMetadataOptimizationLevel()) {
                 $this->imageResize->setMetadataOptimizationLevel($metadataOptimizationLevel);
             }
-            
+
             if (self::doHalfSizes()) {
                 $this->imageResize->addHalfSizesToSrcsetHook();
             }
@@ -58,7 +58,7 @@ class AcceleratedDomainsImageResize
      *
      * @return bool
      */
-    public function hasAccessToFeature(): bool
+    public static function hasAccessToFeature(): bool
     {
         // TODO: Check if the user has access to this feature.
         return true;
@@ -70,10 +70,10 @@ class AcceleratedDomainsImageResize
     private function defaultOptionValues(): void
     {
         setDefaultOption('acd_image_resize_metadata_optimization_level', ImageResize::$defaultImageMetadataOptimizationLevel);
-        setDefaultOption('acd_img_resize_upscale', '__return_true');
-        setDefaultOption('acd_img_resize_half_size_switch', '__return_true');
-        setDefaultOption('acd_img_resize_src_tag_switch', '__return_true');
-        setDefaultOption('acd_img_resize_srcset_tag_switch', '__return_true');
+        setDefaultOption('acd_image_resize_upscale', '__return_true');
+        setDefaultOption('acd_image_resize_half_size_switch', '__return_true');
+        setDefaultOption('acd_image_resize_src_tag_switch', '__return_true');
+        setDefaultOption('acd_image_resize_srcset_tag_switch', '__return_true');
     }
 
     /**
@@ -106,7 +106,7 @@ class AcceleratedDomainsImageResize
      */
     public static function srcsetAlteringIsActive(?int $blogId = null): bool
     {
-        return checkboxIsChecked(smartGetOption($blogId, 'acd_img_resize_srcset_tag_switch'));
+        return checkboxIsChecked(smartGetOption($blogId, 'acd_image_resize_srcset_tag_switch'));
     }
 
     /**
@@ -117,7 +117,7 @@ class AcceleratedDomainsImageResize
      */
     public static function srcAlteringIsActive(?int $blogId = null): bool
     {
-        return checkboxIsChecked(smartGetOption($blogId, 'acd_img_resize_src_tag_switch'));
+        return checkboxIsChecked(smartGetOption($blogId, 'acd_image_resize_src_tag_switch'));
     }
 
     /**
@@ -128,7 +128,7 @@ class AcceleratedDomainsImageResize
      */
     public static function isActive(?int $blogId = null): bool
     {
-        return checkboxIsChecked(smartGetOption($blogId, 'acd_img_resize_switch'));
+        return checkboxIsChecked(smartGetOption($blogId, 'acd_image_resize_switch'));
     }
 
     /**
@@ -139,7 +139,7 @@ class AcceleratedDomainsImageResize
      */
     public static function doHalfSizes(?int $blogId = null): bool
     {
-        return checkboxIsChecked(smartGetOption($blogId, 'acd_img_resize_half_size_switch'));
+        return checkboxIsChecked(smartGetOption($blogId, 'acd_image_resize_half_size_switch'));
     }
 
     /**
@@ -150,7 +150,7 @@ class AcceleratedDomainsImageResize
      */
     public static function doImageUpscale(?int $blogId = null): bool
     {
-        return checkboxIsChecked(smartGetOption($blogId, 'acd_img_resize_upscale'));
+        return checkboxIsChecked(smartGetOption($blogId, 'acd_image_resize_upscale'));
     }
 
     /**
@@ -161,6 +161,6 @@ class AcceleratedDomainsImageResize
      */
     public static function toggleActive(bool $state, ?int $blogId = null): void
     {
-        smartUpdateOption($blogId, 'acd_img_resize_switch', $state);
+        smartUpdateOption($blogId, 'acd_image_resize_switch', $state);
     }
 }

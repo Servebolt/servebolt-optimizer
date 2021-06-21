@@ -14,20 +14,20 @@
             <td>
                 <fieldset>
                     <legend class="screen-reader-text"><span><?php _e('Image resize-feature active?', 'servebolt-wp'); ?></span></legend>
-                    <label for="acd_img_resize_switch">
-                        <input name="<?php echo getOptionName('acd_img_resize_switch'); ?>" type="checkbox" id="acd_img_resize_switch" value="1" <?php checked($settings['acd_img_resize_switch']); ?>>
+                    <label for="acd_image_resize_switch">
+                        <input name="<?php echo getOptionName('acd_image_resize_switch'); ?>" type="checkbox" id="acd_image_resize_switch" value="1" <?php checked($settings['acd_image_resize_switch']); ?>>
                         <?php _e('Enabled', 'servebolt-wp'); ?>
                     </label><br>
 
                     <legend class="screen-reader-text"><span><?php _e('Apply to src-attribute', 'servebolt-wp'); ?></span></legend>
-                    <label for="acd_img_resize_src_tag_switch">
-                        <input name="<?php echo getOptionName('acd_img_resize_src_tag_switch'); ?>" type="checkbox" id="acd_img_resize_src_tag_switch" value="1" <?php checked($settings['acd_img_resize_src_tag_switch']); ?>>
+                    <label for="acd_image_resize_src_tag_switch">
+                        <input name="<?php echo getOptionName('acd_image_resize_src_tag_switch'); ?>" type="checkbox" id="acd_image_resize_src_tag_switch" value="1" <?php checked($settings['acd_image_resize_src_tag_switch']); ?>>
                         <code><?php _e('Apply to src-attribute', 'servebolt-wp'); ?></code>
                     </label><br>
 
                     <legend class="screen-reader-text"><span><?php _e('Apply to srcset-attribute', 'servebolt-wp'); ?></span></legend>
-                    <label for="acd_img_resize_srcset_tag_switch">
-                        <input name="<?php echo getOptionName('acd_img_resize_srcset_tag_switch'); ?>" type="checkbox" id="acd_img_resize_srcset_tag_switch" value="1" <?php checked($settings['acd_img_resize_srcset_tag_switch']); ?>>
+                    <label for="acd_image_resize_srcset_tag_switch">
+                        <input name="<?php echo getOptionName('acd_image_resize_srcset_tag_switch'); ?>" type="checkbox" id="acd_image_resize_srcset_tag_switch" value="1" <?php checked($settings['acd_image_resize_srcset_tag_switch']); ?>>
                         <code><?php _e('Apply to srcset-attribute', 'servebolt-wp'); ?></code>
                     </label>
 
@@ -39,8 +39,8 @@
             <td>
                 <fieldset>
                     <legend class="screen-reader-text"><span><?php _e('Upscale images?', 'servebolt-wp'); ?></span></legend>
-                    <label for="acd_img_resize_upscale">
-                        <input name="<?php echo getOptionName('acd_img_resize_upscale'); ?>" type="checkbox" id="acd_img_resize_upscale" value="1" <?php checked($settings['acd_img_resize_upscale']); ?>>
+                    <label for="acd_image_resize_upscale">
+                        <input name="<?php echo getOptionName('acd_image_resize_upscale'); ?>" type="checkbox" id="acd_image_resize_upscale" value="1" <?php checked($settings['acd_image_resize_upscale']); ?>>
                         <?php _e('Enabled', 'servebolt-wp'); ?><br>
                         <p>This will scale up the dimension of images that are too small.</p>
                     </label>
@@ -52,8 +52,8 @@
             <td>
                 <fieldset>
                     <legend class="screen-reader-text"><span><?php _e('Add half sizes to srcset-attribute?', 'servebolt-wp'); ?></span></legend>
-                    <label for="acd_img_resize_half_size_switch">
-                        <input name="<?php echo getOptionName('acd_img_resize_half_size_switch'); ?>" type="checkbox" id="acd_img_resize_half_size_switch" value="1" <?php checked($settings['acd_img_resize_half_size_switch']); ?>>
+                    <label for="acd_image_resize_half_size_switch">
+                        <input name="<?php echo getOptionName('acd_image_resize_half_size_switch'); ?>" type="checkbox" id="acd_image_resize_half_size_switch" value="1" <?php checked($settings['acd_image_resize_half_size_switch']); ?>>
                         <?php _e('Enabled', 'servebolt-wp'); ?><br>
                         <p>This will take the existing sizes in the srcset-attribute and add doubles that are half the size.</p>
                     </label>
