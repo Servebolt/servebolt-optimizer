@@ -29,7 +29,7 @@ class AcceleratedDomainsImageResize
     {
         $this->defaultOptionValues();
         if (self::isActive()) {
-            $this->imageResize = new ImageResize();
+            $this->imageResize = new WpImageResize;
             if ($imageQuality = $this->getImageQuality()) {
                 $this->imageResize->setImageQuality($imageQuality);
             }
