@@ -112,8 +112,6 @@ class AcceleratedDomainsImageSizeIndex
             $this->invalidFormatMessage();
             return;
         }
-
-
         list($original, $value, $descriptor) = $matches;
         if (ImageSizeIndexModel::sizeExists($value, $descriptor)) {
             $message = __('Size already exists.', 'servebolt-wp');
