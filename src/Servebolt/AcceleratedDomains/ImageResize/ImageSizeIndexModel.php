@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\AcceleratedDomains\ImageResize;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\updateOption;
