@@ -33,8 +33,8 @@ class WpAssetTest extends ServeboltWPUnitTestCase
     {
         $this->assertArrayHasKey('servebolt-optimizer-scripts', wp_scripts()->registered);
         $this->assertEquals($this->currentPluginVersionNumber, wp_scripts()->registered['servebolt-optimizer-scripts']->ver);
-        $this->assertArrayHasKey('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', wp_scripts()->registered);
-        $this->assertEquals($this->currentPluginVersionNumber, wp_scripts()->registered['servebolt-optimizer-cloudflare-cache-purge-trigger-scripts']->ver);
+        $this->assertArrayHasKey('servebolt-optimizer-cache-purge-trigger-scripts', wp_scripts()->registered);
+        $this->assertEquals($this->currentPluginVersionNumber, wp_scripts()->registered['servebolt-optimizer-cache-purge-trigger-scripts']->ver);
     }
 
     public function testFilemtimeFallbackForVersionParameterOnEnqueuedAssets()
@@ -47,7 +47,7 @@ class WpAssetTest extends ServeboltWPUnitTestCase
         $this->assertEquals(filemtime($this->getAssetPath(wp_styles()->registered['servebolt-optimizer-styling']->src)), wp_styles()->registered['servebolt-optimizer-styling']->ver);
 
         $this->assertEquals(filemtime($this->getAssetPath(wp_scripts()->registered['servebolt-optimizer-scripts']->src)), wp_scripts()->registered['servebolt-optimizer-scripts']->ver);
-        $this->assertEquals(filemtime($this->getAssetPath(wp_scripts()->registered['servebolt-optimizer-cloudflare-cache-purge-trigger-scripts']->src)), wp_scripts()->registered['servebolt-optimizer-cloudflare-cache-purge-trigger-scripts']->ver);
+        $this->assertEquals(filemtime($this->getAssetPath(wp_scripts()->registered['servebolt-optimizer-cache-purge-trigger-scripts']->src)), wp_scripts()->registered['servebolt-optimizer-cache-purge-trigger-scripts']->ver);
     }
 
     private function initAssetsForTest(): void
@@ -66,7 +66,7 @@ class WpAssetTest extends ServeboltWPUnitTestCase
         wp_deregister_style('servebolt-optimizer-public-styling');
         wp_deregister_style('servebolt-optimizer-styling');
         wp_deregister_script('servebolt-optimizer-scripts');
-        wp_deregister_script('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts');
+        wp_deregister_script('servebolt-optimizer-cache-purge-trigger-scripts');
     }
 
     private function getAssetPath($url): string

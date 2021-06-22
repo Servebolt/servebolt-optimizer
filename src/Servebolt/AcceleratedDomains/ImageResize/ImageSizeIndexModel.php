@@ -20,6 +20,41 @@ class ImageSizeIndexModel
     private static $optionName = 'acd_image_resize_size_index';
 
     /**
+     * RegEx validation string.
+     *
+     * @var string
+     */
+    public static $validationRegex = '^([0-9]{1,4})(w|h)$';
+
+    /**
+     * Validate value.
+     *
+     * @param $value
+     * @return false|mixed
+     */
+    public static function validateValue($value)
+    {
+        if (!preg_match(self::getValidationRegexPattern(), $value, $matches)) {
+            return false;
+        }
+        return $matches;
+    }
+
+    /**
+     * Get the validation regex pattern for the size.
+     *
+     * @param bool $includeEnclosingSlashes
+     * @return string
+     */
+    public static function getValidationRegexPattern(bool $includeEnclosingSlashes = true): string
+    {
+        if ($includeEnclosingSlashes) {
+            return '/' . self::$validationRegex . '/';
+        }
+        return self::$validationRegex;
+    }
+
+    /**
      * Get the option name.
      *
      * @return string

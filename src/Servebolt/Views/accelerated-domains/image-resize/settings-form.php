@@ -1,5 +1,6 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
+<?php use function Servebolt\Optimizer\Helpers\view; ?>
 <?php use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageResize; ?>
 
 <?php settings_errors(); ?>
@@ -88,6 +89,12 @@
                         <input type="radio" name="<?php echo getOptionName('acd_image_resize_metadata_optimization_level'); ?>" value="no_metadata" <?php checked($settings['acd_image_resize_metadata_optimization_level'] == 'no_metadata'); ?>> <code><?php _e('No metadata', 'servebolt-wp'); ?></code>
                     </label>
                 </fieldset>
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">Extra image sizes</th>
+            <td>
+                <?php view('accelerated-domains.image-resize.image-size-index', compact('extraSizes')); ?>
             </td>
         </tr>
     </table>
