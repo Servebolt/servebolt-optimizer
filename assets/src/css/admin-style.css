@@ -151,7 +151,8 @@
 */
 
 #sb-fpc-form #fpc-ids-to-exclude-table .fpc-exclude-item-column,
-#sb-configuration #purge-items-table .purge-item-column {
+#sb-configuration #purge-items-table .purge-item-column,
+#sb-configuration #acd-image-size-index .column-image-size {
     padding-left: 0;
     padding-top: 10px;
     padding-bottom: 10px;

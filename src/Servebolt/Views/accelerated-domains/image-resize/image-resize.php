@@ -3,7 +3,7 @@ use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
 ?>
 
-<div class="wrap sb-content">
+<div class="wrap sb-content" id="sb-configuration">
     <h1><?php _e('Accelerated Domains', 'servebolt-wp'); ?></h1>
 
     <?php if (is_network_admin()) : ?>

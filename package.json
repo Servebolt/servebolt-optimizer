@@ -17,7 +17,8 @@
     "lint-js:fix": "eslint assets/src/**/*.js --fix",
     "lint": "yarn run lint-php && yarn run lint-css && yarn run lint-js",
     "update:packages": "npm i -g npm-check-updates && npm-check-updates -u && npm install",
-    "clean": "rimraf ./assets/dist"
+    "clean": "rimraf ./assets/dist",
+    "test": "jest --testPathPattern=assets/src/js/tests/"
   },
   "author": "Nelio Software",
   "license": "GPL-2.0-or-later",
@@ -44,6 +45,7 @@
     "file-loader": "^3.0.1",
     "gist-embed": "^2.6.0",
     "imagemin-webpack-plugin": "^2.4.2",
+    "jest": "^27.0.5",
     "progress-bar-webpack-plugin": "^1.12.1",
     "regenerator-runtime": "^0.13.2",
     "style-loader": "^0.23.1",

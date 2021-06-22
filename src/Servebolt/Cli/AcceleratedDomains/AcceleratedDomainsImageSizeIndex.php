@@ -22,13 +22,6 @@ class AcceleratedDomainsImageSizeIndex
 {
 
     /**
-     * RegEx validation string.
-     *
-     * @var string
-     */
-    private $validationRegex = '/^([0-9]{1,4})(w|h)$/';
-
-    /**
      * AcceleratedDomainsImageResize constructor.
      */
     public function __construct()
@@ -115,10 +108,12 @@ class AcceleratedDomainsImageSizeIndex
     {
         CliHelpers::setReturnJson($assocArgs);
         list($rawValue) = $args;
-        if (!preg_match($this->validationRegex, $rawValue, $matches)) {
+        if ($matches = ImageSizeIndexModel::validateValue($rawValue)) {
             $this->invalidFormatMessage();
             return;
         }
+
+
         list($original, $value, $descriptor) = $matches;
         if (ImageSizeIndexModel::sizeExists($value, $descriptor)) {
             $message = __('Size already exists.', 'servebolt-wp');
@@ -182,7 +177,7 @@ class AcceleratedDomainsImageSizeIndex
     {
         CliHelpers::setReturnJson($assocArgs);
         list($rawValue) = $args;
-        if (!preg_match($this->validationRegex, $rawValue, $matches)) {
+        if ($matches = ImageSizeIndexModel::validateValue($rawValue)) {
             $this->invalidFormatMessage();
             return;
         }
