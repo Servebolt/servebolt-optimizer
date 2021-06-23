@@ -39,7 +39,7 @@ class AcceleratedDomainsHeaders
     {
         add_action('sb_optimizer_fpc_no_cache_headers', function ($fpc) {
             $fpc->header($this->ttlHeaderkey, 'no-cache');
-            $fpc->header('CDN-Cache-Control', 'max-age=0,no-cache,s-maxage=0');
+            $fpc->header('CDN-Cache-Control', 'max-age=0,no-cache');
         });
         add_action('sb_optimizer_fpc_cache_headers', function ($fpc) {
             $fpc->header($this->ttlHeaderkey, $this->defaultTtl);
