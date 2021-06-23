@@ -756,7 +756,7 @@ function featureIsActive(string $feature): ?bool
  */
 function getCloudflareImageResizeInstance()
 {
-    \Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize::resizingIsActive();
+    return \Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize::resizingIsActive();
 }
 
 /**
