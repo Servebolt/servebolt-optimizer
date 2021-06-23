@@ -63,7 +63,8 @@ class ImageResize
     /**
      * @var string The level of metadata optimization.
      */
-    public static $defaultImageMetadataOptimizationLevel = 'keep_copyright';
+    //public static $defaultImageMetadataOptimizationLevel = 'copyright';
+    public static $defaultImageMetadataOptimizationLevel = null;
 
     /**
      * Duplicate all existing sizes in the srcset-array to contain half the size.
@@ -109,10 +110,10 @@ class ImageResize
     /**
      * Set metadata optimization level.
      *
-     * @param string $optimizationLevel
+     * @param null|string $optimizationLevel
      * @return $this
      */
-    public function setMetadataOptimizationLevel(string $optimizationLevel)
+    public function setMetadataOptimizationLevel(?string $optimizationLevel)
     {
         $this->imageMetadataOptimizationLevel = $optimizationLevel;
         return $this;
@@ -194,7 +195,7 @@ class ImageResize
      *
      * @return string
      */
-    private function getMetadataOptimizationLevel(): string
+    private function getMetadataOptimizationLevel():? string
     {
         switch ($this->imageMetadataOptimizationLevel) {
             case 'keep':
@@ -202,7 +203,8 @@ class ImageResize
                 return 'keep';
             case 'copyright':
             case 'keep_copyright':
-                return 'copyright';
+                return null; // This is the default value, we don't need to pass
+                //return 'copyright';
             case 'no_metadata':
             case 'none':
                 return 'none';
@@ -217,11 +219,15 @@ class ImageResize
     private function defaultImageResizeParameters($additionalParams): array
     {
         $additionalParams = apply_filters('sb_optimizer_acd_image_resize_additional_params', $additionalParams);
-        $defaultParams = apply_filters('sb_optimizer_acd_image_resize_default_params', [
+        $params = [
             'quality' => $this->getImageQuality(),
-            'metadata' => $this->getMetadataOptimizationLevel(),
-            'format'  => 'auto',
-        ]);
+            //'metadata' => $this->getMetadataOptimizationLevel(),
+            //'format'  => 'auto',
+        ];
+        if ($metadata = $this->getMetadataOptimizationLevel()) {
+            $params['metadata'] = $metadata;
+        }
+        $defaultParams = apply_filters('sb_optimizer_acd_image_resize_default_params', $params);
         return apply_filters('sb_optimizer_acd_image_resize_params_concatenated', wp_parse_args($additionalParams, $defaultParams),$additionalParams, $defaultParams);
     }
 

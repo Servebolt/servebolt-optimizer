@@ -50,7 +50,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
 
     public function testThatImageDimensionsAreAppliedToQueryString()
     {
-        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep_copyright&format=auto&width=800';
+        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&width=800';
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', 800, 800, false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
@@ -63,12 +63,46 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
         $this->assertContains('quality=85', $modifiedAttachmentData[0]);
     }
 
+    public function testThatWeCanSetMetadataOptimizationLevels()
+    {
+        $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', 800, 800, false];
+        $this->ir->setMetadataOptimizationLevel('none');
+        $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
+        $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=none&width=800', $modifiedAttachmentData[0]);
+
+        $this->ir->setMetadataOptimizationLevel('no_metadata');
+        $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
+        $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=none&width=800', $modifiedAttachmentData[0]);
+
+        $this->ir->setMetadataOptimizationLevel(null);
+        $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
+        $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&width=800', $modifiedAttachmentData[0]);
+
+        $this->ir->setMetadataOptimizationLevel('copyright');
+        $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
+        $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&width=800', $modifiedAttachmentData[0]);
+
+        $this->ir->setMetadataOptimizationLevel('keep_copyright');
+        $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
+        $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&width=800', $modifiedAttachmentData[0]);
+
+        $this->ir->setMetadataOptimizationLevel('keep');
+        $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
+        $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep&width=800', $modifiedAttachmentData[0]);
+
+        $this->ir->setMetadataOptimizationLevel('keep_all');
+        $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
+        $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep&width=800', $modifiedAttachmentData[0]);
+    }
+
+    /*
     public function testThatDefaultImageFormatIsSet()
     {
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', 800, 800, false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertContains('format=auto', $modifiedAttachmentData[0]);
     }
+    */
 
     public function testMaxImageDimensionFilters(): void
     {
@@ -79,7 +113,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
             return 2000;
         });
 
-        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep_copyright&format=auto&width=2000&height=2000';
+        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&width=2000&height=2000';
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', 2500, 2500, false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
@@ -91,19 +125,19 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
     public function testThatMaxHeightAndWidthDimensionsGetsApplied()
     {
         // Width and height exceeds the max dimension
-        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep_copyright&format=auto&width=1920&height=1080';
+        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&width=1920&height=1080';
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', '2000', '2000', false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
 
         // Only width exceeds the max dimension
-        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep_copyright&format=auto&width=1920';
+        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&width=1920';
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', 2000, 1000, false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
 
         // Only height exceeds the max dimension
-        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep_copyright&format=auto&width=1000&height=1080';
+        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&width=1000&height=1080';
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', 1000, 2000, false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
@@ -121,7 +155,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
     public function testThatHeightIsIncludedWhenUsingAFilterOverride()
     {
         add_filter('sb_optimizer_acd_image_resize_force_add_height', '__return_true');
-        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&metadata=keep_copyright&format=auto&width=1000&height=1000';
+        $expectedUrl = 'https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?quality=85&width=1000&height=1000';
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', '1000', '1000', false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
