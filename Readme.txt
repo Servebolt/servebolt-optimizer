@@ -93,6 +93,10 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.1 =
+* Added PHP 7.3 as required version + updated the admin notice message to aid upgrading the PHP versions for Servebolt customers
+* Added Accelerated Domains Image Resize-feature
+
 = 3.0.2 =
 * Fixed bug in compatibility code for older versions of WP Rocket
 * Fixed bug that caused post cache not to be purged when scheduling posts
