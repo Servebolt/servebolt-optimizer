@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 //use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheSettings;
+use function Servebolt\Optimizer\Helpers\wpDirectFilesystem;
 
 /**
  * Class DisableWpRocketCache
@@ -78,7 +79,7 @@ class DisableWpRocketCache
             'WP_ROCKET_CACHE_BUSTING_PATH',
             'WP_ROCKET_CRITICAL_CSS_PATH',
         ]);
-        if (!$filesystem = $this->wpDirectFilesystem()) {
+        if (!$filesystem = wpDirectFilesystem()) {
             return false;
         }
         $allFoldersDeleted = true;
@@ -95,17 +96,5 @@ class DisableWpRocketCache
             }
         }
         return $allFoldersDeleted;
-    }
-
-    /**
-     * Instanciate the filesystem class
-     *
-     * @return object WP_Filesystem_Direct instance
-     */
-    private function wpDirectFilesystem(): object
-    {
-        require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
-        require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
-        return new \WP_Filesystem_Direct(new \StdClass());
     }
 }

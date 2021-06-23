@@ -4,10 +4,9 @@ namespace Servebolt\Optimizer\Cli\AcceleratedDomains;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains as AcceleratedDomainsClass;
 use WP_CLI;
-use function Servebolt\Optimizer\Helpers\booleanToString;
 use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
+use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains as AcceleratedDomainsClass;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\iterateSites;
@@ -18,8 +17,14 @@ use function Servebolt\Optimizer\Helpers\iterateSites;
  */
 class AcceleratedDomains
 {
+    /**
+     * AcceleratedDomains constructor.
+     */
     public function __construct()
     {
+        new AcceleratedDomainsImageResize;
+        new AcceleratedDomainsImageSizeIndex;
+
         WP_CLI::add_command('servebolt acd status', [$this, 'statusAcd']);
         WP_CLI::add_command('servebolt acd activate', [$this, 'activateAcd']);
         WP_CLI::add_command('servebolt acd deactivate', [$this, 'deactivateAcd']);

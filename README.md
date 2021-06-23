@@ -30,6 +30,15 @@ You should now be able to run ``composer phpunit`` WP single site or ``composer 
 Phan, PHPCS and PHPLint should be installed by composer.
 You can run the tests with this command: `composer test`
 
+### Deployment
+If you want to deploy to WordPress.org then all you got to do is create a tag in Git. Please use semantic versioning according to semver.org. When you push the tag to Github we use Github Actions that will "forward" the tag to WordPress.org SVN repository. You can see the deployment instructions in `.github/workflows/wordpress-plugin-svn-deploy.yaml`.
+Note that the version number in the file `readme.txt` is used by WordPress.org, while the version number in the file `servebolt-optimizer.php` is used when installed on a Wordpress-site.
+
+Credentials for the SVN repository is stored in the password manager. The credentials are already stored as secrets in the Github repository, but you might need them if you want to interact with the SVN repository from your local machine.
+
+#### Local build
+If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to Wordpress.org.
+
 ## Changelog
 #### 3.0.2
 * Fixed bug in compatibility code for older versions of WP Rocket
@@ -40,7 +49,7 @@ You can run the tests with this command: `composer test`
 * Corrected typo in string “Accelerated domains” to use uppercase in first character of each word.
 * Fixed issue in cache headers - the feature to exclude posts from cache was broken due to wrong order in conditions in the cache header logic. This is now fixed.
 * Removed priority-attribute from plugin static asset actions - due to cases of incompatibility between themes and other plugins we removed the priority-attribute from the actions that enqueued the plugins static assets. This means that the priority-attribute falls back to the default value of 10 which should be less likely to cause issue.
-* Resolved issue with single file composer packages not being included in autoloader - certain packages were not included in the Composer autoloader due to an issue in Mozart (which was needed to resolve conflicts between composer packages used in Wordpress plugins). The packages originated as dependencies of the Servebolt PHP SDK, and was solved by specifically including them in the plugins composer-file. The affected packages contained polyfills for the PHP functions “http_build_query” and “getallheaders” which means that this was only an issue in environment where these functions were not available in PHP.
+* Resolved issue with single file composer packages not being included in autoloader - certain packages were not included in the Composer autoloader due to an issue in Mozart (which was needed to resolve conflicts between composer packages used in Wordpress plugins). The packages originated as dependencies of the Servebolt PHP SDK, and was solved by specifically including them in the plugins composer-file. The affected packages contained polyfills for the PHP functions “http_build_url” (from module pecl_http) and “getallheaders” which means that this was only an issue in environment where these functions were not available in PHP.
 * Removed SASS-parser since there was no real need in the project - due to an issue with the npm package "node-sass" running on macOS Big Sur the SASS-parser was disabled, at least for now.
 
 #### 3.0.0 

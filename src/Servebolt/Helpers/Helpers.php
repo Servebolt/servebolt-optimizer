@@ -413,6 +413,16 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'acd_switch',
         'acd_minify_switch',
 
+        // Accelerated Domains Image Resize
+        'acd_image_resize_switch',
+        'acd_image_resize_half_size_switch',
+        'acd_image_resize_src_tag_switch',
+        'acd_image_resize_srcset_tag_switch',
+        'acd_image_resize_quality',
+        'acd_image_resize_metadata_optimization_level',
+        'acd_image_resize_upscale',
+        'acd_image_resize_size_index',
+
         // Wipe SB FPC-related options
         'fpc_switch',
         'fpc_settings',
@@ -1315,4 +1325,88 @@ function woocommerceIsActive(): bool
 function wpRocketIsActive(): bool
 {
     return defined('WP_ROCKET_VERSION');
+}
+
+/**
+ * Instantiate the filesystem class
+ *
+ * @return object WP_Filesystem_Direct instance
+ */
+function wpDirectFilesystem(): object
+{
+    require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+    require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+    return new \WP_Filesystem_Direct(new \StdClass());
+}
+
+/**
+ * Override an option value.
+ *
+ * @param string $optionName
+ * @param mixed $overrideValue
+ */
+function setOptionOverride(string $optionName, $overrideValue): void
+{
+    if (!is_callable($overrideValue)) {
+        $overrideValue = function() use ($overrideValue) {
+            return $overrideValue;
+        };
+    }
+    add_filter('pre_option_' . getOptionName($optionName), $overrideValue);
+}
+
+/**
+ * Clear options value override.
+ *
+ * @param string $optionName
+ * @param null $closureOrFunctionName
+ */
+function clearOptionsOverride(string $optionName, $closureOrFunctionName = null): void
+{
+    $key = 'pre_option_' . getOptionName($optionName);
+    if ($closureOrFunctionName) {
+        remove_filter($key, $closureOrFunctionName);
+    } else {
+        remove_all_filters($key);
+    }
+}
+
+/**
+ * Create a default value, both where the option is not present in the options-table, or if the value is empty.
+ *
+ * @param string $optionName
+ * @param mixed $defaultValue
+ */
+function setDefaultOption(string $optionName, $defaultValue): void
+{
+    if (!is_callable($defaultValue)) {
+        $defaultValue = function() use ($defaultValue) {
+            return $defaultValue;
+        };
+    }
+    add_filter('default_option_' . getOptionName($optionName), $defaultValue);
+    /*
+    add_filter('option_' . getOptionName($optionName), function($value) use ($defaultValue) {
+        if (!$value) {
+            return $defaultValue;
+        }
+        return $value;
+    });
+    */
+}
+
+/**
+ * Clear default value.
+ *
+ * @param string $optionName
+ * @param null $closureOrFunctionName
+ */
+function clearDefaultOption(string $optionName, $closureOrFunctionName = null): void
+{
+    $key = 'default_option_' . getOptionName($optionName);
+    if ($closureOrFunctionName) {
+        remove_filter($key, $closureOrFunctionName);
+    } else {
+        remove_all_filters($key);
+    }
 }
