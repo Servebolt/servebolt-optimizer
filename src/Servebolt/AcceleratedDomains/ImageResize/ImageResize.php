@@ -122,10 +122,10 @@ class ImageResize
     /**
      * Set image quality.
      *
-     * @param int $imageQuality
+     * @param null|int $imageQuality
      * @return $this
      */
-    public function setImageQuality(int $imageQuality)
+    public function setImageQuality(?int $imageQuality)
     {
         $this->imageQuality = $imageQuality;
         return $this;
@@ -182,12 +182,15 @@ class ImageResize
      *
      * @return int
      */
-    private function getImageQuality(): int
+    private function getImageQuality():? int
     {
         if (is_int($this->imageQuality)) {
+            if ($this->imageQuality === self::$defaultImageQuality) {
+                return null; // Fallback to default value in ACD Worker
+            }
             return $this->imageQuality;
         }
-        return self::$defaultImageQuality;
+        return null; // Fallback to default value in ACD Worker
     }
 
     /**
@@ -219,11 +222,10 @@ class ImageResize
     private function defaultImageResizeParameters($additionalParams): array
     {
         $additionalParams = apply_filters('sb_optimizer_acd_image_resize_additional_params', $additionalParams);
-        $params = [
-            'quality' => $this->getImageQuality(),
-            //'metadata' => $this->getMetadataOptimizationLevel(),
-            //'format'  => 'auto',
-        ];
+        $params = [];
+        if ($imageQuality = $this->getImageQuality()) {
+            $params['quality'] = $imageQuality;
+        }
         if ($metadata = $this->getMetadataOptimizationLevel()) {
             $params['metadata'] = $metadata;
         }
