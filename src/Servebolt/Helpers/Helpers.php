@@ -1068,7 +1068,10 @@ function deleteBlogOption($blogId, $option, bool $assertUpdate = true)
  */
 function getSites()
 {
-    return apply_filters('sb_optimizer_site_iteration', get_sites());
+    if (function_exists('get_sites')) {
+        return apply_filters('sb_optimizer_site_iteration', get_sites());
+    }
+    return null;
 }
 
 /**
