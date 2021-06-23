@@ -7,45 +7,55 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\getAjaxNonce;
+use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 
 /**
- * Class Servebolt_Optimizer_Assets
+ * Class Assets
  *
  * This class includes the CSS and JavaScript of the plugin.
  */
 class Assets {
 
 	/**
-	 * Servebolt_Optimizer_Assets constructor.
+	 * Assets constructor.
 	 */
 	public function __construct()
     {
 		add_action('init', [$this, 'initAssets']);
 	}
 
+    /**
+     * Determine whether we should enqueue plugin assets in general.
+     *
+     * @return bool
+     */
+	private function shouldInitAssets(): bool
+    {
+        return apply_filters('sb_optimizer_should_init_assets', is_user_logged_in());
+    }
+
 	/**
 	 * Init assets.
 	 */
-	public function initAssets()
+	public function initAssets(): void
     {
-
-		if (!is_user_logged_in()) {
-		    return;
+        if (!$this->shouldInitAssets()) {
+            return;
         }
 
 		// Front-end only assets
-		add_action('wp_enqueue_scripts', [$this, 'pluginPublicStyling'], 100);
-		add_action('wp_enqueue_scripts', [$this, 'pluginPublicScripts'], 100);
+		add_action('wp_enqueue_scripts', [$this, 'pluginPublicStyling']);
+		add_action('wp_enqueue_scripts', [$this, 'pluginPublicScripts']);
 
         // Admin only assets
-        add_action('admin_enqueue_scripts', [$this, 'pluginAdminStyling'], 100);
-        add_action('admin_enqueue_scripts', [$this, 'pluginAdminScripts'], 100);
+        add_action('admin_enqueue_scripts', [$this, 'pluginAdminStyling']);
+        add_action('admin_enqueue_scripts', [$this, 'pluginAdminScripts']);
 
 		// Common assets (both public and admin)
-		add_action('wp_enqueue_scripts', [$this, 'pluginCommonStyling'], 100);
-		add_action('wp_enqueue_scripts', [$this, 'pluginCommonScripts'], 100);
-		add_action('admin_enqueue_scripts', [$this, 'pluginCommonStyling'], 100);
-        add_action('admin_enqueue_scripts', [$this, 'pluginCommonScripts'], 100);
+		add_action('wp_enqueue_scripts', [$this, 'pluginCommonStyling']);
+		add_action('wp_enqueue_scripts', [$this, 'pluginCommonScripts']);
+		add_action('admin_enqueue_scripts', [$this, 'pluginCommonStyling']);
+        add_action('admin_enqueue_scripts', [$this, 'pluginCommonScripts']);
 
 	}
 
@@ -139,12 +149,12 @@ class Assets {
                 true
             );
             $this->enqueueScript(
-                'servebolt-optimizer-cloudflare-cache-purge-trigger-scripts',
-                'assets/dist/js/cloudflare-cache-purge-trigger.js',
+                'servebolt-optimizer-cache-purge-trigger-scripts',
+                'assets/dist/js/cache-purge-trigger.js',
                 ['jquery'],
                 true
             );
-            wp_localize_script('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', 'sb_ajax_object', [
+            wp_localize_script('servebolt-optimizer-cache-purge-trigger-scripts', 'sb_ajax_object', [
                 'ajax_nonce'                         => getAjaxNonce(),
                 'use_native_js_fallback'             => booleanToString($generalSettings->useNativeJsFallback()),
                 'ajaxurl'                            => admin_url('admin-ajax.php'),
@@ -175,7 +185,7 @@ class Assets {
      */
     private function enqueueScript($handle, $src, $deps = [], $in_footer = false): void
     {
-        wp_enqueue_script($handle, SERVEBOLT_PLUGIN_DIR_URL . $src, $deps, filemtime(SERVEBOLT_PLUGIN_DIR_PATH . $src), $in_footer);
+        wp_enqueue_script($handle, SERVEBOLT_PLUGIN_DIR_URL . $src, $deps, getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . $src), $in_footer);
     }
 
     /**
@@ -187,7 +197,7 @@ class Assets {
      */
     private function enqueueStyle($handle, $src, $deps = []): void
     {
-        wp_enqueue_style($handle, SERVEBOLT_PLUGIN_DIR_URL . $src, $deps, filemtime(SERVEBOLT_PLUGIN_DIR_PATH . $src));
+        wp_enqueue_style($handle, SERVEBOLT_PLUGIN_DIR_URL . $src, $deps, getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . $src));
     }
 
     /**

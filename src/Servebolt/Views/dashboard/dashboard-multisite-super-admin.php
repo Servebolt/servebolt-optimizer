@@ -13,7 +13,7 @@
 
 <?php if (isHostedAtServebolt()) : ?>
     <a href="<?php echo network_admin_url('admin.php?page=servebolt-acd'); ?>" class="sb-button yellow">
-        <?php _e('Accelerated domains', 'servebolt-wp') ?>
+        <?php _e('Accelerated Domains', 'servebolt-wp') ?>
     </a>
 <?php endif; ?>
 

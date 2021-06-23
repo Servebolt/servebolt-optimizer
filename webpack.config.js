@@ -1,7 +1,7 @@
 const path = require('path');
 const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+//const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const ImageminPlugin = require('imagemin-webpack-plugin').default;
 //const WebpackRTLPlugin = require( 'webpack-rtl-plugin' );
@@ -9,6 +9,16 @@ const ProgressBarPlugin = require('progress-bar-webpack-plugin');
 const {exec} = require('child_process');
 
 const inProduction = ('production' === process.env.NODE_ENV);
+
+/*
+	// Removed these packages due to the lack of need for a SASS-parser
+    "node-sass": "^4.12.0",
+    "sass-loader": "^7.1.0",
+    "mini-css-extract-plugin": "^0.6.0",
+    "css-loader": "^2.1.1",
+    "postcss-loader": "^3.0.0",
+    "cssnano": "^4.1.10",
+ */
 
 const config = {
 	// https://github.com/webpack-contrib/css-loader/issues/447
@@ -58,6 +68,7 @@ const config = {
             */
 
 			// SASS to CSS.
+			/*
 			{
 				test: /\.scss$/,
 
@@ -73,6 +84,7 @@ const config = {
 					'sass-loader',
 				],
 			},
+			*/
 
 			// Image files.
 			{
@@ -105,7 +117,7 @@ const config = {
 
 		new ProgressBarPlugin({clear: false}),
 
-		new MiniCssExtractPlugin({filename: 'css/gutenberg-menu.css'}),
+		//new MiniCssExtractPlugin({filename: 'css/gutenberg-menu.css'}),
 
 		// Copy CSS-files
 		new CopyWebpackPlugin([{from: '*.css', to: 'css', 'context': 'assets/src/css/'}]),

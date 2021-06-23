@@ -53,6 +53,10 @@ node_modules
 assets/dist
 #assets/dist # We should ignore this and implement the build procedure into the Github action when we deploy to wordpress.org
 
+# Local build files
+servebolt-optimizer/
+servebolt-optimizer.zip
+
 # Composer
 vendor
 src/Dependencies

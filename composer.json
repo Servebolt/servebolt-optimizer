@@ -29,7 +29,7 @@
     "phpcompatibility/php-compatibility": "*",
     "phpunit/phpunit": "7.5.20",
     "phan/phan": "^4.0",
-    "overtrue/phplint": "9999999-dev"
+    "overtrue/phplint": "^2.0"
   },
   "keywords": [
     "blocks",
@@ -41,7 +41,9 @@
   "autoload": {
     "files": [
       "src/Servebolt/Helpers/Helpers.php",
-      "src/Servebolt/CachePurge/ThirdPartyFunctions.php"
+      "src/Servebolt/CachePurge/ThirdPartyFunctions.php",
+      "vendor/jakeasmith/http_build_url/src/http_build_url.php",
+      "vendor/ralouphie/getallheaders/src/getallheaders.php"
     ],
     "psr-4": {
       "Servebolt\\Optimizer\\": "src/Servebolt",
@@ -61,7 +63,9 @@
     "phpunit-mu": [
       "./vendor/phpunit/phpunit/phpunit -c phpunit-mu.xml"
     ],
+    "local-build": "ci/local-build.sh",
     "install-wp-test": ["ci/install-wp-tests.sh"],
+    "update-wp-test": ["ci/update-wp-tests.sh"],
     "test": ["composer test-phpcs","composer test-phplint","composer test-phan"],
     "test-phpcs": "ci/phpcs.sh",
     "test-phplint": "ci/phplint.sh",

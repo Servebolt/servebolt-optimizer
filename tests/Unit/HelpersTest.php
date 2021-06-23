@@ -3,12 +3,15 @@
 namespace Unit;
 
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
+use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 use Servebolt\Optimizer\Utils\Queue\QueueItem;
-use WP_UnitTestCase;
+use ServeboltWPUnitTestCase;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
+use function Servebolt\Optimizer\Helpers\clearDefaultOption;
+use function Servebolt\Optimizer\Helpers\clearOptionsOverride;
 use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 use function Servebolt\Optimizer\Helpers\deleteBlogOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
@@ -19,6 +22,8 @@ use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\setDefaultOption;
+use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
@@ -47,18 +52,62 @@ use function Servebolt\Optimizer\Helpers\naturalLanguageJoin;
 use function Servebolt\Optimizer\Helpers\resolveViewPath;
 use function Servebolt\Optimizer\Helpers\isUrl;
 use function Servebolt\Optimizer\Helpers\getOptionName;
+use function Servebolt\Optimizer\Helpers\getWebrootPath;
 use function Servebolt\Optimizer\Helpers\strEndsWith;
 use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\updateSiteOption;
 
-class HelpersTest extends WP_UnitTestCase
+class HelpersTest extends ServeboltWPUnitTestCase
 {
+    private function activateSbDebug(): void
+    {
+        if (!defined('SB_DEBUG')) {
+            define('SB_DEBUG', true);
+        }
+    }
+
+    public function testThatWeCanGetTheWebrootFolderPath(): void
+    {
+        $this->assertContains('tests/bin/tmp/wordpress/', getWebrootPath());
+        $this->activateSbDebug();
+        $this->assertEquals('/kunder/serveb_1234/custom_4321/public', getWebrootPath());
+        add_filter('sb_optimizer_wp_webroot_path', function() {
+            return '/some/path/to/somewhere/';
+        });
+        $this->assertEquals('/some/path/to/somewhere/', getWebrootPath());
+    }
 
     public function testThatWeCanGetAdminUrlFromHomePath(): void
     {
-        define('SB_DEBUG', true);
-        $this->assertEquals(getServeboltAdminUrl(), 'https://admin.servebolt.com/siteredirect/?site=4321');
+        $this->activateSbDebug();
+
+        // Test with site ID extracted from webroot path
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=4321', getServeboltAdminUrl());
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=4321', getServeboltAdminUrl(['page' => 'accelerated-domains']));
+
+        // Create custom env file reader instance
+        EnvFileReader::destroyInstance();
+        EnvFileReader::getInstance(__DIR__ . '/EnvFile/');
+
+        // Test with site ID extracted from environment file
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl([]));
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=56789', getServeboltAdminUrl(['page' => 'accelerated-domains']));
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&some=parameter&another=one&site=56789', getServeboltAdminUrl(['page' => 'accelerated-domains', 'some' => 'parameter', 'another' => 'one']));
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&webhost_id=69&some=parameter&another=one&site=56789', getServeboltAdminUrl(['page' => 'accelerated-domains', 'webhost_id' => '69', 'some' => 'parameter', 'another' => 'one']));
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=56789', getServeboltAdminUrl('accelerated-domains'));
+
+        // Test with site ID extracted from webroot path
+        EnvFileReader::disable();
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=4321', getServeboltAdminUrl());
+
+        // Test with site ID extracted from environment file
+        EnvFileReader::enable();
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
+
+        // Revert env file reader to default state
+        EnvFileReader::destroyInstance();
+        EnvFileReader::getInstance();
     }
 
     public function testThatTestConstantGetsSet(): void
@@ -280,6 +329,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testCountSitesHelper()
     {
+        $this->multisiteOnly();
         $this->assertEquals(1, countSites());
         $this->createBlogs(3);
         $this->assertEquals(4, countSites());
@@ -287,6 +337,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testSmartOptionsHelpersMultisite()
     {
+        $this->multisiteOnly();
         $this->createBlogs(3);
         iterateSites(function ($site) {
             $key = 'some-option-for-testing';
@@ -320,9 +371,10 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testBlogOptionsOverride()
     {
+        $this->multisiteOnly();
         $this->createBlogs(2);
         iterateSites(function ($site) {
-            $override = function ($value) {
+            $override = function($value) {
                 return 'override';
             };
             $key = 'some-overrideable-blog-options-key';
@@ -361,6 +413,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testDefaultValuesForBlogOptionsHelpers()
     {
+        $this->multisiteOnly();
         $this->createBlogs(3);
         iterateSites(function ($site) {
             $key = 'default-options-value-test-key';
@@ -403,6 +456,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testOptionsHelpersMultisite()
     {
+        $this->multisiteOnly();
         $this->createBlogs(2);
         iterateSites(function ($site) {
             $key = 'some-option-for-testing-multisite';
@@ -426,6 +480,7 @@ class HelpersTest extends WP_UnitTestCase
 
     public function testThatAllSettingsGetsDeleted()
     {
+        $this->multisiteOnly();
         $this->createBlogs(2);
         $allOptionsNames = getAllOptionsNames(true);
         iterateSites(function ($site) use ($allOptionsNames) {
@@ -440,6 +495,83 @@ class HelpersTest extends WP_UnitTestCase
                 $this->assertNull(getBlogOption($site->blog_id, $option));
             }
         });
+    }
+
+    public function testThatWeCanOverrideOptions(): void
+    {
+        $optionsKey = 'override-test';
+        $value = 'some-value';
+        $overrideValue = 'override-value';
+        $this->assertNull(getOption($optionsKey));
+        updateOption($optionsKey, $value);
+        $this->assertEquals($value, getOption($optionsKey));
+        setOptionOverride($optionsKey, $overrideValue);
+        $this->assertEquals($overrideValue, getOption($optionsKey));
+        clearOptionsOverride($optionsKey);
+        $this->assertEquals($value, getOption($optionsKey));
+    }
+
+    public function testThatWeCanOverrideOptionsWithWpFunctionClosure(): void
+    {
+        $optionsKey = 'wp-override-test';
+        $this->assertNull(getOption($optionsKey));
+        $value = 'some-value';
+        updateOption($optionsKey, $value);
+        $this->assertEquals($value, getOption($optionsKey));
+        setOptionOverride($optionsKey, '__return_true');
+        $this->assertEquals(true, getOption($optionsKey));
+        clearOptionsOverride($optionsKey, '__return_true');
+        $this->assertEquals($value, getOption($optionsKey));
+    }
+
+    public function testThatWeCanOverrideOptionsWithFunctionClosure(): void
+    {
+        $optionsKey = 'override-test';
+        $value = 'some-value';
+        $overrideValue = 'override-value';
+        $overrideValueClosure = function() use ($overrideValue) {
+            return $overrideValue;
+        };
+        $this->assertNull(getOption($optionsKey));
+        updateOption($optionsKey, $value);
+        $this->assertEquals($value, getOption($optionsKey));
+        setOptionOverride($optionsKey, $overrideValueClosure);
+        $this->assertEquals($overrideValue, getOption($optionsKey));
+        clearOptionsOverride($optionsKey, $overrideValueClosure);
+        $this->assertEquals($value, getOption($optionsKey));
+    }
+
+    public function testThatWeCanSetADefaultOptionsValueWithFunctionClosure(): void
+    {
+        $optionsKey = 'default-options-test';
+        $value = 'some-value';
+        $defaultValue = 'default-value';
+        $defaultValueClosure = function() use ($defaultValue) {
+            return $defaultValue;
+        };
+        $this->assertNull(getOption($optionsKey));
+        setDefaultOption($optionsKey, $defaultValueClosure);
+        $this->assertEquals($defaultValue, getOption($optionsKey));
+        updateOption($optionsKey, $value);
+        $this->assertEquals($value, getOption($optionsKey));
+        deleteOption($optionsKey);
+        clearDefaultOption($optionsKey, $defaultValueClosure);
+        $this->assertNull(getOption($optionsKey));
+    }
+
+    public function testThatWeCanSetADefaultOptionsValue(): void
+    {
+        $optionsKey = 'default-options-test';
+        $value = 'some-value';
+        $defaultValue = 'default-value';
+        $this->assertNull(getOption($optionsKey));
+        setDefaultOption($optionsKey, $defaultValue);
+        $this->assertEquals($defaultValue, getOption($optionsKey));
+        updateOption($optionsKey, $value);
+        $this->assertEquals($value, getOption($optionsKey));
+        deleteOption($optionsKey);
+        clearDefaultOption($optionsKey);
+        $this->assertNull(getOption($optionsKey));
     }
 
     private function createBlogs(int $numberOfBlogs = 1, $blogCreationAction = null): void

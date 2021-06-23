@@ -86,7 +86,7 @@ class CachePurge
             && self::acdIsSelected($blogId)
             && self::acdIsConfigured()
         ) {
-            return $verbose ? 'Accelerated domains' : 'acd';
+            return $verbose ? 'Accelerated Domains' : 'acd';
         }
         return self::defaultDriverName($verbose);
     }

@@ -22,7 +22,7 @@ class CacheSettings extends CliKeyValueStorage
      */
     protected $settingsItems = [
 
-        // Accelerated domains
+        // Accelerated Domains
         'acd_switch' => 'boolean',
         'acd_minify_switch' => 'boolean',
 

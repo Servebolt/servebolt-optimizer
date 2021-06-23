@@ -2,10 +2,6 @@
 
 namespace Servebolt\Optimizer\Helpers;
 
-use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
-use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
-use Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling;
-
 /**
  * @param $templatePath
  * @return string|null
@@ -229,20 +225,93 @@ function snakeCaseToCamelCase(string $string, bool $capitalizeFirst = false): st
 }
 
 /**
- * Get a link to the Servebolt admin panel.
+ * Get site ID, either from Env-file or from the webroot folder path.
+ *
+ * @return mixed|null
+ */
+function getSiteId()
+{
+    $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
+    if ($env->id) {
+        return $env->id;
+    }
+    if (preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", getWebrootPath(), $matches) && isset($matches[1])) {
+        return $matches[1];
+    }
+    return null;
+}
+
+/**
+ * Get the path to the webroot.
  *
  * @return string
  */
-function getServeboltAdminUrl() :string
+function getWebrootPath(): string
 {
-    if (!function_exists('get_home_path')) {
-        require_once ABSPATH . 'wp-admin/includes/file.php';
+    if (isDevDebug()) {
+        $path = '/kunder/serveb_1234/custom_4321/public';
+    } else {
+        if (!function_exists('get_home_path')) {
+            require_once ABSPATH . 'wp-admin/includes/file.php';
+        }
+        $path = get_home_path();
     }
-    $webRootPath = isDevDebug() ? '/kunder/serveb_1234/custom_4321/public' : get_home_path();
-    if (preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", $webRootPath, $matches) && isset($matches[1])) {
-        return 'https://admin.servebolt.com/siteredirect/?site='. $matches[1];
+    return apply_filters('sb_optimizer_wp_webroot_path', $path);
+}
+
+/**
+ * Get a link to the Servebolt admin panel.
+ *
+ * @param array|string $argsOrPage Either an array of query parameter or the sub-page to redirect to.
+ * @return string|null
+ */
+function getServeboltAdminUrl($argsOrPage = []) :? string
+{
+    if ($site = getSiteId()) {
+        if (is_string($argsOrPage)) {
+            $args = ['page' => $argsOrPage];
+        } elseif (is_array($argsOrPage)) {
+            $args = $argsOrPage;
+        } else {
+            $args = [];
+        }
+        $baseUrl = 'https://admin.servebolt.com/siteredirect/';
+        $queryParameters = http_build_query(array_merge($args, compact('site')));
+        return $baseUrl . '?' . $queryParameters;
+    }
+    return null;
+}
+
+/**
+ * Check if we are currently viewing a given screen.
+ *
+ * @param string $screenId
+ * @param bool $networkSupport
+ * @return bool
+ */
+function isScreen(string $screenId, bool $networkSupport = true): bool
+{
+    $currentScreen = get_current_screen();
+    if ($screenId == $currentScreen->id) {
+        return true;
+    }
+    if ($networkSupport) {
+        $networkScreenId = $screenId . '-network';
+        if ($networkScreenId == $currentScreen->id) {
+            return true;
+        }
     }
     return false;
+}
+
+/**
+ * Get instance of "FullPageCacheAuthHandling".
+ *
+ * @return mixed
+ */
+function getFullPageCacheAuthHandlingInstance()
+{
+    return \Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling::getInstance();
 }
 
 /**
@@ -250,7 +319,7 @@ function getServeboltAdminUrl() :string
  */
 function clearNoCacheCookie(): void
 {
-    (FullPageCacheAuthHandling::getInstance())->clearNoCacheCookie();
+    (getFullPageCacheAuthHandlingInstance())->clearNoCacheCookie();
 }
 
 /**
@@ -258,7 +327,7 @@ function clearNoCacheCookie(): void
  */
 function cacheCookieCheck(): void
 {
-    (FullPageCacheAuthHandling::getInstance())->cacheCookieCheck();
+    (getFullPageCacheAuthHandlingInstance())->cacheCookieCheck();
 }
 
 /**
@@ -343,6 +412,16 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         // Accelerated Domains
         'acd_switch',
         'acd_minify_switch',
+
+        // Accelerated Domains Image Resize
+        'acd_image_resize_switch',
+        'acd_image_resize_half_size_switch',
+        'acd_image_resize_src_tag_switch',
+        'acd_image_resize_srcset_tag_switch',
+        'acd_image_resize_quality',
+        'acd_image_resize_metadata_optimization_level',
+        'acd_image_resize_upscale',
+        'acd_image_resize_size_index',
 
         // Wipe SB FPC-related options
         'fpc_switch',
@@ -649,7 +728,7 @@ function featureIsAvailable(string $feature): ?bool
 {
     switch ($feature) {
         case 'cf_image_resize':
-            //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || CloudflareImageResize::resizingIsActive();
+            //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || (getCloudflareImageResizeInstance())::resizingIsActive();
             return true;
             break;
     }
@@ -667,9 +746,9 @@ function featureIsActive(string $feature): ?bool
 {
     switch ($feature) {
         case 'cf_image_resize':
-            return CloudflareImageResize::resizingIsActive();
+            return getCloudflareImageResizeInstance();
         case 'asset_auto_version':
-            $generalSettings = GeneralSettings::getInstance();
+            $generalSettings = getGeneralSettingsInstance();
             return $generalSettings->assetAutoVersion();
         /*
         case 'cf_cache':
@@ -678,7 +757,26 @@ function featureIsActive(string $feature): ?bool
         */
     }
     return null;
+}
 
+/**
+ * Get instance of "CloudflareImageResize".
+ *
+ * @return mixed
+ */
+function getCloudflareImageResizeInstance()
+{
+    return \Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize::resizingIsActive();
+}
+
+/**
+ * Get instance of "GeneralSettings".
+ *
+ * @return mixed
+ */
+function getGeneralSettingsInstance()
+{
+    return \Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings::getInstance();
 }
 
 /**
@@ -826,11 +924,16 @@ function isDebug(): bool
  */
 function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
 {
-    if(!function_exists('get_plugin_data')) {
-        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    static $version = null;
+
+    if ($version === null) {
+        if(!function_exists('get_plugin_data')) {
+            require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+        }
+        $pluginData = get_plugin_data(SERVEBOLT_PLUGIN_FILE);
+        $version = arrayGet('Version', $pluginData);
     }
-    $pluginData = get_plugin_data(SERVEBOLT_PLUGIN_FILE);
-    $version = arrayGet('Version', $pluginData);
+
     if (!$version) {
         return null;
     }
@@ -838,6 +941,34 @@ function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
         return preg_replace('/(.+)-(.+)/', '$1', $version);
     }
     return $version;
+}
+
+/**
+ * Get the version string to use for static assets in the Servebolt plugin.
+ *
+ * @param string $assetSrc
+ *
+ * @return string
+ *
+ * @internal This function is inteded for use in the Servebolt plugin and should not be used by others.
+ */
+function getVersionForStaticAsset(string $assetSrc): string
+{
+    $pluginVersion = apply_filters('sb_optimizer_static_asset_plugin_version', getCurrentPluginVersion(false));
+
+    // Fallback to using `filemtime` if we could not resolve the current plugin version
+    if ($pluginVersion === null) {
+        $filemtime = filemtime($assetSrc);
+
+        // If even `filemtime` bails out make sure the asset is cache busted by using the current unix timestamp
+        if ($filemtime === false) {
+            return (string) time();
+        }
+
+        return (string) $filemtime;
+    }
+
+    return $pluginVersion;
 }
 
 /**
@@ -1203,8 +1334,92 @@ function wpRocketIsActive(): bool
  */
 function yoastSeoPremiumIsActive(): bool
 {
-    if(!function_exists('is_plugin_active')) {
+    if (!function_exists('is_plugin_active')) {
         require_once(ABSPATH . 'wp-admin/includes/plugin.php');
     }
     return is_plugin_active('wordpress-seo-premium/wp-seo-premium.php');
+}
+
+/**
+ * Instantiate the filesystem class
+ *
+ * @return object WP_Filesystem_Direct instance
+ */
+function wpDirectFilesystem(): object
+{
+    require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+    require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+    return new \WP_Filesystem_Direct(new \StdClass());
+}
+
+/**
+ * Override an option value.
+ *
+ * @param string $optionName
+ * @param mixed $overrideValue
+ */
+function setOptionOverride(string $optionName, $overrideValue): void
+{
+    if (!is_callable($overrideValue)) {
+        $overrideValue = function() use ($overrideValue) {
+            return $overrideValue;
+        };
+    }
+    add_filter('pre_option_' . getOptionName($optionName), $overrideValue);
+}
+
+/**
+ * Clear options value override.
+ *
+ * @param string $optionName
+ * @param null $closureOrFunctionName
+ */
+function clearOptionsOverride(string $optionName, $closureOrFunctionName = null): void
+{
+    $key = 'pre_option_' . getOptionName($optionName);
+    if ($closureOrFunctionName) {
+        remove_filter($key, $closureOrFunctionName);
+    } else {
+        remove_all_filters($key);
+    }
+}
+
+/**
+ * Create a default value, both where the option is not present in the options-table, or if the value is empty.
+ *
+ * @param string $optionName
+ * @param mixed $defaultValue
+ */
+function setDefaultOption(string $optionName, $defaultValue): void
+{
+    if (!is_callable($defaultValue)) {
+        $defaultValue = function() use ($defaultValue) {
+            return $defaultValue;
+        };
+    }
+    add_filter('default_option_' . getOptionName($optionName), $defaultValue);
+    /*
+    add_filter('option_' . getOptionName($optionName), function($value) use ($defaultValue) {
+        if (!$value) {
+            return $defaultValue;
+        }
+        return $value;
+    });
+    */
+}
+
+/**
+ * Clear default value.
+ *
+ * @param string $optionName
+ * @param null $closureOrFunctionName
+ */
+function clearDefaultOption(string $optionName, $closureOrFunctionName = null): void
+{
+    $key = 'default_option_' . getOptionName($optionName);
+    if ($closureOrFunctionName) {
+        remove_filter($key, $closureOrFunctionName);
+    } else {
+        remove_all_filters($key);
+    }
 }

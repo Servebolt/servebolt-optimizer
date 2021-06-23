@@ -9,6 +9,7 @@ use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\isAjax;
 use function Servebolt\Optimizer\Helpers\formatArrayToCsv;
 use function Servebolt\Optimizer\Helpers\isCron;
+use function Servebolt\Optimizer\Helpers\isDebug;
 use function Servebolt\Optimizer\Helpers\isWpRest;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
@@ -89,18 +90,18 @@ class FullPageCacheHeaders
         FullPageCacheAuthHandling::init();
 
 		// Unauthenticated cache handling
-        if ($this->isFrontEnd()) {
+        if ($this->shouldSetCacheHeaders()) {
             add_filter('posts_results', [$this, 'setHeaders']);
             add_filter('template_include', [$this, 'lastCall']);
         }
 	}
 
     /**
-     * Check whether we are front-end or not (disable cache when in WP Admin, AJAX-context, REST API-context or WP Cron-context).
+     * Check whether we should set cache headers or not (disable cache when in WP Admin, AJAX-context, REST API-context or WP Cron-context).
      *
      * @return bool
      */
-	private function isFrontEnd(): bool
+	public function shouldSetCacheHeaders(): bool
     {
         if (is_admin() || isAjax() || isWpRest() || isCron()) {
             return false;
@@ -111,7 +112,7 @@ class FullPageCacheHeaders
     /**
      * @param $boolean
      */
-    public function headersAlreadySet($boolean): void
+    public function setHeaderAlreadySetState($boolean): void
     {
         $this->headersAlreadySet = $boolean;
     }
@@ -131,7 +132,7 @@ class FullPageCacheHeaders
 		if ($this->headersAlreadySet) {
             return $posts;
         }
-		$this->headersAlreadySet(true);
+		$this->setHeaderAlreadySetState(true);
 
         // Set "no cache"-headers if FPC is not active, or if we are logged in
         if (!FullPageCacheSettings::fpcIsActive() || $this->isAuthenticatedUser()) {
@@ -147,7 +148,7 @@ class FullPageCacheHeaders
 
 		// We don't have any posts at the time, abort
 		if (!isset($wp_query) || !$postType) {
-            $this->headersAlreadySet(false);
+            $this->setHeaderAlreadySetState(false);
 			return $posts;
 		}
 
@@ -170,17 +171,17 @@ class FullPageCacheHeaders
             if ($debug) {
                 $this->header('Cache-trigger: 6');
             }
+        } elseif (get_the_ID() && CachePostExclusion::shouldExcludePostFromCache(get_the_ID())) {
+            $this->noCacheHeaders();
+            if ($debug) {
+                $this->header('No-cache-trigger: 3');
+            }
         } elseif ((is_front_page() || is_singular() || is_page()) && $this->cacheActiveForPostType($postType)) {
             // Make sure the post type can be cached
             $this->postTypes[] = $postType;
             $this->cacheHeaders();
             if ($debug) {
                 $this->header('Cache-trigger: 5');
-            }
-        } elseif (get_the_ID() && CachePostExclusion::shouldExcludePostFromCache(get_the_ID())) {
-            $this->noCacheHeaders();
-            if ($debug) {
-                $this->header('No-cache-trigger: 3');
             }
         } elseif ($this->cacheAllPostTypes()) {
 			// Make sure the post type can be cached
@@ -242,7 +243,7 @@ class FullPageCacheHeaders
 	 */
 	private function shouldDebug(): bool
     {
-		return apply_filters('sb_optimizer_fpc_should_debug_headers', true);
+		return apply_filters('sb_optimizer_fpc_should_debug_headers', isDebug());
 	}
 
 	/**

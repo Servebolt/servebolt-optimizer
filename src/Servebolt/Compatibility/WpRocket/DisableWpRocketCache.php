@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 //use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheSettings;
+use function Servebolt\Optimizer\Helpers\wpDirectFilesystem;
 
 /**
  * Class DisableWpRocketCache
@@ -45,10 +46,55 @@ class DisableWpRocketCache
      */
     public function wpRocketClearAllCache(): bool
     {
+        // Delete the cache folder completely
+        /*
+        if ($this->deleteWpRocketCacheFolder()) {
+            return true;
+        }
+        */
         if (function_exists('rocket_clean_domain')) {
-            // Purge all WP Rocket cache
-            return rocket_clean_domain();
+            // Purge all WP Rocket cache for current domain
+            $purgeResult = rocket_clean_domain();
+            if (is_bool($purgeResult)) {
+                return $purgeResult;
+            }
+            return true; // We don't really know how the purge went, so unfortunately we have to assume that it went okay
         }
         return false;
+    }
+
+    /**
+     * Delete the WP Rocket cache folders.
+     *
+     * @return bool
+     */
+    private function deleteWpRocketCacheFolder(): bool
+    {
+        if (!apply_filters('sb_optimizer_wp_rocket_compatibility_should_delete_cache_folders', true)) {
+            return false;
+        }
+        $foldersToDelete = apply_filters('sb_optimizer_wp_rocket_compatibility_cache_folders', [
+            'WP_ROCKET_CACHE_PATH',
+            'WP_ROCKET_MINIFY_CACHE_PATH',
+            'WP_ROCKET_CACHE_BUSTING_PATH',
+            'WP_ROCKET_CRITICAL_CSS_PATH',
+        ]);
+        if (!$filesystem = wpDirectFilesystem()) {
+            return false;
+        }
+        $allFoldersDeleted = true;
+        foreach ($foldersToDelete as $folderToDelete) {
+            if (!defined($folderToDelete)) {
+                continue;
+            }
+            $folderPath = constant($folderToDelete);
+            if (!$filesystem->exists($folderPath)) {
+                continue;
+            }
+            if (!$filesystem->delete($folderPath, true)) {
+                $allFoldersDeleted = false;
+            }
+        }
+        return $allFoldersDeleted;
     }
 }
