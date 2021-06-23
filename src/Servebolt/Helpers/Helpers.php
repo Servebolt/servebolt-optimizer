@@ -2,11 +2,6 @@
 
 namespace Servebolt\Optimizer\Helpers;
 
-use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
-use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
-use Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling;
-use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
-
 /**
  * @param $templatePath
  * @return string|null
@@ -236,7 +231,7 @@ function snakeCaseToCamelCase(string $string, bool $capitalizeFirst = false): st
  */
 function getSiteId()
 {
-    $env = EnvFileReader::getInstance();
+    $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
     if ($env->id) {
         return $env->id;
     }
@@ -310,11 +305,21 @@ function isScreen(string $screenId, bool $networkSupport = true): bool
 }
 
 /**
+ * Get instance of "FullPageCacheAuthHandling".
+ *
+ * @return mixed
+ */
+function getFullPageCacheAuthHandlingInstance()
+{
+    return Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling::getInstance();
+}
+
+/**
  * Clean the cookies we have been setting.
  */
 function clearNoCacheCookie(): void
 {
-    (FullPageCacheAuthHandling::getInstance())->clearNoCacheCookie();
+    (getFullPageCacheAuthHandlingInstance())->clearNoCacheCookie();
 }
 
 /**
@@ -322,7 +327,7 @@ function clearNoCacheCookie(): void
  */
 function cacheCookieCheck(): void
 {
-    (FullPageCacheAuthHandling::getInstance())->cacheCookieCheck();
+    (getFullPageCacheAuthHandlingInstance())->cacheCookieCheck();
 }
 
 /**
@@ -713,7 +718,7 @@ function featureIsAvailable(string $feature): ?bool
 {
     switch ($feature) {
         case 'cf_image_resize':
-            //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || CloudflareImageResize::resizingIsActive();
+            //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || (getCloudflareImageResizeInstance())::resizingIsActive();
             return true;
             break;
     }
@@ -731,9 +736,9 @@ function featureIsActive(string $feature): ?bool
 {
     switch ($feature) {
         case 'cf_image_resize':
-            return CloudflareImageResize::resizingIsActive();
+            return getCloudflareImageResizeInstance();
         case 'asset_auto_version':
-            $generalSettings = GeneralSettings::getInstance();
+            $generalSettings = getGeneralSettingsInstance();
             return $generalSettings->assetAutoVersion();
         /*
         case 'cf_cache':
@@ -742,7 +747,26 @@ function featureIsActive(string $feature): ?bool
         */
     }
     return null;
+}
 
+/**
+ * Get instance of "CloudflareImageResize".
+ *
+ * @return mixed
+ */
+function getCloudflareImageResizeInstance()
+{
+    return \Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize::resizingIsActive();
+}
+
+/**
+ * Get instance of "GeneralSettings".
+ *
+ * @return mixed
+ */
+function getGeneralSettingsInstance()
+{
+    return \Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings::getInstance();
 }
 
 /**
