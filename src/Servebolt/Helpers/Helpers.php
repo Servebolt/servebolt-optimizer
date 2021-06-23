@@ -1328,6 +1328,19 @@ function wpRocketIsActive(): bool
 }
 
 /**
+ * Check whether plugin Yoast SEO Premium is active.
+ *
+ * @return bool
+ */
+function yoastSeoPremiumIsActive(): bool
+{
+    if (!function_exists('is_plugin_active')) {
+        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    }
+    return is_plugin_active('wordpress-seo-premium/wp-seo-premium.php');
+}
+
+/**
  * Instantiate the filesystem class
  *
  * @return object WP_Filesystem_Direct instance
