@@ -124,7 +124,8 @@
 
 
 #sb-fpc-form .spinner.flush-fpc-exclude-list-loading-spinner,
-#sb-configuration .spinner.purge-queue-loading-spinner {
+#sb-configuration .spinner.purge-queue-loading-spinner,
+#sb-configuration .acd-image-size-index-loading-spinner {
     float: none;
     height: 20px;
     margin-left: 0;
