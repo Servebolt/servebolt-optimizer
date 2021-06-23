@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }, false);
 
     // Remove selected image sizes
-    document.querySelectorAll('.sb-remove-selected-acd-image-sizes').forEach(item => {
+    document.querySelectorAll('.sb-remove-selected-acd-image-sizes').forEach(function(item) {
         item.addEventListener('click', window.removeAcdImageSizes);
     });
 }, false);
@@ -42,7 +42,7 @@ window.showHideOptionsFields = function () {
  * Uncheck all checkboxes.
  */
 window.acdUnselectAllCheckboxes = function() {
-    document.getElementById('acd-image-size-index').querySelectorAll('input[type="checkbox"]:checked').forEach(item => {
+    document.getElementById('acd-image-size-index').querySelectorAll('input[type="checkbox"]:checked').forEach(function(item) {
         item.checked = false;
     });
 };
@@ -68,7 +68,7 @@ window.removeAcdImageSizes = function() {
                 cancelButton: 'servebolt-button light'
             },
             buttonsStyling: false
-        }).then((result) => {
+        }).then(function(result) {
             if (result.value) {
                 window.removeAcdImageSizesConfirmed();
             }
@@ -82,7 +82,7 @@ window.removeAcdImageSizes = function() {
 window.removeAcdImageSizesConfirmed = function() {
     window.acdSpinner(true);
     var itemsToRemove = [];
-    window.acdGetCheckedCheckboxes().forEach(item => {
+    window.acdGetCheckedCheckboxes().forEach(function(item) {
         itemsToRemove.push(item.value);
     });
     window.submitAcdImageSizeAction(itemsToRemove, 'servebolt_acd_remove_image_sizes', function(response) {
@@ -99,7 +99,7 @@ window.removeAcdImageSizesConfirmed = function() {
  */
 window.acdCheckForCheckedCheckboxes = function() {
     const hasCheckedCheckboxes = window.acdHasCheckedCheckboxes();
-    document.querySelectorAll('.sb-remove-selected-acd-image-sizes').forEach(item => {
+    document.querySelectorAll('.sb-remove-selected-acd-image-sizes').forEach(function(item) {
         item.disabled = !hasCheckedCheckboxes;
     });
 };
@@ -159,8 +159,10 @@ window.loadAcdImageSizes = function() {
             method: 'GET'
         }
     )
-    .then(response => response.json())
-    .then(data => {
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
         window.acdSpinner(false);
         if (data.success) {
             window.getAcdImageSizeListElement().innerHTML = data.data.markup;
@@ -203,7 +205,7 @@ window.removeAcdImageSize = function(element) {
                 cancelButton: 'servebolt-button light'
             },
             buttonsStyling: false
-        }).then((result) => {
+        }).then(function(result) {
             if (result.value) {
                 window.removeAcdImageSizeConfirmed(element);
             }
@@ -267,7 +269,7 @@ window.acdListIsEmpty = function() {
  */
 window.acdCheckAllCheckboxAvailability = function() {
     const listIsEmpty = window.acdListIsEmpty();
-    document.getElementById('acd-image-size-index').querySelectorAll('thead input[type="checkbox"], tfoot input[type="checkbox"]').forEach(item => {
+    document.getElementById('acd-image-size-index').querySelectorAll('thead input[type="checkbox"], tfoot input[type="checkbox"]').forEach(function(item) {
         item.disabled = listIsEmpty;
     });
 }
@@ -338,7 +340,7 @@ window.addAcdImageSize = function() {
                 cancelButton: 'servebolt-button light'
             },
             buttonsStyling: false,
-            inputValidator: (value) => {
+            inputValidator: function(value) {
                 if (!value) {
                     return 'Please enter a value.'
                 } else if (!imageSizeValid(value)) {
@@ -346,7 +348,7 @@ window.addAcdImageSize = function() {
                 }
             },
             showCancelButton: true
-        }).then((result) => {
+        }).then(function(result) {
             if (result.value) {
                 window.submitAcdImageSizeAction(result.value, 'servebolt_acd_add_image_size', window.addAcdImageSizeResponse, window.acdHandleAjaxError);
             }
@@ -373,8 +375,10 @@ window.submitAcdImageSizeAction = function(value, action, success, error) {
             body: data
         }
     )
-    .then(response => response.json())
-    .then(data => {
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
         success(data);
     })
     .catch(error);
