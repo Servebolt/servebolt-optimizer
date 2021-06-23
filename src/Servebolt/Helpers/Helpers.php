@@ -311,7 +311,7 @@ function isScreen(string $screenId, bool $networkSupport = true): bool
  */
 function getFullPageCacheAuthHandlingInstance()
 {
-    return Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling::getInstance();
+    return \Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling::getInstance();
 }
 
 /**
