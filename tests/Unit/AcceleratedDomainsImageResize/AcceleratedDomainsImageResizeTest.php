@@ -74,6 +74,9 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
     public function testThatWeCanSetMetadataOptimizationLevels()
     {
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', 800, 800, false];
+        $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
+        $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?width=800', $modifiedAttachmentData[0]);
+
         $this->ir->setMetadataOptimizationLevel('none');
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?metadata=none&width=800', $modifiedAttachmentData[0]);
