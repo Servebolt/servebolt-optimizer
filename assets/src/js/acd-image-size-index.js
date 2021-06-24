@@ -319,8 +319,8 @@ window.addAcdImageSizeResponse = function(response) {
  * Add image size.
  */
 window.addAcdImageSize = function() {
-    const promptText = 'Please specify image size.';
-    const exampleString = 'Example: 1200w or 600h';
+    const promptText = 'Please specify new image size';
+    const exampleString = 'Format: [pixels][w/h] – Example: 1200w or 600h';
     if (window.sb_use_native_js_fallback()) {
         var value = window.prompt(promptText + "\n" + exampleString);
         if (!value) {

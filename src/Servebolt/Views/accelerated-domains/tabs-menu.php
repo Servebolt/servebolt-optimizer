@@ -11,12 +11,15 @@ $tabs = [
     [
         'id' => 'servebolt-acd-image-resize',
         'url' => $urlMethod('admin.php?page=servebolt-acd-image-resize'),
-        'title' => 'Image resizing',
+        'title' => 'Image resizing (beta)',
+    ],
+    [
+        'id' => 'servebolt-acd-cache',
+        'url' => $urlMethod('admin.php?page=servebolt-fpc'),
+        'title' => 'Cache'
     ],
 ];
 $defaultTab = current($tabs)['id'];
 $selectedTab = isset($selectedTab) ? $selectedTab : $defaultTab;
 view('general.tabs', compact('tabs', 'selectedTab'));
 ?>
-
-
