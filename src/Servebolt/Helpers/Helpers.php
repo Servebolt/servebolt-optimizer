@@ -26,7 +26,7 @@ function resolveViewPath($templatePath): ?string
  * @param bool $echo
  * @return string|null
  */
-function view(string $templatePath, $arguments = [], $echo = true): ?string
+function view(string $templatePath, array $arguments = [], bool $echo = true): ?string
 {
     if ($filePath = resolveViewPath($templatePath)) {
         extract($arguments, EXTR_SKIP);
@@ -69,11 +69,11 @@ function isUrl($url): bool
 /**
  * Generate a random string.
  *
- * @param $length
+ * @param int $length
  *
  * @return string
  */
-function generateRandomString($length): string
+function generateRandomString(int $length): string
 {
     $includeChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-@|';
     $charLength = strlen($includeChars);
@@ -87,7 +87,7 @@ function generateRandomString($length): string
 /**
  * Display value, regardless of type.
  *
- * @param $value
+ * @param mixed $value
  * @param bool $return
  * @param bool $arrayToCsv
  * @return bool|false|string|null
@@ -118,7 +118,7 @@ function displayValue($value, bool $return = true, bool $arrayToCsv = false)
  *
  * @return mixed
  */
-function ajaxUserAllowed(bool $returnResult = false, $capability = 'manage_options')
+function ajaxUserAllowed(bool $returnResult = false, string $capability = 'manage_options')
 {
     $userCan = apply_filters('sb_optimizer_ajax_user_allowed', current_user_can($capability));
     if ($returnResult) {
@@ -1118,12 +1118,12 @@ function iterateSites($function, bool $runBlogSwitch = false): bool
  * Update blog option.
  *
  * @param $blogId
- * @param $optionName
- * @param $value
+ * @param string $optionName
+ * @param mixed $value
  * @param bool $assertUpdate
  * @return bool
  */
-function updateBlogOption($blogId, $optionName, $value, $assertUpdate = true): bool
+function updateBlogOption($blogId, string $optionName, $value, bool $assertUpdate = true): bool
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_blog_option($blogId, $fullOptionName, $value);
@@ -1138,12 +1138,12 @@ function updateBlogOption($blogId, $optionName, $value, $assertUpdate = true): b
  * Get blog option.
  *
  * @param $blogId
- * @param $optionName
- * @param bool $default
+ * @param string $optionName
+ * @param mixed $default
  *
  * @return mixed
  */
-function getBlogOption($blogId, $optionName, $default = null)
+function getBlogOption($blogId, string $optionName, $default = null)
 {
     $fullOptionName = getOptionName($optionName);
     $value = get_blog_option($blogId, $fullOptionName, $default);
@@ -1153,12 +1153,12 @@ function getBlogOption($blogId, $optionName, $default = null)
 /**
  * Delete option.
  *
- * @param $option
+ * @param string $option
  * @param bool $assertUpdate
  *
  * @return bool
  */
-function deleteOption($option, bool $assertUpdate = true)
+function deleteOption(string $option, bool $assertUpdate = true)
 {
     $result = delete_option(getOptionName($option));
     if ($assertUpdate) {
@@ -1170,12 +1170,12 @@ function deleteOption($option, bool $assertUpdate = true)
 /**
  * Update option.
  *
- * @param $optionName
- * @param $value
+ * @param string $optionName
+ * @param mixed $value
  * @param bool $assertUpdate
  * @return bool
  */
-function updateOption($optionName, $value, $assertUpdate = true): bool
+function updateOption(string $optionName, $value, bool $assertUpdate = true): bool
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_option($fullOptionName, $value);
@@ -1189,12 +1189,12 @@ function updateOption($optionName, $value, $assertUpdate = true): bool
 /**
  * Get option.
  *
- * @param $optionName
- * @param bool $default
+ * @param string $optionName
+ * @param mixed $default
  *
  * @return mixed|void
  */
-function getOption($optionName, $default = null)
+function getOption(string $optionName, $default = null)
 {
     $fullOptionName = getOptionName($optionName);
     $value = get_option($fullOptionName, $default);
@@ -1204,12 +1204,12 @@ function getOption($optionName, $default = null)
 /**
  * Delete site option.
  *
- * @param $option
+ * @param string $option
  * @param bool $assertUpdate
  *
  * @return bool
  */
-function deleteSiteOption($option, bool $assertUpdate = true)
+function deleteSiteOption(string $option, bool $assertUpdate = true)
 {
     $result = delete_site_option(getOptionName($option));
     if ($assertUpdate) {
@@ -1221,13 +1221,13 @@ function deleteSiteOption($option, bool $assertUpdate = true)
 /**
  * Update site option.
  *
- * @param $optionName
- * @param $value
+ * @param string$optionName
+ * @param mixed $value
  * @param bool $assertUpdate
  *
  * @return bool
  */
-function updateSiteOption($optionName, $value, $assertUpdate = true)
+function updateSiteOption(string $optionName, $value, bool $assertUpdate = true)
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_site_option($fullOptionName, $value);
@@ -1241,12 +1241,12 @@ function updateSiteOption($optionName, $value, $assertUpdate = true)
 /**
  * Get site option.
  *
- * @param $optionName
- * @param bool $default
+ * @param string $optionName
+ * @param mixed $default
  *
  * @return mixed|void
  */
-function getSiteOption($optionName, $default = null)
+function getSiteOption(string $optionName, $default = null)
 {
     $fullOptionName = getOptionName($optionName);
     $value = get_site_option($fullOptionName, $default);
@@ -1257,12 +1257,12 @@ function getSiteOption($optionName, $default = null)
  * A function that will store the option at the right place (in current blog or a specified blog).
  *
  * @param null|int $blogId
- * @param $optionName
- * @param $value
+ * @param string $optionName
+ * @param mixed $value
  * @param bool $assertUpdate
  * @return bool
  */
-function smartUpdateOption(?int $blogId = null, $optionName, $value, bool $assertUpdate = true): bool
+function smartUpdateOption(?int $blogId = null, string $optionName, $value, bool $assertUpdate = true): bool
 {
     if (is_numeric($blogId)) {
         $result = updateBlogOption($blogId, $optionName, $value, $assertUpdate);
@@ -1276,12 +1276,12 @@ function smartUpdateOption(?int $blogId = null, $optionName, $value, bool $asser
  * A function that will delete the option at the right place (in current blog or a specified blog).
  *
  * @param int|null $blogId
- * @param $optionName
+ * @param string $optionName
  * @param bool $assertUpdate
  *
  * @return bool|mixed
  */
-function smartDeleteOption(?int $blogId = null, $optionName, bool $assertUpdate = true)
+function smartDeleteOption(?int $blogId = null, string $optionName, bool $assertUpdate = true)
 {
     if (is_numeric($blogId)) {
         $result = deleteBlogOption($blogId, $optionName, $assertUpdate);
@@ -1295,12 +1295,12 @@ function smartDeleteOption(?int $blogId = null, $optionName, bool $assertUpdate 
  * A function that will get the option at the right place (in current blog or a specified blog).
  *
  * @param int|null $blogId
- * @param $optionName
+ * @param string $optionName
  * @param bool $default
  *
  * @return mixed|void
  */
-function smartGetOption(?int $blogId = null, $optionName, $default = null)
+function smartGetOption(?int $blogId = null, string $optionName, $default = null)
 {
     if (is_numeric($blogId)) {
         $result = getBlogOption($blogId, $optionName, $default);
