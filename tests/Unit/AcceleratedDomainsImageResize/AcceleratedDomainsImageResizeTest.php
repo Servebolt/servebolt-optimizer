@@ -207,9 +207,9 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
     {
         $uploadFolder = wp_upload_dir();
         $uploadFolderPath = trailingslashit($uploadFolder['basedir']);
-        $filesystem = wpDirectFilesystem();
+        $filesystem = wpDirectFilesystem(true);
         $filesystem->delete($uploadFolderPath, true);
-        mkdir($uploadFolderPath);
+        $filesystem->mkdir($uploadFolderPath);
     }
 
     /**
