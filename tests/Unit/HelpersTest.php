@@ -2,6 +2,7 @@
 
 namespace Unit;
 
+use Unit\Traits\MultisiteTrait;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 use Servebolt\Optimizer\Utils\Queue\QueueItem;
@@ -60,6 +61,8 @@ use function Servebolt\Optimizer\Helpers\updateSiteOption;
 
 class HelpersTest extends ServeboltWPUnitTestCase
 {
+    use MultisiteTrait;
+
     private function activateSbDebug(): void
     {
         if (!defined('SB_DEBUG')) {
@@ -112,8 +115,8 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testThatTestConstantGetsSet(): void
     {
-        $this->assertTrue(defined('WP_TESTS_IS_RUNNING'));
-        $this->assertTrue(WP_TESTS_IS_RUNNING);
+        $this->assertTrue(defined('WP_TESTS_ARE_RUNNING'));
+        $this->assertTrue(WP_TESTS_ARE_RUNNING);
     }
 
     public function testThatViewCanBeResolved(): void
@@ -573,17 +576,5 @@ class HelpersTest extends ServeboltWPUnitTestCase
         deleteOption($optionsKey);
         clearDefaultOption($optionsKey);
         $this->assertNull(getOption($optionsKey));
-    }
-
-    private function createBlogs(int $numberOfBlogs = 1, $blogCreationAction = null): void
-    {
-        $siteCount = countSites();
-        for ($i = 1; $i <= $numberOfBlogs; $i++) {
-            $number = $i + $siteCount;
-            $blogId = $this->factory()->blog->create( [ 'domain' => 'foo-' . $number , 'path' => '/', 'title' => 'Blog ' . $number ] );
-            if (is_callable($blogCreationAction)) {
-                $blogCreationAction($blogId);
-            }
-        }
     }
 }

@@ -4,9 +4,6 @@ namespace Servebolt\Optimizer\Prefetching;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use function Servebolt\Optimizer\Helpers\getOption;
-use function Servebolt\Optimizer\Helpers\updateOption;
-
 /**
  * Class Prefetching
  * @package Servebolt\Optimizer\Prefetching
@@ -33,13 +30,6 @@ class Prefetching
      * @var string
      */
     private static $transientKey = 'servebolt_manifest_written';
-
-    /**
-     * Key used to store manifest file content.
-     *
-     * @var string
-     */
-    private $optionName = 'manifest_file_content';
 
     /**
      * Expiration in seconds for transient.
@@ -206,27 +196,10 @@ class Prefetching
         set_transient(self::$transientKey, time(), $this->transientExpiration);
 
         // Write the data to option (so that it can be written to files at a later point)
-        $this->storeManifestFilesData($this->manifestData);
-    }
+        ManifestModel::store($this->manifestData);
 
-    /**
-     * Store manifest files data in options.
-     *
-     * @param array $data
-     */
-    private function storeManifestFilesData(array $data): void
-    {
-        updateOption($this->optionName, $data);
-    }
-
-    /**
-     * Get manifest files data from options.
-     *
-     * @return array
-     */
-    private function getManifestFilesData(): array
-    {
-        return getOption($this->optionName, []);
+        // Write content to files
+        wp_schedule_single_event(time(), [__NAMESPACE__ . '\\ManifestFileWriter', 'write']);
     }
 
     /**
@@ -266,7 +239,7 @@ class Prefetching
     public function debugManifestFilesData(): void
     {
         echo '<pre>';
-        print_r($this->getManifestFilesData());
+        print_r(ManifestModel::get());
         echo '</pre>';
     }
 }

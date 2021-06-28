@@ -18,9 +18,8 @@ class WpPrefetching extends Prefetching
         if (!Prefetching::shouldGenerateManifestData()) {
             return;
         }
-
-        // TODO: Create a cron job that will look for new manifest data and write it to physical files
         add_filter('sb_optimizer_should_generate_manifest_data', '__return_true');
+        //add_filter('sb_optimizer_asset_prefetch_should_debug', '__return_true');
 
         if ($this->shouldRecordScripts()) {
             add_action('wp_print_scripts', [$this, 'getScriptsToPrefetch'], 99);
@@ -31,6 +30,7 @@ class WpPrefetching extends Prefetching
         if ($this->shouldRecordMenuItems()) {
             add_action('wp_footer', [$this, 'prefetchListMenuItems'], 99);
         }
+
         if ($this->shouldStoreManifestData()) {
             add_action('wp_footer', [$this, 'generateManifestFilesData'], 99);
         }
@@ -64,5 +64,10 @@ class WpPrefetching extends Prefetching
             || $this->shouldRecordStyles()
             || $this->shouldRecordMenuItems()
         );
+    }
+
+    private function shouldDebugManifestData(): bool
+    {
+        return apply_filters('sb_optimizer_asset_prefetch_should_debug', false);
     }
 }

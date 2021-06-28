@@ -503,7 +503,7 @@ function isFrontEnd(): bool
  */
 function isTesting(): bool
 {
-    return (defined('WP_TESTS_IS_RUNNING') && WP_TESTS_IS_RUNNING === true);
+    return (defined('WP_TESTS_ARE_RUNNING') && WP_TESTS_ARE_RUNNING === true);
 }
 
 /**
@@ -1346,10 +1346,20 @@ function yoastSeoPremiumIsActive(): bool
 /**
  * Instantiate the filesystem class
  *
+ * @param bool $ensureConstantsAreSet
  * @return object WP_Filesystem_Direct instance
  */
-function wpDirectFilesystem(): object
+function wpDirectFilesystem(bool $ensureConstantsAreSet = false): object
 {
+    if ($ensureConstantsAreSet || (defined('WP_TESTS_ARE_RUNNING') && WP_TESTS_ARE_RUNNING === true)) {
+        // Set the permission constants if not already set.
+        if ( ! defined( 'FS_CHMOD_DIR' ) ) {
+            define( 'FS_CHMOD_DIR', ( fileperms( ABSPATH ) & 0777 | 0755 ) );
+        }
+        if ( ! defined( 'FS_CHMOD_FILE' ) ) {
+            define( 'FS_CHMOD_FILE', ( fileperms( ABSPATH . 'index.php' ) & 0777 | 0644 ) );
+        }
+    }
     require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
     require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
     return new \WP_Filesystem_Direct(new \StdClass());
