@@ -15,10 +15,10 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
     {
         parent::setUp();
         ManifestFileWriter::shouldLimitHostname(false);
-        $this->setUpManifestData();
+        $this->setUpManifestDummyData();
     }
 
-    private function setUpManifestData(): void
+    private function setUpManifestDummyData(): void
     {
         ManifestModel::store(unserialize(file_get_contents(__DIR__ . '/dummy-data.txt')));
     }
@@ -28,7 +28,7 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         $this->assertNotCount(0, ManifestModel::get());
         ManifestModel::clear();
         $this->assertCount(0, ManifestModel::get());
-        $this->setUpManifestData();
+        $this->setUpManifestDummyData();
         $this->assertNotCount(0, ManifestModel::get());
     }
 
@@ -45,11 +45,21 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         }
     }
 
-    public function testThatManifestFileGetsWrittenToDisk(): void
+    public function testThatManifestFilesGetsWrittenToDisk(): void
     {
         ManifestFileWriter::write();
-        $this->assertFileExists(ManifestFileWriter::getFilePath());
-        $this->assertContains('cache-purge-trigger.js', file_get_contents(ManifestFileWriter::getFilePath()));
-        $this->assertContains('admin-bar.min.js', file_get_contents(ManifestFileWriter::getFilePath()));
+        $this->assertFileExists(ManifestFileWriter::getFilePath('script'));
+        $this->assertContains('cache-purge-trigger.js', file_get_contents(ManifestFileWriter::getFilePath('script')));
+        $this->assertContains('admin-bar.min.js', file_get_contents(ManifestFileWriter::getFilePath('script')));
+
+        /*
+        $this->assertFileExists(ManifestFileWriter::getFilePath('style'));
+        $this->assertContains('', file_get_contents(ManifestFileWriter::getFilePath('style')));
+        $this->assertContains('', file_get_contents(ManifestFileWriter::getFilePath('style')));
+
+        $this->assertFileExists(ManifestFileWriter::getFilePath('menu'));
+        $this->assertContains('', file_get_contents(ManifestFileWriter::getFilePath('menu')));
+        $this->assertContains('', file_get_contents(ManifestFileWriter::getFilePath('menu')));
+        */
     }
 }
