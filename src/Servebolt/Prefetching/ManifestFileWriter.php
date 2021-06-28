@@ -51,7 +51,7 @@ class ManifestFileWriter
      *
      * @var bool
      */
-    private static $clearDataAfterFileWrite = true;
+    private static $clearDataAfterFileWrite = false;
 
     /**
      * Execute manifest file writing.
@@ -76,9 +76,19 @@ class ManifestFileWriter
         }
 
         // Maybe clear data in options
-        if (apply_filters('sb_optimizer_prefetch_clear_manifest_data_after_file_write', self::$clearDataAfterFileWrite)) {
+        if (self::shouldClearDataAfterFileWrite()) {
             ManifestModel::clear();
         }
+    }
+
+    /**
+     * Check whether we should clear the options data after file write.
+     *
+     * @return bool
+     */
+    private static function shouldClearDataAfterFileWrite(): bool
+    {
+        return apply_filters('sb_optimizer_prefetch_clear_manifest_data_after_file_write', self::$clearDataAfterFileWrite);
     }
 
     /**
@@ -130,7 +140,7 @@ class ManifestFileWriter
      *
      * @return \WP_Filesystem_Direct
      */
-    private static function getFs()
+    private static function getFs(): object
     {
         if (is_null(self::$fs)) {
             self::$fs = wpDirectFilesystem();
@@ -259,7 +269,7 @@ class ManifestFileWriter
      * Format and prioritize manifest data items.
      *
      * @param string $itemType
-     * @return array|false
+     * @return string|false
      */
     private static function prepareData(string $itemType)
     {
@@ -276,6 +286,11 @@ class ManifestFileWriter
         usort($prefetchItems, function ($a, $b) {
             return $b['priority'] <=> $a['priority'];
         });
+
+        $maxLineNumber = apply_filters('sb_optimizer_prefetch_max_number_of_lines', false, $itemType);
+        if (is_numeric($maxLineNumber)) {
+            $prefetchItems = array_slice($prefetchItems, 0, $maxLineNumber);
+        }
 
         foreach ($prefetchItems as $prefetchItem) {
             if ($prefetchItem = self::handlePrefetchItem($prefetchItem)) {
