@@ -18,6 +18,11 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         $this->setUpManifestDummyData();
     }
 
+    public function tearDown()
+    {
+        ManifestFileWriter::clear(null, true);
+    }
+
     private function setUpManifestDummyData(): void
     {
         ManifestModel::store(unserialize(file_get_contents(__DIR__ . '/dummy-data.txt')));
@@ -61,5 +66,22 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         $this->assertContains('', file_get_contents(ManifestFileWriter::getFilePath('menu')));
         $this->assertContains('', file_get_contents(ManifestFileWriter::getFilePath('menu')));
         */
+    }
+
+    public function testThatWeCanLimitNumberOfLinesInFile()
+    {
+        $maxNumberOfLines = 2;
+        add_filter('sb_optimizer_prefetch_max_number_of_lines', function() use ($maxNumberOfLines) {
+            return $maxNumberOfLines;
+        });
+        ManifestFileWriter::write();
+        $scriptFilePath = ManifestFileWriter::getFilePath('script');
+        $this->assertFileExists($scriptFilePath);
+        $this->assertCount($maxNumberOfLines, explode(PHP_EOL, file_get_contents($scriptFilePath)));
+
+        remove_all_filters('sb_optimizer_prefetch_max_number_of_lines');
+        $this->setUpManifestDummyData();
+        ManifestFileWriter::write();
+        $this->assertCount(6, explode(PHP_EOL, file_get_contents($scriptFilePath)));
     }
 }
