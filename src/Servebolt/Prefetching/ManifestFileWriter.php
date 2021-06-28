@@ -14,11 +14,11 @@ class ManifestFileWriter
 {
 
     /**
-     * Pre-file write line storage.
+     * Manifest item types.
      *
-     * @var string
+     * @var string[]
      */
-    private static $fileLines = [];
+    private static $itemTypes = ['style', 'script', 'menu'];
 
     /**
      * @var bool
@@ -33,11 +33,11 @@ class ManifestFileWriter
     private static $folderName = 'prefetch';
 
     /**
-     * Manifest file name.
+     * Manifest file name mask.
      *
      * @var string
      */
-    private static $fileName = 'manifest.txt';
+    private static $fileNameMask = 'manifest-%s.txt';
 
     /**
      * WP Filesystem instance.
@@ -54,6 +54,34 @@ class ManifestFileWriter
     private static $clearDataAfterFileWrite = true;
 
     /**
+     * Execute manifest file writing.
+     */
+    public static function write(): void
+    {
+        self::ensureManifestFolderExists();
+
+        foreach(self::getItemTypes() as $itemType) {
+
+            // Skip if we do not have any data for the item type
+            if (!$data = self::prepareData($itemType)) {
+                self::clear($itemType);
+                continue;
+            }
+
+            // Write the contents to the manifest file
+            (self::getFs())->put_contents(
+                self::getFilePath($itemType),
+                $data
+            );
+        }
+
+        // Maybe clear data in options
+        if (apply_filters('sb_optimizer_prefetch_clear_manifest_data_after_file_write', self::$clearDataAfterFileWrite)) {
+            ManifestModel::clear();
+        }
+    }
+
+    /**
      * Get manifest folder path.
      *
      * @return string
@@ -67,11 +95,12 @@ class ManifestFileWriter
     /**
      * Get manifest file path.
      *
+     * @param string $fileType
      * @return string
      */
-    public static function getFilePath(): string
+    public static function getFilePath(string $fileType): string
     {
-        return self::getFolderPath() . self::$fileName;
+        return self::getFolderPath() . sprintf(self::$fileNameMask, $fileType);
     }
 
     /**
@@ -88,11 +117,12 @@ class ManifestFileWriter
     /**
      * Get manifest file path.
      *
+     * @param string $fileType
      * @return string
      */
-    private static function getFileUrl(): string
+    private static function getFileUrl(string $fileType): string
     {
-        return self::getFolderUrl() . self::$fileName;
+        return self::getFolderUrl() . sprintf(self::$fileNameMask, $fileType);
     }
 
     /**
@@ -122,20 +152,46 @@ class ManifestFileWriter
 
     /**
      * Clear the manifest file, and optionally the folder.
+     *
+     * @param string|null $itemType
+     * @param bool $removeFolder
+     * @return bool
      */
-    public static function clear(bool $removeFolder = false): void
+    public static function clear(?string $itemType = null, bool $removeFolder = false): bool
     {
         $fs = self::getFs();
-        $filePath = self::getFilePath();
-        if ($fs->exists($filePath)) {
-            $fs->delete($filePath);
+        $itemTypes = self::getItemTypes();
+        if ($itemType) {
+            if (!in_array($itemType, $itemTypes)) {
+                return false;
+            }
+            $itemTypes = [$itemType];
         }
+
+        foreach ($itemTypes as $itemType) {
+            $filePath = self::getFilePath($itemType);
+            if ($fs->exists($filePath)) {
+                $fs->delete($filePath);
+            }
+        }
+
         if ($removeFolder) {
             $folderPath = self::getFolderPath();
             if ($fs->exists($folderPath)) {
                 $fs->delete($folderPath);
             }
         }
+        return true;
+    }
+
+    /**
+     * Get item types.
+     *
+     * @return array
+     */
+    private static function getItemTypes(): array
+    {
+        return apply_filters('sb_optimizer_prefetch_active_item_types', self::$itemTypes);
     }
 
     /**
@@ -202,62 +258,30 @@ class ManifestFileWriter
     /**
      * Format and prioritize manifest data items.
      *
-     * @return bool
+     * @param string $itemType
+     * @return array|false
      */
-    private static function prepareData(): bool
+    private static function prepareData(string $itemType)
     {
+
         $data = ManifestModel::get();
-        foreach(['style', 'script', 'menu'] as $itemType) {
-            if (!array_key_exists($itemType, $data)) {
-                continue;
+        if (!array_key_exists($itemType, $data)) {
+            return false;
+        }
+
+        $lines = [];
+        $prefetchItems = $data[$itemType];
+
+        // Order the files by priority. Highest priority first.
+        usort($prefetchItems, function ($a, $b) {
+            return $b['priority'] <=> $a['priority'];
+        });
+
+        foreach ($prefetchItems as $prefetchItem) {
+            if ($prefetchItem = self::handlePrefetchItem($prefetchItem)) {
+                $lines[] = $prefetchItem;
             }
-
-            $prefetchItems = $data[$itemType];
-
-            // Order the files by priority. Highest priority first.
-            usort($prefetchItems, function ($a, $b) {
-                return $b['priority'] <=> $a['priority'];
-            });
-
-            foreach ($prefetchItems as $prefetchItem) {
-                if ($prefetchItem = self::handlePrefetchItem($prefetchItem)) {
-                    self::$fileLines[] = $prefetchItem;
-                }
-            }
         }
-        return !empty(self::$fileLines);
-    }
-
-    /**
-     * Get prepared manifest data.
-     *
-     * @return string
-     */
-    private static function getData(): string
-    {
-        return implode(PHP_EOL, self::$fileLines);
-    }
-
-    /**
-     * Execute manifest file writing
-     */
-    public static function write()
-    {
-        if (!self::prepareData()) {
-            return;
-        }
-
-        self::ensureManifestFolderExists();
-
-        // Write the contents to the manifest file
-        (self::getFs())->put_contents(
-            self::getFilePath(),
-            self::getData()
-        );
-
-        // Maybe clear data in options
-        if (apply_filters('sb_optimizer_clear_manifest_data_after_file_write', self::$clearDataAfterFileWrite)) {
-            ManifestModel::clear();
-        }
+        return empty($lines) ? false : implode(PHP_EOL, $lines);
     }
 }
