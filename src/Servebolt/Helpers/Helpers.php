@@ -1356,6 +1356,48 @@ function wpDirectFilesystem(): object
 }
 
 /**
+ * This is a clone of the function "wp_calculate_image_sizes" in the WP core-files.
+ * @param $size
+ * @param null $image_src
+ * @param null $image_meta
+ * @param int $attachment_id
+ * @return mixed|void
+ */
+function sbCalculateImageSizes( $size, $image_src = null, $image_meta = null, $attachment_id = 0 )
+{
+    $width = 0;
+
+    if (is_array($size)) {
+        $width = absint($size[0]);
+    } elseif (is_string($size)) {
+        if (!$image_meta && $attachment_id) {
+            $image_meta = wp_get_attachment_metadata($attachment_id);
+        }
+
+        if (is_array($image_meta)) {
+            $size_array = _wp_get_image_size_from_meta($size, $image_meta);
+            if ($size_array) {
+                $width = absint($size_array[0]);
+            }
+        }
+    }
+
+    /**
+     * Filters the output of 'sbCalculateImageSizes()'.
+     *
+     * @since 4.4.0
+     *
+     * @param int          $width         The width of the image.
+     * @param string|int[] $size          Requested image size. Can be any registered image size name, or
+     *                                    an array of width and height values in pixels (in that order).
+     * @param string|null  $image_src     The URL to the image file or null.
+     * @param array|null   $image_meta    The image meta data as returned by wp_get_attachment_metadata() or null.
+     * @param int          $attachment_id Image attachment ID of the original image or 0.
+     */
+    return apply_filters( 'sb_calculate_image_sizes', $width, $size, $image_src, $image_meta, $attachment_id );
+}
+
+/**
  * Override an option value.
  *
  * @param string $optionName
