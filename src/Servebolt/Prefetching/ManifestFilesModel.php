@@ -2,17 +2,17 @@
 
 namespace Servebolt\Optimizer\Prefetching;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
-
 /**
- * Class ManifestModel
+ * Class ManifestFilesModel
  * @package Servebolt\Optimizer\Prefetching
  */
-class ManifestModel
+class ManifestFilesModel
 {
 
     /**
@@ -20,7 +20,7 @@ class ManifestModel
      *
      * @var string
      */
-    private static $optionName = 'manifest_file_content';
+    private static $optionName = 'manifest_available_files';
 
     /**
      * Store manifest files data in options.

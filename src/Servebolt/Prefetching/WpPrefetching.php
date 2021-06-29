@@ -15,8 +15,12 @@ class WpPrefetching extends Prefetching
      */
     public function __construct()
     {
-        add_filter('sb_optimizer_should_generate_manifest_data', '__return_true');
-        //add_filter('sb_optimizer_asset_prefetch_should_debug', '__return_true');
+        // TODO: Check if feature is active
+
+        if ($this->shouldAddHeaders()) {
+            add_action('send_headers', [__NAMESPACE__ . '\\ManifestHeaders', 'printManifestHeaders'], PHP_INT_MAX);
+        }
+
         if (!Prefetching::shouldGenerateManifestData()) {
             return;
         }
@@ -37,6 +41,11 @@ class WpPrefetching extends Prefetching
         if ($this->shouldDebugManifestData()) {
             add_action('wp_footer', [$this, 'debugManifestFilesData'], 100);
         }
+    }
+
+    private function shouldAddHeaders(): bool
+    {
+        return apply_filters('sb_optimizer_asset_prefetch_add_headers', true);
     }
 
     private function shouldRecordScripts(): bool
