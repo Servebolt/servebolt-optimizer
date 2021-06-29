@@ -29,6 +29,7 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
     {
         parent::setUp();
         ManifestFileWriter::shouldLimitHostname(false);
+        ManifestFileWriter::shouldOrderAlphabetically(true);
         $this->setUpManifestDummyData();
     }
 
