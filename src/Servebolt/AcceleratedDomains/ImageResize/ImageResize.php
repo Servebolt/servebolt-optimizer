@@ -63,7 +63,7 @@ class ImageResize
     /**
      * @var string The level of metadata optimization.
      */
-    public static $defaultImageMetadataOptimizationLevel = null;
+    public static $defaultImageMetadataOptimizationLevel = 'copyright';
 
     /**
      * Duplicate all existing sizes in the srcset-array to contain half the size.
@@ -224,23 +224,38 @@ class ImageResize
     /**
      * Get image metadata optimization level.
      *
-     * @return string
+     * @return null|string
      */
-    private function getMetadataOptimizationLevel():? string
+    public function getMetadataOptimizationLevel(): ?string
     {
-        switch ($this->imageMetadataOptimizationLevel) {
+        return self::determineMetadataOptimizationLevel($this->imageMetadataOptimizationLevel);
+    }
+
+    /**
+     * Determine image metadata optimization level.
+     *
+     * @param string|null $imageMetadataOptimizationLevel
+     * @param bool $returnNullOnDefault
+     * @return string|null
+     */
+    public static function determineMetadataOptimizationLevel(?string $imageMetadataOptimizationLevel = null, bool $returnNullOnDefault = true):? string
+    {
+        switch ($imageMetadataOptimizationLevel) {
             case 'keep':
-            case 'keep_all':
-                return 'keep';
-            case 'copyright':
-            case 'keep_copyright':
-                return null; // This is the default value, we don't need to pass
-                //return 'copyright';
-            case 'no_metadata':
+                $level = 'keep';
+                break;
             case 'none':
-                return 'none';
+                $level = 'none';
+                break;
+            case 'copyright':
+            default:
+                $level = 'copyright';
+                break;
         }
-        return self::$defaultImageMetadataOptimizationLevel;
+        if ($level == self::$defaultImageMetadataOptimizationLevel) {
+            return $returnNullOnDefault ? null : self::$defaultImageMetadataOptimizationLevel;
+        }
+        return $level;
     }
 
     /**

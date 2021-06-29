@@ -47,7 +47,9 @@ class ImageSizeIndex extends SharedAjaxMethods
         ajaxUserAllowed();
         $value = sanitize_text_field(arrayGet('value', $_POST));
         if ($matches = ImageSizeIndexModel::validateValue($value)) {
-            if (ImageSizeIndexModel::sizeExists($matches[1], $matches[2])) {
+            if ($matches[1] <= 0) {
+                wp_send_json_error(['message' => __('Value must be above 0.', 'servebolt-wp')]);
+            } elseif (ImageSizeIndexModel::sizeExists($matches[1], $matches[2])) {
                 wp_send_json_error(['message' => __('Size already exists.', 'servebolt-wp')]);
             } else {
                 ImageSizeIndexModel::addSize($matches[1], $matches[2]);

@@ -26,7 +26,8 @@ class ImageSizeIndexModel
      *
      * @var string
      */
-    public static $validationRegex = '^([0-9]{1,4})(w|h)$';
+    //public static $validationRegex = '^([0-9]{1,4})(w|h)$';
+    public static $validationRegex = '^([0-9]{1,4})(w)$';
 
     /**
      * Validate value.
@@ -73,7 +74,11 @@ class ImageSizeIndexModel
      */
     public static function getSizes(): array
     {
-        return getOption(self::getOptionName(), []);
+        $array = getOption(self::getOptionName());
+        if (is_array($array)) {
+            return $array;
+        }
+        return [];
     }
 
     /**
