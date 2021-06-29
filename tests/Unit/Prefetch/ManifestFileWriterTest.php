@@ -2,10 +2,11 @@
 
 namespace Unit\Prefetch;
 
+use Servebolt\Optimizer\Prefetching\ManifestFilesModel;
 use Unit\Traits\MultisiteTrait;
 use ServeboltWPUnitTestCase;
 use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
-use Servebolt\Optimizer\Prefetching\ManifestModel;
+use Servebolt\Optimizer\Prefetching\ManifestDataModel;
 
 class ManifestFileWriterTest extends ServeboltWPUnitTestCase
 {
@@ -45,21 +46,21 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         if ($this->writeFromSerializedDataToJson) {
             file_put_contents(__DIR__ . '/dummy-data.json', json_encode(unserialize(file_get_contents(__DIR__ . '/dummy-data-serialized.txt')), JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
         }
-        ManifestModel::store(json_decode(file_get_contents(__DIR__ . '/dummy-data.json'), true));
+        ManifestDataModel::store(json_decode(file_get_contents(__DIR__ . '/dummy-data.json'), true));
     }
 
     public function testThatManifestDataCanBeCleared(): void
     {
-        $this->assertNotCount(0, ManifestModel::get());
-        ManifestModel::clear();
-        $this->assertCount(0, ManifestModel::get());
+        $this->assertNotCount(0, ManifestDataModel::get());
+        ManifestDataModel::clear();
+        $this->assertCount(0, ManifestDataModel::get());
         $this->setUpManifestDummyData();
-        $this->assertNotCount(0, ManifestModel::get());
+        $this->assertNotCount(0, ManifestDataModel::get());
     }
 
     public function testThatManifestDataIsPresent(): void
     {
-        $data = ManifestModel::get();
+        $data = ManifestDataModel::get();
         $testKeys = [
             'servebolt-optimizer-cache-purge-trigger-scripts',
         ];
@@ -91,6 +92,20 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         ManifestFileWriter::write();
         $styleLines = explode(PHP_EOL, file_get_contents(ManifestFileWriter::getFilePath('style')));
         $this->assertContains('/wp-includes/css/dashicons.min.css', $styleLines[0]);
+    }
+
+    public function testThatWeFlaggedFilesAsWrittenToDisk()
+    {
+        ManifestFileWriter::write();
+        $data = ManifestFilesModel::get();
+        $this->assertIsArray($data);
+        foreach([
+            '/wp-content/uploads/prefetch/manifest-style.txt',
+            '/wp-content/uploads/prefetch/manifest-script.txt',
+            '/wp-content/uploads/prefetch/manifest-menu.txt',
+        ] as $file) {
+            $this->assertContains(get_site_url() . $file, $data);
+        }
     }
 
     public function testThatWeCanLimitNumberOfLinesInFile()

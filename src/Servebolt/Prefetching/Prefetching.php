@@ -189,18 +189,32 @@ class Prefetching
     }
 
     /**
+     * Check whether we should write manifest files immediately or afterwards using single schedule event with the WP Cron.
+     *
+     * @return bool
+     */
+    private function shouldWriteFilesUsingCron(): bool
+    {
+        return apply_filters('sb_optimizer_prefetch_should_write_manifest_files_using_cron', true);
+    }
+
+    /**
      * Write manifest file data.
      */
-    function generateManifestFilesData(): void
+    public function generateManifestFilesData(): void
     {
         // Set the transient and expire it in a month
         set_transient(self::$transientKey, time(), $this->transientExpiration);
 
         // Write the data to option (so that it can be written to files at a later point)
-        ManifestModel::store($this->manifestData);
+        ManifestDataModel::store($this->manifestData);
 
         // Write content to files
-        wp_schedule_single_event(time(), [__NAMESPACE__ . '\\ManifestFileWriter', 'write']);
+        if ($this->shouldWriteFilesUsingCron()) {
+            wp_schedule_single_event(time(), [__NAMESPACE__ . '\\ManifestFileWriter', 'write']);
+        } else {
+            ManifestFileWriter::write();
+        }
     }
 
     /**
@@ -231,7 +245,7 @@ class Prefetching
         if (is_null(self::$shouldGenerateManifestData)) {
             self::$shouldGenerateManifestData = get_transient(self::$transientKey) === false;
         }
-        return apply_filters('sb_optimizer_should_generate_manifest_data', self::$shouldGenerateManifestData);
+        return apply_filters('sb_optimizer_prefetch_should_generate_manifest_data', self::$shouldGenerateManifestData);
     }
 
     /**
@@ -240,7 +254,7 @@ class Prefetching
     public function debugManifestFilesData(): void
     {
         echo '<pre>';
-        print_r(ManifestModel::get());
+        print_r(ManifestDataModel::get());
         echo '</pre>';
     }
 }

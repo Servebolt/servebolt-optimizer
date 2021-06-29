@@ -21,6 +21,13 @@ class ManifestFileWriter
     private static $itemTypes = ['style', 'script', 'menu'];
 
     /**
+     * An array containing the files that was written to disk.
+     *
+     * @var array
+     */
+    private static $writtenFiles = [];
+
+    /**
      * @var bool
      */
     private static $shouldLimitHostname = true;
@@ -67,7 +74,7 @@ class ManifestFileWriter
     {
         self::ensureManifestFolderExists();
 
-        foreach(self::getItemTypes() as $itemType) {
+        foreach (self::getItemTypes() as $itemType) {
 
             // Skip if we do not have any data for the item type
             if (!$data = self::prepareData($itemType)) {
@@ -80,12 +87,38 @@ class ManifestFileWriter
                 self::getFilePath($itemType),
                 $data
             );
+
+            // Flag that we wrote file for this item type
+            self::wroteFile($itemType);
+
         }
+
+        // Store which files we wrote to disk
+        self::storeWrittenFiles();
 
         // Maybe clear data in options
         if (self::shouldClearDataAfterFileWrite()) {
-            ManifestModel::clear();
+            ManifestDataModel::clear();
         }
+    }
+
+    /**
+     * Store the URLs of the files we wrote to the disk.
+     *
+     */
+    private static function storeWrittenFiles()
+    {
+        ManifestFilesModel::store(self::$writtenFiles);
+    }
+
+    /**
+     * Flag a file as written.
+     *
+     * @param string $itemType
+     */
+    private static function wroteFile(string $itemType): void
+    {
+        self::$writtenFiles[] = self::getFileUrl($itemType);
     }
 
     /**
@@ -168,7 +201,7 @@ class ManifestFileWriter
     }
 
     /**
-     * Clear the manifest file, and optionally the folder.
+     * Clear manifest file(s), and optionally the folder.
      *
      * @param string|null $itemType
      * @param bool $removeFolder
@@ -296,7 +329,7 @@ class ManifestFileWriter
     private static function prepareData(string $itemType)
     {
 
-        $data = ManifestModel::get();
+        $data = ManifestDataModel::get();
         if (!array_key_exists($itemType, $data)) {
             return false;
         }
