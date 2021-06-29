@@ -18,6 +18,13 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
      */
     private $writeFromSerializedDataToJson = true;
 
+    /**
+     * Whether to cleanup manifest files after test.
+     *
+     * @var bool
+     */
+    private $cleanupAfterTest = true;
+
     public function setUp()
     {
         parent::setUp();
@@ -27,7 +34,9 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
 
     public function tearDown()
     {
-        ManifestFileWriter::clear(null, true);
+        if ($this->cleanupAfterTest) {
+            ManifestFileWriter::clear(null, true);
+        }
     }
 
     private function setUpManifestDummyData(): void
@@ -74,6 +83,13 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         $this->assertFileExists(ManifestFileWriter::getFilePath('menu'));
         $this->assertContains('https://acdtest.local/sample-page/', file_get_contents(ManifestFileWriter::getFilePath('menu')));
         $this->assertContains('https://acdtest.local/hello-world/', file_get_contents(ManifestFileWriter::getFilePath('menu')));
+    }
+
+    public function testThatPrioritizationWorks()
+    {
+        ManifestFileWriter::write();
+        $styleLines = explode(PHP_EOL, file_get_contents(ManifestFileWriter::getFilePath('style')));
+        $this->assertContains('/wp-includes/css/dashicons.min.css', $styleLines[0]);
     }
 
     public function testThatWeCanLimitNumberOfLinesInFile()

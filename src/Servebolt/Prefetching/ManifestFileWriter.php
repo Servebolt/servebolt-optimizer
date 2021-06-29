@@ -238,7 +238,7 @@ class ManifestFileWriter
             $line = $url['scheme'] . '://' . $url['host'] . $url['path'];
 
             // If a version string exists we most likely need to add that to the url
-            if ($prefetchItem['ver']) {
+            if (array_key_exists('ver', $prefetchItem) && $prefetchItem['ver']) {
                 $line .= '?ver=' . $prefetchItem['ver'];
             }
 
@@ -281,6 +281,11 @@ class ManifestFileWriter
 
         $lines = [];
         $prefetchItems = $data[$itemType];
+
+        // Order alphabetically
+        usort($prefetchItems, function($a, $b) {
+            return strnatcasecmp($a['handle'], $b['handle']);
+        });
 
         // Order the files by priority. Highest priority first.
         usort($prefetchItems, function ($a, $b) {
