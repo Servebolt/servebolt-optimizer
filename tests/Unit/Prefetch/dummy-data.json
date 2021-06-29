@@ -1,0 +1,56 @@
+{
+  "script": {
+    "admin-bar": {
+      "handle": "admin-bar",
+      "priority": 1,
+      "src": "/wp-includes/js/admin-bar.min.js",
+      "ver": false,
+      "deps": [
+        "hoverintent-js"
+      ]
+    },
+    "twenty-twenty-one-primary-navigation-script": {
+      "handle": "twenty-twenty-one-primary-navigation-script",
+      "priority": 1,
+      "src": "https://acdtest.local/wp-content/themes/twentytwentyone/assets/js/primary-navigation.js",
+      "ver": "1.3",
+      "deps": [
+        "twenty-twenty-one-ie11-polyfills"
+      ]
+    },
+    "twenty-twenty-one-responsive-embeds-script": {
+      "handle": "twenty-twenty-one-responsive-embeds-script",
+      "priority": 1,
+      "src": "https://acdtest.local/wp-content/themes/twentytwentyone/assets/js/responsive-embeds.js",
+      "ver": "1.3",
+      "deps": [
+        "twenty-twenty-one-ie11-polyfills"
+      ]
+    },
+    "sb-sweetalert2": {
+      "handle": "sb-sweetalert2",
+      "priority": 1,
+      "src": "https://acdtest.local/wp-content/plugins/servebolt-optimizer/assets/dist/js/sweetalert2.all.min.js",
+      "ver": "3.1",
+      "deps": []
+    },
+    "servebolt-optimizer-scripts": {
+      "handle": "servebolt-optimizer-scripts",
+      "priority": 1,
+      "src": "https://acdtest.local/wp-content/plugins/servebolt-optimizer/assets/dist/js/general.js",
+      "ver": "3.1",
+      "deps": [
+        "jquery"
+      ]
+    },
+    "servebolt-optimizer-cache-purge-trigger-scripts": {
+      "handle": "servebolt-optimizer-cache-purge-trigger-scripts",
+      "priority": 1,
+      "src": "https://acdtest.local/wp-content/plugins/servebolt-optimizer/assets/dist/js/cache-purge-trigger.js",
+      "ver": "3.1",
+      "deps": [
+        "jquery"
+      ]
+    }
+  }
+}

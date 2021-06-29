@@ -25,7 +25,7 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
 
     private function setUpManifestDummyData(): void
     {
-        ManifestModel::store(unserialize(file_get_contents(__DIR__ . '/dummy-data.txt')));
+        ManifestModel::store(json_decode(file_get_contents(__DIR__ . '/dummy-data.json'), true));
     }
 
     public function testThatManifestDataCanBeCleared(): void
