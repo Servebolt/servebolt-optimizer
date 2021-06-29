@@ -15,11 +15,11 @@ class WpPrefetching extends Prefetching
      */
     public function __construct()
     {
+        add_filter('sb_optimizer_should_generate_manifest_data', '__return_true');
+        //add_filter('sb_optimizer_asset_prefetch_should_debug', '__return_true');
         if (!Prefetching::shouldGenerateManifestData()) {
             return;
         }
-        add_filter('sb_optimizer_should_generate_manifest_data', '__return_true');
-        //add_filter('sb_optimizer_asset_prefetch_should_debug', '__return_true');
 
         if ($this->shouldRecordScripts()) {
             add_action('wp_print_scripts', [$this, 'getScriptsToPrefetch'], 99);

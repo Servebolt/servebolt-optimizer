@@ -54,6 +54,13 @@ class ManifestFileWriter
     private static $clearDataAfterFileWrite = false;
 
     /**
+     * Whether to order the items alphabetically before we order by prioritization.
+     *
+     * @var bool
+     */
+    private static $orderAlphabetically = false;
+
+    /**
      * Execute manifest file writing.
      */
     public static function write(): void
@@ -238,7 +245,7 @@ class ManifestFileWriter
             $line = $url['scheme'] . '://' . $url['host'] . $url['path'];
 
             // If a version string exists we most likely need to add that to the url
-            if ($prefetchItem['ver']) {
+            if (array_key_exists('ver', $prefetchItem) && $prefetchItem['ver']) {
                 $line .= '?ver=' . $prefetchItem['ver'];
             }
 
@@ -266,6 +273,21 @@ class ManifestFileWriter
     }
 
     /**
+     * Check if we should limit the files to the hostname of the current site.
+     *
+     * @param bool|null $state
+     * @return bool
+     */
+    public static function shouldOrderAlphabetically(?bool $state = null): ?bool
+    {
+        if (is_null($state)) {
+            return self::$orderAlphabetically === true;
+        }
+        self::$orderAlphabetically = $state;
+        return null;
+    }
+
+    /**
      * Format and prioritize manifest data items.
      *
      * @param string $itemType
@@ -281,6 +303,13 @@ class ManifestFileWriter
 
         $lines = [];
         $prefetchItems = $data[$itemType];
+
+        if (self::$orderAlphabetically) {
+            // Order alphabetically
+            usort($prefetchItems, function($a, $b) {
+                return strnatcasecmp($a['handle'], $b['handle']);
+            });
+        }
 
         // Order the files by priority. Highest priority first.
         usort($prefetchItems, function ($a, $b) {

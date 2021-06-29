@@ -11,20 +11,40 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
 {
     use MultisiteTrait;
 
+    /**
+     * Whether to write from the serialized data file to the JSON file.
+     *
+     * @var bool
+     */
+    private $writeFromSerializedDataToJson = true;
+
+    /**
+     * Whether to cleanup manifest files after test.
+     *
+     * @var bool
+     */
+    private $cleanupAfterTest = true;
+
     public function setUp()
     {
         parent::setUp();
         ManifestFileWriter::shouldLimitHostname(false);
+        ManifestFileWriter::shouldOrderAlphabetically(true);
         $this->setUpManifestDummyData();
     }
 
     public function tearDown()
     {
-        ManifestFileWriter::clear(null, true);
+        if ($this->cleanupAfterTest) {
+            ManifestFileWriter::clear(null, true);
+        }
     }
 
     private function setUpManifestDummyData(): void
     {
+        if ($this->writeFromSerializedDataToJson) {
+            file_put_contents(__DIR__ . '/dummy-data.json', json_encode(unserialize(file_get_contents(__DIR__ . '/dummy-data-serialized.txt')), JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
+        }
         ManifestModel::store(json_decode(file_get_contents(__DIR__ . '/dummy-data.json'), true));
     }
 
@@ -57,15 +77,20 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         $this->assertContains('cache-purge-trigger.js', file_get_contents(ManifestFileWriter::getFilePath('script')));
         $this->assertContains('admin-bar.min.js', file_get_contents(ManifestFileWriter::getFilePath('script')));
 
-        /*
         $this->assertFileExists(ManifestFileWriter::getFilePath('style'));
-        $this->assertContains('', file_get_contents(ManifestFileWriter::getFilePath('style')));
-        $this->assertContains('', file_get_contents(ManifestFileWriter::getFilePath('style')));
+        $this->assertContains('/wp-includes/css/admin-bar.min.css', file_get_contents(ManifestFileWriter::getFilePath('style')));
+        $this->assertContains('/wp-content/plugins/servebolt-optimizer/assets/dist/css/public-style.css', file_get_contents(ManifestFileWriter::getFilePath('style')));
 
         $this->assertFileExists(ManifestFileWriter::getFilePath('menu'));
-        $this->assertContains('', file_get_contents(ManifestFileWriter::getFilePath('menu')));
-        $this->assertContains('', file_get_contents(ManifestFileWriter::getFilePath('menu')));
-        */
+        $this->assertContains('https://acdtest.local/sample-page/', file_get_contents(ManifestFileWriter::getFilePath('menu')));
+        $this->assertContains('https://acdtest.local/hello-world/', file_get_contents(ManifestFileWriter::getFilePath('menu')));
+    }
+
+    public function testThatPrioritizationWorks()
+    {
+        ManifestFileWriter::write();
+        $styleLines = explode(PHP_EOL, file_get_contents(ManifestFileWriter::getFilePath('style')));
+        $this->assertContains('/wp-includes/css/dashicons.min.css', $styleLines[0]);
     }
 
     public function testThatWeCanLimitNumberOfLinesInFile()
@@ -82,6 +107,6 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         remove_all_filters('sb_optimizer_prefetch_max_number_of_lines');
         $this->setUpManifestDummyData();
         ManifestFileWriter::write();
-        $this->assertCount(6, explode(PHP_EOL, file_get_contents($scriptFilePath)));
+        $this->assertCount(9, explode(PHP_EOL, file_get_contents($scriptFilePath)));
     }
 }
