@@ -283,7 +283,14 @@ window.acdCheckAllCheckboxAvailability = function() {
 function imageSizeValid(str)
 {
     var patt = new RegExp(sb_ajax_object_acd_image_size.image_size_regex_pattern);
-    return patt.test(str);
+    if (!patt.test(str)) {
+        return false;
+    }
+    var numbers = parseInt(str.replace(/[^0-9]/g, ''));
+    if (numbers <= 0) {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -320,7 +327,8 @@ window.addAcdImageSizeResponse = function(response) {
  */
 window.addAcdImageSize = function() {
     const promptText = 'Please specify new image size';
-    const exampleString = 'Format: [pixels][w/h] – Example: 1200w or 600h';
+    //const exampleString = 'Format: [pixels][w/h] – Example: 1200w or 600h';
+    const exampleString = 'Format: [pixels]w – Example: 1200w';
     if (window.sb_use_native_js_fallback()) {
         var value = window.prompt(promptText + "\n" + exampleString);
         if (!value) {
