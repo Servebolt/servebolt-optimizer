@@ -3,6 +3,11 @@
 namespace Servebolt;
 
 /**
+ * This code was borrowed from the plugin SVG Support (https://wordpress.org/plugins/svg-support/).
+ * Another alternative would be to implement the installation and activation of this plugin during test environment setup, but this did the trick and was quick and easy.
+ */
+
+/**
  * Add SVG MIME-types.
  *
  * @param array $mimes
