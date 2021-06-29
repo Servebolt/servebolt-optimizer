@@ -196,7 +196,7 @@ class ImageResize
         $maxHeight = $this->maxHeight();
         if ($maxHeight && $height > $maxHeight) {
             $height = $this->maxHeight();
-            $additionalParams['height'] = $height; // We only want to set
+            $additionalParams['height'] = $height; // We only want to set height it its bigger than max height
         }
         if (apply_filters('sb_optimizer_acd_image_resize_force_add_height', false)) {
             $additionalParams['height'] = $height;
@@ -288,7 +288,8 @@ class ImageResize
      */
     private function pathPrefix(): string
     {
-        return '/' . $this->cgiPrefix . '/' . $this->version;
+        $pathPrefix = '/' . $this->cgiPrefix . '/' . $this->version;
+        return apply_filters('sb_optimizer_acd_image_resize_cgi_prefix', $pathPrefix, $this->cgiPrefix, $this->version);
     }
 
     /**

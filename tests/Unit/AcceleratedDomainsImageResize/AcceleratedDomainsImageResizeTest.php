@@ -170,7 +170,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', '1000', '1000', false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
-        remove_filter('sb_optimizer_acd_image_resize_max_height', '__return_false');
+        remove_all_filters('sb_optimizer_acd_image_resize_max_height');
     }
 
     public function testThatImageTagGetsRewritten()
