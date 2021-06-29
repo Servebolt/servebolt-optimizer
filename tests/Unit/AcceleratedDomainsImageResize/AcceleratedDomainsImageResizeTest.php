@@ -117,10 +117,10 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
 
     public function testMaxImageDimensionFilters(): void
     {
-        add_filter('sb_optimizer_acd_image_resize_max_width', function() {
+        add_filter('sb_optimizer_acd_image_resize_max_width', function () {
             return 2000;
         });
-        add_filter('sb_optimizer_acd_image_resize_max_height', function() {
+        add_filter('sb_optimizer_acd_image_resize_max_height', function () {
             return 2000;
         });
 
@@ -183,6 +183,20 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
             }
             $this->assertContains('/acd-cgi/img/v1/', $image->getAttribute('src'));
             $this->assertContains('/acd-cgi/img/v1', $image->getAttribute('srcset')); // Cannot get srcset-for some reason
+            $this->deleteAttachment($attachmentId);
+        }
+    }
+
+    public function testThatSvgFilesAreIgnored()
+    {
+        if ($attachmentId = $this->createAttachment('apache.svg')) {
+            $image = $this->getImageMarkupDom($attachmentId);
+            if (!$image) {
+                $this->fail('Could not select image in markup string.');
+                return;
+            }
+            $this->assertNotContains('/acd-cgi/img/v1/', $image->getAttribute('src'));
+            $this->assertNotContains('/acd-cgi/img/v1', $image->getAttribute('srcset')); // Cannot get srcset-for some reason
             $this->deleteAttachment($attachmentId);
         }
     }
