@@ -117,10 +117,10 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
 
     public function testMaxImageDimensionFilters(): void
     {
-        add_filter('sb_optimizer_acd_image_resize_max_width', function() {
+        add_filter('sb_optimizer_acd_image_resize_max_width', function () {
             return 2000;
         });
-        add_filter('sb_optimizer_acd_image_resize_max_height', function() {
+        add_filter('sb_optimizer_acd_image_resize_max_height', function () {
             return 2000;
         });
 
@@ -170,7 +170,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
         $attachmentData = ['https://some-domain.com/wp-content/uploads/woocommerce-placeholder.png', '1000', '1000', false];
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals($expectedUrl, $modifiedAttachmentData[0]);
-        remove_filter('sb_optimizer_acd_image_resize_max_height', '__return_false');
+        remove_all_filters('sb_optimizer_acd_image_resize_max_height');
     }
 
     public function testThatImageTagGetsRewritten()
@@ -183,6 +183,20 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
             }
             $this->assertContains('/acd-cgi/img/v1/', $image->getAttribute('src'));
             $this->assertContains('/acd-cgi/img/v1/', $image->getAttribute('srcset')); // Cannot get srcset-for some reason
+            $this->deleteAttachment($attachmentId);
+        }
+    }
+
+    public function testThatSvgFilesAreIgnored()
+    {
+        if ($attachmentId = $this->createAttachment('apache.svg')) {
+            $image = $this->getImageMarkupDom($attachmentId);
+            if (!$image) {
+                $this->fail('Could not select image in markup string.');
+                return;
+            }
+            $this->assertNotContains('/acd-cgi/img/v1/', $image->getAttribute('src'));
+            $this->assertNotContains('/acd-cgi/img/v1', $image->getAttribute('srcset')); // Cannot get srcset-for some reason
             $this->deleteAttachment($attachmentId);
         }
     }
@@ -201,29 +215,13 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
     }
 
     /**
-     * Deletes the uploads-folder.
-     */
-    private function clearUploads(): void
-    {
-        $uploadFolder = wp_upload_dir();
-        $uploadFolderPath = trailingslashit($uploadFolder['basedir']);
-        $filesystem = wpDirectFilesystem(true);
-        $filesystem->delete($uploadFolderPath, true);
-        $filesystem->mkdir($uploadFolderPath);
-    }
-
-    /**
      * Delete attachment.
      *
      * @param int $attachmentId
-     * @param bool $clearUploads
      */
-    private function deleteAttachment(int $attachmentId, bool $clearUploads = true): void
+    private function deleteAttachment(int $attachmentId): void
     {
         wp_delete_attachment($attachmentId, true);
-        if ($clearUploads) {
-            $this->clearUploads();
-        }
     }
 
     /**

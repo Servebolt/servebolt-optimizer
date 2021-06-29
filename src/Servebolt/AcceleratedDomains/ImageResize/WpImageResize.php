@@ -26,7 +26,7 @@ class WpImageResize extends ImageResize
     public function addSingleImageUrlHook(): void
     {
         if (apply_filters('sb_optimizer_acd_image_resize_alter_src', true)) {
-            add_filter('wp_get_attachment_image_src', [$this, 'alterSingleImageUrl']);
+            add_filter('wp_get_attachment_image_src', [$this, 'alterSingleImageUrl'], 10, 2);
         }
     }
 
@@ -53,7 +53,7 @@ class WpImageResize extends ImageResize
     public function addHalfSizesToSrcsetHook(): void
     {
         if (apply_filters('sb_optimizer_acd_image_resize_add_half_sizes', true)) {
-            add_filter('wp_calculate_image_srcset', [$this, 'addHalfSizesToSrcset'], 9);
+            add_filter('wp_calculate_image_srcset', [$this, 'addHalfSizesToSrcset'], 9, 5);
         }
     }
 }

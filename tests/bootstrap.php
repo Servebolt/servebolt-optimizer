@@ -44,6 +44,9 @@ if (defined('WP_TESTS_THEME') && !empty(WP_TESTS_THEME)) {
     tests_add_filter( 'template', '_set_theme' );
 }
 
+// Allow SVG upload for testing purposes
+require __DIR__ . '/allow-svg-uploads.php';
+
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
 
