@@ -405,9 +405,11 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'cf_email',
         'cf_api_key',
         'cf_api_token',
+        'queue_based_cache_purge',
+
+        // Legacy
         'cf_items_to_purge',
         'cf_cron_purge',
-        'queue_based_cache_purge',
 
         // Accelerated Domains
         'acd_switch',
@@ -422,6 +424,16 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'acd_image_resize_metadata_optimization_level',
         'acd_image_resize_upscale',
         'acd_image_resize_size_index',
+
+        // Accelerated Domains Image Resize (legacy)
+        'acd_img_resize_switch',
+        'acd_img_resize_half_size_switch',
+        'acd_img_resize_src_tag_switch',
+        'acd_img_resize_srcset_tag_switch',
+        'acd_img_resize_quality',
+        'acd_img_resize_metadata_optimization_level',
+        'acd_img_resize_upscale',
+        'acd_img_resize_size_index',
 
         // Wipe SB FPC-related options
         'fpc_switch',
