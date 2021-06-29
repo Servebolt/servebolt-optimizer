@@ -84,17 +84,17 @@
                     <fieldset>
                         <legend class="screen-reader-text"><span><?php _e('Keep all metadata', 'servebolt-wp'); ?></span></legend>
                         <label>
-                            <input type="radio" name="<?php echo getOptionName('acd_image_resize_metadata_optimization_level'); ?>" value="keep_all" <?php checked($settings['acd_image_resize_metadata_optimization_level'] == 'keep_all'); ?>> <code><?php _e('Keep all metadata', 'servebolt-wp'); ?></code>
+                            <input type="radio" name="<?php echo getOptionName('acd_image_resize_metadata_optimization_level'); ?>" value="keep" <?php checked($settings['acd_image_resize_metadata_optimization_level'] == 'keep'); ?>> <code><?php _e('Keep all metadata', 'servebolt-wp'); ?></code>
                         </label><br>
 
                         <legend class="screen-reader-text"><span><?php _e('Keep copyright metadata', 'servebolt-wp'); ?></span></legend>
                         <label>
-                            <input type="radio" name="<?php echo getOptionName('acd_image_resize_metadata_optimization_level'); ?>" value="keep_copyright" <?php checked($settings['acd_image_resize_metadata_optimization_level'] == 'keep_copyright'); ?>> <code><?php _e('Keep copyright metadata', 'servebolt-wp'); ?></code>
+                            <input type="radio" name="<?php echo getOptionName('acd_image_resize_metadata_optimization_level'); ?>" value="copyright" <?php checked($settings['acd_image_resize_metadata_optimization_level'] == 'copyright'); ?>> <code><?php _e('Keep copyright metadata', 'servebolt-wp'); ?></code>
                         </label><br>
 
                         <legend class="screen-reader-text"><span><?php _e('No metadata', 'servebolt-wp'); ?></span></legend>
                         <label>
-                            <input type="radio" name="<?php echo getOptionName('acd_image_resize_metadata_optimization_level'); ?>" value="no_metadata" <?php checked($settings['acd_image_resize_metadata_optimization_level'] == 'no_metadata'); ?>> <code><?php _e('No metadata', 'servebolt-wp'); ?></code>
+                            <input type="radio" name="<?php echo getOptionName('acd_image_resize_metadata_optimization_level'); ?>" value="none" <?php checked($settings['acd_image_resize_metadata_optimization_level'] == 'none'); ?>> <code><?php _e('No metadata', 'servebolt-wp'); ?></code>
                         </label>
                     </fieldset>
                     <p><?php _e('Metadata on images (EXIF) is usually not needed and removing it will optimize the size of the images', 'servebolt-wp'); ?></p>
