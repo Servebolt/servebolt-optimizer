@@ -215,29 +215,13 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
     }
 
     /**
-     * Deletes the uploads-folder.
-     */
-    private function clearUploads(): void
-    {
-        $uploadFolder = wp_upload_dir();
-        $uploadFolderPath = trailingslashit($uploadFolder['basedir']);
-        $filesystem = wpDirectFilesystem();
-        $filesystem->delete($uploadFolderPath, true);
-        mkdir($uploadFolderPath);
-    }
-
-    /**
      * Delete attachment.
      *
      * @param int $attachmentId
-     * @param bool $clearUploads
      */
-    private function deleteAttachment(int $attachmentId, bool $clearUploads = true): void
+    private function deleteAttachment(int $attachmentId): void
     {
         wp_delete_attachment($attachmentId, true);
-        if ($clearUploads) {
-            $this->clearUploads();
-        }
     }
 
     /**
