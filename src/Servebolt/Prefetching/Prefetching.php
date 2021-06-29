@@ -122,9 +122,9 @@ class Prefetching
      * Get WP assets array conditionally for scripts or styles.
      *
      * @param string $type
-     * @return null|array
+     * @return null|object
      */
-    private function getWpAssetsArray(string $type): ?array
+    private function getWpAssetsArray(string $type): ?object
     {
         switch ($type) {
             case 'script':
@@ -148,7 +148,8 @@ class Prefetching
             $this->manifestData[$type] = [];
         }
         $wpAssetsArray = $this->getWpAssetsArray($type);
-        $this->manifestData[$type][$handle] = $this->buildArrayItemFromDep(compact('handle', 'priority'), $wpAssetsArray[$handle]);
+        $registeredAssets = $wpAssetsArray->registered;
+        $this->manifestData[$type][$handle] = $this->buildArrayItemFromDep(compact('handle', 'priority'), $registeredAssets[$handle]);
     }
 
     /**
@@ -210,7 +211,7 @@ class Prefetching
      */
     private function startOrIncrementDependencyCount(string $type, string $dependency): void
     {
-        if (array_key_exists($type, $this->manifestDependencies)) {
+        if (!array_key_exists($type, $this->manifestDependencies)) {
             $this->manifestDependencies[$type] = [];
         }
         if (array_key_exists($dependency, $this->manifestDependencies[$type])) {
