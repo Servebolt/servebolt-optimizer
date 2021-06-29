@@ -5,13 +5,13 @@ namespace Servebolt\Optimizer\AcceleratedDomains\ImageResize;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
- * Class WpImageIndex
+ * Class WpImageSizeIndex
  * @package Servebolt\Optimizer\AcceleratedDomains\ImageResize
  */
-class WpImageIndex
+class WpImageSizeIndex
 {
     /**
-     * WpImageIndex constructor.
+     * WpImageSizeIndex constructor.
      */
     public function __construct()
     {
