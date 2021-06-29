@@ -63,17 +63,23 @@ class ImageResize
     /**
      * @var string The level of metadata optimization.
      */
-    //public static $defaultImageMetadataOptimizationLevel = 'copyright';
     public static $defaultImageMetadataOptimizationLevel = null;
 
     /**
      * Duplicate all existing sizes in the srcset-array to contain half the size.
      *
      * @param array $sources
+     * @param array $sizeArray
+     * @param string $imageSrc
+     * @param array $imageMeta
+     * @param int $attachmentId
      * @return array
      */
-    public function addHalfSizesToSrcset(array $sources): array
+    public function addHalfSizesToSrcset(array $sources, array $sizeArray, string $imageSrc, array $imageMeta, int $attachmentId): array
     {
+        if (!$this->shouldTouchImage($attachmentId)) {
+            return $sources;
+        }
         foreach ($sources as $key => $value) {
             $newKey = (int) round($key / 2);
             if (!array_key_exists($newKey, $sources)) {
@@ -88,6 +94,22 @@ class ImageResize
     }
 
     /**
+     * Check if we should do something with this image.
+     *
+     * @param int $attachmentId
+     * @return bool
+     */
+    private function shouldTouchImage(int $attachmentId): bool
+    {
+        $mimeType = get_post_mime_type($attachmentId);
+        switch ($mimeType) {
+            case 'image/svg+xml':
+                return apply_filters('sb_optimizer_acd_image_resize_should_touch', false, $mimeType, $attachmentId);
+        }
+        return apply_filters('sb_optimizer_acd_image_resize_should_touch', true, $mimeType, $attachmentId);
+    }
+
+    /**
      * @param array $sources
      * @param array $sizeArray
      * @param string $imageSrc
@@ -97,6 +119,9 @@ class ImageResize
      */
     public function alterSrcsetImageUrls(array $sources, array $sizeArray, string $imageSrc, array $imageMeta, int $attachmentId): array
     {
+        if (!$this->shouldTouchImage($attachmentId)) {
+            return $sources;
+        }
         foreach ($sources as $key => $value) {
             $descriptor = $value['descriptor'] === 'h' ? 'height' : 'width';
             $resizeParameters = $this->defaultImageResizeParameters([
@@ -135,11 +160,14 @@ class ImageResize
      * Alter image src-attribute.
      *
      * @param $image
-     *
-     * @return array|false
+     * @param $attachmentId
+     * @return mixed
      */
-    public function alterSingleImageUrl($image)
+    public function alterSingleImageUrl($image, $attachmentId)
     {
+        if (!$this->shouldTouchImage($attachmentId)) {
+            return $image;
+        }
         if ($image) {
             $image[0] = $this->buildImageUrl($image[0], $this->generateImageResizeParameters($image));
         }
