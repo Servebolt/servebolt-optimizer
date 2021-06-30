@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Admin\PrefetchingControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Admin\PrefetchingControl\Ajax\PrefetchingFileGeneration;
 use Servebolt\Optimizer\Prefetching\ManifestFilesModel;
 use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
 use Servebolt\Optimizer\Prefetching\WpPrefetching;
@@ -13,6 +14,7 @@ use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 use function Servebolt\Optimizer\Helpers\isScreen;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
+use function Servebolt\Optimizer\Helpers\listenForOptionChange;
 use function Servebolt\Optimizer\Helpers\view;
 
 /**
@@ -36,6 +38,12 @@ class PrefetchingControl
         $this->initSettingsActions();
         $this->initSettings();
         $this->initAssets();
+        $this->initAjax();
+    }
+
+    private function initAjax(): void
+    {
+        new PrefetchingFileGeneration;
     }
 
     private function initAssets(): void
@@ -62,28 +70,40 @@ class PrefetchingControl
      */
     private function initSettingsActions(): void
     {
-        listenForCheckboxOptionChange('prefetch_switch', function($wasActive, $isActive, $optionName) {
+        listenForCheckboxOptionChange('prefetch_switch', function ($wasActive, $isActive, $optionName) {
             if ($isActive) {
-                WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
+                $this->refreshManifestFiles();
             } else {
                 ManifestFileWriter::clear(null, true);
                 ManifestFilesModel::clear();
             }
         });
-        listenForCheckboxOptionChange('prefetch_max_number_of_lines', function($wasActive, $isActive, $optionName) {
-            WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
+        listenForOptionChange('prefetch_max_number_of_lines', function ($newValue, $oldValue, $optionName) {
+            $this->refreshManifestFiles();
         });
         listenForCheckboxOptionChange([
             'prefetch_file_style_switch',
             'prefetch_file_script_switch',
             'prefetch_file_menu_switch',
-        ], function($wasActive, $isActive, $optionName) {
+        ], function ($wasActive, $isActive, $optionName) {
             if ($isActive) {
-                WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
+                $this->refreshManifestFiles();
             } else {
                 $this->removeManifestFile($optionName); // Remove manifest file on the fly
             }
         });
+    }
+
+    /**
+     * Refresh manifest files, but only do it once during the execution (at the end).
+     */
+    private function refreshManifestFiles(): void
+    {
+        $callback = __NAMESPACE__ . '\\WpPrefetching::recordPrefetchItems';
+        if (!has_action('shutdown', $callback)) {
+            WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
+            add_action('shutdown', $callback);
+        }
     }
 
     /**
