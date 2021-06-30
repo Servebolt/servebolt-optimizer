@@ -22,6 +22,7 @@ use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\javascriptRedirect;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
@@ -585,5 +586,16 @@ class HelpersTest extends ServeboltWPUnitTestCase
                 $blogCreationAction($blogId);
             }
         }
+    }
+
+    public function testJavascriptRedirect()
+    {
+        ob_start();
+        $url = 'https://example.org/';
+        javascriptRedirect($url);
+        $output = ob_get_contents();
+        ob_end_clean();
+        $expected = '<script> window.location = "' . $url . '"; </script>';
+        $this->assertEquals($expected, trim($output));
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\Admin\PerformanceChecks\Ajax;
+namespace Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -12,7 +12,7 @@ use function Servebolt\Optimizer\Helpers\isDevDebug;
 
 /**
  * Class OptimizeActions
- * @package Servebolt\Optimizer\Admin\PerformanceChecks\Ajax
+ * @package Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax
  */
 class OptimizeActions extends SharedAjaxMethods
 {

@@ -1426,3 +1426,13 @@ function clearDefaultOption(string $optionName, $closureOrFunctionName = null): 
         remove_all_filters($key);
     }
 }
+
+/**
+ * Redirect through JavaScript. Useful if headers are already sent.
+ *
+ * @param string $url
+ */
+function javascriptRedirect(string $url): void
+{
+    printf('<script> window.location = "%s"; </script>', $url);
+}
