@@ -113,11 +113,11 @@ class WpPrefetching extends Prefetching
      * Check if we have set a limitation for the number of lines per manifest file.
      *
      * @param int|null $blogId
-     * @return bool
+     * @return string|int|null
      */
-    public static function getMaxNumberOfLines(?int $blogId = null): bool
+    public static function getMaxNumberOfLines(?int $blogId = null)
     {
-        return smartGetOption($blogId, 'prefetch_max_number_of_lines');
+        return smartGetOption($blogId, 'prefetch_max_number_of_lines', null);
     }
 
     /**

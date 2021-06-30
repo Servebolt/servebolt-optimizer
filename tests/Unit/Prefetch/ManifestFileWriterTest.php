@@ -154,7 +154,7 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
 
     }
 
-    public function testThatWeCanLimitNumberOfLinesInFile()
+    public function testThatWeCanLimitNumberOfLinesInFileUsingFilters()
     {
         $maxNumberOfLines = 2;
         add_filter('sb_optimizer_prefetch_max_number_of_lines', function() use ($maxNumberOfLines) {

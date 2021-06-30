@@ -66,7 +66,7 @@ class PrefetchingControl
             if ($isActive) {
                 WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
             } else {
-                ManifestFileWriter::clear();
+                ManifestFileWriter::clear(null, true);
                 ManifestFilesModel::clear();
             }
         });
