@@ -37,7 +37,7 @@ class ManifestFileWriter
      *
      * @var string
      */
-    private static $folderName = 'prefetch';
+    private static $folderPath = 'acd/prefetch';
 
     /**
      * Manifest file name mask.
@@ -156,7 +156,7 @@ class ManifestFileWriter
     private static function getFolderPath(): string
     {
         $uploadDir = wp_get_upload_dir();
-        return trailingslashit($uploadDir['basedir']) . self::$folderName . '/';
+        return trailingslashit($uploadDir['basedir']) . self::$folderPath . '/';
     }
 
     /**
@@ -178,7 +178,7 @@ class ManifestFileWriter
     private static function getFolderUrl(): string
     {
         $uploadDir = wp_get_upload_dir();
-        return trailingslashit($uploadDir['baseurl']) . self::$folderName . '/';
+        return trailingslashit($uploadDir['baseurl']) . self::$folderPath . '/';
     }
 
     /**
@@ -212,6 +212,10 @@ class ManifestFileWriter
     {
         $fs = self::getFs();
         $folderPath = self::getFolderPath();
+        $acdFolderPath = dirname($folderPath);
+        if (!$fs->exists($acdFolderPath)) {
+            $fs->mkdir($acdFolderPath);
+        }
         if (!$fs->exists($folderPath)) {
             $fs->mkdir($folderPath);
         }
