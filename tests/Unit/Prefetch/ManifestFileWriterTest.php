@@ -7,6 +7,8 @@ use Unit\Traits\MultisiteTrait;
 use ServeboltWPUnitTestCase;
 use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
 use Servebolt\Optimizer\Prefetching\ManifestDataModel;
+use function Servebolt\Optimizer\Helpers\deleteOption;
+use function Servebolt\Optimizer\Helpers\updateOption;
 
 class ManifestFileWriterTest extends ServeboltWPUnitTestCase
 {
@@ -106,6 +108,50 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         ] as $file) {
             $this->assertContains(get_site_url() . $file, $data);
         }
+    }
+
+    public function testThatManifestFilesGetsRemovedWhenDisabled(): void
+    {
+        ManifestFileWriter::write();
+        $this->assertFileExists(ManifestFileWriter::getFilePath('script'));
+        $this->assertFileExists(ManifestFileWriter::getFilePath('style'));
+        $this->assertFileExists(ManifestFileWriter::getFilePath('menu'));
+
+        $data = ManifestFilesModel::get();
+        $this->assertEquals([
+            get_site_url() . '/wp-content/uploads/prefetch/manifest-style.txt',
+            get_site_url(). '/wp-content/uploads/prefetch/manifest-script.txt',
+            get_site_url(). '/wp-content/uploads/prefetch/manifest-menu.txt',
+        ], $data);
+
+        updateOption('prefetch_file_menu_switch', 0);
+
+        ManifestFileWriter::write();
+        $this->assertFileExists(ManifestFileWriter::getFilePath('script'));
+        $this->assertFileExists(ManifestFileWriter::getFilePath('style'));
+        $this->assertFileNotExists(ManifestFileWriter::getFilePath('menu'));
+
+        $data = ManifestFilesModel::get();
+        $this->assertEquals([
+            get_site_url() . '/wp-content/uploads/prefetch/manifest-style.txt',
+            get_site_url(). '/wp-content/uploads/prefetch/manifest-script.txt',
+        ], $data);
+
+        updateOption('prefetch_file_script_switch', 0);
+
+        ManifestFileWriter::write();
+        $this->assertFileNotExists(ManifestFileWriter::getFilePath('script'));
+        $this->assertFileExists(ManifestFileWriter::getFilePath('style'));
+        $this->assertFileNotExists(ManifestFileWriter::getFilePath('menu'));
+
+        $data = ManifestFilesModel::get();
+        $this->assertEquals([
+            get_site_url() . '/wp-content/uploads/prefetch/manifest-style.txt',
+        ], $data);
+
+        deleteOption('prefetch_file_menu_switch', 0);
+        deleteOption('prefetch_file_script_switch', 0);
+
     }
 
     public function testThatWeCanLimitNumberOfLinesInFile()

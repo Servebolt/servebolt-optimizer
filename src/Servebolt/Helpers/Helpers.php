@@ -1177,7 +1177,7 @@ function updateOption(string $optionName, $value, bool $assertUpdate = true): bo
     $result = update_option($fullOptionName, $value);
     if ($assertUpdate && !$result) {
         $currentValue = getOption($optionName);
-        return ( $currentValue == $value );
+        return ($currentValue == $value);
     }
     return true;
 }
@@ -1390,6 +1390,34 @@ function clearOptionsOverride(string $optionName, $closureOrFunctionName = null)
         remove_filter($key, $closureOrFunctionName);
     } else {
         remove_all_filters($key);
+    }
+}
+
+/**
+ * Listen for changes to one or multiple checkbox options.
+ *
+ * @param string|array $optionNameOrNames
+ * @param string|callable $closureOrAction
+ */
+function listenForCheckboxOptionChange($optionNameOrNames, $closureOrAction): void
+{
+    if (!is_array($optionNameOrNames)) {
+        $optionNameOrNames = [$optionNameOrNames];
+    }
+    foreach ($optionNameOrNames as $optionName) {
+        add_filter('pre_update_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
+            $wasActive = checkboxIsChecked($oldValue);
+            $isActive = checkboxIsChecked($newValue);
+            $didChange = $wasActive !== $isActive;
+            if ($didChange) {
+                if (is_callable($closureOrAction)) {
+                    $closureOrAction($wasActive, $isActive, $optionName);
+                } else {
+                    do_action('servebolt_' . $closureOrAction, $wasActive, $isActive, $optionName);
+                }
+            }
+            return $newValue;
+        }, 10, 2);
     }
 }
 

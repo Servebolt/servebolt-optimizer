@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\getOptionName;
+use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 
@@ -43,29 +44,13 @@ class FullPageCacheSettings
      */
     private function initSettingsActions(): void
     {
-        add_filter('pre_update_option_' . getOptionName(self::fpcActiveOptionKey()), [$this, 'detectFpcStateChange'], 10, 2);
-    }
-
-    /**
-     * Detect when FPC gets activated/deactivated.
-     *
-     * @param $newValue
-     * @param $oldValue
-     * @return mixed
-     */
-    public function detectFpcStateChange($newValue, $oldValue)
-    {
-        $wasActive = checkboxIsChecked($oldValue);
-        $isActive = checkboxIsChecked($newValue);
-        $didChange = $wasActive !== $isActive;
-        if ($didChange) {
+        listenForCheckboxOptionChange(self::fpcActiveOptionKey(), function($wasActive, $isActive, $optionName) {
             if ($isActive) {
                 do_action('sb_optimizer_fpc_enable');
             } else {
                 do_action('sb_optimizer_fpc_disable');
             }
-        }
-        return $newValue;
+        });
     }
 
     /**

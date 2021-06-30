@@ -23,6 +23,7 @@ use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
@@ -576,5 +577,59 @@ class HelpersTest extends ServeboltWPUnitTestCase
         deleteOption($optionsKey);
         clearDefaultOption($optionsKey);
         $this->assertNull(getOption($optionsKey));
+    }
+
+    public function testThatWeCanDetectCheckboxOptionChangeUsingFunctionClosure()
+    {
+        $key = 'some-checkbox-value';
+        $callCount = 0;
+        listenForCheckboxOptionChange($key, function($wasActive, $isActive, $optionName) use (&$callCount) {
+            $callCount++;
+        });
+        updateOption($key, 1);
+        updateOption($key, 1);
+        updateOption($key, 1);
+        updateOption($key, 0);
+        updateOption($key, 0);
+        updateOption($key, 1);
+        $this->assertEquals(3, $callCount);
+    }
+
+    public function testThatWeCanDetectCheckboxOptionChangeUsingActions()
+    {
+        $key = 'some-checkbox-value';
+        $action = 'some_action';
+        $this->assertEquals(0, did_action('servebolt_some_action'));
+        listenForCheckboxOptionChange($key, $action);
+        updateOption($key, 1);
+        updateOption($key, 1);
+        $this->assertEquals(1, did_action('servebolt_' . $action));
+        updateOption($key, 0);
+        updateOption($key, 1);
+        $this->assertEquals(3, did_action('servebolt_' . $action));
+    }
+
+    public function testThatWeCanDetectMultipleCheckboxOptionChangeUsingActions()
+    {
+        $keys = [
+            'some-checkbox-value-1',
+            'some-checkbox-value-2',
+            'some-checkbox-value-3',
+        ];
+        $action = 'some_random_action';
+        $this->assertEquals(0, did_action('servebolt_some_action'));
+        listenForCheckboxOptionChange($keys, $action);
+        updateOption($keys[0], 1);
+        updateOption($keys[0], 1);
+        $this->assertEquals(1, did_action('servebolt_' . $action));
+        updateOption($keys[0], 0);
+        updateOption($keys[0], 1);
+        $this->assertEquals(3, did_action('servebolt_' . $action));
+
+        updateOption($keys[2], 1);
+        updateOption($keys[2], 1);
+        updateOption($keys[1], 1);
+        updateOption($keys[1], 1);
+        $this->assertEquals(5, did_action('servebolt_' . $action));
     }
 }
