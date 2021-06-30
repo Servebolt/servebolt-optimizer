@@ -86,10 +86,12 @@ class PerformanceOptimizer
         $checksInstance = DatabaseChecks::getInstance();
         $tablesToIndex = $checksInstance->tablesToHaveIndexed();
         view('performance-optimizer.performance-optimizer', [
-            'indexFixAvailable' => $this->tablesNeedIndex($tablesToIndex),
-            'tables'            => $tablesToIndex,
-            'myisamTables'      => $checksInstance->getMyisamTables(),
-            'wpCronDisabled'    => $checksInstance->wpCronDisabled(),
+            'settings' => [
+                'indexFixAvailable' => $this->tablesNeedIndex($tablesToIndex),
+                'tables'            => $tablesToIndex,
+                'myisamTables'      => $checksInstance->getMyisamTables(),
+                'wpCronDisabled'    => $checksInstance->wpCronDisabled(),
+            ]
         ]);
     }
 }
