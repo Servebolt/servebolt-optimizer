@@ -4,12 +4,13 @@ namespace Servebolt\Optimizer\Admin\PrefetchingControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageSizeIndexModel;
+use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 use function Servebolt\Optimizer\Helpers\isScreen;
+use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
 use function Servebolt\Optimizer\Helpers\view;
 
 /**
@@ -30,6 +31,7 @@ class PrefetchingControl
      */
     public function __construct()
     {
+        $this->initSettingsActions();
         $this->initSettings();
         $this->initAssets();
     }
@@ -51,6 +53,35 @@ class PrefetchingControl
     private function initSettings(): void
     {
         add_action('admin_init', [$this, 'registerSettings']);
+    }
+
+    /**
+     * Add listeners for when options are changing.
+     */
+    private function initSettingsActions(): void
+    {
+        listenForCheckboxOptionChange([
+            'prefetch_file_style_switch',
+            'prefetch_file_script_switch',
+            'prefetch_file_menu_switch',
+        ], function($wasActive, $isActive, $optionName) {
+            if (!$isActive) {
+                $this->removeManifestFile($optionName);
+            }
+        });
+    }
+
+    /**
+     * Remove manifest file after we've disabled it in the options.
+     * 
+     * @param string $optionName
+     */
+    private function removeManifestFile(string $optionName): void
+    {
+        if (preg_match('/^prefetch_file_(.+)_switch$/', $optionName, $matches)) {
+            ManifestFileWriter::clear($matches[1]);
+            ManifestFileWriter::removeFromWrittenFiles($matches[1]);
+        }
     }
 
     public function enqueueScripts(): void

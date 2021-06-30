@@ -1394,26 +1394,31 @@ function clearOptionsOverride(string $optionName, $closureOrFunctionName = null)
 }
 
 /**
- * Listen for changes to a checkbox option.
+ * Listen for changes to one or multiple checkbox options.
  *
- * @param string $optionName
+ * @param string|array $optionNameOrNames
  * @param string|callable $closureOrAction
  */
-function listenForCheckboxOptionChange(string $optionName, $closureOrAction): void
+function listenForCheckboxOptionChange($optionNameOrNames, $closureOrAction): void
 {
-    add_filter('pre_update_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
-        $wasActive = checkboxIsChecked($oldValue);
-        $isActive = checkboxIsChecked($newValue);
-        $didChange = $wasActive !== $isActive;
-        if ($didChange) {
-            if (is_callable($closureOrAction)) {
-                $closureOrAction($wasActive, $isActive, $optionName);
-            } else {
-                do_action('servebolt_' . $closureOrAction, $wasActive, $isActive, $optionName);
+    if (!is_array($optionNameOrNames)) {
+        $optionNameOrNames = [$optionNameOrNames];
+    }
+    foreach ($optionNameOrNames as $optionName) {
+        add_filter('pre_update_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
+            $wasActive = checkboxIsChecked($oldValue);
+            $isActive = checkboxIsChecked($newValue);
+            $didChange = $wasActive !== $isActive;
+            if ($didChange) {
+                if (is_callable($closureOrAction)) {
+                    $closureOrAction($wasActive, $isActive, $optionName);
+                } else {
+                    do_action('servebolt_' . $closureOrAction, $wasActive, $isActive, $optionName);
+                }
             }
-        }
-        return $newValue;
-    }, 10, 2);
+            return $newValue;
+        }, 10, 2);
+    }
 }
 
 /**
