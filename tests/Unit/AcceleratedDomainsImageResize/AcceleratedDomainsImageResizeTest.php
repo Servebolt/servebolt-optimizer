@@ -182,7 +182,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
                 return;
             }
             $this->assertContains('/acd-cgi/img/v1/', $image->getAttribute('src'));
-            $this->assertContains('/acd-cgi/img/v1', $image->getAttribute('srcset')); // Cannot get srcset-for some reason
+            $this->assertContains('/acd-cgi/img/v1/', $image->getAttribute('srcset')); // Cannot get srcset-for some reason
             $this->deleteAttachment($attachmentId);
         }
     }
