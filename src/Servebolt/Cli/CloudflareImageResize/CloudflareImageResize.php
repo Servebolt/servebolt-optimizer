@@ -76,7 +76,7 @@ class CloudflareImageResize
         } else {
             $currentState = CloudflareImageResizeAdmin::resizingIsActive();
             $stateString = booleanToStateString($currentState);
-            $message = sprintf(__('Cloudflare image resize feature is %s', 'servebolt-wp'), $stateString);
+            $message = sprintf(__('Cloudflare Image Resize feature is %s', 'servebolt-wp'), $stateString);
             if (CliHelpers::returnJson()) {
                 CliHelpers::printJson([
                     'active' => $currentState,
@@ -117,10 +117,10 @@ class CloudflareImageResize
             $statusArray = [];
             iterateSites(function ($site) use (&$statusArray) {
                 if (CloudflareImageResizeAdmin::resizingIsActive($site->blog_id)) {
-                    $message = sprintf(__('Cloudflare image resize feature already active on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                    $message = sprintf(__('Cloudflare Image Resize feature already active on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 } else {
                     CloudflareImageResizeAdmin::toggleActive(true, $site->blog_id);
-                    $message = sprintf(__('Cloudflare image resize feature activated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                    $message = sprintf(__('Cloudflare Image Resize feature activated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 }
                 if (CliHelpers::returnJson()) {
                     $statusArray[] = [
@@ -143,10 +143,10 @@ class CloudflareImageResize
             }
         } else {
             if (CloudflareImageResizeAdmin::resizingIsActive()) {
-                $message = __('Cloudflare image resize feature is already active.', 'servebolt-wp');
+                $message = __('Cloudflare Image Resize feature is already active.', 'servebolt-wp');
             } else {
                 CloudflareImageResizeAdmin::toggleActive(true);
-                $message = __('Cloudflare image resize feature is activated.', 'servebolt-wp');
+                $message = __('Cloudflare Image Resize feature is activated.', 'servebolt-wp');
             }
             if (CliHelpers::returnJson()) {
                 CliHelpers::printJson([
@@ -188,10 +188,10 @@ class CloudflareImageResize
             $statusArray = [];
             iterateSites(function ($site) use (&$statusArray) {
                 if (!CloudflareImageResizeAdmin::resizingIsActive($site->blog_id)) {
-                    $message = sprintf(__('Cloudflare image resize feature already inactive on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                    $message = sprintf(__('Cloudflare Image Resize feature already inactive on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 } else {
                     CloudflareImageResizeAdmin::toggleActive(false, $site->blog_id);
-                    $message = sprintf(__('Cloudflare image resize feature deactivated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                    $message = sprintf(__('Cloudflare Image Resizee feature deactivated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 }
                 if (CliHelpers::returnJson()) {
                     $statusArray[] = [
@@ -215,10 +215,10 @@ class CloudflareImageResize
         } else {
 
             if (!CloudflareImageResizeAdmin::resizingIsActive()) {
-                $message = __('Cloudflare image resize feature is already inactive.', 'servebolt-wp');
+                $message = __('Cloudflare Image Resize feature is already inactive.', 'servebolt-wp');
             } else {
                 CloudflareImageResizeAdmin::toggleActive(false);
-                $message = __('Cloudflare image resize feature is deactivated.', 'servebolt-wp');
+                $message = __('Cloudflare Image Resize feature is deactivated.', 'servebolt-wp');
             }
             if (CliHelpers::returnJson()) {
                 CliHelpers::printJson([

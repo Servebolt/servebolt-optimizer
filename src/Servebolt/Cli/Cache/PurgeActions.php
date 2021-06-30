@@ -321,7 +321,7 @@ class PurgeActions
         try {
             if (CliHelpers::affectAllSites($assocArgs)) {
                 if (WordPressCachePurge::purgeAllNetwork()) {
-                    $message = __('All cache purged for all sites in multisite-network.', 'servebolt-wp');
+                    $message = __('All cache purged for all sites in multi-site network.', 'servebolt-wp');
                     if (CliHelpers::returnJson()) {
                         CliHelpers::printJson([
                             'success' => true,

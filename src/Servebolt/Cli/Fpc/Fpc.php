@@ -461,7 +461,7 @@ class Fpc
         $excludeIds = arrayGet('exclude', $args);
         $postTypes = $this->nginxPreparePostTypeArgument($args);
         if ($affectAllBlogs) {
-            WP_CLI::line(__('Applying settings to all blogs', 'servebolt-wp'));
+            WP_CLI::line(__('Applying settings to all sites', 'servebolt-wp'));
             iterateSites(function($site) use ($cacheActive, $postTypes, $displayStatus, $args) {
                 $this->nginxToggleCacheForBlog($cacheActive, $site->blog_id);
                 if ($postTypes) {
@@ -472,7 +472,7 @@ class Fpc
                 }
             });
             if ($excludeIds) {
-                WP_CLI::warning(__('Exclude ids were not set since ids are relative to each site.', 'servebolt-wp'));
+                WP_CLI::warning(__('Exclude IDs were not set since ids are relative to each site.', 'servebolt-wp'));
             }
         } else {
             $this->nginxToggleCacheForBlog($cacheActive);
@@ -555,7 +555,7 @@ class Fpc
             WP_CLI::success(__('All excluded posts were cleared.', 'servebolt-wp'));
             return;
         } elseif (is_array($idsToExclude) && empty($idsToExclude)) {
-            WP_CLI::warning(__('No ids were specified.', 'servebolt-wp'));
+            WP_CLI::warning(__('No IDs were specified.', 'servebolt-wp'));
             return;
         }
 
@@ -579,7 +579,7 @@ class Fpc
         }
 
         if (!empty($invalidId)) {
-            WP_CLI::warning(sprintf(__('The following ids were invalid: %s', 'servebolt-wp'), formatArrayToCsv($invalidId)));
+            WP_CLI::warning(sprintf(__('The following IDs were invalid: %s', 'servebolt-wp'), formatArrayToCsv($invalidId)));
         }
 
         if (!empty($wasExcluded)) {
