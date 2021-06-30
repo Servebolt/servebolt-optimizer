@@ -727,10 +727,11 @@ function formatPostTypeSlug(string $postType): string
 function featureIsAvailable(string $feature): ?bool
 {
     switch ($feature) {
+        case 'prefetching':
+            return true;
         case 'cf_image_resize':
             //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || (getCloudflareImageResizeInstance())::resizingIsActive();
             return true;
-            break;
     }
     return null;
 }
@@ -750,11 +751,6 @@ function featureIsActive(string $feature): ?bool
         case 'asset_auto_version':
             $generalSettings = getGeneralSettingsInstance();
             return $generalSettings->assetAutoVersion();
-        /*
-        case 'cf_cache':
-            return true;
-            break;
-        */
     }
     return null;
 }

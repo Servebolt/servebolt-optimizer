@@ -85,7 +85,7 @@ class ManifestFileWriter
             // Write the contents to the manifest file
             (self::getFs())->put_contents(
                 self::getFilePath($itemType),
-                $data
+                apply_filters('sb_optimizer_prefetch_data', $data, $itemType)
             );
 
             // Flag that we wrote file for this item type
