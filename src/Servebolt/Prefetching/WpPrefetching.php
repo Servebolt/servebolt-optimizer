@@ -2,6 +2,10 @@
 
 namespace Servebolt\Optimizer\Prefetching;
 
+use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+use function Servebolt\Optimizer\Helpers\setDefaultOption;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
@@ -15,8 +19,17 @@ class WpPrefetching extends Prefetching
      */
     public function __construct()
     {
-        // TODO: Check if feature is active
+        $this->defaultOptionValues();
+        if (self::isActive()) {
+            $this->initFeature();
+        }
+    }
 
+    /**
+     * Initialize feature.
+     */
+    private function initFeature(): void
+    {
         if ($this->shouldAddHeaders()) {
             add_action('send_headers', [__NAMESPACE__ . '\\ManifestHeaders', 'printManifestHeaders'], PHP_INT_MAX);
         }
@@ -41,6 +54,27 @@ class WpPrefetching extends Prefetching
         if ($this->shouldDebugManifestData()) {
             add_action('wp_footer', [$this, 'debugManifestFilesData'], 100);
         }
+    }
+
+    /**
+     * Check whether the prefetching feature is active.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function isActive(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(smartGetOption($blogId, 'prefetch_switch'));
+    }
+
+    /**
+     * Set default option values.
+     */
+    private function defaultOptionValues(): void
+    {
+        setDefaultOption('prefetch_file_style_switch', '__return_true');
+        setDefaultOption('prefetch_file_script_switch', '__return_true');
+        setDefaultOption('prefetch_file_menu_switch', '__return_true');
     }
 
     private function shouldAddHeaders(): bool

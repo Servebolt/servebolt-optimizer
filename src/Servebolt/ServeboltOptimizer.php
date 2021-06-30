@@ -23,6 +23,7 @@ use Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
 use Servebolt\Optimizer\Cli\Cli;
 use Servebolt\Optimizer\PluginActiveStateHandling\PluginActiveStateHandling;
 
+use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isCron;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
@@ -76,9 +77,8 @@ class ServeboltOptimizer
             new CloudflareImageResize;
         }
 
-        // Initialize image resizing
-        //if (featureIsActive('asset_prefetch')) {
-        if (true) {
+        // Prefetching feature init
+        if (featureIsAvailable('prefetching')) {
             new WpPrefetching;
         }
 
