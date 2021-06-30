@@ -193,7 +193,7 @@ class Prefetching
      *
      * @return bool
      */
-    private function shouldWriteFilesUsingCron(): bool
+    protected function shouldWriteFilesUsingCron(): bool
     {
         return apply_filters('sb_optimizer_prefetch_should_write_manifest_files_using_cron', true);
     }
@@ -211,7 +211,7 @@ class Prefetching
 
         // Write content to files
         if ($this->shouldWriteFilesUsingCron()) {
-            wp_schedule_single_event(time(), [__NAMESPACE__ . '\\ManifestFileWriter', 'write']);
+            wp_schedule_single_event(time(), 'sb_optimizer_prefetch_write_manifest_files');
         } else {
             ManifestFileWriter::write();
         }

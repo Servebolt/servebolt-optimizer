@@ -21,7 +21,18 @@ class WpPrefetching extends Prefetching
     {
         $this->defaultOptionValues();
         if (self::isActive()) {
+            $this->registerCronHook();
             $this->initFeature();
+        }
+    }
+
+    /**
+     * Register cron action so that we can use cron to write manifest files.
+     */
+    private function registerCronHook(): void
+    {
+        if ($this->shouldWriteFilesUsingCron()) {
+            add_action('sb_optimizer_prefetch_write_manifest_files', __NAMESPACE__ . '\\ManifestFileWriter::write');
         }
     }
 
