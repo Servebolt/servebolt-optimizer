@@ -2,6 +2,7 @@
 
 namespace Unit;
 
+use Unit\Traits\MultisiteTrait;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 use Servebolt\Optimizer\Utils\Queue\QueueItem;
@@ -23,6 +24,8 @@ use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\javascriptRedirect;
+use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
+use function Servebolt\Optimizer\Helpers\listenForOptionChange;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
@@ -61,6 +64,8 @@ use function Servebolt\Optimizer\Helpers\updateSiteOption;
 
 class HelpersTest extends ServeboltWPUnitTestCase
 {
+    use MultisiteTrait;
+
     private function activateSbDebug(): void
     {
         if (!defined('SB_DEBUG')) {
@@ -113,8 +118,8 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testThatTestConstantGetsSet(): void
     {
-        $this->assertTrue(defined('WP_TESTS_IS_RUNNING'));
-        $this->assertTrue(WP_TESTS_IS_RUNNING);
+        $this->assertTrue(defined('WP_TESTS_ARE_RUNNING'));
+        $this->assertTrue(WP_TESTS_ARE_RUNNING);
     }
 
     public function testThatViewCanBeResolved(): void
@@ -576,16 +581,112 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertNull(getOption($optionsKey));
     }
 
-    private function createBlogs(int $numberOfBlogs = 1, $blogCreationAction = null): void
+    public function testThatWeCanDetectCheckboxOptionChangeUsingFunctionClosure()
     {
-        $siteCount = countSites();
-        for ($i = 1; $i <= $numberOfBlogs; $i++) {
-            $number = $i + $siteCount;
-            $blogId = $this->factory()->blog->create( [ 'domain' => 'foo-' . $number , 'path' => '/', 'title' => 'Blog ' . $number ] );
-            if (is_callable($blogCreationAction)) {
-                $blogCreationAction($blogId);
-            }
-        }
+        $key = 'some-checkbox-value';
+        $callCount = 0;
+        listenForCheckboxOptionChange($key, function($wasActive, $isActive, $optionName) use (&$callCount) {
+            $callCount++;
+        });
+        updateOption($key, 1);
+        updateOption($key, 1);
+        updateOption($key, 1);
+        updateOption($key, 0);
+        updateOption($key, 0);
+        updateOption($key, 1);
+        $this->assertEquals(3, $callCount);
+    }
+
+    public function testThatWeCanDetectCheckboxOptionChangeUsingActions()
+    {
+        $key = 'some-checkbox-value';
+        $action = 'some_action';
+        $this->assertEquals(0, did_action('servebolt_' . $action));
+        listenForCheckboxOptionChange($key, $action);
+        updateOption($key, 1);
+        updateOption($key, 1);
+        $this->assertEquals(1, did_action('servebolt_' . $action));
+        updateOption($key, 0);
+        updateOption($key, 1);
+        $this->assertEquals(3, did_action('servebolt_' . $action));
+    }
+
+    public function testThatWeCanDetectMultipleCheckboxOptionChangeUsingActions()
+    {
+        $keys = [
+            'some-checkbox-value-1',
+            'some-checkbox-value-2',
+            'some-checkbox-value-3',
+        ];
+        $action = 'some_random_action';
+        $this->assertEquals(0, did_action('servebolt_' . $action));
+        listenForCheckboxOptionChange($keys, $action);
+        updateOption($keys[0], 1);
+        updateOption($keys[0], 1);
+        $this->assertEquals(1, did_action('servebolt_' . $action));
+        updateOption($keys[0], 0);
+        updateOption($keys[0], 1);
+        $this->assertEquals(3, did_action('servebolt_' . $action));
+
+        updateOption($keys[2], 1);
+        updateOption($keys[2], 1);
+        updateOption($keys[1], 1);
+        updateOption($keys[1], 1);
+        $this->assertEquals(5, did_action('servebolt_' . $action));
+    }
+
+    public function testThatWeCanDetectOptionValueChangeUsingFunctionClosure()
+    {
+        $key = 'some-string-value';
+        $callCount = 0;
+        listenForOptionChange($key, function($newValue, $oldValue, $optionName) use (&$callCount) {
+            $callCount++;
+        });
+        updateOption($key, 'value');
+        updateOption($key, 'value');
+        updateOption($key, 'value');
+        updateOption($key, 'another-value');
+        updateOption($key, 'another-value');
+        updateOption($key, 'a-third-value');
+        $this->assertEquals(3, $callCount);
+    }
+
+    public function testThatWeCanDetectOptionValueChangeUsingActions()
+    {
+        $key = 'some-string-value-2';
+        $action = 'some_action_for_testing';
+        $this->assertEquals(0, did_action('servebolt_' . $action));
+        listenForOptionChange($key, $action);
+        updateOption($key, 'lorem-ipsum');
+        updateOption($key, 'lorem-ipsum');
+        $this->assertEquals(1, did_action('servebolt_' . $action));
+        updateOption($key, 'lipsum');
+        updateOption($key, 'lorem-ipsum');
+        $this->assertEquals(3, did_action('servebolt_' . $action));
+    }
+
+    public function testThatWeCanDetectMultipleOptionValuesChangeUsingActions()
+    {
+        $keys = [
+            'some-string-value-1',
+            'some-string-value-2',
+            'some-string-value-3',
+        ];
+        $action = 'some_action_for_testing_2';
+        $this->assertEquals(0, did_action('servebolt_' . $action));
+        listenForOptionChange($keys, $action);
+        updateOption($keys[0], 'lorem-ipsum');
+        updateOption($keys[0], 'lorem-ipsum');
+        $this->assertEquals(1, did_action('servebolt_' . $action));
+        updateOption($keys[0], 'lorem-ipsum-2');
+        updateOption($keys[0], 'lorem-ipsum');
+        $this->assertEquals(3, did_action('servebolt_' . $action));
+
+        updateOption($keys[2], 'lorem-ipsum-3');
+        updateOption($keys[2], 'lorem-ipsum-3');
+        updateOption($keys[1], 'lorem-ipsum-3');
+        updateOption($keys[1], 'lorem-ipsum-3');
+        $this->assertEquals(5, did_action('servebolt_' . $action));
     }
 
     public function testJavascriptRedirect()

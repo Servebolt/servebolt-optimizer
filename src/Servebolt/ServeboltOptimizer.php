@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Compatibility\Compatibility as PluginCompatibility;
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\FullPageCache\FullPageCache;
@@ -22,6 +23,7 @@ use Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
 use Servebolt\Optimizer\Cli\Cli;
 use Servebolt\Optimizer\PluginActiveStateHandling\PluginActiveStateHandling;
 
+use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isCron;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
@@ -73,6 +75,11 @@ class ServeboltOptimizer
         // Initialize image resizing
         if (featureIsActive('cf_image_resize')) {
             new CloudflareImageResize;
+        }
+
+        // Prefetching feature init
+        if (featureIsAvailable('prefetching')) {
+            new WpPrefetching;
         }
 
         // Queue system

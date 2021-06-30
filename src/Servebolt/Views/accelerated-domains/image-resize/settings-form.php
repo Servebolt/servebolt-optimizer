@@ -99,7 +99,6 @@
                     </fieldset>
                     <p><?php _e('Metadata on images (EXIF) is usually not needed and removing it will optimize the size of the images', 'servebolt-wp'); ?></p>
                 </td>
-
             </tr>
             <tr>
                 <th scope="row"><?php _e('Extra responsive image sizes', 'servebolt-wp'); ?></th>

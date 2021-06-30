@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Admin;
 use Servebolt\Optimizer\Admin\AcceleratedDomainsControl\AcceleratedDomainsControl;
 use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\AcceleratedDomainsImageResizeControl;
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
+use Servebolt\Optimizer\Admin\PrefetchingControl\PrefetchingControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\FullPageCacheControl;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
@@ -50,6 +51,7 @@ class AdminGuiController
         }
 
         $this->initAdminMenus();
+        PrefetchingControl::init();
         AcceleratedDomainsControl::init();
         AcceleratedDomainsImageResizeControl::init();
         CachePurgeControl::init();
@@ -138,6 +140,7 @@ class AdminGuiController
     {
         $this->cachePurgeMenu();
         $this->cfImageResizeMenu();
+        $this->prefetchingMenu();
         if (isHostedAtServebolt()) {
             $this->acceleratedDomainsMenu();
             $this->cacheSettingsMenu();
@@ -220,6 +223,14 @@ class AdminGuiController
     {
         add_submenu_page('servebolt-wp', __('Accelerated Domains', 'servebolt-wp'), __('Accelerated Domains', 'servebolt-wp'), 'manage_options', 'servebolt-acd', [AcceleratedDomainsControl::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-acd-image-resize', [AcceleratedDomainsImageResizeControl::getInstance(), 'render']);
+    }
+
+    /**
+     * Register prefetch feature settings menu item.
+     */
+    private function prefetchingMenu(): void
+    {
+        add_submenu_page('servebolt-wp', __('Prefetching', 'servebolt-wp'), __('Prefetching', 'servebolt-wp'), 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
     }
 
     /**
