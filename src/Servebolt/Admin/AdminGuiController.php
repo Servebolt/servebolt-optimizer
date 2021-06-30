@@ -167,6 +167,8 @@ class AdminGuiController
         } else {
             add_submenu_page('servebolt-wp', __('Cache purging', 'servebolt-wp'), __('Cache purging', 'servebolt-wp'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
         }
+
+        // Legacy redirect
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-cf-cache-control', [$this, 'cachePurgeLegacyRedirect']);
     }
 
