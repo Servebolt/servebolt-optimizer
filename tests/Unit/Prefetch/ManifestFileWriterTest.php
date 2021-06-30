@@ -96,17 +96,18 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         $this->assertContains('/wp-includes/css/dashicons.min.css', $styleLines[0]);
     }
 
-    public function testThatWeFlaggedFilesAsWrittenToDisk()
+    public function testThatWeFlaggedFilesAsWrittenToDisk(): void
     {
         ManifestFileWriter::write();
         $data = ManifestFilesModel::get();
         $this->assertIsArray($data);
-        foreach([
-            '/wp-content/uploads/prefetch/manifest-style.txt',
-            '/wp-content/uploads/prefetch/manifest-script.txt',
-            '/wp-content/uploads/prefetch/manifest-menu.txt',
-        ] as $file) {
-            $this->assertContains(get_site_url() . $file, $data);
+        $expectedData = [
+            get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-style.txt',
+            get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-script.txt',
+            get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-menu.txt',
+        ];
+        foreach($expectedData as $file) {
+            $this->assertContains($file, $data);
         }
     }
 
@@ -118,11 +119,12 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         $this->assertFileExists(ManifestFileWriter::getFilePath('menu'));
 
         $data = ManifestFilesModel::get();
-        $this->assertEquals([
-            get_site_url() . '/wp-content/uploads/prefetch/manifest-style.txt',
-            get_site_url(). '/wp-content/uploads/prefetch/manifest-script.txt',
-            get_site_url(). '/wp-content/uploads/prefetch/manifest-menu.txt',
-        ], $data);
+        $expectedData = [
+            get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-style.txt',
+            get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-script.txt',
+            get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-menu.txt',
+        ];
+        $this->assertEquals($expectedData, $data);
 
         updateOption('prefetch_file_menu_switch', 0);
 
@@ -132,10 +134,11 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         $this->assertFileNotExists(ManifestFileWriter::getFilePath('menu'));
 
         $data = ManifestFilesModel::get();
-        $this->assertEquals([
-            get_site_url() . '/wp-content/uploads/prefetch/manifest-style.txt',
-            get_site_url(). '/wp-content/uploads/prefetch/manifest-script.txt',
-        ], $data);
+        $expectedData = [
+            get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-style.txt',
+            get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-script.txt',
+        ];
+        $this->assertEquals($expectedData, $data);
 
         updateOption('prefetch_file_script_switch', 0);
 
@@ -146,7 +149,7 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
 
         $data = ManifestFilesModel::get();
         $this->assertEquals([
-            get_site_url() . '/wp-content/uploads/prefetch/manifest-style.txt',
+            get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-style.txt',
         ], $data);
 
         deleteOption('prefetch_file_menu_switch', 0);
