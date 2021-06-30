@@ -77,7 +77,10 @@ class ManifestFileWriter
         foreach (self::getItemTypes() as $itemType) {
 
             // Skip if we do not have any data for the item type
-            if (!$data = self::prepareData($itemType)) {
+            if (
+                !WpPrefetching::fileIsActive($itemType)
+                || !$data = self::prepareData($itemType)
+            ) {
                 self::clear($itemType);
                 continue;
             }
@@ -95,6 +98,8 @@ class ManifestFileWriter
 
         // Store which files we wrote to disk
         self::storeWrittenFiles();
+
+        do_action('sb_optimizer_prefetch_manifest_files_written');
 
         // Maybe clear data in options
         if (self::shouldClearDataAfterFileWrite()) {

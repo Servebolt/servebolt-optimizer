@@ -38,11 +38,13 @@ class WpPrefetching extends Prefetching
             return;
         }
 
-        if ($this->shouldRecordScripts()) {
-            add_action('wp_print_scripts', [$this, 'getScriptsToPrefetch'], 99);
-        }
+        $this->setMaxNumberOfLines();
+
         if ($this->shouldRecordStyles()) {
             add_action('wp_print_styles', [$this, 'getStylesToPrefetch'], 99);
+        }
+        if ($this->shouldRecordScripts()) {
+            add_action('wp_print_scripts', [$this, 'getScriptsToPrefetch'], 99);
         }
         if ($this->shouldRecordMenuItems()) {
             add_action('wp_footer', [$this, 'prefetchListMenuItems'], 99);
@@ -51,8 +53,17 @@ class WpPrefetching extends Prefetching
         if ($this->shouldStoreManifestData()) {
             add_action('wp_footer', [$this, 'generateManifestFilesData'], 99);
         }
-        if ($this->shouldDebugManifestData()) {
-            add_action('wp_footer', [$this, 'debugManifestFilesData'], 100);
+    }
+
+    /**
+     * Set max number of lines.
+     */
+    private function setMaxNumberOfLines(): void
+    {
+        if ($maxNumberOfLines = self::getMaxNumberOfLines()) {
+            add_filter('sb_optimizer_prefetch_max_number_of_lines', function() use ($maxNumberOfLines) {
+                return $maxNumberOfLines;
+            });
         }
     }
 
@@ -113,19 +124,19 @@ class WpPrefetching extends Prefetching
         return apply_filters('sb_optimizer_asset_prefetch_add_headers', true);
     }
 
+    private function shouldRecordStyles(): bool
+    {
+        return apply_filters('sb_optimizer_asset_prefetch_record_styles', self::fileIsActive('style'));
+    }
+
     private function shouldRecordScripts(): bool
     {
-        return apply_filters('sb_optimizer_asset_prefetch_record_scripts', true);
+        return apply_filters('sb_optimizer_asset_prefetch_record_scripts', self::fileIsActive('script'));
     }
 
     private function shouldRecordMenuItems(): bool
     {
-        return apply_filters('sb_optimizer_asset_prefetch_record_menu_items', true);
-    }
-
-    private function shouldRecordStyles(): bool
-    {
-        return apply_filters('sb_optimizer_asset_prefetch_record_styles', true);
+        return apply_filters('sb_optimizer_asset_prefetch_record_menu_items', self::fileIsActive('menu'));
     }
 
     private function shouldStoreManifestData(): bool
@@ -138,10 +149,5 @@ class WpPrefetching extends Prefetching
             || $this->shouldRecordStyles()
             || $this->shouldRecordMenuItems()
         );
-    }
-
-    private function shouldDebugManifestData(): bool
-    {
-        return apply_filters('sb_optimizer_asset_prefetch_should_debug', false);
     }
 }

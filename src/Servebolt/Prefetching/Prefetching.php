@@ -247,14 +247,4 @@ class Prefetching
         }
         return apply_filters('sb_optimizer_prefetch_should_generate_manifest_data', self::$shouldGenerateManifestData);
     }
-
-    /**
-     * Debug the manifest file data.
-     */
-    public function debugManifestFilesData(): void
-    {
-        echo '<pre>';
-        print_r(ManifestDataModel::get());
-        echo '</pre>';
-    }
 }

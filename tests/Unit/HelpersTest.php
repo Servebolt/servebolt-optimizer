@@ -23,6 +23,7 @@ use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
@@ -576,5 +577,34 @@ class HelpersTest extends ServeboltWPUnitTestCase
         deleteOption($optionsKey);
         clearDefaultOption($optionsKey);
         $this->assertNull(getOption($optionsKey));
+    }
+
+    public function testThatWeCanDetectCheckboxOptionChangeUsingFunctionClosure()
+    {
+        $key = 'some-checkbox-value';
+        $callCount = 0;
+        listenForCheckboxOptionChange($key, function($wasActive, $isActive, $optionName) use (&$callCount) {
+            $callCount++;
+        });
+        updateOption($key, 1);
+        updateOption($key, 1);
+        updateOption($key, 1);
+        updateOption($key, 0);
+        updateOption($key, 0);
+        updateOption($key, 1);
+        $this->assertEquals(3, $callCount);
+    }
+
+    public function testThatWeCanDetectCheckboxOptionChangeUsingAction()
+    {
+        $key = 'some-checkbox-value';
+        $this->assertEquals(0, did_action('servebolt_some_action'));
+        listenForCheckboxOptionChange($key, 'some_action');
+        updateOption($key, 1);
+        updateOption($key, 1);
+        $this->assertEquals(1, did_action('servebolt_some_action'));
+        updateOption($key, 0);
+        @updateOption($key, 1);
+        $this->assertEquals(3, did_action('servebolt_some_action'));
     }
 }
