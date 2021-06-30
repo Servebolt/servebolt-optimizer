@@ -9,9 +9,25 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
+ * Toggle spinner.
+ *
+ * @param shouldSpin
+ */
+window.prefetchingSpinner = function(shouldSpin) {
+    var spinner = document.querySelector('.regenerate-prefetch-files-loading-spinner');
+    if (shouldSpin) {
+        spinner.classList.add('is-active');
+    } else {
+        spinner.classList.remove('is-active');
+    }
+}
+
+
+/**
  * Execute AJAX request to regenerate prefetch files.
  */
 window.generatePrefetchFilesConfirmed = function () {
+    window.prefetchingSpinner(true);
     const data = new FormData();
     data.append('action', 'servebolt_prefetching_generate_files');
     data.append('security', sb_ajax_object.ajax_nonce);
@@ -21,15 +37,17 @@ window.generatePrefetchFilesConfirmed = function () {
             body: data
         }
     )
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(data) {
-            window.sb_success('Files were regenerated.');
-        })
-        .catch(function(error) {
-            window.sb_error('Something went wrong!', 'Please check your input data and try again.');
-        });
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        window.prefetchingSpinner(false);
+        window.sb_success('Files were regenerated.');
+    })
+    .catch(function(error) {
+        window.prefetchingSpinner(false);
+        window.sb_error('Something went wrong!', 'Please check your input data and try again.');
+    });
 }
 
 /**
