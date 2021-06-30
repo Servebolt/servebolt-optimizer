@@ -292,7 +292,8 @@ class ManifestFileWriter
         // We only want to prefetch stuff from current domain for now
         if (!self::shouldLimitHostname() || strpos($url['host'], $domain['host']) !== false) {
 
-            $line = $url['scheme'] . '://' . $url['host'] . $url['path'];
+            //$line = $url['scheme'] . '://' . $url['host'] . $url['path'];
+            $line = apply_filters('sb_optimizer_prefetch_handle_item', $url['path'], $url);
 
             // If a version string exists we most likely need to add that to the url
             if (array_key_exists('ver', $prefetchItem) && $prefetchItem['ver']) {
