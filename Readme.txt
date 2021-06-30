@@ -94,9 +94,9 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 
 == Changelog ==
 = 3.1 =
-* Accelerated Domains Image Resizing - This version introduces a new feature - Accelerated Domains Image Resizing. This feature will resize, optimize metadata and cache your images on the fly, improving load time and enhancing the user experience.
-* PHP version constraint - We have changed the required PHP version from 7 to 7.3. This means that whenever the plugin is activated in an environment running PHP version less than 7.3 then they will get a admin notice in WP Admin telling them to upgrade to be able to used the plugin.
-* Yoast SEO Premium - automatic cache purge for redirects - Whenever you add or remove a redirect to Yoast SEO Premium the plugin will purge the cache for the given URLs. This is useful since otherwise one would potentially need to manually purge these URLs after adding/removing a redirect.
+* Accelerated Domains Image Resizing - This version introduces a new feature: Accelerated Domains Image Resizing. This feature will resize, optimize metadata, and cache your images on the fly. Improving load time and enhancing the user experience.
+* PHP version constraint - We have changed the required PHP version from 7 to 7.3. This means that whenever the plugin is activated in an environment running less than PHP version 7.3, the plugin will show an admin notice in WP Admin indicating the need to upgrade to be able to used the plugin.
+* Yoast SEO Premium - automatic cache purge for redirects. Whenever you add or remove a redirect in Yoast SEO Premium, the plugin will now purge the cache for the given URLs. This is useful since otherwise one would potentially need to manually purge these URLs after adding or removing a redirect.
 * Added CDN cache control header - We have now added a new header (CDN-Cache-Control) that allows for more fine grained control over the cache feature in the CDN-nodes.
 * Improved WP Rocket compatibility - We’ve improved the compatibility with WP Rocket’s cache feature so that it will not interfere with the cache feature of Servebolt Optimizer.
 
