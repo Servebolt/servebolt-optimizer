@@ -85,8 +85,8 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         $this->assertContains('/wp-content/plugins/servebolt-optimizer/assets/dist/css/public-style.css', file_get_contents(ManifestFileWriter::getFilePath('style')));
 
         $this->assertFileExists(ManifestFileWriter::getFilePath('menu'));
-        $this->assertContains('https://acdtest.local/sample-page/', file_get_contents(ManifestFileWriter::getFilePath('menu')));
-        $this->assertContains('https://acdtest.local/hello-world/', file_get_contents(ManifestFileWriter::getFilePath('menu')));
+        $this->assertContains('/sample-page/', file_get_contents(ManifestFileWriter::getFilePath('menu')));
+        $this->assertContains('/hello-world/', file_get_contents(ManifestFileWriter::getFilePath('menu')));
     }
 
     public function testThatPrioritizationWorks()
