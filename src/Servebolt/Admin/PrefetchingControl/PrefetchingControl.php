@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Admin\PrefetchingControl;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
+use Servebolt\Optimizer\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
@@ -66,14 +67,16 @@ class PrefetchingControl
             'prefetch_file_menu_switch',
         ], function($wasActive, $isActive, $optionName) {
             if (!$isActive) {
-                $this->removeManifestFile($optionName);
+                $this->removeManifestFile($optionName); // Remove manifest file on the fly
+            } else {
+                WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
             }
         });
     }
 
     /**
      * Remove manifest file after we've disabled it in the options.
-     * 
+     *
      * @param string $optionName
      */
     private function removeManifestFile(string $optionName): void

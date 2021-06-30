@@ -236,6 +236,14 @@ class Prefetching
     }
 
     /**
+     * Clear transient so that we re-generate the manifest data.
+     */
+    public static function rescheduleManifestDataGeneration(): void
+    {
+        delete_transient(self::$transientKey);
+    }
+
+    /**
      * Check if we should generate manifest data.
      *
      * @return bool
