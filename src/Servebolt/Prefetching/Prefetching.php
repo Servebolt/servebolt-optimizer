@@ -4,6 +4,8 @@ namespace Servebolt\Optimizer\Prefetching;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use WP_Http;
+
 /**
  * Class Prefetching
  * @package Servebolt\Optimizer\Prefetching
@@ -30,6 +32,13 @@ class Prefetching
      * @var string
      */
     private static $transientKey = 'servebolt_manifest_written';
+
+    /**
+     * Check whether we have already loaded the front page during this exection.
+     *
+     * @var bool
+     */
+    private static $alreadyRecorded = false;
 
     /**
      * Expiration in seconds for transient.
@@ -241,6 +250,29 @@ class Prefetching
     public static function rescheduleManifestDataGeneration(): void
     {
         delete_transient(self::$transientKey);
+    }
+
+    /**
+     * Record prefetch items by loading the front page.
+     */
+    public static function recordPrefetchItems(): void
+    {
+        if (!self::$alreadyRecorded) {
+            self::loadFrontPage();
+            self::$alreadyRecorded = true;
+        }
+    }
+
+    /**
+     * Load the front page.
+     */
+    public static function loadFrontPage(): void
+    {
+        $frontPageUrl = get_home_url(null, '?cachebuster=' . time());
+        (new WP_Http)->request($frontPageUrl, [
+            'timeout' => 10,
+            'sslverify' => false,
+        ]);
     }
 
     /**

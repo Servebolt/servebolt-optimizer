@@ -57,6 +57,7 @@
 
     <p class="submit">
         <?php submit_button(null, 'primary', 'form-submit', false); ?>
+        <a class="btn button button-secondary" id="sb-regenerate-prefetch-files"><?php _e('Regenerate files', 'servebolt-wp'); ?></a>
     </p>
 
 </form>
