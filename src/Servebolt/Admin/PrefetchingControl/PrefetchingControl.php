@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Admin\PrefetchingControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Prefetching\ManifestFilesModel;
 use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
 use Servebolt\Optimizer\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Traits\Singleton;
@@ -61,15 +62,26 @@ class PrefetchingControl
      */
     private function initSettingsActions(): void
     {
+        listenForCheckboxOptionChange('prefetch_switch', function($wasActive, $isActive, $optionName) {
+            if ($isActive) {
+                WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
+            } else {
+                ManifestFileWriter::clear();
+                ManifestFilesModel::clear();
+            }
+        });
+        listenForCheckboxOptionChange('prefetch_max_number_of_lines', function($wasActive, $isActive, $optionName) {
+            WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
+        });
         listenForCheckboxOptionChange([
             'prefetch_file_style_switch',
             'prefetch_file_script_switch',
             'prefetch_file_menu_switch',
         ], function($wasActive, $isActive, $optionName) {
-            if (!$isActive) {
-                $this->removeManifestFile($optionName); // Remove manifest file on the fly
-            } else {
+            if ($isActive) {
                 WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
+            } else {
+                $this->removeManifestFile($optionName); // Remove manifest file on the fly
             }
         });
     }

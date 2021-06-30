@@ -24,6 +24,7 @@ use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
+use function Servebolt\Optimizer\Helpers\listenForOptionChange;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
@@ -599,7 +600,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
     {
         $key = 'some-checkbox-value';
         $action = 'some_action';
-        $this->assertEquals(0, did_action('servebolt_some_action'));
+        $this->assertEquals(0, did_action('servebolt_' . $action));
         listenForCheckboxOptionChange($key, $action);
         updateOption($key, 1);
         updateOption($key, 1);
@@ -617,7 +618,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
             'some-checkbox-value-3',
         ];
         $action = 'some_random_action';
-        $this->assertEquals(0, did_action('servebolt_some_action'));
+        $this->assertEquals(0, did_action('servebolt_' . $action));
         listenForCheckboxOptionChange($keys, $action);
         updateOption($keys[0], 1);
         updateOption($keys[0], 1);
@@ -630,6 +631,60 @@ class HelpersTest extends ServeboltWPUnitTestCase
         updateOption($keys[2], 1);
         updateOption($keys[1], 1);
         updateOption($keys[1], 1);
+        $this->assertEquals(5, did_action('servebolt_' . $action));
+    }
+
+    public function testThatWeCanDetectOptionValueChangeUsingFunctionClosure()
+    {
+        $key = 'some-string-value';
+        $callCount = 0;
+        listenForOptionChange($key, function($newValue, $oldValue, $optionName) use (&$callCount) {
+            $callCount++;
+        });
+        updateOption($key, 'value');
+        updateOption($key, 'value');
+        updateOption($key, 'value');
+        updateOption($key, 'another-value');
+        updateOption($key, 'another-value');
+        updateOption($key, 'a-third-value');
+        $this->assertEquals(3, $callCount);
+    }
+
+    public function testThatWeCanDetectOptionValueChangeUsingActions()
+    {
+        $key = 'some-string-value-2';
+        $action = 'some_action_for_testing';
+        $this->assertEquals(0, did_action('servebolt_' . $action));
+        listenForOptionChange($key, $action);
+        updateOption($key, 'lorem-ipsum');
+        updateOption($key, 'lorem-ipsum');
+        $this->assertEquals(1, did_action('servebolt_' . $action));
+        updateOption($key, 'lipsum');
+        updateOption($key, 'lorem-ipsum');
+        $this->assertEquals(3, did_action('servebolt_' . $action));
+    }
+
+    public function testThatWeCanDetectMultipleOptionValuesChangeUsingActions()
+    {
+        $keys = [
+            'some-string-value-1',
+            'some-string-value-2',
+            'some-string-value-3',
+        ];
+        $action = 'some_action_for_testing_2';
+        $this->assertEquals(0, did_action('servebolt_' . $action));
+        listenForOptionChange($keys, $action);
+        updateOption($keys[0], 'lorem-ipsum');
+        updateOption($keys[0], 'lorem-ipsum');
+        $this->assertEquals(1, did_action('servebolt_' . $action));
+        updateOption($keys[0], 'lorem-ipsum-2');
+        updateOption($keys[0], 'lorem-ipsum');
+        $this->assertEquals(3, did_action('servebolt_' . $action));
+
+        updateOption($keys[2], 'lorem-ipsum-3');
+        updateOption($keys[2], 'lorem-ipsum-3');
+        updateOption($keys[1], 'lorem-ipsum-3');
+        updateOption($keys[1], 'lorem-ipsum-3');
         $this->assertEquals(5, did_action('servebolt_' . $action));
     }
 }

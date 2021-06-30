@@ -1394,6 +1394,32 @@ function clearOptionsOverride(string $optionName, $closureOrFunctionName = null)
 }
 
 /**
+ * Listen for changes to one or multiple option values.
+ *
+ * @param string|array $optionNameOrNames
+ * @param string|callable $closureOrAction
+ */
+function listenForOptionChange($optionNameOrNames, $closureOrAction): void
+{
+    if (!is_array($optionNameOrNames)) {
+        $optionNameOrNames = [$optionNameOrNames];
+    }
+    foreach ($optionNameOrNames as $optionName) {
+        add_filter('pre_update_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
+            $didChange = $newValue !== $oldValue;
+            if ($didChange) {
+                if (is_callable($closureOrAction)) {
+                    $closureOrAction($newValue, $oldValue, $optionName);
+                } else {
+                    do_action('servebolt_' . $closureOrAction, $newValue, $oldValue, $optionName);
+                }
+            }
+            return $newValue;
+        }, 10, 2);
+    }
+}
+
+/**
  * Listen for changes to one or multiple checkbox options.
  *
  * @param string|array $optionNameOrNames

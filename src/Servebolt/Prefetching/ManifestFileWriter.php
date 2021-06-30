@@ -125,12 +125,7 @@ class ManifestFileWriter
      */
     public function removeFromWrittenFiles(string $itemType): void
     {
-        $items = ManifestFilesModel::get();
-        $manifestFileToRemove = self::getFileUrl($itemType);
-        $items = array_filter($items, function($itemType) use ($manifestFileToRemove) {
-            return $itemType !== $manifestFileToRemove;
-        });
-        ManifestFilesModel::store($items);
+        ManifestFilesModel::remove(self::getFileUrl($itemType));
     }
 
     /**

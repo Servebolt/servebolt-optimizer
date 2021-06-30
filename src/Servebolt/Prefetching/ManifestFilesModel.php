@@ -33,6 +33,20 @@ class ManifestFilesModel
     }
 
     /**
+     * Remove item from model.
+     *
+     * @param string $itemToRemove
+     */
+    public static function remove(string $itemToRemove): void
+    {
+        $items = self::get();
+        $items = array_filter($items, function($itemType) use ($itemToRemove) {
+            return $itemType !== $itemToRemove;
+        });
+        self::store($items);
+    }
+
+    /**
      * Delete manifest files data in options.
      */
     public static function clear(): void
