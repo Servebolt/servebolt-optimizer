@@ -68,6 +68,37 @@ class WpPrefetching extends Prefetching
     }
 
     /**
+     * Check if we should generate a given manifest file type.
+     *
+     * @param string $type
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function fileIsActive(string $type, ?int $blogId = null): bool
+    {
+        switch ($type) {
+            case 'style':
+            case 'script':
+            case 'menu':
+                break;
+            default:
+                return false;
+        }
+        return checkboxIsChecked(smartGetOption($blogId, 'prefetch_file_' . $type . '_switch'));
+    }
+
+    /**
+     * Check if we have set a limitation for the number of lines per manifest file.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function getMaxNumberOfLines(?int $blogId = null): bool
+    {
+        return smartGetOption($blogId, 'prefetch_max_number_of_lines');
+    }
+
+    /**
      * Set default option values.
      */
     private function defaultOptionValues(): void
