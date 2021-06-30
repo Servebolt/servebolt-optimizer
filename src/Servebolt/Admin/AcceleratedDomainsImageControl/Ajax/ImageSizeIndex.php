@@ -70,7 +70,7 @@ class ImageSizeIndex extends SharedAjaxMethods
         $value = sanitize_text_field(arrayGet('value', $_POST));
         if ($matches = ImageSizeIndexModel::validateValue($value)) {
             if (!ImageSizeIndexModel::sizeExists($matches[1], $matches[2])) {
-                wp_send_json_error(['message' => __('Size does not exists.', 'servebolt-wp')]);
+                wp_send_json_error(['message' => __('Size does not exist.', 'servebolt-wp')]);
             } else {
                 ImageSizeIndexModel::removeSize($matches[1], $matches[2]);
                 wp_send_json_success();

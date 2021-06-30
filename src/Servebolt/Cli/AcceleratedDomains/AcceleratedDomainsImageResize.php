@@ -62,10 +62,10 @@ class AcceleratedDomainsImageResize
             $statusArray = [];
             iterateSites(function ($site) use (&$statusArray) {
                 if (AcceleratedDomainsImageResizeClass::isActive($site->blog_id)) {
-                    $message = sprintf(__('Accelerated Domains Image Resize-feature already active on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                    $message = sprintf(__('Accelerated Domains Image Resize feature already active on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 } else {
                     AcceleratedDomainsImageResizeClass::toggleActive(true, $site->blog_id);
-                    $message = sprintf(__('Accelerated Domains Image Resize-feature activated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                    $message = sprintf(__('Accelerated Domains Image Resize feature activated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 }
                 if (CliHelpers::returnJson()) {
                     $statusArray[] = [
@@ -88,10 +88,10 @@ class AcceleratedDomainsImageResize
             }
         } else {
             if (AcceleratedDomainsImageResizeClass::isActive()) {
-                $message = __('Accelerated Domains Image Resize-feature already active.', 'servebolt-wp');
+                $message = __('Accelerated Domains Image Resize feature already active.', 'servebolt-wp');
             } else {
                 AcceleratedDomainsImageResizeClass::toggleActive(true);
-                $message = __('Accelerated Domains Image Resize-feature activated.', 'servebolt-wp');
+                $message = __('Accelerated Domains Image Resize feature activated.', 'servebolt-wp');
             }
             if (CliHelpers::returnJson()) {
                 CliHelpers::printJson([
@@ -159,7 +159,7 @@ class AcceleratedDomainsImageResize
         } else {
             $activeBoolean = AcceleratedDomainsImageResizeClass::isActive();
             $activeState = booleanToStateString($activeBoolean);
-            $message = sprintf(__('Accelerated Domains Image Resize-feature is %s.', 'servebolt-wp'), $activeState);
+            $message = sprintf(__('Accelerated Domains Image Resize feature is %s.', 'servebolt-wp'), $activeState);
             if (CliHelpers::returnJson()) {
                 CliHelpers::printJson([
                     'active' => $activeBoolean,
@@ -206,10 +206,10 @@ class AcceleratedDomainsImageResize
             $statusArray = [];
             iterateSites(function ($site) use (&$statusArray) {
                 if (!AcceleratedDomainsImageResizeClass::isActive($site->blog_id)) {
-                    $message = sprintf(__('Accelerated Domains Image Resize-feature already inactive on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                    $message = sprintf(__('Accelerated Domains Image Resize feature already inactive on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 } else {
                     AcceleratedDomainsImageResizeClass::toggleActive(false, $site->blog_id);
-                    $message = sprintf(__('Accelerated Domains Image Resize-feature deactivated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                    $message = sprintf(__('Accelerated Domains Image Resize feature deactivated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 }
                 if (CliHelpers::returnJson()) {
                     $statusArray[] = [
@@ -232,10 +232,10 @@ class AcceleratedDomainsImageResize
             }
         } else {
             if (!AcceleratedDomainsImageResizeClass::isActive()) {
-                $message = __('Accelerated Domains Image Resize-feature already inactive.', 'servebolt-wp');
+                $message = __('Accelerated Domains Image Resize feature already inactive.', 'servebolt-wp');
             } else {
                 AcceleratedDomainsImageResizeClass::toggleActive(false);
-                $message = __('Accelerated Domains Image Resize-feature deactivated.', 'servebolt-wp');
+                $message = __('Accelerated Domains Image Resize feature deactivated.', 'servebolt-wp');
             }
             if (CliHelpers::returnJson()) {
                 CliHelpers::printJson([

@@ -32,7 +32,7 @@ This project is maintained on [Github](https://servebo.lt/sog).
 - Database optimization - Add performance improving indexes
 - Automatic Cloudflare cache purge
 - Recommendations on additional performance improvements
-- Multisite support
+- Multi-site support
 - WP CLI support
 - Cloudflare Image Resize-support (beta feature)
 - WP Rocket compatability (**Servebolt clients only**)
