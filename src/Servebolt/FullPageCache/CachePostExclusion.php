@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\FullPageCache;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;

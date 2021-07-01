@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\Ajax;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageSizeIndexModel;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
@@ -26,7 +28,7 @@ class ImageSizeIndex extends SharedAjaxMethods
     }
 
     /**
-     * Return image size list.
+     * AJAX handling to return image size list.
      */
     public function getImageSizes(): void
     {

@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Traits;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 trait MultitonWithArgumentForwarding
 {
     use Multiton;
