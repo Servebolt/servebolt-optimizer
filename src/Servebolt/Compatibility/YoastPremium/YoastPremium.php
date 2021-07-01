@@ -2,9 +2,9 @@
 
 namespace Servebolt\Optimizer\Compatibility\YoastPremium;
 
-use function Servebolt\Optimizer\Helpers\yoastSeoPremiumIsActive;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\yoastSeoPremiumIsActive;
 
 /**
  * Class YoastPremium
