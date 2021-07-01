@@ -36,7 +36,7 @@ class AcceleratedDomainsControl
     public function render(): void
     {
         $settings = $this->getSettingsItemsWithValues();
-        view('accelerated-domains.accelerated-domains', compact('settings'));
+        view('accelerated-domains.control.accelerated-domains', compact('settings'));
     }
 
     private function initSettings(): void

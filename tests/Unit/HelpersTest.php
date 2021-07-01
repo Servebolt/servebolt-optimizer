@@ -10,6 +10,8 @@ use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
+use function Servebolt\Optimizer\Helpers\clearDefaultOption;
+use function Servebolt\Optimizer\Helpers\clearOptionsOverride;
 use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 use function Servebolt\Optimizer\Helpers\deleteBlogOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
@@ -20,6 +22,8 @@ use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\setDefaultOption;
+use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
@@ -320,7 +324,8 @@ class HelpersTest extends ServeboltWPUnitTestCase
     {
         $versionNumber = getCurrentPluginVersion(false);
         $this->assertIsString($versionNumber);
-        $this->assertRegExp('/^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/', $versionNumber);
+        $this->assertRegExp('/^(\d\.){1,2}(\d)$/', $versionNumber);
+        //$this->assertRegExp('/^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/', $versionNumber);
     }
 
     public function testCountSitesHelper()
@@ -370,7 +375,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->multisiteOnly();
         $this->createBlogs(2);
         iterateSites(function ($site) {
-            $override = function ($value) {
+            $override = function($value) {
                 return 'override';
             };
             $key = 'some-overrideable-blog-options-key';
@@ -491,6 +496,83 @@ class HelpersTest extends ServeboltWPUnitTestCase
                 $this->assertNull(getBlogOption($site->blog_id, $option));
             }
         });
+    }
+
+    public function testThatWeCanOverrideOptions(): void
+    {
+        $optionsKey = 'override-test';
+        $value = 'some-value';
+        $overrideValue = 'override-value';
+        $this->assertNull(getOption($optionsKey));
+        updateOption($optionsKey, $value);
+        $this->assertEquals($value, getOption($optionsKey));
+        setOptionOverride($optionsKey, $overrideValue);
+        $this->assertEquals($overrideValue, getOption($optionsKey));
+        clearOptionsOverride($optionsKey);
+        $this->assertEquals($value, getOption($optionsKey));
+    }
+
+    public function testThatWeCanOverrideOptionsWithWpFunctionClosure(): void
+    {
+        $optionsKey = 'wp-override-test';
+        $this->assertNull(getOption($optionsKey));
+        $value = 'some-value';
+        updateOption($optionsKey, $value);
+        $this->assertEquals($value, getOption($optionsKey));
+        setOptionOverride($optionsKey, '__return_true');
+        $this->assertEquals(true, getOption($optionsKey));
+        clearOptionsOverride($optionsKey, '__return_true');
+        $this->assertEquals($value, getOption($optionsKey));
+    }
+
+    public function testThatWeCanOverrideOptionsWithFunctionClosure(): void
+    {
+        $optionsKey = 'override-test';
+        $value = 'some-value';
+        $overrideValue = 'override-value';
+        $overrideValueClosure = function() use ($overrideValue) {
+            return $overrideValue;
+        };
+        $this->assertNull(getOption($optionsKey));
+        updateOption($optionsKey, $value);
+        $this->assertEquals($value, getOption($optionsKey));
+        setOptionOverride($optionsKey, $overrideValueClosure);
+        $this->assertEquals($overrideValue, getOption($optionsKey));
+        clearOptionsOverride($optionsKey, $overrideValueClosure);
+        $this->assertEquals($value, getOption($optionsKey));
+    }
+
+    public function testThatWeCanSetADefaultOptionsValueWithFunctionClosure(): void
+    {
+        $optionsKey = 'default-options-test';
+        $value = 'some-value';
+        $defaultValue = 'default-value';
+        $defaultValueClosure = function() use ($defaultValue) {
+            return $defaultValue;
+        };
+        $this->assertNull(getOption($optionsKey));
+        setDefaultOption($optionsKey, $defaultValueClosure);
+        $this->assertEquals($defaultValue, getOption($optionsKey));
+        updateOption($optionsKey, $value);
+        $this->assertEquals($value, getOption($optionsKey));
+        deleteOption($optionsKey);
+        clearDefaultOption($optionsKey, $defaultValueClosure);
+        $this->assertNull(getOption($optionsKey));
+    }
+
+    public function testThatWeCanSetADefaultOptionsValue(): void
+    {
+        $optionsKey = 'default-options-test';
+        $value = 'some-value';
+        $defaultValue = 'default-value';
+        $this->assertNull(getOption($optionsKey));
+        setDefaultOption($optionsKey, $defaultValue);
+        $this->assertEquals($defaultValue, getOption($optionsKey));
+        updateOption($optionsKey, $value);
+        $this->assertEquals($value, getOption($optionsKey));
+        deleteOption($optionsKey);
+        clearDefaultOption($optionsKey);
+        $this->assertNull(getOption($optionsKey));
     }
 
     private function createBlogs(int $numberOfBlogs = 1, $blogCreationAction = null): void

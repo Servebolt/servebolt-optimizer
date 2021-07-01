@@ -266,10 +266,10 @@ class CachePurgeControl
             return;
         }
         wp_enqueue_script(
-            'servebolt-optimizer-cloudflare-cache-purge-scripts',
-            SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/cloudflare-cache-purge.js',
+            'servebolt-optimizer-cache-purge-scripts',
+            SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/cache-purge.js',
             ['servebolt-optimizer-scripts'],
-            getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/cloudflare-cache-purge.js'),
+            getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/cache-purge.js'),
             true
         );
     }

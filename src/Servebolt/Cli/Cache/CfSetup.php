@@ -152,7 +152,7 @@ class CfSetup
                     $table = [];
                     foreach($result as $key => $value) {
                         $table[] = [
-                            __('Blod ID', 'servebolt-wp') => $key,
+                            __('Blog ID', 'servebolt-wp') => $key,
                             __('Configuration', 'servebolt-wp') => $value ? __('Success', 'servebolt-wp') : __('Failed', 'servebolt-wp'),
                         ];
                     }
@@ -249,7 +249,7 @@ class CfSetup
         switch ($params['authType']) {
             case 'key':
                 if (empty($params['email'])) {
-                    $messages[] = __('E-mail must be specified.', 'servebolt-wp');
+                    $messages[] = __('Email must be specified.', 'servebolt-wp');
                 }
                 if (empty($params['apiKey'])) {
                     $messages[] = __('API key must be specified.', 'servebolt-wp');
@@ -276,7 +276,7 @@ class CfSetup
         }
 
         if (empty($params['zoneId'])) {
-            $messages[] = __('Zone Id must be specified.', 'servebolt-wp');
+            $messages[] = __('Zone ID must be specified.', 'servebolt-wp');
         } elseif (isset($cfSdk) && $apiConnectionAvailable && ! $params['disableValidation']) {
             $zone = $cfSdk->getZoneById($params['zoneId']);
             if (!$zone) {

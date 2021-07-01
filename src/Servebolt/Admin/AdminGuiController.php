@@ -2,7 +2,10 @@
 
 namespace Servebolt\Optimizer\Admin;
 
+if (!defined('ABSPATH')) exit;
+
 use Servebolt\Optimizer\Admin\AcceleratedDomainsControl\AcceleratedDomainsControl;
+use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\AcceleratedDomainsImageResizeControl;
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\FullPageCacheControl;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
@@ -48,6 +51,7 @@ class AdminGuiController
 
         $this->initAdminMenus();
         AcceleratedDomainsControl::init();
+        AcceleratedDomainsImageResizeControl::init();
         CachePurgeControl::init();
         FullPageCacheControl::init();
         GeneralSettings::init();
@@ -218,6 +222,7 @@ class AdminGuiController
     private function acceleratedDomainsMenu(): void
     {
         add_submenu_page('servebolt-wp', __('Accelerated Domains', 'servebolt-wp'), __('Accelerated Domains', 'servebolt-wp'), 'manage_options', 'servebolt-acd', [AcceleratedDomainsControl::getInstance(), 'render']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-acd-image-resize', [AcceleratedDomainsImageResizeControl::getInstance(), 'render']);
     }
 
     /**
@@ -241,7 +246,7 @@ class AdminGuiController
      */
     private function performanceOptimizerMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Performance optimizer', 'servebolt-wp'), __('Performance optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-tools', [PerformanceChecks::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Performance Optimizer', 'servebolt-wp'), __('Performance optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-tools', [PerformanceChecks::getInstance(), 'render']);
     }
 
     /**

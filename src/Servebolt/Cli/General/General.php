@@ -46,7 +46,7 @@ class General
         $affectAllSites = CliHelpers::affectAllSites($assocArgs);
         if (!CliHelpers::returnJson()) { // Skip confirmation when returning JSON
             if ($affectAllSites) {
-                WP_CLI::confirm(__('Do you really want to delete all settings? This will affect all sites in multisite-network.', 'servebolt-wp'));
+                WP_CLI::confirm(__('Do you really want to delete all settings? This will affect all sites in multi-site network.', 'servebolt-wp'));
             } else {
                 WP_CLI::confirm(__('Do you really want to delete all settings?', 'servebolt-wp'));
             }

@@ -20,7 +20,7 @@ You can set up the test environment by running the command:
 Example:
 ``composer install-wp-test sb_opt_db sb_opt_usr sb_opt_pass 127.0.0.1 latest true``
 
-You should now be able to run ``composer phpunit`` WP single site or ``composer phpunit-mu`` for WP multisite.
+You should now be able to run ``composer phpunit`` WP single site or ``composer phpunit-mu`` for WP multi-site.
 
 ### Build assets
 1. Run `yarn install`
@@ -30,7 +30,23 @@ You should now be able to run ``composer phpunit`` WP single site or ``composer 
 Phan, PHPCS and PHPLint should be installed by composer.
 You can run the tests with this command: `composer test`
 
+### Deployment
+If you want to deploy to WordPress.org then all you got to do is create a tag in Git. Please use semantic versioning according to semver.org. When you push the tag to Github we use Github Actions that will "forward" the tag to WordPress.org SVN repository. You can see the deployment instructions in `.github/workflows/wordpress-plugin-svn-deploy.yaml`.
+Note that the version number in the file `readme.txt` is used by WordPress.org, while the version number in the file `servebolt-optimizer.php` is used when installed on a WordPress-site.
+
+Credentials for the SVN repository is stored in the password manager. The credentials are already stored as secrets in the Github repository, but you might need them if you want to interact with the SVN repository from your local machine.
+
+#### Local build
+If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to WordPress.org.
+
 ## Changelog
+#### 3.1
+* Accelerated Domains Image Resizing - This version introduces a new feature - Accelerated Domains Image Resizing. This feature will resize, optimize metadata and cache your images on the fly, improving load time and enhancing the user experience.
+* PHP version constraint - We have changed the required PHP version from 7 to 7.3. This means that whenever the plugin is activated in an environment running PHP version less than 7.3 then they will get a admin notice in WP Admin telling them to upgrade to be able to used the plugin.
+* Yoast SEO Premium - automatic cache purge for redirects - Whenever you add or remove a redirect to Yoast SEO Premium the plugin will purge the cache for the given URLs. This is useful since otherwise one would potentially need to manually purge these URLs after adding/removing a redirect.
+* Added CDN cache control header - We have now added a new header (CDN-Cache-Control) that allows for more fine grained control over the cache feature in the CDN-nodes.
+* Improved WP Rocket compatibility - We’ve improved the compatibility with WP Rocket’s cache feature so that it will not interfere with the cache feature of Servebolt Optimizer.
+
 #### 3.0.2
 * Fixed bug in compatibility code for older versions of WP Rocket
 * Fixed bug that caused post cache not to be purged when scheduling posts
@@ -40,7 +56,7 @@ You can run the tests with this command: `composer test`
 * Corrected typo in string “Accelerated domains” to use uppercase in first character of each word.
 * Fixed issue in cache headers - the feature to exclude posts from cache was broken due to wrong order in conditions in the cache header logic. This is now fixed.
 * Removed priority-attribute from plugin static asset actions - due to cases of incompatibility between themes and other plugins we removed the priority-attribute from the actions that enqueued the plugins static assets. This means that the priority-attribute falls back to the default value of 10 which should be less likely to cause issue.
-* Resolved issue with single file composer packages not being included in autoloader - certain packages were not included in the Composer autoloader due to an issue in Mozart (which was needed to resolve conflicts between composer packages used in Wordpress plugins). The packages originated as dependencies of the Servebolt PHP SDK, and was solved by specifically including them in the plugins composer-file. The affected packages contained polyfills for the PHP functions “http_build_query” and “getallheaders” which means that this was only an issue in environment where these functions were not available in PHP.
+* Resolved issue with single file composer packages not being included in autoloader - certain packages were not included in the Composer autoloader due to an issue in Mozart (which was needed to resolve conflicts between composer packages used in WordPress plugins). The packages originated as dependencies of the Servebolt PHP SDK, and was solved by specifically including them in the plugins composer-file. The affected packages contained polyfills for the PHP functions “http_build_url” (from module pecl_http) and “getallheaders” which means that this was only an issue in environment where these functions were not available in PHP.
 * Removed SASS-parser since there was no real need in the project - due to an issue with the npm package "node-sass" running on macOS Big Sur the SASS-parser was disabled, at least for now.
 
 #### 3.0.0 
@@ -58,7 +74,7 @@ You can run the tests with this command: `composer test`
 * Third party cache purge functions - Third party developers can now call publicly available cache purge functions. This allows for purging by post, term, URL or purge all.
 * Single site plugin activation constraint - The plugin can now only be activated site-wide when used in a multisite network.
 * Cloudflare Image Resizing removed from the GUI - The beta-feature “Cloudflare Image Resizing” has now been removed due to it not being tested properly. It is still available through the CLI, but not in the GUI.
-* Removed network cache purge action - The feature to purge all cache for all sites in a multisite-network was removed due to lack of time to integrate this with Accelerated Domains and the improved queue system.
+* Removed network cache purge action - The feature to purge all cache for all sites in a multi-site network was removed due to lack of time to integrate this with Accelerated Domains and the improved queue system.
 * Removed the cache purge queue GUI - The queue GUI (list) in the cache purge settings was removed due to lack of time to integrate this with Accelerated Domains and the improved queue system.
 * Cache purge links in post/term list - It is now possible to trigger cache purge actions from the row actions of posts and terms in WP Admin.
 * Added purge actions for terms in the WordPress Admin bar - When viewing a term - either in WP Admin or front-end - you can now purge the cache via the Admin bar.
@@ -159,7 +175,7 @@ You can run the tests with this command: `composer test`
 * Bugfix: Unable to add indexes on non-multisite installs
 
 #### 1.5
-* Added multisite support
+* Added multi-site support
 * Fixed a bug in the wpvulndb security checker
 * Added a nice animation when optimizer runs
 * Updated readme.txt

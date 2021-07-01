@@ -2,7 +2,7 @@
 
 namespace Servebolt\Optimizer\Admin;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use function Servebolt\Optimizer\Helpers\booleanToString;
@@ -149,12 +149,12 @@ class Assets {
                 true
             );
             $this->enqueueScript(
-                'servebolt-optimizer-cloudflare-cache-purge-trigger-scripts',
-                'assets/dist/js/cloudflare-cache-purge-trigger.js',
+                'servebolt-optimizer-cache-purge-trigger-scripts',
+                'assets/dist/js/cache-purge-trigger.js',
                 ['jquery'],
                 true
             );
-            wp_localize_script('servebolt-optimizer-cloudflare-cache-purge-trigger-scripts', 'sb_ajax_object', [
+            wp_localize_script('servebolt-optimizer-cache-purge-trigger-scripts', 'sb_ajax_object', [
                 'ajax_nonce'                         => getAjaxNonce(),
                 'use_native_js_fallback'             => booleanToString($generalSettings->useNativeJsFallback()),
                 'ajaxurl'                            => admin_url('admin-ajax.php'),

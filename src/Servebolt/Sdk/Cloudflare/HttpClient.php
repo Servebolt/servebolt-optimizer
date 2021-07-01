@@ -2,9 +2,9 @@
 
 namespace Servebolt\Optimizer\Sdk\Cloudflare;
 
-use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 
 /**
  * Class HttpClient

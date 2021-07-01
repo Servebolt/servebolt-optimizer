@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\AssetAutoVersion;
 
+if (!defined('ABSPATH')) exit;
+
 /**
  * Class AssetAutoVersion
  */
@@ -128,7 +130,7 @@ class AssetAutoVersion {
             return false;
         }
         try {
-            return apply_filters('sb_optimizer_version_parameter_name', $this->parameterName, $filePath) . '=' . filemtime($filePath);
+            return apply_filters('sb_optimizer_version_parameter_name', $this->parameterName, $filePath) . '=' . filemtime($filePath); // Store the "filemtime" in a transient to remove disk I/O on every page load?
         } catch (Exception $e) {
             return false;
         }

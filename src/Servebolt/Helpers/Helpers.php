@@ -2,12 +2,9 @@
 
 namespace Servebolt\Optimizer\Helpers;
 
-use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
-use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
-use Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling;
-use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
-
 /**
+ * Resolve the path to a view file.
+ *
  * @param $templatePath
  * @return string|null
  */
@@ -236,7 +233,7 @@ function snakeCaseToCamelCase(string $string, bool $capitalizeFirst = false): st
  */
 function getSiteId()
 {
-    $env = EnvFileReader::getInstance();
+    $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
     if ($env->id) {
         return $env->id;
     }
@@ -310,11 +307,21 @@ function isScreen(string $screenId, bool $networkSupport = true): bool
 }
 
 /**
+ * Get instance of "FullPageCacheAuthHandling".
+ *
+ * @return mixed
+ */
+function getFullPageCacheAuthHandlingInstance()
+{
+    return \Servebolt\Optimizer\FullPageCache\FullPageCacheAuthHandling::getInstance();
+}
+
+/**
  * Clean the cookies we have been setting.
  */
 function clearNoCacheCookie(): void
 {
-    (FullPageCacheAuthHandling::getInstance())->clearNoCacheCookie();
+    (getFullPageCacheAuthHandlingInstance())->clearNoCacheCookie();
 }
 
 /**
@@ -322,7 +329,7 @@ function clearNoCacheCookie(): void
  */
 function cacheCookieCheck(): void
 {
-    (FullPageCacheAuthHandling::getInstance())->cacheCookieCheck();
+    (getFullPageCacheAuthHandlingInstance())->cacheCookieCheck();
 }
 
 /**
@@ -400,13 +407,35 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'cf_email',
         'cf_api_key',
         'cf_api_token',
+        'queue_based_cache_purge',
+
+        // Legacy
         'cf_items_to_purge',
         'cf_cron_purge',
-        'queue_based_cache_purge',
 
         // Accelerated Domains
         'acd_switch',
         'acd_minify_switch',
+
+        // Accelerated Domains Image Resize
+        'acd_image_resize_switch',
+        'acd_image_resize_half_size_switch',
+        'acd_image_resize_src_tag_switch',
+        'acd_image_resize_srcset_tag_switch',
+        'acd_image_resize_quality',
+        'acd_image_resize_metadata_optimization_level',
+        'acd_image_resize_upscale',
+        'acd_image_resize_size_index',
+
+        // Accelerated Domains Image Resize (legacy)
+        'acd_img_resize_switch',
+        'acd_img_resize_half_size_switch',
+        'acd_img_resize_src_tag_switch',
+        'acd_img_resize_srcset_tag_switch',
+        'acd_img_resize_quality',
+        'acd_img_resize_metadata_optimization_level',
+        'acd_img_resize_upscale',
+        'acd_img_resize_size_index',
 
         // Wipe SB FPC-related options
         'fpc_switch',
@@ -713,7 +742,7 @@ function featureIsAvailable(string $feature): ?bool
 {
     switch ($feature) {
         case 'cf_image_resize':
-            //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || CloudflareImageResize::resizingIsActive();
+            //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || (getCloudflareImageResizeInstance())::resizingIsActive();
             return true;
             break;
     }
@@ -731,9 +760,9 @@ function featureIsActive(string $feature): ?bool
 {
     switch ($feature) {
         case 'cf_image_resize':
-            return CloudflareImageResize::resizingIsActive();
+            return getCloudflareImageResizeInstance();
         case 'asset_auto_version':
-            $generalSettings = GeneralSettings::getInstance();
+            $generalSettings = getGeneralSettingsInstance();
             return $generalSettings->assetAutoVersion();
         /*
         case 'cf_cache':
@@ -742,7 +771,26 @@ function featureIsActive(string $feature): ?bool
         */
     }
     return null;
+}
 
+/**
+ * Get instance of "CloudflareImageResize".
+ *
+ * @return mixed
+ */
+function getCloudflareImageResizeInstance()
+{
+    return \Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize::resizingIsActive();
+}
+
+/**
+ * Get instance of "GeneralSettings".
+ *
+ * @return mixed
+ */
+function getGeneralSettingsInstance()
+{
+    return \Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings::getInstance();
 }
 
 /**
@@ -1034,7 +1082,10 @@ function deleteBlogOption($blogId, $option, bool $assertUpdate = true)
  */
 function getSites()
 {
-    return apply_filters('sb_optimizer_site_iteration', get_sites());
+    if (function_exists('get_sites')) {
+        return apply_filters('sb_optimizer_site_iteration', get_sites());
+    }
+    return null;
 }
 
 /**
@@ -1291,4 +1342,143 @@ function woocommerceIsActive(): bool
 function wpRocketIsActive(): bool
 {
     return defined('WP_ROCKET_VERSION');
+}
+
+/**
+ * Check whether plugin Yoast SEO Premium is active.
+ *
+ * @return bool
+ */
+function yoastSeoPremiumIsActive(): bool
+{
+    if (!function_exists('is_plugin_active')) {
+        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    }
+    return is_plugin_active('wordpress-seo-premium/wp-seo-premium.php');
+}
+
+/**
+ * Instantiate the filesystem class
+ *
+ * @return object WP_Filesystem_Direct instance
+ */
+function wpDirectFilesystem(): object
+{
+    require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
+    require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
+    return new \WP_Filesystem_Direct(new \StdClass());
+}
+
+/**
+ * This is a clone of the function "wp_calculate_image_sizes" in the WP core-files.
+ * @param $size
+ * @param null $image_src
+ * @param null $image_meta
+ * @param int $attachment_id
+ * @return mixed|void
+ */
+function sbCalculateImageSizes( $size, $image_src = null, $image_meta = null, $attachment_id = 0 )
+{
+    $width = 0;
+
+    if (is_array($size)) {
+        $width = absint($size[0]);
+    } elseif (is_string($size)) {
+        if (!$image_meta && $attachment_id) {
+            $image_meta = wp_get_attachment_metadata($attachment_id);
+        }
+
+        if (is_array($image_meta)) {
+            $size_array = _wp_get_image_size_from_meta($size, $image_meta);
+            if ($size_array) {
+                $width = absint($size_array[0]);
+            }
+        }
+    }
+
+    /**
+     * Filters the output of 'sbCalculateImageSizes()'.
+     *
+     * @since 4.4.0
+     *
+     * @param int          $width         The width of the image.
+     * @param string|int[] $size          Requested image size. Can be any registered image size name, or
+     *                                    an array of width and height values in pixels (in that order).
+     * @param string|null  $image_src     The URL to the image file or null.
+     * @param array|null   $image_meta    The image meta data as returned by wp_get_attachment_metadata() or null.
+     * @param int          $attachment_id Image attachment ID of the original image or 0.
+     */
+    return apply_filters( 'sb_calculate_image_sizes', $width, $size, $image_src, $image_meta, $attachment_id );
+}
+
+/**
+ * Override an option value.
+ *
+ * @param string $optionName
+ * @param mixed $overrideValue
+ */
+function setOptionOverride(string $optionName, $overrideValue): void
+{
+    if (!is_callable($overrideValue)) {
+        $overrideValue = function() use ($overrideValue) {
+            return $overrideValue;
+        };
+    }
+    add_filter('pre_option_' . getOptionName($optionName), $overrideValue);
+}
+
+/**
+ * Clear options value override.
+ *
+ * @param string $optionName
+ * @param null $closureOrFunctionName
+ */
+function clearOptionsOverride(string $optionName, $closureOrFunctionName = null): void
+{
+    $key = 'pre_option_' . getOptionName($optionName);
+    if ($closureOrFunctionName) {
+        remove_filter($key, $closureOrFunctionName);
+    } else {
+        remove_all_filters($key);
+    }
+}
+
+/**
+ * Create a default value, both where the option is not present in the options-table, or if the value is empty.
+ *
+ * @param string $optionName
+ * @param mixed $defaultValue
+ */
+function setDefaultOption(string $optionName, $defaultValue): void
+{
+    if (!is_callable($defaultValue)) {
+        $defaultValue = function() use ($defaultValue) {
+            return $defaultValue;
+        };
+    }
+    add_filter('default_option_' . getOptionName($optionName), $defaultValue);
+    /*
+    add_filter('option_' . getOptionName($optionName), function($value) use ($defaultValue) {
+        if (!$value) {
+            return $defaultValue;
+        }
+        return $value;
+    });
+    */
+}
+
+/**
+ * Clear default value.
+ *
+ * @param string $optionName
+ * @param null $closureOrFunctionName
+ */
+function clearDefaultOption(string $optionName, $closureOrFunctionName = null): void
+{
+    $key = 'default_option_' . getOptionName($optionName);
+    if ($closureOrFunctionName) {
+        remove_filter($key, $closureOrFunctionName);
+    } else {
+        remove_all_filters($key);
+    }
 }

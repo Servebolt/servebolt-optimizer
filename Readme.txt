@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.7.2
 Requires PHP: 7.3
-Stable tag: 3.0.2
+Stable tag: 3.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -32,7 +32,7 @@ This project is maintained on [Github](https://servebo.lt/sog).
 - Database optimization - Add performance improving indexes
 - Automatic Cloudflare cache purge
 - Recommendations on additional performance improvements
-- Multisite support
+- Multi-site support
 - WP CLI support
 - Cloudflare Image Resize-support (beta feature)
 - WP Rocket compatability (**Servebolt clients only**)
@@ -93,6 +93,13 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.1 =
+* Accelerated Domains Image Resizing - This version introduces a new feature: Accelerated Domains Image Resizing. This feature will resize, optimize metadata, and cache your images on the fly. Improving load time and enhancing the user experience.
+* PHP version constraint - We have changed the required PHP version from 7 to 7.3. This means that whenever the plugin is activated in an environment running less than PHP version 7.3, the plugin will show an admin notice in WP Admin indicating the need to upgrade to be able to used the plugin.
+* Yoast SEO Premium - automatic cache purge for redirects. Whenever you add or remove a redirect in Yoast SEO Premium, the plugin will now purge the cache for the given URLs. This is useful since otherwise one would potentially need to manually purge these URLs after adding or removing a redirect.
+* Added CDN cache control header - We have now added a new header (CDN-Cache-Control) that allows for more fine grained control over the cache feature in the CDN-nodes.
+* Improved WP Rocket compatibility - We’ve improved the compatibility with WP Rocket’s cache feature so that it will not interfere with the cache feature of Servebolt Optimizer.
+
 = 3.0.2 =
 * Fixed bug in compatibility code for older versions of WP Rocket
 * Fixed bug that caused post cache not to be purged when scheduling posts
@@ -102,7 +109,7 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 * Corrected typo in string “Accelerated domains” to use uppercase in first character of each word.
 * Fixed issue in cache headers - the feature to exclude posts from cache was broken due to wrong order in conditions in the cache header logic. This is now fixed.
 * Removed priority-attribute from plugin static asset actions - due to cases of incompatibility between themes and other plugins we removed the priority-attribute from the actions that enqueued the plugins static assets. This means that the priority-attribute falls back to the default value of 10 which should be less likely to cause issue.
-* Resolved issue with single file composer packages not being included in autoloader - certain packages were not included in the Composer autoloader due to an issue in Mozart (which was needed to resolve conflicts between composer packages used in Wordpress plugins). The packages originated as dependencies of the Servebolt PHP SDK, and was solved by specifically including them in the plugins composer-file. The affected packages contained polyfills for the PHP functions “http_build_query” and “getallheaders” which means that this was only an issue in environment where these functions were not available in PHP.
+* Resolved issue with single file composer packages not being included in autoloader - certain packages were not included in the Composer autoloader due to an issue in Mozart (which was needed to resolve conflicts between composer packages used in WordPress plugins). The packages originated as dependencies of the Servebolt PHP SDK, and was solved by specifically including them in the plugins composer-file. The affected packages contained polyfills for the PHP functions “http_build_url” (from module pecl_http) and “getallheaders” which means that this was only an issue in environment where these functions were not available in PHP.
 * Removed SASS-parser since there was no real need in the project - due to an issue with the npm package "node-sass" running on macOS Big Sur the SASS-parser was disabled, at least for now.
 
 = 3.0.0 =

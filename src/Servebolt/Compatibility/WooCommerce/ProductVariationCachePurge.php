@@ -2,9 +2,9 @@
 
 namespace Servebolt\Optimizer\Compatibility\WooCommerce;
 
-use function Servebolt\Optimizer\Helpers\arrayGet;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\arrayGet;
 
 /**
  * Class ProductVariationCachePurge
