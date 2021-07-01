@@ -20,7 +20,7 @@ class ManifestHeaders
         }
         if ($headerItems = self::getHeaderItems()) {
             foreach ($headerItems as $headerItem) {
-                header($headerItem);
+                header($headerItem, false);
             }
         }
     }
