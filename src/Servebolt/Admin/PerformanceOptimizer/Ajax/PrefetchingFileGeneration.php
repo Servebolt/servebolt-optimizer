@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\Admin\PrefetchingControl\Ajax;
+namespace Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax;
 
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use Servebolt\Optimizer\Prefetching\WpPrefetching;

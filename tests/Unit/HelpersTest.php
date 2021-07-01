@@ -23,6 +23,7 @@ use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\javascriptRedirect;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
 use function Servebolt\Optimizer\Helpers\listenForOptionChange;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
@@ -60,6 +61,7 @@ use function Servebolt\Optimizer\Helpers\strEndsWith;
 use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\updateSiteOption;
+use function Servebolt\Optimizer\Helpers\view;
 
 class HelpersTest extends ServeboltWPUnitTestCase
 {
@@ -70,6 +72,18 @@ class HelpersTest extends ServeboltWPUnitTestCase
         if (!defined('SB_DEBUG')) {
             define('SB_DEBUG', true);
         }
+    }
+
+    public function testThatViewIsIncludedAndThatArgumentsAreAvailable()
+    {
+        add_filter('sb_optimizer_view_folder_path', function() {
+            return __DIR__ . '/ViewsForTest/';
+        });
+        $arguments = [
+            'lorem' => true
+        ];
+        $output = view('test', $arguments, false);
+        $this->assertEquals(json_encode($arguments), $output);
     }
 
     public function testThatWeCanGetTheWebrootFolderPath(): void
@@ -686,5 +700,16 @@ class HelpersTest extends ServeboltWPUnitTestCase
         updateOption($keys[1], 'lorem-ipsum-3');
         updateOption($keys[1], 'lorem-ipsum-3');
         $this->assertEquals(5, did_action('servebolt_' . $action));
+    }
+
+    public function testJavascriptRedirect()
+    {
+        ob_start();
+        $url = 'https://example.org/';
+        javascriptRedirect($url);
+        $output = ob_get_contents();
+        ob_end_clean();
+        $expected = '<script> window.location = "' . $url . '"; </script>';
+        $this->assertEquals($expected, trim($output));
     }
 }

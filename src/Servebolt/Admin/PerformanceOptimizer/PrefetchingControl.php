@@ -1,10 +1,10 @@
 <?php
 
-namespace Servebolt\Optimizer\Admin\PrefetchingControl;
+namespace Servebolt\Optimizer\Admin\PerformanceOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Admin\PrefetchingControl\Ajax\PrefetchingFileGeneration;
+use Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax\PrefetchingFileGeneration;
 use Servebolt\Optimizer\Prefetching\ManifestFilesModel;
 use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
 use Servebolt\Optimizer\Prefetching\WpPrefetching;
@@ -15,6 +15,8 @@ use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 use function Servebolt\Optimizer\Helpers\isScreen;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
 use function Servebolt\Optimizer\Helpers\listenForOptionChange;
+use function Servebolt\Optimizer\Helpers\overrideMenuTitle;
+use function Servebolt\Optimizer\Helpers\overrideParentMenuPage;
 use function Servebolt\Optimizer\Helpers\view;
 
 /**
@@ -39,6 +41,16 @@ class PrefetchingControl
         $this->initSettings();
         $this->initAssets();
         $this->initAjax();
+        $this->rewriteHighlightedMenuItem();
+    }
+
+    /**
+     * Flag "Performance optimizer"-page as active when on Prefetching-page.
+     */
+    private function rewriteHighlightedMenuItem(): void
+    {
+        overrideParentMenuPage('servebolt-prefetching', 'servebolt-performance-optimizer');
+        overrideMenuTitle('admin_page_servebolt-prefetching', __('Prefetching', 'servebolt-wp'));
     }
 
     private function initAjax(): void
@@ -57,7 +69,7 @@ class PrefetchingControl
     public function render(): void
     {
         $settings = $this->getSettingsItemsWithValues();
-        view('prefetching.prefetching', compact('settings'));
+        view('performance-optimizer.prefetching.prefetching', compact('settings'));
     }
 
     private function initSettings(): void
@@ -121,6 +133,8 @@ class PrefetchingControl
 
     public function enqueueScripts(): void
     {
+        // TODO: Fix multisite setup menu for prefetching
+        // TODO: Fix script for prefetching in multisite
         if (!isScreen('servebolt_page_servebolt-prefetching')) {
             return;
         }

@@ -7,13 +7,16 @@ if (!defined('ABSPATH')) exit;
 use Servebolt\Optimizer\Admin\AcceleratedDomainsControl\AcceleratedDomainsControl;
 use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\AcceleratedDomainsImageResizeControl;
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
-use Servebolt\Optimizer\Admin\PrefetchingControl\PrefetchingControl;
+use Servebolt\Optimizer\Admin\PerformanceOptimizer\DatabaseOptimizations;
+use Servebolt\Optimizer\Admin\PerformanceOptimizer\PrefetchingControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\FullPageCacheControl;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
-use Servebolt\Optimizer\Admin\PerformanceChecks\PerformanceChecks;
+use Servebolt\Optimizer\Admin\PerformanceOptimizer\PerformanceOptimizer;
 use Servebolt\Optimizer\Admin\LogViewer\LogViewer;
+use Servebolt\Optimizer\Admin\PerformanceOptimizer\PerformanceOptimizerAdvanced;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\javascriptRedirect;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isDevDebug;
@@ -51,14 +54,14 @@ class AdminGuiController
         }
 
         $this->initAdminMenus();
-        PrefetchingControl::init();
+
         AcceleratedDomainsControl::init();
         AcceleratedDomainsImageResizeControl::init();
         CachePurgeControl::init();
         FullPageCacheControl::init();
         GeneralSettings::init();
         CloudflareImageResize::init();
-        PerformanceChecks::init();
+        PerformanceOptimizer::init();
     }
 
     /**
@@ -113,6 +116,7 @@ class AdminGuiController
         $this->generalPageMenuPage(); // Register menu page
 
         $this->generalMenu();
+        $this->performanceOptimizerMenu();
         $this->addSubMenuItems();
     }
 
@@ -169,6 +173,8 @@ class AdminGuiController
         } else {
             add_submenu_page('servebolt-wp', __('Cache purging', 'servebolt-wp'), __('Cache purging', 'servebolt-wp'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
         }
+
+        // Legacy redirect
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-cf-cache-control', [$this, 'cachePurgeLegacyRedirect']);
     }
 
@@ -177,11 +183,7 @@ class AdminGuiController
      */
     public function fpcLegacyRedirect(): void
     {
-        ?>
-        <script>
-            window.location = '<?php echo admin_url('admin.php?page=servebolt-fpc') ?>';
-        </script>
-        <?php
+        javascriptRedirect(admin_url('admin.php?page=servebolt-fpc'));
     }
 
     /**
@@ -189,11 +191,7 @@ class AdminGuiController
      */
     public function cachePurgeLegacyRedirect(): void
     {
-        ?>
-        <script>
-            window.location = '<?php echo admin_url('admin.php?page=servebolt-cache-purge-control') ?>';
-        </script>
-        <?php
+        javascriptRedirect(admin_url('admin.php?page=servebolt-cache-purge-control'));
     }
 
     /**
@@ -216,6 +214,8 @@ class AdminGuiController
     private function cacheSettingsMenu(): void
     {
         add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-fpc', [FullPageCacheControl::getInstance(), 'render']);
+
+        // Legacy redirect
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-nginx-cache', [$this, 'fpcLegacyRedirect']);
     }
 
@@ -233,7 +233,12 @@ class AdminGuiController
      */
     private function prefetchingMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Prefetching', 'servebolt-wp'), __('Prefetching', 'servebolt-wp'), 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
+        // TODO: Fix this so that it works well with both single and multisite
+        if (is_network_admin()) {
+            add_submenu_page('servebolt-wp', __('Prefetching', 'servebolt-wp'), __('Prefetching', 'servebolt-wp'), 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
+        } else {
+            add_submenu_page(null, null, null, 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
+        }
     }
 
     /**
@@ -257,7 +262,20 @@ class AdminGuiController
      */
     private function performanceOptimizerMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Performance Optimizer', 'servebolt-wp'), __('Performance optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-tools', [PerformanceChecks::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Performance optimizer', 'servebolt-wp'), __('Performance optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-optimizer', [PerformanceOptimizer::getInstance(), 'render']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-advanced', [PerformanceOptimizerAdvanced::getInstance(), 'render']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-database', [DatabaseOptimizations::getInstance(), 'render']);
+
+        // Legacy redirect
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-tools', [$this, 'performanceOptimizerLegacyRedirect']);
+    }
+
+    /**
+     * Redirect from performance optimizer page to the new one.
+     */
+    public function performanceOptimizerLegacyRedirect(): void
+    {
+        javascriptRedirect(admin_url('admin.php?page=servebolt-performance-optimizer'));
     }
 
     /**

@@ -200,3 +200,8 @@
 #sb-configuration-table > tbody > tr tr:hover .row-actions {
     position: static;
 }
+
+.nav-tab-inactive {
+    pointer-events: none;
+    opacity: .5;
+}
