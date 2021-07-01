@@ -18,12 +18,27 @@ class ManifestHeaders
         if (headers_sent()) {
             return;
         }
-        if ($files = ManifestFilesModel::get()) {
-            $prefetchFiles = [];
-            foreach ($files as $file) {
-                $prefetchFiles[] = '<' . $file . '>; rel="prefetch"';
+        if ($headerItems = self::getHeaderItems()) {
+            foreach ($headerItems as $headerItem) {
+                header($headerItem);
             }
-            header('Link: ' . implode(', ', $prefetchFiles));
         }
+    }
+
+    /**
+     * Prepare array of headers.
+     *
+     * @return array|null
+     */
+    public static function getHeaderItems(): ?array
+    {
+        if ($files = ManifestFilesModel::get()) {
+            $headerItems = [];
+            foreach ($files as $file) {
+                $headerItems[] = 'Link: <' . $file . '>; rel="prefetch"';
+            }
+            return $headerItems;
+        }
+        return null;
     }
 }
