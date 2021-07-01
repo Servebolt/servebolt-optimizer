@@ -26,7 +26,7 @@ class ImageSizeIndex extends SharedAjaxMethods
     }
 
     /**
-     * Return image size list.
+     * AJAX handling to return image size list.
      */
     public function getImageSizes(): void
     {
