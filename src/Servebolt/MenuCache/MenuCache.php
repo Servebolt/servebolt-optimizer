@@ -2,9 +2,9 @@
 
 namespace Servebolt\Optimizer\MenuCache;
 
-use function Servebolt\Optimizer\Helpers\isFrontEnd;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\isFrontEnd;
 
 /**
  * Class MenuCache
@@ -17,6 +17,11 @@ class MenuCache
      * @var null|object
      */
     private static $navMenuArgs = null;
+
+    /**
+     * @var null
+     */
+    private static $transientKey = null;
 
     /**
      * @var int
@@ -86,9 +91,9 @@ class MenuCache
      */
     private static function getCachedMenu(object $args)
     {
-        $transientKey = self::getTransientKey($args);
+        self::$transientKey = self::getTransientKey($args);
         if (self::$returnCachedMenu) {
-            $cachedMenuOutput = get_transient($transientKey);
+            $cachedMenuOutput = get_transient(self::$transientKey);
             if ($cachedMenuOutput) {
                 return $cachedMenuOutput;
             }
@@ -105,7 +110,7 @@ class MenuCache
         $output = wp_nav_menu($ourArgs);
         $navMenuArgs = self::getNavMenuArgs();
         // TODO: Add stuff here
-        set_transient($transientKey, $output);
+        set_transient(self::$transientKey, $output);
         self::preWpNavMenuOn();
         return $output;
     }
