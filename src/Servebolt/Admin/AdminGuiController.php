@@ -230,7 +230,12 @@ class AdminGuiController
      */
     private function prefetchingMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Prefetching', 'servebolt-wp'), __('Prefetching', 'servebolt-wp'), 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
+        // TODO: Fix this so that it works well with both single and multisite
+        if (is_network_admin()) {
+            add_submenu_page('servebolt-wp', __('Prefetching', 'servebolt-wp'), __('Prefetching', 'servebolt-wp'), 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
+        } else {
+            add_submenu_page(null, null, null, 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
+        }
     }
 
     /**

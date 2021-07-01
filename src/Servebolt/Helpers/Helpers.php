@@ -1496,3 +1496,36 @@ function javascriptRedirect(string $url): void
 {
     printf('<script> window.location = "%s"; </script>', $url);
 }
+
+/**
+ * Override parent active menu item for child menu item (in WP Admin).
+ *
+ * @param string $childPage
+ * @param string $parentPage
+ */
+function overrideParentMenuPage(string $childPage, string $parentPage): void
+{
+    add_filter('parent_file', function($parentFile) use ($childPage, $parentPage) {
+        global $plugin_page;
+        if ($childPage === $plugin_page) {
+            $plugin_page = $parentPage;
+        }
+        return $parentFile;
+    });
+}
+
+/**
+ * Override menu title in WP Admin for given page.
+ *
+ * @param string $screen
+ * @param string $overrideTitle
+ */
+function overrideMenuTitle(string $screen, string $overrideTitle): void
+{
+    add_filter('admin_title', function($admin_title, $title) use ($screen, $overrideTitle) {
+        if (isScreen($screen)) {
+            return $overrideTitle . ' ' . $admin_title;
+        }
+        return $admin_title;
+    }, 10, 2);
+}

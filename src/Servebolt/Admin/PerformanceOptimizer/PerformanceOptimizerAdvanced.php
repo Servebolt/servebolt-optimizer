@@ -9,6 +9,8 @@ use Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax\OptimizeActions;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 use function Servebolt\Optimizer\Helpers\isScreen;
+use function Servebolt\Optimizer\Helpers\overrideMenuTitle;
+use function Servebolt\Optimizer\Helpers\overrideParentMenuPage;
 use function Servebolt\Optimizer\Helpers\view;
 
 /**
@@ -32,6 +34,16 @@ class PerformanceOptimizerAdvanced
     {
         //$this->initAjax();
         //$this->initAssets();
+        $this->rewriteHighlightedMenuItem();
+    }
+
+    /**
+     * Flag "Performance Optimizer"-page as active when on advanced page.
+     */
+    private function rewriteHighlightedMenuItem(): void
+    {
+        overrideParentMenuPage('servebolt-performance-optimizer-advanced', 'servebolt-performance-optimizer');
+        overrideMenuTitle('admin_page_servebolt-performance-optimizer-advanced', __('Advanced', 'servebolt-wp'));
     }
 
     /**

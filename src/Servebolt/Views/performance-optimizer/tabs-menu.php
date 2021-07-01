@@ -9,6 +9,11 @@
             'title' => 'General',
         ],
         [
+            'id' => 'servebolt-prefetching',
+            'url' => $urlMethod('admin.php?page=servebolt-prefetching'),
+            'title' => 'Prefetching',
+        ],
+        [
             'id' => 'servebolt-performance-optimizer-advanced',
             'url' => $urlMethod('admin.php?page=servebolt-performance-optimizer-advanced'),
             'title' => 'Advanced',
