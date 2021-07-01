@@ -94,7 +94,6 @@ class AcceleratedDomains
     {
         if (self::isActive()) {
             setOptionOverride('use_cloudflare_apo', '__return_false');
-            //add_filter('pre_option_' . getOptionName('use_cloudflare_apo'), '__return_false');
         }
     }
 
@@ -118,7 +117,6 @@ class AcceleratedDomains
                 return 'acd';
             };
             setOptionOverride('cache_purge_driver', $acdFunction);
-            //add_filter('pre_option_' . getOptionName('cache_purge_driver'), $acdFunction);
             add_filter('sb_optimizer_selected_cache_purge_driver', $acdFunction);
         }
     }
@@ -130,7 +128,6 @@ class AcceleratedDomains
     {
         if (self::isActive()) {
             setOptionOverride('fpc_switch', '__return_true');
-            //add_filter('pre_option_' . getOptionName('fpc_switch'), '__return_true');
             add_filter('sb_optimizer_fpc_is_active', '__return_true');
         }
     }
