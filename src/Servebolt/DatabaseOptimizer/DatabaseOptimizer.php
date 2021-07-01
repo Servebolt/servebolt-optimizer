@@ -201,7 +201,7 @@ class DatabaseOptimizer
 			if (is_null($this->metaValueIndexAddition)) {
 				$result['meta_value_index_addition'] = [
 					'type'    => 'success',
-					'message' => __('Post meta-table already have an index on the meta_value-column.', 'servebolt-wp'),
+					'message' => __('Post meta table already have an index on the meta_value-column.', 'servebolt-wp'),
 				];
 				$metaValueIndexAddition = null;
 			} elseif ( $this->metaValueIndexAddition === false ) {
@@ -221,7 +221,7 @@ class DatabaseOptimizer
 			if ( $this->metaValueIndexAddition['count'] === 0 ) {
 				$result['meta_value_index_addition'] = [
 					'type'    => 'success',
-					'message' => __('All post meta-tables already has an index on the meta_value-column.', 'servebolt-wp'),
+					'message' => __('All post meta tables already has an index on the meta_value-column.', 'servebolt-wp'),
 				];
 				$metaValueIndexAddition = null;
 			} elseif ( count($this->metaValueIndexAddition['fail']) > 0 ) {
@@ -243,7 +243,7 @@ class DatabaseOptimizer
 			} else {
 				$result['meta_value_index_addition'] = [
 					'type'    => 'success',
-					'message' => __('Added meta_value-column index to all post meta-tables.', 'servebolt-wp'),
+					'message' => __('Added meta_value-column index to all post meta tables.', 'servebolt-wp'),
 				];
 				$metaValueIndexAddition = true;
 			}
@@ -254,7 +254,7 @@ class DatabaseOptimizer
 			if (is_null($this->autoloadIndexAddition)) {
 				$result['autoload_index_addition'] = [
 					'type'    => 'success',
-					'message' => __('Options-table already have an index on the autoload-column.', 'servebolt-wp'),
+					'message' => __('Options table already have an index on the autoload-column.', 'servebolt-wp'),
 				];
 				$autoloadIndexAddition = null;
 			} elseif ($this->autoloadIndexAddition === false) {
@@ -274,7 +274,7 @@ class DatabaseOptimizer
 			if ($this->autoloadIndexAddition['count'] === 0) {
 				$result['autoload_index_addition'] = [
 					'type' => 'success',
-					'message' => __('All options-tables already has an index on the autoload-column.', 'servebolt-wp'),
+					'message' => __('All options tables already has an index on the autoload-column.', 'servebolt-wp'),
 				];
 				$autoloadIndexAddition = null;
 			} elseif (count($this->autoloadIndexAddition['fail']) > 0) {
@@ -285,7 +285,7 @@ class DatabaseOptimizer
 					];
 				} else {
 					$failedBlogUrls = array_map(function($blogId) {
-						return [ __('Failed to add autoload-column index to options-tables on sites:', 'servebolt-wp') => get_site_url($blogId) ];
+						return [ __('Failed to add autoload-column index to options tables on sites:', 'servebolt-wp') => get_site_url($blogId) ];
 					}, $this->autoloadIndexAddition['fail']);
 					$result['autoload_index_addition'] = [
 						'type'  => 'table',
@@ -296,7 +296,7 @@ class DatabaseOptimizer
 			} else {
 				$result['autoload_index_addition'] = [
 					'type'    => 'success',
-					'message' => __('Added autoload-column index to all options-tables.', 'servebolt-wp'),
+					'message' => __('Added autoload-column index to all options tables.', 'servebolt-wp'),
 				];
 				$autoloadIndexAddition = true;
 			}
@@ -518,7 +518,7 @@ class DatabaseOptimizer
 		} else {
 			if (!in_array($this->wpdb()->options, $optionsTablesWithAutoloadIndex)) {
 				if ($this->dryRun || $this->addOptionsAutoloadIndex()) {
-				    $message = __('Added index to table "options-table', 'servebolt-wp');
+				    $message = __('Added index to table "options table', 'servebolt-wp');
 				    if (CliHelpers::returnJson()) {
                         $this->actionOutput[] = [
                             'success' => true,
@@ -529,7 +529,7 @@ class DatabaseOptimizer
                     }
 					$this->autoloadIndexAddition = true;
 				} else {
-				    $errorMessage = __('Could not add index to options-table', 'servebolt-wp');
+				    $errorMessage = __('Could not add index to options table', 'servebolt-wp');
                     if (CliHelpers::returnJson()) {
                         $this->actionOutput[] = [
                             'success' => false,

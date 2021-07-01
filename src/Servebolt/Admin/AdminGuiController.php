@@ -255,7 +255,7 @@ class AdminGuiController
      */
     private function performanceOptimizerMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Performance optimizer', 'servebolt-wp'), __('Performance optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-tools', [PerformanceChecks::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Performance Optimizer', 'servebolt-wp'), __('Performance optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-tools', [PerformanceChecks::getInstance(), 'render']);
     }
 
     /**

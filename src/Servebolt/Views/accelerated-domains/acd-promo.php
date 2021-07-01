@@ -22,7 +22,7 @@
             <h3><?php _e('What is Accelerated Domains?', 'servebolt-wp'); ?></h3>
             <p>
                 <?php
-                echo sprintf(__('Accelerated Domains is a unique performance enhancing service that enables your site to accomplish extraordinary speed, security, and scalability upgrades. It does so in the most efficient, affordable, and sustainable way. Accelerated Domains is a service that requires no configuration, and is continuously evolving.
+                echo sprintf(__('Accelerated Domains is a unique performance enhancing service that enables your site to accomplish extraordinary speed, security, and scalability upgrades. It does so in the most efficient, affordable, and sustainable way. Accelerated Domains is a service that requires no configuration and is easy to set up.
                         Every Accelerated Domains feature is built to help you unlock new growth, more revenue, and greater reach. %sLearn more about Accelerated Domains here.%s'), '<a href="https://servebo.lt/luiv5">', '</a>');
                 ?>
             </p>
