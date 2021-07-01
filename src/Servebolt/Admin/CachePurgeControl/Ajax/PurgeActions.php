@@ -159,7 +159,7 @@ class PurgeActions extends SharedAjaxMethods
         if ($queueBasedCachePurgeIsActive && $this->urlAlreadyInQueue($url)) {
             wp_send_json_success([
                 'title' => 'All good!',
-                'message' => sprintf(__('A cache purge-request for the URL "%s" is already added to the queue and should be executed shortly.'), $url)
+                'message' => sprintf(__('A cache purge request for the URL "%s" is already added to the queue and should be executed shortly.'), $url)
             ]);
             return;
         }
@@ -169,7 +169,7 @@ class PurgeActions extends SharedAjaxMethods
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success([
                     'title' => 'Just a moment',
-                    'message' => sprintf(__('A cache purge-request for the URL "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), $url),
+                    'message' => sprintf(__('A cache purge request for the URL "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), $url),
                 ]);
             } else {
                 wp_send_json_success(['message' => sprintf(__('Cache was purged for URL "%s".', 'servebolt-wp'), $url)]);
@@ -225,7 +225,7 @@ class PurgeActions extends SharedAjaxMethods
         if ($queueBasedCachePurgeIsActive && $this->postAlreadyInQueue($postId)) {
             wp_send_json_success([
                 'title' => 'All good!',
-                'message' => sprintf(__('A cache purge-request for the %s "%s" is already added to the queue and should be executed shortly.', 'servebolt-wp'), getPostTypeSingularName($postId), get_the_title($postId)),
+                'message' => sprintf(__('A cache purge request for the %s "%s" is already added to the queue and should be executed shortly.', 'servebolt-wp'), getPostTypeSingularName($postId), get_the_title($postId)),
             ]);
             return;
         }
@@ -235,7 +235,7 @@ class PurgeActions extends SharedAjaxMethods
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
                     'title'   => 'Just a moment',
-                    'message' => sprintf(__('A cache purge-request for the %s "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), getPostTypeSingularName($postId), get_the_title($postId)),
+                    'message' => sprintf(__('A cache purge request for the %s "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), getPostTypeSingularName($postId), get_the_title($postId)),
                 ] );
             } else {
                 wp_send_json_success(['message' => sprintf(__('Cache was purged for the %s "%s".', 'servebolt-wp'), getPostTypeSingularName($postId), get_the_title($postId))]);
@@ -293,7 +293,7 @@ class PurgeActions extends SharedAjaxMethods
         if ($queueBasedCachePurgeIsActive && $this->termAlreadyInQueue($termId, $term->taxonomy)) {
             wp_send_json_success([
                 'title' => 'All good!',
-                'message' => sprintf(__('A cache purge-request for the term "%s" is already added to the queue and should be executed shortly.', 'servebolt-wp'), $term->name),
+                'message' => sprintf(__('A cache purge request for the term "%s" is already added to the queue and should be executed shortly.', 'servebolt-wp'), $term->name),
             ]);
             return;
         }
@@ -303,7 +303,7 @@ class PurgeActions extends SharedAjaxMethods
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
                     'title'   => 'Just a moment',
-                    'message' => sprintf(__('A cache purge-request for the term "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), $term->name),
+                    'message' => sprintf(__('A cache purge request for the term "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), $term->name),
                 ] );
             } else {
                 wp_send_json_success(['message' => sprintf(__('Cache was purged for the term "%s".', 'servebolt-wp'), $term->name)]);

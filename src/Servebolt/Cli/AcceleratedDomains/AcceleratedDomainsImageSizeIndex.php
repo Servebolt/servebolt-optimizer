@@ -181,7 +181,7 @@ class AcceleratedDomainsImageSizeIndex
         }
         list($original, $value, $descriptor) = $matches;
         if (!ImageSizeIndexModel::sizeExists($value, $descriptor)) {
-            $message = __('Size does not exists.', 'servebolt-wp');
+            $message = __('Size does not exist.', 'servebolt-wp');
             if (CliHelpers::returnJson()) {
                 CliHelpers::printJson([
                     'success' => false,

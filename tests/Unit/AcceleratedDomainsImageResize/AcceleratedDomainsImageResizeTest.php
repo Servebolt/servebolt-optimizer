@@ -81,10 +81,6 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?metadata=none&width=800', $modifiedAttachmentData[0]);
 
-        $this->ir->setMetadataOptimizationLevel('no_metadata');
-        $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
-        $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?metadata=none&width=800', $modifiedAttachmentData[0]);
-
         $this->ir->setMetadataOptimizationLevel(null);
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?width=800', $modifiedAttachmentData[0]);
@@ -93,15 +89,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?width=800', $modifiedAttachmentData[0]);
 
-        $this->ir->setMetadataOptimizationLevel('keep_copyright');
-        $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
-        $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?width=800', $modifiedAttachmentData[0]);
-
         $this->ir->setMetadataOptimizationLevel('keep');
-        $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
-        $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?metadata=keep&width=800', $modifiedAttachmentData[0]);
-
-        $this->ir->setMetadataOptimizationLevel('keep_all');
         $modifiedAttachmentData = $this->ir->alterSingleImageUrl($attachmentData);
         $this->assertEquals('https://some-domain.com/acd-cgi/img/v1/wp-content/uploads/woocommerce-placeholder.png?metadata=keep&width=800', $modifiedAttachmentData[0]);
     }

@@ -3,6 +3,8 @@
 namespace Servebolt\Optimizer\Helpers;
 
 /**
+ * Resolve the path to a view file.
+ *
  * @param $templatePath
  * @return string|null
  */
@@ -405,9 +407,11 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'cf_email',
         'cf_api_key',
         'cf_api_token',
+        'queue_based_cache_purge',
+
+        // Legacy
         'cf_items_to_purge',
         'cf_cron_purge',
-        'queue_based_cache_purge',
 
         // Accelerated Domains
         'acd_switch',
@@ -422,6 +426,16 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'acd_image_resize_metadata_optimization_level',
         'acd_image_resize_upscale',
         'acd_image_resize_size_index',
+
+        // Accelerated Domains Image Resize (legacy)
+        'acd_img_resize_switch',
+        'acd_img_resize_half_size_switch',
+        'acd_img_resize_src_tag_switch',
+        'acd_img_resize_srcset_tag_switch',
+        'acd_img_resize_quality',
+        'acd_img_resize_metadata_optimization_level',
+        'acd_img_resize_upscale',
+        'acd_img_resize_size_index',
 
         // Wipe SB FPC-related options
         'fpc_switch',
@@ -1359,6 +1373,48 @@ function wpDirectFilesystem(bool $ensureConstantsAreSet = false): object
     require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
     require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
     return new \WP_Filesystem_Direct(new \StdClass());
+}
+
+/**
+ * This is a clone of the function "wp_calculate_image_sizes" in the WP core-files.
+ * @param $size
+ * @param null $image_src
+ * @param null $image_meta
+ * @param int $attachment_id
+ * @return mixed|void
+ */
+function sbCalculateImageSizes( $size, $image_src = null, $image_meta = null, $attachment_id = 0 )
+{
+    $width = 0;
+
+    if (is_array($size)) {
+        $width = absint($size[0]);
+    } elseif (is_string($size)) {
+        if (!$image_meta && $attachment_id) {
+            $image_meta = wp_get_attachment_metadata($attachment_id);
+        }
+
+        if (is_array($image_meta)) {
+            $size_array = _wp_get_image_size_from_meta($size, $image_meta);
+            if ($size_array) {
+                $width = absint($size_array[0]);
+            }
+        }
+    }
+
+    /**
+     * Filters the output of 'sbCalculateImageSizes()'.
+     *
+     * @since 4.4.0
+     *
+     * @param int          $width         The width of the image.
+     * @param string|int[] $size          Requested image size. Can be any registered image size name, or
+     *                                    an array of width and height values in pixels (in that order).
+     * @param string|null  $image_src     The URL to the image file or null.
+     * @param array|null   $image_meta    The image meta data as returned by wp_get_attachment_metadata() or null.
+     * @param int          $attachment_id Image attachment ID of the original image or 0.
+     */
+    return apply_filters( 'sb_calculate_image_sizes', $width, $size, $image_src, $image_meta, $attachment_id );
 }
 
 /**

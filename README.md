@@ -20,7 +20,7 @@ You can set up the test environment by running the command:
 Example:
 ``composer install-wp-test sb_opt_db sb_opt_usr sb_opt_pass 127.0.0.1 latest true``
 
-You should now be able to run ``composer phpunit`` WP single site or ``composer phpunit-mu`` for WP multisite.
+You should now be able to run ``composer phpunit`` WP single site or ``composer phpunit-mu`` for WP multi-site.
 
 ### Build assets
 1. Run `yarn install`
@@ -74,7 +74,7 @@ If you want to build a local production-ready version of the plugin you can run 
 * Third party cache purge functions - Third party developers can now call publicly available cache purge functions. This allows for purging by post, term, URL or purge all.
 * Single site plugin activation constraint - The plugin can now only be activated site-wide when used in a multisite network.
 * Cloudflare Image Resizing removed from the GUI - The beta-feature “Cloudflare Image Resizing” has now been removed due to it not being tested properly. It is still available through the CLI, but not in the GUI.
-* Removed network cache purge action - The feature to purge all cache for all sites in a multisite-network was removed due to lack of time to integrate this with Accelerated Domains and the improved queue system.
+* Removed network cache purge action - The feature to purge all cache for all sites in a multi-site network was removed due to lack of time to integrate this with Accelerated Domains and the improved queue system.
 * Removed the cache purge queue GUI - The queue GUI (list) in the cache purge settings was removed due to lack of time to integrate this with Accelerated Domains and the improved queue system.
 * Cache purge links in post/term list - It is now possible to trigger cache purge actions from the row actions of posts and terms in WP Admin.
 * Added purge actions for terms in the WordPress Admin bar - When viewing a term - either in WP Admin or front-end - you can now purge the cache via the Admin bar.
@@ -175,7 +175,7 @@ If you want to build a local production-ready version of the plugin you can run 
 * Bugfix: Unable to add indexes on non-multisite installs
 
 #### 1.5
-* Added multisite support
+* Added multi-site support
 * Fixed a bug in the wpvulndb security checker
 * Added a nice animation when optimizer runs
 * Updated readme.txt

@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\Ajax;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageSizeIndexModel;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
@@ -26,7 +28,7 @@ class ImageSizeIndex extends SharedAjaxMethods
     }
 
     /**
-     *
+     * AJAX handling to return image size list.
      */
     public function getImageSizes(): void
     {
@@ -47,7 +49,9 @@ class ImageSizeIndex extends SharedAjaxMethods
         ajaxUserAllowed();
         $value = sanitize_text_field(arrayGet('value', $_POST));
         if ($matches = ImageSizeIndexModel::validateValue($value)) {
-            if (ImageSizeIndexModel::sizeExists($matches[1], $matches[2])) {
+            if ($matches[1] <= 0) {
+                wp_send_json_error(['message' => __('Value must be above 0.', 'servebolt-wp')]);
+            } elseif (ImageSizeIndexModel::sizeExists($matches[1], $matches[2])) {
                 wp_send_json_error(['message' => __('Size already exists.', 'servebolt-wp')]);
             } else {
                 ImageSizeIndexModel::addSize($matches[1], $matches[2]);
@@ -68,7 +72,7 @@ class ImageSizeIndex extends SharedAjaxMethods
         $value = sanitize_text_field(arrayGet('value', $_POST));
         if ($matches = ImageSizeIndexModel::validateValue($value)) {
             if (!ImageSizeIndexModel::sizeExists($matches[1], $matches[2])) {
-                wp_send_json_error(['message' => __('Size does not exists.', 'servebolt-wp')]);
+                wp_send_json_error(['message' => __('Size does not exist.', 'servebolt-wp')]);
             } else {
                 ImageSizeIndexModel::removeSize($matches[1], $matches[2]);
                 wp_send_json_success();

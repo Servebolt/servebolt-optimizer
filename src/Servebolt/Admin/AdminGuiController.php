@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Admin;
 
+if (!defined('ABSPATH')) exit;
+
 use Servebolt\Optimizer\Admin\AcceleratedDomainsControl\AcceleratedDomainsControl;
 use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\AcceleratedDomainsImageResizeControl;
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;

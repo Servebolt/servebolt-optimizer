@@ -2,7 +2,7 @@
 
 namespace Servebolt\Optimizer\Admin;
 
-if ( ! defined( 'ABSPATH' ) ) exit;
+if (!defined('ABSPATH')) exit;
 
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use function Servebolt\Optimizer\Helpers\booleanToString;

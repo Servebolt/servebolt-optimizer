@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Exceptions;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Exception;
 use Servebolt\Optimizer\Exceptions\MessageTranslator\ServeboltMessageTranslation;
 use Servebolt\Optimizer\Exceptions\MessageTranslator\CloudflareMessageTranslation;

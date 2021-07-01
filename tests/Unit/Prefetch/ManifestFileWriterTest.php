@@ -3,6 +3,7 @@
 namespace Unit\Prefetch;
 
 use Servebolt\Optimizer\Prefetching\ManifestFilesModel;
+use Servebolt\Optimizer\Prefetching\ManifestHeaders;
 use Unit\Traits\MultisiteTrait;
 use ServeboltWPUnitTestCase;
 use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
@@ -172,5 +173,16 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         $this->setUpManifestDummyData();
         ManifestFileWriter::write();
         $this->assertCount(9, explode(PHP_EOL, file_get_contents($scriptFilePath)));
+    }
+
+    public function testThatHeadersAreSet()
+    {
+        ManifestFileWriter::write();
+        $expected = [
+            'Link: <http://example.org/wp-content/uploads/acd/prefetch/manifest-style.txt>; rel="prefetch"',
+            'Link: <http://example.org/wp-content/uploads/acd/prefetch/manifest-script.txt>; rel="prefetch"',
+            'Link: <http://example.org/wp-content/uploads/acd/prefetch/manifest-menu.txt>; rel="prefetch"',
+        ];
+        $this->assertEquals($expected, ManifestHeaders::getHeaderItems());
     }
 }
