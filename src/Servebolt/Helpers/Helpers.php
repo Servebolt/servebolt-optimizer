@@ -3,6 +3,8 @@
 namespace Servebolt\Optimizer\Helpers;
 
 /**
+ * Resolve the path to a view file.
+ *
  * @param $templatePath
  * @return string|null
  */
