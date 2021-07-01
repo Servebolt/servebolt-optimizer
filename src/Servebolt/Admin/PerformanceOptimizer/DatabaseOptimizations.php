@@ -14,11 +14,11 @@ use function Servebolt\Optimizer\Helpers\overrideParentMenuPage;
 use function Servebolt\Optimizer\Helpers\view;
 
 /**
- * Class PerformanceOptimizerAdvanced
+ * Class DatabaseOptimizations
  *
  * This class display the optimization options and handles execution of optimizations.
  */
-class PerformanceOptimizerAdvanced
+class DatabaseOptimizations
 {
     use Singleton;
 
@@ -28,12 +28,12 @@ class PerformanceOptimizerAdvanced
     }
 
     /**
-     * PerformanceOptimizerAdvanced constructor.
+     * DatabaseOptimizations constructor.
      */
     private function __construct()
     {
-        //$this->initAjax();
-        //$this->initAssets();
+        $this->initAjax();
+        $this->initAssets();
         $this->rewriteHighlightedMenuItem();
     }
 
@@ -59,7 +59,8 @@ class PerformanceOptimizerAdvanced
      */
     public function enqueueScripts(): void
     {
-        if (!isScreen('servebolt_page_servebolt-performance-optimizer')) {
+        $currentScreen = get_current_screen();
+        if (!isScreen('admin_page_servebolt-performance-optimizer-database')) {
             return;
         }
         wp_enqueue_script( 'servebolt-optimizer-performance-optimizer-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/performance-optimizer.js', ['servebolt-optimizer-scripts'], getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/performance-optimizer.js'), true );
@@ -70,7 +71,24 @@ class PerformanceOptimizerAdvanced
      */
     private function initAjax(): void
     {
-        //new OptimizeActions;
+        new OptimizeActions;
+    }
+
+    /**
+     * Check if any of the tables in the array needs indexing.
+     *
+     * @param $tables
+     *
+     * @return bool
+     */
+    private function tablesNeedIndex($tables): bool
+    {
+        foreach ($tables as $table) {
+            if (!$table['has_index']) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -78,6 +96,12 @@ class PerformanceOptimizerAdvanced
      */
     public function render()
     {
-        view('performance-optimizer.advanced.advanced');
+        $checksInstance = DatabaseChecks::getInstance();
+        $tablesToIndex = $checksInstance->tablesToHaveIndexed();
+        view('performance-optimizer.database-optimizations.database-optimizations', [
+            'indexFixAvailable' => $this->tablesNeedIndex($tablesToIndex),
+            'tables'            => $tablesToIndex,
+            'myisamTables'      => $checksInstance->getMyisamTables(),
+        ]);
     }
 }

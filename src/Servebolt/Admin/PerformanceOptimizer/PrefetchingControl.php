@@ -1,10 +1,10 @@
 <?php
 
-namespace Servebolt\Optimizer\Admin\PrefetchingControl;
+namespace Servebolt\Optimizer\Admin\PerformanceOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Admin\PrefetchingControl\Ajax\PrefetchingFileGeneration;
+use Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax\PrefetchingFileGeneration;
 use Servebolt\Optimizer\Prefetching\ManifestFilesModel;
 use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
 use Servebolt\Optimizer\Prefetching\WpPrefetching;
@@ -69,7 +69,7 @@ class PrefetchingControl
     public function render(): void
     {
         $settings = $this->getSettingsItemsWithValues();
-        view('prefetching.prefetching', compact('settings'));
+        view('performance-optimizer.prefetching.prefetching', compact('settings'));
     }
 
     private function initSettings(): void

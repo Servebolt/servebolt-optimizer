@@ -4,5 +4,10 @@
 <div class="wrap sb-content">
     <h1><?php _e('Performance Optimizer', 'servebolt-wp'); ?></h1>
     <?php view('performance-optimizer.tabs-menu', ['selectedTab' => 'servebolt-performance-optimizer-advanced']); ?>
-    <h2>Content here</h2>
+
+    <?php if (is_network_admin()) : ?>
+        <?php view('performance-optimizer.advanced.network-list-view'); ?>
+    <?php else : ?>
+        <?php view('performance-optimizer.advanced.settings-form', compact('settings')); ?>
+    <?php endif; ?>
 </div>

@@ -61,7 +61,7 @@
     "phpunit": [
       "./vendor/phpunit/phpunit/phpunit -c phpunit.xml"
     ],
-    "phpunit-mu": [
+      "phpunit-mu": [
       "./vendor/phpunit/phpunit/phpunit -c phpunit-mu.xml"
     ],
     "local-build": "ci/local-build.sh",

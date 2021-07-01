@@ -61,6 +61,7 @@ use function Servebolt\Optimizer\Helpers\strEndsWith;
 use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\updateSiteOption;
+use function Servebolt\Optimizer\Helpers\view;
 
 class HelpersTest extends ServeboltWPUnitTestCase
 {
@@ -71,6 +72,18 @@ class HelpersTest extends ServeboltWPUnitTestCase
         if (!defined('SB_DEBUG')) {
             define('SB_DEBUG', true);
         }
+    }
+
+    public function testThatViewIsIncludedAndThatArgumentsAreAvailable()
+    {
+        add_filter('sb_optimizer_view_folder_path', function() {
+            return __DIR__ . '/ViewsForTest/';
+        });
+        $arguments = [
+            'lorem' => true
+        ];
+        $output = view('test', $arguments, false);
+        $this->assertEquals(json_encode($arguments), $output);
     }
 
     public function testThatWeCanGetTheWebrootFolderPath(): void

@@ -12,7 +12,7 @@ function resolveViewPath($templatePath): ?string
 {
     $templatePath = str_replace('.', '/', $templatePath);
     $suffix = '.php';
-    $basePath = SERVEBOLT_PLUGIN_PSR4_PATH . 'Views/';
+    $basePath = apply_filters('sb_optimizer_view_folder_path', SERVEBOLT_PLUGIN_PSR4_PATH . 'Views/');
     $filePath = $basePath . $templatePath . $suffix;
     if (file_exists($filePath) && is_readable($filePath)) {
         return $filePath;
@@ -32,6 +32,7 @@ function view(string $templatePath, array $arguments = [], bool $echo = true): ?
 {
     if ($filePath = resolveViewPath($templatePath)) {
         extract($arguments, EXTR_SKIP);
+        $settings = $arguments;
         if (!$echo) {
             ob_start();
         }

@@ -7,7 +7,8 @@ if (!defined('ABSPATH')) exit;
 use Servebolt\Optimizer\Admin\AcceleratedDomainsControl\AcceleratedDomainsControl;
 use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\AcceleratedDomainsImageResizeControl;
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
-use Servebolt\Optimizer\Admin\PrefetchingControl\PrefetchingControl;
+use Servebolt\Optimizer\Admin\PerformanceOptimizer\DatabaseOptimizations;
+use Servebolt\Optimizer\Admin\PerformanceOptimizer\PrefetchingControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\FullPageCacheControl;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
@@ -53,7 +54,7 @@ class AdminGuiController
         }
 
         $this->initAdminMenus();
-        PrefetchingControl::init();
+
         AcceleratedDomainsControl::init();
         AcceleratedDomainsImageResizeControl::init();
         CachePurgeControl::init();
@@ -61,7 +62,6 @@ class AdminGuiController
         GeneralSettings::init();
         CloudflareImageResize::init();
         PerformanceOptimizer::init();
-        PerformanceOptimizerAdvanced::init();;
     }
 
     /**
@@ -116,6 +116,7 @@ class AdminGuiController
         $this->generalPageMenuPage(); // Register menu page
 
         $this->generalMenu();
+        $this->performanceOptimizerMenu();
         $this->addSubMenuItems();
     }
 
@@ -263,6 +264,7 @@ class AdminGuiController
     {
         add_submenu_page('servebolt-wp', __('Performance optimizer', 'servebolt-wp'), __('Performance optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-optimizer', [PerformanceOptimizer::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-advanced', [PerformanceOptimizerAdvanced::getInstance(), 'render']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-database', [DatabaseOptimizations::getInstance(), 'render']);
 
         // Legacy redirect
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-tools', [$this, 'performanceOptimizerLegacyRedirect']);
