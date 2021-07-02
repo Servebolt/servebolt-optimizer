@@ -38,7 +38,6 @@ class WpMenuCache
      */
     public static function isActive(?int $blogId = null): bool
     {
-        return true;
         return checkboxIsChecked(smartGetOption($blogId, 'menu_cache'));
     }
 }
