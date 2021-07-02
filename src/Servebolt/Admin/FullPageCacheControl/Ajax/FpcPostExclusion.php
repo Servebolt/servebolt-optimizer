@@ -11,6 +11,7 @@ use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 use function Servebolt\Optimizer\Helpers\createLiTagsFromArray;
 use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup;
+use function Servebolt\Optimizer\Helpers\postExists;
 
 /**
  * Class FpcPostExclusion
@@ -29,20 +30,34 @@ class FpcPostExclusion extends SharedAjaxMethods
     }
 
     /**
-     * Update FPC post exclude list.
+     * Update FPC post exclude list - AJAX callback.
      */
     public function updateFpcExcludePostsListCallback(): void
     {
         $this->checkAjaxReferer();
         ajaxUserAllowed();
-
         $itemsToRemove = arrayGet('items', $_POST);
+        if ($this->removeItemsFromFpcExclusion($itemsToRemove)) {
+            wp_send_json_success();
+        } else {
+            wp_send_json_error();
+        }
+    }
+
+    /**
+     * Update FPC post exclude list.
+     *
+     * @param $itemsToRemove
+     * @return bool
+     */
+    public function removeItemsFromFpcExclusion($itemsToRemove): bool
+    {
         if ($itemsToRemove === 'all') {
             CachePostExclusion::setIdsToExcludeFromCache([]);
-            wp_send_json_success();
+            return true;
         }
         if (!$itemsToRemove || empty($itemsToRemove)) {
-            wp_send_json_error();
+            return false;
         }
         if (!is_array($itemsToRemove)) {
             $itemsToRemove = [];
@@ -50,19 +65,24 @@ class FpcPostExclusion extends SharedAjaxMethods
         $itemsToRemove = array_filter($itemsToRemove, function ($item) {
             return is_numeric($item);
         });
+        foreach ($itemsToRemove as $itemToRemove) {
+            if (postExists($itemToRemove)) {
+                do_action('sb_optimizer_post_removed_from_fpc_exclusion', $itemToRemove);
+            }
+        }
         $currentItems = CachePostExclusion::getIdsToExcludeFromCache();
         if (!is_array($currentItems)) {
             $currentItems = [];
         }
         $updatedItems = array_filter($currentItems, function($item) use ($itemsToRemove) {
-            return ! in_array($item, $itemsToRemove);
+            return !in_array($item, $itemsToRemove);
         });
         CachePostExclusion::setIdsToExcludeFromCache($updatedItems);
-        wp_send_json_success();
+        return true;
     }
 
     /**
-     * Add post IDs to be excluded from FPC.
+     * Add post IDs to be excluded from FPC - AJAX callback.
      */
     public function updateExcludedPostsCallback(): void
     {
@@ -77,7 +97,24 @@ class FpcPostExclusion extends SharedAjaxMethods
                 'message' => __('Post IDs missing', 'servebolt-wp'),
             ]);
         }
+        $result = $this->addItemsFromFpcExclusion($postIds);
+        $success = arrayGet('success', $result);
+        unset($result['success']);
+        if ($success) {
+            wp_send_json_success($result);
+        } else {
+            wp_send_json_error($result);
+        }
+    }
 
+    /**
+     * Add post IDs to be excluded from FPC.
+     * 
+     * @param $postIds
+     * @return array
+     */
+    public function addItemsFromFpcExclusion($postIds): array
+    {
         $onlyOnePostId = count($postIds) === 1;
         $invalid = [];
         $failed = [];
@@ -88,7 +125,7 @@ class FpcPostExclusion extends SharedAjaxMethods
 
         foreach ($postIds as $postId) {
 
-            if ( ! is_numeric($postId) || ! $post = get_post($postId) ) {
+            if (!is_numeric($postId) || !$post = get_post($postId)) {
                 $invalid[] = $postId;
                 continue;
             }
@@ -100,6 +137,7 @@ class FpcPostExclusion extends SharedAjaxMethods
             }
 
             if (CachePostExclusion::excludePostFromCache($postId)) {
+                do_action('sb_optimizer_post_added_to_fpc_exclusion', $postId);
                 $newMarkup .= fpcExcludePostTableRowMarkup($postId, false);
                 $success[] = $postId;
                 $added[] = $postId;
@@ -112,25 +150,25 @@ class FpcPostExclusion extends SharedAjaxMethods
         $gotSuccess = count($success);
         $hasInvalid = count($invalid) > 0;
         $hasFailed  = count($failed) > 0;
-        $hasInvalidOnly = ! $gotSuccess && $hasInvalid && ! $hasFailed;
-        $hasFailedOnly = ! $gotSuccess && $hasFailed && ! $hasInvalid;
+        $hasInvalidOnly = !$gotSuccess && $hasInvalid && !$hasFailed;
+        $hasFailedOnly = !$gotSuccess && $hasFailed && !$hasInvalid;
 
         $type = 'success';
         $title = __('All good', 'servebolt-wp');
-        $returnMethod = 'wp_send_json_success';
+        $success = true;
 
         $invalidMessage = '';
         $failedMessage = '';
         $alreadyExcludedMessage = '';
         $addedMessage = '';
 
-        if ( $hasInvalid ) {
+        if ($hasInvalid) {
             $type = 'warning';
             $title = __('We made progress, but...', 'servebolt-wp');
             $invalidMessage = sprintf(__('The following %s were invalid:', 'servebolt-wp'), ( $onlyOnePostId ? __('post ID', 'servebolt-wp') : __('post IDs', 'servebolt-wp') ) ) . createLiTagsFromArray($invalid);
         }
 
-        if ( $hasFailed ) {
+        if ($hasFailed) {
             $type = 'warning';
             $title = __('We made progress, but...', 'servebolt-wp');
             $failedMessage = __('Could not exclude the following posts from cache:', 'servebolt-wp') . createLiTagsFromArray($failed, function($postId) {
@@ -139,42 +177,43 @@ class FpcPostExclusion extends SharedAjaxMethods
             });
         }
 
-        if ( count($alreadyExcluded) > 0 ) {
+        if (count($alreadyExcluded) > 0) {
             $alreadyExcludedMessage = __('The following posts are already excluded from cache:', 'servebolt-wp') . createLiTagsFromArray($alreadyExcluded, function($postId) {
                 $title = get_the_title($postId);
                 return $title ? $title . ' (ID ' . $postId . ')' : $postId;
             });
         }
 
-        if ( count($added) > 0 ) {
+        if (count($added) > 0) {
             $addedMessage = __('The following posts were excluded from cache:', 'servebolt-wp') . createLiTagsFromArray($added, function($postId) {
                 $title = get_the_title($postId);
                 return $title ? $title . ' (ID ' . $postId . ')' : $postId;
             });
         }
 
-        if ( $hasInvalidOnly ) {
-            $returnMethod = 'wp_send_json_error';
+        if ($hasInvalidOnly) {
+            $success = false;
             $type = 'warning';
             $title = ( $onlyOnePostId ? __('Post ID invalid', 'servebolt-wp') : __('Post IDs invalid', 'servebolt-wp') );
-        } elseif ( $hasFailedOnly ) {
-            $returnMethod = 'wp_send_json_error';
+        } elseif ($hasFailedOnly) {
+            $success = false;
             $title = __('Could not update exclude list', 'servebolt-wp');
             $type = 'error';
 
         } elseif (!$gotSuccess) {
-            $returnMethod = 'wp_send_json_error';
+            $success = false;
             $title = __('Something went wrong', 'servebolt-wp');
             $type = 'warning';
         }
 
         $message = $invalidMessage . $failedMessage . $alreadyExcludedMessage . $addedMessage;
 
-        $returnMethod([
-            'type'       => $type,
-            'title'      => $title,
-            'message'    => $message,
+        return [
+            'success' => $success,
+            'type' => $type,
+            'title' => $title,
+            'message' => $message,
             'row_markup' => $newMarkup,
-        ]);
+        ];
     }
 }

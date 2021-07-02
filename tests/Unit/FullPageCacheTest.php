@@ -2,9 +2,12 @@
 
 namespace Unit;
 
+use Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax\FpcPostExclusion;
 use Servebolt\Optimizer\FullPageCache\CachePostExclusion;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheSettings;
+use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use ServeboltWPUnitTestCase;
 
 /**
@@ -12,6 +15,12 @@ use ServeboltWPUnitTestCase;
  */
 class FullPageCacheTest extends ServeboltWPUnitTestCase
 {
+    public function setUp()
+    {
+        parent::setUp();
+        MigrationRunner::run(true); // We need the custom tables for the queue system to work
+    }
+
     public function testThatPostGetsExcludedFromCache()
     {
         $postId = 1;
@@ -68,5 +77,18 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
         $this->assertContains('No-cache-trigger: 1', $headers);
         $this->assertContains('Cache-Control: max-age=0,no-cache,s-maxage=0', $headers);
         $this->assertContains('Pragma: no-cache', $headers);
+    }
+
+    public function testThatPostGetsCachePurgedWhenAddedToFpcExclusion()
+    {
+        add_filter('sb_optimizer_get_option_servebolt_queue_based_cache_purge', '__return_true');
+        $postId = $this->factory()->post->create();
+        $fpcPostExclusion = new FpcPostExclusion();
+        $result = $fpcPostExclusion->addItemsFromFpcExclusion([
+            $postId
+        ]);
+        $this->assertTrue($result['success']);
+        $wpObjectQueue = WpObjectQueue::getInstance();
+        $this->assertTrue($wpObjectQueue->hasPostInQueue($postId));
     }
 }
