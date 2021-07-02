@@ -33,7 +33,7 @@ class WpMenuCache
             add_filter('sb_optimizer_menu_cache_disabled_for_unauthenticated_users', '__return_true');
         }
         add_action('init', __NAMESPACE__ . '\\MenuCache::cacheInit');
-        add_action('admin_init', __NAMESPACE__ . '\\MenuCache::cacheInit');
+        add_action('admin_init', __NAMESPACE__ . '\\MenuCache::cachePurgeInit');
     }
 
     /**
