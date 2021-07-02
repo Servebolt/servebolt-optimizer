@@ -135,7 +135,7 @@ class PrefetchingControl
     {
         // TODO: Fix multisite setup menu for prefetching
         // TODO: Fix script for prefetching in multisite
-        if (!isScreen('servebolt_page_servebolt-prefetching')) {
+        if (!isScreen('admin_page_servebolt-prefetching')) {
             return;
         }
         wp_enqueue_script(

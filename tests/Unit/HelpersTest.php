@@ -90,7 +90,8 @@ class HelpersTest extends ServeboltWPUnitTestCase
             return __DIR__ . '/ViewsForTest/';
         });
         $arguments = [
-            'lorem' => true
+            'lorem' => true,
+            'ipsum' => false,
         ];
         $output = view('test', $arguments, false);
         $this->assertEquals(json_encode($arguments), $output);

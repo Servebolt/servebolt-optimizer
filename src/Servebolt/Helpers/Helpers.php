@@ -32,7 +32,6 @@ function view(string $templatePath, array $arguments = [], bool $echo = true): ?
 {
     if ($filePath = resolveViewPath($templatePath)) {
         extract($arguments, EXTR_SKIP);
-        $settings = $arguments;
         if (!$echo) {
             ob_start();
         }

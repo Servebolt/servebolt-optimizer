@@ -1,2 +1,2 @@
 <?php
-echo json_encode($settings);
+echo json_encode(compact('lorem', 'ipsum'));
