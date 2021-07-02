@@ -4,10 +4,10 @@ namespace Unit;
 
 use DOMDocument;
 use WP_UnitTestCase;
+use Servebolt\AllowSvgUploads;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageResize;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
-use function Servebolt\Optimizer\Helpers\wpDirectFilesystem;
 
 class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
 {
@@ -175,9 +175,28 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
         }
     }
 
-    public function testThatSvgFilesAreIgnored()
+    public function testThatSvgFilesAreIgnored(): void
     {
         if ($attachmentId = $this->createAttachment('apache.svg')) {
+            $image = $this->getImageMarkupDom($attachmentId);
+            if (!$image) {
+                $this->fail('Could not select image in markup string.');
+                return;
+            }
+            $this->assertNotContains('/acd-cgi/img/v1/', $image->getAttribute('src'));
+            $this->assertNotContains('/acd-cgi/img/v1', $image->getAttribute('srcset')); // Cannot get srcset-for some reason
+            $this->deleteAttachment($attachmentId);
+        }
+    }
+
+    public function testThatSvgFilesWithWrongMimeTypeAreIgnored(): void
+    {
+        if ($attachmentId = $this->createAttachment('apache.svg')) {
+            // Simulate a SVG-file with wrong MIME-type
+            wp_update_post([
+                'ID' => $attachmentId,
+                'post_mime_type' => 'image/jpeg'
+            ]);
             $image = $this->getImageMarkupDom($attachmentId);
             if (!$image) {
                 $this->fail('Could not select image in markup string.');
@@ -220,6 +239,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
      */
     private function createAttachment(string $filename)
     {
+        AllowSvgUploads::allow();
         $filePath = trailingslashit(__DIR__) . 'Files/' . $filename;
         if (!file_exists($filePath)) {
             return false; // Test file does not exists
@@ -235,6 +255,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
             'name' => $filename,
             'tmp_name' => $tempFilePath,
         ]);
+        AllowSvgUploads::disallow();
 
         if (is_wp_error($attachmentId)) {
             $this->fail('Could not upload test-attachment.');
