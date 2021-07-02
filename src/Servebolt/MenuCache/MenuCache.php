@@ -5,7 +5,6 @@ namespace Servebolt\Optimizer\MenuCache;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\isDevDebug;
-use function Servebolt\Optimizer\Helpers\isFrontEnd;
 
 /**
  * Class MenuCache
@@ -33,7 +32,7 @@ class MenuCache
      *
      * @var int
      */
-    private static $transientVersion = 1111;
+    private static $transientVersion = '1.0';
 
     /**
      * Whether to return the cached version of menus (should always be true, unless you're debugging).
@@ -61,16 +60,22 @@ class MenuCache
      */
     public static function init()
     {
-        add_action('init', function() {
-            if (self::shouldReturnCachedMenu()) {
-                self::returnCachedMenuIfCached();
-            }
-        });
-        add_action('admin_init', function() {
-            if (apply_filters('sb_optimizer_menu_cache_automatic_purge_enabled', true)) {
-                add_action('wp_update_nav_menu', __CLASS__ . '::purgeMenuCache', 10, 2);
-            }
-        });
+        self::cacheInit();
+        self::cachePurgeInit();
+    }
+
+    public static function cacheInit(): void
+    {
+        if (self::shouldReturnCachedMenu()) {
+            self::returnCachedMenuIfCached();
+        }
+    }
+
+    public static function cachePurgeInit(): void
+    {
+        if (apply_filters('sb_optimizer_menu_cache_automatic_purge_enabled', true)) {
+            add_action('wp_update_nav_menu', __CLASS__ . '::purgeMenuCache', 10, 2);
+        }
     }
 
     /**
@@ -80,13 +85,10 @@ class MenuCache
      */
     private static function shouldReturnCachedMenu(): bool
     {
-        if (isFrontEnd()) {
-            if (apply_filters('sb_optimizer_menu_cache_disabled_for_unauthenticated_users', false)) {
-                return !is_user_logged_in();
-            }
-            return true;
+        if (apply_filters('sb_optimizer_menu_cache_disabled_for_unauthenticated_users', false)) {
+            return !is_user_logged_in();
         }
-        return false;
+        return true;
     }
 
     /**
@@ -195,7 +197,7 @@ class MenuCache
      * @param $args
      * @return mixed|string
      */
-    private function cacheAndReturnMenu($args)
+    private static function cacheAndReturnMenu($args)
     {
         self::preWpNavMenuOff();
         $ourArgs = clone $args;
@@ -203,10 +205,13 @@ class MenuCache
         self::wpNavMenuOn();
         $output = wp_nav_menu($ourArgs);
         $navMenuArgs = self::getNavMenuArgs();
-        self::addMenuSignatureToMenuSignatureIndex(self::$menuMarkupTransientKey, $navMenuArgs);
-        set_transient(self::$menuMarkupTransientKey, $output);
-        self::preWpNavMenuOn();
-        return self::returnNewlyCachedOutput($output);
+        if ($navMenuArgs) {
+            self::addMenuSignatureToMenuSignatureIndex(self::$menuMarkupTransientKey, $navMenuArgs);
+            set_transient(self::$menuMarkupTransientKey, $output);
+            self::preWpNavMenuOn();
+            return self::returnNewlyCachedOutput($output);
+        }
+        return $output;
     }
 
     /**

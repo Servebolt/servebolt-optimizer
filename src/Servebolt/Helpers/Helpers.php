@@ -896,7 +896,7 @@ function formatArrayToCsv($array, $glue = ','): string
  */
 function isDevDebug(): bool
 {
-    return ( defined('SB_DEBUG') && SB_DEBUG === true ) || ( array_key_exists('debug', $_GET ) );
+    return apply_filters('sb_optimizer_is_dev_debug', (defined('SB_DEBUG') && SB_DEBUG === true) || (array_key_exists('debug', $_GET)));
 }
 
 /**
