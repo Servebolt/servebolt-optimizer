@@ -9,6 +9,7 @@ use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\AcceleratedDomainsI
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\DatabaseOptimizations;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\PrefetchingControl;
+use Servebolt\Optimizer\Admin\PerformanceOptimizer\MenuCacheControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\FullPageCacheControl;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
@@ -143,7 +144,6 @@ class AdminGuiController
     {
         $this->cachePurgeMenu();
         $this->cfImageResizeMenu();
-        $this->prefetchingMenu();
         if (isHostedAtServebolt()) {
             $this->acceleratedDomainsMenu();
             $this->cacheSettingsMenu();
@@ -229,19 +229,6 @@ class AdminGuiController
     }
 
     /**
-     * Register prefetch feature settings menu item.
-     */
-    private function prefetchingMenu(): void
-    {
-        // TODO: Fix this so that it works well with both single and multisite
-        if (is_network_admin()) {
-            add_submenu_page('servebolt-wp', __('Prefetching', 'servebolt-wp'), __('Prefetching', 'servebolt-wp'), 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
-        } else {
-            add_submenu_page(null, null, null, 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
-        }
-    }
-
-    /**
      * Register error log menu item.
      */
     private function errorLogMenu(): void
@@ -265,6 +252,8 @@ class AdminGuiController
         add_submenu_page('servebolt-wp', __('Performance optimizer', 'servebolt-wp'), __('Performance optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-optimizer', [PerformanceOptimizer::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-advanced', [PerformanceOptimizerAdvanced::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-database', [DatabaseOptimizations::getInstance(), 'render']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-menu-cache', [MenuCacheControl::getInstance(), 'render']);
 
         // Legacy redirect
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-tools', [$this, 'performanceOptimizerLegacyRedirect']);

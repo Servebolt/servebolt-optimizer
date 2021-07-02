@@ -437,6 +437,10 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'acd_img_resize_upscale',
         'acd_img_resize_size_index',
 
+        // Menu cache feature
+        'menu_cache_switch',
+        'menu_cache_only_authenticated_switch',
+
         // Wipe SB FPC-related options
         'fpc_switch',
         'fpc_settings',

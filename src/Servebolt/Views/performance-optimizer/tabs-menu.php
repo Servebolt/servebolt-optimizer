@@ -21,10 +21,17 @@
         'title' => 'Prefetching',
     ];
     $tabs[] = [
+        'id' => 'servebolt-menu-cache',
+        'url' => $urlMethod('admin.php?page=servebolt-menu-cache'),
+        'title' => 'Menu Cache',
+    ];
+    /*
+    $tabs[] = [
         'id' => 'servebolt-performance-optimizer-advanced',
         'url' => $urlMethod('admin.php?page=servebolt-performance-optimizer-advanced'),
         'title' => 'Advanced',
     ];
+    */
     $defaultTab = current($tabs)['id'];
     $selectedTab = isset($selectedTab) ? $selectedTab : $defaultTab;
     view('general.tabs', compact('tabs', 'selectedTab'));

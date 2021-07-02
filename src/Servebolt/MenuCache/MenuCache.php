@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\MenuCache;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use function Servebolt\Optimizer\Helpers\isDevDebug;
 use function Servebolt\Optimizer\Helpers\isFrontEnd;
 
 /**
@@ -130,22 +131,26 @@ class MenuCache
     private static function returnCachedOutput($output)
     {
         if (apply_filters('sb_optimizer_menu_cache_print_cached_comment', false)) {
-            //$output .= '<h1>This menu is cached</h1>' . PHP_EOL;
+            if (isDevDebug()) {
+                $output .= '<h1>This menu is cached</h1>' . PHP_EOL;
+            }
             $output .= '<!-- This menu is cached by Servebolt Optimizer -->' . PHP_EOL;
         }
         return $output;
     }
 
     /**
-     * Return the uncached output.
+     * Return the newly cached output.
      *
      * @param $output
      * @return mixed|string
      */
-    private static function returnUncachedOutput($output)
+    private static function returnNewlyCachedOutput($output)
     {
         if (apply_filters('sb_optimizer_menu_cache_print_cached_comment', false)) {
-            //$output .= '<h1>This menu was just cached</h1>' . PHP_EOL;
+            if (isDevDebug()) {
+                $output .= '<h1>This menu was just cached</h1>' . PHP_EOL;
+            }
             $output .= '<!-- This menu was just cached by Servebolt Optimizer -->' . PHP_EOL;
         }
         return $output;
@@ -201,7 +206,7 @@ class MenuCache
         self::addMenuSignatureToMenuSignatureIndex(self::$menuMarkupTransientKey, $navMenuArgs);
         set_transient(self::$menuMarkupTransientKey, $output);
         self::preWpNavMenuOn();
-        return self::returnUncachedOutput($output);
+        return self::returnNewlyCachedOutput($output);
     }
 
     /**
