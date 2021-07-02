@@ -55,7 +55,6 @@ trait PostMethods
         if (!$postId || wp_is_post_revision($postId)) {
             return false;
         }
-
         if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
             $queueInstance = WpObjectQueue::getInstance();
             $queueItemData = [
