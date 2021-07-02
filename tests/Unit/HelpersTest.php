@@ -62,6 +62,7 @@ use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\updateSiteOption;
 use function Servebolt\Optimizer\Helpers\view;
+use function Servebolt\Optimizer\Helpers\writeLog;
 
 class HelpersTest extends ServeboltWPUnitTestCase
 {
@@ -72,6 +73,15 @@ class HelpersTest extends ServeboltWPUnitTestCase
         if (!defined('SB_DEBUG')) {
             define('SB_DEBUG', true);
         }
+    }
+
+    public function testWriteToLog()
+    {
+        $errorMessage = 'error-message-' . uniqid();
+        $errorFilePath = ini_get('error_log');
+        $this->assertNotContains($errorMessage, exec('tail -n 1 ' . $errorFilePath));
+        writeLog($errorMessage);
+        $this->assertContains($errorMessage, exec('tail -n 1 ' . $errorFilePath));
     }
 
     public function testThatViewIsIncludedAndThatArgumentsAreAvailable()
