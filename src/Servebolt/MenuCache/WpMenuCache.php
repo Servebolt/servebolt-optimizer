@@ -2,11 +2,11 @@
 
 namespace Servebolt\Optimizer\MenuCache;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
-
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class MenuCache

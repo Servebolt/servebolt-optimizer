@@ -130,8 +130,8 @@ class MenuCache
     private static function returnCachedOutput($output)
     {
         if (apply_filters('sb_optimizer_menu_cache_print_cached_comment', false)) {
-            //$output = '<h1>This menu is cached</h1>' . PHP_EOL . $output;
-            $output = '<!-- This menu is cached by Servebolt Optimizer -->' . PHP_EOL . $output;
+            //$output .= '<h1>This menu is cached</h1>' . PHP_EOL;
+            $output .= '<!-- This menu is cached by Servebolt Optimizer -->' . PHP_EOL;
         }
         return $output;
     }
@@ -145,8 +145,8 @@ class MenuCache
     private static function returnUncachedOutput($output)
     {
         if (apply_filters('sb_optimizer_menu_cache_print_cached_comment', false)) {
-            //$output = '<h1>This menu was just cached</h1>' . PHP_EOL . $output;
-            $output = '<!-- This menu was just cached by Servebolt Optimizer -->' . PHP_EOL . $output;
+            //$output .= '<h1>This menu was just cached</h1>' . PHP_EOL;
+            $output .= '<!-- This menu was just cached by Servebolt Optimizer -->' . PHP_EOL;
         }
         return $output;
     }
