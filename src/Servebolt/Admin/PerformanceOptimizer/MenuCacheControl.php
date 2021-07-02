@@ -113,7 +113,7 @@ class MenuCacheControl
     {
         return [
             'menu_cache_switch',
-            'menu_cache_only_authenticated_switch',
+            'menu_cache_disabled_for_authenticated_switch',
         ];
     }
 }

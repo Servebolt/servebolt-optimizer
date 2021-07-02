@@ -29,13 +29,15 @@ class WpMenuCache
      */
     public function __construct()
     {
-        if (self::onlyForAuthenticatedUsers()) {
-            add_filter('sb_optimizer_menu_cache_only_for_unauthenticated_users', '__return_true');
+        if (self::disabledForAuthenticatedUsers()) {
+            add_filter('sb_optimizer_menu_cache_disabled_for_unauthenticated_users', '__return_true');
         }
         MenuCache::init();
     }
 
     /**
+     * Check if feature is active.
+     *
      * @param int|null $blogId
      * @return bool
      */
@@ -45,11 +47,13 @@ class WpMenuCache
     }
 
     /**
+     * Check if we should only cache for authenticated users.
+     *
      * @param int|null $blogId
      * @return bool
      */
-    public static function onlyForAuthenticatedUsers(?int $blogId = null): bool
+    public static function disabledForAuthenticatedUsers(?int $blogId = null): bool
     {
-        return checkboxIsChecked(smartGetOption($blogId, 'menu_cache_only_authenticated_switch'));
+        return checkboxIsChecked(smartGetOption($blogId, 'menu_cache_disabled_for_authenticated_switch'));
     }
 }

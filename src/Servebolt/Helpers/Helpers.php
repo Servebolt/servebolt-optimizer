@@ -439,7 +439,7 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
 
         // Menu cache feature
         'menu_cache_switch',
-        'menu_cache_only_authenticated_switch',
+        'menu_cache_disabled_for_authenticated_switch',
 
         // Wipe SB FPC-related options
         'fpc_switch',

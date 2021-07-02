@@ -81,7 +81,7 @@ class MenuCache
     private static function shouldReturnCachedMenu(): bool
     {
         if (isFrontEnd()) {
-            if (apply_filters('sb_optimizer_menu_cache_only_for_unauthenticated_users', false)) {
+            if (apply_filters('sb_optimizer_menu_cache_disabled_for_unauthenticated_users', false)) {
                 return !is_user_logged_in();
             }
             return true;
