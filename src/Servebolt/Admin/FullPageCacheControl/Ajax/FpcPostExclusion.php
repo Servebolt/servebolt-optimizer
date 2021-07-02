@@ -11,6 +11,7 @@ use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 use function Servebolt\Optimizer\Helpers\createLiTagsFromArray;
 use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup;
+use function Servebolt\Optimizer\Helpers\postExists;
 
 /**
  * Class FpcPostExclusion
@@ -50,12 +51,17 @@ class FpcPostExclusion extends SharedAjaxMethods
         $itemsToRemove = array_filter($itemsToRemove, function ($item) {
             return is_numeric($item);
         });
+        foreach ($itemsToRemove as $itemToRemove) {
+            if (postExists($itemToRemove)) {
+                do_action('sb_optimizer_post_removed_from_fpc_exclusion', $itemToRemove);
+            }
+        }
         $currentItems = CachePostExclusion::getIdsToExcludeFromCache();
         if (!is_array($currentItems)) {
             $currentItems = [];
         }
         $updatedItems = array_filter($currentItems, function($item) use ($itemsToRemove) {
-            return ! in_array($item, $itemsToRemove);
+            return !in_array($item, $itemsToRemove);
         });
         CachePostExclusion::setIdsToExcludeFromCache($updatedItems);
         wp_send_json_success();
@@ -88,7 +94,7 @@ class FpcPostExclusion extends SharedAjaxMethods
 
         foreach ($postIds as $postId) {
 
-            if ( ! is_numeric($postId) || ! $post = get_post($postId) ) {
+            if (!is_numeric($postId) || !$post = get_post($postId)) {
                 $invalid[] = $postId;
                 continue;
             }
@@ -100,6 +106,7 @@ class FpcPostExclusion extends SharedAjaxMethods
             }
 
             if (CachePostExclusion::excludePostFromCache($postId)) {
+                do_action('sb_optimizer_post_added_to_fpc_exclusion', $post);
                 $newMarkup .= fpcExcludePostTableRowMarkup($postId, false);
                 $success[] = $postId;
                 $added[] = $postId;
@@ -112,8 +119,8 @@ class FpcPostExclusion extends SharedAjaxMethods
         $gotSuccess = count($success);
         $hasInvalid = count($invalid) > 0;
         $hasFailed  = count($failed) > 0;
-        $hasInvalidOnly = ! $gotSuccess && $hasInvalid && ! $hasFailed;
-        $hasFailedOnly = ! $gotSuccess && $hasFailed && ! $hasInvalid;
+        $hasInvalidOnly = !$gotSuccess && $hasInvalid && !$hasFailed;
+        $hasFailedOnly = !$gotSuccess && $hasFailed && !$hasInvalid;
 
         $type = 'success';
         $title = __('All good', 'servebolt-wp');

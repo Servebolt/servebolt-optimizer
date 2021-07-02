@@ -69,4 +69,9 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
         $this->assertContains('Cache-Control: max-age=0,no-cache,s-maxage=0', $headers);
         $this->assertContains('Pragma: no-cache', $headers);
     }
+
+    public function testThatPostGetsCachePurgedWhenAddedToFpcExclusion()
+    {
+
+    }
 }
