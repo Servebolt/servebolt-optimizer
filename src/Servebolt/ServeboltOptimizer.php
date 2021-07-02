@@ -65,7 +65,7 @@ class ServeboltOptimizer
         // Make sure we don't store certain options (like API credentials) in clear text.
         new OptionEncryption;
 
-        if (isFrontEnd() && WpMenuCache::isActive()) {
+        if (WpMenuCache::isActive()) {
             WpMenuCache::init();
         }
 

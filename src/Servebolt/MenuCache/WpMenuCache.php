@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+use function Servebolt\Optimizer\Helpers\isFrontEnd;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 
 /**
@@ -32,7 +33,9 @@ class WpMenuCache
         if (self::disabledForAuthenticatedUsers()) {
             add_filter('sb_optimizer_menu_cache_disabled_for_unauthenticated_users', '__return_true');
         }
-        add_action('init', __NAMESPACE__ . '\\MenuCache::cacheInit');
+        if (isFrontEnd()) {
+            add_action('init', __NAMESPACE__ . '\\MenuCache::cacheInit');
+        }
         add_action('admin_init', __NAMESPACE__ . '\\MenuCache::cachePurgeInit');
     }
 
