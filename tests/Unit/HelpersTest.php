@@ -513,7 +513,18 @@ class HelpersTest extends ServeboltWPUnitTestCase
         deleteAllSettings(true, true);
         iterateSites(function ($site) use ($allOptionsNames) {
             foreach ($allOptionsNames as $option) {
-                $this->assertNull(getBlogOption($site->blog_id, $option));
+                $value = getBlogOption($site->blog_id, $option);
+                switch ($option) {
+                    // Default options
+                    case 'prefetch_file_style_switch':
+                    case 'prefetch_file_script_switch':
+                    case 'prefetch_file_menu_switch':
+                        $this->assertTrue($value);
+                        break;
+                    default:
+                        $this->assertNull($value);
+                        break;
+                }
             }
         });
     }
