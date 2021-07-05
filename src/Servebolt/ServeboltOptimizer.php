@@ -9,6 +9,7 @@ use Servebolt\Optimizer\Compatibility\Compatibility as PluginCompatibility;
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
+use Servebolt\Optimizer\TextDomainLoader\WpTextDomainLoader;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use Servebolt\Optimizer\Utils\Crypto\OptionEncryption;
 use Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
@@ -80,6 +81,11 @@ class ServeboltOptimizer
         // Prefetching feature init
         if (featureIsAvailable('prefetching')) {
             new WpPrefetching;
+        }
+
+        // Prefetching feature init
+        if (featureIsAvailable('custom_text_domain_loader')) {
+            new WpTextDomainLoader;
         }
 
         // Queue system

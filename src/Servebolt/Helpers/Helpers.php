@@ -741,6 +741,8 @@ function formatPostTypeSlug(string $postType): string
 function featureIsAvailable(string $feature): ?bool
 {
     switch ($feature) {
+        case 'custom_text_domain_loader':
+            return true;
         case 'prefetching':
             return true;
         case 'cf_image_resize':
