@@ -4,6 +4,8 @@ namespace Servebolt\Optimizer\TextDomainLoader;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use MO;
+
 /**
  * Class TextDomainLoader
  * @package Servebolt\Optimizer\TextDomainLoader
@@ -18,7 +20,7 @@ class TextDomainLoader
      * @param string $moFile
      * @return bool
      */
-    public static function aFasterLoadTextdomain(bool $returnValue, string $domain, string $moFile): bool
+    public static function aFasterLoadTextDomain(bool $returnValue, string $domain, string $moFile): bool
     {
         global $l10n;
 
@@ -26,7 +28,8 @@ class TextDomainLoader
             return false;
         }
 
-        $data = get_transient(md5($moFile));
+        $transientKey = md5($moFile);
+        $data = get_transient($transientKey);
         $mtime = filemtime($moFile);
 
         $mo = new MO();
@@ -39,7 +42,7 @@ class TextDomainLoader
                 'entries' => $mo->entries,
                 'headers' => $mo->headers
             ];
-            set_transient(md5($moFile), $data);
+            set_transient($transientKey, $data);
         } else {
             $mo->entries = $data['entries'];
             $mo->headers = $data['headers'];

@@ -397,6 +397,16 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         // CF Image resizing
         'cf_image_resizing',
 
+        // Advanced performance optimizations
+        'custom_text_domain_loader_switch',
+
+        // Prefetching
+        'prefetch_switch',
+        'prefetch_file_style_switch',
+        'prefetch_file_script_switch',
+        'prefetch_file_menu_switch',
+        'prefetch_max_number_of_lines',
+
         // Wipe Cache purge-related options
         'cache_purge_switch',
         'cache_purge_auto',

@@ -20,7 +20,7 @@ class WpTextDomainLoader extends TextDomainLoader
     public function __construct()
     {
         if (self::isActive()) {
-            add_filter('override_load_textdomain', __CLASS__ . '::aFasterLoadTextdomain', 1, 3);
+            add_filter('override_load_textdomain', __CLASS__ . '::aFasterLoadTextDomain', 1, 3);
         }
     }
 
@@ -32,6 +32,6 @@ class WpTextDomainLoader extends TextDomainLoader
      */
     public static function isActive(?int $blogId = null): bool
     {
-        return checkboxIsChecked(smartGetOption($blogId, 'custom_textdomain_loader_switch'));
+        return checkboxIsChecked(smartGetOption($blogId, 'custom_text_domain_loader_switch'));
     }
 }
