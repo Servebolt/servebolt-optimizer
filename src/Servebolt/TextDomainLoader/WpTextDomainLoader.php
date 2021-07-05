@@ -2,10 +2,10 @@
 
 namespace Servebolt\Optimizer\TextDomainLoader;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
-
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class WpTextDomainLoader
