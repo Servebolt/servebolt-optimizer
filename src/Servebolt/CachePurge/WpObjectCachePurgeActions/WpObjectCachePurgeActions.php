@@ -24,6 +24,6 @@ class WpObjectCachePurgeActions
 
         ContentChangeTrigger::getInstance();
         SlugChangeTrigger::getInstance();
-        PostDeletionCacheTrigger::getInstance();
+        DeletionCacheTrigger::getInstance();
     }
 }

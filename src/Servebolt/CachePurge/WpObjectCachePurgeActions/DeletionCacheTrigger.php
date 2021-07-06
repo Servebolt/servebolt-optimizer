@@ -9,27 +9,41 @@ use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Traits\Singleton;
 
 /**
- * Class PostDeletionCacheTrigger
+ * Class DeletionCacheTrigger
  * @package Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions
  */
-class PostDeletionCacheTrigger
+class DeletionCacheTrigger
 {
     use Singleton;
 
     /**
-     * PostDeletionCacheTrigger constructor.
+     * DeletionCacheTrigger constructor.
      */
     public function __construct()
     {
-        // Skip this feature if the cache purge feature is inactive or insufficiently configured, or it automatic cache purge is inactive
+        // Skip this feature if automatic cache purge for deletion is inactive
         if (!CachePurge::automaticCachePurgeOnDeletionIsActive()) {
             return;
         }
 
-        // Purge post on post delete
+        // Purge on term delete
+        if (apply_filters('sb_optimizer_automatic_purge_on_term_delete', true)) {
+            // TODO: Find term deletion action
+        }
+
+        // Purge on attachment delete
+        if (apply_filters('sb_optimizer_automatic_purge_on_attachment_delete', true)) {
+                //add_action('pre_delete_attachment');
+        }
+
+        // Purge on post delete
         if (apply_filters('sb_optimizer_automatic_purge_on_post_delete', true)) {
-            add_action('delete_post', [$this, 'postDeleted'], 10, 1);
-            add_action('trashed_post', [$this, 'postDeleted'], 10, 1);
+
+            // Post gets trashed
+            add_action('wp_trash_post', [$this, 'postDeleted'], 10, 1);
+
+            // Post gets deleted
+            add_action('before_delete_post', [$this, 'postDeleted'], 10, 1);
         }
     }
 
