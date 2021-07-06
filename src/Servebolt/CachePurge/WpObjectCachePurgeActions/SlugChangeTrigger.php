@@ -37,8 +37,8 @@ class SlugChangeTrigger
     private function registerPurgeActions()
     {
 
-        // Skip this feature if the cache purge feature is inactive or insufficiently configured, or it automatic cache purge is inactive
-        if (!CachePurge::featureIsAvailable() || !CachePurge::automaticCachePurgeOnContentUpdateIsActive()) {
+        // Skip this feature if automatic cache purge on slug change is inactive
+        if (!CachePurge::automaticCachePurgeOnSlugChangeIsActive()) {
             return;
         }
 

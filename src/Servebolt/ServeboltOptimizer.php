@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\CachePurge\WpCachePurge;
 use Servebolt\Optimizer\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Compatibility\Compatibility as PluginCompatibility;
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
@@ -16,7 +17,6 @@ use Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Queue\QueueEventHandler;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
-use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\WpObjectCachePurgeActions;
 use Servebolt\Optimizer\Admin\AdminBarGUI\AdminBarGUI;
 use Servebolt\Optimizer\Admin\Assets as AdminAssets;
 use Servebolt\Optimizer\Admin\AdminGuiController;
@@ -26,9 +26,7 @@ use Servebolt\Optimizer\PluginActiveStateHandling\PluginActiveStateHandling;
 
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isCli;
-use function Servebolt\Optimizer\Helpers\isCron;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
-use function Servebolt\Optimizer\Helpers\isWpRest;
 use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\isFrontEnd;
 use function Servebolt\Optimizer\Helpers\featureIsActive;
@@ -95,16 +93,8 @@ class ServeboltOptimizer
         new WpCronCustomSchedules; // Register cron schedule
         new WpCronEvents; // Register event trigger for cron schedule
 
-        if (
-            is_admin()
-            || isCron()
-            || isCli()
-            || isWpRest()
-            || isTesting()
-        ) {
-            // Register cache purge event for various hooks
-            new WpObjectCachePurgeActions;
-        }
+        // Init cache purging
+        new WpCachePurge;
 
         // Load this admin bar interface
         AdminBarGUI::init();

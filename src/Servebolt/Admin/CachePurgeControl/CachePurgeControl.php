@@ -135,11 +135,11 @@ class CachePurgeControl
         $cfZones = $this->getCfZones($settings);
         $cachePurgeIsActive = CachePurge::isActive();
         $automaticCachePurgeOnContentUpdateIsActive = CachePurge::automaticCachePurgeOnContentUpdateIsActive();
-        $autoCachePurgeIsActive = CachePurge::automaticCachePurgeOnContentUpdateIsActive();
+        $automaticCachePurgeOnSlugChangeIsActive = CachePurge::automaticCachePurgeOnSlugChangeIsActive();
+        $automaticCachePurgeOnDeletionIsActive = CachePurge::automaticCachePurgeOnDeletionIsActive();
         $acdLock = CachePurge::cachePurgeIsLockedTo('acd');
         $queueBasedCachePurgeActiveStateIsOverridden = CachePurge::queueBasedCachePurgeActiveStateIsOverridden();
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
-        //$maxNumberOfCachePurgeQueueItems = $this->maxNumberOfCachePurgeQueueItems();
 
         view(
             'cache-settings.cache-purge.cache-purge',
@@ -150,20 +150,14 @@ class CachePurgeControl
                 'selectedCfZone',
                 'cfZones',
                 'cachePurgeIsActive',
-                'autoCachePurgeIsActive',
+                'automaticCachePurgeOnContentUpdateIsActive',
+                'automaticCachePurgeOnSlugChangeIsActive',
+                'automaticCachePurgeOnDeletionIsActive',
                 'queueBasedCachePurgeActiveStateIsOverridden',
                 'queueBasedCachePurgeIsActive',
                 'acdLock',
-                //'maxNumberOfCachePurgeQueueItems',
             ])
         );
-        /*
-        $numberOfCachePurgeQueueItems = sb_cf_cache()->countItemsToPurge();
-        Helpers\view('cache-purge/cache-purge', compact(
-            'maxNumberOfCachePurgeQueueItems',
-            'numberOfCachePurgeQueueItems'
-        ));
-        */
     }
 
     /**
@@ -344,6 +338,8 @@ class CachePurgeControl
         return [
             'cache_purge_switch',
             'cache_purge_auto',
+            'cache_purge_auto_on_slug_change',
+            'cache_purge_auto_on_deletion',
             'cache_purge_driver',
             'cf_zone_id',
             'cf_auth_type',

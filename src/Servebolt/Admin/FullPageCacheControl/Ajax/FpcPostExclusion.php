@@ -109,7 +109,7 @@ class FpcPostExclusion extends SharedAjaxMethods
 
     /**
      * Add post IDs to be excluded from FPC.
-     * 
+     *
      * @param $postIds
      * @return array
      */
