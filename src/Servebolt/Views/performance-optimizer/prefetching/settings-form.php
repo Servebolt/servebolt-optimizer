@@ -46,7 +46,7 @@
             <tr>
                 <th scope="row"><label for="prefetch_max_number_of_lines"><?php _e('Max number of lines', 'servebolt-wp'); ?></label></th>
                 <td>
-                    <input type="number" name="<?php echo getOptionName('prefetch_max_number_of_lines'); ?>" min="1" id="prefetch_max_number_of_lines" value="<?php echo esc_attr($settings['prefetch_max_number_of_lines']); ?>" class="regular-text">
+                    <input type="number" name="<?php echo getOptionName('prefetch_max_number_of_lines'); ?>" min="1" id="prefetch_max_number_of_lines" placeholder="Default: <?php echo esc_attr($defaultMaxNumberOfLines); ?>" value="<?php echo esc_attr($settings['prefetch_max_number_of_lines']); ?>" class="regular-text">
                     <label for="<?php echo getOptionName('prefetch_max_number_of_lines'); ?>">
                         <p><?php _e('Use this field to limit the number of lines in the prefetch files. This can be useful for example if the website has a large amount of menu items.', 'servebolt-wp'); ?></p>
                     </label>

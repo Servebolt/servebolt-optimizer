@@ -14,6 +14,14 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
  */
 class WpPrefetching extends Prefetching
 {
+
+    /**
+     * Default max number of lines in a manifest file.
+     *
+     * @var int
+     */
+    public static $defaultMaxNumberOfLines = 100;
+
     /**
      * Prefetching constructor.
      */
@@ -113,11 +121,27 @@ class WpPrefetching extends Prefetching
      * Check if we have set a limitation for the number of lines per manifest file.
      *
      * @param int|null $blogId
-     * @return string|int|null
+     * @return null|int
      */
-    public static function getMaxNumberOfLines(?int $blogId = null)
+    public static function getMaxNumberOfLines(?int $blogId = null): ?int
     {
-        return smartGetOption($blogId, 'prefetch_max_number_of_lines', null);
+        $maxNumberOfLines = smartGetOption($blogId, 'prefetch_max_number_of_lines');
+        if (is_numeric($maxNumberOfLines)) {
+            $maxNumberOfLines = (int) $maxNumberOfLines;
+        } else {
+            $maxNumberOfLines = self::getDefaultMaxNumberOfLines();
+        }
+        return apply_filters('sb_optimizer_prefetcht_max_number_of_lines', $maxNumberOfLines);
+    }
+
+    /**
+     * Get default number of lines for each prefetch manifest file.
+     *
+     * @return null|int
+     */
+    public static function getDefaultMaxNumberOfLines(): ?int
+    {
+        return apply_filters('sb_optimizer_prefetch_default_max_number_of_lines', self::$defaultMaxNumberOfLines);
     }
 
     /**
