@@ -69,7 +69,8 @@ class PrefetchingControl
     public function render(): void
     {
         $settings = $this->getSettingsItemsWithValues();
-        view('performance-optimizer.prefetching.prefetching', compact('settings'));
+        $defaultMaxNumberOfLines = WpPrefetching::$defaultMaxNumberOfLines;
+        view('performance-optimizer.prefetching.prefetching', compact('settings', 'defaultMaxNumberOfLines'));
     }
 
     private function initSettings(): void

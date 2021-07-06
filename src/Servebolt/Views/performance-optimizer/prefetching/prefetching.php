@@ -9,6 +9,6 @@
     <?php if (is_network_admin()) : ?>
         <?php view('performance-optimizer.prefetching.network-list-view'); ?>
     <?php else : ?>
-        <?php view('performance-optimizer.prefetching.settings-form', compact('settings')); ?>
+        <?php view('performance-optimizer.prefetching.settings-form', compact('settings', 'defaultMaxNumberOfLines')); ?>
     <?php endif; ?>
 </div>
