@@ -50,13 +50,26 @@ Keep in mind that purging the entire cache has a temporary impact on the loading
             </tr>
 
             <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
-                <th scope="row"><?php _e('Automatic purge on content update', 'servebolt-wp'); ?></th>
+                <th scope="row"><?php _e('Automatic purge on update', 'servebolt-wp'); ?></th>
                 <td>
+
                     <fieldset>
-                        <legend class="screen-reader-text"><span><?php _e('Automatic cache purge on content update', 'servebolt-wp'); ?></span></legend>
+                        <legend class="screen-reader-text"><span><?php _e('Automatic cache purge on post/term content update', 'servebolt-wp'); ?></span></legend>
                         <label for="cache_purge_auto">
-                            <input name="<?php echo getOptionName('cache_purge_auto'); ?>" type="checkbox" id="cache_purge_auto" value="1" <?php checked($autoCachePurgeIsActive); ?>>
-                            <?php _e('Enabled', 'servebolt-wp'); ?>
+                            <input name="<?php echo getOptionName('cache_purge_auto'); ?>" type="checkbox" id="cache_purge_auto" value="1" <?php checked($automaticCachePurgeOnContentUpdateIsActive); ?>>
+                            <?php _e('On post/term content update', 'servebolt-wp'); ?>
+                        </label><br>
+
+                        <legend class="screen-reader-text"><span><?php _e('Automatic cache purge on post/term deletion', 'servebolt-wp'); ?></span></legend>
+                        <label for="cache_purge_auto_on_deletion">
+                            <input name="<?php echo getOptionName('cache_purge_auto_on_deletion'); ?>" type="checkbox" id="cache_purge_auto_on_deletion" value="1" <?php checked($automaticCachePurgeOnDeletionIsActive); ?>>
+                            <?php _e('On post/term deletion', 'servebolt-wp'); ?>
+                        </label><br>
+
+                        <legend class="screen-reader-text"><span><?php _e('Automatic cache purge on post/term slug/permalink change', 'servebolt-wp'); ?></span></legend>
+                        <label for="cache_purge_auto_on_slug_change">
+                            <input name="<?php echo getOptionName('cache_purge_auto_on_slug_change'); ?>" type="checkbox" id="cache_purge_auto_on_slug_change" value="1" <?php checked($automaticCachePurgeOnSlugChangeIsActive); ?>>
+                            <?php _e('On slug/permalink change', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
                 </td>

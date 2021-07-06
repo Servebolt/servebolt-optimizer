@@ -410,6 +410,8 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         // Wipe Cache purge-related options
         'cache_purge_switch',
         'cache_purge_auto',
+        'cache_purge_auto_on_slug_change',
+        'cache_purge_auto_on_deletion',
         'cache_purge_driver',
         'cf_switch',
         'cf_zone_id',
