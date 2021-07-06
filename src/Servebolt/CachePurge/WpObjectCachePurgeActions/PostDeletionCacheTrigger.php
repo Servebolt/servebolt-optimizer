@@ -22,7 +22,7 @@ class PostDeletionCacheTrigger
     public function __construct()
     {
         // Skip this feature if the cache purge feature is inactive or insufficiently configured, or it automatic cache purge is inactive
-        if (!CachePurge::automaticCachePurgeOnSlugChangeIsActive()) {
+        if (!CachePurge::automaticCachePurgeOnDeletionIsActive()) {
             return;
         }
 
