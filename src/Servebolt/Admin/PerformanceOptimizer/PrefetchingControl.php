@@ -94,6 +94,11 @@ class PrefetchingControl
         listenForOptionChange('prefetch_max_number_of_lines', function ($newValue, $oldValue, $optionName) {
             $this->refreshManifestFiles();
         });
+
+        listenForCheckboxOptionChange('prefetch_full_url_switch', function ($wasActive, $isActive, $optionName) {
+            $this->refreshManifestFiles();
+        });
+
         listenForCheckboxOptionChange([
             'prefetch_file_style_switch',
             'prefetch_file_script_switch',
@@ -112,7 +117,7 @@ class PrefetchingControl
      */
     private function refreshManifestFiles(): void
     {
-        $callback = __NAMESPACE__ . '\\WpPrefetching::recordPrefetchItems';
+        $callback = 'Servebolt\\Optimizer\\Prefetching\\WpPrefetching::recordPrefetchItems';
         if (!has_action('shutdown', $callback)) {
             WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
             add_action('shutdown', $callback);
@@ -186,6 +191,7 @@ class PrefetchingControl
             'prefetch_file_style_switch',
             'prefetch_file_script_switch',
             'prefetch_file_menu_switch',
+            'prefetch_full_url_switch',
             'prefetch_max_number_of_lines',
         ];
     }

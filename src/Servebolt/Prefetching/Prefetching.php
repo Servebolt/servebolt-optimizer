@@ -112,17 +112,21 @@ class Prefetching
             $this->addToManifestData($type, $handle);
         }
 
-        foreach ($this->manifestDependencies[$type] as $handle => $count) {
-            if ($dependencies = $this->resolveDependenciesFromHandle($handle, $type)) {
-                foreach ($dependencies as $dependencyHandle) {
-                    $this->startOrIncrementDependencyCount($type, $dependencyHandle);
+        if (isset($this->manifestDependencies[$type])) {
+            foreach ($this->manifestDependencies[$type] as $handle => $count) {
+                if ($dependencies = $this->resolveDependenciesFromHandle($handle, $type)) {
+                    foreach ($dependencies as $dependencyHandle) {
+                        $this->startOrIncrementDependencyCount($type, $dependencyHandle);
+                    }
                 }
             }
         }
 
-        foreach ($this->manifestDependencies[$type] as $handle => $count) {
-            if ($wpAssetsArray->registered[$handle]->src) {
-                $this->addToManifestData($type, $handle, $count);
+        if (isset($this->manifestDependencies[$type])) {
+            foreach ($this->manifestDependencies[$type] as $handle => $count) {
+                if ($wpAssetsArray->registered[$handle]->src) {
+                    $this->addToManifestData($type, $handle, $count);
+                }
             }
         }
     }

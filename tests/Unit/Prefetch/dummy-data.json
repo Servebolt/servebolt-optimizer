@@ -26,42 +26,42 @@
         "twenty-twenty-one-style": {
             "handle": "twenty-twenty-one-style",
             "priority": 1,
-            "src": "https://acdtest.local/wp-content/themes/twentytwentyone/style.css",
+            "src": "http://example.org/wp-content/themes/twentytwentyone/style.css",
             "ver": "1.3",
             "deps": []
         },
         "twenty-twenty-one-print-style": {
             "handle": "twenty-twenty-one-print-style",
             "priority": 1,
-            "src": "https://acdtest.local/wp-content/themes/twentytwentyone/assets/css/print.css",
+            "src": "http://example.org/wp-content/themes/twentytwentyone/assets/css/print.css",
             "ver": "1.3",
             "deps": []
         },
         "servebolt-optimizer-public-styling": {
             "handle": "servebolt-optimizer-public-styling",
             "priority": 1,
-            "src": "https://acdtest.local/wp-content/plugins/servebolt-optimizer/assets/dist/css/public-style.css",
+            "src": "http://example.org/wp-content/plugins/servebolt-optimizer/assets/dist/css/public-style.css",
             "ver": "3.1",
             "deps": []
         },
         "sb-sweetalert2": {
             "handle": "sb-sweetalert2",
             "priority": 1,
-            "src": "https://acdtest.local/wp-content/plugins/servebolt-optimizer/assets/dist/css/sweetalert2.min.css",
+            "src": "http://example.org/wp-content/plugins/servebolt-optimizer/assets/dist/css/sweetalert2.min.css",
             "ver": "3.1",
             "deps": []
         },
         "servebolt-optimizer-common-styling": {
             "handle": "servebolt-optimizer-common-styling",
             "priority": 1,
-            "src": "https://acdtest.local/wp-content/plugins/servebolt-optimizer/assets/dist/css/common-style.css",
+            "src": "http://example.org/wp-content/plugins/servebolt-optimizer/assets/dist/css/common-style.css",
             "ver": "3.1",
             "deps": []
         },
         "yoast-seo-adminbar": {
             "handle": "yoast-seo-adminbar",
             "priority": 1,
-            "src": "https://acdtest.local/wp-content/plugins/wordpress-seo/css/dist/adminbar-1650.css",
+            "src": "http://example.org/wp-content/plugins/wordpress-seo/css/dist/adminbar-1650.css",
             "ver": null,
             "deps": [
                 "admin-bar"
@@ -88,7 +88,7 @@
         "twenty-twenty-one-primary-navigation-script": {
             "handle": "twenty-twenty-one-primary-navigation-script",
             "priority": 1,
-            "src": "https://acdtest.local/wp-content/themes/twentytwentyone/assets/js/primary-navigation.js",
+            "src": "http://example.org/wp-content/themes/twentytwentyone/assets/js/primary-navigation.js",
             "ver": "1.3",
             "deps": [
                 "twenty-twenty-one-ie11-polyfills"
@@ -97,7 +97,7 @@
         "twenty-twenty-one-responsive-embeds-script": {
             "handle": "twenty-twenty-one-responsive-embeds-script",
             "priority": 1,
-            "src": "https://acdtest.local/wp-content/themes/twentytwentyone/assets/js/responsive-embeds.js",
+            "src": "http://example.org/wp-content/themes/twentytwentyone/assets/js/responsive-embeds.js",
             "ver": "1.3",
             "deps": [
                 "twenty-twenty-one-ie11-polyfills"
@@ -106,14 +106,14 @@
         "sb-sweetalert2": {
             "handle": "sb-sweetalert2",
             "priority": 1,
-            "src": "https://acdtest.local/wp-content/plugins/servebolt-optimizer/assets/dist/js/sweetalert2.all.min.js",
+            "src": "http://example.org/wp-content/plugins/servebolt-optimizer/assets/dist/js/sweetalert2.all.min.js",
             "ver": "3.1",
             "deps": []
         },
         "servebolt-optimizer-scripts": {
             "handle": "servebolt-optimizer-scripts",
             "priority": 1,
-            "src": "https://acdtest.local/wp-content/plugins/servebolt-optimizer/assets/dist/js/general.js",
+            "src": "http://example.org/wp-content/plugins/servebolt-optimizer/assets/dist/js/general.js",
             "ver": "3.1",
             "deps": [
                 "jquery"
@@ -122,7 +122,7 @@
         "servebolt-optimizer-cache-purge-trigger-scripts": {
             "handle": "servebolt-optimizer-cache-purge-trigger-scripts",
             "priority": 1,
-            "src": "https://acdtest.local/wp-content/plugins/servebolt-optimizer/assets/dist/js/cache-purge-trigger.js",
+            "src": "http://example.org/wp-content/plugins/servebolt-optimizer/assets/dist/js/cache-purge-trigger.js",
             "ver": "3.1",
             "deps": [
                 "jquery"
@@ -151,20 +151,20 @@
         }
     },
     "menu": {
-        "https://acdtest.local/?p=24": {
+        "http://example.org/?p=24": {
             "priority": 1,
-            "handle": "https://acdtest.local/?p=24",
-            "src": "https://acdtest.local/sample-page/"
+            "handle": "http://example.org/?p=24",
+            "src": "http://example.org/sample-page/"
         },
-        "https://acdtest.local/?p=25": {
+        "http://example.org/?p=25": {
             "priority": 1,
-            "handle": "https://acdtest.local/?p=25",
-            "src": "https://acdtest.local/test/"
+            "handle": "http://example.org/?p=25",
+            "src": "http://example.org/test/"
         },
-        "https://acdtest.local/?p=26": {
+        "http://example.org/?p=26": {
             "priority": 1,
-            "handle": "https://acdtest.local/?p=26",
-            "src": "https://acdtest.local/hello-world/"
+            "handle": "http://example.org/?p=26",
+            "src": "http://example.org/hello-world/"
         }
     }
 }
