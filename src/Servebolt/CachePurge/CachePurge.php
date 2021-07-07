@@ -353,9 +353,9 @@ class CachePurge
      */
     public static function queueBasedCachePurgeActiveStateOverride(): ?bool
     {
-        if ( self::queueBasedCachePurgeActiveStateIsOverridden() ) {
+        if (self::queueBasedCachePurgeActiveStateIsOverridden()) {
             if (defined('SERVEBOLT_CF_PURGE_CRON')) {
-                return SERVEBOLT_CF_PURGE_CRON;// Legacy
+                return SERVEBOLT_CF_PURGE_CRON; // Legacy
             } else {
                 return SERVEBOLT_QUEUE_BASED_CACHE_PURGE;
             }
@@ -366,12 +366,12 @@ class CachePurge
     /**
      * Check whether the Cron-based cache purger should be active.
      *
-     * @param bool $respectOverride
      * @param int|null $blogId
+     * @param bool $respectOverride
      *
      * @return bool
      */
-    public static function queueBasedCachePurgeIsActive(bool $respectOverride = true, ?int $blogId = null): bool
+    public static function queueBasedCachePurgeIsActive(?int $blogId = null, bool $respectOverride = true): bool
     {
         $activeStateOverride = self::queueBasedCachePurgeActiveStateOverride();
         if ($respectOverride && is_bool($activeStateOverride)) {

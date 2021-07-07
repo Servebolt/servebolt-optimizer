@@ -6,8 +6,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
-use Servebolt\Optimizer\Traits\Singleton;
 use Exception;
+use Servebolt\Optimizer\Traits\Singleton;
 
 /**
  * Class CachePurgeWPActions
@@ -18,18 +18,30 @@ class ContentChangeTrigger
 {
     use Singleton;
 
-    /**
-     * CachePurgeWPActions constructor.
-     */
-    public function __construct()
+    public static function on(): void
     {
-        $this->registerPurgeActions();
+        $instance = self::getInstance();
+        $instance->registerEvents();
+    }
+
+    public static function off(): void
+    {
+        $instance = self::getInstance();
+        $instance->deregisterEvents();
+    }
+
+    public function deregisterEvents(): void
+    {
+        remove_action('edit_term', [$this, 'purgeTermOnSave'], 99, 3);
+        remove_action('save_post', [$this, 'purgePostOnSave'], 99, 3);
+        remove_action('comment_post', [$this, 'purgePostOnCommentPost'], 99, 3);
+        remove_action('transition_comment_status', [$this, 'purgePostOnCommentApproval'], 99, 3);
     }
 
     /**
      * Register action hooks.
      */
-    public function registerPurgeActions()
+    public function registerEvents()
     {
 
         // Skip this feature if automatic cache purge is inactive
@@ -37,9 +49,14 @@ class ContentChangeTrigger
             return;
         }
 
-        // Should skip all automatic cache purge?
+        // Should skip all automatic cache purge on content update?
         if (apply_filters('sb_optimizer_disable_automatic_purge', false)) {
             return;
+        }
+
+        // Purge post when term is edited (Work in progress)
+        if (apply_filters('sb_optimizer_automatic_purge_on_term_save', true)) {
+            add_action('edit_term', [$this, 'purgeTermOnSave'], 99, 3);
         }
 
         // Purge post on post update
@@ -55,11 +72,6 @@ class ContentChangeTrigger
         // Purge post when comment is approved
         if (apply_filters('sb_optimizer_automatic_purge_on_comment_approval', true)) {
             add_action('transition_comment_status', [$this, 'purgePostOnCommentApproval'], 99, 3);
-        }
-
-        // Purge post when term is edited (Work in progress)
-        if (apply_filters('sb_optimizer_automatic_purge_on_term_save', true)) {
-            add_action('edit_term', [$this, 'purgeTermOnSave'], 99, 3);
         }
     }
 

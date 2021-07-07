@@ -333,18 +333,47 @@ function cacheCookieCheck(): void
 }
 
 /**
- * Get taxonomy singular name by term.
+ * Get taxonomy object by term Id.
+ *
+ * @param int $termId
+ * @return object|null
+ */
+function getTaxonomyFromTermId(int $termId): ?object
+{
+    if ($term = get_term($termId)) {
+        if ($taxonomyObject = get_taxonomy($term->taxonomy)) {
+            return $taxonomyObject;
+        }
+    }
+    return null;
+}
+
+/**
+ * Get for filter/actions on hook.
+ *
+ * @param string|null $hook
+ * @return object|null
+ */
+function getFiltersForHook(?string $hook = null): ?object
+{
+    global $wp_filter;
+    if (empty($hook) || !isset($wp_filter[$hook])) {
+        return null;
+    }
+    return $wp_filter[$hook];
+}
+
+/**
+ * Get taxonomy singular name by term Id.
  *
  * @param int $termId
  * @return string
  */
 function getTaxonomySingularName(int $termId): string
 {
-    if ($term = get_term($termId)) {
-        if ($taxonomyObject = get_taxonomy($term->taxonomy)) {
-            if (isset($taxonomyObject->labels->singular_name) && $taxonomyObject->labels->singular_name) {
-                return mb_strtolower($taxonomyObject->labels->singular_name);
-            }
+    if ($taxonomyObject = getTaxonomyFromTermId($termId)) {
+        if (isset($taxonomyObject->labels->singular_name) && $taxonomyObject->labels->singular_name) {
+            return mb_strtolower($taxonomyObject->labels->singular_name);
         }
     }
     return 'term';

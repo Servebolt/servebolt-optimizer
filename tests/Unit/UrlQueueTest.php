@@ -4,6 +4,7 @@ namespace Unit;
 
 use Servebolt\Optimizer\Queue\Queues\UrlQueue;
 use ServeboltWPUnitTestCase;
+use Unit\Traits\CachePurgeTestTrait;
 use function Servebolt\Optimizer\Helpers\updateOption;
 
 /**
@@ -12,6 +13,8 @@ use function Servebolt\Optimizer\Helpers\updateOption;
  */
 class UrlQueueTest extends ServeboltWPUnitTestCase
 {
+    use CachePurgeTestTrait;
+
     public function tearDown()
     {
         parent::tearDown();
@@ -22,16 +25,6 @@ class UrlQueueTest extends ServeboltWPUnitTestCase
     {
         parent::setUp();
         add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
-    }
-
-    private function setUpBogusAcdConfig(): void
-    {
-        add_filter('sb_optimizer_selected_cache_purge_driver', function() {
-            return 'acd';
-        });
-        add_filter('sb_optimizer_acd_is_configured', '__return_true');
-        updateOption('cache_purge_switch', true);
-        updateOption('cache_purge_auto', true);
     }
 
     public function testThatUrlChunkSizeIsSetAccordingToDriver()
