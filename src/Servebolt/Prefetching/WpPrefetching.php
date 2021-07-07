@@ -88,7 +88,7 @@ class WpPrefetching extends Prefetching
     }
 
     /**
-     * Set URLs or relative URLs.
+     * Set full or relative URLs.
      */
     private function setRelativeOrFullUrls(): void
     {
