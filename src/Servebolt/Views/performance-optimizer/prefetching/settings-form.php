@@ -44,6 +44,18 @@
                 </td>
             </tr>
             <tr>
+                <th scope="row"><?php _e('Use full URLs in manifest files', 'servebolt-wp'); ?></th>
+                <td>
+                    <fieldset>
+                        <legend class="screen-reader-text"><span><?php _e('Use full URLs in manifest files?', 'servebolt-wp'); ?></span></legend>
+                        <label for="prefetch_full_url_switch">
+                            <input name="<?php echo getOptionName('prefetch_full_url_switch'); ?>" type="checkbox" id="prefetch_full_url_switch" value="1" <?php checked($settings['prefetch_full_url_switch']); ?>>
+                            <?php _e('Enabled', 'servebolt-wp'); ?>
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
+            <tr>
                 <th scope="row"><label for="prefetch_max_number_of_lines"><?php _e('Max number of lines', 'servebolt-wp'); ?></label></th>
                 <td>
                     <input type="number" name="<?php echo getOptionName('prefetch_max_number_of_lines'); ?>" min="1" id="prefetch_max_number_of_lines" placeholder="Default: <?php echo esc_attr($defaultMaxNumberOfLines); ?>" value="<?php echo esc_attr($settings['prefetch_max_number_of_lines']); ?>" class="regular-text">

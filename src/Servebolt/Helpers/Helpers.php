@@ -434,6 +434,7 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'prefetch_file_style_switch',
         'prefetch_file_script_switch',
         'prefetch_file_menu_switch',
+        'prefetch_full_url_switch',
         'prefetch_max_number_of_lines',
 
         // Wipe Cache purge-related options

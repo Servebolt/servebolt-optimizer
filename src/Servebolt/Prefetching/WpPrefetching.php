@@ -58,6 +58,7 @@ class WpPrefetching extends Prefetching
         }
 
         $this->setMaxNumberOfLines();
+        $this->setRelativeOrFullUrls();
 
         if ($this->shouldRecordStyles()) {
             add_action('wp_print_styles', [$this, 'getStylesToPrefetch'], 99);
@@ -83,6 +84,18 @@ class WpPrefetching extends Prefetching
             add_filter('sb_optimizer_prefetch_max_number_of_lines', function() use ($maxNumberOfLines) {
                 return $maxNumberOfLines;
             });
+        }
+    }
+
+    /**
+     * Set URLs or relative URLs.
+     */
+    private function setRelativeOrFullUrls(): void
+    {
+        if (self::writeFullUrls()) {
+            add_filter('sb_optimizer_prefetch_include_domain', '__return_true'); // Use full URLs
+        } else {
+            // Use relative URLs
         }
     }
 
@@ -115,6 +128,17 @@ class WpPrefetching extends Prefetching
                 return false;
         }
         return checkboxIsChecked(smartGetOption($blogId, 'prefetch_file_' . $type . '_switch'));
+    }
+
+    /**
+     * Check whether we should write full URLs in the manifest files.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function writeFullUrls(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(smartGetOption($blogId, 'prefetch_full_url_switch'));
     }
 
     /**
