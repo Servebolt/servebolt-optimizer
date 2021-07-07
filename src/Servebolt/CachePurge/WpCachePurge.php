@@ -32,7 +32,7 @@ class WpCachePurge
             || isTesting()
         ) {
             // Register cache purge event for various hooks
-            new WpObjectCachePurgeActions;
+            WpObjectCachePurgeActions::on();
         }
     }
 

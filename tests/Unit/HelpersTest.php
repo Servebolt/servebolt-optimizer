@@ -20,8 +20,11 @@ use function Servebolt\Optimizer\Helpers\deleteSiteOption;
 use function Servebolt\Optimizer\Helpers\getAllOptionsNames;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
+use function Servebolt\Optimizer\Helpers\getFiltersForHook;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
+use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
+use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\javascriptRedirect;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
@@ -514,11 +517,16 @@ class HelpersTest extends ServeboltWPUnitTestCase
         iterateSites(function ($site) use ($allOptionsNames) {
             foreach ($allOptionsNames as $option) {
                 $value = getBlogOption($site->blog_id, $option);
+                //var_dump($option);
+                //var_dump($value);
                 switch ($option) {
                     // Default options
                     case 'prefetch_file_style_switch':
                     case 'prefetch_file_script_switch':
                     case 'prefetch_file_menu_switch':
+                    case 'cache_purge_auto':
+                    case 'cache_purge_auto_on_slug_change':
+                    case 'cache_purge_auto_on_deletion':
                         $this->assertTrue($value);
                         break;
                     default:
@@ -723,5 +731,26 @@ class HelpersTest extends ServeboltWPUnitTestCase
         ob_end_clean();
         $expected = '<script> window.location = "' . $url . '"; </script>';
         $this->assertEquals($expected, trim($output));
+    }
+
+    public function testThatWeCanGetTaxonomySlug()
+    {
+        $taxonomyObject = getTaxonomyFromTermId(1);
+        $this->assertEquals('category', $taxonomyObject->name);
+    }
+
+    public function testThatWeCanGetTaxonomySingularName()
+    {
+        $this->assertEquals('category', getTaxonomySingularName(1));
+    }
+
+    public function testThatWeCanGetFiltersByHook()
+    {
+        $hookName = 'some-custom-hook';
+        $this->assertNull(getFiltersForHook($hookName));
+        add_filter($hookName, '__return_true');
+        $this->assertIsObject(getFiltersForHook($hookName));
+        remove_filter($hookName, '__return_true');
+        $this->assertNull(getFiltersForHook($hookName));
     }
 }

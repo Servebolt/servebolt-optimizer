@@ -4,17 +4,21 @@ namespace Unit;
 
 use Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax\FpcPostExclusion;
 use Servebolt\Optimizer\FullPageCache\CachePostExclusion;
+use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheSettings;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use ServeboltWPUnitTestCase;
+use Unit\Traits\CachePurgeTestTrait;
 
 /**
  * Class FullPageCacheTest
  */
 class FullPageCacheTest extends ServeboltWPUnitTestCase
 {
+    use CachePurgeTestTrait;
+
     public function setUp()
     {
         parent::setUp();
@@ -81,12 +85,16 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
 
     public function testThatPostGetsCachePurgedWhenAddedToFpcExclusion()
     {
-        add_filter('sb_optimizer_get_option_servebolt_queue_based_cache_purge', '__return_true');
+        FullPageCache::destroyInstance();
+        $this->useQueueBasedCachePurge();
+        $this->setUpBogusAcdConfig();
+        FullPageCache::getInstance();
         $postId = $this->factory()->post->create();
         $fpcPostExclusion = new FpcPostExclusion();
         $result = $fpcPostExclusion->addItemsFromFpcExclusion([
             $postId
         ]);
+        $this->assertEquals(1, did_action('sb_optimizer_post_added_to_fpc_exclusion'));
         $this->assertTrue($result['success']);
         $wpObjectQueue = WpObjectQueue::getInstance();
         $this->assertTrue($wpObjectQueue->hasPostInQueue($postId));

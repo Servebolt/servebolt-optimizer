@@ -6,8 +6,8 @@ if (!defined( 'ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
-use Servebolt\Optimizer\Traits\Singleton;
 use Exception;
+use Servebolt\Optimizer\Traits\Singleton;
 
 /**
  * Class SlugChangeTrigger
@@ -23,18 +23,29 @@ class SlugChangeTrigger
      */
     private $previousPostPermalink = null;
 
-    /**
-     * SlugChangeTrigger constructor.
-     */
-    public function __construct()
+    public static function on(): void
     {
-        $this->registerPurgeActions();
+        $instance = self::getInstance();
+        $instance->registerEvents();
+    }
+
+    public static function off(): void
+    {
+        $instance = self::getInstance();
+        $instance->deregisterEvents();
+    }
+
+    public function deregisterEvents(): void
+    {
+        remove_filter('wp_update_term_data', [$this, 'checkPreviousTermPermalink'], 10, 3);
+        remove_action('pre_post_update', [$this, 'recordPostPermalink'], 99, 1);
+        remove_action('post_updated', [$this, 'checkPreviousPostPermalink'], 99, 1);
     }
 
     /**
      * Register action hooks.
      */
-    private function registerPurgeActions()
+    public function registerEvents()
     {
 
         // Skip this feature if automatic cache purge on slug change is inactive
