@@ -54,6 +54,9 @@ EOF;
         $this->runSql($sql);
     }
 
+    /**
+     * Migrate down.
+     */
     public function down(): void
     {
         $this->dropTable();

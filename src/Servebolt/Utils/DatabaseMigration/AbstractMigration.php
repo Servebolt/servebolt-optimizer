@@ -10,6 +10,14 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
  */
 abstract class AbstractMigration
 {
+
+    /**
+     * Whether to use the function "dbDelta" when running queries.
+     *
+     * @var bool
+     */
+    protected $useDbDelta = true;
+
     /**
      * Run MySQL-query.
      *
@@ -18,8 +26,33 @@ abstract class AbstractMigration
     protected function runSql(string $sql): void
     {
         $sql = $this->populateSql($sql);
+        if ($this->useDbDelta) {
+            $this->runDbDeltaQuery($sql);
+        } else {
+            $this->runWpdbQuery($sql);
+        }
+    }
+
+    /**
+     * Run query using the dbDelta-function.
+     *
+     * @param string $sql
+     */
+    private function runDbDeltaQuery(string $sql): void
+    {
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
         dbDelta($sql);
+    }
+
+    /**
+     * Run query using the WPDB-instance.
+     *
+     * @param string $sql
+     */
+    private function runWpdbQuery(string $sql): void
+    {
+        global $wpdb;
+        $wpdb->query($sql);
     }
 
     /**
@@ -28,9 +61,8 @@ abstract class AbstractMigration
     public function dropTable(): void
     {
         if ($tableName = $this->getTableNameWithPrefix()) {
-            global $wpdb;
             $sql = sprintf('DROP TABLE IF EXISTS %s;', $tableName);
-            $wpdb->query($sql);
+            $this->runWpdbQuery($sql);
         }
     }
 
