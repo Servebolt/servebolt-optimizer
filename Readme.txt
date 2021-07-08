@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.7.2
 Requires PHP: 7.3
-Stable tag: 3.1
+Stable tag: 3.1.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,9 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.1.1 =
+* Added index to columns "parent_id" and "parent_queue_name" in the queue table to improve query performance.
+
 = 3.1 =
 * Accelerated Domains Image Resizing - This version introduces a new feature: Accelerated Domains Image Resizing. This feature will resize, optimize metadata, and cache your images on the fly. Improving load time and enhancing the user experience.
 * PHP version constraint - We have changed the required PHP version from 7 to 7.3. This means that whenever the plugin is activated in an environment running less than PHP version 7.3, the plugin will show an admin notice in WP Admin indicating the need to upgrade to be able to used the plugin.
