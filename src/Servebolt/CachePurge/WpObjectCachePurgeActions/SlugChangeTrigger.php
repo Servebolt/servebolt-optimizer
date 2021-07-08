@@ -53,7 +53,7 @@ class SlugChangeTrigger
             return;
         }
 
-        if (!apply_filters('sb_optimizer_automatic_purge_on_permalink_change', true)) {
+        if (apply_filters('sb_optimizer_disable_automatic_purge_on_slug_change', false)) {
             return;
         }
 

@@ -2,15 +2,16 @@
 
 namespace Unit;
 
-use DOMDocument;
+use Unit\Traits\AttachmentTrait;
 use WP_UnitTestCase;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageResize;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
-use function Servebolt\Optimizer\Helpers\wpDirectFilesystem;
 
 class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
 {
+    use AttachmentTrait;
+
     public function setUp()
     {
         parent::setUp();
@@ -187,61 +188,5 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
             $this->assertNotContains('/acd-cgi/img/v1', $image->getAttribute('srcset')); // Cannot get srcset-for some reason
             $this->deleteAttachment($attachmentId);
         }
-    }
-
-    /**
-     * @param int $attachmentId
-     * @return \DOMNode|null
-     */
-    private function getImageMarkupDom(int $attachmentId)
-    {
-        $imageMarkup = wp_get_attachment_image($attachmentId, 'original');
-        $dom = new DOMDocument;
-        @$dom->loadHTML($imageMarkup);
-        $items = $dom->getElementsByTagName('img');
-        return $items->item(0);
-    }
-
-    /**
-     * Delete attachment.
-     *
-     * @param int $attachmentId
-     */
-    private function deleteAttachment(int $attachmentId): void
-    {
-        wp_delete_attachment($attachmentId, true);
-    }
-
-    /**
-     * Create attachment from given test file.
-     *
-     * @param string $filename The name of the file to be uploaded.
-     * @return false|int|\WP_Error
-     */
-    private function createAttachment(string $filename)
-    {
-        $filePath = trailingslashit(__DIR__) . 'Files/' . $filename;
-        if (!file_exists($filePath)) {
-            return false; // Test file does not exists
-        }
-
-        // Create temporary file, fill with content, and get path
-        $tempFile = tmpfile();
-        fwrite($tempFile, file_get_contents($filePath));
-        $tempFileMetaData = stream_get_meta_data($tempFile);
-        $tempFilePath = $tempFileMetaData['uri'];
-
-        $attachmentId = media_handle_sideload([
-            'name' => $filename,
-            'tmp_name' => $tempFilePath,
-        ]);
-
-        if (is_wp_error($attachmentId)) {
-            $this->fail('Could not upload test-attachment.');
-            wp_delete_attachment($attachmentId);
-            return false;
-        }
-
-        return $attachmentId;
     }
 }

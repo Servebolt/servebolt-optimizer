@@ -23,6 +23,7 @@ class WpObjectCachePurgeActions
         ContentChangeTrigger::on();
         SlugChangeTrigger::on();
         DeletionCacheTrigger::on();
+        AttachmentUpdateTrigger::on();
 
         return true;
     }
@@ -32,6 +33,7 @@ class WpObjectCachePurgeActions
         ContentChangeTrigger::off();
         SlugChangeTrigger::off();
         DeletionCacheTrigger::off();
+        AttachmentUpdateTrigger::off();
     }
 
     public static function reloadEvents(): void
@@ -44,5 +46,8 @@ class WpObjectCachePurgeActions
 
         DeletionCacheTrigger::off();
         DeletionCacheTrigger::on();
+
+        AttachmentUpdateTrigger::on();
+        AttachmentUpdateTrigger::off();
     }
 }

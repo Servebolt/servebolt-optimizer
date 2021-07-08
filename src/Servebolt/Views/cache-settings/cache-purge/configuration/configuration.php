@@ -70,6 +70,12 @@ Keep in mind that purging the entire cache has a temporary impact on the loading
                         <label for="cache_purge_auto_on_slug_change">
                             <input name="<?php echo getOptionName('cache_purge_auto_on_slug_change'); ?>" type="checkbox" id="cache_purge_auto_on_slug_change" value="1" <?php checked($automaticCachePurgeOnSlugChangeIsActive); ?>>
                             <?php _e('On slug/permalink change', 'servebolt-wp'); ?>
+                        </label><br>
+
+                        <legend class="screen-reader-text"><span><?php _e('Automatic cache purge on attachment update', 'servebolt-wp'); ?></span></legend>
+                        <label for="cache_purge_auto_on_attachment_update">
+                            <input name="<?php echo getOptionName('cache_purge_auto_on_attachment_update'); ?>" type="checkbox" id="cache_purge_auto_on_attachment_update" value="1" <?php checked($automaticCachePurgeOnAttachmentUpdateIsActive); ?>>
+                            <?php _e('On attachment update', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
                 </td>

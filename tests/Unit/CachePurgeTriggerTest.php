@@ -14,7 +14,7 @@ class CachePurgeTriggerTest extends ServeboltWPUnitTestCase
     public function setUp()
     {
         parent::setUp();
-        MigrationRunner::run(true);
+        MigrationRunner::run();
         $this->setUpBogusAcdConfig();
         $this->useQueueBasedCachePurge();
         add_filter('sb_optimizer_automatic_purge_on_post_save', '__return_false'); // Prevent post creation from adding the post to the cache purge queue
@@ -24,6 +24,7 @@ class CachePurgeTriggerTest extends ServeboltWPUnitTestCase
     public function tearDown()
     {
         parent::tearDown();
+        MigrationRunner::cleanup();
         remove_filter('sb_optimizer_automatic_purge_on_post_save', '__return_false');
     }
 

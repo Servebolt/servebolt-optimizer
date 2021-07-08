@@ -3,6 +3,7 @@
 namespace Servebolt\Optimizer\CachePurge;
 
 use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\WpObjectCachePurgeActions;
+use function Servebolt\Optimizer\Helpers\isAjax;
 use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isCron;
 use function Servebolt\Optimizer\Helpers\isTesting;
@@ -26,6 +27,7 @@ class WpCachePurge
 
         if (
             is_admin()
+            || isAjax()
             || isCron()
             || isCli()
             || isWpRest()
@@ -44,5 +46,6 @@ class WpCachePurge
         setDefaultOption('cache_purge_auto', '__return_true');
         setDefaultOption('cache_purge_auto_on_slug_change', '__return_true');
         setDefaultOption('cache_purge_auto_on_deletion', '__return_true');
+        setDefaultOption('cache_purge_auto_on_attachment_update', '__return_true');
     }
 }
