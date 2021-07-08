@@ -14,6 +14,13 @@ class AddParentIdIndexToQueueTable extends AbstractMigration
 {
 
     /**
+     * Whether to use the function "dbDelta" when running queries.
+     *
+     * @var bool
+     */
+    protected $useDbDelta = false;
+
+    /**
      * @var bool Whether the migration is active (optional, defaults to true if omitted).
      */
     public static $active = true;
