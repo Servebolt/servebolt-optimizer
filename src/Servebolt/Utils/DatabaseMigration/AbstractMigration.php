@@ -27,7 +27,7 @@ abstract class AbstractMigration
     {
         $sql = $this->populateSql($sql);
         if ($this->useDbDelta) {
-            $this->runDbDeltaQuery();
+            $this->runDbDeltaQuery($sql);
         } else {
             $this->runWpdbQuery($sql);
         }
