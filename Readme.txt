@@ -94,7 +94,7 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 
 == Changelog ==
 = 3.1.1 =
-* Added index to columns "parent_id" and "parent_queue_name" in the queue table to improve query performance.
+* Added index to column "parent_id" in the queue table to improve query performance.
 
 = 3.1 =
 * Accelerated Domains Image Resizing - This version introduces a new feature: Accelerated Domains Image Resizing. This feature will resize, optimize metadata, and cache your images on the fly. Improving load time and enhancing the user experience.
