@@ -54,46 +54,4 @@ EOF;
     {
         $this->dropTable();
     }
-
-    /**
-     * Before migrating, regardless of direction.
-     */
-    public function preMigration()
-    {
-    }
-
-    /**
-     * After migrating, regardless of direction.
-     */
-    public function postMigration()
-    {
-    }
-
-    /**
-     * Before migrating down.
-     */
-    public function preDownMigration()
-    {
-    }
-
-    /**
-     * After migrating down.
-     */
-    public function postDownMigration()
-    {
-    }
-
-    /**
-     * Before migrating up.
-     */
-    public function preUpMigration()
-    {
-    }
-
-    /**
-     * After migrating up.
-     */
-    public function postUpMigration()
-    {
-    }
 }
