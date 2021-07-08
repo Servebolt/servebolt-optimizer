@@ -46,6 +46,11 @@ class DeletionCacheTrigger
 
         // TODO: Handle post transitions too?
 
+        // Should skip all automatic cache purge on content update?
+        if (apply_filters('sb_optimizer_disable_automatic_purge_on_deletion', false)) {
+            return;
+        }
+
         // Purge on term delete
         if (apply_filters('sb_optimizer_automatic_purge_on_term_delete', true)) {
             add_action('delete_term_taxonomy', [$this, 'deleteTerm'], 10, 1);

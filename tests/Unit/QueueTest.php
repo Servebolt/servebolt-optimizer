@@ -19,7 +19,13 @@ class QueueTest extends ServeboltWPUnitTestCase
     {
         parent::setUp();
         $this->set_permalink_structure('/%postname%/');
-        MigrationRunner::run(true);
+        MigrationRunner::run();
+    }
+
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        MigrationRunner::cleanup();
     }
 
     public function testThatPostUrlsGetsParsedFromWpObjectQueueToUrlQueue(): void

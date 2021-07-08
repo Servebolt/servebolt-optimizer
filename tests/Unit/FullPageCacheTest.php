@@ -22,7 +22,13 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
     public function setUp()
     {
         parent::setUp();
-        MigrationRunner::run(true); // We need the custom tables for the queue system to work
+        MigrationRunner::run(); // We need the custom tables for the queue system to work
+    }
+
+    public function tearDown()
+    {
+        parent::tearDown();
+        MigrationRunner::cleanup();
     }
 
     public function testThatPostGetsExcludedFromCache()

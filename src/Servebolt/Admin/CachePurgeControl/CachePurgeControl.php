@@ -137,6 +137,7 @@ class CachePurgeControl
         $automaticCachePurgeOnContentUpdateIsActive = CachePurge::automaticCachePurgeOnContentUpdateIsActive();
         $automaticCachePurgeOnSlugChangeIsActive = CachePurge::automaticCachePurgeOnSlugChangeIsActive();
         $automaticCachePurgeOnDeletionIsActive = CachePurge::automaticCachePurgeOnDeletionIsActive();
+        $automaticCachePurgeOnAttachmentUpdateIsActive = CachePurge::automaticCachePurgeOnAttachmentUpdateIsActive();
         $acdLock = CachePurge::cachePurgeIsLockedTo('acd');
         $queueBasedCachePurgeActiveStateIsOverridden = CachePurge::queueBasedCachePurgeActiveStateIsOverridden();
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
@@ -153,6 +154,7 @@ class CachePurgeControl
                 'automaticCachePurgeOnContentUpdateIsActive',
                 'automaticCachePurgeOnSlugChangeIsActive',
                 'automaticCachePurgeOnDeletionIsActive',
+                'automaticCachePurgeOnAttachmentUpdateIsActive',
                 'queueBasedCachePurgeActiveStateIsOverridden',
                 'queueBasedCachePurgeIsActive',
                 'acdLock',
@@ -340,6 +342,7 @@ class CachePurgeControl
             'cache_purge_auto',
             'cache_purge_auto_on_slug_change',
             'cache_purge_auto_on_deletion',
+            'cache_purge_auto_on_attachment_update',
             'cache_purge_driver',
             'cf_zone_id',
             'cf_auth_type',

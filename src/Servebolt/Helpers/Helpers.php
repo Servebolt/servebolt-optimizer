@@ -1629,3 +1629,24 @@ function overrideMenuTitle(string $screen, string $overrideTitle): void
         return $admin_title;
     }, 10, 2);
 }
+
+/**
+ * Get the URLs of all the sizes of an image.
+ *
+ * @param int $attachmentId
+ * @return array|null
+ */
+function getAllImageSizesByImage(int $attachmentId): ?array
+{
+    if (!wp_attachment_is_image($attachmentId)) {
+        return null;
+    }
+    $imageUrls = [];
+    foreach (get_intermediate_image_sizes() as $size) {
+        if ($imageUrl = wp_get_attachment_image_url($attachmentId, $size)) {
+            $imageUrls[] = $imageUrl;
+        }
+    }
+    $imageUrls = array_values(array_unique($imageUrls));
+    return $imageUrls;
+}

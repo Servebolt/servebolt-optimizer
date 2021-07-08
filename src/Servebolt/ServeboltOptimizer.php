@@ -50,10 +50,8 @@ class ServeboltOptimizer
         // Add various improvements/optimizations
         new GenericOptimizations;
 
-        if (is_admin()) {
-            // Make sure to hold the database and data structure in sync with the version number
-            MigrationRunner::run();
-        }
+        // Generate database tables etc.
+        new WpDatabaseMigrations;
 
         // Plugin compatibility
         add_action('plugins_loaded', function () {

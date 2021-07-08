@@ -2,6 +2,7 @@
 
 namespace Unit;
 
+use Unit\Traits\AttachmentTrait;
 use Unit\Traits\MultisiteTrait;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
@@ -17,6 +18,7 @@ use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 use function Servebolt\Optimizer\Helpers\deleteBlogOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
+use function Servebolt\Optimizer\Helpers\getAllImageSizesByImage;
 use function Servebolt\Optimizer\Helpers\getAllOptionsNames;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
@@ -68,7 +70,7 @@ use function Servebolt\Optimizer\Helpers\view;
 
 class HelpersTest extends ServeboltWPUnitTestCase
 {
-    use MultisiteTrait;
+    use MultisiteTrait, AttachmentTrait;
 
     private function activateSbDebug(): void
     {
@@ -527,6 +529,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
                     case 'cache_purge_auto':
                     case 'cache_purge_auto_on_slug_change':
                     case 'cache_purge_auto_on_deletion':
+                    case 'cache_purge_auto_on_attachment_update':
                         $this->assertTrue($value);
                         break;
                     default:
@@ -752,5 +755,29 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertIsObject(getFiltersForHook($hookName));
         remove_filter($hookName, '__return_true');
         $this->assertNull(getFiltersForHook($hookName));
+    }
+
+    public function testThatWeCanGetAllImageUrls()
+    {
+        add_image_size('69x69', 69, 69);
+        if ($attachmentId = $this->createAttachment('woocommerce-placeholder.png')) {
+            $filename = basename(get_attached_file($attachmentId));
+            if (!preg_match('/^(.+)-([0-9]+)\.png$/', $filename, $matches)) {
+                $this->deleteAttachment($attachmentId);
+                $this->fail('Could not test image size URLs');
+                return;
+            }
+            $baseUrl = get_site_url() . '/wp-content/uploads/2021/07/woocommerce-placeholder-' . $matches[2];
+            $expectedArray = [
+                $baseUrl . '-150x150.png',
+                $baseUrl . '-300x300.png',
+                $baseUrl . '-768x768.png',
+                $baseUrl . '-1024x1024.png',
+                $baseUrl . '.png',
+                $baseUrl . '-69x69.png',
+            ];
+            $this->assertEquals($expectedArray, getAllImageSizesByImage($attachmentId));
+            $this->deleteAttachment($attachmentId);
+        }
     }
 }

@@ -9,7 +9,6 @@ use ServeboltWPUnitTestCase;
 use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
 use Servebolt\Optimizer\Prefetching\ManifestDataModel;
 use function Servebolt\Optimizer\Helpers\deleteOption;
-use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\updateOption;
 
 class ManifestFileWriterTest extends ServeboltWPUnitTestCase
@@ -110,7 +109,7 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         $this->assertFileExists(ManifestFileWriter::getFilePath('style'));
         $lines = explode(PHP_EOL, file_get_contents(ManifestFileWriter::getFilePath('style')));
         $this->assertContains(get_site_url() . '/wp-includes/css/admin-bar.min.css', $lines);
-        $this->assertContains(get_site_url() . '/wp-content/plugins/servebolt-optimizer/assets/dist/css/public-style.css?ver=' . getCurrentPluginVersion(), $lines);
+        $this->assertContains(get_site_url() . '/wp-content/plugins/servebolt-optimizer/assets/dist/css/public-style.css?ver=3.1', $lines);
     }
 
     public function testThatPrioritizationWorks()
