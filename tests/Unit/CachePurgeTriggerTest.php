@@ -66,4 +66,14 @@ class CachePurgeTriggerTest extends ServeboltWPUnitTestCase
             $this->deleteAttachment($attachmentId);
         }
     }
+
+    public function testThatUpdatingAnAttachmentsMetaDataPurgesCache()
+    {
+        if ($attachmentId = $this->createAttachment('woocommerce-placeholder.png')) {
+            $attachmentPost = get_post($attachmentId);
+            do_action('attachment_updated', $attachmentId, $attachmentPost, $attachmentPost);
+            $this->assertEquals(1, did_action('sb_optimizer_purged_post_cache_for_' . $attachmentId));
+            $this->deleteAttachment($attachmentId);
+        }
+    }
 }
