@@ -10,6 +10,7 @@ use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\DatabaseOptimizations;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\PrefetchingControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\FullPageCacheControl;
+use Servebolt\Optimizer\Admin\FullPageCacheControl\CacheTtlControl;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\PerformanceOptimizer;
@@ -214,6 +215,7 @@ class AdminGuiController
     private function cacheSettingsMenu(): void
     {
         add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-fpc', [FullPageCacheControl::getInstance(), 'render']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-cache-ttl', [CacheTtlControl::getInstance(), 'render']);
 
         // Legacy redirect
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-nginx-cache', [$this, 'fpcLegacyRedirect']);
