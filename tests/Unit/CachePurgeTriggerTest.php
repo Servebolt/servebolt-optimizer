@@ -2,14 +2,16 @@
 
 namespace Unit;
 
+use Exception;
 use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\WpObjectCachePurgeActions;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use ServeboltWPUnitTestCase;
+use Unit\Traits\AttachmentTrait;
 use Unit\Traits\CachePurgeTestTrait;
 
 class CachePurgeTriggerTest extends ServeboltWPUnitTestCase
 {
-    use CachePurgeTestTrait;
+    use CachePurgeTestTrait, AttachmentTrait;
 
     public function setUp()
     {
@@ -44,5 +46,24 @@ class CachePurgeTriggerTest extends ServeboltWPUnitTestCase
         wp_delete_post($postId, true);
         $this->assertEquals($actionCount + 1, did_action('before_delete_post'));
         $this->assertEquals(1, did_action('sb_optimizer_purged_post_cache_for_' . $postId));
+    }
+
+    public function testThatUpdatingAnImageViaAjaxPurgesCache()
+    {
+        if ($attachmentId = $this->createAttachment('woocommerce-placeholder.png')) {
+            // Mimic AJAX post data coming from the image editor
+            $_POST = [
+                'action' => 'image-editor',
+                '_ajax_nonce' => wp_create_nonce('image_editor-' . $attachmentId),
+                'postid' => $attachmentId,
+                'history' => '[{"r":90}]',
+                'target' => 'all',
+                'context' => '',
+                'do' => 'save',
+            ];
+            do_action('wp_ajax_image-editor');
+            $this->assertEquals(1, did_action('sb_optimizer_purged_post_cache_for_' . $attachmentId));
+            $this->deleteAttachment($attachmentId);
+        }
     }
 }

@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Exception;
+use Servebolt\Optimizer\Traits\EventToggler;
 use Servebolt\Optimizer\Traits\Singleton;
 
 /**
@@ -16,19 +17,7 @@ use Servebolt\Optimizer\Traits\Singleton;
  */
 class ContentChangeTrigger
 {
-    use Singleton;
-
-    public static function on(): void
-    {
-        $instance = self::getInstance();
-        $instance->registerEvents();
-    }
-
-    public static function off(): void
-    {
-        $instance = self::getInstance();
-        $instance->deregisterEvents();
-    }
+    use Singleton, EventToggler;
 
     public function deregisterEvents(): void
     {
