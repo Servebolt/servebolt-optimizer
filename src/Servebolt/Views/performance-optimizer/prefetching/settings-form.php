@@ -14,13 +14,13 @@
                 <fieldset>
                     <legend class="screen-reader-text"><span><?php _e('Prefetching-feature active?', 'servebolt-wp'); ?></span></legend>
                     <label for="prefetch_switch">
-                        <input name="<?php echo getOptionName('prefetch_switch'); ?>" type="checkbox" id="prefetch_switch" value="1" <?php checked($settings['prefetch_switch']); ?>>
+                        <input name="<?php echo getOptionName('prefetch_switch'); ?>" class="options-field-switch" type="checkbox" id="prefetch_switch" value="1" <?php checked($settings['prefetch_switch']); ?>>
                         <?php _e('Enabled', 'servebolt-wp'); ?>
                     </label>
                 </fieldset>
             </td>
         </tr>
-        <tbody id="prefetching-options"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>>
+        <tbody id="tbody-options"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>>
             <tr>
                 <th scope="row"><?php _e('Manifest files', 'servebolt-wp'); ?></th>
                 <td>
