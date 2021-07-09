@@ -149,6 +149,12 @@ class Assets {
                 true
             );
             $this->enqueueScript(
+                'servebolt-optimizer-scripts-vanilla',
+                'assets/dist/js/general-vanilla.js',
+                [],
+                true
+            );
+            $this->enqueueScript(
                 'servebolt-optimizer-cache-purge-trigger-scripts',
                 'assets/dist/js/cache-purge-trigger.js',
                 ['jquery'],

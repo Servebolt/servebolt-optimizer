@@ -483,6 +483,9 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'fpc_switch',
         'fpc_settings',
         'fpc_exclude',
+
+        'cache_ttl_preset',
+        'custom_cache_ttl',
     ];
 
     if ($includeMigrationOptions) {

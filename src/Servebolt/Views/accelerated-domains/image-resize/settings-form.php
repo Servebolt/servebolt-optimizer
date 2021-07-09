@@ -16,13 +16,13 @@
                 <fieldset>
                     <legend class="screen-reader-text"><span><?php _e('Image resize-feature active?', 'servebolt-wp'); ?></span></legend>
                     <label for="acd_image_resize_switch">
-                        <input name="<?php echo getOptionName('acd_image_resize_switch'); ?>" type="checkbox" id="acd_image_resize_switch" value="1" <?php checked($settings['acd_image_resize_switch']); ?>>
+                        <input name="<?php echo getOptionName('acd_image_resize_switch'); ?>" type="checkbox" class="options-field-switch" id="acd_image_resize_switch" value="1" <?php checked($settings['acd_image_resize_switch']); ?>>
                         <?php _e('Enable', 'servebolt-wp'); ?>
                     </label><br>
                 </fieldset>
             </td>
         </tr>
-        <tbody id="acd-image-resize-options"<?php if (!$settings['acd_image_resize_switch']) echo ' style="display: none;"'; ?>>
+        <tbody id="tbody-options"<?php if (!$settings['acd_image_resize_switch']) echo ' style="display: none;"'; ?>>
             <tr>
                 <th scope="row"></th>
                 <td>

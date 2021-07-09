@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
+use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 use function Servebolt\Optimizer\Helpers\isScreen;
 use function Servebolt\Optimizer\Helpers\view;
 
@@ -61,10 +62,19 @@ class CacheTtlControl
     public function render(): void
     {
         $settings = $this->getSettingsItemsWithValues();
+        $cacheTtlOptions = [
+            'Off' => 0,
+            'Very short' => 600,
+            'Short' => 43200,
+            'Default' => 86000,
+            'Long' => 1209600,
+            'Custom' => 'custom',
+        ];
         view(
             'cache-settings.cache-ttl.cache-ttl',
             compact([
                 'settings',
+                'cacheTtlOptions',
             ])
         );
     }
@@ -94,15 +104,13 @@ class CacheTtlControl
         if (!isScreen('admin_page_servebolt-cache-ttl')) {
             return;
         }
-        /*
         wp_enqueue_script(
-            'servebolt-optimizer-cache-purge-scripts',
-            SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/cache-purge.js',
-            ['servebolt-optimizer-scripts'],
-            getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/cache-purge.js'),
+            'servebolt-optimizer-cache-ttl-scripts',
+            SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/cache-ttl.js',
+            [],
+            getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/cache-ttl.js'),
             true
         );
-        */
     }
 
     private function initSettings(): void
@@ -149,7 +157,8 @@ class CacheTtlControl
     private function getSettingsItems(): array
     {
         return [
-            //'',
+            'cache_ttl_preset',
+            'custom_cache_ttl',
         ];
     }
 }

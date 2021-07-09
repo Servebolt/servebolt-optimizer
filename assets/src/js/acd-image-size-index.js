@@ -10,9 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
         window.removeAcdImageSize(e.target);
     }, false);
 
-    // Show/hide options fields
-    document.getElementById('acd_image_resize_switch').addEventListener('change', window.showHideOptionsFields);
-
     // Checkbox change event
     document.getElementById('acd-image-size-index').addEventListener('change', function (e) {
         if (!e.target.matches('input[type="checkbox"]')) return;
@@ -25,18 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
         item.addEventListener('click', window.removeAcdImageSizes);
     });
 }, false);
-
-/**
- * Show/hide options field based on whether the feature is active or not.
- */
-window.showHideOptionsFields = function () {
-    var el = document.getElementById('acd-image-resize-options');
-    if (this.checked) {
-        el.removeAttribute('style');
-    } else {
-        el.style.display = 'none';
-    }
-}
 
 /**
  * Uncheck all checkboxes.
