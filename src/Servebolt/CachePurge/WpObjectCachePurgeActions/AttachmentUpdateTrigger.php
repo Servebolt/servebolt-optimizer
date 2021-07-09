@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
+use Servebolt\Optimizer\Traits\EventToggler;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 
@@ -15,19 +16,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
  */
 class AttachmentUpdateTrigger
 {
-    use Singleton;
-
-    public static function on(): void
-    {
-        $instance = self::getInstance();
-        $instance->registerEvents();
-    }
-
-    public static function off(): void
-    {
-        $instance = self::getInstance();
-        $instance->deregisterEvents();
-    }
+    use Singleton, EventToggler;
 
     public function deregisterEvents(): void
     {

@@ -38,16 +38,9 @@ class WpObjectCachePurgeActions
 
     public static function reloadEvents(): void
     {
-        ContentChangeTrigger::off();
-        ContentChangeTrigger::on();
-
-        SlugChangeTrigger::off();
-        SlugChangeTrigger::on();
-
-        DeletionCacheTrigger::off();
-        DeletionCacheTrigger::on();
-
-        AttachmentUpdateTrigger::on();
-        AttachmentUpdateTrigger::off();
+        ContentChangeTrigger::reload();
+        SlugChangeTrigger::reload();
+        DeletionCacheTrigger::reload();
+        AttachmentUpdateTrigger::reload();
     }
 }
