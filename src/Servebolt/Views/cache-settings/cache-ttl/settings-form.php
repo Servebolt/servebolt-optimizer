@@ -10,32 +10,44 @@
 
     <br>
 
-    <pre><?php print_r($settings); ?></pre>
+    <fieldset>
+        <legend class="screen-reader-text"><span><?php _e('Custom cache TTL-feature active?', 'servebolt-wp'); ?></span></legend>
+        <label for="custom_cache_ttl_switch">
+            <input name="<?php echo getOptionName('custom_cache_ttl_switch'); ?>" type="checkbox" class="options-field-switch" id="custom_cache_ttl_switch" value="1" <?php checked($settings['custom_cache_ttl_switch']); ?>>
+            <?php _e('Enable custom cache TTL', 'servebolt-wp'); ?>
+        </label><br><br>
+    </fieldset>
 
-    <table class="wp-list-table widefat striped">
+    <table class="wp-list-table widefat striped" id="options-field"<?php if (!$settings['custom_cache_ttl_switch']) echo ' style="display: none;"'; ?>>
         <thead>
             <tr>
                 <th><?php _e('Post type', 'servebolt-wp'); ?></th>
                 <th><?php _e('TTL', 'servebolt-wp'); ?></th>
             </tr>
         </thead>
-        <tbody>
-        <?php foreach (get_post_types([], 'objects') as $postType): ?>
-        <?php $currentTtl = arrayGet($postType->name, arrayGet('cache_ttl_preset', $settings)); ?>
+
+        <?php foreach ($postTypes as $postType): ?>
+        <?php $currentTtlPreset = arrayGet($postType->name, arrayGet('cache_ttl_by_post_type', $settings)); ?>
         <?php $customTtl = arrayGet($postType->name, arrayGet('custom_cache_ttl', $settings)); ?>
             <tr>
                 <td><?php echo $postType->label; ?></td>
                 <td>
-                    <select class="sb-post-type-ttl-selector" name="<?php echo getOptionName('cache_ttl_preset[' . $postType->name . ']'); ?>">
+                    <select class="sb-post-type-ttl-selector" name="<?php echo getOptionName('cache_ttl_by_post_type[' . $postType->name . ']'); ?>">
                         <?php foreach($cacheTtlOptions as $key => $value): ?>
-                        <option value="<?php echo esc_attr($value); ?>" <?php selected($value == $currentTtl); ?>><?php echo $key . (is_numeric($value) ? ' (' . $value . ' seconds)' : '') ?></option>
+                        <option value="<?php echo esc_attr($key); ?>" <?php selected($key == $currentTtlPreset); ?>><?php echo $value['label'] . (isset($value['ttl']) ? ' (' . $value['ttl'] . ' seconds)' : '') ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <input type="number" min="0" <?php if ($currentTtl !== 'custom') echo 'style="display: none;"'; ?> placeholder="<?php _e('Must be a number', 'servebolt-wp'); ?>" value="<?php echo esc_attr($customTtl); ?>" name="<?php echo getOptionName('custom_cache_ttl[' . $postType->name . ']'); ?>">
+                    <input type="number" min="0" <?php if ($currentTtlPreset !== 'custom') echo 'style="display: none;"'; ?> placeholder="<?php _e('Seconds', 'servebolt-wp'); ?>" value="<?php echo esc_attr($customTtl); ?>" name="<?php echo getOptionName('custom_cache_ttl[' . $postType->name . ']'); ?>">
                 </td>
             </tr>
         <?php endforeach; ?>
         </tbody>
+        <tfoot>
+            <tr>
+                <th><?php _e('Post type', 'servebolt-wp'); ?></th>
+                <th><?php _e('TTL', 'servebolt-wp'); ?></th>
+            </tr>
+        </tfoot>
     </table>
 
     <?php submit_button(); ?>

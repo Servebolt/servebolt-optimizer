@@ -27,40 +27,47 @@ class FullPageCacheHeaders
 {
     use Singleton;
 
-	/**
-	 * The post types that are cacheable.
-	 *
-	 * @var array
-	 */
-	private $postTypes = [];
+    /**
+     * The post types that are cacheable.
+     *
+     * @var array
+     */
+    private $postTypes = [];
 
-	/**
-	 * Whether headers are already set for this request.
-	 *
-	 * @var bool
-	 */
-	private $headersAlreadySet = false;
+    /**
+     * Whether headers are already set for this request.
+     *
+     * @var bool
+     */
+    private $headersAlreadySet = false;
 
-	/**
-	 * The default browser cache time.
-	 *
-	 * @var int
-	 */
-	private $browserCacheTime = 600;
+    /**
+     * The default browser cache time.
+     *
+     * @var int
+     */
+    private $browserCacheTime = 600;
 
-	/**
-	 * The default Full Page Cache time.
-	 *
-	 * @var int
-	 */
-	private $fpcCacheTime = 600;
+    /**
+     * The default Full Page Cache time.
+     *
+     * @var int
+     */
+    private $defaultFpcCacheTime = 600;
 
-	/**
-	 * Whether we should attempt to set headers even tho headers are already sent (not good practice, should be fixed).
-	 *
-	 * @var bool
-	 */
-	private static $allowForceHeaders = false;
+    /**
+     * The Full Page Cache time.
+     *
+     * @var null|int
+     */
+    private $fpcCacheTime = null;
+
+    /**
+     * Whether we should attempt to set headers even tho headers are already sent (not good practice, should be fixed).
+     *
+     * @var bool
+     */
+    private static $allowForceHeaders = false;
 
     /**
      * @var bool Whether to mock the cache set action (for testing purposes).
@@ -80,28 +87,28 @@ class FullPageCacheHeaders
         self::getInstance();
     }
 
-	/**
-	 * FullPageCacheHeaders constructor.
-	 */
-	private function __construct()
+    /**
+     * FullPageCacheHeaders constructor.
+     */
+    private function __construct()
     {
 
-		// Handle "no_cache"-header for authenticated users.
+        // Handle "no_cache"-header for authenticated users.
         FullPageCacheAuthHandling::init();
 
-		// Unauthenticated cache handling
+        // Unauthenticated cache handling
         if ($this->shouldSetCacheHeaders()) {
             add_filter('posts_results', [$this, 'setHeaders']);
             add_filter('template_include', [$this, 'lastCall']);
         }
-	}
+    }
 
     /**
      * Check whether we should set cache headers or not (disable cache when in WP Admin, AJAX-context, REST API-context or WP Cron-context).
      *
      * @return bool
      */
-	public function shouldSetCacheHeaders(): bool
+    public function shouldSetCacheHeaders(): bool
     {
         if (is_admin() || isAjax() || isWpRest() || isCron()) {
             return false;
@@ -117,22 +124,22 @@ class FullPageCacheHeaders
         $this->headersAlreadySet = $boolean;
     }
 
-	/**
-	 * Set cache headers - Determine and set the type of headers to be used.
-	 *
-	 * @param $posts
-	 *
-	 * @return mixed
-	 */
-	public function setHeaders($posts)
+    /**
+     * Set cache headers - Determine and set the type of headers to be used.
+     *
+     * @param $posts
+     *
+     * @return mixed
+     */
+    public function setHeaders($posts)
     {
-		$debug = $this->shouldDebug();
+        $debug = $this->shouldDebug();
 
-		// Abort if cache headers are already set
-		if ($this->headersAlreadySet) {
+        // Abort if cache headers are already set
+        if ($this->headersAlreadySet) {
             return $posts;
         }
-		$this->setHeaderAlreadySetState(true);
+        $this->setHeaderAlreadySetState(true);
 
         // Set "no cache"-headers if FPC is not active, or if we are logged in
         if (!FullPageCacheSettings::fpcIsActive() || $this->isAuthenticatedUser()) {
@@ -143,29 +150,29 @@ class FullPageCacheHeaders
             return $posts;
         }
 
-		global $wp_query;
-		$postType = get_post_type();
+        global $wp_query;
+        $postType = get_post_type();
 
-		// We don't have any posts at the time, abort
-		if (!isset($wp_query) || !$postType) {
+        // We don't have any posts at the time, abort
+        if (!isset($wp_query) || !$postType) {
             $this->setHeaderAlreadySetState(false);
-			return $posts;
-		}
+            return $posts;
+        }
 
-		// Only trigger this function once
-		remove_filter('posts_results', [$this, 'setHeaders']);
+        // Only trigger this function once
+        remove_filter('posts_results', [$this, 'setHeaders']);
 
-		if ($this->isWoocommerceNoCachePage()) {
-			$this->noCacheHeaders();
-			if ($debug) {
+        if ($this->isWoocommerceNoCachePage()) {
+            $this->noCacheHeaders();
+            if ($debug) {
                 $this->header('No-cache-trigger: 2');
             }
-		} elseif ($this->isWoocommerceCachePage()) {
-			$this->cacheHeaders();
-			if ($debug) {
+        } elseif ($this->isWoocommerceCachePage()) {
+            $this->cacheHeaders();
+            if ($debug) {
                 $this->header('Cache-trigger: 11');
             }
-		} elseif (is_archive() && $this->shouldCacheArchive($posts)) {
+        } elseif (is_archive() && $this->shouldCacheArchive($posts)) {
             // Make sure the archive has only cacheable posts
             $this->cacheHeaders();
             if ($debug) {
@@ -184,37 +191,37 @@ class FullPageCacheHeaders
                 $this->header('Cache-trigger: 5');
             }
         } elseif ($this->cacheAllPostTypes()) {
-			// Make sure the post type can be cached
-			$this->postTypes[] = $postType;
-			$this->cacheHeaders();
-			if ($debug) {
+            // Make sure the post type can be cached
+            $this->postTypes[] = $postType;
+            $this->cacheHeaders();
+            if ($debug) {
                 $this->header('Cache-trigger: 4');
             }
-		} elseif (empty(self::getPostTypesToCache())) {
-			$this->postTypes[] = $postType;
-			if ($debug) {
+        } elseif (empty(self::getPostTypesToCache())) {
+            $this->postTypes[] = $postType;
+            if ($debug) {
                 $this->header('Cache-trigger: 7');
             }
-			if (in_array($postType , self::getDefaultPostTypesToCache())) {
-				$this->cacheHeaders();
-				if ($debug) {
+            if (in_array($postType, self::getDefaultPostTypesToCache())) {
+                $this->cacheHeaders();
+                if ($debug) {
                     $this->header('Cache-trigger: 8');
                 }
-			}
-		} elseif (empty(self::getPostTypesToCache()) && (is_front_page() || is_singular() || is_page())) {
-			$this->cacheHeaders();
-			if ($debug) {
+            }
+        } elseif (empty(self::getPostTypesToCache()) && (is_front_page() || is_singular() || is_page())) {
+            $this->cacheHeaders();
+            if ($debug) {
                 $this->header('Cache-trigger: 9');
             }
-		} else {
-			// Default to no-cache headers
-			$this->noCacheHeaders();
-			if ($debug) {
+        } else {
+            // Default to no-cache headers
+            $this->noCacheHeaders();
+            if ($debug) {
                 $this->header('No-cache-trigger: 10');
             }
-		}
-		return $posts;
-	}
+        }
+        return $posts;
+    }
 
     /**
      * Check if we are in a WooCommerce-context and check if we should not cache.
@@ -236,23 +243,23 @@ class FullPageCacheHeaders
         return apply_filters('sb_optimizer_fpc_woocommerce_pages_cache_bool', (woocommerceIsActive() && (is_shop() || is_product_category() || is_product_tag() || is_product())));
     }
 
-	/**
-	 * Whether we should debug headers or not.
-	 *
-	 * @return bool
-	 */
-	private function shouldDebug(): bool
+    /**
+     * Whether we should debug headers or not.
+     *
+     * @return bool
+     */
+    private function shouldDebug(): bool
     {
-		return apply_filters('sb_optimizer_fpc_should_debug_headers', isDebug());
-	}
+        return apply_filters('sb_optimizer_fpc_should_debug_headers', isDebug());
+    }
 
-	/**
-	 * Set a header by best effort.
-	 *
-	 * @param string $key
-	 * @param null|string $value
-	 */
-	public function header(string $key, ?string $value = null)
+    /**
+     * Set a header by best effort.
+     *
+     * @param string $key
+     * @param null|string $value
+     */
+    public function header(string $key, ?string $value = null)
     {
 
         if (!$value) {
@@ -261,23 +268,23 @@ class FullPageCacheHeaders
             $string = $key . ': ' . $value;
         }
 
-		// Abort if headers are already sent
-		if (headers_sent() && !self::$allowForceHeaders) {
+        // Abort if headers are already sent
+        if (headers_sent() && !self::$allowForceHeaders) {
             writeLog(sprintf('Servebolt Optimizer attempted to set header "%s", but headers were already sent.', $string));
-			return;
-		}
+            return;
+        }
 
-		// WP action already passed but headers are not yet sent
-		if (did_action('send_headers')) {
-		    self::printHeader($string);
-			return;
-		}
-
-		// Set headers using WP's "send_headers"-action
-		add_action('send_headers', function () use ($string) {
+        // WP action already passed but headers are not yet sent
+        if (did_action('send_headers')) {
             self::printHeader($string);
-		});
-	}
+            return;
+        }
+
+        // Set headers using WP's "send_headers"-action
+        add_action('send_headers', function () use ($string) {
+            self::printHeader($string);
+        });
+    }
 
     /**
      * Set whether to mock or not.
@@ -300,7 +307,7 @@ class FullPageCacheHeaders
      *
      * @return array
      */
-	public static function getMockHeaders(): array
+    public static function getMockHeaders(): array
     {
         return self::$mockHeaders;
     }
@@ -310,7 +317,7 @@ class FullPageCacheHeaders
      *
      * @param $string
      */
-	private static function printHeader($string): void
+    private static function printHeader($string): void
     {
         if (self::$mock === true) {
             self::$mockHeaders[] = $string;
@@ -319,78 +326,99 @@ class FullPageCacheHeaders
         }
     }
 
-	/**
-	 * Last call - Run a last call to the set headers function before the template is loaded.
-	 *
-	 * @param $template
-	 *
-	 * @return mixed
-	 */
-	public function lastCall($template)
+    /**
+     * Last call - Run a last call to the set headers function before the template is loaded.
+     *
+     * @param $template
+     *
+     * @return mixed
+     */
+    public function lastCall($template)
     {
         $this->setHeaders([get_post()]);
         return $template;
     }
 
-	/**
-	 * Check if cache is active for given post type.
-	 *
-	 * @param $postType
-	 *
-	 * @return bool
-	 */
-	private function cacheActiveForPostType($postType): bool
+    /**
+     * Check if cache is active for given post type.
+     *
+     * @param $postType
+     *
+     * @return bool
+     */
+    private function cacheActiveForPostType($postType): bool
     {
         if ($postType === 'all') {
             return true;
         }
-		if (in_array($postType, (array) self::getPostTypesToCache())) {
-			return true;
-		}
-		return false;
-	}
+        if (in_array($postType, (array)self::getPostTypesToCache())) {
+            return true;
+        }
+        return false;
+    }
 
-	/**
-	 * Check if cache is active for all post types.
-	 *
-	 * @return bool
-	 */
-	private function cacheAllPostTypes()
+    /**
+     * Check if cache is active for all post types.
+     *
+     * @return bool
+     */
+    private function cacheAllPostTypes()
     {
-		return $this->cacheActiveForPostType('all');
-	}
+        return $this->cacheActiveForPostType('all');
+    }
 
-	/**
-	 * Check if we should cache an archive.
-	 *
-	 * @param  array $posts Posts in the archive
-	 * @return boolean      Return true if all posts are cacheable
-	 */
-	private function shouldCacheArchive($posts): bool
+    /**
+     * Check if we should cache an archive.
+     *
+     * @param array $posts Posts in the archive
+     * @return boolean      Return true if all posts are cacheable
+     */
+    private function shouldCacheArchive($posts): bool
     {
-        $postTypesToCache = (array) self::getPostTypesToCache();
-		foreach ($posts as $post) {
+        $postTypesToCache = (array)self::getPostTypesToCache();
+        foreach ($posts as $post) {
             if (!in_array($post->post_type, $postTypesToCache)) {
-				return false;
-			} elseif (!in_array($post->post_type, (array) $this->postTypes)) {
-				$this->postTypes[] = $post->post_type;
-			}
-		}
-		return true;
-	}
+                return false;
+            } elseif (!in_array($post->post_type, (array)$this->postTypes)) {
+                $this->postTypes[] = $post->post_type;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Get the cache TTL.
+     *
+     * @param string|null $postType
+     * @return int
+     */
+    private function getTtl(?string $postType = null): int
+    {
+        // Conditional TTL
+        if ($postType && $ttl = CacheTtl::getTtlByPostType($postType)) {
+            return $ttl;
+        }
+
+        // Default TTL
+        if (is_null($this->fpcCacheTime)) {
+            // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $fpcCacheTime if it is
+            $this->fpcCacheTime = defined('SERVEBOLT_FPC_CACHE_TIME') ? (int) SERVEBOLT_FPC_CACHE_TIME : $this->defaultFpcCacheTime;
+        }
+        return $this->fpcCacheTime;
+    }
 
 	/**
 	 * Cache headers - Print headers that encourage caching.
 	 */
-	private function cacheHeaders()
+	private function cacheHeaders(?string $postType = null)
     {
         do_action('sb_optimizer_fpc_cache_headers', $this);
-
         if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true)) {
-            // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $serveboltNginxCacheTime if it is
-            if (defined('SERVEBOLT_FPC_CACHE_TIME')) {
-                $this->fpcCacheTime = SERVEBOLT_FPC_CACHE_TIME;
+
+            if (is_null($postType)) {
+                $postType = get_post_type();
             }
+            $fpcCacheTime = $this->getTtl($postType);
 
             // Check if the constant SERVEBOLT_BROWSER_CACHE_TIME is set, and override $serveboltBrowserCacheTime if it is
             if (defined('SERVEBOLT_BROWSER_CACHE_TIME')) {
@@ -402,11 +430,11 @@ class FullPageCacheHeaders
             header_remove('Expires');
 
             // Allow browser to cache content for 10 minutes, or the set browser cache time constant
-            $this->header(sprintf('Cache-Control: max-age=%s, public, s-maxage=%s', $this->browserCacheTime, $this->fpcCacheTime));
+            $this->header(sprintf('Cache-Control: max-age=%s, public, s-maxage=%s', $this->browserCacheTime, $fpcCacheTime));
             $this->header('Pragma: public');
 
             // Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
-            $expiryString = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $this->fpcCacheTime) . ' GMT';
+            $expiryString = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $fpcCacheTime) . ' GMT';
             $this->header(sprintf('Expires: %s', $expiryString));
             $this->header('X-Servebolt-Plugin: active');
         }

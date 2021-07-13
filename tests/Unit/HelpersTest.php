@@ -532,6 +532,13 @@ class HelpersTest extends ServeboltWPUnitTestCase
                     case 'cache_purge_auto_on_attachment_update':
                         $this->assertTrue($value);
                         break;
+                    case 'cache_ttl_by_post_type':
+                        $this->assertIsArray($value);
+                        $this->assertArrayHasKey('post', $value);
+                        $this->assertArrayHasKey('page', $value);
+                        $this->assertEquals('default', $value['post']);
+                        $this->assertEquals('default', $value['page']);
+                        break;
                     default:
                         $this->assertNull($value);
                         break;

@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Admin\FullPageCacheControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\FullPageCache\CacheTtl;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
@@ -29,7 +30,6 @@ class CacheTtlControl
      */
     public function __construct()
     {
-        $this->initAjax();
         $this->initAssets();
         $this->initSettings();
         $this->rewriteHighlightedMenuItem();
@@ -62,18 +62,13 @@ class CacheTtlControl
     public function render(): void
     {
         $settings = $this->getSettingsItemsWithValues();
-        $cacheTtlOptions = [
-            'Off' => 0,
-            'Very short' => 600,
-            'Short' => 43200,
-            'Default' => 86000,
-            'Long' => 1209600,
-            'Custom' => 'custom',
-        ];
+        $cacheTtlOptions = CacheTtl::getTtlPresets();
+        $postTypes = CacheTtl::getPostTypes();
         view(
             'cache-settings.cache-ttl.cache-ttl',
             compact([
                 'settings',
+                'postTypes',
                 'cacheTtlOptions',
             ])
         );
@@ -87,11 +82,6 @@ class CacheTtlControl
     private function maxNumberOfCachePurgeQueueItems() : int
     {
         return (int) apply_filters('sb_optimizer_purge_item_list_limit', 500);
-    }
-
-    private function initAjax(): void
-    {
-
     }
 
     private function initAssets(): void
@@ -157,7 +147,8 @@ class CacheTtlControl
     private function getSettingsItems(): array
     {
         return [
-            'cache_ttl_preset',
+            'custom_cache_ttl_switch',
+            'cache_ttl_by_post_type',
             'custom_cache_ttl',
         ];
     }

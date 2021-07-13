@@ -20,7 +20,7 @@
                 </fieldset>
             </td>
         </tr>
-        <tbody id="tbody-options"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>>
+        <tbody id="options-field"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>>
             <tr>
                 <th scope="row"><?php _e('Manifest files', 'servebolt-wp'); ?></th>
                 <td>
