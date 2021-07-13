@@ -530,6 +530,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
                     case 'cache_purge_auto_on_slug_change':
                     case 'cache_purge_auto_on_deletion':
                     case 'cache_purge_auto_on_attachment_update':
+                    case 'custom_cache_ttl_switch':
                         $this->assertTrue($value);
                         break;
                     case 'cache_ttl_by_post_type':
