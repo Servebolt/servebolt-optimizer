@@ -1398,6 +1398,19 @@ function yoastSeoPremiumIsActive(): bool
 }
 
 /**
+ * Check whether plugin Jetpack is active.
+ *
+ * @return bool
+ */
+function jetpackIsActive(): bool
+{
+    if (!function_exists('is_plugin_active')) {
+        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    }
+    return is_plugin_active('jetpack/jetpack.php');
+}
+
+/**
  * Instantiate the filesystem class
  *
  * @param bool $ensureConstantsAreSet
