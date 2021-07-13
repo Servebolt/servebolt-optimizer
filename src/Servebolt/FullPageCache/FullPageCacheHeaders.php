@@ -395,7 +395,7 @@ class FullPageCacheHeaders
     private function getTtl(?string $postType = null): int
     {
         // Conditional TTL
-        if ($postType && $ttl = CacheTtl::getTtlByPostType($postType)) {
+        if (CacheTtl::isActive() && $postType && $ttl = CacheTtl::getTtlByPostType($postType)) {
             return $ttl;
         }
 

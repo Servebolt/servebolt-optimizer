@@ -41,6 +41,7 @@ class CacheTtl
     private function defaultOptionValues(): void
     {
         setDefaultOption('cache_ttl_by_post_type', __CLASS__ . '::cacheTtlPresetDefaultValues');
+        setDefaultOption('custom_cache_ttl_switch', '__return_true');
     }
 
     /**
