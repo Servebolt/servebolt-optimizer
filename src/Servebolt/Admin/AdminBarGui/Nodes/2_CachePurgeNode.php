@@ -5,9 +5,9 @@ namespace Servebolt\Optimizer\Admin\AdminBarGui\Nodes;
 if (!defined('ABSPATH')) exit;
 
 use Servebolt\Optimizer\Admin\AdminBarGui\NodeInterface;
+use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use function Servebolt\Optimizer\Helpers\getPostTypeSingularName;
-use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
 use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
 
 /**
@@ -89,7 +89,7 @@ class CachePurgeNode implements NodeInterface
     {
         if (!apply_filters(
             'sb_optimizer_admin_bar_cache_purge_can_purge_all',
-            current_user_can('manage_options')
+            PurgeActions::canPurgeAllCache()
         )) {
             return;
         }
@@ -110,7 +110,7 @@ class CachePurgeNode implements NodeInterface
     {
         if (!apply_filters(
             'sb_optimizer_admin_bar_cache_purge_can_purge_url',
-            current_user_can('manage_options')
+            PurgeActions::canPurgeCacheByUrl()
         )) {
             return;
         }
@@ -135,7 +135,7 @@ class CachePurgeNode implements NodeInterface
         if (!$postId = self::getSinglePostId()) {
             return;
         }
-        if (!current_user_can('edit_post', $postId)) {
+        if (!PurgeActions::canPurgePostCache($postId)) {
             return;
         }
         $objectName = getPostTypeSingularName($postId);
@@ -161,10 +161,7 @@ class CachePurgeNode implements NodeInterface
         if (!$termId = self::getSingleTermId()) {
             return;
         }
-        if (!$taxonomyObject = getTaxonomyFromTermId($termId)) {
-            return;
-        }
-        if (!current_user_can($taxonomyObject->cap->manage_terms)) {
+        if (!PurgeActions::canPurgeTermCache($termId)) {
             return;
         }
         $objectName = getTaxonomySingularName($termId);
