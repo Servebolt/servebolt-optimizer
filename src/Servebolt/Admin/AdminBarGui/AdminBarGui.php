@@ -70,12 +70,12 @@ class AdminBarGui
     private function initNodes(): array
     {
         $allNodes = [];
-        $nodeClasses = glob(__DIR__ . '/Nodes/*.php');
-        foreach ($nodeClasses as $nodeClass) {
-            require_once $nodeClass;
-            $className = explode('_', basename($nodeClass, '.php'));
-            $className = end($className);
-            $class = '\\Servebolt\\Optimizer\\Admin\\AdminBarGui\\Nodes\\' . $className;
+        $nodeClassFiles = glob(__DIR__ . '/Nodes/*.php');
+        foreach ($nodeClassFiles as $nodeClassFile) {
+            require_once $nodeClassFile;
+            $fileNameParts = explode('_', basename($nodeClassFile, '.php'));
+            $className = end($fileNameParts);
+            $class = __NAMESPACE__ . '\\Nodes\\' . $className;
             if ($class::shouldDisplayNodes() && $nodes = $class::generateNodes()) {
                 $allNodes = array_merge($allNodes, $nodes);
             }

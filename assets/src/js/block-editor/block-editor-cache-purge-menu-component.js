@@ -139,13 +139,17 @@ class ServeboltCachePurgeMenuComponent extends Component {
                     { sprintf(_n('Purge %s cache', 'sb-optimizer'), postTypeName) }
                 </Button>
                 }
+                {sb_ajax_object_block_editor_menu.canPurgeAllCache &&
                 <Button className="sb-button yellow" onClick={ () => window.sb_purge_all_cache() }>
                     { _x('Purge all cache', 'text', 'sb-optimizer') }
                 </Button>
+                }
 
-                <Button className="sb-button yellow" onClick={ () => window.sb_purge_url_cache() }>
-                    { _x('Purge a URL', 'text', 'sb-optimizer') }
+                {sb_ajax_object_block_editor_menu.canPurgeCacheByUrl &&
+                <Button className="sb-button yellow" onClick={() => window.sb_purge_url_cache()}>
+                  {_x('Purge a URL', 'text', 'sb-optimizer')}
                 </Button>
+                }
 
             </PluginSidebar>
         </Fragment>

@@ -4,7 +4,9 @@ namespace Servebolt\Optimizer\Admin;
 
 if (!defined('ABSPATH')) exit;
 
+use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
+use Servebolt\Optimizer\CachePurge\CachePurge;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\getAjaxNonce;
 use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
@@ -79,10 +81,10 @@ class Assets {
             'servebolt-optimizer-styling',
             'assets/dist/css/admin-style.css'
         );
-        if ($this->isGutenberg() && apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true)) {
+        if ($this->isBlockEditor() && apply_filters('sb_optimizer_add_block_editor_plugin_menu', true)) {
             $this->enqueueStyle(
-                'servebolt-optimizer-gutenberg-menu-styling',
-                'assets/dist/css/gutenberg-menu.css'
+                'servebolt-optimizer-block-editor-menu-styling',
+                'assets/dist/css/block-editor-menu.css'
             );
         }
     }
@@ -117,13 +119,19 @@ class Assets {
      */
 	public function pluginAdminScripts(): void
     {
-        if ($this->isGutenberg() && apply_filters('sb_optimizer_add_gutenberg_plugin_menu', true)) {
+        if ($this->isBlockEditor() && apply_filters('sb_optimizer_add_block_editor_plugin_menu', true)) {
             $this->enqueueScript(
-                'servebolt-optimizer-gutenberg-cache-purge-menu-scripts',
-                'assets/dist/js/gutenberg-cache-purge-menu.js',
+                'servebolt-optimizer-block-editor-cache-purge-menu-scripts',
+                'assets/dist/js/block-editor-cache-purge-menu.js',
                 [],
                 true
             );
+            $cacheFeatureActive = CachePurge::featureIsAvailable();
+            wp_localize_script('servebolt-optimizer-block-editor-cache-purge-menu-scripts', 'sb_ajax_object_block_editor_menu', [
+                'cacheFeatureActive' => $cacheFeatureActive,
+                'canPurgeAllCache' => $cacheFeatureActive && PurgeActions::canPurgeAllCache(),
+                'canPurgeCacheByUrl' => $cacheFeatureActive && PurgeActions::canPurgeCacheByUrl(),
+            ]);
         }
     }
 
@@ -165,11 +173,11 @@ class Assets {
 	}
 
     /**
-     * Check whether current screen is Gutenberg-editor.
+     * Check whether current screen is the block editor.
      *
      * @return bool
      */
-    private function isGutenberg(): bool
+    private function isBlockEditor(): bool
     {
         $currentScreen = get_current_screen();
         return $currentScreen && method_exists($currentScreen, 'is_block_editor') && $currentScreen->is_block_editor();
