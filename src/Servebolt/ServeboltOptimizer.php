@@ -17,7 +17,7 @@ use Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Queue\QueueEventHandler;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
-use Servebolt\Optimizer\Admin\AdminBarGUI\AdminBarGUI;
+use Servebolt\Optimizer\Admin\AdminBarGui\AdminBarGui;
 use Servebolt\Optimizer\Admin\Assets as AdminAssets;
 use Servebolt\Optimizer\Admin\AdminGuiController;
 use Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
@@ -95,7 +95,7 @@ class ServeboltOptimizer
         new WpCachePurge;
 
         // Load this admin bar interface
-        AdminBarGUI::init();
+        AdminBarGui::init();
 
         // Load assets
         new AdminAssets;

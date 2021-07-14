@@ -1420,11 +1420,11 @@ function wpDirectFilesystem(bool $ensureConstantsAreSet = false): object
 {
     if ($ensureConstantsAreSet || (defined('WP_TESTS_ARE_RUNNING') && WP_TESTS_ARE_RUNNING === true)) {
         // Set the permission constants if not already set.
-        if ( ! defined( 'FS_CHMOD_DIR' ) ) {
-            define( 'FS_CHMOD_DIR', ( fileperms( ABSPATH ) & 0777 | 0755 ) );
+        if (!defined('FS_CHMOD_DIR')) {
+            define('FS_CHMOD_DIR', (fileperms(ABSPATH) & 0777 | 0755));
         }
-        if ( ! defined( 'FS_CHMOD_FILE' ) ) {
-            define( 'FS_CHMOD_FILE', ( fileperms( ABSPATH . 'index.php' ) & 0777 | 0644 ) );
+        if (!defined('FS_CHMOD_FILE')) {
+            define('FS_CHMOD_FILE', (fileperms(ABSPATH . 'index.php') & 0777 | 0644));
         }
     }
     require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
