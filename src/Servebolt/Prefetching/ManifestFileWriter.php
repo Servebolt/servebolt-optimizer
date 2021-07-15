@@ -2,9 +2,9 @@
 
 namespace Servebolt\Optimizer\Prefetching;
 
-use function Servebolt\Optimizer\Helpers\wpDirectFilesystem;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\wpDirectFilesystem;
 
 /**
  * Class ManifestWriter
@@ -290,14 +290,18 @@ class ManifestFileWriter
 
         // We can force to HTTPS since ACD only runs on HTTPS
         if (empty($url['scheme'])) {
-            $url['scheme'] = 'https';
+            $url['scheme'] = apply_filters('sb_optimizer_prefetch_item_scheme', 'https');
         }
 
         // We only want to prefetch stuff from current domain for now
         if (!self::shouldLimitHostname() || strpos($url['host'], $domain['host']) !== false) {
 
-            //$line = $url['scheme'] . '://' . $url['host'] . $url['path'];
-            $line = apply_filters('sb_optimizer_prefetch_handle_item', $url['path'], $url);
+            if (apply_filters('sb_optimizer_prefetch_include_domain', false)) {
+                $line = $url['scheme'] . '://' . $url['host'] . $url['path'];
+            } else {
+                $line = $url['path'];
+            }
+            $line = apply_filters('sb_optimizer_prefetch_handle_item', $line, $url);
 
             // If a version string exists we most likely need to add that to the url
             if (array_key_exists('ver', $prefetchItem) && $prefetchItem['ver']) {

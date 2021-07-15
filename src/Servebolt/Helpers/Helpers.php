@@ -116,13 +116,18 @@ function displayValue($value, bool $return = true, bool $arrayToCsv = false)
  * Check if current user has capability, abort if not.
  *
  * @param bool $returnResult
- * @param string $capability
+ * @param string|callable $capability
  *
- * @return mixed
+ * @return bool|mixed
  */
-function ajaxUserAllowed(bool $returnResult = false, string $capability = 'manage_options')
+function ajaxUserAllowed(bool $returnResult = false, $capability = 'manage_options')
 {
-    $userCan = apply_filters('sb_optimizer_ajax_user_allowed', current_user_can($capability));
+    if (is_callable($capability)) {
+        $userCan = $capability();
+    } else {
+        $userCan = current_user_can($capability);
+    }
+    $userCan = apply_filters('sb_optimizer_ajax_user_allowed', $userCan);
     if ($returnResult) {
         return $userCan;
     }
@@ -333,18 +338,47 @@ function cacheCookieCheck(): void
 }
 
 /**
- * Get taxonomy singular name by term.
+ * Get taxonomy object by term Id.
+ *
+ * @param int $termId
+ * @return object|null
+ */
+function getTaxonomyFromTermId(int $termId): ?object
+{
+    if ($term = get_term($termId)) {
+        if ($taxonomyObject = get_taxonomy($term->taxonomy)) {
+            return $taxonomyObject;
+        }
+    }
+    return null;
+}
+
+/**
+ * Get for filter/actions on hook.
+ *
+ * @param string|null $hook
+ * @return object|null
+ */
+function getFiltersForHook(?string $hook = null): ?object
+{
+    global $wp_filter;
+    if (empty($hook) || !isset($wp_filter[$hook])) {
+        return null;
+    }
+    return $wp_filter[$hook];
+}
+
+/**
+ * Get taxonomy singular name by term Id.
  *
  * @param int $termId
  * @return string
  */
 function getTaxonomySingularName(int $termId): string
 {
-    if ($term = get_term($termId)) {
-        if ($taxonomyObject = get_taxonomy($term->taxonomy)) {
-            if (isset($taxonomyObject->labels->singular_name) && $taxonomyObject->labels->singular_name) {
-                return mb_strtolower($taxonomyObject->labels->singular_name);
-            }
+    if ($taxonomyObject = getTaxonomyFromTermId($termId)) {
+        if (isset($taxonomyObject->labels->singular_name) && $taxonomyObject->labels->singular_name) {
+            return mb_strtolower($taxonomyObject->labels->singular_name);
         }
     }
     return 'term';
@@ -397,9 +431,22 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         // CF Image resizing
         'cf_image_resizing',
 
+        // Advanced performance optimizations
+        'custom_text_domain_loader_switch',
+
+        // Prefetching
+        'prefetch_switch',
+        'prefetch_file_style_switch',
+        'prefetch_file_script_switch',
+        'prefetch_file_menu_switch',
+        'prefetch_full_url_switch',
+        'prefetch_max_number_of_lines',
+
         // Wipe Cache purge-related options
         'cache_purge_switch',
         'cache_purge_auto',
+        'cache_purge_auto_on_slug_change',
+        'cache_purge_auto_on_deletion',
         'cache_purge_driver',
         'cf_switch',
         'cf_zone_id',
@@ -441,6 +488,11 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'fpc_switch',
         'fpc_settings',
         'fpc_exclude',
+
+        // Custom cache TTL
+        'custom_cache_ttl_switch',
+        'cache_ttl_by_post_type',
+        'custom_cache_ttl',
     ];
 
     if ($includeMigrationOptions) {
@@ -604,7 +656,8 @@ function generateRandomPermanentKey(string $name, $blogId = null): string
  *
  * @param $key
  * @param $array
- * @param bool $defaultValue
+ * @param mixed|false $defaultValue
+ * @return false|mixed|null
  */
 function arrayGet($key, $array, $defaultValue = false)
 {
@@ -741,6 +794,8 @@ function formatPostTypeSlug(string $postType): string
 function featureIsAvailable(string $feature): ?bool
 {
     switch ($feature) {
+        case 'custom_text_domain_loader':
+            return true;
         case 'prefetching':
             return true;
         case 'cf_image_resize':
@@ -986,7 +1041,7 @@ function getVersionForStaticAsset(string $assetSrc): string
  */
 function requireSuperadmin()
 {
-    if (!is_multisite() || ! is_super_admin()) {
+    if (!is_multisite() || !is_super_admin()) {
         wp_die();
     }
 }
@@ -1354,6 +1409,19 @@ function yoastSeoPremiumIsActive(): bool
 }
 
 /**
+ * Check whether plugin Jetpack is active.
+ *
+ * @return bool
+ */
+function jetpackIsActive(): bool
+{
+    if (!function_exists('is_plugin_active')) {
+        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    }
+    return is_plugin_active('jetpack/jetpack.php');
+}
+
+/**
  * Instantiate the filesystem class
  *
  * @param bool $ensureConstantsAreSet
@@ -1363,11 +1431,11 @@ function wpDirectFilesystem(bool $ensureConstantsAreSet = false): object
 {
     if ($ensureConstantsAreSet || (defined('WP_TESTS_ARE_RUNNING') && WP_TESTS_ARE_RUNNING === true)) {
         // Set the permission constants if not already set.
-        if ( ! defined( 'FS_CHMOD_DIR' ) ) {
-            define( 'FS_CHMOD_DIR', ( fileperms( ABSPATH ) & 0777 | 0755 ) );
+        if (!defined('FS_CHMOD_DIR')) {
+            define('FS_CHMOD_DIR', (fileperms(ABSPATH) & 0777 | 0755));
         }
-        if ( ! defined( 'FS_CHMOD_FILE' ) ) {
-            define( 'FS_CHMOD_FILE', ( fileperms( ABSPATH . 'index.php' ) & 0777 | 0644 ) );
+        if (!defined('FS_CHMOD_FILE')) {
+            define('FS_CHMOD_FILE', (fileperms(ABSPATH . 'index.php') & 0777 | 0644));
         }
     }
     require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
@@ -1584,4 +1652,25 @@ function overrideMenuTitle(string $screen, string $overrideTitle): void
         }
         return $admin_title;
     }, 10, 2);
+}
+
+/**
+ * Get the URLs of all the sizes of an image.
+ *
+ * @param int $attachmentId
+ * @return array|null
+ */
+function getAllImageSizesByImage(int $attachmentId): ?array
+{
+    if (!wp_attachment_is_image($attachmentId)) {
+        return null;
+    }
+    $imageUrls = [];
+    foreach (get_intermediate_image_sizes() as $size) {
+        if ($imageUrl = wp_get_attachment_image_url($attachmentId, $size)) {
+            $imageUrls[] = $imageUrl;
+        }
+    }
+    $imageUrls = array_values(array_unique($imageUrls));
+    return $imageUrls;
 }

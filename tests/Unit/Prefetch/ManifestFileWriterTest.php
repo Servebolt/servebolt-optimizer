@@ -46,6 +46,14 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
 
     private function setUpManifestDummyData(): void
     {
+        /*
+        $var = json_encode(unserialize(file_get_contents(__DIR__ . '/dummy-data-serialized.txt')), JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES);
+        $var = str_replace('https://example.org', 'http://example.org', $var);
+        $var = str_replace('https://acdtest.local', 'http://example.org', $var);
+        file_put_contents(__DIR__ . '/dummy-data-serialized.txt', serialize(json_decode($var)));
+        die;
+        */
+
         if ($this->writeFromSerializedDataToJson) {
             file_put_contents(__DIR__ . '/dummy-data.json', json_encode(unserialize(file_get_contents(__DIR__ . '/dummy-data-serialized.txt')), JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES));
         }
@@ -88,6 +96,20 @@ class ManifestFileWriterTest extends ServeboltWPUnitTestCase
         $this->assertFileExists(ManifestFileWriter::getFilePath('menu'));
         $this->assertContains('/sample-page/', file_get_contents(ManifestFileWriter::getFilePath('menu')));
         $this->assertContains('/hello-world/', file_get_contents(ManifestFileWriter::getFilePath('menu')));
+    }
+
+    public function testThatWeCanUseFullUrlsInManifestFiles(): void
+    {
+        add_filter('sb_optimizer_prefetch_include_domain', '__return_true');
+        add_filter('sb_optimizer_prefetch_item_scheme', function() {
+            return 'http';
+        });
+        ManifestFileWriter::write();
+        remove_filter('sb_optimizer_prefetch_include_domain', '__return_true');
+        $this->assertFileExists(ManifestFileWriter::getFilePath('style'));
+        $lines = explode(PHP_EOL, file_get_contents(ManifestFileWriter::getFilePath('style')));
+        $this->assertContains(get_site_url() . '/wp-includes/css/admin-bar.min.css', $lines);
+        $this->assertContains(get_site_url() . '/wp-content/plugins/servebolt-optimizer/assets/dist/css/public-style.css?ver=3.1', $lines);
     }
 
     public function testThatPrioritizationWorks()

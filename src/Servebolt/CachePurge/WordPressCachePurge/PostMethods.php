@@ -50,13 +50,17 @@ trait PostMethods
      */
     public static function purgePostCache(int $postId): bool
     {
+        $shouldPurgeByQueue = self::shouldPurgeByQueue();
 
         // If this is just a revision, don't purge anything.
         if (!$postId || wp_is_post_revision($postId)) {
             return false;
         }
 
-        if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
+        do_action('sb_optimizer_purged_post_cache', $postId);
+        do_action('sb_optimizer_purged_post_cache_for_' . $postId);
+
+        if ($shouldPurgeByQueue) {
             $queueInstance = WpObjectQueue::getInstance();
             $queueItemData = [
                 'type' => 'post',
@@ -64,6 +68,7 @@ trait PostMethods
             ];
             if (has_filter('sb_optimizer_purge_by_post_original_url')) {
                 $originalUrl = apply_filters('sb_optimizer_purge_by_post_original_url', null);
+                remove_all_filters('sb_optimizer_purge_by_post_original_url');
                 if ($originalUrl && get_permalink($postId) !== $originalUrl) {
                     $queueItemData['original_url'] = $originalUrl;
                 }

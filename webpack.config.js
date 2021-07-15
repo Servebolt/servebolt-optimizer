@@ -117,7 +117,7 @@ const config = {
 
 		new ProgressBarPlugin({clear: false}),
 
-		//new MiniCssExtractPlugin({filename: 'css/gutenberg-menu.css'}),
+		//new MiniCssExtractPlugin({filename: 'css/block-editor-menu.css'}),
 
 		// Copy CSS-files
 		new CopyWebpackPlugin([{from: '*.css', to: 'css', 'context': 'assets/src/css/'}]),
@@ -159,11 +159,11 @@ module.exports = [
 
 	Object.assign({
 		entry: {
-			plugin: ['./assets/src/js/gutenberg/gutenberg-cache-purge-menu.js'],
+			plugin: ['./assets/src/js/block-editor/block-editor-cache-purge-menu.js'],
 		},
 		output: {
 			path: path.resolve(__dirname, './assets/dist/'),
-			filename: 'js/gutenberg-cache-purge-menu.js',
+			filename: 'js/block-editor-cache-purge-menu.js',
 		},
 	}, config),
 

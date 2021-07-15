@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\WpCron\Events;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\CachePurge;
+use function Servebolt\Optimizer\Helpers\getFiltersForHook;
 
 /**
  * Class MinuteEvent
@@ -36,28 +37,13 @@ class MinuteEvent
     }
 
     /**
-     * Get for filter/actions on hook.
-     *
-     * @param string|null $hook
-     * @return object|null
-     */
-    private function getFiltersForHook(?string $hook = null): ?object
-    {
-        global $wp_filter;
-        if (empty($hook) || !isset($wp_filter[$hook])) {
-            return null;
-        }
-        return $wp_filter[$hook];
-    }
-
-    /**
      * Check whether we have any actions registered on the hook/action for this event.
      *
      * @return bool
      */
     private function hasActionsRegistered(): bool
     {
-        return !empty($this->getFiltersForHook(self::$hook));
+        return !empty(getFiltersForHook(self::$hook));
     }
 
     /**

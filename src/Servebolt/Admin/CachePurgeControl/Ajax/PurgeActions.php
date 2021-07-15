@@ -4,16 +4,18 @@ namespace Servebolt\Optimizer\Admin\CachePurgeControl\Ajax;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Exception;
+use WP_Taxonomy;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
-use Exception;
 use Servebolt\Optimizer\Exceptions\ApiError;
 use Servebolt\Optimizer\Exceptions\ApiMessage;
 use Servebolt\Optimizer\Exceptions\QueueError;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\getPostTypeSingularName;
+use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
 use function Servebolt\Optimizer\Helpers\postExists;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 //use function Servebolt\Optimizer\Helpers\getBlogName;
@@ -47,12 +49,10 @@ class PurgeActions extends SharedAjaxMethods
      */
     private function ensureCachePurgeFeatureIsActive(): void
     {
-        if (!CachePurge::isActive()) {
-            wp_send_json_error(
-                [
-                    'message' => 'The cache purge feature is not active so we could not purge cache. Make sure you the configuration is correct.'
-                ]
-            );
+        if (!CachePurge::featureIsAvailable()) {
+            wp_send_json_error([
+                'message' => __('The cache purge feature is not active or is not configured correctly, so we could not purge cache.', 'servebolt-wp'),
+            ]);
         }
     }
 
@@ -68,12 +68,22 @@ class PurgeActions extends SharedAjaxMethods
     }
 
     /**
+     * Check if current user can purge all cache.
+     *
+     * @return bool
+     */
+    public static function canPurgeAllCache(): bool
+    {
+        return current_user_can('edit_others_posts');
+    }
+
+    /**
      * Purge all cache cache.
      */
     public function purgeAllCacheCallback()
     {
         $this->checkAjaxReferer();
-        ajaxUserAllowed();
+        ajaxUserAllowed(false, __CLASS__ . '::canPurgeAllCache');
 
         $this->ensureCachePurgeFeatureIsActive();
 
@@ -81,8 +91,8 @@ class PurgeActions extends SharedAjaxMethods
 
         if ($queueBasedCachePurgeIsActive && $this->hasPurgeAllRequestInQueue()) {
             wp_send_json_success([
-                'title' => 'All good!',
-                'message' => 'A purge all-request is already queued and should be executed shortly.',
+                'title' => __('All good!', 'servebolt-wp'),
+                'message' => __('A purge all-request is already queued and should be executed shortly.', 'servebolt-wp'),
             ]);
             return;
         }
@@ -91,11 +101,11 @@ class PurgeActions extends SharedAjaxMethods
             WordPressCachePurge::purgeAll();
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
-                    'title' => 'Just a moment',
-                    'message' => 'A purge all-request was added to the queue and will be executed shortly.',
+                    'title' => __('Just a moment', 'servebolt-wp'),
+                    'message' => __('A purge all-request was added to the queue and will be executed shortly.', 'servebolt-wp'),
                 ] );
             } else {
-                wp_send_json_success(['message' => 'All cache was purged.']);
+                wp_send_json_success(['message' => __('All cache was purged.', 'servebolt-wp')]);
             }
         } catch (QueueError $e) {
             // TODO: Handle response from queue system
@@ -139,12 +149,22 @@ class PurgeActions extends SharedAjaxMethods
     }
 
     /**
+     * Check if current user can purge cache by URL.
+     *
+     * @return bool
+     */
+    public static function canPurgeCacheByUrl(): bool
+    {
+        return current_user_can('edit_others_posts');
+    }
+
+    /**
      * Purge specific URL cache.
      */
     public function purgeUrlCacheCallback()
     {
         $this->checkAjaxReferer();
-        ajaxUserAllowed();
+        ajaxUserAllowed(false, __CLASS__ . '::canPurgeCacheByUrl');
 
         $this->ensureCachePurgeFeatureIsActive();
 
@@ -158,7 +178,7 @@ class PurgeActions extends SharedAjaxMethods
 
         if ($queueBasedCachePurgeIsActive && $this->urlAlreadyInQueue($url)) {
             wp_send_json_success([
-                'title' => 'All good!',
+                'title' => __('All good!', 'servebolt-wp'),
                 'message' => sprintf(__('A cache purge request for the URL "%s" is already added to the queue and should be executed shortly.'), $url)
             ]);
             return;
@@ -168,7 +188,7 @@ class PurgeActions extends SharedAjaxMethods
             WordPressCachePurge::purgeByUrl($url);
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success([
-                    'title' => 'Just a moment',
+                    'title' => __('Just a moment', 'servebolt-wp'),
                     'message' => sprintf(__('A cache purge request for the URL "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), $url),
                 ]);
             } else {
@@ -202,29 +222,46 @@ class PurgeActions extends SharedAjaxMethods
     }
 
     /**
+     * Check if current user can purge cache for given post.
+     *
+     * @param int $postId
+     * @return bool
+     */
+    public static function canPurgePostCache(int $postId): bool
+    {
+        return current_user_can('edit_others_posts')
+            || (
+                current_user_can('edit_published_posts')
+                && current_user_can('edit_post', $postId)
+            );
+    }
+
+    /**
      * Purge cache for post.
      */
     public function purgePostCacheCallback() : void
     {
         $this->checkAjaxReferer();
-        ajaxUserAllowed();
+
         $postId = intval(arrayGet('post_id', $_POST));
 
         $this->ensureCachePurgeFeatureIsActive();
 
         if (!$postId || empty($postId)) {
-            wp_send_json_error(['message' => 'Please specify the post you would like to purge cache for.']);
+            wp_send_json_error(['message' => __('Please specify the post you would like to purge cache for.', 'servebolt-wp')]);
             return;
         } elseif (!postExists($postId)) {
-            wp_send_json_error(['message' => 'The specified post does not exist.']);
+            wp_send_json_error(['message' => __('The specified post does not exist.', 'servebolt-wp')]);
             return;
+        } elseif (!self::canPurgePostCache($postId)) {
+            wp_send_json_error(['message' => __('You are not allowed to purge cache for this post.', 'servebolt-wp')]);
         }
 
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
 
         if ($queueBasedCachePurgeIsActive && $this->postAlreadyInQueue($postId)) {
             wp_send_json_success([
-                'title' => 'All good!',
+                'title' => __('All good!', 'servebolt-wp'),
                 'message' => sprintf(__('A cache purge request for the %s "%s" is already added to the queue and should be executed shortly.', 'servebolt-wp'), getPostTypeSingularName($postId), get_the_title($postId)),
             ]);
             return;
@@ -234,7 +271,7 @@ class PurgeActions extends SharedAjaxMethods
             WordPressCachePurge::purgeByPost($postId);
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
-                    'title'   => 'Just a moment',
+                    'title'   => __('Just a moment', 'servebolt-wp'),
                     'message' => sprintf(__('A cache purge request for the %s "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), getPostTypeSingularName($postId), get_the_title($postId)),
                 ] );
             } else {
@@ -268,23 +305,45 @@ class PurgeActions extends SharedAjaxMethods
         return $queueInstance->hasTermInQueue($termId, $taxonomySlug);
     }
 
+
+    /**
+     * Check if current user can purge cache for given term.
+     *
+     * @param int $termId
+     * @param null|string|object $taxonomy
+     * @return bool
+     */
+    public static function canPurgeTermCache(int $termId, ?object $taxonomy = null): bool
+    {
+        if (is_string($taxonomy)) {
+            $taxonomyObject = get_taxonomy($taxonomy);
+        } elseif (is_a('WP_Taxonomy', $taxonomy)) {
+            $taxonomyObject = $taxonomy;
+        } elseif (!$taxonomyObject = getTaxonomyFromTermId($termId)) {
+            return false;
+        }
+        return current_user_can($taxonomyObject->cap->manage_terms);
+    }
+
     /**
      * Purge cache for term.
      */
     public function purgeTermCacheCallback() : void
     {
         $this->checkAjaxReferer();
-        ajaxUserAllowed();
+
         $termId = intval(arrayGet('term_id', $_POST));
 
         $this->ensureCachePurgeFeatureIsActive();
 
         if (!$termId || empty($termId)) {
-            wp_send_json_error(['message' => 'Please specify the term you would like to purge cache for.']);
+            wp_send_json_error(['message' => __('Please specify the term you would like to purge cache for.', 'servebolt-wp')]);
             return;
         } elseif (!term_exists($termId)) {
-            wp_send_json_error(['message' => 'The specified term does not exist.']);
+            wp_send_json_error(['message' => __('The specified term does not exist.', 'servebolt-wp')]);
             return;
+        } elseif (!self::canPurgeTermCache($termId)) {
+            wp_send_json_error(['message' => __('You are not allowed to purge cache for this taxonomy.', 'servebolt-wp')]);
         }
 
         $term = get_term($termId);
@@ -302,7 +361,7 @@ class PurgeActions extends SharedAjaxMethods
             WordPressCachePurge::purgeByTerm($termId, $term->taxonomy);
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
-                    'title'   => 'Just a moment',
+                    'title'   => __('Just a moment', 'servebolt-wp'),
                     'message' => sprintf(__('A cache purge request for the term "%s" was added to the queue and will be executed shortly.', 'servebolt-wp'), $term->name),
                 ] );
             } else {
@@ -324,6 +383,18 @@ class PurgeActions extends SharedAjaxMethods
     }
 
     /**
+     * Check if current user can purge all cache.
+     *
+     * @return bool
+     */
+    /*
+    public static function canPurgeAllNetworkCache(): bool
+    {
+        return current_user_can('manage_options');
+    }
+    */
+
+    /**
      * Purge all Cloudflare cache in all sites in multisite-network.
      */
     /*
@@ -331,6 +402,7 @@ class PurgeActions extends SharedAjaxMethods
     {
         $this->checkAjaxReferer();
         requireSuperadmin();
+        ajaxUserAllowed(false, __CLASS__ . '::canPurgeAllNetworkCache');
 
         $failedPurgeAttempts = [];
         $queueBasedCachePurgeSites = [];

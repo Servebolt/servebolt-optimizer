@@ -48,6 +48,7 @@ class WordPressCachePurge
      */
     public static function purgeByUrl(string $url, bool $attemptToResolvePostIdFromUrl = true)
     {
+        $shouldPurgeByQueue = self::shouldPurgeByQueue();
         if ($attemptToResolvePostIdFromUrl && $postId = self::attemptToResolvePostIdFromUrl($url)) { // Resolve URL to post ID, then purge by post ID
             /*
             if ($url !== get_permalink($postId)) {
@@ -61,7 +62,7 @@ class WordPressCachePurge
             });
             return self::purgePostCache($postId);
         } else {
-            if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
+            if ($shouldPurgeByQueue) {
                 $queueInstance = WpObjectQueue::getInstance();
                 return isQueueItem($queueInstance->add([
                     'type' => 'url',
@@ -82,7 +83,7 @@ class WordPressCachePurge
      */
     public static function purgeByUrls(array $urls)
     {
-        if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
+        if (self::shouldPurgeByQueue()) {
             $queueInstance = WpObjectQueue::getInstance();
             foreach($urls as $url) {
                 isQueueItem($queueInstance->add([
@@ -155,7 +156,7 @@ class WordPressCachePurge
      */
     public static function purgeAll(bool $returnWpError = false)
     {
-        if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
+        if (self::shouldPurgeByQueue()) {
             $queueInstance = WpObjectQueue::getInstance();
             return isQueueItem($queueInstance->add([
                 'type' => 'purge-all',
@@ -176,13 +177,14 @@ class WordPressCachePurge
      */
     public static function purgeAllByBlogId(int $blogId, bool $returnWpError = false)
     {
+        $shouldPurgeByQueue = self::shouldPurgeByQueue($blogId);
         if (!is_multisite()) {
             return false;
         }
         if ($blogId) {
             switch_to_blog($blogId);
         }
-        if (CachePurgeDriver::queueBasedCachePurgeIsActive($blogId)) {
+        if ($shouldPurgeByQueue) {
             $queueInstance = WpObjectQueue::getInstance();
             $result = isQueueItem($queueInstance->add([
                 'type' => 'purge-all',
@@ -206,10 +208,11 @@ class WordPressCachePurge
      */
     public static function purgeAllNetwork(bool $returnWpError = false)
     {
+        $shouldPurgeByQueue = self::shouldPurgeByQueue();
         if (!is_multisite()) {
             return false;
         }
-        if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
+        if ($shouldPurgeByQueue) {
             $queueInstance = WpObjectQueue::getInstance();
             return isQueueItem($queueInstance->add([
                 'type' => 'purge-all',

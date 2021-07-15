@@ -5,6 +5,7 @@ namespace Unit;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use ServeboltWPUnitTestCase;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\PostMethods;
+use Unit\Traits\CachePurgeTestTrait;
 use function Servebolt\Optimizer\Helpers\updateOption;
 
 /**
@@ -13,7 +14,7 @@ use function Servebolt\Optimizer\Helpers\updateOption;
  */
 class PurgeUrlsCountConstraintTest extends ServeboltWPUnitTestCase
 {
-    use PostMethods;
+    use PostMethods, CachePurgeTestTrait;
 
     public function tearDown()
     {
@@ -26,16 +27,6 @@ class PurgeUrlsCountConstraintTest extends ServeboltWPUnitTestCase
         parent::setUp();
         $this->set_permalink_structure('/%postname%/');
         add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
-    }
-
-    private function setUpBogusAcdConfig(): void
-    {
-        add_filter('sb_optimizer_selected_cache_purge_driver', function() {
-            return 'acd';
-        });
-        add_filter('sb_optimizer_acd_is_configured', '__return_true');
-        updateOption('cache_purge_switch', true);
-        updateOption('cache_purge_auto', true);
     }
 
     public function testThatTheNumberOfUrlsGetsRestrictedFromCloudflareDriver()

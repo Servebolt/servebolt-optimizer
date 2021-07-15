@@ -4,8 +4,8 @@ namespace Servebolt\Optimizer\FullPageCache;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
-use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
@@ -16,6 +16,15 @@ use function Servebolt\Optimizer\Helpers\smartUpdateOption;
  */
 class FullPageCacheSettings
 {
+    use Singleton;
+
+    /**
+     * Alias for "getInstance".
+     */
+    public static function init(): void
+    {
+        self::getInstance();
+    }
 
     /**
      * FullPageCacheSettings constructor.

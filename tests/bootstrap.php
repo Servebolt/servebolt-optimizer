@@ -6,6 +6,7 @@
  */
 
 define('WP_TESTS_ARE_RUNNING', true);
+define('WP_TESTS_DIR', __DIR__);
 //define('WP_TESTS_THEME', 'twentytwentyone');
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 

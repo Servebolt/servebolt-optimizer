@@ -2,6 +2,7 @@
 
 namespace Unit;
 
+use Unit\Traits\AttachmentTrait;
 use Unit\Traits\MultisiteTrait;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
@@ -17,11 +18,15 @@ use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 use function Servebolt\Optimizer\Helpers\deleteBlogOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
+use function Servebolt\Optimizer\Helpers\getAllImageSizesByImage;
 use function Servebolt\Optimizer\Helpers\getAllOptionsNames;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
+use function Servebolt\Optimizer\Helpers\getFiltersForHook;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
+use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
+use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\javascriptRedirect;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
@@ -65,7 +70,7 @@ use function Servebolt\Optimizer\Helpers\view;
 
 class HelpersTest extends ServeboltWPUnitTestCase
 {
-    use MultisiteTrait;
+    use MultisiteTrait, AttachmentTrait;
 
     private function activateSbDebug(): void
     {
@@ -513,7 +518,32 @@ class HelpersTest extends ServeboltWPUnitTestCase
         deleteAllSettings(true, true);
         iterateSites(function ($site) use ($allOptionsNames) {
             foreach ($allOptionsNames as $option) {
-                $this->assertNull(getBlogOption($site->blog_id, $option));
+                $value = getBlogOption($site->blog_id, $option);
+                //var_dump($option);
+                //var_dump($value);
+                switch ($option) {
+                    // Default options
+                    case 'prefetch_file_style_switch':
+                    case 'prefetch_file_script_switch':
+                    case 'prefetch_file_menu_switch':
+                    case 'cache_purge_auto':
+                    case 'cache_purge_auto_on_slug_change':
+                    case 'cache_purge_auto_on_deletion':
+                    case 'cache_purge_auto_on_attachment_update':
+                    case 'custom_cache_ttl_switch':
+                        $this->assertTrue($value);
+                        break;
+                    case 'cache_ttl_by_post_type':
+                        $this->assertIsArray($value);
+                        $this->assertArrayHasKey('post', $value);
+                        $this->assertArrayHasKey('page', $value);
+                        $this->assertEquals('default', $value['post']);
+                        $this->assertEquals('default', $value['page']);
+                        break;
+                    default:
+                        $this->assertNull($value);
+                        break;
+                }
             }
         });
     }
@@ -712,5 +742,50 @@ class HelpersTest extends ServeboltWPUnitTestCase
         ob_end_clean();
         $expected = '<script> window.location = "' . $url . '"; </script>';
         $this->assertEquals($expected, trim($output));
+    }
+
+    public function testThatWeCanGetTaxonomySlug()
+    {
+        $taxonomyObject = getTaxonomyFromTermId(1);
+        $this->assertEquals('category', $taxonomyObject->name);
+    }
+
+    public function testThatWeCanGetTaxonomySingularName()
+    {
+        $this->assertEquals('category', getTaxonomySingularName(1));
+    }
+
+    public function testThatWeCanGetFiltersByHook()
+    {
+        $hookName = 'some-custom-hook';
+        $this->assertNull(getFiltersForHook($hookName));
+        add_filter($hookName, '__return_true');
+        $this->assertIsObject(getFiltersForHook($hookName));
+        remove_filter($hookName, '__return_true');
+        $this->assertNull(getFiltersForHook($hookName));
+    }
+
+    public function testThatWeCanGetAllImageUrls()
+    {
+        add_image_size('69x69', 69, 69);
+        if ($attachmentId = $this->createAttachment('woocommerce-placeholder.png')) {
+            $filename = basename(get_attached_file($attachmentId));
+            if (!preg_match('/^(.+)-([0-9]+)\.png$/', $filename, $matches)) {
+                $this->deleteAttachment($attachmentId);
+                $this->fail('Could not test image size URLs');
+                return;
+            }
+            $baseUrl = get_site_url() . '/wp-content/uploads/2021/07/woocommerce-placeholder-' . $matches[2];
+            $expectedArray = [
+                $baseUrl . '-150x150.png',
+                $baseUrl . '-300x300.png',
+                $baseUrl . '-768x768.png',
+                $baseUrl . '-1024x1024.png',
+                $baseUrl . '.png',
+                $baseUrl . '-69x69.png',
+            ];
+            $this->assertEquals($expectedArray, getAllImageSizesByImage($attachmentId));
+            $this->deleteAttachment($attachmentId);
+        }
     }
 }

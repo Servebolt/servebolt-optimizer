@@ -2,7 +2,7 @@
 
 namespace Unit;
 
-use DOMDocument;
+use Unit\Traits\AttachmentTrait;
 use WP_UnitTestCase;
 use Servebolt\AllowSvgUploads;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize;
@@ -11,6 +11,8 @@ use function Servebolt\Optimizer\Helpers\setOptionOverride;
 
 class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
 {
+    use AttachmentTrait;
+
     public function setUp()
     {
         parent::setUp();

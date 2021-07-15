@@ -14,6 +14,14 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
  */
 class WpPrefetching extends Prefetching
 {
+
+    /**
+     * Default max number of lines in a manifest file.
+     *
+     * @var int
+     */
+    public static $defaultMaxNumberOfLines = 100;
+
     /**
      * Prefetching constructor.
      */
@@ -50,6 +58,7 @@ class WpPrefetching extends Prefetching
         }
 
         $this->setMaxNumberOfLines();
+        $this->setRelativeOrFullUrls();
 
         if ($this->shouldRecordStyles()) {
             add_action('wp_print_styles', [$this, 'getStylesToPrefetch'], 99);
@@ -75,6 +84,18 @@ class WpPrefetching extends Prefetching
             add_filter('sb_optimizer_prefetch_max_number_of_lines', function() use ($maxNumberOfLines) {
                 return $maxNumberOfLines;
             });
+        }
+    }
+
+    /**
+     * Set full or relative URLs.
+     */
+    private function setRelativeOrFullUrls(): void
+    {
+        if (self::writeFullUrls()) {
+            add_filter('sb_optimizer_prefetch_include_domain', '__return_true'); // Use full URLs
+        } else {
+            // Use relative URLs
         }
     }
 
@@ -110,14 +131,41 @@ class WpPrefetching extends Prefetching
     }
 
     /**
+     * Check whether we should write full URLs in the manifest files.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function writeFullUrls(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(smartGetOption($blogId, 'prefetch_full_url_switch'));
+    }
+
+    /**
      * Check if we have set a limitation for the number of lines per manifest file.
      *
      * @param int|null $blogId
-     * @return string|int|null
+     * @return null|int
      */
-    public static function getMaxNumberOfLines(?int $blogId = null)
+    public static function getMaxNumberOfLines(?int $blogId = null): ?int
     {
-        return smartGetOption($blogId, 'prefetch_max_number_of_lines', null);
+        $maxNumberOfLines = smartGetOption($blogId, 'prefetch_max_number_of_lines');
+        if (is_numeric($maxNumberOfLines)) {
+            $maxNumberOfLines = (int) $maxNumberOfLines;
+        } else {
+            $maxNumberOfLines = self::getDefaultMaxNumberOfLines();
+        }
+        return apply_filters('sb_optimizer_prefetcht_max_number_of_lines', $maxNumberOfLines);
+    }
+
+    /**
+     * Get default number of lines for each prefetch manifest file.
+     *
+     * @return null|int
+     */
+    public static function getDefaultMaxNumberOfLines(): ?int
+    {
+        return apply_filters('sb_optimizer_prefetch_default_max_number_of_lines', self::$defaultMaxNumberOfLines);
     }
 
     /**

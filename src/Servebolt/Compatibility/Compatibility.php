@@ -8,6 +8,7 @@ use Servebolt\Optimizer\Compatibility\Cloudflare\Cloudflare as CloudflareCompati
 use Servebolt\Optimizer\Compatibility\WooCommerce\WooCommerce as WooCommerceCompatibility;
 use Servebolt\Optimizer\Compatibility\WpRocket\WpRocket as WpRocketCompatibility;
 use Servebolt\Optimizer\Compatibility\YoastPremium\YoastPremium as YoastPremiumCompatibility;
+use Servebolt\Optimizer\Compatibility\Jetpack\Jetpack as JetpackCompatibility;
 
 /**
  * Class Compatibility
@@ -24,5 +25,6 @@ class Compatibility
         new WpRocketCompatibility;
         new CloudflareCompatibility;
         new YoastPremiumCompatibility;
+        new JetpackCompatibility;
     }
 }

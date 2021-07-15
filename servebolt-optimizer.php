@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 3.1
+Version: 3.1.1
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that implements Servebolt Security & Performance best practises for WordPress.
