@@ -116,13 +116,18 @@ function displayValue($value, bool $return = true, bool $arrayToCsv = false)
  * Check if current user has capability, abort if not.
  *
  * @param bool $returnResult
- * @param string $capability
+ * @param string|callable $capability
  *
- * @return mixed
+ * @return bool|mixed
  */
-function ajaxUserAllowed(bool $returnResult = false, string $capability = 'manage_options')
+function ajaxUserAllowed(bool $returnResult = false, $capability = 'manage_options')
 {
-    $userCan = apply_filters('sb_optimizer_ajax_user_allowed', current_user_can($capability));
+    if (is_callable($capability)) {
+        $userCan = $capability();
+    } else {
+        $userCan = current_user_can($capability);
+    }
+    $userCan = apply_filters('sb_optimizer_ajax_user_allowed', $userCan);
     if ($returnResult) {
         return $userCan;
     }
@@ -1030,7 +1035,7 @@ function getVersionForStaticAsset(string $assetSrc): string
  */
 function requireSuperadmin()
 {
-    if (!is_multisite() || ! is_super_admin()) {
+    if (!is_multisite() || !is_super_admin()) {
         wp_die();
     }
 }
@@ -1420,11 +1425,11 @@ function wpDirectFilesystem(bool $ensureConstantsAreSet = false): object
 {
     if ($ensureConstantsAreSet || (defined('WP_TESTS_ARE_RUNNING') && WP_TESTS_ARE_RUNNING === true)) {
         // Set the permission constants if not already set.
-        if ( ! defined( 'FS_CHMOD_DIR' ) ) {
-            define( 'FS_CHMOD_DIR', ( fileperms( ABSPATH ) & 0777 | 0755 ) );
+        if (!defined('FS_CHMOD_DIR')) {
+            define('FS_CHMOD_DIR', (fileperms(ABSPATH) & 0777 | 0755));
         }
-        if ( ! defined( 'FS_CHMOD_FILE' ) ) {
-            define( 'FS_CHMOD_FILE', ( fileperms( ABSPATH . 'index.php' ) & 0777 | 0644 ) );
+        if (!defined('FS_CHMOD_FILE')) {
+            define('FS_CHMOD_FILE', (fileperms(ABSPATH . 'index.php') & 0777 | 0644));
         }
     }
     require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
