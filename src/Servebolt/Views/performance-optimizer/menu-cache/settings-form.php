@@ -14,13 +14,13 @@
                 <fieldset>
                     <legend class="screen-reader-text"><span><?php _e('Menu cache-feature active?', 'servebolt-wp'); ?></span></legend>
                     <label for="menu_cache_switch">
-                        <input name="<?php echo getOptionName('menu_cache_switch'); ?>" type="checkbox" id="menu_cache_switch" value="1" <?php checked($settings['menu_cache_switch']); ?>>
+                        <input name="<?php echo getOptionName('menu_cache_switch'); ?>" type="checkbox" id="menu_cache_switch" class="options-field-switch" value="1" <?php checked($settings['menu_cache_switch']); ?>>
                         <?php _e('Enabled', 'servebolt-wp'); ?>
                     </label>
                 </fieldset>
             </td>
         </tr>
-        <tbody id="menu-cache-options"<?php if (!$settings['menu_cache_switch']) echo ' style="display: none;"'; ?>>
+        <tbody id="options-fields"<?php if (!$settings['menu_cache_switch']) echo ' style="display: none;"'; ?>>
             <tr>
                 <th scope="row"><?php _e('Disable for logged in users?', 'servebolt-wp'); ?></th>
                 <td>

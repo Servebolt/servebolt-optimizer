@@ -162,7 +162,6 @@ class CachePurgeNodes implements NodeInterface
         if (!apply_filters('sb_optimizer_allow_admin_bar_cache_purge_for_term', true)) {
             return;
         }
-
         if (!$termId = CachePurgeControl::getSingleTermId()) {
             return;
         }

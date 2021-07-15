@@ -32,7 +32,6 @@ class MenuCacheControl
     public function __construct()
     {
         $this->initSettings();
-        $this->initAssets();
         $this->rewriteHighlightedMenuItem();
     }
 
@@ -43,11 +42,6 @@ class MenuCacheControl
     {
         overrideParentMenuPage('servebolt-menu-cache', 'servebolt-performance-optimizer');
         overrideMenuTitle('admin_page_servebolt-menu-cache', __('Menu Cache', 'servebolt-wp'));
-    }
-
-    private function initAssets(): void
-    {
-        add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
     }
 
     /**
@@ -62,20 +56,6 @@ class MenuCacheControl
     private function initSettings(): void
     {
         add_action('admin_init', [$this, 'registerSettings']);
-    }
-
-    public function enqueueScripts(): void
-    {
-        if (!isScreen('admin_page_servebolt-menu-cache')) {
-            return;
-        }
-        wp_enqueue_script(
-            'servebolt-optimizer-menu-cache',
-            SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/menu-cache.js',
-            [],
-            getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/menu-cache.js'),
-            true
-        );
     }
 
     /**

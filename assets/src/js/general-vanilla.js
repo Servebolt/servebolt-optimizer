@@ -9,7 +9,7 @@ window.sbShowHideOptionsFields = function () {
     var optionsFieldSwitch = document.querySelector('.options-field-switch');
     if (optionsFieldSwitch) {
         optionsFieldSwitch.addEventListener('change', function () {
-            var optionsFieldsWrapper = document.querySelector('#options-field');
+            var optionsFieldsWrapper = document.querySelector('#options-fields');
             if (optionsFieldsWrapper) {
                 if (this.checked) {
                     optionsFieldsWrapper.removeAttribute('style');

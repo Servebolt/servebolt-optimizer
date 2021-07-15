@@ -22,7 +22,7 @@
                 </fieldset>
             </td>
         </tr>
-        <tbody id="options-field"<?php if (!$settings['acd_image_resize_switch']) echo ' style="display: none;"'; ?>>
+        <tbody id="options-fields"<?php if (!$settings['acd_image_resize_switch']) echo ' style="display: none;"'; ?>>
             <tr>
                 <th scope="row"></th>
                 <td>

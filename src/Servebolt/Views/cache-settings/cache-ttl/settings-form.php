@@ -18,7 +18,7 @@
         </label><br><br>
     </fieldset>
 
-    <table class="wp-list-table widefat striped" id="options-field"<?php if (!$settings['custom_cache_ttl_switch']) echo ' style="display: none;"'; ?>>
+    <table class="wp-list-table widefat striped" id="options-fields"<?php if (!$settings['custom_cache_ttl_switch']) echo ' style="display: none;"'; ?>>
         <thead>
             <tr>
                 <th><?php _e('Post type', 'servebolt-wp'); ?></th>
