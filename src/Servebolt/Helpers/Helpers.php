@@ -484,6 +484,10 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'acd_img_resize_upscale',
         'acd_img_resize_size_index',
 
+        // Menu cache feature
+        'menu_cache_switch',
+        'menu_cache_disabled_for_authenticated_switch',
+
         // Wipe SB FPC-related options
         'fpc_switch',
         'fpc_settings',
@@ -854,10 +858,10 @@ function writeLog($log)
     if (!isDebug()) {
         return;
     }
-    if (is_array($log) || is_object($log)) {
-        error_log(print_r($log, true));
-    } else {
+    if (is_scalar($log)) {
         error_log($log);
+    } else {
+        error_log(print_r($log, true));
     }
 }
 
@@ -947,7 +951,7 @@ function formatArrayToCsv($array, $glue = ','): string
  */
 function isDevDebug(): bool
 {
-    return ( defined('SB_DEBUG') && SB_DEBUG === true ) || ( array_key_exists('debug', $_GET ) );
+    return apply_filters('sb_optimizer_is_dev_debug', (defined('SB_DEBUG') && SB_DEBUG === true) || (array_key_exists('debug', $_GET)));
 }
 
 /**
