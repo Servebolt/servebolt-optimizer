@@ -17,20 +17,22 @@ jQuery(document).ready(function($) {
   });
 
   // Purge post cache
-  $('#the-list .sb-purge-post-cache').click(function(e) {
+  document.querySelector('#the-list').addEventListener('click', function (e) {
+    if (!e.target.matches('.sb-purge-post-cache')) return;
     e.preventDefault();
-    const postId = $(this).data('post-id'),
-      objectName = $(this).data('object-name');
+    const postId = $(e.target).data('post-id'),
+        objectName = $(e.target).data('object-name');
     window.sbPurgePostCache(postId, objectName);
-  });
+  }, false);
 
   // Purge term cache
-  $('#the-list .sb-purge-term-cache').click(function(e) {
+  document.querySelector('#the-list').addEventListener('click', function (e) {
+    if (!e.target.matches('.sb-purge-term-cache')) return;
     e.preventDefault();
-    const termId = $(this).data('term-id'),
-      objectName = $(this).data('object-name');
+    const termId = $(e.target).data('term-id'),
+        objectName = $(e.target).data('object-name');
     window.sbPurgeTermCache(termId, objectName);
-  });
+  }, false);
 
   // Purge current post cache
   $('#wpadminbar .sb-purge-current-post-cache').click(function(e) {
