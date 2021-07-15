@@ -14,7 +14,7 @@ use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
  * Class CachePurgeActionsNodes
  * @package Servebolt\Optimizer\Admin\AdminBarGui\Nodes
  */
-class CachePurgeNode implements NodeInterface
+class CachePurgeNodes implements NodeInterface
 {
 
     /**

@@ -230,7 +230,10 @@ class PurgeActions extends SharedAjaxMethods
     public static function canPurgePostCache(int $postId): bool
     {
         return current_user_can('edit_others_posts')
-            || current_user_can('edit_post', $postId);
+            || (
+                current_user_can('edit_published_posts')
+                && current_user_can('edit_post', $postId)
+            );
     }
 
     /**
