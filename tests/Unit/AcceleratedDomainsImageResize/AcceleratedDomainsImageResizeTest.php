@@ -4,6 +4,7 @@ namespace Unit;
 
 use Unit\Traits\AttachmentTrait;
 use WP_UnitTestCase;
+use Servebolt\AllowSvgUploads;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageResize;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
@@ -176,7 +177,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
         }
     }
 
-    public function testThatSvgFilesAreIgnored()
+    public function testThatSvgFilesAreIgnored(): void
     {
         if ($attachmentId = $this->createAttachment('apache.svg')) {
             $image = $this->getImageMarkupDom($attachmentId);
@@ -188,5 +189,82 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
             $this->assertNotContains('/acd-cgi/img/v1', $image->getAttribute('srcset')); // Cannot get srcset-for some reason
             $this->deleteAttachment($attachmentId);
         }
+    }
+
+    public function testThatSvgFilesWithWrongMimeTypeAreIgnored(): void
+    {
+        if ($attachmentId = $this->createAttachment('apache.svg')) {
+            // Simulate a SVG-file with wrong MIME-type
+            wp_update_post([
+                'ID' => $attachmentId,
+                'post_mime_type' => 'image/jpeg'
+            ]);
+            $image = $this->getImageMarkupDom($attachmentId);
+            if (!$image) {
+                $this->fail('Could not select image in markup string.');
+                return;
+            }
+            $this->assertNotContains('/acd-cgi/img/v1/', $image->getAttribute('src'));
+            $this->assertNotContains('/acd-cgi/img/v1', $image->getAttribute('srcset')); // Cannot get srcset-for some reason
+            $this->deleteAttachment($attachmentId);
+        }
+    }
+
+    /**
+     * @param int $attachmentId
+     * @return \DOMNode|null
+     */
+    private function getImageMarkupDom(int $attachmentId)
+    {
+        $imageMarkup = wp_get_attachment_image($attachmentId, 'original');
+        $dom = new DOMDocument;
+        @$dom->loadHTML($imageMarkup);
+        $items = $dom->getElementsByTagName('img');
+        return $items->item(0);
+    }
+
+    /**
+     * Delete attachment.
+     *
+     * @param int $attachmentId
+     */
+    private function deleteAttachment(int $attachmentId): void
+    {
+        wp_delete_attachment($attachmentId, true);
+    }
+
+    /**
+     * Create attachment from given test file.
+     *
+     * @param string $filename The name of the file to be uploaded.
+     * @return false|int|\WP_Error
+     */
+    private function createAttachment(string $filename)
+    {
+        AllowSvgUploads::allow();
+        $filePath = trailingslashit(__DIR__) . 'Files/' . $filename;
+        if (!file_exists($filePath)) {
+            return false; // Test file does not exists
+        }
+
+        // Create temporary file, fill with content, and get path
+        $tempFile = tmpfile();
+        fwrite($tempFile, file_get_contents($filePath));
+        $tempFileMetaData = stream_get_meta_data($tempFile);
+        $tempFilePath = $tempFileMetaData['uri'];
+
+        $attachmentId = media_handle_sideload([
+            'name' => $filename,
+            'tmp_name' => $tempFilePath,
+        ]);
+        AllowSvgUploads::disallow();
+
+        if (is_wp_error($attachmentId)) {
+            $this->fail('Could not upload test-attachment.');
+            wp_delete_attachment($attachmentId);
+            return false;
+        }
+
+        return $attachmentId;
     }
 }

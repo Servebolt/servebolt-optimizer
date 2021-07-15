@@ -47,6 +47,7 @@ if (defined('WP_TESTS_THEME') && !empty(WP_TESTS_THEME)) {
 
 // Allow SVG upload for testing purposes
 require __DIR__ . '/allow-svg-uploads.php';
+Servebolt\AllowSvgUploads::allow();
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
