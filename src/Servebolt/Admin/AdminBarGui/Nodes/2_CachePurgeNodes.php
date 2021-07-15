@@ -32,7 +32,10 @@ class CachePurgeNodes implements NodeInterface
      */
     public static function shouldDisplayNodes(): bool
     {
-        return apply_filters('sb_optimizer_admin_bar_display_cache_purge_node', CachePurge::featureIsAvailable());
+        return apply_filters(
+            'sb_optimizer_admin_bar_display_cache_purge_node',
+            CachePurge::featureIsAvailable()
+        );
     }
 
     /**
