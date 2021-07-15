@@ -4,10 +4,11 @@ namespace Servebolt\Optimizer\Admin\CachePurgeControl\Ajax;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Exception;
+use WP_Taxonomy;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
-use Exception;
 use Servebolt\Optimizer\Exceptions\ApiError;
 use Servebolt\Optimizer\Exceptions\ApiMessage;
 use Servebolt\Optimizer\Exceptions\QueueError;
@@ -305,11 +306,16 @@ class PurgeActions extends SharedAjaxMethods
      * Check if current user can purge cache for given term.
      *
      * @param int $termId
+     * @param null|string|object $taxonomy
      * @return bool
      */
-    public static function canPurgeTermCache(int $termId): bool
+    public static function canPurgeTermCache(int $termId, ?object $taxonomy = null): bool
     {
-        if (!$taxonomyObject = getTaxonomyFromTermId($termId)) {
+        if (is_string($taxonomy)) {
+            $taxonomyObject = get_taxonomy($taxonomy);
+        } elseif (is_a('WP_Taxonomy', $taxonomy)) {
+            $taxonomyObject = $taxonomy;
+        } elseif (!$taxonomyObject = getTaxonomyFromTermId($termId)) {
             return false;
         }
         return current_user_can($taxonomyObject->cap->manage_terms);
