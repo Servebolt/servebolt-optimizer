@@ -129,7 +129,7 @@ class CachePurgeNode implements NodeInterface
      */
     private static function purgePost(): void
     {
-        if (apply_filters('sb_optimizer_allow_admin_bar_cache_purge_for_post', true)) {
+        if (!apply_filters('sb_optimizer_allow_admin_bar_cache_purge_for_post', true)) {
             return;
         }
         if (!$postId = self::getSinglePostId()) {
