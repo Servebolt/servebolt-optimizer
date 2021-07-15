@@ -38,7 +38,7 @@ class CachePurgeControl
         $this->initAjax();
         $this->initAssets();
         $this->initSettings();
-        new CachePurgeRowActions;
+        CachePurgeRowActions::init();
         if (isHostedAtServebolt()) {
             $this->rewriteHighlightedMenuItem();
         }

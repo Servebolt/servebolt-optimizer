@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
 use Servebolt\Optimizer\CachePurge\CachePurge;
+use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getPostTypeSingularName;
 use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
 
@@ -15,12 +16,19 @@ use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
  */
 class CachePurgeRowActions
 {
+    use Singleton;
+
     /**
      * Cache feature availability state.
      *
-     * @var null
+     * @var null|bool
      */
     private $cacheFeatureIsAvailable = null;
+
+    public static function init(): void
+    {
+        self::getInstance();
+    }
 
     /**
      * CachePurgeRowActions constructor.
