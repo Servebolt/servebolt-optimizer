@@ -16,23 +16,27 @@ jQuery(document).ready(function($) {
     window.sb_purge_all_cache();
   });
 
-  // Purge post cache
-  document.querySelector('#the-list').addEventListener('click', function (e) {
-    if (!e.target.matches('.sb-purge-post-cache')) return;
-    e.preventDefault();
-    const postId = $(e.target).data('post-id'),
-        objectName = $(e.target).data('object-name');
-    window.sbPurgePostCache(postId, objectName);
-  }, false);
+  var list = document.querySelector('#the-list');
+  if (list) {
 
-  // Purge term cache
-  document.querySelector('#the-list').addEventListener('click', function (e) {
-    if (!e.target.matches('.sb-purge-term-cache')) return;
-    e.preventDefault();
-    const termId = $(e.target).data('term-id'),
-        objectName = $(e.target).data('object-name');
-    window.sbPurgeTermCache(termId, objectName);
-  }, false);
+    // Purge post cache
+    list.addEventListener('click', function (e) {
+      if (!e.target.matches('.sb-purge-post-cache')) return;
+      e.preventDefault();
+      const postId = $(e.target).data('post-id'),
+          objectName = $(e.target).data('object-name');
+      window.sbPurgePostCache(postId, objectName);
+    }, false);
+
+    // Purge term cache
+    list.addEventListener('click', function (e) {
+      if (!e.target.matches('.sb-purge-term-cache')) return;
+      e.preventDefault();
+      const termId = $(e.target).data('term-id'),
+          objectName = $(e.target).data('object-name');
+      window.sbPurgeTermCache(termId, objectName);
+    }, false);
+  }
 
   // Purge current post cache
   $('#wpadminbar .sb-purge-current-post-cache').click(function(e) {

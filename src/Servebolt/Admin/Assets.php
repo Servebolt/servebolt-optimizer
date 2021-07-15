@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Admin;
 if (!defined('ABSPATH')) exit;
 
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
+use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use function Servebolt\Optimizer\Helpers\booleanToString;
@@ -127,8 +128,10 @@ class Assets {
                 true
             );
             $cacheFeatureActive = CachePurge::featureIsAvailable();
+            $postId = CachePurgeControl::getSinglePostId();
             wp_localize_script('servebolt-optimizer-block-editor-cache-purge-menu-scripts', 'sb_ajax_object_block_editor_menu', [
                 'cacheFeatureActive' => $cacheFeatureActive,
+                'canPurgePostCache' => $cacheFeatureActive && $postId && PurgeActions::canPurgePostCache($postId),
                 'canPurgeAllCache' => $cacheFeatureActive && PurgeActions::canPurgeAllCache(),
                 'canPurgeCacheByUrl' => $cacheFeatureActive && PurgeActions::canPurgeCacheByUrl(),
             ]);

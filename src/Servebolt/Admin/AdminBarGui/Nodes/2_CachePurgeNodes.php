@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit;
 
 use Servebolt\Optimizer\Admin\AdminBarGui\NodeInterface;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
+use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use function Servebolt\Optimizer\Helpers\getPostTypeSingularName;
 use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
@@ -132,7 +133,7 @@ class CachePurgeNodes implements NodeInterface
         if (!apply_filters('sb_optimizer_allow_admin_bar_cache_purge_for_post', true)) {
             return;
         }
-        if (!$postId = self::getSinglePostId()) {
+        if (!$postId = CachePurgeControl::getSinglePostId()) {
             return;
         }
         if (!PurgeActions::canPurgePostCache($postId)) {
@@ -158,7 +159,8 @@ class CachePurgeNodes implements NodeInterface
         if (!apply_filters('sb_optimizer_allow_admin_bar_cache_purge_for_term', true)) {
             return;
         }
-        if (!$termId = self::getSingleTermId()) {
+
+        if (!$termId = CachePurgeControl::getSingleTermId()) {
             return;
         }
         if (!PurgeActions::canPurgeTermCache($termId)) {
@@ -174,44 +176,5 @@ class CachePurgeNodes implements NodeInterface
                 'class' => 'sb-admin-button sb-purge-current-term-cache',
             ]
         ];
-    }
-
-    /**
-     * Check whether we should allow cache purge of current post (if there is any).
-     *
-     * @return int|null
-     */
-    private static function getSinglePostId(): ?int
-    {
-        if (!is_admin() && is_singular() && $postId = get_the_ID()) {
-            return $postId;
-        }
-        global $post, $pagenow;
-        if (is_admin() && $pagenow == 'post.php' && $post->ID) {
-            return $post->ID;
-        }
-        return null;
-    }
-
-    /**
-     * Check whether we should allow cache purge of current term (if there is any).
-     *
-     * @return int|null
-     */
-    private static function getSingleTermId(): ?int
-    {
-        if (!is_admin()) {
-            $queriedObject = get_queried_object();
-            if (is_a($queriedObject, 'WP_Term')) {
-                return $queriedObject->term_id;
-            }
-        }
-        global $pagenow;
-        if (is_admin() && $pagenow == 'term.php') {
-            if ($termId = absint($_REQUEST['tag_ID'])) {
-                return $termId;
-            }
-        }
-        return null;
     }
 }

@@ -134,7 +134,7 @@ class ServeboltCachePurgeMenuComponent extends Component {
                 {_x('Servebolt Optimizer', 'text', 'sb-optimizer')}
             </PluginSidebarMoreMenuItem>
             <PluginSidebar name="sidebar-name" className="servebolt-optimizer-cache-bust-panel" title="Servebolt Optimizer">
-                {isPurgeable &&
+                {sb_ajax_object_block_editor_menu.canPurgePostCache && isPurgeable &&
                 <Button className="sb-button yellow" onClick={ () => window.sbPurgePostCacheWithAutoResolve(postTypeName) }>
                     { sprintf(_n('Purge %s cache', 'sb-optimizer'), postTypeName) }
                 </Button>

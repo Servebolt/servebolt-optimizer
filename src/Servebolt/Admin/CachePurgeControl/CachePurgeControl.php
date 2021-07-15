@@ -295,4 +295,43 @@ class CachePurgeControl
             'queue_based_cache_purge',
         ];
     }
+
+    /**
+     * Get post Id if present.
+     *
+     * @return int|null
+     */
+    public static function getSinglePostId(): ?int
+    {
+        if (!is_admin() && is_singular() && $postId = get_the_ID()) {
+            return $postId;
+        }
+        global $post, $pagenow;
+        if (is_admin() && $pagenow == 'post.php' && $post->ID) {
+            return $post->ID;
+        }
+        return null;
+    }
+
+    /**
+     * Get term Id if present.
+     *
+     * @return int|null
+     */
+    public static function getSingleTermId(): ?int
+    {
+        if (!is_admin()) {
+            $queriedObject = get_queried_object();
+            if (is_a($queriedObject, 'WP_Term')) {
+                return $queriedObject->term_id;
+            }
+        }
+        global $pagenow;
+        if (is_admin() && $pagenow == 'term.php') {
+            if ($termId = absint($_REQUEST['tag_ID'])) {
+                return $termId;
+            }
+        }
+        return null;
+    }
 }
