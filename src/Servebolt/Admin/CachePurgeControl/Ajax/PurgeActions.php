@@ -74,7 +74,7 @@ class PurgeActions extends SharedAjaxMethods
      */
     public static function canPurgeAllCache(): bool
     {
-        return current_user_can('manage_options');
+        return current_user_can('edit_others_posts');
     }
 
     /**
@@ -155,7 +155,7 @@ class PurgeActions extends SharedAjaxMethods
      */
     public static function canPurgeCacheByUrl(): bool
     {
-        return current_user_can('manage_options');
+        return current_user_can('edit_others_posts');
     }
 
     /**
@@ -229,7 +229,8 @@ class PurgeActions extends SharedAjaxMethods
      */
     public static function canPurgePostCache(int $postId): bool
     {
-        return current_user_can('edit_post', $postId);
+        return current_user_can('edit_others_posts')
+            || current_user_can('edit_post', $postId);
     }
 
     /**
