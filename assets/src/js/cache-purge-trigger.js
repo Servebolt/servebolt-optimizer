@@ -36,8 +36,9 @@ jQuery(document).ready(function($) {
   $('#wpadminbar .sb-purge-current-post-cache').click(function(e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
-    const postId = $(this).find('span').data('id'),
-      objectName = $(this).find('span').data('object-name');
+    const span = $(this).find('span:not(.servebolt-icon)'),
+        postId = span.data('id'),
+      objectName = span.data('object-name');
     window.sbPurgePostCache(postId, objectName);
   });
 
@@ -45,8 +46,9 @@ jQuery(document).ready(function($) {
   $('#wpadminbar .sb-purge-current-term-cache').click(function(e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
-    const termId = $(this).find('span').data('id'),
-      objectName = $(this).find('span').data('object-name');
+    const span = $(this).find('span:not(.servebolt-icon)'),
+        termId = span.data('id'),
+      objectName = span.data('object-name');
     window.sbPurgeTermCache(termId, objectName);
   });
 
