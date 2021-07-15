@@ -3,6 +3,7 @@
 namespace Unit\Traits;
 
 use DOMDocument;
+use Servebolt\AllowSvgUploads;
 
 /**
  * Trait AttachmentTrait
@@ -11,6 +12,8 @@ use DOMDocument;
 trait AttachmentTrait
 {
     /**
+     * Create a DOM element containing an image.
+     *
      * @param int $attachmentId
      * @return \DOMNode|null
      */
@@ -41,8 +44,10 @@ trait AttachmentTrait
      */
     private function createAttachment(string $filename)
     {
+        $isSvg = strpos($filename, '.svg') !== false;
         $filePath = trailingslashit(WP_TESTS_DIR) . 'TestFiles/' . $filename;
         if (!file_exists($filePath)) {
+            $this->fail('Could not upload test-attachment.');
             return false; // Test file does not exists
         }
 
@@ -52,10 +57,16 @@ trait AttachmentTrait
         $tempFileMetaData = stream_get_meta_data($tempFile);
         $tempFilePath = $tempFileMetaData['uri'];
 
+        if ($isSvg) {
+            AllowSvgUploads::allow();
+        }
         $attachmentId = media_handle_sideload([
             'name' => $filename,
             'tmp_name' => $tempFilePath,
         ]);
+        if ($isSvg) {
+            AllowSvgUploads::disallow();
+        }
 
         if (is_wp_error($attachmentId)) {
             $this->fail('Could not upload test-attachment.');
