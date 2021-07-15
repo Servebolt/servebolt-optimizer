@@ -74,7 +74,10 @@ class PurgeActions extends SharedAjaxMethods
      */
     public static function canPurgeAllCache(): bool
     {
-        return current_user_can('edit_others_posts');
+        return apply_filters(
+            'sb_optimizer_can_purge_all_cache',
+            current_user_can('edit_others_posts')
+        );
     }
 
     /**
@@ -155,7 +158,10 @@ class PurgeActions extends SharedAjaxMethods
      */
     public static function canPurgeCacheByUrl(): bool
     {
-        return current_user_can('edit_others_posts');
+        return apply_filters(
+            'sb_optimizer_can_purge_cache_by_url',
+            current_user_can('edit_others_posts')
+        );
     }
 
     /**
@@ -229,11 +235,17 @@ class PurgeActions extends SharedAjaxMethods
      */
     public static function canPurgePostCache(int $postId): bool
     {
-        return current_user_can('edit_others_posts')
-            || (
-                current_user_can('edit_published_posts')
-                && current_user_can('edit_post', $postId)
-            );
+        return apply_filters(
+            'sb_optimizer_can_purge_post_cache',
+            (
+                current_user_can('edit_others_posts')
+                || (
+                    current_user_can('edit_published_posts')
+                    && current_user_can('edit_post', $postId)
+                )
+            ),
+            $postId
+        );
     }
 
     /**
@@ -320,9 +332,15 @@ class PurgeActions extends SharedAjaxMethods
         } elseif (is_a('WP_Taxonomy', $taxonomy)) {
             $taxonomyObject = $taxonomy;
         } elseif (!$taxonomyObject = getTaxonomyFromTermId($termId)) {
-            return false;
+            $taxonomyObject = false;
         }
-        return current_user_can($taxonomyObject->cap->manage_terms);
+        $canPurgeTermCache = $taxonomyObject && current_user_can($taxonomyObject->cap->manage_terms);
+        return apply_filters(
+            'sb_optimizer_can_purge_term_cache',
+            $canPurgeTermCache,
+            $termId,
+            $taxonomyObject
+        );
     }
 
     /**
@@ -390,7 +408,10 @@ class PurgeActions extends SharedAjaxMethods
     /*
     public static function canPurgeAllNetworkCache(): bool
     {
-        return current_user_can('manage_options');
+        return apply_filters(
+                'sb_optimizer_can_purge_all_network_cache',
+                current_user_can('manage_options')
+        );
     }
     */
 

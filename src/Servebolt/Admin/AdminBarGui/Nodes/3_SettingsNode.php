@@ -19,7 +19,10 @@ class SettingsNode implements NodeInterface
      */
     public static function shouldDisplayNodes(): bool
     {
-        return apply_filters('sb_optimizer_admin_bar_display_settings_node', current_user_can('manage_options'));
+        return apply_filters(
+            'sb_optimizer_admin_bar_display_settings_node',
+            current_user_can('manage_options')
+        );
     }
 
     /**
