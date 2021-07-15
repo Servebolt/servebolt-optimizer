@@ -51,11 +51,11 @@ class CachePurgeNodes implements NodeInterface
             self::addPurgeAllNode();
         }
 
-        self::purgeUrlNode();
+        self::addPurgeUrlNode();
 
         if (!is_network_admin()) {
-            self::purgePost();
-            self::purgeTerm();
+            self::addPurgePost();
+            self::addPurgeTerm();
         }
 
         return self::$nodes;
@@ -110,7 +110,7 @@ class CachePurgeNodes implements NodeInterface
     /**
      * Purge URL (admin feature).
      */
-    private static function purgeUrlNode(): void
+    private static function addPurgeUrlNode(): void
     {
         if (!apply_filters(
             'sb_optimizer_admin_bar_cache_purge_can_purge_url',
@@ -131,7 +131,7 @@ class CachePurgeNodes implements NodeInterface
     /**
      * Purge post.
      */
-    private static function purgePost(): void
+    private static function addPurgePost(): void
     {
         if (!apply_filters('sb_optimizer_allow_admin_bar_cache_purge_for_post', true)) {
             return;
@@ -157,7 +157,7 @@ class CachePurgeNodes implements NodeInterface
     /**
      * Purge term.
      */
-    private static function purgeTerm(): void
+    private static function addPurgeTerm(): void
     {
         if (!apply_filters('sb_optimizer_allow_admin_bar_cache_purge_for_term', true)) {
             return;
