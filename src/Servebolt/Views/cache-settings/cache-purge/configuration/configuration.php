@@ -116,7 +116,6 @@ Keep in mind that purging the entire cache has a temporary impact on the loading
 
             <?php //view('cache-settings.cache-purge.queue.list', $arguments); ?>
 
-
             </tbody>
         </table>
 

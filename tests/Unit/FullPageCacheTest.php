@@ -11,13 +11,14 @@ use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use ServeboltWPUnitTestCase;
 use Unit\Traits\CachePurgeTestTrait;
+use Unit\Traits\HeaderTestTrait;
 
 /**
  * Class FullPageCacheTest
  */
 class FullPageCacheTest extends ServeboltWPUnitTestCase
 {
-    use CachePurgeTestTrait;
+    use CachePurgeTestTrait, HeaderTestTrait;
 
     public function setUp()
     {
@@ -48,16 +49,6 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
         $this->assertEquals([1, 2], CachePostExclusion::getIdsToExcludeFromCache());
     }
 
-    private function setupHeaderTest()
-    {
-        add_filter('sb_optimizer_fpc_should_debug_headers', '__return_true');
-        FullPageCacheHeaders::destroyInstance();
-        $instance = FullPageCacheHeaders::getInstance();
-        FullPageCacheHeaders::mock();
-        $instance->shouldSetCacheHeaders(false);
-        return $instance;
-    }
-
     public function testThatCacheHeadersGetSetWhenPostIsExcludedFromCache()
     {
         FullPageCacheSettings::fpcToggleActive(true);
@@ -74,6 +65,7 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
         $this->assertContains('No-cache-trigger: 3', $headers);
         $this->assertContains('Cache-Control: max-age=0,no-cache,s-maxage=0', $headers);
         $this->assertContains('Pragma: no-cache', $headers);
+        unset($GLOBALS['post']);
     }
 
     public function testThatCacheHeadersGetSetEvenThoFpcIsInActive()

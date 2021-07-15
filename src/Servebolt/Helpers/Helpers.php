@@ -488,6 +488,11 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'fpc_switch',
         'fpc_settings',
         'fpc_exclude',
+
+        // Custom cache TTL
+        'custom_cache_ttl_switch',
+        'cache_ttl_by_post_type',
+        'custom_cache_ttl',
     ];
 
     if ($includeMigrationOptions) {
@@ -651,7 +656,8 @@ function generateRandomPermanentKey(string $name, $blogId = null): string
  *
  * @param $key
  * @param $array
- * @param bool $defaultValue
+ * @param mixed|false $defaultValue
+ * @return false|mixed|null
  */
 function arrayGet($key, $array, $defaultValue = false)
 {

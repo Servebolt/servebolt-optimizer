@@ -23,6 +23,7 @@ class FullPageCache
     {
         FullPageCacheSettings::init();
         FullPageCacheHeaders::init();
+        CacheTtl::init();
         $this->purgePostCacheIfAddedToFpcExclusion();
     }
 
