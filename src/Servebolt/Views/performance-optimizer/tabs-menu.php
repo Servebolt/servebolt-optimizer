@@ -1,5 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
-<?php use function Servebolt\Optimizer\Helpers\view; ?>
+<?php use function Servebolt\Optimizer\Helpers\featureIsAvailable;use function Servebolt\Optimizer\Helpers\view; ?>
 <?php
     $urlMethod = is_multisite() && is_network_admin() ? 'network_admin_url' : 'admin_url';
     $tabs = [];
@@ -15,11 +15,13 @@
             'title' => 'Database',
         ];
     }
-    $tabs[] = [
-        'id' => 'servebolt-prefetching',
-        'url' => $urlMethod('admin.php?page=servebolt-prefetching'),
-        'title' => 'Prefetching',
-    ];
+    if (featureIsAvailable('prefetching')) {
+        $tabs[] = [
+            'id' => 'servebolt-prefetching',
+            'url' => $urlMethod('admin.php?page=servebolt-prefetching'),
+            'title' => 'Prefetching',
+        ];
+    }
     $tabs[] = [
         'id' => 'servebolt-menu-cache',
         'url' => $urlMethod('admin.php?page=servebolt-menu-cache'),
