@@ -268,9 +268,31 @@ class WpObjectQueue
     }
 
     /**
-     * Clean up old queue items.
+     * Clean up queue.
      */
     private function cleanUpQueue(): void
+    {
+        $this->cleanupCompletedItems();
+        $this->cleanupOldAndPossiblyFailedItems();
+    }
+
+    /**
+     * Cleanup completed queue items.
+     */
+    private function cleanupCompletedItems(): void
+    {
+        if ($items = $this->queue->getCompletedItems()) {
+            foreach ($items as $item) {
+                $this->queue->delete($item);
+                $this->urlQueue()->delete($item->id, 'parent_id');
+            }
+        }
+    }
+
+    /**
+     * Cleanup old (and possibly failed) items.
+     */
+    private function cleanupOldAndPossiblyFailedItems(): void
     {
         $threshold = strtotime($this->timestampOffsetCleanupThreshold);
         if ($items = $this->queue->getOldItems($threshold)) {

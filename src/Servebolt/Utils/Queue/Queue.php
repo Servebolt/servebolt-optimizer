@@ -100,7 +100,26 @@ class Queue
     }
 
     /**
-     * Get completed by parent queue item.
+     * Get completed items.
+     *
+     * @param int|null $chunkSize The maximum number of items that should be returned.
+     * @return array|null
+     */
+    public function getCompletedItems(?int $chunkSize = 30): ?array
+    {
+        $query = $this->query();
+        $query->isCompleted();
+        if ($chunkSize) {
+            $query->limit($chunkSize);
+        }
+        if ($result = $query->result()) {
+            return $result;
+        }
+        return null;
+    }
+
+    /**
+     * Get completed items by parent queue item.
      *
      * @param int $parentId The ID of the parent queue item.
      * @param string $parentQueueName The name of the parent queue.
