@@ -281,7 +281,7 @@ class WpObjectQueue
      */
     private function cleanupCompletedItems(): void
     {
-        if ($items = $this->queue->getCompletedItems()) {
+        if ($items = $this->queue->getCompletedItems(null)) {
             foreach ($items as $item) {
                 $this->queue->delete($item);
                 $this->urlQueue()->delete($item->id, 'parent_id');
@@ -295,7 +295,7 @@ class WpObjectQueue
     private function cleanupOldAndPossiblyFailedItems(): void
     {
         $threshold = strtotime($this->timestampOffsetCleanupThreshold);
-        if ($items = $this->queue->getOldItems($threshold)) {
+        if ($items = $this->queue->getOldItems($threshold, null)) {
             foreach ($items as $item) {
                 $this->queue->delete($item);
                 $this->urlQueue()->delete($item->id, 'parent_id');

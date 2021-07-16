@@ -188,12 +188,16 @@ class Queue
      * Get items older than given timestamp.
      *
      * @param $timestampThreshold
+     * @param int|null $chunkSize The maximum number of items that should be returned.
      * @return mixed|null
      */
-    public function getOldItems($timestampThreshold): ?array
+    public function getOldItems($timestampThreshold, ?int $chunkSize = 30): ?array
     {
         $query = $this->query();
         $query->where('created_at_gmt', '<=', $timestampThreshold);
+        if ($chunkSize) {
+            $query->limit($chunkSize);
+        }
         if ($result = $query->result()) {
             return $result;
         }
