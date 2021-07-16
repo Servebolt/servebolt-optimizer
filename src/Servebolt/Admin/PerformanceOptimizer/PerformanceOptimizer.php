@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\view;
 
 /**
@@ -29,7 +30,9 @@ class PerformanceOptimizer
     {
         DatabaseOptimizations::init();
         PerformanceOptimizerAdvanced::init();
-        PrefetchingControl::init();
+        if (featureIsAvailable('prefetching')) {
+            PrefetchingControl::init();
+        }
         MenuCacheControl::init();
     }
 

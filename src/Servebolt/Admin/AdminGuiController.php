@@ -254,7 +254,9 @@ class AdminGuiController
         add_submenu_page('servebolt-wp', __('Performance optimizer', 'servebolt-wp'), __('Performance optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-optimizer', [PerformanceOptimizer::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-advanced', [PerformanceOptimizerAdvanced::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-database', [DatabaseOptimizations::getInstance(), 'render']);
-        add_submenu_page(null, null, null, 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
+        if (featureIsAvailable('prefetching')) {
+            add_submenu_page(null, null, null, 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
+        }
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-menu-cache', [MenuCacheControl::getInstance(), 'render']);
 
         // Legacy redirect
