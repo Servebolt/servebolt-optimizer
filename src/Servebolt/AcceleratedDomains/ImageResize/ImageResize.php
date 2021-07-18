@@ -180,11 +180,12 @@ class ImageResize
      * Alter image src-attribute.
      *
      * @param array $image
-     * @param int|null $attachmentId
+     * @param int|string|null $attachmentId
      * @return mixed
      */
-    public function alterSingleImageUrl($image, ?int $attachmentId = null)
+    public function alterSingleImageUrl($image, $attachmentId = null)
     {
+        $attachmentId = (int) $attachmentId;
         if ($attachmentId && !$this->shouldTouchImage($attachmentId)) {
             return $image;
         }
