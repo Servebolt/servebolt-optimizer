@@ -529,13 +529,11 @@ class HelpersTest extends ServeboltWPUnitTestCase
         iterateSites(function ($site) use ($allOptionsNames) {
             foreach ($allOptionsNames as $option) {
                 $value = getBlogOption($site->blog_id, $option);
-                //var_dump($option);
-                //var_dump($value);
                 switch ($option) {
                     // Default options
-                    case 'prefetch_file_style_switch':
-                    case 'prefetch_file_script_switch':
-                    case 'prefetch_file_menu_switch':
+                    //case 'prefetch_file_style_switch':
+                    //case 'prefetch_file_script_switch':
+                    //case 'prefetch_file_menu_switch':
                     case 'cache_purge_auto':
                     case 'cache_purge_auto_on_slug_change':
                     case 'cache_purge_auto_on_deletion':
