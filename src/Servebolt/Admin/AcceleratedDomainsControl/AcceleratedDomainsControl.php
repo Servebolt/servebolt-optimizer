@@ -4,7 +4,10 @@ namespace Servebolt\Optimizer\Admin\AcceleratedDomainsControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Admin\AcceleratedDomainsControl\Ajax\PurgeActions;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
+use function Servebolt\Optimizer\Helpers\isScreen;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\getOption;
@@ -27,7 +30,33 @@ class AcceleratedDomainsControl
      */
     public function __construct()
     {
+        $this->initAjax();
         $this->initSettings();
+        $this->initAssets();
+    }
+
+    private function initAjax(): void
+    {
+        new PurgeActions;
+    }
+
+    private function initAssets(): void
+    {
+        add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
+    }
+
+    public function enqueueScripts(): void
+    {
+        if (!isScreen('servebolt_page_servebolt-acd')) {
+            return;
+        }
+        wp_enqueue_script(
+            'servebolt-optimizer-acd-control-script',
+            SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/acd-control.js',
+            [],
+            getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/acd-control.js'),
+            true
+        );
     }
 
     /**
