@@ -395,9 +395,11 @@ class FullPageCacheHeaders
     private function getTtl(?string $postType = null): int
     {
         // Conditional TTL
+        /*
         if (CacheTtl::isActive() && $postType && $ttl = CacheTtl::getTtlByPostType($postType)) {
             return $ttl;
         }
+        */
 
         // Default TTL
         if (is_null($this->fpcCacheTime)) {
@@ -412,13 +414,13 @@ class FullPageCacheHeaders
 	 */
 	private function cacheHeaders(?string $postType = null)
     {
-        do_action('sb_optimizer_fpc_cache_headers', $this);
+        if (is_null($postType)) {
+            $postType = get_post_type();
+        }
+        do_action('sb_optimizer_fpc_cache_headers', $this, $postType);
         if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true)) {
 
-            if (is_null($postType)) {
-                $postType = get_post_type();
-            }
-            $fpcCacheTime = $this->getTtl($postType);
+            $fpcCacheTime = $this->getTtl();
 
             // Check if the constant SERVEBOLT_BROWSER_CACHE_TIME is set, and override $serveboltBrowserCacheTime if it is
             if (defined('SERVEBOLT_BROWSER_CACHE_TIME')) {

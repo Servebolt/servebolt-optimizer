@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\AcceleratedDomains;
 
+use Servebolt\Optimizer\FullPageCache\CacheTtl;
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
@@ -33,6 +35,22 @@ class AcceleratedDomainsHeaders
     }
 
     /**
+     * Get the cache TTL.
+     *
+     * @param string|null $postType
+     * @return int
+     */
+    private function getTtl(?string $postType = null): int
+    {
+        // Conditional TTL
+        if (CacheTtl::isActive() && $postType && $ttl = CacheTtl::getTtlByPostType($postType)) {
+            return $ttl;
+        }
+
+        return $this->defaultTtl;
+    }
+
+    /**
      * Set ACD TTL conditionally using on the FullPageCache-class.
      */
     private function addAcdTtlHeaders(): void
@@ -41,9 +59,9 @@ class AcceleratedDomainsHeaders
             $fpc->header($this->ttlHeaderkey, 'no-cache');
             $fpc->header('CDN-Cache-Control', 'max-age=0,no-cache');
         });
-        add_action('sb_optimizer_fpc_cache_headers', function ($fpc) {
-            $fpc->header($this->ttlHeaderkey, $this->defaultTtl);
-            $fpc->header('CDN-Cache-Control', 'max-age=' . $this->defaultTtl);
+        add_action('sb_optimizer_fpc_cache_headers', function ($fpc, $postType) {
+            $fpc->header($this->ttlHeaderkey, $this->getTtl($postType));
+            $fpc->header('CDN-Cache-Control', 'max-age=' . $this->getTtl($postType));
         });
     }
 
