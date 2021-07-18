@@ -36,6 +36,7 @@ class PurgeActions extends SharedAjaxMethods
         add_action('wp_ajax_servebolt_purge_url_cache', [$this, 'purgeUrlCacheCallback']);
         add_action('wp_ajax_servebolt_purge_post_cache', [$this, 'purgePostCacheCallback']);
         add_action('wp_ajax_servebolt_purge_term_cache', [$this, 'purgeTermCacheCallback']);
+
         /*
         // TODO: Make this feature work with the new cache purge driver
         if ( is_multisite() ) {
