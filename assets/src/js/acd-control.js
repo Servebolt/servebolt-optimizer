@@ -3,7 +3,33 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * Execute AJAX request to regenerate prefetch files.
+ * Execute AJAX request to purge all cache.
+ */
+window.acdPurgeAll = function () {
+   if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Do you want to purge all cache?')) {
+         window.acdPurgeAllConfirmed();
+      }
+   } else {
+      Swal.fire({
+         title: 'Do you want to purge all cache?',
+         icon: 'warning',
+         showCancelButton: true,
+         customClass: {
+            confirmButton: 'servebolt-button yellow',
+            cancelButton: 'servebolt-button light'
+         },
+         buttonsStyling: false
+      }).then((result) => {
+         if (result.value) {
+            window.acdPurgeAllConfirmed();
+         }
+      });
+   }
+};
+
+/**
+ * Execute AJAX request to purge all cache after confirmation.
  */
 window.acdPurgeAllConfirmed = function () {
    window.sb_loading(true);
@@ -40,29 +66,3 @@ window.acdPurgeAllConfirmed = function () {
       sb_cache_purge_error(null, false);
    });
 }
-
-/**
- *
- */
-window.acdPurgeAll = function () {
-   if (window.sb_use_native_js_fallback()) {
-      if (window.confirm('Do you want to purge all cache?')) {
-         window.acdPurgeAllConfirmed();
-      }
-   } else {
-      Swal.fire({
-         title: 'Do you want to purge all cache?',
-         icon: 'warning',
-         showCancelButton: true,
-         customClass: {
-            confirmButton: 'servebolt-button yellow',
-            cancelButton: 'servebolt-button light'
-         },
-         buttonsStyling: false
-      }).then((result) => {
-         if (result.value) {
-            window.acdPurgeAllConfirmed();
-         }
-      });
-   }
-};
