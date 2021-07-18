@@ -2,22 +2,6 @@ document.addEventListener('DOMContentLoaded', function() {
    document.getElementById('sb-acd-purge-all-cache').addEventListener('click', window.acdPurgeAll);
 });
 
-/*
-if ( response.success ) {
-   setTimeout(function () {
-      var title = window.sb_get_from_response(response, 'title', sb_default_success_title())
-      window.sb_popup(response.data.type, title, null, response.data.markup);
-   }, 50);
-} else {
-   var message = window.sb_get_message_from_response(response);
-   if ( message ) {
-      sb_cache_purge_error(message);
-   } else {
-      sb_cache_purge_error(null, false);
-   }
-}
-*/
-
 /**
  * Execute AJAX request to regenerate prefetch files.
  */
@@ -35,9 +19,21 @@ window.acdPurgeAllConfirmed = function () {
    .then(function(response) {
       return response.json();
    })
-   .then(function(data) {
+   .then(function(response) {
       window.sb_loading(false);
-      //window.sb_success('Files were regenerated.');
+      if (response.success) {
+         setTimeout(function () {
+            var title = window.sb_get_from_response(response, 'title', sb_default_success_title())
+            window.sb_popup(response.data.type, title, null, response.data.markup);
+         }, 50);
+      } else {
+         var message = window.sb_get_message_from_response(response);
+         if (message) {
+            sb_cache_purge_error(message);
+         } else {
+            sb_cache_purge_error(null, false);
+         }
+      }
    })
    .catch(function(error) {
       window.sb_loading(false);
