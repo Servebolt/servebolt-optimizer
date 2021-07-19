@@ -1,5 +1,6 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\view; ?>
+<?php use function Servebolt\Optimizer\Helpers\featureIsAvailable; ?>
 <?php
 $urlMethod = is_multisite() && is_network_admin() ? 'network_admin_url' : 'admin_url';
 $tabs = [
@@ -16,9 +17,18 @@ $tabs = [
     [
         'id' => 'servebolt-acd-cache',
         'url' => $urlMethod('admin.php?page=servebolt-fpc'),
-        'title' => 'Cache'
+        'title' => 'Cache →'
     ],
 ];
+
+if (featureIsAvailable('prefetching')) {
+    $tabs[] = [
+        'id' => 'servebolt-prefetching',
+        'url' => $urlMethod('admin.php?page=servebolt-prefetching'),
+        'title' => 'Prefetching',
+    ];
+}
+
 $defaultTab = current($tabs)['id'];
 $selectedTab = isset($selectedTab) ? $selectedTab : $defaultTab;
 view('general.tabs', compact('tabs', 'selectedTab'));
