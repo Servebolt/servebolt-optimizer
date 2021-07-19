@@ -12,7 +12,7 @@ $tabs = [
     [
         'id' => 'servebolt-acd-image-resize',
         'url' => $urlMethod('admin.php?page=servebolt-acd-image-resize'),
-        'title' => 'Image resizing (beta)',
+        'title' => 'Image Resizing (beta)',
     ],
     [
         'id' => 'servebolt-acd-cache',
