@@ -49,20 +49,20 @@ window.acdPurgeAllConfirmed = function () {
       window.sb_loading(false);
       if (response.success) {
          setTimeout(function () {
-            var title = window.sb_get_from_response(response, 'title', sb_default_success_title())
-            window.sb_popup(response.data.type, title, null, response.data.markup);
+            var title = window.sb_get_from_response(response, 'title', window.sb_default_success_title())
+            window.sb_success(title, response.data.message);
          }, 50);
       } else {
          var message = window.sb_get_message_from_response(response);
          if (message) {
-            sb_cache_purge_error(message);
+            window.sbCachePurgeError(message);
          } else {
-            sb_cache_purge_error(null, false);
+            window.sbCachePurgeError(null, false);
          }
       }
    })
    .catch(function(error) {
       window.sb_loading(false);
-      sb_cache_purge_error(null, false);
+      window.sbCachePurgeError(null, false);
    });
 }

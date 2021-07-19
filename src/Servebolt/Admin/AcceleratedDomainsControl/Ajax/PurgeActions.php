@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Admin\AcceleratedDomainsControl\Ajax;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Exception;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use Servebolt\Optimizer\CachePurge\Drivers\Servebolt;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
@@ -34,9 +35,13 @@ class PurgeActions extends SharedAjaxMethods
             wp_send_json_error([
                 'message' => __('The cache purge feature is not active or is not configured correctly, so we could not purge cache.', 'servebolt-wp'),
             ]);
-        } elseif ($sbDriver->purgeAll()) {
-            wp_send_json_success();
-        } else {
+        }
+        try {
+            $sbDriver->purgeAll();
+            wp_send_json_success([
+                'message' => __('All cache was purged!', 'servebolt-wp'),
+            ]);
+        } catch (Exception $e) {
             wp_send_json_error([
                 'message' => __('Could not purge all cache.', 'servebolt-wp'),
             ]);
