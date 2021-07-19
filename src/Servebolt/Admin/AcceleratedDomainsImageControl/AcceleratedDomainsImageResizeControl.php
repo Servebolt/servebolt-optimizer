@@ -8,6 +8,8 @@ use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageSizeIndexModel;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
+use function Servebolt\Optimizer\Helpers\overrideMenuTitle;
+use function Servebolt\Optimizer\Helpers\overrideParentMenuPage;
 use function Servebolt\Optimizer\Helpers\view;
 
 /**
@@ -30,6 +32,7 @@ class AcceleratedDomainsImageResizeControl
     {
         AcceleratedDomainsImageSizeIndexControl::getInstance();
         $this->initSettings();
+        $this->rewriteHighlightedMenuItem();
     }
 
     /**
@@ -45,6 +48,15 @@ class AcceleratedDomainsImageResizeControl
     private function initSettings(): void
     {
         add_action('admin_init', [$this, 'registerSettings']);
+    }
+
+    /**
+     * Flag "Performance optimizer"-page as active when on Prefetching-page.
+     */
+    private function rewriteHighlightedMenuItem(): void
+    {
+        overrideParentMenuPage('servebolt-acd-image-resize', 'servebolt-acd');
+        overrideMenuTitle('admin_page_servebolt-acd-image-resize', __('Image Resizing (beta)', 'servebolt-wp'));
     }
 
     /**
