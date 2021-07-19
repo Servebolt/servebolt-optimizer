@@ -26,13 +26,17 @@ class PurgeObject
      * PurgeObject constructor.
      *
      * @param int|null $objectId
-     * @param string $type
+     * @param string $objectType
      * @param array $args
      */
-    public function __construct(?int $objectId = null, string $type = 'post', array $args = [])
+    public function __construct(?int $objectId = null, string $objectType = 'post', array $args = [])
     {
         if ($objectId) {
-            $this->addObject($objectId, $type, $args);
+            $this->addObject(
+                $objectId,
+                $objectType,
+                $args
+            );
         }
     }
 
@@ -96,7 +100,7 @@ class PurgeObject
      * @param array $args
      * @return bool|Post|Term
      */
-    public function addObject($id, $type = 'post', $args = [])
+    public function addObject($id, string $type = 'post', array $args = [])
     {
         $purgeObject = $this->resolvePurgeObject($id, $type, $args);
         if ($purgeObject && !is_wp_error($purgeObject)) {

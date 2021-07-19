@@ -53,7 +53,10 @@ trait TermMethods
      */
     public static function purgeTermCache(int $termId, string $taxonomySlug): bool
     {
-        if (CachePurgeDriver::queueBasedCachePurgeIsActive()) {
+        do_action('sb_optimizer_purged_term_cache', $termId);
+        do_action('sb_optimizer_purged_term_cache_for_' . $termId);
+
+        if (self::shouldPurgeByQueue()) {
             $queueInstance = WpObjectQueue::getInstance();
             return isQueueItem($queueInstance->add([
                 'type' => 'term',

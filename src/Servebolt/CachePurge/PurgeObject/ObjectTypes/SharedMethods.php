@@ -196,6 +196,27 @@ abstract class SharedMethods
     }
 
     /**
+     * Check if current post type is equals a given post type.
+     *
+     * @param string $postType
+     * @return bool
+     */
+    protected function postTypeIs(string $postType): bool
+    {
+        return $postType == $this->getPostType();
+    }
+
+    /**
+     * Check whether this post (attachment) is an image.
+     *
+     * @return bool
+     */
+    protected function attachmentIsImage(): bool
+    {
+        return wp_attachment_is_image($this->getId());
+    }
+
+    /**
      * Add the front page to be purged.
      */
     public function addFrontPage(): void

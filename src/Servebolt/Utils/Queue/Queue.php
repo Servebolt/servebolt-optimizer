@@ -208,7 +208,7 @@ class Queue
      * @param bool $onlyUnreserved Whether to only get unreserved items.
      * @return QueueItem[]|null
      */
-    public function getItems(?int $chunkSize = 30, $onlyUnreserved = true): ?array
+    public function getItems(?int $chunkSize = 30, bool $onlyUnreserved = true): ?array
     {
         $query = $this->query();
         if ($chunkSize) {

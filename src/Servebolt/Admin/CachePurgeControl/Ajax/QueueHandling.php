@@ -16,8 +16,8 @@ class QueueHandling extends SharedAjaxMethods
      */
     public function __construct()
     {
-        add_action('wp_ajax_servebolt_delete_cache_purge_queue_items', [$this, 'deleteCachePurgeQueueItemsCallback']);
-        add_action('wp_ajax_servebolt_load_cache_purge_queue_list', [$this, 'loadCachePurgeQueueList']);
+        //add_action('wp_ajax_servebolt_delete_cache_purge_queue_items', [$this, 'deleteCachePurgeQueueItemsCallback']);
+        //add_action('wp_ajax_servebolt_load_cache_purge_queue_list', [$this, 'loadCachePurgeQueueList']);
     }
 
     /**

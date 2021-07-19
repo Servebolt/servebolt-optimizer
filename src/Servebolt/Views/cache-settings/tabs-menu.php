@@ -9,6 +9,11 @@
             'title' => 'Cache settings',
         ],
         [
+            'id' => 'cache-ttl-settings',
+            'url' => $urlMethod('admin.php?page=servebolt-cache-ttl'),
+            'title' => 'Cache TTL',
+        ],
+        [
             'id' => 'cache-purge-settings',
             'url' => $urlMethod('admin.php?page=servebolt-cache-purge-control'),
             'title' => 'Cache purging',

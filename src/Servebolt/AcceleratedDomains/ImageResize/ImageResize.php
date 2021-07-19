@@ -94,7 +94,7 @@ class ImageResize
     }
 
     /**
-     * Check if we should do something with this image.
+     * Check if we should do something with this image based on MIME-type or file extension.
      *
      * @param int $attachmentId
      * @return bool
@@ -106,7 +106,27 @@ class ImageResize
             case 'image/svg+xml':
                 return apply_filters('sb_optimizer_acd_image_resize_should_touch', false, $mimeType, $attachmentId);
         }
+        if (!$this->shouldTouchImageBasedOnFileExtension($attachmentId)) {
+            return apply_filters('sb_optimizer_acd_image_resize_should_touch_by_file_extension', false, $mimeType, $attachmentId);
+        }
         return apply_filters('sb_optimizer_acd_image_resize_should_touch', true, $mimeType, $attachmentId);
+    }
+
+    /**
+     * Check if we should do something with this image based on file extension.
+     *
+     * @param $attachmentId
+     * @return bool
+     */
+    private function shouldTouchImageBasedOnFileExtension($attachmentId): bool
+    {
+        $filePath = get_attached_file($attachmentId, true);
+        $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);;
+        switch ($fileExtension) {
+            case 'svg':
+                return false;
+        }
+        return true;
     }
 
     /**
@@ -160,11 +180,12 @@ class ImageResize
      * Alter image src-attribute.
      *
      * @param array $image
-     * @param int|null $attachmentId
+     * @param int|string|null $attachmentId
      * @return mixed
      */
-    public function alterSingleImageUrl($image, ?int $attachmentId = null)
+    public function alterSingleImageUrl($image, $attachmentId = null)
     {
+        $attachmentId = (int) $attachmentId;
         if ($attachmentId && !$this->shouldTouchImage($attachmentId)) {
             return $image;
         }

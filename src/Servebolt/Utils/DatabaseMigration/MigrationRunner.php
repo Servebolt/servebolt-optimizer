@@ -66,27 +66,11 @@ class MigrationRunner
     }
 
     /**
-     * Check if we need to migrate, based on previous migration constraint.
-     *
-     * @param bool $skipAction Whether to run the migration check right away, and skip the action-step.
-     */
-    public function init(bool $skipAction = false): void
-    {
-        if ($skipAction) {
-            $this->maybeRunMigrations();
-        } else {
-            add_action('admin_init', [$this, 'maybeRunMigrations']);
-        }
-    }
-
-    /**
      * Run migration.
-     *
-     * @param bool $skipAction Whether to run the migration check right away, and skip the action-step.
      */
-    public static function run(bool $skipAction = false): void
+    public static function run(): void
     {
-        (new self)->init($skipAction);
+        (new self)->maybeRunMigrations();
     }
 
     /**

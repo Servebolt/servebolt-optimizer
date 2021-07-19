@@ -16,28 +16,35 @@ jQuery(document).ready(function($) {
     window.sb_purge_all_cache();
   });
 
-  // Purge post cache
-  $('#the-list .sb-purge-post-cache').click(function(e) {
-    e.preventDefault();
-    const postId = $(this).data('post-id'),
-      objectName = $(this).data('object-name');
-    window.sbPurgePostCache(postId, objectName);
-  });
+  var list = document.querySelector('#the-list');
+  if (list) {
 
-  // Purge term cache
-  $('#the-list .sb-purge-term-cache').click(function(e) {
-    e.preventDefault();
-    const termId = $(this).data('term-id'),
-      objectName = $(this).data('object-name');
-    window.sbPurgeTermCache(termId, objectName);
-  });
+    // Purge post cache
+    list.addEventListener('click', function (e) {
+      if (!e.target.matches('.sb-purge-post-cache')) return;
+      e.preventDefault();
+      const postId = $(e.target).data('post-id'),
+          objectName = $(e.target).data('object-name');
+      window.sbPurgePostCache(postId, objectName);
+    }, false);
+
+    // Purge term cache
+    list.addEventListener('click', function (e) {
+      if (!e.target.matches('.sb-purge-term-cache')) return;
+      e.preventDefault();
+      const termId = $(e.target).data('term-id'),
+          objectName = $(e.target).data('object-name');
+      window.sbPurgeTermCache(termId, objectName);
+    }, false);
+  }
 
   // Purge current post cache
   $('#wpadminbar .sb-purge-current-post-cache').click(function(e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
-    const postId = $(this).find('span').data('id'),
-      objectName = $(this).find('span').data('object-name');
+    const span = $(this).find('span:not(.servebolt-icon)'),
+        postId = span.data('id'),
+      objectName = span.data('object-name');
     window.sbPurgePostCache(postId, objectName);
   });
 
@@ -45,8 +52,9 @@ jQuery(document).ready(function($) {
   $('#wpadminbar .sb-purge-current-term-cache').click(function(e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
-    const termId = $(this).find('span').data('id'),
-      objectName = $(this).find('span').data('object-name');
+    const span = $(this).find('span:not(.servebolt-icon)'),
+        termId = span.data('id'),
+      objectName = span.data('object-name');
     window.sbPurgeTermCache(termId, objectName);
   });
 

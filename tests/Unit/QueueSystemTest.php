@@ -17,7 +17,13 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
     public function setUp()
     {
         parent::setUp();
-        MigrationRunner::run(true);
+        MigrationRunner::run();
+    }
+
+    public function tearDown()
+    {
+        parent::tearDown();
+        MigrationRunner::cleanup();
     }
 
     public function testThatItemCanBeAddedToTheQueue()

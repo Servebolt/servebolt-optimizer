@@ -15,7 +15,7 @@
 
     <tr>
         <th scope="row">
-            <label for="sb_api_key"><?php _e('Environment API key', 'wp-servebolt'); ?></label><br>
+            <label for="sb_api_key"><?php _e('Environment API key', 'servebolt-wp'); ?></label><br>
         </th>
         <td>
 

@@ -490,7 +490,7 @@ class DatabaseOptimizer
             iterateSites(function($site) use ($optionsTablesWithAutoloadIndex) {
 				if (!in_array($this->wpdb()->options, $optionsTablesWithAutoloadIndex)) {
 					$this->autoloadIndexAddition['count']++;
-					if ( $this->dryRun || $this->addAptionsAutoloadIndex() ) {
+					if ( $this->dryRun || $this->addOptionsAutoloadIndex() ) {
 					    $message = sprintf(__('Added index to table "%s" on site %s (site ID %s)'), $this->wpdb()->options, $this->blogIdentification($site), $site->blog_id);
 					    if (CliHelpers::returnJson()) {
                             $this->actionOutput[] = [

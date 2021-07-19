@@ -20,12 +20,14 @@ class GenericOptimizations
         }
 
         // Disable CONCATENATE_SCRIPTS to get rid of some DDOS-attacks
-        if (!defined('CONCATENATE_SCRIPTS')) {
+        if (apply_filters('sb_optimizer_generic_optimizations_concatenate_scripts_disable', true) && !defined('CONCATENATE_SCRIPTS')) {
             define('CONCATENATE_SCRIPTS', false);
         }
 
         // Hide the meta tag generator from head and RSS
-        add_filter('the_generator', '__return_empty_string');
-        remove_action('wp_head', 'wp_generator');
+        if (apply_filters('sb_optimizer_generic_optimizations_disable_meta_tag_generator', true)) {
+            add_filter('the_generator', '__return_empty_string');
+            remove_action('wp_head', 'wp_generator');
+        }
     }
 }
