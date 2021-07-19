@@ -5,7 +5,6 @@ namespace Servebolt\Optimizer\Admin\CachePurgeControl\Ajax;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Exception;
-use WP_Taxonomy;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
@@ -330,7 +329,7 @@ class PurgeActions extends SharedAjaxMethods
     {
         if (is_string($taxonomy)) {
             $taxonomyObject = get_taxonomy($taxonomy);
-        } elseif (is_a('WP_Taxonomy', $taxonomy)) {
+        } elseif (is_a('\\WP_Taxonomy', $taxonomy)) {
             $taxonomyObject = $taxonomy;
         } elseif (!$taxonomyObject = getTaxonomyFromTermId($termId)) {
             $taxonomyObject = false;
