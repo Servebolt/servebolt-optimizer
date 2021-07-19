@@ -30,9 +30,6 @@ class PerformanceOptimizer
     {
         DatabaseOptimizations::init();
         PerformanceOptimizerAdvanced::init();
-        if (featureIsAvailable('prefetching')) {
-            PrefetchingControl::init();
-        }
         MenuCacheControl::init();
     }
 

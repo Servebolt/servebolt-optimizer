@@ -8,7 +8,7 @@ use Servebolt\Optimizer\Admin\AcceleratedDomainsControl\AcceleratedDomainsContro
 use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\AcceleratedDomainsImageResizeControl;
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\DatabaseOptimizations;
-use Servebolt\Optimizer\Admin\PerformanceOptimizer\PrefetchingControl;
+use Servebolt\Optimizer\Admin\Prefetching\PrefetchingControl;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\MenuCacheControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\FullPageCacheControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\CacheTtlControl;
@@ -59,6 +59,9 @@ class AdminGuiController
 
         AcceleratedDomainsControl::init();
         AcceleratedDomainsImageResizeControl::init();
+        if (featureIsAvailable('prefetching')) {
+            PrefetchingControl::init();
+        }
         CachePurgeControl::init();
         FullPageCacheControl::init();
         GeneralSettings::init();
@@ -228,6 +231,9 @@ class AdminGuiController
     {
         add_submenu_page('servebolt-wp', __('Accelerated Domains', 'servebolt-wp'), __('Accelerated Domains', 'servebolt-wp'), 'manage_options', 'servebolt-acd', [AcceleratedDomainsControl::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-acd-image-resize', [AcceleratedDomainsImageResizeControl::getInstance(), 'render']);
+        if (featureIsAvailable('prefetching')) {
+            add_submenu_page(null, null, null, 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
+        }
     }
 
     /**
@@ -254,9 +260,6 @@ class AdminGuiController
         add_submenu_page('servebolt-wp', __('Performance optimizer', 'servebolt-wp'), __('Performance optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-optimizer', [PerformanceOptimizer::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-advanced', [PerformanceOptimizerAdvanced::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-database', [DatabaseOptimizations::getInstance(), 'render']);
-        if (featureIsAvailable('prefetching')) {
-            add_submenu_page(null, null, null, 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
-        }
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-menu-cache', [MenuCacheControl::getInstance(), 'render']);
 
         // Legacy redirect

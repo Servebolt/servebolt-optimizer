@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\Admin\PerformanceOptimizer;
+namespace Servebolt\Optimizer\Admin\Prefetching;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -49,7 +49,7 @@ class PrefetchingControl
      */
     private function rewriteHighlightedMenuItem(): void
     {
-        overrideParentMenuPage('servebolt-prefetching', 'servebolt-performance-optimizer');
+        overrideParentMenuPage('servebolt-prefetching', 'servebolt-acd');
         overrideMenuTitle('admin_page_servebolt-prefetching', __('Prefetching', 'servebolt-wp'));
     }
 
@@ -70,7 +70,7 @@ class PrefetchingControl
     {
         $settings = $this->getSettingsItemsWithValues();
         $defaultMaxNumberOfLines = WpPrefetching::$defaultMaxNumberOfLines;
-        view('performance-optimizer.prefetching.prefetching', compact('settings', 'defaultMaxNumberOfLines'));
+        view('accelerated-domains.prefetching.prefetching', compact('settings', 'defaultMaxNumberOfLines'));
     }
 
     private function initSettings(): void
