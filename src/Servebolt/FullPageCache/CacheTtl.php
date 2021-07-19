@@ -140,7 +140,9 @@ class CacheTtl
      */
     public static function getPostTypes(): array
     {
-        $postTypes = get_post_types([], 'objects');
+        $postTypes = get_post_types([
+            'public' => true
+        ], 'objects');
         /*
         $postTypesToExclude = ['attachment'];
         $postTypes = array_filter($postTypes, function($postType) use ($postTypesToExclude) {
