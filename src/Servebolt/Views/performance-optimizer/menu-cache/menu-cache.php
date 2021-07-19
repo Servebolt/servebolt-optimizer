@@ -6,6 +6,8 @@
 
     <?php view('performance-optimizer.tabs-menu', ['selectedTab' => 'servebolt-menu-cache']); ?>
 
+    <?php view('performance-optimizer.menu-cache.promo'); ?>
+
     <?php if (is_network_admin()) : ?>
         <?php view('performance-optimizer.menu-cache.network-list-view'); ?>
     <?php else : ?>
