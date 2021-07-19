@@ -42,8 +42,8 @@ class DatabaseOptimizations
      */
     private function rewriteHighlightedMenuItem(): void
     {
-        overrideParentMenuPage('servebolt-performance-optimizer-advanced', 'servebolt-performance-optimizer');
-        overrideMenuTitle('admin_page_servebolt-performance-optimizer-advanced', __('Advanced', 'servebolt-wp'));
+        overrideParentMenuPage('servebolt-performance-optimizer-database', 'servebolt-performance-optimizer');
+        overrideMenuTitle('admin_page_servebolt-performance-optimizer-database', __('Database', 'servebolt-wp'));
     }
 
     /**
