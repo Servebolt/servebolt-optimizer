@@ -40,7 +40,12 @@ class CacheTtl
      */
     private function defaultOptionValues(): void
     {
-        setDefaultOption('cache_ttl_by_post_type', __CLASS__ . '::cacheTtlPresetDefaultValues');
+        setDefaultOption('cache_ttl_by_post_type', function() {
+            return self::cacheTtlPresetDefaultValues('post-type');
+        });
+        setDefaultOption('cache_ttl_by_taxonomy', function() {
+            return self::cacheTtlPresetDefaultValues('taxonomy');
+        });
         setDefaultOption('custom_cache_ttl_switch', '__return_true');
     }
 
@@ -58,6 +63,38 @@ class CacheTtl
     /**
      * Get TTL value by post type.
      *
+     * @param string $taxonomy
+     * @return int|null
+     */
+    public static function getTtlByTaxonomy(string $taxonomy): ?int
+    {
+        $ttlPresets = getOption('cache_ttl_by_taxonomy');
+        if (!$ttlPreset = arrayGet($taxonomy, $ttlPresets)) {
+            return null;
+        }
+
+        // Custom TTL
+        if ($ttlPreset == 'custom') {
+            $customTtlForTaxonomies = getOption('custom_cache_ttl_by_taxonomy');
+            $customTtl = arrayGet($taxonomy, $customTtlForTaxonomies);
+            if (!is_numeric($customTtl)) {
+                return null;
+            }
+            return $customTtl;
+        }
+
+        // Preset TTL
+        $ttlPresets = self::getTtlPresets();
+        $ttl = arrayGet('ttl', arrayGet($ttlPreset, $ttlPresets));
+        if (!is_numeric($ttl)) {
+            return null;
+        }
+        return $ttl;
+    }
+
+    /**
+     * Get TTL value by post type.
+     *
      * @param string $postType
      * @return int|null
      */
@@ -70,7 +107,7 @@ class CacheTtl
 
         // Custom TTL
         if ($ttlPreset == 'custom') {
-            $customTtlForPostTypes = getOption('custom_cache_ttl');
+            $customTtlForPostTypes = getOption('custom_cache_ttl_by_post_type');
             $customTtl = arrayGet($postType, $customTtlForPostTypes);
             if (!is_numeric($customTtl)) {
                 return null;
@@ -92,11 +129,20 @@ class CacheTtl
      *
      * @return array
      */
-    public static function cacheTtlPresetDefaultValues(): array
+    public static function cacheTtlPresetDefaultValues($type): array
     {
-        return array_map(function() {
-            return 'default';
-        }, array_flip(array_keys(self::getPostTypes())));
+        switch ($type) {
+            case 'taxonomy':
+                return array_map(function() {
+                    return 'default';
+                }, array_flip(array_keys(self::getTaxonomies())));
+                break;
+            case 'post-type':
+            default:
+                return array_map(function() {
+                    return 'default';
+                }, array_flip(array_keys(self::getPostTypes())));
+        }
     }
 
     /**
@@ -121,7 +167,7 @@ class CacheTtl
             ],
             'default' => [
                 'label' => 'Default',
-                'ttl' => 86000,
+                'ttl' => 86400,
             ],
             'long' => [
                 'label' => 'Long',
@@ -131,6 +177,25 @@ class CacheTtl
                 'label' => 'Custom',
             ],
         ];
+    }
+
+    /**
+     * Get taxonomies that we should control TTL for.
+     *
+     * @return array
+     */
+    public static function getTaxonomies(): array
+    {
+        $taxonomies = get_taxonomies([
+            'public' => true
+        ], 'objects');
+        /*
+        $taxonomiesToExclude = [];
+        $taxonomies = array_filter($taxonomies, function($taxonomy) use ($taxonomiesToExclude) {
+            return !in_array($taxonomy->name, $taxonomiesToExclude);
+        });
+        */
+        return $taxonomies;
     }
 
     /**

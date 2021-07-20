@@ -548,6 +548,15 @@ class HelpersTest extends ServeboltWPUnitTestCase
                         $this->assertEquals('default', $value['post']);
                         $this->assertEquals('default', $value['page']);
                         break;
+                    case 'cache_ttl_by_taxonomy':
+                        $this->assertIsArray($value);
+                        $this->assertArrayHasKey('category', $value);
+                        $this->assertArrayHasKey('post_tag', $value);
+                        $this->assertArrayHasKey('post_format', $value);
+                        $this->assertEquals('default', $value['category']);
+                        $this->assertEquals('default', $value['post_tag']);
+                        $this->assertEquals('default', $value['post_format']);
+                        break;
                     default:
                         $this->assertNull($value);
                         break;

@@ -496,7 +496,9 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         // Custom cache TTL
         'custom_cache_ttl_switch',
         'cache_ttl_by_post_type',
-        'custom_cache_ttl',
+        'cache_ttl_by_taxonomy',
+        'custom_cache_ttl_by_post_type',
+        'custom_cache_ttl_by_taxonomy',
     ];
 
     if ($includeMigrationOptions) {
