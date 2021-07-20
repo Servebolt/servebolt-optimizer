@@ -11,7 +11,7 @@
 	<?php if ( is_network_admin() ) : ?>
         <?php view('cache-settings.cache-ttl.network-list-view'); ?>
     <?php else : ?>
-        <?php view('cache-settings.cache-ttl.settings-form', compact('settings', 'postTypes', 'cacheTtlOptions')); ?>
+        <?php view('cache-settings.cache-ttl.settings-form', compact('settings', 'postTypes', 'taxonomies', 'cacheTtlOptions')); ?>
 	<?php endif; ?>
 
 </div>
