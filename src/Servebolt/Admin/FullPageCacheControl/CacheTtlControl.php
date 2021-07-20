@@ -64,11 +64,13 @@ class CacheTtlControl
         $settings = $this->getSettingsItemsWithValues();
         $cacheTtlOptions = CacheTtl::getTtlPresets();
         $postTypes = CacheTtl::getPostTypes();
+        $taxonomies = CacheTtl::getTaxonomies();
         view(
             'cache-settings.cache-ttl.cache-ttl',
             compact([
                 'settings',
                 'postTypes',
+                'taxonomies',
                 'cacheTtlOptions',
             ])
         );
@@ -149,7 +151,9 @@ class CacheTtlControl
         return [
             'custom_cache_ttl_switch',
             'cache_ttl_by_post_type',
-            'custom_cache_ttl',
+            'cache_ttl_by_taxonomy',
+            'custom_cache_ttl_by_post_type',
+            'custom_cache_ttl_by_taxonomy',
         ];
     }
 }

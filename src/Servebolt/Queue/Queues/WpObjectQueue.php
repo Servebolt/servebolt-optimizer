@@ -331,6 +331,9 @@ class WpObjectQueue
     {
         if ($items = $this->queue->getActiveItems()) {
             foreach ($items as $item) {
+                if (!isset($this->payload)) {
+                    continue;
+                }
                 $args = arrayGet('args', $this->payload);
                 if (
                     arrayGet('type', $item->payload) === 'term'
