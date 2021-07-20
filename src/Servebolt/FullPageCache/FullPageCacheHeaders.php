@@ -394,13 +394,6 @@ class FullPageCacheHeaders
      */
     private function getTtl(?string $postType = null): int
     {
-        // Conditional TTL
-        /*
-        if (CacheTtl::isActive() && $postType && $ttl = CacheTtl::getTtlByPostType($postType)) {
-            return $ttl;
-        }
-        */
-
         // Default TTL
         if (is_null($this->fpcCacheTime)) {
             // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $fpcCacheTime if it is
@@ -409,15 +402,33 @@ class FullPageCacheHeaders
         return $this->fpcCacheTime;
     }
 
+    /**
+     * Get the current queried object.
+     *
+     * @return array|null
+     */
+    private function getQueriedObject(): ?array
+    {
+        if ($queriedObject = get_queried_object()) {
+            if ($queriedObject instanceof \WP_Post) {
+                $objectType = 'post-type';
+                $objectId = $queriedObject->post_type;
+                return compact('objectType', 'objectId');
+            } elseif ($queriedObject instanceof \WP_Term) {
+                $objectType = 'taxonomy';
+                $objectId = $queriedObject->taxonomy;
+                return compact('objectType', 'objectId');
+            }
+        }
+        return null;
+    }
+
 	/**
 	 * Cache headers - Print headers that encourage caching.
 	 */
-	private function cacheHeaders(?string $postType = null)
+	private function cacheHeaders()
     {
-        if (is_null($postType)) {
-            $postType = get_post_type();
-        }
-        do_action('sb_optimizer_fpc_cache_headers', $this, $postType);
+        do_action('sb_optimizer_fpc_cache_headers', $this, $this->getQueriedObject());
         if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true)) {
 
             $fpcCacheTime = $this->getTtl();

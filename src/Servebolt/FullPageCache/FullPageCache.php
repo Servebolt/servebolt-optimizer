@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\setDefaultOption;
 
 /**
  * Class FullPageCache
@@ -25,6 +26,19 @@ class FullPageCache
         FullPageCacheHeaders::init();
         CacheTtl::init();
         $this->purgePostCacheIfAddedToFpcExclusion();
+        $this->defaultOptionValues();
+    }
+
+    /**
+     * Set default option values.
+     */
+    private function defaultOptionValues(): void
+    {
+        setDefaultOption('fpc_settings', function() {
+            return [
+                'all' => 1,
+            ];
+        });
     }
 
     /**

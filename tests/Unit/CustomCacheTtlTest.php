@@ -19,7 +19,7 @@ class CustomCacheTtlTest extends ServeboltWPUnitTestCase
 
     public function testThatDefaultValuesAreSet(): void
     {
-        $this->assertEquals(86000, CacheTtl::getTtlByPostType('post'));
+        $this->assertEquals(86400, CacheTtl::getTtlByPostType('post'));
     }
 
     public function testThatWeCanSetCustomTtlForPostType(): void
@@ -29,9 +29,9 @@ class CustomCacheTtlTest extends ServeboltWPUnitTestCase
         $ttlPresets['page'] = 'custom';
         updateOption('cache_ttl_by_post_type', $ttlPresets);
 
-        $customTtlByPostTypes = getOption('custom_cache_ttl', []);
+        $customTtlByPostTypes = getOption('custom_cache_ttl_by_post_type', []);
         $customTtlByPostTypes['page'] = $customTtl;
-        updateOption('custom_cache_ttl', $customTtlByPostTypes);
+        updateOption('custom_cache_ttl_by_post_type', $customTtlByPostTypes);
         $this->assertEquals($customTtl, CacheTtl::getTtlByPostType('page'));
 
         $customTtlByPostTypes['page'] = 'a-string';
@@ -41,7 +41,7 @@ class CustomCacheTtlTest extends ServeboltWPUnitTestCase
         $ttlPresets = getOption('cache_ttl_by_post_type');
         $ttlPresets['page'] = 'default';
         updateOption('cache_ttl_by_post_type', $ttlPresets);
-        $this->assertEquals(86000, CacheTtl::getTtlByPostType('page'));
+        $this->assertEquals(86400, CacheTtl::getTtlByPostType('page'));
     }
 
     public function testAllCacheTtlPresets(): void
@@ -61,7 +61,7 @@ class CustomCacheTtlTest extends ServeboltWPUnitTestCase
 
         $ttlPresets['page'] = 'default';
         updateOption('cache_ttl_by_post_type', $ttlPresets);
-        $this->assertEquals(86000, CacheTtl::getTtlByPostType('page'));
+        $this->assertEquals(86400, CacheTtl::getTtlByPostType('page'));
 
         $ttlPresets['page'] = 'long';
         updateOption('cache_ttl_by_post_type', $ttlPresets);

@@ -16,7 +16,7 @@ class AcceleratedDomainsHeaders
     /**
      * @var int Default TTL for ACD cache.
      */
-    private $defaultTtl = 86000;
+    private $defaultTtl = 86400;
 
     /**
      * @var string The header name used to specify TTL for ACD cache.
@@ -37,16 +37,29 @@ class AcceleratedDomainsHeaders
     /**
      * Get the cache TTL.
      *
-     * @param string|null $postType
+     * @param string|null $objectType
+     * @param string|null $objectIdentifier
      * @return int
      */
-    private function getTtl(?string $postType = null): int
+    private function getTtl(?string $objectType = null, ?string $objectIdentifier = null): int
     {
         // Conditional TTL
-        if (CacheTtl::isActive() && $postType && $ttl = CacheTtl::getTtlByPostType($postType)) {
-            return $ttl;
+        if (CacheTtl::isActive() && $objectType && $objectIdentifier) {
+            switch ($objectType) {
+                case 'post-type':
+                    $ttl = CacheTtl::getTtlByPostType($objectIdentifier);
+                    if (is_numeric($ttl)) {
+                        return $ttl;
+                    }
+                    break;
+                case 'taxonomy':
+                    $ttl = CacheTtl::getTtlByTaxonomy($objectIdentifier);
+                    if (is_numeric($ttl)) {
+                        return $ttl;
+                    }
+                    break;
+            }
         }
-
         return $this->defaultTtl;
     }
 
@@ -59,10 +72,15 @@ class AcceleratedDomainsHeaders
             $fpc->header($this->ttlHeaderkey, 'no-cache');
             $fpc->header('CDN-Cache-Control', 'max-age=0,no-cache');
         });
-        add_action('sb_optimizer_fpc_cache_headers', function ($fpc, $postType) {
-            $fpc->header($this->ttlHeaderkey, $this->getTtl($postType));
-            $fpc->header('CDN-Cache-Control', 'max-age=' . $this->getTtl($postType));
-        });
+        add_action('sb_optimizer_fpc_cache_headers', function ($fpc, $queriedObject) {
+            if ($queriedObject) {
+                $ttl = $this->getTtl($queriedObject['objectType'], $queriedObject['objectId']);
+            } else {
+                $ttl = $this->getTtl();
+            }
+            $fpc->header($this->ttlHeaderkey, $ttl);
+            $fpc->header('CDN-Cache-Control', 'max-age=' . $ttl);
+        }, 10, 2);
     }
 
     /**
