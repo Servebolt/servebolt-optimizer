@@ -190,7 +190,7 @@ class CacheTtl
             'public' => true
         ], 'objects');
         /*
-        $taxonomiesToExclude = ['attachment'];
+        $taxonomiesToExclude = [];
         $taxonomies = array_filter($taxonomies, function($taxonomy) use ($taxonomiesToExclude) {
             return !in_array($taxonomy->name, $taxonomiesToExclude);
         });
