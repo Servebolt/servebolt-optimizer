@@ -41,12 +41,10 @@ class CacheTtl
     private function defaultOptionValues(): void
     {
         setDefaultOption('cache_ttl_by_post_type', function() {
-            $method = __CLASS__ . '::cacheTtlPresetDefaultValues';
-            return $method('post-type');
+            return self::cacheTtlPresetDefaultValues('post-type');
         });
         setDefaultOption('cache_ttl_by_taxonomy', function() {
-            $method = __CLASS__ . '::cacheTtlPresetDefaultValues';
-            return $method('taxonomy');
+            return self::cacheTtlPresetDefaultValues('taxonomy');
         });
         setDefaultOption('custom_cache_ttl_switch', '__return_true');
     }
