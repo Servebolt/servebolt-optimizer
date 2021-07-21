@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 
 /**
@@ -24,7 +25,9 @@ class FullPageCache
     {
         FullPageCacheSettings::init();
         FullPageCacheHeaders::init();
-        CacheTtl::init();
+        if (isHostedAtServebolt()) {
+            CacheTtl::init();
+        }
         $this->purgePostCacheIfAddedToFpcExclusion();
         $this->defaultOptionValues();
     }
@@ -56,6 +59,7 @@ class FullPageCache
         if (apply_filters('sb_optimizer_disable_automatic_purge_on_post_added_to_fpc_exclusion', false)) {
             return;
         }
+
 
         add_action('sb_optimizer_post_added_to_fpc_exclusion', function($postId) {
             try {
