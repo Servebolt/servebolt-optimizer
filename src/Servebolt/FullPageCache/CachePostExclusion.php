@@ -48,7 +48,7 @@ class CachePostExclusion
     }
 
     /**
-     * Exclude post from FPC.
+     * Exclude post from HTML Cache.
      *
      * @param int $postId
      * @param null|int $blogId
@@ -61,7 +61,7 @@ class CachePostExclusion
     }
 
     /**
-     * Exclude posts from FPC.
+     * Exclude posts from HTML Cache.
      *
      * @param $posts
      * @param null|int $blogId

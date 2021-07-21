@@ -75,7 +75,7 @@ class FullPageCacheSettings
     }
 
     /**
-     * Check whether we have overridden the active status for full page cache.
+     * Check whether we have overridden the active status for HTML Cache.
      *
      * @return bool
      */
@@ -85,7 +85,7 @@ class FullPageCacheSettings
     }
 
     /**
-     * The option name/key we use to store the active state for the Nginx FPC cache.
+     * The option name/key we use to store the active state for the HTML Cache.
      *
      * @return string
      */

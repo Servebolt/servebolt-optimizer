@@ -8,7 +8,7 @@
     <tr>
         <th><?php _e('Blog ID', 'servebolt-wp'); ?></th>
         <th><?php _e('URL', 'servebolt-wp'); ?></th>
-        <th><?php _e('Full Page Cache Active', 'servebolt-wp'); ?></th>
+        <th><?php _e('HTML Cache Active', 'servebolt-wp'); ?></th>
         <th><?php _e('Post types', 'servebolt-wp'); ?></th>
         <th><?php _e('Controls', 'servebolt-wp'); ?></th>
     </tr>
@@ -17,7 +17,7 @@
     <tr>
         <th><?php _e('Blog ID', 'servebolt-wp'); ?></th>
         <th><?php _e('URL', 'servebolt-wp'); ?></th>
-        <th><?php _e('Full Page Cache Active', 'servebolt-wp'); ?></th>
+        <th><?php _e('HTML Cache Active', 'servebolt-wp'); ?></th>
         <th><?php _e('Post types', 'servebolt-wp'); ?></th>
         <th><?php _e('Controls', 'servebolt-wp'); ?></th>
     </tr>
@@ -42,7 +42,7 @@
                     None
                 <?php endif; ?>
             </td>
-            <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-fpc' ); ?>" class="button btn"><?php _e('Go to site FPC settings', 'servebolt-wp'); ?></a></td>
+            <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-html-cache' ); ?>" class="button btn"><?php _e('Go to site HTML Cache settings', 'servebolt-wp'); ?></a></td>
         </tr>
     <?php endforeach; ?>
     </tbody>
