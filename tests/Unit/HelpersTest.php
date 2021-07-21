@@ -541,6 +541,8 @@ class HelpersTest extends ServeboltWPUnitTestCase
                     case 'custom_cache_ttl_switch':
                         $this->assertTrue($value);
                         break;
+                    case 'fpc_settings':
+                        $this->assertIsArray($value);
                     case 'cache_ttl_by_post_type':
                         $this->assertIsArray($value);
                         $this->assertArrayHasKey('post', $value);
