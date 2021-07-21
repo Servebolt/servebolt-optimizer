@@ -17,7 +17,7 @@
                         <input name="<?php echo getOptionName('use_cloudflare_apo'); ?>" type="checkbox" id="use_cloudflare_apo" value="1"<?php echo $acdActive ? ' disabled' : ''; ?><?php echo $generalSettings->useCloudflareApo() ? ' checked' : ''; ?>>
                         <?php _e('Check this if you want the Cloudflare APO-feature to be active for this site. Note that you need to use the Cloudflare proxy for this to work.', 'servebolt-wp'); ?>
                         <?php if($acdActive) : ?>
-                            <p><strong><?php _e('APO is not available when ACD is active.', 'servebolt-wp'); ?></strong></p>
+                            <p><strong><?php _e('APO is not available when Accelerated Domains is active.', 'servebolt-wp'); ?></strong></p>
                         <?php endif; ?>
                     </label>
                 </fieldset>

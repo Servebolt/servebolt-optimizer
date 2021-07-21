@@ -105,7 +105,7 @@ class AcceleratedDomainsImageResize
     }
 
     /**
-     * Display whether ACD Image Resize-feature is active or not.
+     * Display whether Accelerated Domains Image Resize-feature is active or not.
      *
      * ## OPTIONS
      *

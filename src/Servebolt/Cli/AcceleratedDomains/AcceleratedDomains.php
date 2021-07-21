@@ -37,7 +37,7 @@ class AcceleratedDomains
     }
 
     /**
-     * Display whether ACD is active or not.
+     * Display whether Accelerated Domains is active or not.
      *
      * ## OPTIONS
      *
@@ -55,13 +55,13 @@ class AcceleratedDomains
      *
      * ## EXAMPLES
      *
-     *     # Return whether ACD is active.
+     *     # Return whether Accelerated Domains is active.
      *     wp servebolt acd status
      *
-     *     # Return whether ACD is active for all sites in multisite.
+     *     # Return whether Accelerated Domains is active for all sites in multisite.
      *     wp servebolt acd status --all
      *
-     *     # Return whether ACD is active, in JSON-format
+     *     # Return whether Accelerated Domains is active, in JSON-format
      *     wp servebolt acd status --format=json
      */
     public function statusAcd($args, $assocArgs): void
@@ -109,7 +109,7 @@ class AcceleratedDomains
      * ## OPTIONS
      *
      * [--all]
-     * : Activate ACD on all sites.
+     * : Activate Accelerated Domains on all sites.
      *
      * [--format=<format>]
      * : Return format.
@@ -122,13 +122,13 @@ class AcceleratedDomains
      *
      * ## EXAMPLES
      *
-     *     # Activate ACD.
+     *     # Activate Accelerated Domains.
      *     wp servebolt acd activate
      *
-     *     # Activate ACD for all sites in multisite.
+     *     # Activate Accelerated Domains for all sites in multisite.
      *     wp servebolt acd activate --all
      *
-     *     # Activate ACD, get response in JSON-format.
+     *     # Activate Accelerated Domains, get response in JSON-format.
      *     wp servebolt acd activate --format=json
      */
     public function activateAcd($args, $assocArgs): void
@@ -186,7 +186,7 @@ class AcceleratedDomains
      * ## OPTIONS
      *
      * [--all]
-     * : Deactivate ACD on all sites.
+     * : Deactivate Accelerated Domains on all sites.
      *
      * [--format=<format>]
      * : Return format.
@@ -199,13 +199,13 @@ class AcceleratedDomains
      *
      * ## EXAMPLES
      *
-     *     # Deactivate ACD.
+     *     # Deactivate Accelerated Domains.
      *     wp servebolt acd deactivate
      *
-     *     # Deactivate ACD for all sites in multisite.
+     *     # Deactivate Accelerated Domains for all sites in multisite.
      *     wp servebolt acd deactivate --all
      *
-     *     # Deactivate ACD, get response in JSON-format.
+     *     # Deactivate Accelerated Domains, get response in JSON-format.
      *     wp servebolt acd deactivate --format=json
      */
     public function deactivateAcd($args, $assocArgs)
