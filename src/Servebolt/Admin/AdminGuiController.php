@@ -146,13 +146,12 @@ class AdminGuiController
      */
     private function addSubMenuItems(): void
     {
-        $this->cachePurgeMenu();
         $this->cfImageResizeMenu();
         if (isHostedAtServebolt()) {
             $this->acceleratedDomainsMenu();
-            $this->cacheSettingsMenu();
             $this->errorLogMenu();
         }
+        $this->cacheSettingsMenu();
         $this->generalSettingsMenu();
         if (!is_network_admin() && isDevDebug()) {
             $this->debugMenu();
@@ -165,21 +164,6 @@ class AdminGuiController
     private function generalPageMenuPage(): void
     {
         add_menu_page( __('Servebolt', 'servebolt-wp'), __('Servebolt', 'servebolt-wp'), 'manage_options', 'servebolt-wp', [$this, 'generalPageCallback'], SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/images/servebolt-icon.svg' );
-    }
-
-    /**
-     * Register CF cache menu item.
-     */
-    private function cachePurgeMenu(): void
-    {
-        if (isHostedAtServebolt()) {
-            add_submenu_page(null, null, null, 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
-        } else {
-            add_submenu_page('servebolt-wp', __('Cache purging', 'servebolt-wp'), __('Cache purging', 'servebolt-wp'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
-        }
-
-        // Legacy redirect
-        add_submenu_page(null, null, null, 'manage_options', 'servebolt-cf-cache-control', [$this, 'cachePurgeLegacyRedirect']);
     }
 
     /**
@@ -217,12 +201,18 @@ class AdminGuiController
      */
     private function cacheSettingsMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-html-cache', [FullPageCacheControl::getInstance(), 'render']);
-        add_submenu_page(null, null, null, 'manage_options', 'servebolt-cache-ttl', [CacheTtlControl::getInstance(), 'render']);
-
-        // Legacy redirect
+        if (isHostedAtServebolt()) {
+            add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-html-cache', [FullPageCacheControl::getInstance(), 'render']);
+            add_submenu_page(null, null, null, 'manage_options', 'servebolt-cache-ttl', [CacheTtlControl::getInstance(), 'render']);
+            add_submenu_page(null, null, null, 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
+        } else {
+            add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
+        }
+      
+        // Legacy redirects
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-nginx-cache', [$this, 'fpcLegacyRedirect']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-fpc', [$this, 'fpcLegacyRedirect']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-cf-cache-control', [$this, 'cachePurgeLegacyRedirect']);
     }
 
     /**

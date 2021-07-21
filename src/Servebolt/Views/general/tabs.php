@@ -1,5 +1,10 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\arrayGet; ?>
+<?php
+    if ((isset($skipIfOnlyOneTab) && $skipIfOnlyOneTab === true) && count($tabs) <= 1) {
+        return;
+    }
+?>
 <nav class="nav-tab-wrapper">
     <?php foreach ($tabs as $tab): ?>
         <a
