@@ -13,9 +13,9 @@
         </div>
 
         <div class="welcome-panel-column" style="padding: 0 1rem 1.5rem 0;">
-            <h3><?php _e('Servebolt Cloud HTML cache', 'servebolt-wp'); ?></h3>
-            <p><?php _e('Servebolt Cloud HTML cache (Full Page Cache) is easy to set up, but should always be tested before activating it on production environments.', 'servebolt-wp'); ?></p>
-			<p><?php printf( esc_html__('To activate HTML cache to go %s and set "Caching" to "Static Files + Full-Page Cache".', 'servebolt-wp'), $sbAdminButton ) ?></p>
+            <h3><?php _e('Servebolt Cloud HTML Cache', 'servebolt-wp'); ?></h3>
+            <p><?php _e('Servebolt Cloud HTML Cache (formerly Full Page Cache) is easy to set up, but should always be tested before activating it on production environments.', 'servebolt-wp'); ?></p>
+			<p><?php printf( esc_html__('To activate HTML Cache to go %s and set "Caching" to "Static Files + Full-Page Cache".', 'servebolt-wp'), $sbAdminButton ) ?></p>
             <?php if ( $sbAdminUrl ) : ?>
 				<p><a href="<?php echo $sbAdminUrl; ?>" target="_blank" class="button"><?php _e('Servebolt Control Panel dashboard', 'servebolt-wp') ?></a></p>
 			<?php endif; ?>

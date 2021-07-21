@@ -30,7 +30,7 @@ class FpcPostExclusion extends SharedAjaxMethods
     }
 
     /**
-     * Update FPC post exclude list - AJAX callback.
+     * Update HTML Cache post exclude list - AJAX callback.
      */
     public function updateFpcExcludePostsListCallback(): void
     {
@@ -45,7 +45,7 @@ class FpcPostExclusion extends SharedAjaxMethods
     }
 
     /**
-     * Update FPC post exclude list.
+     * Update HTML Cache post exclude list.
      *
      * @param $itemsToRemove
      * @return bool
@@ -82,7 +82,7 @@ class FpcPostExclusion extends SharedAjaxMethods
     }
 
     /**
-     * Add post IDs to be excluded from FPC - AJAX callback.
+     * Add post IDs to be excluded from HTML Cache - AJAX callback.
      */
     public function updateExcludedPostsCallback(): void
     {
@@ -108,7 +108,7 @@ class FpcPostExclusion extends SharedAjaxMethods
     }
 
     /**
-     * Add post IDs to be excluded from FPC.
+     * Add post IDs to be excluded from HTML Cache.
      *
      * @param $postIds
      * @return array

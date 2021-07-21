@@ -7,7 +7,7 @@
     if (isHostedAtServebolt()) {
         $tabs[] = [
             'id' => 'cache-settings',
-            'url' => $urlMethod('admin.php?page=servebolt-fpc'),
+            'url' => $urlMethod('admin.php?page=servebolt-html-cache'),
             'title' => 'Cache settings',
         ];
         $tabs[] = [

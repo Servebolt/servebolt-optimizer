@@ -20,7 +20,7 @@ $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
                 <td>
                     <input id="sb-fpc_switch" name="<?php echo getOptionName('fpc_switch')?>"<?php if ($fpcActiveOverridden) echo ' disabled'; ?> type="checkbox"<?php if ($fpcActive) echo ' checked'; ?>><label for="sb-fpc_switch"><?php _e('Enabled', 'servebolt-wp'); ?></label>
                     <?php if ($fpcActiveOverridden): ?>
-                    <p class="description">HTML cache is automatically enabled when Accelerated Domain-feature is active.</p>
+                    <p class="description">HTML Cache is automatically enabled when Accelerated Domain-feature is active.</p>
                     <?php endif; ?>
                 </td>
             </tr>

@@ -171,7 +171,7 @@ class AdminGuiController
      */
     public function fpcLegacyRedirect(): void
     {
-        javascriptRedirect(admin_url('admin.php?page=servebolt-fpc'));
+        javascriptRedirect(admin_url('admin.php?page=servebolt-html-cache'));
     }
 
     /**
@@ -202,15 +202,16 @@ class AdminGuiController
     private function cacheSettingsMenu(): void
     {
         if (isHostedAtServebolt()) {
-            add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-fpc', [FullPageCacheControl::getInstance(), 'render']);
+            add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-html-cache', [FullPageCacheControl::getInstance(), 'render']);
             add_submenu_page(null, null, null, 'manage_options', 'servebolt-cache-ttl', [CacheTtlControl::getInstance(), 'render']);
             add_submenu_page(null, null, null, 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
         } else {
             add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
         }
-
+      
         // Legacy redirects
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-nginx-cache', [$this, 'fpcLegacyRedirect']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-fpc', [$this, 'fpcLegacyRedirect']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-cf-cache-control', [$this, 'cachePurgeLegacyRedirect']);
     }
 

@@ -15,7 +15,7 @@ use function Servebolt\Optimizer\Helpers\getOptionName;
 /**
  * Class FullPageCacheControl
  *
- * This class displays the Nginx Full Page Cache control GUI  - only works for sites hosted at Servebolt.
+ * This class displays the HTML Cache control GUI  - only works for sites hosted at Servebolt.
  */
 class FullPageCacheControl
 {
@@ -57,7 +57,7 @@ class FullPageCacheControl
      */
     public function enqueueScripts(): void
     {
-        if (!isScreen('servebolt_page_servebolt-fpc')) {
+        if (!isScreen('servebolt_page_servebolt-html-cache')) {
             return;
         }
         wp_enqueue_script('servebolt-optimizer-fpc-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/fpc.js', ['servebolt-optimizer-scripts'], getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/fpc.js'), true );

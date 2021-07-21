@@ -41,10 +41,10 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 #### 3.2
-* Improved automated cache purging - The automatic cache purge has been improved, primarily in 3 areas. Whenever a post/term gets deleted then the cache gets purged. Whenever an attachment gets updated (resized, cropped etc.) we purge cache for URLs, including all image sizes if the attachment is an image. Whenever a post gets excluded from the FPC (full page cache) then we also purge cache.
+* Improved automated cache purging - The automatic cache purge has been improved, primarily in 3 areas. Whenever a post/term gets deleted then the cache gets purged. Whenever an attachment gets updated (resized, cropped etc.) we purge cache for URLs, including all image sizes if the attachment is an image. Whenever a post gets excluded from the HTML Cache (formerly Full Page Cache) then we also purge cache.
 * Custom cache TTL per post type - One can now control the cache TTL (time-to-live) per post type. This allows for more fine-grained cache control.
 * More fine-grained access control to cache purge feature - Previously only administrators could purge cache. This is now changed using more fine-grained capability checks - administrators and editors can now purge cache, while authors can purge cache for their own posts. Contributors and subscribers cannot purge cache.
-* Better Jetpack compatibility - Previously the Jetpack Site Accelerator was in conflict with Servebolt’s Accelerated Domains (ACD). This is now fixed with Site Accelerator being disabled whenever ACD or ACD Image Resize-feature is active.
+* Better Jetpack compatibility - Previously the Jetpack Site Accelerator was in conflict with Servebolt’s Accelerated Domains. This is now fixed with Site Accelerator being disabled whenever Accelerated Domains or Accelerated Domains Image Resize-feature is active.
 * Menu cache performance feature - We’ve added a new performance enhancing feature - WordPress menu cache. This usually decreases TTFB with several milliseconds, even for menus with few items. The feature also includes automatic cache purge whenever a menu gets updated.
 * Translation loader performance feature - We’ve added a new performance enhancing feature - improved WordPress translations file loader. Whenever WordPress loads the translations from MO-files this causes a lot disk I/O. This feature will cache the MO-file using transients which in return decreases the loading time.
 
@@ -71,16 +71,16 @@ If you want to build a local production-ready version of the plugin you can run 
 * Removed SASS-parser since there was no real need in the project - due to an issue with the npm package "node-sass" running on macOS Big Sur the SASS-parser was disabled, at least for now.
 
 #### 3.0.0 
-* Rewritten codebase - The whole plugin code base is rewritten. This was done since the previous structure did not allow for automated testing (using PHP Unit) nor was it up to par with modern PHP. To achieve this the code base was rewritten to use PSR-4 autoloading as well as making the existing code testable. The code standard was also changed to PSR-1. The new required PHP version is 7.3 or higher.
+* Rewritten codebase - The whole plugin code base is rewritten. This was done since the previous structure did not allow for automated testing (using PHP Unit) nor was it up to par with modern PHP. To achieve this the code base was rewritten to use PSR-4 auto loading as well as making the existing code testable. The code standard was also changed to PSR-1. The new required PHP version is 7.3 or higher.
 * PHP Unit tests - PHP Unit tests have been added as an attempt to prevent errors, speed up the development process, and ensure better overall code quality.
 * Accelerated Domains by Servebolt - The plugin has support for activating Accelerated Domains by Servebolt. The addition of this feature affects the cache purge system which previously only worked with Cloudflare, but now also supports Accelerated Domains and its cache feature. This can be controlled by selecting the cache provider in the cache purge settings.
-* CLI-commands - JSON-support - The CLI-commands now has an optional JSON return format. This can be done by adding “--format=json” to the command call. Note that the Full Page Cache-related commands do not have this support yet, but all other commands has.
+* CLI-commands - JSON-support - The CLI-commands now has an optional JSON return format. This can be done by adding “--format=json” to the command call. Note that the HTML Cache-related commands do not have this support yet, but all other commands has.
 * CLI-commands - Cloudflare CLI commands removed - Since the cache purge feature now works with both Cloudflare and Accelerated Domains then the feature is no longer only specific to Cloudflare. This lead to most of the Cloudflare-related commands being migrated to the “wp servebolt cache settings“-namespace. The only remaining Cloudflare-related CLI command is “wp servebolt cf setup“ which works like before, but now also has JSON return format supported as mentioned earlier.
 * Improved cache purging - The cache purge feature is improved and expanded. See below.
 * Cache purging of old URLs - Whenever a post/term URL is changed then the system will purge the old URL. This is useful since otherwise you would possibly get conflicting URLs and/or duplicated content.
 * WooCommerce compatibility - The cache will now be purged for a WooCommerce product whenever the stock amount/status changes, like during a checkout. This is necessary to keep the stock up to date for the visitors/customers, especially on high traffic sites. Cache purging will now also purge all URLs of a variable WooCommerce product.
 * Improved exception handling - Whenever there is an error during a cache purge request the system now has an improved handling of exceptions being thrown.
-* WP Rocket compatibility - WP Rocket’s cache feature was previously in conflict with Servebolts own cache feature. This should now be solved since WP Rocket’s cache feature is disabled as long as the Full Page Cache-feature is active in Servebolt Optimizer. This allow users to still use the other features of WP Rocket without conflicts.
+* WP Rocket compatibility - WP Rocket’s cache feature was previously in conflict with Servebolts own cache feature. This should now be solved since WP Rocket’s cache feature is disabled as long as the HTML Cache-feature is active in Servebolt Optimizer. This allow users to still use the other features of WP Rocket without conflicts.
 * Improved queue handling when purging cache - In the cache purge feature there is an option to use a queue that will send the list URLs (that should be cached) in delayed chunks instead of sending them all immediately. These requests would typically originate from a post update, or whenever someone does a WooCommerce checkout and the product stock changes. This update improves the handling where the amount of URLs previously would have exceeded the allowed amount according to Cloudflare.
 * Third party cache purge functions - Third party developers can now call publicly available cache purge functions. This allows for purging by post, term, URL or purge all.
 * Single site plugin activation constraint - The plugin can now only be activated site-wide when used in a multisite network.
@@ -93,7 +93,7 @@ If you want to build a local production-ready version of the plugin you can run 
 * Log viewer GUI update - The log viewer GUI has gotten overhauled with better styling.
 * Fixed bug - The form containing the cache purge configuration had autocompletion on. This lead to problems with information wrongfully being submitted. This is now fixed.
 * Fixed bug - Host determination function failed when in CLI context. The function “isHostedAtServebolt“ returned false regardless of hosting environment when running in CLI-context. This is fixed in this version.
-* Fixed bug - Cache headers absent in archives. When using Full page caching and setting the post type to “all” then the archives got not cache headers. This version fixes that.
+* Fixed bug - Cache headers absent in archives. When using HTML caching and setting the post type to “all” then the archives got not cache headers. This version fixes that.
 
 #### 2.1.5
 * Hotfix in Cloudflare cache purge feature
@@ -101,7 +101,7 @@ If you want to build a local production-ready version of the plugin you can run 
 #### 2.1.4
 * Added basic Cloudflare APO-support
 * Changed order of URLs when purging cache for a post in Cloudflare
-* Fixed bug in Full Page Cache-logic for archives
+* Fixed bug in HTML Cache-logic for archives
 * Fixed bug in Cloudflare Image Resize
 
 #### 2.1.3
@@ -115,7 +115,7 @@ If you want to build a local production-ready version of the plugin you can run 
 
 #### 2.1.1
 * Fixed issue with script inclusion causing errors
-* Added missing CLI argument for FPC deactivation
+* Added missing CLI argument for HTML Cache deactivation
 
 #### 2.1
 * Added extended cache invalidation for Cloudflare cache - archives and other related URLs will also be purged.
@@ -176,7 +176,7 @@ If you want to build a local production-ready version of the plugin you can run 
 * Removed security from dashboard
 
 #### 1.6
-* New: Control Full page cache settings with WP CLI (`wp servebolt fpc`)
+* New: Control HTML cache settings with WP CLI (`wp servebolt fpc`)
 * Improvement: Turn off vulnerable plugins check with `define('SERVEBOLT_VULN_ACTIVATE', false);`
 * Removed: Scanning of plugins for security vulnerabilities. This will be released in a separate plugin.
 * Removed: Transient cleaner
@@ -205,12 +205,12 @@ If you want to build a local production-ready version of the plugin you can run 
 * NEW: Added email notifications when WP or plugins is vulnerable
 
 #### 1.3.4
-* added on/off switch for Nginx cache
-* remove WP version number and generator tag
-* skip concatenation of admin scripts, we use http2
+* Added on/off switch for Nginx cache
+* Remove WP version number and generator tag
+* Skip concatenation of admin scripts, we use http2
 * Added WP-CLI support
-* issues on Github #8 added uninstall.php + bug fixes #7 #9
-* added changelog to Readme.txt
+* Issues on Github #8 added uninstall.php + bug fixes #7 #9
+* Added changelog to Readme.txt
 
 
 
