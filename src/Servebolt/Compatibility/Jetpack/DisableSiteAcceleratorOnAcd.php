@@ -31,7 +31,7 @@ class DisableSiteAcceleratorOnAcd
      */
     function disablePhotonAkaSiteAccelerator($activeModules)
     {
-        $forcedDisabledModules = ['photon-cdn'];
+        $forcedDisabledModules = ['photon', 'photon-cdn'];
         if (is_array($activeModules)) {
             $activeModules = array_filter($activeModules, function($activeModule) use ($forcedDisabledModules) {
                 return !in_array($activeModule, $forcedDisabledModules);
