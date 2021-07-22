@@ -56,7 +56,7 @@
                             <legend class="screen-reader-text"><span><?php _e('Cloudflare cache-feature active?', 'servebolt-wp'); ?></span></legend>
                             <label for="cf_image_resizing">
                                 <input name="<?php echo getOptionName('cf_image_resizing'); ?>" type="checkbox" id="cf_image_resizing" value="1" <?php checked(CloudflareImageResize::resizingIsActive()); ?>>
-                                <?php _e('Enabled', 'servebolt-wp'); ?>
+                                <?php _e('Enable', 'servebolt-wp'); ?>
                             </label>
                         </fieldset>
                     </td>

@@ -41,7 +41,7 @@
                         <legend class="screen-reader-text"><span><?php _e('Cache purge-feature active?', 'servebolt-wp'); ?></span></legend>
                         <label for="cache_purge_switch">
                             <input name="<?php echo getOptionName('cache_purge_switch'); ?>" type="checkbox" id="cache_purge_switch" value="1" <?php checked($cachePurgeIsActive); ?>>
-                            <?php _e('Enabled', 'servebolt-wp'); ?>
+                            <?php _e('Enable', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
                 </td>

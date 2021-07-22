@@ -18,7 +18,7 @@ $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
             <tr>
                 <th scope="row"><?php _e('HTML Cache', 'servebolt-wp'); ?></th>
                 <td>
-                    <input id="sb-fpc_switch" name="<?php echo getOptionName('fpc_switch')?>"<?php if ($fpcActiveOverridden) echo ' disabled'; ?> type="checkbox"<?php if ($fpcActive) echo ' checked'; ?>><label for="sb-fpc_switch"><?php _e('Enabled', 'servebolt-wp'); ?></label>
+                    <input id="sb-fpc_switch" name="<?php echo getOptionName('fpc_switch')?>"<?php if ($fpcActiveOverridden) echo ' disabled'; ?> type="checkbox"<?php if ($fpcActive) echo ' checked'; ?>><label for="sb-fpc_switch"><?php _e('Enable', 'servebolt-wp'); ?></label>
                     <?php if ($fpcActiveOverridden): ?>
                     <p class="description">HTML Cache is automatically enabled when Accelerated Domain-feature is active.</p>
                     <?php endif; ?>
