@@ -49,14 +49,14 @@ class FullPageCacheHeaders
     private $browserCacheTime = 600;
 
     /**
-     * The default Full Page Cache time.
+     * The default HTML Cache time.
      *
      * @var int
      */
     private $defaultFpcCacheTime = 600;
 
     /**
-     * The Full Page Cache time.
+     * The HTML Cache time.
      *
      * @var null|int
      */
@@ -467,7 +467,7 @@ class FullPageCacheHeaders
 	}
 
 	/**
-	 * The option name/key we use to store the cacheable post types for the Nginx FPC cache.
+	 * The option name/key we use to store the cacheable post types for the HTML Cache.
 	 *
 	 * @return string
 	 */

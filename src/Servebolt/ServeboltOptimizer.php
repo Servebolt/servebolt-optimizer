@@ -71,7 +71,7 @@ class ServeboltOptimizer
             AcceleratedDomains::init();
         }
 
-        // Sets the correct cache headers for the Servebolt full page cache
+        // Sets the correct cache headers for the HTML Cache
         FullPageCache::getInstance();
 
         // Initialize image resizing

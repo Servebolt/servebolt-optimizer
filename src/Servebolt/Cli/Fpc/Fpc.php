@@ -51,7 +51,7 @@ class Fpc
     }
 
     /**
-     * Return status of the Servebolt Full Page Cache.
+     * Return status of the HTML Cache.
      *
      * ## OPTIONS
      *
@@ -86,7 +86,7 @@ class Fpc
     }
 
     /**
-     * Activate Servebolt Full Page Cache.
+     * Activate Servebolt HTML Cache.
      *
      * ## OPTIONS
      *
@@ -104,10 +104,10 @@ class Fpc
      *
      * ## EXAMPLES
      *
-     *     # Activate Servebolt Full Page Cache, but only for pages and posts
+     *     # Activate HTML Cache, but only for pages and posts
      *     wp servebolt fpc activate --post-types=post,page
      *
-     *     # Activate Servebolt Full Page Cache for all public post types on all sites in multisite-network
+     *     # Activate HTML Cache for all public post types on all sites in multisite-network
      *     wp servebolt fpc activate --post-types=all --all
      *
      */
@@ -118,7 +118,7 @@ class Fpc
     }
 
     /**
-     * Deactivate Servebolt Full Page Cache.
+     * Deactivate HTML Cache.
      *
      * ## OPTIONS
      *
@@ -130,10 +130,10 @@ class Fpc
      *
      * ## EXAMPLES
      *
-     *     # Deactivate Servebolt Full Page Cache
+     *     # Deactivate HTML Cache
      *     wp servebolt fpc deactivate
      *
-     *     # Deactivate Servebolt Full Page Cache for all sites in multisite-network
+     *     # Deactivate HTML Cache for all sites in multisite-network
      *     wp servebolt fpc deactivate --all
      *
      */
@@ -144,7 +144,7 @@ class Fpc
     }
 
     /**
-     * Get the post types that should be cached with Servebolt Full Page Cache.
+     * Get the post types that should be cached with the HTML Cache.
      *
      * ## OPTIONS
      *
@@ -172,7 +172,7 @@ class Fpc
     }
 
     /**
-     * Set the post types that should be cached with Servebolt Full Page Cache.
+     * Set the post types that should be cached with the HTML Cache.
      *
      * ## OPTIONS
      *
@@ -220,7 +220,7 @@ class Fpc
     }
 
     /**
-     * Clear post types that should be cached with Servebolt Full Page Cache.
+     * Clear post types that should be cached with HTML Cache.
      *
      * ## OPTIONS
      *
@@ -369,7 +369,7 @@ class Fpc
     }
 
     /**
-     * Get post types to cache with FPC.
+     * Get post types to cache with HTML Cache.
      *
      * @param int|null $blogId
      *
@@ -420,15 +420,15 @@ class Fpc
         $url = get_site_url($blogId);
         $cacheActiveString = booleanToStateString($newCacheState);
         if ($cacheActiveString === FullPageCacheSettings::fpcIsActive($blogId)) {
-            WP_CLI::warning(sprintf( __('Full Page Cache already %s on site %s', 'servebolt-wp'), $cacheActiveString, $url ));
+            WP_CLI::warning(sprintf( __('HTML Cache already %s on site %s', 'servebolt-wp'), $cacheActiveString, $url ));
         } else {
             FullPageCacheSettings::fpcToggleActive($newCacheState, $blogId);
-            WP_CLI::success(sprintf( __('Full Page Cache %s on site %s', 'servebolt-wp'), $cacheActiveString, $url ));
+            WP_CLI::success(sprintf( __('HTML Cache %s on site %s', 'servebolt-wp'), $cacheActiveString, $url ));
         }
     }
 
     /**
-     * Prepare post types from argument if present. To be used when toggling Nginx FPC active/inactive.
+     * Prepare post types from argument if present. To be used when toggling HTML Cache active/inactive.
      *
      * @param array $args
      *
@@ -521,7 +521,7 @@ class Fpc
     }
 
     /**
-     * Get all post types to be used in Nginx FPC context.
+     * Get all post types to be used in HTML Cache context.
      *
      * @return array|bool
      */
@@ -537,7 +537,7 @@ class Fpc
     }
 
     /**
-     * Set posts to be excluded from the Nginx FPC.
+     * Set posts to be excluded from the HTML Cache.
      *
      * @param $idsToExclude
      * @param null|int $blogId

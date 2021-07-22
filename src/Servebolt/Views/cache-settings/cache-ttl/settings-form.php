@@ -1,8 +1,11 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
-<?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
+<?php use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
+use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 <?php use function Servebolt\Optimizer\Helpers\arrayGet; ?>
 
 <?php settings_errors(); ?>
+
+<?php if (AcceleratedDomains::isActive()): ?>
 
 <form method="post" autocomplete="off" action="options.php">
     <?php settings_fields('sb-cache-ttl-options-page'); ?>
@@ -55,7 +58,7 @@
     <table class="wp-list-table widefat striped" id="options-fields"<?php if (!$settings['custom_cache_ttl_switch']) echo ' style="display: none;"'; ?>>
         <thead>
         <tr>
-            <th><?php _e('Taxonomy', 'servebolt-wp'); ?></th>
+            <th><?php _e('Taxonomy Archives', 'servebolt-wp'); ?></th>
             <th><?php _e('TTL', 'servebolt-wp'); ?></th>
         </tr>
         </thead>
@@ -78,7 +81,7 @@
         </tbody>
         <tfoot>
         <tr>
-            <th><?php _e('Taxonomy', 'servebolt-wp'); ?></th>
+            <th><?php _e('Taxonomy Archives', 'servebolt-wp'); ?></th>
             <th><?php _e('TTL', 'servebolt-wp'); ?></th>
         </tr>
         </tfoot>
@@ -87,3 +90,11 @@
     <?php submit_button(); ?>
 
 </form>
+
+<?php else: ?>
+
+<div class="notice inline notice-warning">
+    <p><a href="<?php echo admin_url('admin.php?page=servebolt-acd'); ?>">Accelerated Domains</a> needs to be activated for this feature to work.</p>
+</div>
+
+<?php endif; ?>

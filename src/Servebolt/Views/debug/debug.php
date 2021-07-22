@@ -33,7 +33,7 @@
 
 	<hr>
 
-	<h2>Nginx FPC</h2>
+	<h2>HTML Cache (formerly Nginx FPC)</h2>
 
 	<?php
 		$selectedPostTypesToCache  = FullPageCacheHeaders::getPostTypesToCache(false, false);

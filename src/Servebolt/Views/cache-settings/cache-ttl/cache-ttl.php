@@ -6,9 +6,9 @@
 
     <?php view('cache-settings.tabs-menu', ['selectedTab' => 'cache-ttl-settings']); ?>
 
-    <p><?php echo sprintf(__('The Custom Cache TTL settings affect the cache TTL of Cloudflare and Accelerated Domains. It does not, for now, affect the Servebolt Server cache.', 'servebolt-wp')); ?></p>
+    <p><?php echo sprintf(__('The Custom Cache TTL settings affects the cache TTL when using Accelerated Domains. It does not, for now, affect the Servebolt Server cache.', 'servebolt-wp')); ?></p>
 
-	<?php if ( is_network_admin() ) : ?>
+	<?php if (is_network_admin()) : ?>
         <?php view('cache-settings.cache-ttl.network-list-view'); ?>
     <?php else : ?>
         <?php view('cache-settings.cache-ttl.settings-form', compact('settings', 'postTypes', 'taxonomies', 'cacheTtlOptions')); ?>
