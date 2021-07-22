@@ -23,7 +23,7 @@
     ];
     $defaultTab = current($tabs)['id'];
     $selectedTab = isset($selectedTab) ? $selectedTab : $defaultTab;
-    view('general.tabs', compact('tabs', 'selectedTab', 'skipIfOnlyOneTab'));
+    view('general.tabs', compact('tabs', 'selectedTab'));
 ?>
 
 
