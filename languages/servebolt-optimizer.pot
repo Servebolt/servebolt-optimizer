@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Servebolt Optimizer 3.1.1\n"
+"Project-Id-Version: Servebolt Optimizer 3.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/servebolt-optimizer\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2021-07-15T13:33:32+00:00\n"
+"POT-Creation-Date: 2021-07-26T14:13:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: servebolt-wp\n"
@@ -24,7 +24,7 @@ msgid "A plugin that implements Servebolt Security & Performance best practises 
 msgstr ""
 
 #. Author of the plugin
-#: src/Servebolt/Admin/AdminGuiController.php:164
+#: src/Servebolt/Admin/AdminGuiController.php:166
 msgid "Servebolt"
 msgstr ""
 
@@ -42,6 +42,10 @@ msgstr ""
 
 #: php-outdated.php:24
 msgid "Servebolt Optimizer cannot run on PHP-versions older than PHP %s. You currently run PHP version %s. Please upgrade your PHP version to be able to run Servebolt Optimizer."
+msgstr ""
+
+#: src/Servebolt/Admin/AcceleratedDomainsImageControl/AcceleratedDomainsImageResizeControl.php:59
+msgid "Image Resizing (beta)"
 msgstr ""
 
 #: src/Servebolt/Admin/AcceleratedDomainsImageControl/Ajax/ImageSizeIndex.php:53
@@ -62,81 +66,78 @@ msgstr ""
 msgid "Servebolt Control Panel"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:99
+#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:102
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/cache-purge-triggers.php:6
 msgid "Purge all cache"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:120
+#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:123
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/cache-purge-triggers.php:7
 msgid "Purge a URL"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:143
-#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:170
+#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:146
+#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:172
 msgid "Purge %s cache"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminBarGui/Nodes/3_SettingsNode.php:36
-#: src/Servebolt/Admin/AdminGuiController.php:285
-#: src/Servebolt/Admin/AdminGuiController.php:308
-#: src/Servebolt/Admin/AdminGuiController.php:321
+#: src/Servebolt/Admin/AdminBarGui/Nodes/3_SettingsNode.php:39
+#: src/Servebolt/Admin/AdminGuiController.php:281
+#: src/Servebolt/Admin/AdminGuiController.php:304
+#: src/Servebolt/Admin/AdminGuiController.php:317
 msgid "Settings"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminGuiController.php:175
-#: src/Servebolt/Admin/CachePurgeControl/CachePurgeControl.php:62
-#: src/Servebolt/Views/cache-settings/cache-purge/cache-purge.php:10
-msgid "Cache purging"
-msgstr ""
-
-#: src/Servebolt/Admin/AdminGuiController.php:205
+#: src/Servebolt/Admin/AdminGuiController.php:192
 #: src/Servebolt/Views/cloudflare-image-resize/configration.php:6
 msgid "Cloudflare Image Resizing"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminGuiController.php:217
+#: src/Servebolt/Admin/AdminGuiController.php:205
+#: src/Servebolt/Admin/AdminGuiController.php:209
 #: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:22
 #: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:22
 #: src/Servebolt/Views/dashboard/dashboard-single-site.php:22
 msgid "Cache settings"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminGuiController.php:217
+#: src/Servebolt/Admin/AdminGuiController.php:205
+#: src/Servebolt/Admin/AdminGuiController.php:209
 #: src/Servebolt/Views/cache-settings/cache-purge/cache-purge.php:7
 #: src/Servebolt/Views/cache-settings/cache-settings/cache-settings.php:5
 #: src/Servebolt/Views/cache-settings/cache-ttl/cache-ttl.php:5
 msgid "Cache"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminGuiController.php:229
+#: src/Servebolt/Admin/AdminGuiController.php:223
 #: src/Servebolt/Views/accelerated-domains/control/accelerated-domains.php:5
 #: src/Servebolt/Views/accelerated-domains/control/settings-form.php:12
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-resize.php:7
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:97
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:95
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:24
 #: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:16
 #: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:16
 #: src/Servebolt/Views/dashboard/dashboard-single-site.php:16
 msgid "Accelerated Domains"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminGuiController.php:238
+#: src/Servebolt/Admin/AdminGuiController.php:235
 msgid "Error log"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminGuiController.php:246
+#: src/Servebolt/Admin/AdminGuiController.php:243
 msgid "Debug"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminGuiController.php:254
+#: src/Servebolt/Admin/AdminGuiController.php:251
 msgid "Performance optimizer"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminGuiController.php:277
+#: src/Servebolt/Admin/AdminGuiController.php:273
 msgid "General"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminGuiController.php:285
+#: src/Servebolt/Admin/AdminGuiController.php:281
 #: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:37
 #: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:37
 #: src/Servebolt/Views/dashboard/dashboard-single-site.php:37
@@ -180,89 +181,93 @@ msgstr ""
 msgid "The cache purge feature is not active or is not configured correctly, so we could not purge cache."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:94
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:181
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:264
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:97
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:187
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:276
 msgid "All good!"
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:95
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:98
 msgid "A purge all-request is already queued and should be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:104
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:191
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:274
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:364
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:107
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:197
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:286
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:382
 msgid "Just a moment"
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:105
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:108
 msgid "A purge all-request was added to the queue and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:108
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:111
 msgid "All cache was purged."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:173
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:179
 msgid "Please specify the URL you would like to purge cache for."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:192
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:198
 msgid "A cache purge request for the URL \"%s\" was added to the queue and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:195
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:201
 msgid "Cache was purged for URL \"%s\"."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:251
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:263
 msgid "Please specify the post you would like to purge cache for."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:254
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:266
 msgid "The specified post does not exist."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:257
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:269
 msgid "You are not allowed to purge cache for this post."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:265
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:277
 msgid "A cache purge request for the %s \"%s\" is already added to the queue and should be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:275
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:287
 msgid "A cache purge request for the %s \"%s\" was added to the queue and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:278
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:290
 msgid "Cache was purged for the %s \"%s\"."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:340
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:358
 msgid "Please specify the term you would like to purge cache for."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:343
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:361
 msgid "The specified term does not exist."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:346
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:364
 msgid "You are not allowed to purge cache for this taxonomy."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:355
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:373
 msgid "A cache purge request for the term \"%s\" is already added to the queue and should be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:365
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:383
 msgid "A cache purge request for the term \"%s\" was added to the queue and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:368
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:386
 msgid "Cache was purged for the term \"%s\"."
+msgstr ""
+
+#: src/Servebolt/Admin/CachePurgeControl/CachePurgeControl.php:62
+msgid "Cache purging"
 msgstr ""
 
 #: src/Servebolt/Admin/CachePurgeControl/CachePurgeRowActions.php:86
@@ -270,56 +275,56 @@ msgstr ""
 msgid "Purge cache"
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:97
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:97
 msgid "Post IDs missing"
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:157
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:157
 msgid "All good"
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:167
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:173
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:167
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:173
 msgid "We made progress, but..."
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:168
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:168
 msgid "The following %s were invalid:"
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:168
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:168
 msgid "post ID"
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:168
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:168
 msgid "post IDs"
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:174
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:174
 msgid "Could not exclude the following posts from cache:"
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:181
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:181
 msgid "The following posts are already excluded from cache:"
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:188
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:188
 msgid "The following posts were excluded from cache:"
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:197
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:197
 msgid "Post ID invalid"
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:197
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:197
 msgid "Post IDs invalid"
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:200
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:200
 msgid "Could not update exclude list"
 msgstr ""
 
-#: src/Servebolt/Admin/FullPageCacheControl/Ajax/FpcPostExclusion.php:205
+#: src/Servebolt/Admin/FullPageCacheControl/Ajax/HtmlCachePostExclusion.php:205
 msgid "Something went wrong"
 msgstr ""
 
@@ -366,17 +371,20 @@ msgid "Could not resolve index creation method from table name"
 msgstr ""
 
 #: src/Servebolt/Admin/PerformanceOptimizer/DatabaseOptimizations.php:46
-#: src/Servebolt/Admin/PerformanceOptimizer/PerformanceOptimizerAdvanced.php:52
-msgid "Advanced"
+msgid "Database"
 msgstr ""
 
-#: src/Servebolt/Admin/PerformanceOptimizer/MenuCacheControl.php:45
+#: src/Servebolt/Admin/PerformanceOptimizer/MenuCacheControl.php:44
 #: src/Servebolt/Views/performance-optimizer/menu-cache/settings-form.php:12
 msgid "Menu Cache"
 msgstr ""
 
-#: src/Servebolt/Admin/PerformanceOptimizer/PrefetchingControl.php:53
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:12
+#: src/Servebolt/Admin/PerformanceOptimizer/PerformanceOptimizerAdvanced.php:52
+msgid "Advanced"
+msgstr ""
+
+#: src/Servebolt/Admin/Prefetching/PrefetchingControl.php:53
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:12
 msgid "Prefetching"
 msgstr ""
 
@@ -483,6 +491,8 @@ msgstr ""
 #: src/Servebolt/Cli/Cache/CfSetup.php:155
 #: src/Servebolt/Views/accelerated-domains/control/network-list-view.php:7
 #: src/Servebolt/Views/accelerated-domains/control/network-list-view.php:15
+#: src/Servebolt/Views/accelerated-domains/prefetching/network-list-view.php:8
+#: src/Servebolt/Views/accelerated-domains/prefetching/network-list-view.php:16
 #: src/Servebolt/Views/cache-settings/cache-purge/network-admin/list.php:6
 #: src/Servebolt/Views/cache-settings/cache-purge/network-admin/list.php:15
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:9
@@ -497,13 +507,11 @@ msgstr ""
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:15
 #: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:8
 #: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:16
-#: src/Servebolt/Views/performance-optimizer/prefetching/network-list-view.php:8
-#: src/Servebolt/Views/performance-optimizer/prefetching/network-list-view.php:16
 msgid "Blog ID"
 msgstr ""
 
 #: src/Servebolt/Cli/Cache/CfSetup.php:156
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:22
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:20
 msgid "Configuration"
 msgstr ""
 
@@ -741,59 +749,6 @@ msgstr ""
 msgid "Cloudflare Image Resize feature is deactivated."
 msgstr ""
 
-#: src/Servebolt/Cli/Fpc/Fpc.php:210
-msgid "No post types specified"
-msgstr ""
-
-#: src/Servebolt/Cli/Fpc/Fpc.php:402
-msgid "Default [%s]"
-msgstr ""
-
-#: src/Servebolt/Cli/Fpc/Fpc.php:407
-#: src/Servebolt/FullPageCache/FullPageCacheHeaders.php:491
-msgid "All"
-msgstr ""
-
-#: src/Servebolt/Cli/Fpc/Fpc.php:423
-msgid "Full Page Cache already %s on site %s"
-msgstr ""
-
-#: src/Servebolt/Cli/Fpc/Fpc.php:426
-msgid "Full Page Cache %s on site %s"
-msgstr ""
-
-#: src/Servebolt/Cli/Fpc/Fpc.php:464
-msgid "Applying settings to all sites"
-msgstr ""
-
-#: src/Servebolt/Cli/Fpc/Fpc.php:475
-msgid "Exclude IDs were not set since ids are relative to each site."
-msgstr ""
-
-#: src/Servebolt/Cli/Fpc/Fpc.php:555
-msgid "All excluded posts were cleared."
-msgstr ""
-
-#: src/Servebolt/Cli/Fpc/Fpc.php:558
-msgid "No IDs were specified."
-msgstr ""
-
-#: src/Servebolt/Cli/Fpc/Fpc.php:578
-msgid "The following ids were already excluded: %s"
-msgstr ""
-
-#: src/Servebolt/Cli/Fpc/Fpc.php:582
-msgid "The following IDs were invalid: %s"
-msgstr ""
-
-#: src/Servebolt/Cli/Fpc/Fpc.php:586
-msgid "Added %s to the list of excluded ids"
-msgstr ""
-
-#: src/Servebolt/Cli/Fpc/Fpc.php:588
-msgid "No action was made."
-msgstr ""
-
 #: src/Servebolt/Cli/General/General.php:49
 msgid "Do you really want to delete all settings? This will affect all sites in multi-site network."
 msgstr ""
@@ -804,6 +759,59 @@ msgstr ""
 
 #: src/Servebolt/Cli/General/General.php:55
 msgid "All settings deleted!"
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:210
+msgid "No post types specified"
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:402
+msgid "Default [%s]"
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:407
+#: src/Servebolt/FullPageCache/FullPageCacheHeaders.php:504
+msgid "All"
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:423
+msgid "HTML Cache already %s on site %s"
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:426
+msgid "HTML Cache %s on site %s"
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:464
+msgid "Applying settings to all sites"
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:475
+msgid "Exclude IDs were not set since ids are relative to each site."
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:555
+msgid "All excluded posts were cleared."
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:558
+msgid "No IDs were specified."
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:578
+msgid "The following ids were already excluded: %s"
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:582
+msgid "The following IDs were invalid: %s"
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:586
+msgid "Added %s to the list of excluded ids"
+msgstr ""
+
+#: src/Servebolt/Cli/HtmlCache/HtmlCache.php:588
+msgid "No action was made."
 msgstr ""
 
 #: src/Servebolt/Cli/Optimizations/Optimizations.php:110
@@ -926,21 +934,21 @@ msgstr ""
 msgid "Could not convert table \"%s\" to InnoDB"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:900
-#: src/Servebolt/Helpers/Helpers.php:912
+#: src/Servebolt/Helpers/Helpers.php:916
+#: src/Servebolt/Helpers/Helpers.php:928
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-size-index-list.php:12
 msgid "Delete"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:901
+#: src/Servebolt/Helpers/Helpers.php:917
 msgid "View"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:903
+#: src/Servebolt/Helpers/Helpers.php:919
 msgid "Edit"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:910
+#: src/Servebolt/Helpers/Helpers.php:926
 msgid "Post does not exist."
 msgstr ""
 
@@ -950,6 +958,7 @@ msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/acd-promo.php:11
 #: src/Servebolt/Views/accelerated-domains/acd-promo.php:13
+#: src/Servebolt/Views/performance-optimizer/menu-cache/promo.php:11
 msgid "Get started"
 msgstr ""
 
@@ -963,6 +972,8 @@ msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/control/network-list-view.php:8
 #: src/Servebolt/Views/accelerated-domains/control/network-list-view.php:16
+#: src/Servebolt/Views/accelerated-domains/prefetching/network-list-view.php:9
+#: src/Servebolt/Views/accelerated-domains/prefetching/network-list-view.php:17
 #: src/Servebolt/Views/cache-settings/cache-purge/network-admin/list.php:7
 #: src/Servebolt/Views/cache-settings/cache-purge/network-admin/list.php:16
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:10
@@ -979,18 +990,18 @@ msgstr ""
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:16
 #: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:9
 #: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:17
-#: src/Servebolt/Views/performance-optimizer/prefetching/network-list-view.php:9
-#: src/Servebolt/Views/performance-optimizer/prefetching/network-list-view.php:17
 msgid "URL"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/control/network-list-view.php:9
 #: src/Servebolt/Views/accelerated-domains/control/network-list-view.php:17
-msgid "ACD Active"
+msgid "Accelerated Domains Active"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/control/network-list-view.php:10
 #: src/Servebolt/Views/accelerated-domains/control/network-list-view.php:18
+#: src/Servebolt/Views/accelerated-domains/prefetching/network-list-view.php:11
+#: src/Servebolt/Views/accelerated-domains/prefetching/network-list-view.php:19
 #: src/Servebolt/Views/cache-settings/cache-purge/network-admin/list.php:10
 #: src/Servebolt/Views/cache-settings/cache-purge/network-admin/list.php:19
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:13
@@ -1005,12 +1016,11 @@ msgstr ""
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:18
 #: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:11
 #: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:19
-#: src/Servebolt/Views/performance-optimizer/prefetching/network-list-view.php:11
-#: src/Servebolt/Views/performance-optimizer/prefetching/network-list-view.php:19
 msgid "Controls"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/control/network-list-view.php:26
+#: src/Servebolt/Views/accelerated-domains/prefetching/network-list-view.php:27
 #: src/Servebolt/Views/cache-settings/cache-purge/network-admin/list.php:32
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:31
 #: src/Servebolt/Views/cache-settings/cache-ttl/network-list-view.php:27
@@ -1028,11 +1038,11 @@ msgstr ""
 #: src/Servebolt/Views/general-settings/network-list-view.php:31
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:26
 #: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:27
-#: src/Servebolt/Views/performance-optimizer/prefetching/network-list-view.php:27
 msgid "Yes"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/control/network-list-view.php:26
+#: src/Servebolt/Views/accelerated-domains/prefetching/network-list-view.php:27
 #: src/Servebolt/Views/cache-settings/cache-purge/network-admin/list.php:32
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:31
 #: src/Servebolt/Views/cache-settings/cache-ttl/network-list-view.php:27
@@ -1050,12 +1060,11 @@ msgstr ""
 #: src/Servebolt/Views/general-settings/network-list-view.php:31
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:26
 #: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:27
-#: src/Servebolt/Views/performance-optimizer/prefetching/network-list-view.php:27
 msgid "No"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/control/network-list-view.php:27
-msgid "Go to site ACD settings"
+msgid "Go to site Accelerated Domains settings"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/control/settings-form.php:15
@@ -1063,15 +1072,18 @@ msgid "Accelerated Domains-feature active?"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/control/settings-form.php:18
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:46
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:20
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:52
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:65
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:18
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:53
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:44
 #: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:21
 #: src/Servebolt/Views/cloudflare-image-resize/configration.php:59
 #: src/Servebolt/Views/performance-optimizer/advanced/settings-form.php:18
 #: src/Servebolt/Views/performance-optimizer/menu-cache/settings-form.php:18
 #: src/Servebolt/Views/performance-optimizer/menu-cache/settings-form.php:31
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:18
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:53
-msgid "Enabled"
+msgid "Enable"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-size-index-list.php:1
@@ -1141,12 +1153,6 @@ msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:17
 msgid "Image resize-feature active?"
-msgstr ""
-
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:20
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:52
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:65
-msgid "Enable"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:30
@@ -1226,6 +1232,83 @@ msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:106
 msgid "When resizing on responsive images is enabled you can add custom image sizes to optimize the image size downloaded by the browser."
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/network-list-view.php:10
+#: src/Servebolt/Views/accelerated-domains/prefetching/network-list-view.php:18
+#: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:9
+#: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:17
+msgid "Prefetching Active"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/network-list-view.php:28
+msgid "Go to site prefetch settings"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/prefetching.php:5
+#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:5
+#: src/Servebolt/Views/dashboard/dashboard-single-site.php:5
+#: src/Servebolt/Views/performance-optimizer/advanced/advanced.php:5
+#: src/Servebolt/Views/performance-optimizer/database-optimizations/database-optimizations.php:6
+#: src/Servebolt/Views/performance-optimizer/menu-cache/menu-cache.php:5
+#: src/Servebolt/Views/performance-optimizer/performance-optimizer.php:5
+msgid "Performance Optimizer"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:15
+msgid "Prefetching-feature active?"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:25
+msgid "Manifest files"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:28
+msgid "Generate style manifest-file?"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:30
+msgid "Styles"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:33
+msgid "Generate script manifest-file?"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:35
+msgid "Scripts"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:38
+msgid "Generate menu manifest-file?"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:40
+msgid "Menu"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:43
+msgid "Check the file types that you would like to generate."
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:47
+msgid "Use full URLs in manifest files"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:50
+msgid "Use full URLs in manifest files?"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:59
+msgid "Max number of lines"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:63
+msgid "Use this field to limit the number of lines in the prefetch files. This can be useful for example if the website has a large amount of menu items."
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:72
+msgid "Regenerate files"
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/acd-configuration.php:8
@@ -1312,81 +1395,79 @@ msgid "Servebolt Optimizer supports cache purging of Cloudflare and Accelerated 
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:16
-msgid ""
-"When purging manually you can purge specific URLs, or even purge the entire cache.\n"
-"\n"
-"Keep in mind that purging the entire cache has a temporary impact on the loading speed for the website visitors, because the cache needs to be rebuilt by requesting fresh content and assets from the origin. <strong>When purging manually the best practice is to purge specific assets or pages by using the purge URL feature.</stong>"
+msgid "When purging manually you can purge specific URLs, or even purge the entire cache. Keep in mind that purging the entire cache has a temporary impact on the loading speed for the website visitors, because the cache needs to be rebuilt by requesting fresh content and assets from the origin. %sWhen purging manually the best practice is to purge specific assets or pages by using the purge URL feature.%s"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:23
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:21
 msgid "This feature can be set up using WP CLI or with the form below."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:24
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:22
 msgid "Run %swp servebolt cache-purge --help%s to see available commands."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:40
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:38
 msgid "Cache purge"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:43
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:41
 msgid "Cache purge-feature active?"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:53
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:51
 msgid "Automatic purge on update"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:57
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:55
 msgid "Automatic cache purge on post/term content update"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:60
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:58
 msgid "On post/term content update"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:63
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:61
 msgid "Automatic cache purge on post/term deletion"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:66
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:64
 msgid "On post/term deletion"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:69
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:67
 msgid "Automatic cache purge on post/term slug/permalink change"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:72
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:70
 msgid "On slug/permalink change"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:75
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:73
 msgid "Automatic cache purge on attachment update"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:78
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:76
 msgid "On attachment update"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:85
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:83
 msgid "Cache provider"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:88
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:86
 msgid "Cache provider is automatically set when %sAccelerated Domains%s is active."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:93
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:91
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:37
 msgid "Cloudflare"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:101
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:99
 msgid "Servebolt Cloud"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:102
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:100
 msgid "Coming soon"
 msgstr ""
 
@@ -1444,30 +1525,9 @@ msgstr ""
 msgid "Refresh queue"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/cache-settings.php:12
-#: src/Servebolt/Views/cache-settings/cache-settings/cache-settings.php:19
-msgid "Servebolt Control Panel dashboard"
-msgstr ""
-
-#: src/Servebolt/Views/cache-settings/cache-settings/cache-settings.php:13
-msgid "These cache settings let you control the cache headers set by the plugin. The cache headers are used to control how caching works in Accelerated Domains, Cloudflare and the Servebolt Cloud."
-msgstr ""
-
-#: src/Servebolt/Views/cache-settings/cache-settings/cache-settings.php:15
-msgid "Servebolt Cloud HTML cache"
-msgstr ""
-
-#: src/Servebolt/Views/cache-settings/cache-settings/cache-settings.php:16
-msgid "Servebolt Cloud HTML cache (Full Page Cache) is easy to set up, but should always be tested before activating it on production environments."
-msgstr ""
-
-#: src/Servebolt/Views/cache-settings/cache-settings/cache-settings.php:17
-msgid "To activate HTML cache to go %s and set \"Caching\" to \"Static Files + Full-Page Cache\"."
-msgstr ""
-
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:11
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:20
-msgid "Full Page Cache Active"
+msgid "HTML Cache Active"
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:12
@@ -1476,7 +1536,45 @@ msgid "Post types"
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:45
-msgid "Go to site FPC settings"
+msgid "Go to site HTML Cache settings"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:4
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:20
+#: src/Servebolt/Views/performance-optimizer/menu-cache/promo.php:4
+msgid "Servebolt Control Panel dashboard"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:11
+msgid "These cache settings let you control the cache headers set by the plugin. The cache headers are used to control how caching works in Accelerated Domains, Cloudflare and the Servebolt Cloud."
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:16
+msgid "Servebolt Cloud HTML Cache"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:17
+msgid "Servebolt Cloud HTML Cache (formerly Full Page Cache) is easy to set up, but should always be tested before activating it on production environments."
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:18
+msgid "To activate HTML Cache to go %s and set \"Caching\" to \"Static Files + Full-Page Cache\"."
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:27
+msgid "Accelerated Domains has a optimized cache engine and it respect these settings. Disabling cache for a post type in these settings makes Accelerated Domains bypass it from cache."
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:32
+msgid "Not running Accelerated Domains? %sOrder Accelerated Domains in the control panel%s and Servebolt Support will add it to your domain and set it up for you."
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:40
+msgid "When Cloudflare is set up to respect origin cache headers, changing these settings also adjust what post types Cloudflare cache and not. After changing these settings the Cloudflare cache should be purged."
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:45
+msgid "%sGet in touch with Servebolt Support%s to get Cloudflare added to your domain and set up correctly."
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:19
@@ -1508,6 +1606,10 @@ msgstr ""
 msgid "No posts set to be excluded"
 msgstr ""
 
+#: src/Servebolt/Views/cache-settings/cache-ttl/cache-ttl.php:9
+msgid "The Custom Cache TTL settings affects the cache TTL when using Accelerated Domains. It does not, for now, affect the Servebolt Server cache."
+msgstr ""
+
 #: src/Servebolt/Views/cache-settings/cache-ttl/network-list-view.php:9
 #: src/Servebolt/Views/cache-settings/cache-ttl/network-list-view.php:17
 msgid "Custom cache TTL Active"
@@ -1517,26 +1619,34 @@ msgstr ""
 msgid "Go to site cache TTL settings"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:14
+#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:17
 msgid "Custom cache TTL-feature active?"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:17
+#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:20
 msgid "Enable custom cache TTL"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:24
-#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:47
+#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:27
+#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:50
 msgid "Post type"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:25
-#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:48
+#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:28
+#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:51
+#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:62
+#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:85
 msgid "TTL"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:40
+#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:43
+#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:77
 msgid "Seconds"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:61
+#: src/Servebolt/Views/cache-settings/cache-ttl/settings-form.php:84
+msgid "Taxonomy Archives"
 msgstr ""
 
 #: src/Servebolt/Views/cloudflare-image-resize/configration.php:9
@@ -1581,16 +1691,6 @@ msgstr ""
 
 #: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:42
 msgid "Go to network admin for more options"
-msgstr ""
-
-#: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:5
-#: src/Servebolt/Views/dashboard/dashboard-single-site.php:5
-#: src/Servebolt/Views/performance-optimizer/advanced/advanced.php:5
-#: src/Servebolt/Views/performance-optimizer/database-optimizations/database-optimizations.php:6
-#: src/Servebolt/Views/performance-optimizer/menu-cache/menu-cache.php:5
-#: src/Servebolt/Views/performance-optimizer/performance-optimizer.php:5
-#: src/Servebolt/Views/performance-optimizer/prefetching/prefetching.php:5
-msgid "Performance Optimizer"
 msgstr ""
 
 #: src/Servebolt/Views/dashboard/dashboard.php:7
@@ -1651,7 +1751,7 @@ msgid "Check this if you want the Cloudflare APO-feature to be active for this s
 msgstr ""
 
 #: src/Servebolt/Views/general-settings/settings-form.php:20
-msgid "APO is not available when ACD is active."
+msgid "APO is not available when Accelerated Domains is active."
 msgstr ""
 
 #: src/Servebolt/Views/general-settings/settings-form.php:46
@@ -1691,19 +1791,20 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
-#: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:9
-#: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:17
-#: src/Servebolt/Views/performance-optimizer/prefetching/network-list-view.php:10
-#: src/Servebolt/Views/performance-optimizer/prefetching/network-list-view.php:18
-msgid "Prefetching Active"
-msgstr ""
-
 #: src/Servebolt/Views/performance-optimizer/advanced/settings-form.php:12
-msgid "Custom MO-file loader"
+msgid "Load translations from cache"
 msgstr ""
 
 #: src/Servebolt/Views/performance-optimizer/advanced/settings-form.php:15
 msgid "Custom MO-file loader active?"
+msgstr ""
+
+#: src/Servebolt/Views/performance-optimizer/advanced/settings-form.php:19
+msgid "When WordPress reads the translation files for plugins, themes etc. it does so on every page load. This creates disk read activity which is not good for performance. Activating this feature will speed up this process by storing the translations in cache (transients), so that we get the translations from the cache, instead of reading files on the disk."
+msgstr ""
+
+#: src/Servebolt/Views/performance-optimizer/advanced/settings-form.php:20
+msgid "Recommended for sites running in other languages than en_US."
 msgstr ""
 
 #: src/Servebolt/Views/performance-optimizer/database-optimizations/database-optimizations.php:13
@@ -1795,6 +1896,18 @@ msgstr ""
 msgid "Menu cache Active"
 msgstr ""
 
+#: src/Servebolt/Views/performance-optimizer/menu-cache/promo.php:12
+msgid "Generating the menus in WordPress is resource intensive. Sites with small menus and few visitors might not notice. But sites with large menus, like in a mega menu, the server must spend a lot of time generating these large menus on each page view that is not served from cache."
+msgstr ""
+
+#: src/Servebolt/Views/performance-optimizer/menu-cache/promo.php:13
+msgid "Enabling the menu cache speeds up the delivery of menus by multiples. The cache is updated whenever you update your menus."
+msgstr ""
+
+#: src/Servebolt/Views/performance-optimizer/menu-cache/promo.php:14
+msgid "Make sure to test this setting before activating it in production."
+msgstr ""
+
 #: src/Servebolt/Views/performance-optimizer/menu-cache/settings-form.php:15
 msgid "Menu cache-feature active?"
 msgstr ""
@@ -1827,66 +1940,6 @@ msgstr ""
 
 #: src/Servebolt/Views/performance-optimizer/performance-optimizer.php:34
 msgid "WP Cron is enabled, and may slow down your site and/or degrade the sites ability to scale. This should be disabled and run with server cron. Read more about this <a href=\"https://servebo.lt/vkr8-\" target=\"_blank\">here</a>.</span>"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/network-list-view.php:28
-msgid "Go to site prefetch settings"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:15
-msgid "Prefetching-feature active?"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:25
-msgid "Manifest files"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:28
-msgid "Generate style manifest-file?"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:30
-msgid "Styles"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:33
-msgid "Generate script manifest-file?"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:35
-msgid "Scripts"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:38
-msgid "Generate menu manifest-file?"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:40
-msgid "Menu"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:43
-msgid "Check the file types that you would like to generate."
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:47
-msgid "Use full URLs in manifest files"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:50
-msgid "Use full URLs in manifest files?"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:59
-msgid "Max number of lines"
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:63
-msgid "Use this field to limit the number of lines in the prefetch files. This can be useful for example if the website has a large amount of menu items."
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/prefetching/settings-form.php:72
-msgid "Regenerate files"
 msgstr ""
 
 #: src/Servebolt/WpCron/WpCronCustomSchedules.php:25

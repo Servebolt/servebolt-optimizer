@@ -169,7 +169,7 @@ class AdminGuiController
     /**
      * Redirect from old cache purge control page to the new one.
      */
-    public function fpcLegacyRedirect(): void
+    public function htmlCacheLegacyRedirect(): void
     {
         javascriptRedirect(admin_url('admin.php?page=servebolt-html-cache'));
     }
@@ -208,10 +208,10 @@ class AdminGuiController
         } else {
             add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
         }
-      
+
         // Legacy redirects
-        add_submenu_page(null, null, null, 'manage_options', 'servebolt-nginx-cache', [$this, 'fpcLegacyRedirect']);
-        add_submenu_page(null, null, null, 'manage_options', 'servebolt-fpc', [$this, 'fpcLegacyRedirect']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-nginx-cache', [$this, 'htmlCacheLegacyRedirect']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-fpc', [$this, 'htmlCacheLegacyRedirect']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-cf-cache-control', [$this, 'cachePurgeLegacyRedirect']);
     }
 

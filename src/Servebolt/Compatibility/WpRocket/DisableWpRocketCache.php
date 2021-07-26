@@ -29,8 +29,8 @@ class DisableWpRocketCache
             add_filter('rocket_disable_htaccess', '__return_true');
         }
 
-        // Clear WP Rocket cache every time we enable FPC / ACD
-        add_action('sb_optimizer_fpc_enable', [$this, 'wpRocketClearAllCache']);
+        // Clear WP Rocket cache every time we enable ACD or HTML Cache (formerly FPC / Full Page Cache)
+        add_action('sb_optimizer_html_cache_enable', [$this, 'wpRocketClearAllCache']);
     }
 
     /**
@@ -41,7 +41,7 @@ class DisableWpRocketCache
     private function shouldDisableCache(): bool
     {
         //return AcceleratedDomains::isActive();
-        return FullPageCacheSettings::fpcIsActive();
+        return FullPageCacheSettings::htmlCacheIsActive();
     }
 
     /**

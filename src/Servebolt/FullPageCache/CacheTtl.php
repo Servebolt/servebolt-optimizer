@@ -127,16 +127,16 @@ class CacheTtl
     /**
      * Set default cache TTL values for post types.
      *
+     * @param null|string $type
      * @return array
      */
-    public static function cacheTtlPresetDefaultValues($type): array
+    public static function cacheTtlPresetDefaultValues(?string $type): array
     {
         switch ($type) {
             case 'taxonomy':
                 return array_map(function() {
                     return 'default';
                 }, array_flip(array_keys(self::getTaxonomies())));
-                break;
             case 'post-type':
             default:
                 return array_map(function() {

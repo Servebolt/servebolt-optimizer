@@ -24,17 +24,17 @@
     </tfoot>
     <tbody>
     <?php foreach (get_sites() as $site) : ?>
-        <?php $sbFpcSettings = FullPageCacheHeaders::getPostTypesToCache(false, false, $site->blog_id); ?>
+        <?php $postTypesToCache = FullPageCacheHeaders::getPostTypesToCache(false, false, $site->blog_id); ?>
         <tr>
             <td><?php echo $site->blog_id; ?></td>
             <td><?php echo $site->domain . $site->path; ?></td>
-            <td><?php echo FullPageCacheSettings::fpcIsActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
+            <td><?php echo FullPageCacheSettings::htmlCacheIsActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
             <td>
-                <?php if ( ! empty($sbFpcSettings) ) : ?>
-                    <?php if ( in_array('all', $sbFpcSettings) ) : ?>
+                <?php if (!empty($postTypesToCache)) : ?>
+                    <?php if ( in_array('all', $postTypesToCache) ) : ?>
                         All
                     <?php else: ?>
-                        <?php foreach ($sbFpcSettings as $postType) : ?>
+                        <?php foreach ($postTypesToCache as $postType) : ?>
                             <?php echo formatPostTypeSlug($postType) . '<br>'; ?>
                         <?php endforeach; ?>
                     <?php endif; ?>

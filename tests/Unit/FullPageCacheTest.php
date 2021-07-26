@@ -2,7 +2,7 @@
 
 namespace Unit;
 
-use Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax\FpcPostExclusion;
+use Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax\HtmlCachePostExclusion;
 use Servebolt\Optimizer\FullPageCache\CachePostExclusion;
 use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders;
@@ -51,7 +51,7 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
 
     public function testThatCacheHeadersGetSetWhenPostIsExcludedFromCache()
     {
-        FullPageCacheSettings::fpcToggleActive(true);
+        FullPageCacheSettings::htmlCacheToggleActive(true);
         $instance = $this->setupHeaderTest();
 
         $postId = $this->factory()->post->create();
@@ -68,7 +68,7 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
         unset($GLOBALS['post']);
     }
 
-    public function testThatCacheHeadersGetSetEvenThoFpcIsInActive()
+    public function testThatCacheHeadersGetSetEvenThoHtmlCacheIsInActive()
     {
         $instance = $this->setupHeaderTest();
 
@@ -81,18 +81,18 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
         $this->assertContains('Pragma: no-cache', $headers);
     }
 
-    public function testThatPostGetsCachePurgedWhenAddedToFpcExclusion()
+    public function testThatPostGetsCachePurgedWhenAddedToHtmlCacheExclusion()
     {
         FullPageCache::destroyInstance();
         $this->useQueueBasedCachePurge();
         $this->setUpBogusAcdConfig();
         FullPageCache::getInstance();
         $postId = $this->factory()->post->create();
-        $fpcPostExclusion = new FpcPostExclusion();
-        $result = $fpcPostExclusion->addItemsFromFpcExclusion([
+        $htmlCachePostExclusion = new HtmlCachePostExclusion();
+        $result = $htmlCachePostExclusion->addItemsToHtmlCacheExclusion([
             $postId
         ]);
-        $this->assertEquals(1, did_action('sb_optimizer_post_added_to_fpc_exclusion'));
+        $this->assertEquals(1, did_action('sb_optimizer_post_added_to_html_cache_exclusion'));
         $this->assertTrue($result['success']);
         $wpObjectQueue = WpObjectQueue::getInstance();
         $this->assertTrue($wpObjectQueue->hasPostInQueue($postId));

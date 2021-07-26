@@ -33,7 +33,7 @@ class ManifestFileWriterTest
 
     public function setUp()
     {
-        parent::setUp();
+        //parent::setUp();
         ManifestFileWriter::shouldLimitHostname(false);
         ManifestFileWriter::shouldOrderAlphabetically(true);
         $this->setUpManifestDummyData();
