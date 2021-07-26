@@ -2,10 +2,9 @@
 
 namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
-use Servebolt\Optimizer\CachePurge\CachePurge;
-use Servebolt\Optimizer\Traits\Singleton;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use Servebolt\Optimizer\CachePurge\CachePurge;
 
 /**
  * Class WpObjectCachePurgeActions

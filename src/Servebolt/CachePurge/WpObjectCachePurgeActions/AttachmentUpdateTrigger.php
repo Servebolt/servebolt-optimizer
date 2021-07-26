@@ -2,13 +2,13 @@
 
 namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Traits\EventToggler;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\arrayGet;
-
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class AttachmentUpdateTrigger
