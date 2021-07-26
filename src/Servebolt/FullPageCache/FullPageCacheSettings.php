@@ -36,28 +36,28 @@ class FullPageCacheSettings
     }
 
     /**
-     * Trigger FPC active state actions whenever a ACD activate state action is triggered.
+     * Trigger HTML Cache active state actions whenever a ACD activate state action is triggered.
      */
     private function acdStateActions(): void
     {
         add_action('sb_optimizer_acd_enable', function () {
-            do_action('sb_optimizer_fpc_enable');
+            do_action('sb_optimizer_html_cache_enable');
         });
         add_action('sb_optimizer_acd_disable', function () {
-            do_action('sb_optimizer_fpc_disable');
+            do_action('sb_optimizer_html_cache_disable');
         });
     }
 
     /**
-     * Add listeners for FPC active state change.
+     * Add listeners for HTML Cache active state change.
      */
     private function initSettingsActions(): void
     {
-        listenForCheckboxOptionChange(self::fpcActiveOptionKey(), function($wasActive, $isActive, $optionName) {
+        listenForCheckboxOptionChange(self::htmlCacheActiveOptionKey(), function($wasActive, $isActive, $optionName) {
             if ($isActive) {
-                do_action('sb_optimizer_fpc_enable');
+                do_action('sb_optimizer_html_cache_enable');
             } else {
-                do_action('sb_optimizer_fpc_disable');
+                do_action('sb_optimizer_html_cache_disable');
             }
         });
     }
@@ -69,9 +69,9 @@ class FullPageCacheSettings
      *
      * @return bool
      */
-    public static function fpcIsActive(?int $blogId = null): bool
+    public static function htmlCacheIsActive(?int $blogId = null): bool
     {
-        return (bool) apply_filters('sb_optimizer_fpc_is_active', checkboxIsChecked(smartGetOption($blogId, self::fpcActiveOptionKey())));
+        return (bool) apply_filters('sb_optimizer_html_cache_is_active', checkboxIsChecked(smartGetOption($blogId, self::htmlCacheActiveOptionKey())));
     }
 
     /**
@@ -79,9 +79,9 @@ class FullPageCacheSettings
      *
      * @return bool
      */
-    public static function fpcActiveStateIsOverridden(): bool
+    public static function htmlCacheActiveStateIsOverridden(): bool
     {
-        return has_filter('sb_optimizer_fpc_is_active');
+        return has_filter('sb_optimizer_html_cache_is_active');
     }
 
     /**
@@ -89,7 +89,7 @@ class FullPageCacheSettings
      *
      * @return string
      */
-    private static function fpcActiveOptionKey(): string
+    private static function htmlCacheActiveOptionKey(): string
     {
         return 'fpc_switch';
     }
@@ -102,8 +102,8 @@ class FullPageCacheSettings
      *
      * @return bool|mixed
      */
-    public static function fpcToggleActive(bool $state, ?int $blogId = null)
+    public static function htmlCacheToggleActive(bool $state, ?int $blogId = null)
     {
-        return smartUpdateOption($blogId, self::fpcActiveOptionKey(), $state);
+        return smartUpdateOption($blogId, self::htmlCacheActiveOptionKey(), $state);
     }
 }

@@ -78,18 +78,18 @@ class AcceleratedDomainsHeaders
      */
     private function addAcdTtlHeaders(): void
     {
-        add_action('sb_optimizer_fpc_cache_headers', function ($fpc, $queriedObject) {
+        add_action('sb_optimizer_fpc_cache_headers', function ($cacheObject, $queriedObject) {
             if ($queriedObject) {
                 $ttl = $this->getTtl($queriedObject['objectType'], $queriedObject['objectId']);
             } else {
                 $ttl = $this->getTtl();
             }
-            $fpc->header($this->ttlHeaderkeyForAcd, $ttl);
-            $fpc->header($this->ttlHeaderkeyForCdnControl, 'max-age=' . $ttl);
+            $cacheObject->header($this->ttlHeaderkeyForAcd, $ttl);
+            $cacheObject->header($this->ttlHeaderkeyForCdnControl, 'max-age=' . $ttl);
         }, 10, 2);
-        add_action('sb_optimizer_fpc_no_cache_headers', function ($fpc) {
-            $fpc->header($this->ttlHeaderkeyForAcd, 'no-cache');
-            $fpc->header($this->ttlHeaderkeyForCdnControl, 'max-age=0,no-cache');
+        add_action('sb_optimizer_fpc_no_cache_headers', function ($cacheObject) {
+            $cacheObject->header($this->ttlHeaderkeyForAcd, 'no-cache');
+            $cacheObject->header($this->ttlHeaderkeyForCdnControl, 'max-age=0,no-cache');
         });
     }
 

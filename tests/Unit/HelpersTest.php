@@ -543,6 +543,8 @@ class HelpersTest extends ServeboltWPUnitTestCase
                         break;
                     case 'fpc_settings':
                         $this->assertIsArray($value);
+                        $this->assertEquals(['all' => 1], $value);
+                        break;
                     case 'cache_ttl_by_post_type':
                         $this->assertIsArray($value);
                         $this->assertArrayHasKey('post', $value);

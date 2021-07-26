@@ -502,7 +502,7 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'menu_cache_switch',
         'menu_cache_disabled_for_authenticated_switch',
 
-        // Wipe SB FPC-related options
+        // HTML Cache-related options (formerly FPC / Full Page Cache)
         'fpc_switch',
         'fpc_settings',
         'fpc_exclude',
@@ -882,14 +882,14 @@ function writeLog($log)
 }
 
 /**
- * Build markup for row in FPC post exclude table.
+ * Build markup for row in HTML Cache post exclude table.
  *
  * @param $postId
  * @param bool $echo
  *
  * @return false|string
  */
-function fpcExcludePostTableRowMarkup($postId, $echo = true)
+function htmlCacheExcludePostTableRowMarkup($postId, bool $echo = true)
 {
     if (is_numeric($postId) && $post = get_post($postId)) {
         $title = get_the_title($postId);
@@ -910,22 +910,22 @@ function fpcExcludePostTableRowMarkup($postId, $echo = true)
             <input id="cb-select-<?php echo $postId; ?>" type="checkbox">
         </th>
         <?php if ( $isPost ) : ?>
-            <td class="column-post-id has-row-actions fpc-exclude-item-column">
+            <td class="column-post-id has-row-actions html-cache-exclude-item-column">
                 <?php echo $postId; ?>
                 <div class="row-actions">
-                    <span class="trash"><a href="#" class="sb-remove-item-from-fpc-post-exclude"><?php _e('Delete', 'servebolt-wp'); ?></a> | </span>
+                    <span class="trash"><a href="#" class="sb-remove-item-from-html-cache-post-exclude"><?php _e('Delete', 'servebolt-wp'); ?></a> | </span>
                     <span class="view"><a href="<?php echo esc_attr($url); ?>" target="_blank"><?php _e('View', 'servebolt-wp'); ?></a><?php if ($editUrl) echo ' | '; ?></span>
                     <?php if ($editUrl) : ?>
                         <span class="view"><a href="<?php echo $editUrl; ?>" target="_blank"><?php _e('Edit', 'servebolt-wp'); ?></a></span>
                     <?php endif; ?>
                 </div>
             </td>
-            <td class="fpc-exclude-item-column"><strong><?php echo $title; ?></strong></td>
+            <td class="html-cache-exclude-item-column"><strong><?php echo $title; ?></strong></td>
         <?php else : ?>
-            <td class="column-post-id has-row-actions fpc-exclude-item-column" colspan="2">
+            <td class="column-post-id has-row-actions html-cache-exclude-item-column" colspan="2">
                 <?php echo $postId; ?> (<?php _e('Post does not exist.', 'servebolt-wp') ?>)
                 <div class="row-actions">
-                    <span class="trash"><a href="#" class="sb-remove-item-from-fpc-post-exclude"><?php _e('Delete', 'servebolt-wp'); ?></a></span>
+                    <span class="trash"><a href="#" class="sb-remove-item-from-html-cache-post-exclude"><?php _e('Delete', 'servebolt-wp'); ?></a></span>
                 </div>
             </td>
         <?php endif; ?>
@@ -1595,24 +1595,16 @@ function listenForCheckboxOptionChange($optionNameOrNames, $closureOrAction): vo
  * Create a default value, both where the option is not present in the options-table, or if the value is empty.
  *
  * @param string $optionName
- * @param mixed $defaultValue
+ * @param callable|mixed $callableOrDefaultValue
  */
-function setDefaultOption(string $optionName, $defaultValue): void
+function setDefaultOption(string $optionName, $callableOrDefaultValue): void
 {
-    if (!is_callable($defaultValue)) {
-        $defaultValue = function() use ($defaultValue) {
-            return $defaultValue;
+    if (!is_callable($callableOrDefaultValue)) {
+        $callableOrDefaultValue = function() use ($callableOrDefaultValue) {
+            return $callableOrDefaultValue;
         };
     }
-    add_filter('default_option_' . getOptionName($optionName), $defaultValue);
-    /*
-    add_filter('option_' . getOptionName($optionName), function($value) use ($defaultValue) {
-        if (!$value) {
-            return $defaultValue;
-        }
-        return $value;
-    });
-    */
+    add_filter('default_option_' . getOptionName($optionName), $callableOrDefaultValue);
 }
 
 /**

@@ -46,7 +46,7 @@
 		$defaultPostTypesToCache = FullPageCacheHeaders::getDefaultPostTypesToCache();
 	?>
 
-	<p>Feature is active? - <?php echo FullPageCacheSettings::fpcIsActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
+	<p>Feature is active? - <?php echo FullPageCacheSettings::htmlCacheIsActive() ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 	<p>Cache all post types? - <?php echo ( is_array($selectedPostTypesToCache) && in_array('all', $selectedPostTypesToCache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></p>
 	<p>Any specific post types set? - <?php echo ( is_array($selectedPostTypesToCacheWithoutAll) && ! empty($selectedPostTypesToCacheWithoutAll ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>
 	<p>Default post types used? - <?php echo ( ! is_array($selectedPostTypesToCache) || empty($selectedPostTypesToCache ) ) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?> </p>

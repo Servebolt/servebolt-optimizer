@@ -1,38 +1,38 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
-<?php use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup; ?>
+<?php use function Servebolt\Optimizer\Helpers\htmlCacheExcludePostTableRowMarkup; ?>
 <?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 <?php use Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders; ?>
 <?php use Servebolt\Optimizer\FullPageCache\CachePostExclusion; ?>
 <?php use Servebolt\Optimizer\FullPageCache\FullPageCacheSettings; ?>
 <?php
-$fpcActive = FullPageCacheSettings::fpcIsActive();
-$fpcActiveOverridden = FullPageCacheSettings::fpcActiveStateIsOverridden();
+$htmlCacheActive = FullPageCacheSettings::htmlCacheIsActive();
+$htmlCacheActiveOverridden = FullPageCacheSettings::htmlCacheActiveStateIsOverridden();
 $postTypesToCache  = FullPageCacheHeaders::getPostTypesToCache(false, false);
 $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
 ?>
 <form method="post" action="options.php">
-    <?php settings_fields( 'fpc-options-page' ) ?>
-    <?php do_settings_sections( 'fpc-options-page' ) ?>
+    <?php settings_fields('html-cache-options-page') ?>
+    <?php do_settings_sections('html-cache-options-page') ?>
     <table class="form-table">
         <tbody>
             <tr>
                 <th scope="row"><?php _e('HTML Cache', 'servebolt-wp'); ?></th>
                 <td>
-                    <input id="sb-fpc_switch" name="<?php echo getOptionName('fpc_switch')?>"<?php if ($fpcActiveOverridden) echo ' disabled'; ?> type="checkbox"<?php if ($fpcActive) echo ' checked'; ?>><label for="sb-fpc_switch"><?php _e('Enable', 'servebolt-wp'); ?></label>
-                    <?php if ($fpcActiveOverridden): ?>
+                    <input id="sb-html-cache-switch" name="<?php echo getOptionName('fpc_switch')?>"<?php if ($htmlCacheActiveOverridden) echo ' disabled'; ?> type="checkbox"<?php if ($htmlCacheActive) echo ' checked'; ?>><label for="sb-html-cache-switch"><?php _e('Enable', 'servebolt-wp'); ?></label>
+                    <?php if ($htmlCacheActiveOverridden): ?>
                     <p class="description">HTML Cache is automatically enabled when Accelerated Domain-feature is active.</p>
                     <?php endif; ?>
                 </td>
             </tr>
         </tbody>
-        <tbody id="sb-fpc-form"<?php echo ( $fpcActive ? '' : ' style="display: none;"' ); ?>>
+        <tbody id="sb-html-cache-form"<?php echo ($htmlCacheActive ? '' : ' style="display: none;"'); ?>>
             <tr>
                 <th scope="row">Cache post types</th>
                 <td>
                     <?php $allChecked = in_array('all', (array) $postTypesToCache); ?>
                     <?php foreach ($availablePostTypes as $postType => $postTypeName) : ?>
                         <?php $checked = in_array($postType, (array) $postTypesToCache) ? ' checked' : ''; ?>
-                        <span class="<?php if ( $allChecked && $postType !== 'all' ) echo ' disabled'; ?>"><input id="sb-cache_post_type_<?php echo $postType; ?>" class="servebolt_fpc_settings_item" name="<?php echo getOptionName('fpc_settings')?>[<?php echo $postType; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="sb-cache_post_type_<?php echo $postType; ?>"><?php echo $postTypeName; ?></label></span><br>
+                        <span class="<?php if ( $allChecked && $postType !== 'all' ) echo ' disabled'; ?>"><input id="sb-cache_post_type_<?php echo $postType; ?>" class="servebolt-html-cache-post-type-settings-item" name="<?php echo getOptionName('fpc_settings')?>[<?php echo $postType; ?>]" value="1" type="checkbox"<?php echo $checked; ?>> <label for="sb-cache_post_type_<?php echo $postType; ?>"><?php echo $postTypeName; ?></label></span><br>
                     <?php endforeach; ?>
                     <p><?php _e('By default this plugin enables HTML caching of posts, pages and products.
                                 Activate post types here if you want a different cache setup. If none of the post types above is checked the plugin will use default settings.
@@ -49,16 +49,16 @@ $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
                             <button type="button" class="button action sb-remove-selected-exclude-items" disabled><?php _e('Remove selected', 'servebolt-wp'); ?></button>
                         </div>
                         <div class="alignleft actions bulkactions">
-                            <button type="button" style="float:left;" class="button action sb-flush-fpc-exclude-items"<?php if ( count($idsToExclude) === 0 ) echo ' disabled'; ?>><?php _e('Flush posts', 'servebolt-wp'); ?></button>
+                            <button type="button" style="float:left;" class="button action sb-flush-html-cache-exclude-items"<?php if ( count($idsToExclude) === 0 ) echo ' disabled'; ?>><?php _e('Flush posts', 'servebolt-wp'); ?></button>
                         </div>
                         <div class="alignleft actions bulkactions">
                             <button type="button" class="button button-primary sb-add-exclude-post">Add post to exclude</button>
                         </div>
-                        <span class="spinner flush-fpc-exclude-list-loading-spinner"></span>
+                        <span class="spinner flush-html-cache-exclude-list-loading-spinner"></span>
                         <br class="clear">
                     </div>
 
-                    <table class="wp-list-table widefat striped" id="fpc-ids-to-exclude-table">
+                    <table class="wp-list-table widefat striped" id="html-cache-ids-to-exclude-table">
 
                         <thead>
                         <tr>
@@ -81,7 +81,7 @@ $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
                         <tbody id="the-list">
                         <tr class="no-items<?php if ( count($idsToExclude) > 0 ) echo ' hidden'; ?>"><td colspan="100%"><?php _e('No posts set to be excluded', 'servebolt-wp'); ?></td></tr>
                         <?php foreach($idsToExclude as $i => $postId) : ?>
-                            <?php fpcExcludePostTableRowMarkup($postId); ?>
+                            <?php htmlCacheExcludePostTableRowMarkup($postId); ?>
                         <?php endforeach; ?>
                         </tbody>
 

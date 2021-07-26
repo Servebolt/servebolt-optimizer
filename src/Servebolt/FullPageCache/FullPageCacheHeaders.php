@@ -53,14 +53,14 @@ class FullPageCacheHeaders
      *
      * @var int
      */
-    private $defaultFpcCacheTime = 600;
+    private $defaultHtmlCacheTime = 600;
 
     /**
      * The HTML Cache time.
      *
      * @var null|int
      */
-    private $fpcCacheTime = null;
+    private $htmlCacheTime = null;
 
     /**
      * Whether we should attempt to set headers even tho headers are already sent (not good practice, should be fixed).
@@ -141,8 +141,8 @@ class FullPageCacheHeaders
         }
         $this->setHeaderAlreadySetState(true);
 
-        // Set "no cache"-headers if FPC is not active, or if we are logged in
-        if (!FullPageCacheSettings::fpcIsActive() || $this->isAuthenticatedUser()) {
+        // Set "no cache"-headers if HTML Cache is not active, or if we are logged in
+        if (!FullPageCacheSettings::htmlCacheIsActive() || $this->isAuthenticatedUser()) {
             $this->noCacheHeaders();
             if ($debug) {
                 $this->header('No-cache-trigger: 1');
@@ -250,7 +250,7 @@ class FullPageCacheHeaders
      */
     private function shouldDebug(): bool
     {
-        return apply_filters('sb_optimizer_fpc_should_debug_headers', isDebug());
+        return apply_filters('sb_optimizer_html_cache_should_debug_headers', isDebug());
     }
 
     /**
@@ -387,7 +387,7 @@ class FullPageCacheHeaders
     }
 
     /**
-     * Get the cache TTL.
+     * Get the HTML cache TTL.
      *
      * @param string|null $postType
      * @return int
@@ -395,11 +395,11 @@ class FullPageCacheHeaders
     private function getTtl(?string $postType = null): int
     {
         // Default TTL
-        if (is_null($this->fpcCacheTime)) {
-            // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $fpcCacheTime if it is
-            $this->fpcCacheTime = defined('SERVEBOLT_FPC_CACHE_TIME') ? (int) SERVEBOLT_FPC_CACHE_TIME : $this->defaultFpcCacheTime;
+        if (is_null($this->htmlCacheTime)) {
+            // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $htmlCacheTime if it is
+            $this->htmlCacheTime = defined('SERVEBOLT_FPC_CACHE_TIME') ? (int) SERVEBOLT_FPC_CACHE_TIME : $this->defaultHtmlCacheTime;
         }
-        return $this->fpcCacheTime;
+        return $this->htmlCacheTime;
     }
 
     /**
@@ -431,7 +431,7 @@ class FullPageCacheHeaders
         do_action('sb_optimizer_fpc_cache_headers', $this, $this->getQueriedObject());
         if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true)) {
 
-            $fpcCacheTime = $this->getTtl();
+            $htmlCacheTime = $this->getTtl();
 
             // Check if the constant SERVEBOLT_BROWSER_CACHE_TIME is set, and override $serveboltBrowserCacheTime if it is
             if (defined('SERVEBOLT_BROWSER_CACHE_TIME')) {
@@ -443,11 +443,11 @@ class FullPageCacheHeaders
             header_remove('Expires');
 
             // Allow browser to cache content for 10 minutes, or the set browser cache time constant
-            $this->header(sprintf('Cache-Control: max-age=%s, public, s-maxage=%s', $this->browserCacheTime, $fpcCacheTime));
+            $this->header(sprintf('Cache-Control: max-age=%s, public, s-maxage=%s', $this->browserCacheTime, $htmlCacheTime));
             $this->header('Pragma: public');
 
             // Expire in front-end caches and proxies after 10 minutes, or use the constant if defined.
-            $expiryString = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $fpcCacheTime) . ' GMT';
+            $expiryString = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $htmlCacheTime) . ' GMT';
             $this->header(sprintf('Expires: %s', $expiryString));
             $this->header('X-Servebolt-Plugin: active');
         }
@@ -471,7 +471,7 @@ class FullPageCacheHeaders
 	 *
 	 * @return string
 	 */
-	private static function fpcCacheablePostTypesOptionKey(): string
+	private static function htmlCacheCacheablePostTypesOptionKey(): string
     {
 		return 'fpc_settings';
 	}
@@ -486,7 +486,7 @@ class FullPageCacheHeaders
 	 */
 	public static function setCacheablePostTypes($postTypes, ?int $blogId = null)
     {
-        return smartUpdateOption($blogId, self::fpcCacheablePostTypesOptionKey(), $postTypes);
+        return smartUpdateOption($blogId, self::htmlCacheCacheablePostTypesOptionKey(), $postTypes);
 	}
 
 	/**
@@ -520,7 +520,7 @@ class FullPageCacheHeaders
 	 */
 	public static function getPostTypesToCache(bool $respectDefaultFallback = true, bool $respectAll = true, ?int $blogId = null)
     {
-        $postTypesToCache = smartGetOption($blogId, self::fpcCacheablePostTypesOptionKey());
+        $postTypesToCache = smartGetOption($blogId, self::htmlCacheCacheablePostTypesOptionKey());
 
 		// Make sure we migrate from old array structure
         $postTypesToCache = self::maybeFixPostTypeArrayStructure($postTypesToCache);

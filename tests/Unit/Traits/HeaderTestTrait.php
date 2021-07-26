@@ -12,7 +12,7 @@ trait HeaderTestTrait
 {
     private function setupHeaderTest()
     {
-        add_filter('sb_optimizer_fpc_should_debug_headers', '__return_true');
+        add_filter('sb_optimizer_html_cache_should_debug_headers', '__return_true');
         FullPageCacheHeaders::destroyInstance();
         $instance = FullPageCacheHeaders::getInstance();
         FullPageCacheHeaders::mock();
