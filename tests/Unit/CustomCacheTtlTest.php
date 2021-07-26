@@ -48,7 +48,6 @@ class CustomCacheTtlTest extends ServeboltWPUnitTestCase
 
     public function testAllCacheTtlPresets(): void
     {
-        deleteOption('cache_ttl_by_post_type');
         $ttlPresets = getOption('cache_ttl_by_post_type');
         $ttlPresets['page'] = 'off';
         updateOption('cache_ttl_by_post_type', $ttlPresets);
