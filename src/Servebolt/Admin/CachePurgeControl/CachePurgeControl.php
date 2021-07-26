@@ -52,7 +52,7 @@ class CachePurgeControl
         add_filter('parent_file', function($parentFile) {
             global $plugin_page;
             if ('servebolt-cache-purge-control' === $plugin_page) {
-                $plugin_page = 'servebolt-cach';
+                $plugin_page = 'servebolt-html-cache';
             }
             return $parentFile;
         });
