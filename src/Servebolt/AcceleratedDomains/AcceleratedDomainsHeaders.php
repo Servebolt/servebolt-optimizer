@@ -53,20 +53,21 @@ class AcceleratedDomainsHeaders
     private function getTtl(?string $objectType = null, ?string $objectIdentifier = null): int
     {
         // Conditional TTL
-        if (CacheTtl::isActive() && $objectType && $objectIdentifier) {
+        if (
+            CacheTtl::isActive()
+            && $objectType
+            && $objectIdentifier
+        ) {
             switch ($objectType) {
                 case 'post-type':
                     $ttl = CacheTtl::getTtlByPostType($objectIdentifier);
-                    if (is_numeric($ttl)) {
-                        return $ttl;
-                    }
                     break;
                 case 'taxonomy':
                     $ttl = CacheTtl::getTtlByTaxonomy($objectIdentifier);
-                    if (is_numeric($ttl)) {
-                        return $ttl;
-                    }
                     break;
+            }
+            if (isset($ttl) && is_numeric($ttl)) {
+                return $ttl;
             }
         }
         return $this->defaultTtl;

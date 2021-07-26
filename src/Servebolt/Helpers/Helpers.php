@@ -113,6 +113,20 @@ function displayValue($value, bool $return = true, bool $arrayToCsv = false)
 }
 
 /**
+ * Check if current user has capability using a callable function, abort if not.
+ *
+ * @param $method
+ * @param bool $returnResult
+ * @return bool|mixed
+ */
+function ajaxUserAllowedByFunction($method, bool $returnResult = false)
+{
+    if (is_callable($method)) {
+        return ajaxUserAllowed($returnResult, $method);
+    }
+}
+
+/**
  * Check if current user has capability, abort if not.
  *
  * @param bool $returnResult
