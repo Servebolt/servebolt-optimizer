@@ -10,7 +10,7 @@ use Servebolt\Optimizer\Traits\Singleton;
  * Class FullPageCacheAuthHandling
  * @package Servebolt\Optimizer\FullPageCache
  *
- * This class will handle the "no_cache"-cookie. The cookie will be set when logged in and will result in Nginx cache being disabled for the authenticated user.
+ * This class will handle the "no_cache"-cookie. The cookie will be set when logged in and will result in HTML Cache (formerly Nginx cache / FPC / Full Page Cache) being disabled for the authenticated user.
  *
  * Note: Cloudflare seems to respect this header also - so yeah, nice to know about when debugging.
  */

@@ -128,7 +128,7 @@ class AcceleratedDomains
     {
         if (self::isActive()) {
             setOptionOverride('fpc_switch', '__return_true');
-            add_filter('sb_optimizer_fpc_is_active', '__return_true');
+            add_filter('sb_optimizer_html_cache_is_active', '__return_true');
         }
     }
 }

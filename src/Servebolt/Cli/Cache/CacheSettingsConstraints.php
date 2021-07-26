@@ -18,7 +18,7 @@ class CacheSettingsConstraints
      */
     public function __construct()
     {
-        $this->fpcSettingsConstraint();
+        $this->htmlCacheSettingsConstraint();
         $this->getValueOverrides();
     }
 
@@ -38,7 +38,7 @@ class CacheSettingsConstraints
      *
      * @return array
      */
-    private function fpcSettingsValues(): array
+    private function htmlCacheSettingsValues(): array
     {
         return array_keys(FullPageCacheHeaders::getAvailablePostTypesToCache(true));
     }
@@ -46,7 +46,7 @@ class CacheSettingsConstraints
     /**
      * Validate and constrain the possible values for setting "fpc_settings".
      */
-    private function fpcSettingsConstraint(): void
+    private function htmlCacheSettingsConstraint(): void
     {
         add_filter('sb_optimizer_key_value_storage_multi_value_constraints_for_fpc_settings', '__return_true');
         add_filter('sb_optimizer_key_value_storage_set_multi_value_fpc_settings', function($value) {
@@ -55,12 +55,12 @@ class CacheSettingsConstraints
             }, array_flip($value));
         });
         add_filter('sb_optimizer_key_value_storage_constraints_for_fpc_settings', function()  {
-            return $this->fpcSettingsValues();
+            return $this->htmlCacheSettingsValues();
         }, 10, 0);
         add_filter('sb_optimizer_key_value_storage_set_validate_fpc_settings', function($valid, $value, $itemName, $blogId, $itemType) {
             $values = array_map('trim', explode(',', $value));
             foreach ($values as $value) {
-                if (!in_array($value, $this->fpcSettingsValues())) {
+                if (!in_array($value, $this->htmlCacheSettingsValues())) {
                     return false;
                 }
             }

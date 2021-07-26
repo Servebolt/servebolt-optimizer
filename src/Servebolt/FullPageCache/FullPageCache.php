@@ -8,6 +8,7 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
+use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 
 /**
@@ -25,10 +26,10 @@ class FullPageCache
     {
         FullPageCacheSettings::init();
         FullPageCacheHeaders::init();
-        if (isHostedAtServebolt()) {
+        if (isHostedAtServebolt() || isTesting()) {
             CacheTtl::init();
         }
-        $this->purgePostCacheIfAddedToFpcExclusion();
+        $this->purgePostCacheIfAddedToHtmlCacheExclusion();
         $this->defaultOptionValues();
     }
 
@@ -45,9 +46,9 @@ class FullPageCache
     }
 
     /**
-     * Purge post cache if its added to the FPC exclusion list.
+     * Purge post cache if its added to the HTML Cache exclusion list.
      */
-    private function purgePostCacheIfAddedToFpcExclusion(): void
+    private function purgePostCacheIfAddedToHtmlCacheExclusion(): void
     {
 
         // Skip this feature if the cache purge feature is inactive or insufficiently configured, or it automatic cache purge is inactive
@@ -55,13 +56,13 @@ class FullPageCache
             return;
         }
 
-        // Should skip automatic cache purge for posts added to FPC exclusion?
-        if (apply_filters('sb_optimizer_disable_automatic_purge_on_post_added_to_fpc_exclusion', false)) {
+        // Should skip automatic cache purge for posts added to HTML Cache exclusion?
+        if (apply_filters('sb_optimizer_disable_automatic_purge_on_post_added_to_html_cache_exclusion', false)) {
             return;
         }
 
 
-        add_action('sb_optimizer_post_added_to_fpc_exclusion', function($postId) {
+        add_action('sb_optimizer_post_added_to_html_cache_exclusion', function($postId) {
             try {
                 WordPressCachePurge::purgeByPostId($postId);
             } catch (Exception $e) {}

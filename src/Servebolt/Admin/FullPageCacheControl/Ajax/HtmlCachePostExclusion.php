@@ -10,34 +10,34 @@ use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\formatCommaStringToArray;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 use function Servebolt\Optimizer\Helpers\createLiTagsFromArray;
-use function Servebolt\Optimizer\Helpers\fpcExcludePostTableRowMarkup;
+use function Servebolt\Optimizer\Helpers\htmlCacheExcludePostTableRowMarkup;
 use function Servebolt\Optimizer\Helpers\postExists;
 
 /**
- * Class FpcPostExclusion
+ * Class HtmlCachePostExclusion
  * @package Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax
  */
-class FpcPostExclusion extends SharedAjaxMethods
+class HtmlCachePostExclusion extends SharedAjaxMethods
 {
 
     /**
-     * FpcPostExclusion constructor.
+     * HtmlCachePostExclusion constructor.
      */
     public function __construct()
     {
-        add_action('wp_ajax_servebolt_update_fpc_exclude_posts_list', [$this, 'updateFpcExcludePostsListCallback']);
-        add_action('wp_ajax_servebolt_fpc_exclude_post', [$this, 'updateExcludedPostsCallback']);
+        add_action('wp_ajax_servebolt_update_html_cache_exclude_posts_list', [$this, 'updateHtmlCacheExcludePostsListCallback']);
+        add_action('wp_ajax_servebolt_html_cache_exclude_post', [$this, 'updateExcludedPostsCallback']);
     }
 
     /**
      * Update HTML Cache post exclude list - AJAX callback.
      */
-    public function updateFpcExcludePostsListCallback(): void
+    public function updateHtmlCacheExcludePostsListCallback(): void
     {
         $this->checkAjaxReferer();
         ajaxUserAllowed();
         $itemsToRemove = arrayGet('items', $_POST);
-        if ($this->removeItemsFromFpcExclusion($itemsToRemove)) {
+        if ($this->removeItemsFromHtmlCacheExclusion($itemsToRemove)) {
             wp_send_json_success();
         } else {
             wp_send_json_error();
@@ -50,7 +50,7 @@ class FpcPostExclusion extends SharedAjaxMethods
      * @param $itemsToRemove
      * @return bool
      */
-    public function removeItemsFromFpcExclusion($itemsToRemove): bool
+    public function removeItemsFromHtmlCacheExclusion($itemsToRemove): bool
     {
         if ($itemsToRemove === 'all') {
             CachePostExclusion::setIdsToExcludeFromCache([]);
@@ -67,7 +67,7 @@ class FpcPostExclusion extends SharedAjaxMethods
         });
         foreach ($itemsToRemove as $itemToRemove) {
             if (postExists($itemToRemove)) {
-                do_action('sb_optimizer_post_removed_from_fpc_exclusion', $itemToRemove);
+                do_action('sb_optimizer_post_removed_from_html_cache_exclusion', $itemToRemove);
             }
         }
         $currentItems = CachePostExclusion::getIdsToExcludeFromCache();
@@ -97,7 +97,7 @@ class FpcPostExclusion extends SharedAjaxMethods
                 'message' => __('Post IDs missing', 'servebolt-wp'),
             ]);
         }
-        $result = $this->addItemsFromFpcExclusion($postIds);
+        $result = $this->addItemsToHtmlCacheExclusion($postIds);
         $success = arrayGet('success', $result);
         unset($result['success']);
         if ($success) {
@@ -113,7 +113,7 @@ class FpcPostExclusion extends SharedAjaxMethods
      * @param $postIds
      * @return array
      */
-    public function addItemsFromFpcExclusion($postIds): array
+    public function addItemsToHtmlCacheExclusion($postIds): array
     {
         $onlyOnePostId = count($postIds) === 1;
         $invalid = [];
@@ -137,8 +137,8 @@ class FpcPostExclusion extends SharedAjaxMethods
             }
 
             if (CachePostExclusion::excludePostFromCache($postId)) {
-                do_action('sb_optimizer_post_added_to_fpc_exclusion', $postId);
-                $newMarkup .= fpcExcludePostTableRowMarkup($postId, false);
+                do_action('sb_optimizer_post_added_to_html_cache_exclusion', $postId);
+                $newMarkup .= htmlCacheExcludePostTableRowMarkup($postId, false);
                 $success[] = $postId;
                 $added[] = $postId;
                 continue;

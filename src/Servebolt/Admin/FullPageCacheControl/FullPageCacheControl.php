@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Admin\FullPageCacheControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax\FpcPostExclusion;
+use Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax\HtmlCachePostExclusion;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 use function Servebolt\Optimizer\Helpers\isScreen;
@@ -41,7 +41,7 @@ class FullPageCacheControl
      */
     private function initAjax(): void
     {
-        new FpcPostExclusion;
+        new HtmlCachePostExclusion;
     }
 
     /**
@@ -60,7 +60,7 @@ class FullPageCacheControl
         if (!isScreen('servebolt_page_servebolt-html-cache')) {
             return;
         }
-        wp_enqueue_script('servebolt-optimizer-fpc-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/fpc.js', ['servebolt-optimizer-scripts'], getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/fpc.js'), true );
+        wp_enqueue_script('servebolt-optimizer-fpc-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/html-cache.js', ['servebolt-optimizer-scripts'], getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/html-cache.js'), true );
     }
 
     /**
@@ -77,7 +77,7 @@ class FullPageCacheControl
     public function registerSettings(): void
     {
         foreach(['fpc_settings', 'fpc_switch'] as $key) {
-            register_setting('fpc-options-page', getOptionName($key));
+            register_setting('html-cache-options-page', getOptionName($key));
         }
     }
 

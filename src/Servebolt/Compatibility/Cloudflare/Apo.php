@@ -19,13 +19,13 @@ class Apo
     {
         if ($this->cfApoActive()) {
             if (apply_filters('sb_optimizer_send_apo_cache_headers', true)) {
-                add_action('sb_optimizer_fpc_cache_headers', function ($fpc, $queriedObject) {
-                    $fpc->header('cf-edge-cache: cache, platform=wordpress');
+                add_action('sb_optimizer_fpc_cache_headers', function ($cacheObject, $queriedObject) {
+                    $cacheObject->header('cf-edge-cache: cache, platform=wordpress');
                 }, 10, 2);
             }
             if (apply_filters('sb_optimizer_send_apo_no_cache_headers', true)) {
-                add_action('sb_optimizer_fpc_no_cache_headers', function ($fpc) {
-                    $fpc->header('cf-edge-cache: no-cache, platform=wordpress');
+                add_action('sb_optimizer_fpc_no_cache_headers', function ($cacheObject) {
+                    $cacheObject->header('cf-edge-cache: no-cache, platform=wordpress');
                 });
             }
         }

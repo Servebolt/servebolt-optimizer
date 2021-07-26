@@ -1,47 +1,47 @@
 jQuery(document).ready(function($) {
 
-  // Toggle Nginx cache active/inactive
-  $('.sb-content #sb-fpc_switch').change(function() {
-    sb_toggle_nginx_cache_switch($(this).is(':checked'));
+  // Toggle HTML Cache active/inactive
+  $('.sb-content #sb-html-cache-switch').change(function() {
+    sb_toggle_html_cache_switch($(this).is(':checked'));
   });
 
-  // Toggle all post types for Nginx cache
+  // Toggle all post types for HTML Cache
   $('.sb-content #sb-cache_post_type_all').change(function(){
     sb_toggle_all_post_types($(this).is(':checked'));
   });
 
-  // Add post to FPC post exclude list
-  $('#sb-fpc-form .sb-add-exclude-post').click(function() {
-    sb_add_posts_to_fpc_exclude();
+  // Add post to HTML Cache post exclude list
+  $('#sb-html-cache-form .sb-add-exclude-post').click(function() {
+    sb_add_posts_to_html_cache_exclude();
   });
 
-  // Remove exclude item from FPC
-  $('#sb-fpc-form').on('click', '.sb-remove-item-from-fpc-post-exclude', function(e) {
+  // Remove exclude item from HTML Cache
+  $('#sb-html-cache-form').on('click', '.sb-remove-item-from-html-cache-post-exclude', function(e) {
     e.preventDefault();
     sb_remove_exclude_item(this);
   });
 
   // Select exclude item
-  $('#sb-fpc-form #fpc-ids-to-exclude-table').on('change', 'input[type="checkbox"]', function() {
-    var table =  $('#sb-fpc-form #fpc-ids-to-exclude-table'),
+  $('#sb-html-cache-form #html-cache-ids-to-exclude-table').on('change', 'input[type="checkbox"]', function() {
+    var table =  $('#sb-html-cache-form #html-cache-ids-to-exclude-table'),
         checkboxCount = table.find('input[type="checkbox"]:checked').length,
         itemCount = table.find('tbody .exclude-item').length,
-        buttons = $('#sb-fpc-form .sb-remove-selected-exclude-items');
+        buttons = $('#sb-html-cache-form .sb-remove-selected-exclude-items');
     buttons.prop('disabled', (checkboxCount === 0 || itemCount === 0));
   });
 
-  // Remove selected exclude items from FPC post exclude list
-  $('#sb-fpc-form .sb-remove-selected-exclude-items').click(function() {
+  // Remove selected exclude items from HTML Cache post exclude list
+  $('#sb-html-cache-form .sb-remove-selected-exclude-items').click(function() {
     sb_remove_selected_exclude_items();
   });
 
-  // Flush FPC post exclude list
-  $('#sb-fpc-form .sb-flush-fpc-exclude-items').click(function() {
-    sb_flush_fpc_exclude_list();
+  // Flush HTML Cache post exclude list
+  $('#sb-html-cache-form .sb-flush-html-cache-exclude-items').click(function() {
+    sb_flush_html_cache_exclude_list();
   });
 
   /**
-   * Remove post from FPC exclude list.
+   * Remove post from HTML Cache exclude list.
    *
    * @param obj
    */
@@ -76,21 +76,21 @@ jQuery(document).ready(function($) {
     window.sb_loading(true);
     var item = $(obj).closest('.exclude-item'),
         item_value = item.find('.exclude-item-input').val();
-    sb_submit_fpc_exclude_list([item_value], function() {
+    sb_submit_html_cache_exclude_list([item_value], function() {
       item.remove();
       window.sb_loading(false);
       window.sb_success('All good!', 'The item was deleted.');
-      sb_check_for_empty_fpc_exclude_table(false);
+      sb_check_for_empty_html_cache_exclude_table(false);
     });
   }
 
   /**
-   * Flush FPC post exclude list.
+   * Flush HTML Cache post exclude list.
    */
-  function sb_flush_fpc_exclude_list() {
+  function sb_flush_html_cache_exclude_list() {
     if (window.sb_use_native_js_fallback()) {
       if (window.confirm('Are you sure?' + "\n" + 'Do you really want to remove all posts from exclude list?')) {
-        sb_flush_fpc_exclude_list_confirmed();
+        sb_flush_html_cache_exclude_list_confirmed();
       }
     } else {
       Swal.fire({
@@ -105,25 +105,25 @@ jQuery(document).ready(function($) {
         buttonsStyling: false
       }).then((result) => {
         if (result.value) {
-          sb_flush_fpc_exclude_list_confirmed();
+          sb_flush_html_cache_exclude_list_confirmed();
         }
       });
     }
   }
 
   /**
-   * Confirm callback for function "sb_flush_fpc_exclude_list".
+   * Confirm callback for function "sb_flush_html_cache_exclude_list".
    */
-  function sb_flush_fpc_exclude_list_confirmed() {
-    sb_submit_fpc_exclude_list('all', function () {
-      $('#sb-fpc-form #fpc-ids-to-exclude-table tbody .exclude-item').remove();
+  function sb_flush_html_cache_exclude_list_confirmed() {
+    sb_submit_html_cache_exclude_list('all', function () {
+      $('#sb-html-cache-form #html-cache-ids-to-exclude-table tbody .exclude-item').remove();
       window.sb_success('All good!', 'The list was emptied.');
-      sb_check_for_empty_fpc_exclude_table(false);
+      sb_check_for_empty_html_cache_exclude_table(false);
     });
   }
 
   /**
-   * Remove selected post from FPC exclude list.
+   * Remove selected post from HTML Cache exclude list.
    */
   function sb_remove_selected_exclude_items() {
     if (window.sb_use_native_js_fallback()) {
@@ -153,31 +153,31 @@ jQuery(document).ready(function($) {
    * Confirm callback for function "sb_remove_selected_exclude_items".
    */
   function sb_remove_selected_exclude_items_confirmed() {
-    var items = $('#sb-fpc-form #fpc-ids-to-exclude-table tbody .exclude-item input[type="checkbox"]:checked').closest('.exclude-item'),
+    var items = $('#sb-html-cache-form #html-cache-ids-to-exclude-table tbody .exclude-item input[type="checkbox"]:checked').closest('.exclude-item'),
         input_elements = items.find('.exclude-item-input'),
         ids = [];
     input_elements.each(function (i, el) {
       ids.push($(el).val());
     });
-    sb_submit_fpc_exclude_list(ids, function () {
+    sb_submit_html_cache_exclude_list(ids, function () {
       items.remove();
       var response = ids.length > 1 ? 'The items were deleted.' : 'The item was deleted.';
       window.sb_success('All good!', response);
-      sb_check_for_empty_fpc_exclude_table(true);
+      sb_check_for_empty_html_cache_exclude_table(true);
     });
   }
 
   /**
-   * Add posts to FPC exclude list.
+   * Add posts to HTML Cache exclude list.
    */
-  function sb_add_posts_to_fpc_exclude() {
+  function sb_add_posts_to_html_cache_exclude() {
     if ( window.sb_use_native_js_fallback() ) {
       var value = window.prompt('Add posts to list' + "\n" + 'Insert the IDs (comma separated) of the post you would like to exclude from the cache');
       if ( ! value ) {
         window.alert('Please enter a post ID.');
         return;
       }
-      sb_add_posts_to_fpc_exclude_confirmed(value);
+      sb_add_posts_to_html_cache_exclude_confirmed(value);
     } else {
       Swal.fire({
         title: 'Add posts to list',
@@ -196,19 +196,19 @@ jQuery(document).ready(function($) {
         showCancelButton: true
       }).then((result) => {
         if ( result.value ) {
-          sb_add_posts_to_fpc_exclude_confirmed(result.value);
+          sb_add_posts_to_html_cache_exclude_confirmed(result.value);
         }
       });
     }
   }
 
   /**
-   * Prompt callback for function "sb_add_posts_to_fpc_exclude".
+   * Prompt callback for function "sb_add_posts_to_html_cache_exclude".
    */
-  function sb_add_posts_to_fpc_exclude_confirmed(value) {
+  function sb_add_posts_to_html_cache_exclude_confirmed(value) {
     window.sb_loading(true);
     var data = {
-      action: 'servebolt_fpc_exclude_post',
+      action: 'servebolt_html_cache_exclude_post',
       security: sb_ajax_object.ajax_nonce,
       post_ids: value,
     };
@@ -239,23 +239,23 @@ jQuery(document).ready(function($) {
   }
 
   /**
-   * Add row to FPC exclude list table.
+   * Add row to HTML Cache exclude list table.
    *
    * @param html
    */
   function sb_add_row_to_exclude_list(html) {
-    $('#sb-fpc-form #fpc-ids-to-exclude-table tbody').append(html);
-    sb_check_for_empty_fpc_exclude_table(true);
+    $('#sb-html-cache-form #html-cache-ids-to-exclude-table tbody').append(html);
+    sb_check_for_empty_html_cache_exclude_table(true);
   }
 
   /**
-   * Update the FPC post exclude list.
+   * Update the HTML Cache post exclude list.
    */
-  function sb_submit_fpc_exclude_list(items, success_function) {
+  function sb_submit_html_cache_exclude_list(items, success_function) {
     setTimeout(function () {
-      var spinner = $('#sb-fpc-form .flush-fpc-exclude-list-loading-spinner'),
+      var spinner = $('#sb-html-cache-form .flush-html-cache-exclude-list-loading-spinner'),
         data = {
-          action: 'servebolt_update_fpc_exclude_posts_list',
+          action: 'servebolt_update_html_cache_exclude_posts_list',
           security: sb_ajax_object.ajax_nonce,
           items: items,
         };
@@ -281,10 +281,10 @@ jQuery(document).ready(function($) {
   }
 
   /**
-   * Check if the FPC exclude list table is empty or not.
+   * Check if the HTML Cache exclude list table is empty or not.
    */
-  function sb_check_for_empty_fpc_exclude_table(uncheck_all) {
-    var table = $('#sb-fpc-form #fpc-ids-to-exclude-table'),
+  function sb_check_for_empty_html_cache_exclude_table(uncheck_all) {
+    var table = $('#sb-html-cache-form #html-cache-ids-to-exclude-table'),
         checkboxItems = table.find('input[type="checkbox"]'),
         no_items = table.find('.no-items');
     if ( uncheck_all ) {
@@ -292,8 +292,8 @@ jQuery(document).ready(function($) {
     }
     checkboxItems.first().change();
     var items = table.find('tbody .exclude-item'),
-      flushButton = $('#sb-fpc-form .sb-flush-fpc-exclude-items');
-    if ( items.length === 0 ) {
+      flushButton = $('#sb-html-cache-form .sb-flush-html-cache-exclude-items');
+    if (items.length === 0) {
       no_items.removeClass('hidden');
       flushButton.prop('disabled', true);
       checkboxItems.prop('disabled', true);
@@ -305,12 +305,12 @@ jQuery(document).ready(function($) {
   }
 
   /**
-   * Toggle whether Nginx post type settings should be displayed or not.
+   * Toggle whether HTML Cache post type settings should be displayed or not.
    *
    * @param boolean
    */
-  function sb_toggle_nginx_cache_switch(boolean) {
-    var form = $('#sb-fpc-form');
+  function sb_toggle_html_cache_switch(boolean) {
+    var form = $('#sb-html-cache-form');
     if ( boolean ) {
       form.show();
     } else {
@@ -324,7 +324,7 @@ jQuery(document).ready(function($) {
    * @param boolean
    */
   function sb_toggle_all_post_types(boolean) {
-    $('.servebolt_fpc_settings_item').not('#sb-cache_post_type_all').each(function (i, el) {
+    $('.servebolt-html-cache-post-type-settings-item').not('#sb-cache_post_type_all').each(function (i, el) {
       var item = $(el).closest('span');
       if ( boolean ) {
         item.addClass('disabled');
