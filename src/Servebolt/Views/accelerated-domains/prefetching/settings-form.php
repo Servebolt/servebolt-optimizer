@@ -15,7 +15,7 @@
                     <legend class="screen-reader-text"><span><?php _e('Prefetching-feature active?', 'servebolt-wp'); ?></span></legend>
                     <label for="prefetch_switch">
                         <input name="<?php echo getOptionName('prefetch_switch'); ?>" class="options-field-switch" type="checkbox" id="prefetch_switch" value="1" <?php checked($settings['prefetch_switch']); ?>>
-                        <?php _e('Enabled', 'servebolt-wp'); ?>
+                        <?php _e('Enable', 'servebolt-wp'); ?>
                     </label>
                 </fieldset>
             </td>
@@ -50,7 +50,7 @@
                         <legend class="screen-reader-text"><span><?php _e('Use full URLs in manifest files?', 'servebolt-wp'); ?></span></legend>
                         <label for="prefetch_full_url_switch">
                             <input name="<?php echo getOptionName('prefetch_full_url_switch'); ?>" type="checkbox" id="prefetch_full_url_switch" value="1" <?php checked($settings['prefetch_full_url_switch']); ?>>
-                            <?php _e('Enabled', 'servebolt-wp'); ?>
+                            <?php _e('Enable', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
                 </td>

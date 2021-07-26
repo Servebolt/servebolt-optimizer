@@ -15,7 +15,7 @@
                     <legend class="screen-reader-text"><span><?php _e('Accelerated Domains-feature active?', 'servebolt-wp'); ?></span></legend>
                     <label for="acd_switch">
                         <input name="<?php echo getOptionName('acd_switch'); ?>" type="checkbox" id="acd_switch" value="1" <?php checked($settings['acd_switch']); ?>>
-                        <?php _e('Enabled', 'servebolt-wp'); ?>
+                        <?php _e('Enable', 'servebolt-wp'); ?>
                     </label>
                 </fieldset>
             </td>
@@ -28,7 +28,7 @@
                     <legend class="screen-reader-text"><span><?php _e('Accelerated Domains HTML minify-feature active?', 'servebolt-wp'); ?></span></legend>
                     <label for="acd_minify_switch">
                         <input name="<?php echo getOptionName('acd_minify_switch'); ?>" type="checkbox" id="acd_minify_switch" value="1" <?php checked($settings['acd_minify_switch']); ?>>
-                        <?php _e('Enabled', 'servebolt-wp'); ?>
+                        <?php _e('Enable', 'servebolt-wp'); ?>
                     </label>
                 </fieldset>
             </td>
