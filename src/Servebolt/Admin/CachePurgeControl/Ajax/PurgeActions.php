@@ -17,7 +17,7 @@ use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\getPostTypeSingularName;
 use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
 use function Servebolt\Optimizer\Helpers\postExists;
-use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
+use function Servebolt\Optimizer\Helpers\ajaxUserAllowedByFunction;
 //use function Servebolt\Optimizer\Helpers\getBlogName;
 //use function Servebolt\Optimizer\Helpers\createLiTagsFromArray;
 //use function Servebolt\Optimizer\Helpers\requireSuperadmin;
@@ -86,7 +86,7 @@ class PurgeActions extends SharedAjaxMethods
     public function purgeAllCacheCallback()
     {
         $this->checkAjaxReferer();
-        ajaxUserAllowed(false, __CLASS__ . '::canPurgeAllCache');
+        ajaxUserAllowedByFunction(__CLASS__ . '::canPurgeAllCache');
 
         $this->ensureCachePurgeFeatureIsActive();
 
@@ -170,7 +170,7 @@ class PurgeActions extends SharedAjaxMethods
     public function purgeUrlCacheCallback()
     {
         $this->checkAjaxReferer();
-        ajaxUserAllowed(false, __CLASS__ . '::canPurgeCacheByUrl');
+        ajaxUserAllowedByFunction(__CLASS__ . '::canPurgeCacheByUrl');
 
         $this->ensureCachePurgeFeatureIsActive();
 
@@ -423,7 +423,7 @@ class PurgeActions extends SharedAjaxMethods
     {
         $this->checkAjaxReferer();
         requireSuperadmin();
-        ajaxUserAllowed(false, __CLASS__ . '::canPurgeAllNetworkCache');
+        ajaxUserAllowedByFunction(__CLASS__ . '::canPurgeAllNetworkCache');
 
         $failedPurgeAttempts = [];
         $queueBasedCachePurgeSites = [];
