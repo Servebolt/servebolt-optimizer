@@ -21,7 +21,8 @@ trait SharedMethods
     private static $immediatePurge = false;
 
     /**
-     * Whether we should
+     * Whether we should bypass the queue and purge cache immediately, but only just one time.
+     *
      * @var null
      */
     private static $immediatePurgeOnce = false;
