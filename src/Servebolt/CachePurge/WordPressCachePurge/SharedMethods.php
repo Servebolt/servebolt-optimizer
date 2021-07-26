@@ -2,9 +2,9 @@
 
 namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 
-use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 
 /**
  * Trait SharedMethods
