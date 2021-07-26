@@ -109,7 +109,14 @@ class ContentChangeTrigger
 
         // Check that the taxonomy is public
         $taxonomyObject = get_taxonomy($taxonomy);
-        if ( $taxonomyObject && ( $taxonomyObject->public !== true || $taxonomyObject->publicly_queryable !== true ) ) {
+        if (
+            $taxonomyObject
+            && $taxonomyObject->public !== true
+            /*&& (
+                $taxonomyObject->public !== true
+                || $taxonomyObject->publicly_queryable !== true
+            )*/
+        ) {
             return false;
         }
 
@@ -157,7 +164,14 @@ class ContentChangeTrigger
         }
 
         $postTypeObject = get_post_type_object($postType);
-        if ($postTypeObject && ($postTypeObject->public !== true || $postTypeObject->publicly_queryable !== true)) {
+        if (
+            $postTypeObject
+            && $postTypeObject->public !== true
+            /*&& (
+                $postTypeObject->public !== true
+                || $postTypeObject->publicly_queryable !== true
+            )*/
+        ) {
             return false;
         }
 
