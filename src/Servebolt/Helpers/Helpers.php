@@ -1057,6 +1057,8 @@ function getVersionForStaticAsset(string $assetSrc): string
 }
 
 /**
+ * Check whether the current user is a superadmin.
+ *
  * @return bool
  */
 function isSuperadmin(): bool
@@ -1067,18 +1069,18 @@ function isSuperadmin(): bool
 /**
  * Require the user to be a super admin.
  *
- * @param bool $return
+ * @param bool $returnBoolean
  * @return bool
  */
-function requireSuperadmin(bool $return = false)
+function requireSuperadmin(bool $returnBoolean = false)
 {
     if (!is_multisite() || !is_super_admin()) {
-        if ($return) {
+        if ($returnBoolean) {
             return false;
         }
         wp_die();
     }
-    if ($return) {
+    if ($returnBoolean) {
         return true;
     }
 }
