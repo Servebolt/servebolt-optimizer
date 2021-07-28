@@ -5,7 +5,8 @@ namespace Servebolt\Optimizer\Queue\Queues;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
-use Servebolt\Optimizer\Traits\Singleton;
+use Servebolt\Optimizer\Traits\Multiton;
+//use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Utils\Queue\Queue;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\iterateSites;
@@ -19,7 +20,8 @@ use function Servebolt\Optimizer\Helpers\iterateSites;
  */
 class WpObjectQueue
 {
-    use Singleton;
+    //use Singleton;
+    use Multiton;
 
     /**
      * @var int The number of times the queue parsing should be ran per event trigger.

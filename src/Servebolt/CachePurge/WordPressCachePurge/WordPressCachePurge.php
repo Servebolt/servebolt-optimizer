@@ -17,7 +17,6 @@ use function Servebolt\Optimizer\Helpers\isQueueItem;
  */
 class WordPressCachePurge
 {
-
     use PostMethods, TermMethods;
 
     /**
@@ -154,16 +153,16 @@ class WordPressCachePurge
      * @param bool $returnWpError
      * @return bool
      */
-    public static function purgeAll(bool $returnWpError = false)
+    public static function purgeAll(bool $returnWpError = false, ?int $blogId = null)
     {
-        if (self::shouldPurgeByQueue()) {
-            $queueInstance = WpObjectQueue::getInstance();
+        if (self::shouldPurgeByQueue($blogId)) {
+            $queueInstance = WpObjectQueue::getInstance($blogId);
             return isQueueItem($queueInstance->add([
                 'type' => 'purge-all',
                 'networkPurge' => false,
             ]));
         } else {
-            $cachePurgeDriver = CachePurgeDriver::getInstance();
+            $cachePurgeDriver = CachePurgeDriver::getInstance($blogId);
             return $cachePurgeDriver->purgeAll();
         }
     }

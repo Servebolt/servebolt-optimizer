@@ -1057,12 +1057,29 @@ function getVersionForStaticAsset(string $assetSrc): string
 }
 
 /**
- * Require the user to be a super admin.
+ * @return bool
  */
-function requireSuperadmin()
+function isSuperadmin(): bool
+{
+    return requireSuperadmin(true);
+}
+
+/**
+ * Require the user to be a super admin.
+ *
+ * @param bool $return
+ * @return bool
+ */
+function requireSuperadmin(bool $return = false)
 {
     if (!is_multisite() || !is_super_admin()) {
+        if ($return) {
+            return false;
+        }
         wp_die();
+    }
+    if ($return) {
+        return true;
     }
 }
 

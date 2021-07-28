@@ -1,13 +1,11 @@
 jQuery(document).ready(function($) {
 
   // Purge all cache on all sites in a multisite-network
-  /*
   $('.sb-purge-network-cache').click(function (e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
     sb_purge_network_cache();
   });
-  */
 
   // Purge all cache
   $('#sb-configuration .sb-purge-all-cache, #wpadminbar .sb-purge-all-cache').click(function (e) {

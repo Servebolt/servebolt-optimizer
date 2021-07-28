@@ -32,6 +32,7 @@ class CachePurgeNodes implements NodeInterface
      */
     public static function shouldDisplayNodes(): bool
     {
+
         return apply_filters(
             'sb_optimizer_admin_bar_display_cache_purge_node',
             CachePurge::featureIsAvailable()
@@ -45,12 +46,7 @@ class CachePurgeNodes implements NodeInterface
      */
     public static function generateNodes(): array
     {
-        if (is_network_admin()) {
-            self::addPurgeAllNetworkNode();
-        } else {
-            self::addPurgeAllNode();
-        }
-
+        self::addPurgeAllNode();
         self::addPurgeUrlNode();
 
         if (!is_network_admin()) {
@@ -59,31 +55,6 @@ class CachePurgeNodes implements NodeInterface
         }
 
         return self::$nodes;
-    }
-
-    /**
-     * Purge all cache (for all sites in multisite).
-     */
-    private static function addPurgeAllNetworkNode(): void
-    {
-        // TODO: Re-introduce this feature
-        /*
-        if (!apply_filters(
-            'sb_optimizer_admin_bar_cache_purge_can_purge_all_network',
-            current_user_can('manage_options')
-        )) {
-            return;
-        }
-        self::$nodes[] = [
-            'id'    => 'servebolt-clear-cf-network-cache',
-            'title' => __('Purge Cloudflare Cache for all sites', 'servebolt-wp'),
-            'href'  => '#',
-            'meta'  => [
-                'target' => '_blank',
-                'class' => 'sb-admin-button sb-purge-network-cache'
-            ]
-        ];
-        */
     }
 
     /**
