@@ -32,10 +32,12 @@ class CachePurgeNodes implements NodeInterface
      */
     public static function shouldDisplayNodes(): bool
     {
-
         return apply_filters(
             'sb_optimizer_admin_bar_display_cache_purge_node',
-            CachePurge::featureIsAvailable()
+            (
+                !is_network_admin()
+                && CachePurge::featureIsAvailable()
+            )
         );
     }
 
@@ -46,14 +48,10 @@ class CachePurgeNodes implements NodeInterface
      */
     public static function generateNodes(): array
     {
-        self::addPurgeAllNode();
+        self::addPurgePost();
+        self::addPurgeTerm();
         self::addPurgeUrlNode();
-
-        if (!is_network_admin()) {
-            self::addPurgePost();
-            self::addPurgeTerm();
-        }
-
+        self::addPurgeAllNode();
         return self::$nodes;
     }
 
@@ -70,7 +68,7 @@ class CachePurgeNodes implements NodeInterface
         }
         self::$nodes[] = [
             'id' => 'servebolt-clear-all-cf-cache',
-            'title' => __('Purge all cache', 'servebolt-wp'),
+            'title' => __('Purge All Cache', 'servebolt-wp'),
             'href' => '#',
             'meta' => [
                 'class' => 'sb-admin-button sb-purge-all-cache'

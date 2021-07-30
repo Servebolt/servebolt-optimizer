@@ -150,19 +150,10 @@ class WpObjectQueue
             foreach ($items as $item) {
                 $payload = $item->payload;
                 if (arrayGet('type', $payload) === 'purge-all') {
-                    if (arrayGet('networkPurge', $payload)) {
-                        iterateSites(function($site) use ($item) {
-                            $this->clearUrlQueue(); // Clear URL queue for each site in multisite network since we're clearing all cache
-                            $this->urlQueue()->add([
-                                'type' => 'purge-all',
-                            ], $item);
-                        }, true);
-                    } else {
-                        $this->clearUrlQueue();
-                        $this->urlQueue()->add([
-                            'type' => 'purge-all',
-                        ], $item);
-                    }
+                    $this->clearUrlQueue();
+                    $this->urlQueue()->add([
+                        'type' => 'purge-all',
+                    ], $item);
                     break; // We're purging all cache, so no need to continue expanding WP objects to URL items
                 } elseif ($urls = $this->resolveUrlsToPurgeFromWpObject($payload)) {
                     foreach ($urls as $url) {
@@ -292,7 +283,7 @@ class WpObjectQueue
     {
         if ($items = $this->queue->getActiveItems()) {
             foreach ($items as $item) {
-                if (arrayGet('type', $item->payload) === 'purge-all') {
+                if (arrayGet('type', $item->payload) == 'purge-all') {
                     return true;
                 }
             }

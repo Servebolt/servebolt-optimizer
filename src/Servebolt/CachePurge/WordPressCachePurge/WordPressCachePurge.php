@@ -159,7 +159,6 @@ class WordPressCachePurge
             $queueInstance = WpObjectQueue::getInstance($blogId);
             return isQueueItem($queueInstance->add([
                 'type' => 'purge-all',
-                'networkPurge' => false,
             ]));
         } else {
             $cachePurgeDriver = CachePurgeDriver::getInstance($blogId);
@@ -187,7 +186,6 @@ class WordPressCachePurge
             $queueInstance = WpObjectQueue::getInstance();
             $result = isQueueItem($queueInstance->add([
                 'type' => 'purge-all',
-                'networkPurge' => false,
             ]));
         } else {
             $cachePurgeDriver = CachePurgeDriver::getInstance();
@@ -215,7 +213,6 @@ class WordPressCachePurge
             $queueInstance = WpObjectQueue::getInstance();
             return isQueueItem($queueInstance->add([
                 'type' => 'purge-all',
-                'networkPurge' => true,
             ]));
         } else {
             $cachePurgeDriver = CachePurgeDriver::getInstance();

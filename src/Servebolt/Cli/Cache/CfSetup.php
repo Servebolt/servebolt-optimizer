@@ -111,7 +111,6 @@ class CfSetup
      */
     private static function cfCachePurgeSetup($params)
     {
-        //print_r($params);die;
         // Validate data
         if (!$params['disableValidation']) {
             $validation = self::validateSetupParams($params);

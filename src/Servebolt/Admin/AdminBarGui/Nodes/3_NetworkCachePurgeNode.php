@@ -83,7 +83,7 @@ class NetworkCachePurgeNode implements NodeInterface
             'href'  => '#',
             'meta'  => [
                 'target' => '_blank',
-                'class' => 'sb-admin-button sb-purge-network-cache'
+                'class' => 'sb-admin-button sb-purge-all-network-cache'
             ]
         ];
     }

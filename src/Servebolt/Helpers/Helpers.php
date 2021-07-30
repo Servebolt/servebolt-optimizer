@@ -154,21 +154,21 @@ function ajaxUserAllowed(bool $returnResult = false, $capability = 'manage_optio
  * Create li-tags from array.
  *
  * @param $iterator
- * @param $closure
- * @param bool $includeUl
+ * @param callable|bool $closure
+ * @param bool|string $includeUlOrStyling
  *
  * @return string
  */
-function createLiTagsFromArray($iterator, $closure = false, bool $includeUl = true): string
+function createLiTagsFromArray($iterator, $closure = false, $includeUlOrStyling = true): string
 {
     $markup = '';
-    if ($includeUl) {
-        $markup .= '<ul>';
+    if ($includeUlOrStyling) {
+        $markup .= '<ul' . (is_string($includeUlOrStyling) ? ' style="' . $includeUlOrStyling . '"' : '') . '>';
     }
     array_map(function($item) use (&$markup, $closure) {
-        $markup .= '<li>' . ( is_callable($closure) ? $closure($item) : $item ) . '</li>';
+        $markup .= '<li>' . (is_callable($closure) ? $closure($item) : $item) . '</li>';
     }, $iterator);
-    if ($includeUl) {
+    if ($includeUlOrStyling) {
         $markup .= '</ul>';
     }
     return $markup;
