@@ -6,10 +6,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Traits\Multiton;
-//use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Utils\Queue\Queue;
 use function Servebolt\Optimizer\Helpers\arrayGet;
-use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
  * Class WpObjectQueue
@@ -20,7 +18,6 @@ use function Servebolt\Optimizer\Helpers\iterateSites;
  */
 class WpObjectQueue
 {
-    //use Singleton;
     use Multiton;
 
     /**
