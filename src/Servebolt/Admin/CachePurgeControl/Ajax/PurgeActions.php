@@ -512,9 +512,10 @@ class PurgeActions extends SharedAjaxMethods
                 'message' => sprintf(__('Could not purge all cache since cache purge feature is not configured on site %s.', 'servebolt-wp'), get_site_url($blogId))
             ];
         }
-        $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive($blogId);
+
+        // Check if we're already waiting for cache to be purged
         if (
-            $queueBasedCachePurgeIsActive
+            $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive($blogId)
             && $this->hasPurgeAllRequestInQueue($blogId)
         ) {
             return [
@@ -522,9 +523,10 @@ class PurgeActions extends SharedAjaxMethods
                 'message' => sprintf(__('A purge all-request is already queued on site %s and will be executed shortly.', 'servebolt-wp'), get_site_url($blogId))
             ];
         }
+
+        // Purge cache
         try {
             if (WordPressCachePurge::purgeAll(false, $blogId)) {
-
                 if ($queueBasedCachePurgeIsActive) {
                     return [
                         'success' => true,
@@ -536,12 +538,11 @@ class PurgeActions extends SharedAjaxMethods
                         'message' => sprintf(__('All cache was purged on site %s.', 'servebolt-wp'), get_site_url($blogId))
                     ];
                 }
-            } else {
-                return [
-                    'success' => false,
-                    'message' => sprintf(__('Could not purge cache on site %s.', 'servebolt-wp'), get_site_url($blogId))
-                ];
             }
+            return [
+                'success' => false,
+                'message' => sprintf(__('Could not purge cache on site %s.', 'servebolt-wp'), get_site_url($blogId))
+            ];
         } catch (Exception $e) {
             return [
                 'success' => false,

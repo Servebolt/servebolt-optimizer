@@ -283,7 +283,7 @@ class WpObjectQueue
     {
         if ($items = $this->queue->getActiveItems()) {
             foreach ($items as $item) {
-                if (arrayGet('type', $item->payload) == 'purge-all') {
+                if (arrayGet('type', $item->payload) === 'purge-all') {
                     return true;
                 }
             }
