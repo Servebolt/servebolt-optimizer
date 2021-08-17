@@ -87,12 +87,12 @@ class PurgeActions extends SharedAjaxMethods
      * Check if URL is already in queue.
      *
      * @param string $url
-     * @param bool $attemptToResolvePostId
+     * @param bool $shouldAttemptToResolvePostId
      * @return bool
      */
-    private function urlAlreadyInQueue(string $url, bool $attemptToResolvePostId = true): bool
+    private function urlAlreadyInQueue(string $url, bool $shouldAttemptToResolvePostId = true): bool
     {
-        if ($attemptToResolvePostId && $postId = WordPressCachePurge::attemptToResolvePostIdFromUrl($url)) {
+        if ($shouldAttemptToResolvePostId && $postId = WordPressCachePurge::attemptToResolvePostIdFromUrl($url)) {
             $queueInstance = WpObjectQueue::getInstance();
             return $queueInstance->hasPostInQueue($postId);
         } else {
@@ -526,7 +526,7 @@ class PurgeActions extends SharedAjaxMethods
 
         // Purge cache
         try {
-            if (WordPressCachePurge::purgeAll(false, $blogId)) {
+            if (WordPressCachePurge::purgeAllByBlogId($blogId)) {
                 if ($queueBasedCachePurgeIsActive) {
                     return [
                         'success' => true,

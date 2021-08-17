@@ -122,9 +122,7 @@ function sb_purge_all(bool $return_wp_error_object = false)
 function sb_purge_all_by_blog_id($blog_id, bool $return_wp_error_object = false)
 {
     try {
-        return WordPressCachePurge::purgeAllByBlogId(
-            (int) $blog_id
-        );
+        return WordPressCachePurge::purgeAllByBlogId((int) $blog_id);
     } catch (ApiError $e) {
         // TODO: Handle API error message
         if ($return_wp_error_object) {

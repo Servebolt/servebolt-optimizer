@@ -31,6 +31,11 @@ class WpObjectQueue
     private $chunkSize = 30;
 
     /**
+     * @var bool Whether to clear URL queue when a purge all-request is added to the queue.
+     */
+    private $clearUrlQueueOnPurgeAll = true;
+
+    /**
      * @var Queue
      */
     public $queue;
@@ -139,6 +144,21 @@ class WpObjectQueue
     }
 
     /**
+     * Check whether a WP Object queue item is a purge all request.
+     *
+     * @param $item
+     * @return bool
+     */
+    private function isPurgeAll($item): bool
+    {
+        $payload = $item->payload;
+        if ($payload && arrayGet('type', $payload) === 'purge-all') {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Get and reserve items (with chunk size constraint), then parse them into the UrlQueue-queue.
      */
     private function parseQueueSegment(): void
@@ -146,8 +166,10 @@ class WpObjectQueue
         if ($items = $this->getItemsToParse()) {
             foreach ($items as $item) {
                 $payload = $item->payload;
-                if (arrayGet('type', $payload) === 'purge-all') {
-                    $this->clearUrlQueue();
+                if ($this->isPurgeAll($item)) {
+                    if ($this->clearUrlQueueOnPurgeAll) {
+                        $this->clearUrlQueue(); // Clear all URLs since we're gonna purge all cache
+                    }
                     $this->urlQueue()->add([
                         'type' => 'purge-all',
                     ], $item);
@@ -236,7 +258,6 @@ class WpObjectQueue
     private function urlQueue(): object
     {
         if (!$this->urlQueue) {
-            //$this->urlQueue = Queue::getInstance(UrlQueue::$queueName);
             $this->urlQueue = new Queue(UrlQueue::$queueName);
         }
         return $this->urlQueue;
@@ -280,7 +301,7 @@ class WpObjectQueue
     {
         if ($items = $this->queue->getActiveItems()) {
             foreach ($items as $item) {
-                if (arrayGet('type', $item->payload) === 'purge-all') {
+                if ($this->isPurgeAll($item)) {
                     return true;
                 }
             }
