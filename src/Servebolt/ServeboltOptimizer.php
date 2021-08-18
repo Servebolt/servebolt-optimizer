@@ -92,10 +92,6 @@ class ServeboltOptimizer
         // Queue system
         new QueueEventHandler; // Register event listener for queues
 
-        add_action('admin_init', function () {
-            get_blog_status()
-        });
-
         // Register cron schedule & event
         new WpCronCustomSchedules; // Register cron schedule
         new WpCronEvents; // Register event trigger for cron schedule
