@@ -309,6 +309,8 @@ class HelpersTest extends ServeboltWPUnitTestCase
     {
         $array = ['array', 'with', 'some', 'values'];
         $this->assertEquals('array,with,some,values', formatArrayToCsv($array));
+        $array = ['array', 'with', 'some', 'values'];
+        $this->assertEquals('array - with - some - values', formatArrayToCsv($array,' - '));
     }
 
     public function testNaturalLanguageJoinHelper()

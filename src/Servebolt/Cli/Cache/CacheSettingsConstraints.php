@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Cli\Cache;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders;
+use Servebolt\Optimizer\CachePurge\CachePurge;
 
 /**
  * Class CacheSettingsConstraints
