@@ -955,7 +955,7 @@ function htmlCacheExcludePostTableRowMarkup($postId, bool $echo = true)
  *
  * @return string
  */
-function formatArrayToCsv($array, $glue = ','): string
+function formatArrayToCsv($array, string $glue = ','): string
 {
     return implode($glue, $array);
 }
