@@ -36,7 +36,7 @@ class Queue
     }
 
     /**
-     * Return new QueueQuery-instance with optional queue constaint.
+     * Return new QueueQuery-instance with optional queue constraint.
      *
      * @param bool $queueConstraint Whether to constrain the query to only cover the current queue.
      * @return QueueQuery
