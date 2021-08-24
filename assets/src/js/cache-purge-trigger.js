@@ -1,13 +1,11 @@
 jQuery(document).ready(function($) {
 
   // Purge all cache on all sites in a multisite-network
-  /*
-  $('.sb-purge-network-cache').click(function (e) {
+  $('.sb-purge-all-network-cache').click(function (e) {
     e.preventDefault();
     sb_close_admin_bar_menu();
-    sb_purge_network_cache();
+    sb_purge_all_network_cache();
   });
-  */
 
   // Purge all cache
   $('#sb-configuration .sb-purge-all-cache, #wpadminbar .sb-purge-all-cache').click(function (e) {
@@ -103,10 +101,10 @@ jQuery(document).ready(function($) {
   /**
    * Purge Cloudflare cache on all sites in multisite.
    */
-  function sb_purge_network_cache() {
+  function sb_purge_all_network_cache() {
     if (window.sb_use_native_js_fallback()) {
       if (window.confirm('Do you want to purge all cache?' + "\n" + 'This includes all your sites in the network')) {
-        sb_purge_network_cache_confirmed();
+        sb_purge_all_network_cache_confirmed();
       }
     } else {
       Swal.fire({
@@ -121,19 +119,19 @@ jQuery(document).ready(function($) {
         buttonsStyling: false
       }).then((result) => {
         if (result.value) {
-          sb_purge_network_cache_confirmed();
+          sb_purge_all_network_cache_confirmed();
         }
       });
     }
   }
 
   /**
-   * Confirm callback for function "sb_purge_network_cache".
+   * Confirm callback for function "sb_purge_all_network_cache".
    */
-  function sb_purge_network_cache_confirmed() {
+  function sb_purge_all_network_cache_confirmed() {
     window.sb_loading(true);
     var data = {
-      action: 'servebolt_purge_network_cache',
+      action: 'servebolt_purge_all_network_cache',
       security: sb_ajax_object.ajax_nonce,
     };
     $.ajax({
@@ -142,14 +140,14 @@ jQuery(document).ready(function($) {
       data: data,
       success: function(response) {
         window.sb_loading(false);
-        if ( response.success ) {
+        var message = window.sb_get_message_from_response(response);
+        if (response.success) {
           setTimeout(function () {
             var title = window.sb_get_from_response(response, 'title', sb_default_success_title())
-            window.sb_popup(response.data.type, title, null, response.data.markup);
+            window.sb_popup(response.data.type, title, null, message);
           }, 50);
         } else {
-          var message = window.sb_get_message_from_response(response);
-          if ( message ) {
+          if (message) {
             sb_cache_purge_error(message);
           } else {
             sb_cache_purge_error(null, false);

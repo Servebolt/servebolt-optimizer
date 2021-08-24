@@ -71,13 +71,11 @@ class SlugChangeTrigger
     {
         $term = get_term($termId, $taxonomy);
         $termSlugDidChange = $term->slug !== $updateData['slug'];
-        if ($termSlugDidChange) {
-            if ($previousTermPermalink = get_term_link($term)) {
-                try {
-                    // TODO: Consider whether we should add pagination-support to this cache purge
-                    WordPressCachePurge::purgeByUrl($previousTermPermalink);
-                } catch (Exception $e) {}
-            }
+        if ($termSlugDidChange && $previousTermPermalink = get_term_link($term)) {
+            try {
+                // TODO: Consider whether we should add pagination-support to this cache purge
+                WordPressCachePurge::purgeByUrl($previousTermPermalink);
+            } catch (Exception $e) {}
         }
         return $updateData;
     }

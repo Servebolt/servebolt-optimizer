@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2021-07-26T14:13:24+00:00\n"
+"POT-Creation-Date: 2021-07-27T15:09:51+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: servebolt-wp\n"
@@ -66,18 +66,22 @@ msgstr ""
 msgid "Servebolt Control Panel"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:102
+#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:77
+msgid "Purge Cache for all sites"
+msgstr ""
+
+#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:99
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/cache-purge-triggers.php:6
 msgid "Purge all cache"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:123
+#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:120
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/cache-purge-triggers.php:7
 msgid "Purge a URL"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:146
-#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:172
+#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:143
+#: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:169
 msgid "Purge %s cache"
 msgstr ""
 
@@ -177,92 +181,92 @@ msgstr ""
 msgid "Validation errors:"
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:54
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:53
 msgid "The cache purge feature is not active or is not configured correctly, so we could not purge cache."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:97
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:187
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:276
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:95
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:184
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:272
 msgid "All good!"
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:98
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:96
 msgid "A purge all-request is already queued and should be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:107
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:197
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:286
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:382
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:105
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:194
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:282
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:377
 msgid "Just a moment"
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:108
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:106
 msgid "A purge all-request was added to the queue and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:111
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:109
 msgid "All cache was purged."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:179
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:176
 msgid "Please specify the URL you would like to purge cache for."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:198
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:195
 msgid "A cache purge request for the URL \"%s\" was added to the queue and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:201
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:198
 msgid "Cache was purged for URL \"%s\"."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:263
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:259
 msgid "Please specify the post you would like to purge cache for."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:266
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:262
 msgid "The specified post does not exist."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:269
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:265
 msgid "You are not allowed to purge cache for this post."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:277
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:273
 msgid "A cache purge request for the %s \"%s\" is already added to the queue and should be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:287
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:283
 msgid "A cache purge request for the %s \"%s\" was added to the queue and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:290
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:286
 msgid "Cache was purged for the %s \"%s\"."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:358
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:353
 msgid "Please specify the term you would like to purge cache for."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:361
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:356
 msgid "The specified term does not exist."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:364
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:359
 msgid "You are not allowed to purge cache for this taxonomy."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:373
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:368
 msgid "A cache purge request for the term \"%s\" is already added to the queue and should be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:383
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:378
 msgid "A cache purge request for the term \"%s\" was added to the queue and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:386
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:381
 msgid "Cache was purged for the term \"%s\"."
 msgstr ""
 

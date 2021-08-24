@@ -5,10 +5,9 @@ namespace Servebolt\Optimizer\Queue\Queues;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
-use Servebolt\Optimizer\Traits\Singleton;
+use Servebolt\Optimizer\Traits\Multiton;
 use Servebolt\Optimizer\Utils\Queue\Queue;
 use function Servebolt\Optimizer\Helpers\arrayGet;
-use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
  * Class WpObjectQueue
@@ -19,7 +18,7 @@ use function Servebolt\Optimizer\Helpers\iterateSites;
  */
 class WpObjectQueue
 {
-    use Singleton;
+    use Multiton;
 
     /**
      * @var int The number of times the queue parsing should be ran per event trigger.
@@ -30,6 +29,11 @@ class WpObjectQueue
      * @var int The number of items in each chunk / "run".
      */
     private $chunkSize = 30;
+
+    /**
+     * @var bool Whether to clear WP object and URL queue when a purge all-request is added to the queue.
+     */
+    private $clearQueueOnPurgeAll = true;
 
     /**
      * @var Queue
@@ -140,6 +144,32 @@ class WpObjectQueue
     }
 
     /**
+     * Check whether a queue item is a purge all request.
+     *
+     * @param $item
+     * @return bool
+     */
+    private function isPurgeAll($item): bool
+    {
+        return arrayGet('type', $item) === 'purge-all';
+    }
+
+    /**
+     * Check whether a WP Object queue item is a purge all request.
+     *
+     * @param $item
+     * @return bool
+     */
+    private function queueItemIsPurgeAll($item): bool
+    {
+        $payload = $item->payload;
+        if ($payload && $this->isPurgeAll($payload)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Get and reserve items (with chunk size constraint), then parse them into the UrlQueue-queue.
      */
     private function parseQueueSegment(): void
@@ -147,20 +177,10 @@ class WpObjectQueue
         if ($items = $this->getItemsToParse()) {
             foreach ($items as $item) {
                 $payload = $item->payload;
-                if (arrayGet('type', $payload) === 'purge-all') {
-                    if (arrayGet('networkPurge', $payload)) {
-                        iterateSites(function($site) use ($item) {
-                            $this->clearUrlQueue(); // Clear URL queue for each site in multisite network since we're clearing all cache
-                            $this->urlQueue()->add([
-                                'type' => 'purge-all',
-                            ], $item);
-                        }, true);
-                    } else {
-                        $this->clearUrlQueue();
-                        $this->urlQueue()->add([
-                            'type' => 'purge-all',
-                        ], $item);
-                    }
+                if ($this->queueItemIsPurgeAll($item)) {
+                    $this->urlQueue()->add([
+                        'type' => 'purge-all',
+                    ], $item);
                     break; // We're purging all cache, so no need to continue expanding WP objects to URL items
                 } elseif ($urls = $this->resolveUrlsToPurgeFromWpObject($payload)) {
                     foreach ($urls as $url) {
@@ -246,7 +266,6 @@ class WpObjectQueue
     private function urlQueue(): object
     {
         if (!$this->urlQueue) {
-            //$this->urlQueue = Queue::getInstance(UrlQueue::$queueName);
             $this->urlQueue = new Queue(UrlQueue::$queueName);
         }
         return $this->urlQueue;
@@ -263,6 +282,13 @@ class WpObjectQueue
         if ($existingItem = $this->queue->get(serialize($itemData), 'payload', true)) {
             $this->queue->flagItemAsUpdated($existingItem);
             return $existingItem;
+        }
+        if (
+            $this->isPurgeAll($itemData)
+            && $this->clearQueueOnPurgeAll
+        ) {
+            $this->clearQueue(); // Clear all WP objects since we're gonna purge all cache
+            $this->clearUrlQueue(); // Clear all URLs since we're gonna purge all cache
         }
         return $this->queue->add($itemData);
     }
@@ -290,7 +316,7 @@ class WpObjectQueue
     {
         if ($items = $this->queue->getActiveItems()) {
             foreach ($items as $item) {
-                if (arrayGet('type', $item->payload) === 'purge-all') {
+                if ($this->queueItemIsPurgeAll($item)) {
                     return true;
                 }
             }
