@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\CachePurge;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Traits\Singleton;
+use Servebolt\Optimizer\Traits\Multiton;
 use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
 use Servebolt\Optimizer\Api\Cloudflare\Cloudflare as CloudflareApi;
 use Servebolt\Optimizer\CachePurge\Drivers\Servebolt as ServeboltDriver;
@@ -24,7 +24,7 @@ use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 class CachePurge
 {
 
-    use Singleton;
+    use Multiton;
 
     /**
      * Cache purge driver instance.
