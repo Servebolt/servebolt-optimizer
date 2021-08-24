@@ -176,13 +176,12 @@ class WpObjectQueue
     {
         if ($items = $this->getItemsToParse()) {
             foreach ($items as $item) {
-                $payload = $item->payload;
                 if ($this->queueItemIsPurgeAll($item)) {
                     $this->urlQueue()->add([
                         'type' => 'purge-all',
                     ], $item);
                     break; // We're purging all cache, so no need to continue expanding WP objects to URL items
-                } elseif ($urls = $this->resolveUrlsToPurgeFromWpObject($payload)) {
+                } elseif ($urls = $this->resolveUrlsToPurgeFromWpObject($item->payload)) {
                     foreach ($urls as $url) {
                         $this->urlQueue()->add([
                             'type' => 'url',
