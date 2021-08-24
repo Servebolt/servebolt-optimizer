@@ -12,7 +12,7 @@ function resolveViewPath($templatePath): ?string
 {
     $templatePath = str_replace('.', '/', $templatePath);
     $suffix = '.php';
-    $basePath = SERVEBOLT_PLUGIN_PSR4_PATH . 'Views/';
+    $basePath = apply_filters('sb_optimizer_view_folder_path', SERVEBOLT_PLUGIN_PSR4_PATH . 'Views/');
     $filePath = $basePath . $templatePath . $suffix;
     if (file_exists($filePath) && is_readable($filePath)) {
         return $filePath;
@@ -28,7 +28,7 @@ function resolveViewPath($templatePath): ?string
  * @param bool $echo
  * @return string|null
  */
-function view(string $templatePath, $arguments = [], $echo = true): ?string
+function view(string $templatePath, array $arguments = [], bool $echo = true): ?string
 {
     if ($filePath = resolveViewPath($templatePath)) {
         extract($arguments, EXTR_SKIP);
@@ -71,11 +71,11 @@ function isUrl($url): bool
 /**
  * Generate a random string.
  *
- * @param $length
+ * @param int $length
  *
  * @return string
  */
-function generateRandomString($length): string
+function generateRandomString(int $length): string
 {
     $includeChars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_-@|';
     $charLength = strlen($includeChars);
@@ -89,7 +89,7 @@ function generateRandomString($length): string
 /**
  * Display value, regardless of type.
  *
- * @param $value
+ * @param mixed $value
  * @param bool $return
  * @param bool $arrayToCsv
  * @return bool|false|string|null
@@ -113,16 +113,35 @@ function displayValue($value, bool $return = true, bool $arrayToCsv = false)
 }
 
 /**
+ * Check if current user has capability using a callable function, abort if not.
+ *
+ * @param $method
+ * @param bool $returnResult
+ * @return bool|mixed
+ */
+function ajaxUserAllowedByFunction($method, bool $returnResult = false)
+{
+    if (is_callable($method)) {
+        return ajaxUserAllowed($returnResult, $method);
+    }
+}
+
+/**
  * Check if current user has capability, abort if not.
  *
  * @param bool $returnResult
- * @param string $capability
+ * @param string|callable $capability
  *
- * @return mixed
+ * @return bool|mixed
  */
 function ajaxUserAllowed(bool $returnResult = false, $capability = 'manage_options')
 {
-    $userCan = apply_filters('sb_optimizer_ajax_user_allowed', current_user_can($capability));
+    if (is_callable($capability)) {
+        $userCan = $capability();
+    } else {
+        $userCan = current_user_can($capability);
+    }
+    $userCan = apply_filters('sb_optimizer_ajax_user_allowed', $userCan);
     if ($returnResult) {
         return $userCan;
     }
@@ -333,18 +352,47 @@ function cacheCookieCheck(): void
 }
 
 /**
- * Get taxonomy singular name by term.
+ * Get taxonomy object by term Id.
+ *
+ * @param int $termId
+ * @return object|null
+ */
+function getTaxonomyFromTermId(int $termId): ?object
+{
+    if ($term = get_term($termId)) {
+        if ($taxonomyObject = get_taxonomy($term->taxonomy)) {
+            return $taxonomyObject;
+        }
+    }
+    return null;
+}
+
+/**
+ * Get for filter/actions on hook.
+ *
+ * @param string|null $hook
+ * @return object|null
+ */
+function getFiltersForHook(?string $hook = null): ?object
+{
+    global $wp_filter;
+    if (empty($hook) || !isset($wp_filter[$hook])) {
+        return null;
+    }
+    return $wp_filter[$hook];
+}
+
+/**
+ * Get taxonomy singular name by term Id.
  *
  * @param int $termId
  * @return string
  */
 function getTaxonomySingularName(int $termId): string
 {
-    if ($term = get_term($termId)) {
-        if ($taxonomyObject = get_taxonomy($term->taxonomy)) {
-            if (isset($taxonomyObject->labels->singular_name) && $taxonomyObject->labels->singular_name) {
-                return mb_strtolower($taxonomyObject->labels->singular_name);
-            }
+    if ($taxonomyObject = getTaxonomyFromTermId($termId)) {
+        if (isset($taxonomyObject->labels->singular_name) && $taxonomyObject->labels->singular_name) {
+            return mb_strtolower($taxonomyObject->labels->singular_name);
         }
     }
     return 'term';
@@ -397,9 +445,22 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         // CF Image resizing
         'cf_image_resizing',
 
+        // Advanced performance optimizations
+        'custom_text_domain_loader_switch',
+
+        // Prefetching
+        'prefetch_switch',
+        'prefetch_file_style_switch',
+        'prefetch_file_script_switch',
+        'prefetch_file_menu_switch',
+        'prefetch_full_url_switch',
+        'prefetch_max_number_of_lines',
+
         // Wipe Cache purge-related options
         'cache_purge_switch',
         'cache_purge_auto',
+        'cache_purge_auto_on_slug_change',
+        'cache_purge_auto_on_deletion',
         'cache_purge_driver',
         'cf_switch',
         'cf_zone_id',
@@ -437,10 +498,21 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'acd_img_resize_upscale',
         'acd_img_resize_size_index',
 
-        // Wipe SB FPC-related options
+        // Menu cache feature
+        'menu_cache_switch',
+        'menu_cache_disabled_for_authenticated_switch',
+
+        // HTML Cache-related options (formerly FPC / Full Page Cache)
         'fpc_switch',
         'fpc_settings',
         'fpc_exclude',
+
+        // Custom cache TTL
+        'custom_cache_ttl_switch',
+        'cache_ttl_by_post_type',
+        'cache_ttl_by_taxonomy',
+        'custom_cache_ttl_by_post_type',
+        'custom_cache_ttl_by_taxonomy',
     ];
 
     if ($includeMigrationOptions) {
@@ -517,7 +589,7 @@ function isFrontEnd(): bool
  */
 function isTesting(): bool
 {
-    return (defined('WP_TESTS_IS_RUNNING') && WP_TESTS_IS_RUNNING === true);
+    return (defined('WP_TESTS_ARE_RUNNING') && WP_TESTS_ARE_RUNNING === true);
 }
 
 /**
@@ -604,7 +676,8 @@ function generateRandomPermanentKey(string $name, $blogId = null): string
  *
  * @param $key
  * @param $array
- * @param bool $defaultValue
+ * @param mixed|false $defaultValue
+ * @return false|mixed|null
  */
 function arrayGet($key, $array, $defaultValue = false)
 {
@@ -741,10 +814,13 @@ function formatPostTypeSlug(string $postType): string
 function featureIsAvailable(string $feature): ?bool
 {
     switch ($feature) {
+        case 'custom_text_domain_loader':
+            return true;
+        case 'prefetching':
+            return false; // Waiting for CF to fix their end
         case 'cf_image_resize':
             //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || (getCloudflareImageResizeInstance())::resizingIsActive();
             return true;
-            break;
     }
     return null;
 }
@@ -764,11 +840,6 @@ function featureIsActive(string $feature): ?bool
         case 'asset_auto_version':
             $generalSettings = getGeneralSettingsInstance();
             return $generalSettings->assetAutoVersion();
-        /*
-        case 'cf_cache':
-            return true;
-            break;
-        */
     }
     return null;
 }
@@ -803,22 +874,22 @@ function writeLog($log)
     if (!isDebug()) {
         return;
     }
-    if (is_array($log) || is_object($log)) {
-        error_log(print_r($log, true));
-    } else {
+    if (is_scalar($log)) {
         error_log($log);
+    } else {
+        error_log(print_r($log, true));
     }
 }
 
 /**
- * Build markup for row in FPC post exclude table.
+ * Build markup for row in HTML Cache post exclude table.
  *
  * @param $postId
  * @param bool $echo
  *
  * @return false|string
  */
-function fpcExcludePostTableRowMarkup($postId, $echo = true)
+function htmlCacheExcludePostTableRowMarkup($postId, bool $echo = true)
 {
     if (is_numeric($postId) && $post = get_post($postId)) {
         $title = get_the_title($postId);
@@ -839,22 +910,22 @@ function fpcExcludePostTableRowMarkup($postId, $echo = true)
             <input id="cb-select-<?php echo $postId; ?>" type="checkbox">
         </th>
         <?php if ( $isPost ) : ?>
-            <td class="column-post-id has-row-actions fpc-exclude-item-column">
+            <td class="column-post-id has-row-actions html-cache-exclude-item-column">
                 <?php echo $postId; ?>
                 <div class="row-actions">
-                    <span class="trash"><a href="#" class="sb-remove-item-from-fpc-post-exclude"><?php _e('Delete', 'servebolt-wp'); ?></a> | </span>
+                    <span class="trash"><a href="#" class="sb-remove-item-from-html-cache-post-exclude"><?php _e('Delete', 'servebolt-wp'); ?></a> | </span>
                     <span class="view"><a href="<?php echo esc_attr($url); ?>" target="_blank"><?php _e('View', 'servebolt-wp'); ?></a><?php if ($editUrl) echo ' | '; ?></span>
                     <?php if ($editUrl) : ?>
                         <span class="view"><a href="<?php echo $editUrl; ?>" target="_blank"><?php _e('Edit', 'servebolt-wp'); ?></a></span>
                     <?php endif; ?>
                 </div>
             </td>
-            <td class="fpc-exclude-item-column"><strong><?php echo $title; ?></strong></td>
+            <td class="html-cache-exclude-item-column"><strong><?php echo $title; ?></strong></td>
         <?php else : ?>
-            <td class="column-post-id has-row-actions fpc-exclude-item-column" colspan="2">
+            <td class="column-post-id has-row-actions html-cache-exclude-item-column" colspan="2">
                 <?php echo $postId; ?> (<?php _e('Post does not exist.', 'servebolt-wp') ?>)
                 <div class="row-actions">
-                    <span class="trash"><a href="#" class="sb-remove-item-from-fpc-post-exclude"><?php _e('Delete', 'servebolt-wp'); ?></a></span>
+                    <span class="trash"><a href="#" class="sb-remove-item-from-html-cache-post-exclude"><?php _e('Delete', 'servebolt-wp'); ?></a></span>
                 </div>
             </td>
         <?php endif; ?>
@@ -896,7 +967,7 @@ function formatArrayToCsv($array, $glue = ','): string
  */
 function isDevDebug(): bool
 {
-    return ( defined('SB_DEBUG') && SB_DEBUG === true ) || ( array_key_exists('debug', $_GET ) );
+    return apply_filters('sb_optimizer_is_dev_debug', (defined('SB_DEBUG') && SB_DEBUG === true) || (array_key_exists('debug', $_GET)));
 }
 
 /**
@@ -990,7 +1061,7 @@ function getVersionForStaticAsset(string $assetSrc): string
  */
 function requireSuperadmin()
 {
-    if (!is_multisite() || ! is_super_admin()) {
+    if (!is_multisite() || !is_super_admin()) {
         wp_die();
     }
 }
@@ -1132,12 +1203,12 @@ function iterateSites($function, bool $runBlogSwitch = false): bool
  * Update blog option.
  *
  * @param $blogId
- * @param $optionName
- * @param $value
+ * @param string $optionName
+ * @param mixed $value
  * @param bool $assertUpdate
  * @return bool
  */
-function updateBlogOption($blogId, $optionName, $value, $assertUpdate = true): bool
+function updateBlogOption($blogId, string $optionName, $value, bool $assertUpdate = true): bool
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_blog_option($blogId, $fullOptionName, $value);
@@ -1152,12 +1223,12 @@ function updateBlogOption($blogId, $optionName, $value, $assertUpdate = true): b
  * Get blog option.
  *
  * @param $blogId
- * @param $optionName
- * @param bool $default
+ * @param string $optionName
+ * @param mixed $default
  *
  * @return mixed
  */
-function getBlogOption($blogId, $optionName, $default = null)
+function getBlogOption($blogId, string $optionName, $default = null)
 {
     $fullOptionName = getOptionName($optionName);
     $value = get_blog_option($blogId, $fullOptionName, $default);
@@ -1167,12 +1238,12 @@ function getBlogOption($blogId, $optionName, $default = null)
 /**
  * Delete option.
  *
- * @param $option
+ * @param string $option
  * @param bool $assertUpdate
  *
  * @return bool
  */
-function deleteOption($option, bool $assertUpdate = true)
+function deleteOption(string $option, bool $assertUpdate = true)
 {
     $result = delete_option(getOptionName($option));
     if ($assertUpdate) {
@@ -1184,18 +1255,18 @@ function deleteOption($option, bool $assertUpdate = true)
 /**
  * Update option.
  *
- * @param $optionName
- * @param $value
+ * @param string $optionName
+ * @param mixed $value
  * @param bool $assertUpdate
  * @return bool
  */
-function updateOption($optionName, $value, $assertUpdate = true): bool
+function updateOption(string $optionName, $value, bool $assertUpdate = true): bool
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_option($fullOptionName, $value);
     if ($assertUpdate && !$result) {
         $currentValue = getOption($optionName);
-        return ( $currentValue == $value );
+        return ($currentValue == $value);
     }
     return true;
 }
@@ -1203,12 +1274,12 @@ function updateOption($optionName, $value, $assertUpdate = true): bool
 /**
  * Get option.
  *
- * @param $optionName
- * @param bool $default
+ * @param string $optionName
+ * @param mixed $default
  *
  * @return mixed|void
  */
-function getOption($optionName, $default = null)
+function getOption(string $optionName, $default = null)
 {
     $fullOptionName = getOptionName($optionName);
     $value = get_option($fullOptionName, $default);
@@ -1218,12 +1289,12 @@ function getOption($optionName, $default = null)
 /**
  * Delete site option.
  *
- * @param $option
+ * @param string $option
  * @param bool $assertUpdate
  *
  * @return bool
  */
-function deleteSiteOption($option, bool $assertUpdate = true)
+function deleteSiteOption(string $option, bool $assertUpdate = true)
 {
     $result = delete_site_option(getOptionName($option));
     if ($assertUpdate) {
@@ -1235,13 +1306,13 @@ function deleteSiteOption($option, bool $assertUpdate = true)
 /**
  * Update site option.
  *
- * @param $optionName
- * @param $value
+ * @param string$optionName
+ * @param mixed $value
  * @param bool $assertUpdate
  *
  * @return bool
  */
-function updateSiteOption($optionName, $value, $assertUpdate = true)
+function updateSiteOption(string $optionName, $value, bool $assertUpdate = true)
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_site_option($fullOptionName, $value);
@@ -1255,12 +1326,12 @@ function updateSiteOption($optionName, $value, $assertUpdate = true)
 /**
  * Get site option.
  *
- * @param $optionName
- * @param bool $default
+ * @param string $optionName
+ * @param mixed $default
  *
  * @return mixed|void
  */
-function getSiteOption($optionName, $default = null)
+function getSiteOption(string $optionName, $default = null)
 {
     $fullOptionName = getOptionName($optionName);
     $value = get_site_option($fullOptionName, $default);
@@ -1271,12 +1342,12 @@ function getSiteOption($optionName, $default = null)
  * A function that will store the option at the right place (in current blog or a specified blog).
  *
  * @param null|int $blogId
- * @param $optionName
- * @param $value
+ * @param string $optionName
+ * @param mixed $value
  * @param bool $assertUpdate
  * @return bool
  */
-function smartUpdateOption(?int $blogId = null, $optionName, $value, bool $assertUpdate = true): bool
+function smartUpdateOption(?int $blogId = null, string $optionName, $value, bool $assertUpdate = true): bool
 {
     if (is_numeric($blogId)) {
         $result = updateBlogOption($blogId, $optionName, $value, $assertUpdate);
@@ -1290,12 +1361,12 @@ function smartUpdateOption(?int $blogId = null, $optionName, $value, bool $asser
  * A function that will delete the option at the right place (in current blog or a specified blog).
  *
  * @param int|null $blogId
- * @param $optionName
+ * @param string $optionName
  * @param bool $assertUpdate
  *
  * @return bool|mixed
  */
-function smartDeleteOption(?int $blogId = null, $optionName, bool $assertUpdate = true)
+function smartDeleteOption(?int $blogId = null, string $optionName, bool $assertUpdate = true)
 {
     if (is_numeric($blogId)) {
         $result = deleteBlogOption($blogId, $optionName, $assertUpdate);
@@ -1309,12 +1380,12 @@ function smartDeleteOption(?int $blogId = null, $optionName, bool $assertUpdate 
  * A function that will get the option at the right place (in current blog or a specified blog).
  *
  * @param int|null $blogId
- * @param $optionName
+ * @param string $optionName
  * @param bool $default
  *
  * @return mixed|void
  */
-function smartGetOption(?int $blogId = null, $optionName, $default = null)
+function smartGetOption(?int $blogId = null, string $optionName, $default = null)
 {
     if (is_numeric($blogId)) {
         $result = getBlogOption($blogId, $optionName, $default);
@@ -1358,12 +1429,35 @@ function yoastSeoPremiumIsActive(): bool
 }
 
 /**
+ * Check whether plugin Jetpack is active.
+ *
+ * @return bool
+ */
+function jetpackIsActive(): bool
+{
+    if (!function_exists('is_plugin_active')) {
+        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    }
+    return is_plugin_active('jetpack/jetpack.php');
+}
+
+/**
  * Instantiate the filesystem class
  *
+ * @param bool $ensureConstantsAreSet
  * @return object WP_Filesystem_Direct instance
  */
-function wpDirectFilesystem(): object
+function wpDirectFilesystem(bool $ensureConstantsAreSet = false): object
 {
+    if ($ensureConstantsAreSet || (defined('WP_TESTS_ARE_RUNNING') && WP_TESTS_ARE_RUNNING === true)) {
+        // Set the permission constants if not already set.
+        if (!defined('FS_CHMOD_DIR')) {
+            define('FS_CHMOD_DIR', (fileperms(ABSPATH) & 0777 | 0755));
+        }
+        if (!defined('FS_CHMOD_FILE')) {
+            define('FS_CHMOD_FILE', (fileperms(ABSPATH . 'index.php') & 0777 | 0644));
+        }
+    }
     require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
     require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
     return new \WP_Filesystem_Direct(new \StdClass());
@@ -1444,27 +1538,73 @@ function clearOptionsOverride(string $optionName, $closureOrFunctionName = null)
 }
 
 /**
+ * Listen for changes to one or multiple option values.
+ *
+ * @param string|array $optionNameOrNames
+ * @param string|callable $closureOrAction
+ */
+function listenForOptionChange($optionNameOrNames, $closureOrAction): void
+{
+    if (!is_array($optionNameOrNames)) {
+        $optionNameOrNames = [$optionNameOrNames];
+    }
+    foreach ($optionNameOrNames as $optionName) {
+        add_filter('pre_update_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
+            $didChange = $newValue !== $oldValue;
+            if ($didChange) {
+                if (is_callable($closureOrAction)) {
+                    $closureOrAction($newValue, $oldValue, $optionName);
+                } else {
+                    do_action('servebolt_' . $closureOrAction, $newValue, $oldValue, $optionName);
+                }
+            }
+            return $newValue;
+        }, 10, 2);
+    }
+}
+
+/**
+ * Listen for changes to one or multiple checkbox options.
+ *
+ * @param string|array $optionNameOrNames
+ * @param string|callable $closureOrAction
+ */
+function listenForCheckboxOptionChange($optionNameOrNames, $closureOrAction): void
+{
+    if (!is_array($optionNameOrNames)) {
+        $optionNameOrNames = [$optionNameOrNames];
+    }
+    foreach ($optionNameOrNames as $optionName) {
+        add_filter('pre_update_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
+            $wasActive = checkboxIsChecked($oldValue);
+            $isActive = checkboxIsChecked($newValue);
+            $didChange = $wasActive !== $isActive;
+            if ($didChange) {
+                if (is_callable($closureOrAction)) {
+                    $closureOrAction($wasActive, $isActive, $optionName);
+                } else {
+                    do_action('servebolt_' . $closureOrAction, $wasActive, $isActive, $optionName);
+                }
+            }
+            return $newValue;
+        }, 10, 2);
+    }
+}
+
+/**
  * Create a default value, both where the option is not present in the options-table, or if the value is empty.
  *
  * @param string $optionName
- * @param mixed $defaultValue
+ * @param callable|mixed $callableOrDefaultValue
  */
-function setDefaultOption(string $optionName, $defaultValue): void
+function setDefaultOption(string $optionName, $callableOrDefaultValue): void
 {
-    if (!is_callable($defaultValue)) {
-        $defaultValue = function() use ($defaultValue) {
-            return $defaultValue;
+    if (!is_callable($callableOrDefaultValue)) {
+        $callableOrDefaultValue = function() use ($callableOrDefaultValue) {
+            return $callableOrDefaultValue;
         };
     }
-    add_filter('default_option_' . getOptionName($optionName), $defaultValue);
-    /*
-    add_filter('option_' . getOptionName($optionName), function($value) use ($defaultValue) {
-        if (!$value) {
-            return $defaultValue;
-        }
-        return $value;
-    });
-    */
+    add_filter('default_option_' . getOptionName($optionName), $callableOrDefaultValue);
 }
 
 /**
@@ -1481,4 +1621,68 @@ function clearDefaultOption(string $optionName, $closureOrFunctionName = null): 
     } else {
         remove_all_filters($key);
     }
+}
+
+/**
+ * Redirect through JavaScript. Useful if headers are already sent.
+ *
+ * @param string $url
+ */
+function javascriptRedirect(string $url): void
+{
+    printf('<script> window.location = "%s"; </script>', $url);
+}
+
+/**
+ * Override parent active menu item for child menu item (in WP Admin).
+ *
+ * @param string $childPage
+ * @param string $parentPage
+ */
+function overrideParentMenuPage(string $childPage, string $parentPage): void
+{
+    add_filter('parent_file', function($parentFile) use ($childPage, $parentPage) {
+        global $plugin_page;
+        if ($childPage === $plugin_page) {
+            $plugin_page = $parentPage;
+        }
+        return $parentFile;
+    });
+}
+
+/**
+ * Override menu title in WP Admin for given page.
+ *
+ * @param string $screen
+ * @param string $overrideTitle
+ */
+function overrideMenuTitle(string $screen, string $overrideTitle): void
+{
+    add_filter('admin_title', function($admin_title, $title) use ($screen, $overrideTitle) {
+        if (isScreen($screen)) {
+            return $overrideTitle . ' ' . $admin_title;
+        }
+        return $admin_title;
+    }, 10, 2);
+}
+
+/**
+ * Get the URLs of all the sizes of an image.
+ *
+ * @param int $attachmentId
+ * @return array|null
+ */
+function getAllImageSizesByImage(int $attachmentId): ?array
+{
+    if (!wp_attachment_is_image($attachmentId)) {
+        return null;
+    }
+    $imageUrls = [];
+    foreach (get_intermediate_image_sizes() as $size) {
+        if ($imageUrl = wp_get_attachment_image_url($attachmentId, $size)) {
+            $imageUrls[] = $imageUrl;
+        }
+    }
+    $imageUrls = array_values(array_unique($imageUrls));
+    return $imageUrls;
 }

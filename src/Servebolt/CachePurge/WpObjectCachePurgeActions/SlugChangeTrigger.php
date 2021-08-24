@@ -6,15 +6,16 @@ if (!defined( 'ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
-use Servebolt\Optimizer\Traits\Singleton;
 use Exception;
+use Servebolt\Optimizer\Traits\EventToggler;
+use Servebolt\Optimizer\Traits\Singleton;
 
 /**
  * Class SlugChangeTrigger
  */
 class SlugChangeTrigger
 {
-    use Singleton;
+    use Singleton, EventToggler;
 
     /**
      * Current state of the permalink before post update.
@@ -23,26 +24,25 @@ class SlugChangeTrigger
      */
     private $previousPostPermalink = null;
 
-    /**
-     * SlugChangeTrigger constructor.
-     */
-    public function __construct()
+    public function deregisterEvents(): void
     {
-        $this->registerPurgeActions();
+        remove_filter('wp_update_term_data', [$this, 'checkPreviousTermPermalink'], 10, 3);
+        remove_action('pre_post_update', [$this, 'recordPostPermalink'], 99, 1);
+        remove_action('post_updated', [$this, 'checkPreviousPostPermalink'], 99, 1);
     }
 
     /**
      * Register action hooks.
      */
-    private function registerPurgeActions()
+    public function registerEvents()
     {
 
-        // Skip this feature if the cache purge feature is inactive or insufficiently configured, or it automatic cache purge is inactive
-        if (!CachePurge::featureIsAvailable() || !CachePurge::automaticCachePurgeOnContentUpdateIsActive()) {
+        // Skip this feature if automatic cache purge on slug change is inactive
+        if (!CachePurge::automaticCachePurgeOnSlugChangeIsActive()) {
             return;
         }
 
-        if (!apply_filters('sb_optimizer_automatic_purge_on_permalink_change', true)) {
+        if (apply_filters('sb_optimizer_disable_automatic_purge_on_slug_change', false)) {
             return;
         }
 

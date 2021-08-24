@@ -11,6 +11,7 @@ use Servebolt\Optimizer\CachePurge\Drivers\Servebolt as ServeboltDriver;
 use Servebolt\Optimizer\CachePurge\Drivers\Cloudflare as CloudflareDriver;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
+use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 
@@ -182,12 +183,48 @@ class CachePurge
      */
     public static function automaticCachePurgeOnContentUpdateIsActive(?int $blogId = null): bool
     {
-        $noExistKey = 'value-does-not-exist';
-        $value = smartGetOption($blogId, 'cache_purge_auto', $noExistKey);
-        if ($value === $noExistKey) {
-            return true; // Default value
-        }
-        return checkboxIsChecked($value);
+        return checkboxIsChecked(
+            smartGetOption($blogId, 'cache_purge_auto')
+        );
+    }
+
+    /**
+     * Whether we should purge cache automatically when an attachment is updated.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function automaticCachePurgeOnAttachmentUpdateIsActive(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(
+            smartGetOption($blogId, 'cache_purge_auto_on_attachment_update')
+        );
+    }
+
+    /**
+     * Whether we should purge cache automatically when a post/term is deleted.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function automaticCachePurgeOnDeletionIsActive(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(
+            smartGetOption($blogId, 'cache_purge_auto_on_deletion')
+        );
+    }
+
+    /**
+     * Whether we should purge cache automatically when the slug is updated.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function automaticCachePurgeOnSlugChangeIsActive(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(
+            smartGetOption($blogId, 'cache_purge_auto_on_slug_change')
+        );
     }
 
     /**
@@ -210,12 +247,16 @@ class CachePurge
      */
     public static function isActive(?int $blogId = null): bool
     {
-        $noExistKey = 'value-does-not-exist';
-        $value = smartGetOption($blogId, 'cache_purge_switch', $noExistKey);
-        if ($value === $noExistKey) {
-            $value = smartGetOption($blogId, 'cf_switch');
-        }
-        return apply_filters('sb_optimizer_cache_purge_feature_active', checkboxIsChecked($value));
+        return apply_filters(
+            'sb_optimizer_cache_purge_feature_active',
+            checkboxIsChecked(
+                smartGetOption(
+                    $blogId,
+                    'cache_purge_switch',
+                    smartGetOption($blogId, 'cf_switch')
+                )
+            )
+        );
     }
 
     /**
@@ -237,12 +278,14 @@ class CachePurge
      */
     public static function getSelectedCachePurgeDriver(?int $blogId = null)
     {
-        $noExistKey = 'value-does-not-exist';
-        $value = smartGetOption($blogId, 'cache_purge_driver', $noExistKey);
-        if ($value === $noExistKey) {
-            $value = self::defaultDriverName();
-        }
-        return apply_filters('sb_optimizer_selected_cache_purge_driver', $value);
+        return apply_filters(
+            'sb_optimizer_selected_cache_purge_driver',
+            smartGetOption(
+                $blogId,
+                'cache_purge_driver',
+                self::defaultDriverName()
+            )
+        );
     }
 
     /**
@@ -323,9 +366,9 @@ class CachePurge
      */
     public static function queueBasedCachePurgeActiveStateOverride(): ?bool
     {
-        if ( self::queueBasedCachePurgeActiveStateIsOverridden() ) {
+        if (self::queueBasedCachePurgeActiveStateIsOverridden()) {
             if (defined('SERVEBOLT_CF_PURGE_CRON')) {
-                return SERVEBOLT_CF_PURGE_CRON;// Legacy
+                return SERVEBOLT_CF_PURGE_CRON; // Legacy
             } else {
                 return SERVEBOLT_QUEUE_BASED_CACHE_PURGE;
             }
@@ -336,22 +379,23 @@ class CachePurge
     /**
      * Check whether the Cron-based cache purger should be active.
      *
-     * @param bool $respectOverride
      * @param int|null $blogId
+     * @param bool $respectOverride
      *
      * @return bool
      */
-    public static function queueBasedCachePurgeIsActive(bool $respectOverride = true, ?int $blogId = null): bool
+    public static function queueBasedCachePurgeIsActive(?int $blogId = null, bool $respectOverride = true): bool
     {
         $activeStateOverride = self::queueBasedCachePurgeActiveStateOverride();
         if ($respectOverride && is_bool($activeStateOverride)) {
             return $activeStateOverride;
         }
-        $noExistKey = 'value-does-not-exist';
-        $value = smartGetOption($blogId, 'queue_based_cache_purge', $noExistKey);
-        if ($value === $noExistKey) {
-            $value = smartGetOption($blogId, 'cf_cron_purge');
-        }
-        return checkboxIsChecked($value);
+        return checkboxIsChecked(
+            smartGetOption(
+                $blogId,
+                'queue_based_cache_purge',
+                smartGetOption($blogId, 'cf_cron_purge')
+            )
+        );
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Unit;
 
+use Unit\Traits\AttachmentTrait;
+use Unit\Traits\MultisiteTrait;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 use Servebolt\Optimizer\Utils\Queue\QueueItem;
@@ -16,12 +18,19 @@ use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 use function Servebolt\Optimizer\Helpers\deleteBlogOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
+use function Servebolt\Optimizer\Helpers\getAllImageSizesByImage;
 use function Servebolt\Optimizer\Helpers\getAllOptionsNames;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
+use function Servebolt\Optimizer\Helpers\getFiltersForHook;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
+use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
+use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
 use function Servebolt\Optimizer\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\javascriptRedirect;
+use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
+use function Servebolt\Optimizer\Helpers\listenForOptionChange;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
@@ -57,14 +66,40 @@ use function Servebolt\Optimizer\Helpers\strEndsWith;
 use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\updateSiteOption;
+use function Servebolt\Optimizer\Helpers\view;
+use function Servebolt\Optimizer\Helpers\writeLog;
 
 class HelpersTest extends ServeboltWPUnitTestCase
 {
+    use MultisiteTrait, AttachmentTrait;
+
     private function activateSbDebug(): void
     {
         if (!defined('SB_DEBUG')) {
             define('SB_DEBUG', true);
         }
+    }
+
+    public function testWriteToLog()
+    {
+        $errorMessage = 'error-message-' . uniqid();
+        $errorFilePath = ini_get('error_log');
+        $this->assertNotContains($errorMessage, exec('tail -n 1 ' . $errorFilePath));
+        writeLog($errorMessage);
+        $this->assertContains($errorMessage, exec('tail -n 1 ' . $errorFilePath));
+    }
+
+    public function testThatViewIsIncludedAndThatArgumentsAreAvailable()
+    {
+        add_filter('sb_optimizer_view_folder_path', function() {
+            return __DIR__ . '/ViewsForTest/';
+        });
+        $arguments = [
+            'lorem' => true,
+            'ipsum' => false,
+        ];
+        $output = view('test', $arguments, false);
+        $this->assertEquals(json_encode($arguments), $output);
     }
 
     public function testThatWeCanGetTheWebrootFolderPath(): void
@@ -112,8 +147,8 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testThatTestConstantGetsSet(): void
     {
-        $this->assertTrue(defined('WP_TESTS_IS_RUNNING'));
-        $this->assertTrue(WP_TESTS_IS_RUNNING);
+        $this->assertTrue(defined('WP_TESTS_ARE_RUNNING'));
+        $this->assertTrue(WP_TESTS_ARE_RUNNING);
     }
 
     public function testThatViewCanBeResolved(): void
@@ -493,7 +528,43 @@ class HelpersTest extends ServeboltWPUnitTestCase
         deleteAllSettings(true, true);
         iterateSites(function ($site) use ($allOptionsNames) {
             foreach ($allOptionsNames as $option) {
-                $this->assertNull(getBlogOption($site->blog_id, $option));
+                $value = getBlogOption($site->blog_id, $option);
+                switch ($option) {
+                    // Default options
+                    //case 'prefetch_file_style_switch':
+                    //case 'prefetch_file_script_switch':
+                    //case 'prefetch_file_menu_switch':
+                    case 'cache_purge_auto':
+                    case 'cache_purge_auto_on_slug_change':
+                    case 'cache_purge_auto_on_deletion':
+                    case 'cache_purge_auto_on_attachment_update':
+                    case 'custom_cache_ttl_switch':
+                        $this->assertTrue($value);
+                        break;
+                    case 'fpc_settings':
+                        $this->assertIsArray($value);
+                        $this->assertEquals(['all' => 1], $value);
+                        break;
+                    case 'cache_ttl_by_post_type':
+                        $this->assertIsArray($value);
+                        $this->assertArrayHasKey('post', $value);
+                        $this->assertArrayHasKey('page', $value);
+                        $this->assertEquals('default', $value['post']);
+                        $this->assertEquals('default', $value['page']);
+                        break;
+                    case 'cache_ttl_by_taxonomy':
+                        $this->assertIsArray($value);
+                        $this->assertArrayHasKey('category', $value);
+                        $this->assertArrayHasKey('post_tag', $value);
+                        $this->assertArrayHasKey('post_format', $value);
+                        $this->assertEquals('default', $value['category']);
+                        $this->assertEquals('default', $value['post_tag']);
+                        $this->assertEquals('default', $value['post_format']);
+                        break;
+                    default:
+                        $this->assertNull($value);
+                        break;
+                }
             }
         });
     }
@@ -575,15 +646,167 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertNull(getOption($optionsKey));
     }
 
-    private function createBlogs(int $numberOfBlogs = 1, $blogCreationAction = null): void
+    public function testThatWeCanDetectCheckboxOptionChangeUsingFunctionClosure()
     {
-        $siteCount = countSites();
-        for ($i = 1; $i <= $numberOfBlogs; $i++) {
-            $number = $i + $siteCount;
-            $blogId = $this->factory()->blog->create( [ 'domain' => 'foo-' . $number , 'path' => '/', 'title' => 'Blog ' . $number ] );
-            if (is_callable($blogCreationAction)) {
-                $blogCreationAction($blogId);
+        $key = 'some-checkbox-value';
+        $callCount = 0;
+        listenForCheckboxOptionChange($key, function($wasActive, $isActive, $optionName) use (&$callCount) {
+            $callCount++;
+        });
+        updateOption($key, 1);
+        updateOption($key, 1);
+        updateOption($key, 1);
+        updateOption($key, 0);
+        updateOption($key, 0);
+        updateOption($key, 1);
+        $this->assertEquals(3, $callCount);
+    }
+
+    public function testThatWeCanDetectCheckboxOptionChangeUsingActions()
+    {
+        $key = 'some-checkbox-value';
+        $action = 'some_action';
+        $this->assertEquals(0, did_action('servebolt_' . $action));
+        listenForCheckboxOptionChange($key, $action);
+        updateOption($key, 1);
+        updateOption($key, 1);
+        $this->assertEquals(1, did_action('servebolt_' . $action));
+        updateOption($key, 0);
+        updateOption($key, 1);
+        $this->assertEquals(3, did_action('servebolt_' . $action));
+    }
+
+    public function testThatWeCanDetectMultipleCheckboxOptionChangeUsingActions()
+    {
+        $keys = [
+            'some-checkbox-value-1',
+            'some-checkbox-value-2',
+            'some-checkbox-value-3',
+        ];
+        $action = 'some_random_action';
+        $this->assertEquals(0, did_action('servebolt_' . $action));
+        listenForCheckboxOptionChange($keys, $action);
+        updateOption($keys[0], 1);
+        updateOption($keys[0], 1);
+        $this->assertEquals(1, did_action('servebolt_' . $action));
+        updateOption($keys[0], 0);
+        updateOption($keys[0], 1);
+        $this->assertEquals(3, did_action('servebolt_' . $action));
+
+        updateOption($keys[2], 1);
+        updateOption($keys[2], 1);
+        updateOption($keys[1], 1);
+        updateOption($keys[1], 1);
+        $this->assertEquals(5, did_action('servebolt_' . $action));
+    }
+
+    public function testThatWeCanDetectOptionValueChangeUsingFunctionClosure()
+    {
+        $key = 'some-string-value';
+        $callCount = 0;
+        listenForOptionChange($key, function($newValue, $oldValue, $optionName) use (&$callCount) {
+            $callCount++;
+        });
+        updateOption($key, 'value');
+        updateOption($key, 'value');
+        updateOption($key, 'value');
+        updateOption($key, 'another-value');
+        updateOption($key, 'another-value');
+        updateOption($key, 'a-third-value');
+        $this->assertEquals(3, $callCount);
+    }
+
+    public function testThatWeCanDetectOptionValueChangeUsingActions()
+    {
+        $key = 'some-string-value-2';
+        $action = 'some_action_for_testing';
+        $this->assertEquals(0, did_action('servebolt_' . $action));
+        listenForOptionChange($key, $action);
+        updateOption($key, 'lorem-ipsum');
+        updateOption($key, 'lorem-ipsum');
+        $this->assertEquals(1, did_action('servebolt_' . $action));
+        updateOption($key, 'lipsum');
+        updateOption($key, 'lorem-ipsum');
+        $this->assertEquals(3, did_action('servebolt_' . $action));
+    }
+
+    public function testThatWeCanDetectMultipleOptionValuesChangeUsingActions()
+    {
+        $keys = [
+            'some-string-value-1',
+            'some-string-value-2',
+            'some-string-value-3',
+        ];
+        $action = 'some_action_for_testing_2';
+        $this->assertEquals(0, did_action('servebolt_' . $action));
+        listenForOptionChange($keys, $action);
+        updateOption($keys[0], 'lorem-ipsum');
+        updateOption($keys[0], 'lorem-ipsum');
+        $this->assertEquals(1, did_action('servebolt_' . $action));
+        updateOption($keys[0], 'lorem-ipsum-2');
+        updateOption($keys[0], 'lorem-ipsum');
+        $this->assertEquals(3, did_action('servebolt_' . $action));
+
+        updateOption($keys[2], 'lorem-ipsum-3');
+        updateOption($keys[2], 'lorem-ipsum-3');
+        updateOption($keys[1], 'lorem-ipsum-3');
+        updateOption($keys[1], 'lorem-ipsum-3');
+        $this->assertEquals(5, did_action('servebolt_' . $action));
+    }
+
+    public function testJavascriptRedirect()
+    {
+        ob_start();
+        $url = 'https://example.org/';
+        javascriptRedirect($url);
+        $output = ob_get_contents();
+        ob_end_clean();
+        $expected = '<script> window.location = "' . $url . '"; </script>';
+        $this->assertEquals($expected, trim($output));
+    }
+
+    public function testThatWeCanGetTaxonomySlug()
+    {
+        $taxonomyObject = getTaxonomyFromTermId(1);
+        $this->assertEquals('category', $taxonomyObject->name);
+    }
+
+    public function testThatWeCanGetTaxonomySingularName()
+    {
+        $this->assertEquals('category', getTaxonomySingularName(1));
+    }
+
+    public function testThatWeCanGetFiltersByHook()
+    {
+        $hookName = 'some-custom-hook';
+        $this->assertNull(getFiltersForHook($hookName));
+        add_filter($hookName, '__return_true');
+        $this->assertIsObject(getFiltersForHook($hookName));
+        remove_filter($hookName, '__return_true');
+        $this->assertNull(getFiltersForHook($hookName));
+    }
+
+    public function testThatWeCanGetAllImageUrls()
+    {
+        add_image_size('69x69', 69, 69);
+        if ($attachmentId = $this->createAttachment('woocommerce-placeholder.png')) {
+            $filename = basename(get_attached_file($attachmentId));
+            if (!preg_match('/^(.+)-([0-9]+)\.png$/', $filename, $matches)) {
+                $this->deleteAttachment($attachmentId);
+                $this->fail('Could not test image size URLs');
+                return;
             }
+            $baseUrl = get_site_url() . '/wp-content/uploads/2021/07/woocommerce-placeholder-' . $matches[2];
+            $expectedArray = [
+                $baseUrl . '-150x150.png',
+                $baseUrl . '-300x300.png',
+                $baseUrl . '-768x768.png',
+                $baseUrl . '-1024x1024.png',
+                $baseUrl . '.png',
+                $baseUrl . '-69x69.png',
+            ];
+            $this->assertEquals($expectedArray, getAllImageSizesByImage($attachmentId));
+            $this->deleteAttachment($attachmentId);
         }
     }
 }

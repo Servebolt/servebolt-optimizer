@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use function Servebolt\Optimizer\Helpers\getAllImageSizesByImage;
 use function Servebolt\Optimizer\Helpers\paginateLinksAsArray;
 
 /**
@@ -80,7 +81,7 @@ class Post extends SharedMethods
     /**
      * Generate URLs related to the object.
      */
-    protected function generateOtherUrls()
+    protected function generateOtherUrls(): void
     {
 
         // The URL to the front page
@@ -97,12 +98,16 @@ class Post extends SharedMethods
 
         // Check if should care about date archive URLs when purging cache
         if ($this->dateArchiveActive()) {
-
-            // Only for post type "post"
             if ($this->postTypeIs('post')) {
-
-                // The URL to the date archive
                 $this->addDateArchive();
+            }
+        }
+
+        // Only for attachments
+        if ($this->postTypeIs('attachment')) {
+            $this->addAttachmentUrl();
+            if ($this->attachmentIsImage()) {
+                $this->addImageSizes();
             }
         }
 
@@ -110,6 +115,26 @@ class Post extends SharedMethods
         do_action('sb_optimizer_cache_purge_3rd_party_urls', $this->getId(), $this);
         do_action('sb_optimizer_post_cache_purge_3rd_party_urls', $this->getId(), $this);
         do_action('sb_optimizer_post_cache_purge_3rd_party_urls_post_type_' . $this->getPostType(), $this->getId(), $this);
+    }
+
+    /**
+     * Add the URL of the attachment.
+     */
+    private function addAttachmentUrl(): void
+    {
+        if ($attachmentUrl = wp_get_attachment_url($this->getId())) {
+            $this->addUrl($attachmentUrl);
+        }
+    }
+
+    /**
+     * Add URLs to all sizes of image.
+     */
+    private function addImageSizes(): void
+    {
+        if ($sizes = getAllImageSizesByImage($this->getId())) {
+            $this->addUrls($sizes);
+        }
     }
 
     /**
@@ -147,6 +172,7 @@ class Post extends SharedMethods
     {
         if (has_filter('sb_optimizer_purge_by_post_original_url')) {
             $originalUrl = apply_filters('sb_optimizer_purge_by_post_original_url', null);
+            remove_all_filters('sb_optimizer_purge_by_post_original_url');
             if ($originalUrl && $postPermalink !== $originalUrl) {
                 $this->addUrl($originalUrl);
             }
@@ -286,20 +312,8 @@ class Post extends SharedMethods
      *
      * @return string|false
      */
-    private function getPostType()
+    protected function getPostType()
     {
         return get_post_type($this->getId());
     }
-
-    /**
-     * Check if current post type is equals a given post type.
-     *
-     * @param string $postType
-     * @return bool
-     */
-    private function postTypeIs(string $postType): bool
-    {
-        return $postType == $this->getPostType();
-    }
-
 }

@@ -5,7 +5,8 @@
  * @package Servebolt_Optimizer
  */
 
-define('WP_TESTS_IS_RUNNING', true);
+define('WP_TESTS_ARE_RUNNING', true);
+define('WP_TESTS_DIR', __DIR__);
 //define('WP_TESTS_THEME', 'twentytwentyone');
 $_tests_dir = getenv( 'WP_TESTS_DIR' );
 
@@ -46,9 +47,17 @@ if (defined('WP_TESTS_THEME') && !empty(WP_TESTS_THEME)) {
 
 // Allow SVG upload for testing purposes
 require __DIR__ . '/allow-svg-uploads.php';
+Servebolt\AllowSvgUploads::allow();
 
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
+
+// Include custom traits
+foreach([__DIR__ . '/Unit/Traits/*Trait.php', __DIR__ . '/Feature/Traits/*Trait.php'] as $traitFolder) {
+    foreach (glob($traitFolder) as $traitFile) {
+        require_once $traitFile;
+    }
+}
 
 // Include testcase class
 require __DIR__ . '/ServeboltWPUnitTestCase.php';

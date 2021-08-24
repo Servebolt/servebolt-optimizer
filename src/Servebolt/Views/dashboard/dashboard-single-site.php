@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\isHostedAtServebolt; ?>
 
-<a href="<?php echo admin_url('admin.php?page=servebolt-performance-tools'); ?>" class="sb-button yellow">
+<a href="<?php echo admin_url('admin.php?page=servebolt-performance-optimizer'); ?>" class="sb-button yellow">
     <?php _e('Performance Optimizer', 'servebolt-wp'); ?>
 </a>
 
@@ -18,7 +18,7 @@
 <?php endif; ?>
 
 <?php if (isHostedAtServebolt()) : ?>
-    <a href="<?php echo admin_url('admin.php?page=servebolt-fpc'); ?>" class="sb-button yellow">
+    <a href="<?php echo admin_url('admin.php?page=servebolt-html-cache'); ?>" class="sb-button yellow">
         <?php _e('Cache settings', 'servebolt-wp') ?>
     </a>
 <?php endif; ?>

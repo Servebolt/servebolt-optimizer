@@ -1,0 +1,170 @@
+{
+    "style": {
+        "admin-bar": {
+            "handle": "admin-bar",
+            "priority": 1,
+            "src": "/wp-includes/css/admin-bar.min.css",
+            "ver": false,
+            "deps": [
+                "dashicons"
+            ]
+        },
+        "wp-block-library": {
+            "handle": "wp-block-library",
+            "priority": 1,
+            "src": "/wp-includes/css/dist/block-library/style.min.css",
+            "ver": false,
+            "deps": []
+        },
+        "wp-block-library-theme": {
+            "handle": "wp-block-library-theme",
+            "priority": 1,
+            "src": "/wp-includes/css/dist/block-library/theme.min.css",
+            "ver": false,
+            "deps": []
+        },
+        "twenty-twenty-one-style": {
+            "handle": "twenty-twenty-one-style",
+            "priority": 1,
+            "src": "http://example.org/wp-content/themes/twentytwentyone/style.css",
+            "ver": "1.3",
+            "deps": []
+        },
+        "twenty-twenty-one-print-style": {
+            "handle": "twenty-twenty-one-print-style",
+            "priority": 1,
+            "src": "http://example.org/wp-content/themes/twentytwentyone/assets/css/print.css",
+            "ver": "1.3",
+            "deps": []
+        },
+        "servebolt-optimizer-public-styling": {
+            "handle": "servebolt-optimizer-public-styling",
+            "priority": 1,
+            "src": "http://example.org/wp-content/plugins/servebolt-optimizer/assets/dist/css/public-style.css",
+            "ver": "3.1",
+            "deps": []
+        },
+        "sb-sweetalert2": {
+            "handle": "sb-sweetalert2",
+            "priority": 1,
+            "src": "http://example.org/wp-content/plugins/servebolt-optimizer/assets/dist/css/sweetalert2.min.css",
+            "ver": "3.1",
+            "deps": []
+        },
+        "servebolt-optimizer-common-styling": {
+            "handle": "servebolt-optimizer-common-styling",
+            "priority": 1,
+            "src": "http://example.org/wp-content/plugins/servebolt-optimizer/assets/dist/css/common-style.css",
+            "ver": "3.1",
+            "deps": []
+        },
+        "yoast-seo-adminbar": {
+            "handle": "yoast-seo-adminbar",
+            "priority": 1,
+            "src": "http://example.org/wp-content/plugins/wordpress-seo/css/dist/adminbar-1650.css",
+            "ver": null,
+            "deps": [
+                "admin-bar"
+            ]
+        },
+        "dashicons": {
+            "handle": "dashicons",
+            "priority": 2,
+            "src": "/wp-includes/css/dashicons.min.css",
+            "ver": false,
+            "deps": []
+        }
+    },
+    "script": {
+        "admin-bar": {
+            "handle": "admin-bar",
+            "priority": 1,
+            "src": "/wp-includes/js/admin-bar.min.js",
+            "ver": false,
+            "deps": [
+                "hoverintent-js"
+            ]
+        },
+        "twenty-twenty-one-primary-navigation-script": {
+            "handle": "twenty-twenty-one-primary-navigation-script",
+            "priority": 1,
+            "src": "http://example.org/wp-content/themes/twentytwentyone/assets/js/primary-navigation.js",
+            "ver": "1.3",
+            "deps": [
+                "twenty-twenty-one-ie11-polyfills"
+            ]
+        },
+        "twenty-twenty-one-responsive-embeds-script": {
+            "handle": "twenty-twenty-one-responsive-embeds-script",
+            "priority": 1,
+            "src": "http://example.org/wp-content/themes/twentytwentyone/assets/js/responsive-embeds.js",
+            "ver": "1.3",
+            "deps": [
+                "twenty-twenty-one-ie11-polyfills"
+            ]
+        },
+        "sb-sweetalert2": {
+            "handle": "sb-sweetalert2",
+            "priority": 1,
+            "src": "http://example.org/wp-content/plugins/servebolt-optimizer/assets/dist/js/sweetalert2.all.min.js",
+            "ver": "3.1",
+            "deps": []
+        },
+        "servebolt-optimizer-scripts": {
+            "handle": "servebolt-optimizer-scripts",
+            "priority": 1,
+            "src": "http://example.org/wp-content/plugins/servebolt-optimizer/assets/dist/js/general.js",
+            "ver": "3.1",
+            "deps": [
+                "jquery"
+            ]
+        },
+        "servebolt-optimizer-cache-purge-trigger-scripts": {
+            "handle": "servebolt-optimizer-cache-purge-trigger-scripts",
+            "priority": 1,
+            "src": "http://example.org/wp-content/plugins/servebolt-optimizer/assets/dist/js/cache-purge-trigger.js",
+            "ver": "3.1",
+            "deps": [
+                "jquery"
+            ]
+        },
+        "hoverintent-js": {
+            "handle": "hoverintent-js",
+            "priority": 1,
+            "src": "/wp-includes/js/hoverintent-js.min.js",
+            "ver": "2.2.1",
+            "deps": []
+        },
+        "jquery-core": {
+            "handle": "jquery-core",
+            "priority": 1,
+            "src": "/wp-includes/js/jquery/jquery.min.js",
+            "ver": "3.5.1",
+            "deps": []
+        },
+        "jquery-migrate": {
+            "handle": "jquery-migrate",
+            "priority": 1,
+            "src": "/wp-includes/js/jquery/jquery-migrate.min.js",
+            "ver": "3.3.2",
+            "deps": []
+        }
+    },
+    "menu": {
+        "http://example.org/?p=24": {
+            "priority": 1,
+            "handle": "http://example.org/?p=24",
+            "src": "http://example.org/sample-page/"
+        },
+        "http://example.org/?p=25": {
+            "priority": 1,
+            "handle": "http://example.org/?p=25",
+            "src": "http://example.org/test/"
+        },
+        "http://example.org/?p=26": {
+            "priority": 1,
+            "handle": "http://example.org/?p=26",
+            "src": "http://example.org/hello-world/"
+        }
+    }
+}
