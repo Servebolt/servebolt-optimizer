@@ -163,7 +163,7 @@ class WpObjectQueue
     private function queueItemIsPurgeAll($item): bool
     {
         $payload = $item->payload;
-        if ($payload && $this->queueItemIsPurgeAll($payload)) {
+        if ($payload && $this->isPurgeAll($payload)) {
             return true;
         }
         return false;
