@@ -143,20 +143,21 @@ jQuery(document).ready(function($) {
         var message = window.sb_get_message_from_response(response);
         if (response.success) {
           setTimeout(function () {
-            var title = window.sb_get_from_response(response, 'title', sb_default_success_title())
-            window.sb_popup(response.data.type, title, null, message);
+          var title = window.sb_get_from_response(response, 'title', window.sb_default_success_title())
+          window.sb_popup(response.data.type, title, null, response.data.markup);
           }, 50);
         } else {
-          if (message) {
-            sb_cache_purge_error(message);
+          var message = window.sb_get_message_from_response(response);
+          if ( message ) {
+            window.sbCachePurgeError(message);
           } else {
-            sb_cache_purge_error(null, false);
+            window.sbCachePurgeError(null, false);
           }
         }
       },
       error: function() {
         window.sb_loading(false);
-        sb_cache_purge_error(null, false);
+        window.sbCachePurgeError(null, false);
       }
     });
   }
@@ -212,13 +213,13 @@ jQuery(document).ready(function($) {
           }, 100);
           return;
         }
-        sb_cache_purge_error();
+        window.sbCachePurgeError();
         // TODO: Display errors to the user
         //window.handle_unsuccessful_cache_purge(response);
       },
       error: function() {
         window.sb_loading(false);
-        sb_cache_purge_error(); // General error
+        window.sbCachePurgeError(); // General error
       }
     });
   };
@@ -231,7 +232,7 @@ jQuery(document).ready(function($) {
       return;
       switch(type) {
         case 'error':
-          sb_cache_purge_error();
+          window.sbCachePurgeError();
           break;
         case 'warning':
           sb_cache_purge_warning();
@@ -244,7 +245,7 @@ jQuery(document).ready(function($) {
       return;
       switch(type) {
         case 'error':
-          sb_cache_purge_error();
+          window.sbCachePurgeError();
           break;
         case 'warning':
           sb_cache_purge_warning();
@@ -256,7 +257,7 @@ jQuery(document).ready(function($) {
     if ( type == 'warning' ) {
       sb_cache_purge_warning(message, title);
     } else {
-      sb_cache_purge_error(message, false, title);
+      window.sbCachePurgeError(message, false, title);
     }
     */
   };
@@ -363,14 +364,14 @@ jQuery(document).ready(function($) {
           }, 100);
           return;
         }
-        sb_cache_purge_error();
+        window.sbCachePurgeError();
         // TODO: Display errors to the user
         /*
         if ( message ) {
           if ( response.data.type == 'warning' ) {
             window.sb_warning(title, null, message);
           } else {
-            sb_cache_purge_error(message);
+            window.sbCachePurgeError(message);
           }
         } else {
 
@@ -379,7 +380,7 @@ jQuery(document).ready(function($) {
       },
       error: function() {
         window.sb_loading(false);
-        sb_cache_purge_error();
+        window.sbCachePurgeError();
       },
     });
   }
@@ -412,14 +413,14 @@ jQuery(document).ready(function($) {
           }, 100);
           return;
         }
-        sb_cache_purge_error();
+        window.sbCachePurgeError();
         // TODO: Display errors to the user
         /*
         if ( message ) {
           if ( response.data.type == 'warning' ) {
             window.sb_warning(title, null, message);
           } else {
-            sb_cache_purge_error(message);
+            window.sbCachePurgeError(message);
           }
         } else {
 
@@ -428,7 +429,7 @@ jQuery(document).ready(function($) {
       },
       error: function() {
         window.sb_loading(false);
-        sb_cache_purge_error();
+        window.sbCachePurgeError();
       }
     });
   }
@@ -495,7 +496,7 @@ jQuery(document).ready(function($) {
           }, 100);
           return;
         }
-        sb_cache_purge_error();
+        window.sbCachePurgeError();
         // TODO: Display errors to the user
         /*
         return;
@@ -503,27 +504,18 @@ jQuery(document).ready(function($) {
           if ( response.data.type == 'warning' ) {
             window.sb_warning(title, null, message);
           } else {
-            sb_cache_purge_error(message);
+            window.sbCachePurgeError(message);
           }
         } else {
-          sb_cache_purge_error();
+          window.sbCachePurgeError();
         }
         */
       },
       error: function() {
         window.sb_loading(false);
-        sb_cache_purge_error();
+        window.sbCachePurgeError();
       }
     });
-  }
-
-  /**
-   * Default success title.
-   *
-   * @returns {string}
-   */
-  function sb_default_success_title() {
-    return 'All good!';
   }
 
   /**
@@ -533,7 +525,7 @@ jQuery(document).ready(function($) {
    * @param title
    */
   function sb_cache_purge_success(message, title) {
-    if ( typeof title === 'undefined' || ! title ) title = sb_default_success_title();
+    if ( typeof title === 'undefined' || ! title ) title = window.sb_default_success_title();
     window.sb_success(title, null, message);
   }
 
@@ -546,25 +538,4 @@ jQuery(document).ready(function($) {
   function sb_cache_purge_warning(message, title) {
     window.sb_warning(title, null, message);
   }
-
-  /**
-   * Display cache purge error.
-   *
-   * @param message
-   * @param include_url_message
-   * @param title
-   */
-  function sb_cache_purge_error(message, include_url_message, title) {
-    if ( typeof include_url_message === 'undefined' ) {
-      include_url_message = true;
-    }
-    if ( typeof title === 'undefined' || ! title ) {
-      title = 'Unknown error';
-    }
-    if (!message) {
-      var message = 'Something went wrong. Please check that you:<br><ul style="text-align: left;max-width:350px;margin: 20px auto;">' + ( include_url_message ? '<li>- Specified a valid URL</li>' : '' ) + '<li>- Have configured the cache purge feature</li></ul> If the error still persist then please check the error logs and/or contact support.';
-    }
-    window.sb_error(title, null, message);
-  }
-
 });

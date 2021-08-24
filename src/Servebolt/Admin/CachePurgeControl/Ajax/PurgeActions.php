@@ -37,7 +37,6 @@ class PurgeActions extends SharedAjaxMethods
         add_action('wp_ajax_servebolt_purge_post_cache', [$this, 'purgePostCacheCallback']);
         add_action('wp_ajax_servebolt_purge_term_cache', [$this, 'purgeTermCacheCallback']);
         add_action('wp_ajax_servebolt_purge_all_cache', [$this, 'purgeAllCacheCallback']);
-
         if ( is_multisite() ) {
             add_action('wp_ajax_servebolt_purge_all_network_cache', [$this, 'purgeAllNetworkCacheCallback']);
         }
