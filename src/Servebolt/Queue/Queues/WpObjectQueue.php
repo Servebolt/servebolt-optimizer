@@ -31,9 +31,9 @@ class WpObjectQueue
     private $chunkSize = 30;
 
     /**
-     * @var bool Whether to clear URL queue when a purge all-request is added to the queue.
+     * @var bool Whether to clear WP object and URL queue when a purge all-request is added to the queue.
      */
-    private $clearUrlQueueOnPurgeAll = true;
+    private $clearQueueOnPurgeAll = true;
 
     /**
      * @var Queue
@@ -144,15 +144,26 @@ class WpObjectQueue
     }
 
     /**
-     * Check whether a WP Object queue item is a purge all request.
+     * Check whether a queue item is a purge all request.
      *
      * @param $item
      * @return bool
      */
     private function isPurgeAll($item): bool
     {
+        return arrayGet('type', $item) === 'purge-all';
+    }
+
+    /**
+     * Check whether a WP Object queue item is a purge all request.
+     *
+     * @param $item
+     * @return bool
+     */
+    private function queueItemIsPurgeAll($item): bool
+    {
         $payload = $item->payload;
-        if ($payload && arrayGet('type', $payload) === 'purge-all') {
+        if ($payload && $this->queueItemIsPurgeAll($payload)) {
             return true;
         }
         return false;
@@ -166,10 +177,7 @@ class WpObjectQueue
         if ($items = $this->getItemsToParse()) {
             foreach ($items as $item) {
                 $payload = $item->payload;
-                if ($this->isPurgeAll($item)) {
-                    if ($this->clearUrlQueueOnPurgeAll) {
-                        $this->clearUrlQueue(); // Clear all URLs since we're gonna purge all cache
-                    }
+                if ($this->queueItemIsPurgeAll($item)) {
                     $this->urlQueue()->add([
                         'type' => 'purge-all',
                     ], $item);
@@ -275,6 +283,13 @@ class WpObjectQueue
             $this->queue->flagItemAsUpdated($existingItem);
             return $existingItem;
         }
+        if (
+            $this->isPurgeAll($itemData)
+            && $this->clearQueueOnPurgeAll
+        ) {
+            $this->clearQueue(); // Clear all WP objects since we're gonna purge all cache
+            $this->clearUrlQueue(); // Clear all URLs since we're gonna purge all cache
+        }
         return $this->queue->add($itemData);
     }
 
@@ -301,7 +316,7 @@ class WpObjectQueue
     {
         if ($items = $this->queue->getActiveItems()) {
             foreach ($items as $item) {
-                if ($this->isPurgeAll($item)) {
+                if ($this->queueItemIsPurgeAll($item)) {
                     return true;
                 }
             }
