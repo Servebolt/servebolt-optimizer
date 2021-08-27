@@ -9,6 +9,7 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use Exception;
 use Servebolt\Optimizer\Traits\EventToggler;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\setCachePurgeOriginEvent;
 
 /**
  * Class CachePurgeWPActions
@@ -86,6 +87,7 @@ class ContentChangeTrigger
             return;
         }
         try {
+            setCachePurgeOriginEvent('term_change');
             WordPressCachePurge::purgeTermCache($termId, $taxonomy);
         } catch (Exception $e) {}
     }
@@ -206,6 +208,7 @@ class ContentChangeTrigger
             return;
         }
         try {
+            setCachePurgeOriginEvent('post_change');
             WordPressCachePurge::purgeByPostId($postId);
         } catch (Exception $e) {}
     }
