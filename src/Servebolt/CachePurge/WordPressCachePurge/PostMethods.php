@@ -8,6 +8,7 @@ use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use function Servebolt\Optimizer\Helpers\isQueueItem;
+use function Servebolt\Optimizer\Helpers\pickupValueFromFilter;
 
 /**
  * Trait PostMethods
@@ -91,12 +92,9 @@ trait PostMethods
      */
     private static function maybeAddOriginalUrl(array $queueItemData, int $postId)
     {
-        if (has_filter('sb_optimizer_purge_by_post_original_url')) {
-            $originalUrl = apply_filters('sb_optimizer_purge_by_post_original_url', null);
-            remove_all_filters('sb_optimizer_purge_by_post_original_url');
-            if ($originalUrl && get_permalink($postId) !== $originalUrl) {
-                $queueItemData['original_url'] = $originalUrl;
-            }
+        $originalUrl = pickupValueFromFilter('sb_optimizer_purge_by_post_original_url');
+        if ($originalUrl && get_permalink($postId) !== $originalUrl) {
+            $queueItemData['original_url'] = $originalUrl;
         }
         return $queueItemData;
     }

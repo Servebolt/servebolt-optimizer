@@ -127,6 +127,25 @@ function ajaxUserAllowedByFunction($method, bool $returnResult = false)
 }
 
 /**
+ * Pick up value from a filter, then clear the filter.
+ *
+ * @param string $key
+ * @param bool $clearAfterPickup
+ * @return mixed|void|null
+ */
+function pickupValueFromFilter(string $key, bool $clearAfterPickup = true)
+{
+    if (!has_filter($key)) {
+        return null;
+    }
+    $value = apply_filters($key, null);
+    if ($clearAfterPickup) {
+        remove_all_filters($key);
+    }
+    return $value;
+}
+
+/**
  * Check if current user has capability, abort if not.
  *
  * @param bool $returnResult
