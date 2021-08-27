@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use function Servebolt\Optimizer\Helpers\getCachePurgeOriginEvent;
 use function Servebolt\Optimizer\Helpers\isQueueItem;
 use function Servebolt\Optimizer\Helpers\pickupValueFromFilter;
 
@@ -74,6 +75,9 @@ trait PostMethods
                 'id' => $postId,
                 'simplePurge' => true,
             ];
+            if ($originEvent = getCachePurgeOriginEvent()) {
+                $queueItemData['originEvent'] = $originEvent;
+            }
             $queueItemData = self::maybeAddOriginalUrl($queueItemData, $postId);
             return isQueueItem($queueInstance->add($queueItemData));
         } else {
@@ -129,6 +133,9 @@ trait PostMethods
                 'type' => 'post',
                 'id' => $postId,
             ];
+            if ($originEvent = getCachePurgeOriginEvent()) {
+                $queueItemData['originEvent'] = $originEvent;
+            }
             $queueItemData = self::maybeAddOriginalUrl($queueItemData, $postId);
             return isQueueItem($queueInstance->add($queueItemData));
         } else {

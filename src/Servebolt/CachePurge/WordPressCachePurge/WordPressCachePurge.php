@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use function Servebolt\Optimizer\Helpers\getCachePurgeOriginEvent;
 use function Servebolt\Optimizer\Helpers\isQueueItem;
 
 /**
@@ -158,10 +159,14 @@ class WordPressCachePurge
     {
         if (self::shouldPurgeByQueue()) {
             $queueInstance = WpObjectQueue::getInstance();
-            return isQueueItem($queueInstance->add([
+            $queueItemData = [
                 'type' => 'purge-all',
                 'networkPurge' => false,
-            ]));
+            ];
+            if ($originEvent = getCachePurgeOriginEvent()) {
+                $queueItemData['originEvent'] = $originEvent;
+            }
+            return isQueueItem($queueInstance->add($queueItemData));
         } else {
             $cachePurgeDriver = CachePurgeDriver::getInstance();
             return $cachePurgeDriver->purgeAll();

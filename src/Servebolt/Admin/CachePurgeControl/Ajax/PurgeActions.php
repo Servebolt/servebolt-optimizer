@@ -18,6 +18,8 @@ use function Servebolt\Optimizer\Helpers\getPostTypeSingularName;
 use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
 use function Servebolt\Optimizer\Helpers\postExists;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowedByFunction;
+use function Servebolt\Optimizer\Helpers\setCachePurgeOriginEvent;
+
 //use function Servebolt\Optimizer\Helpers\getBlogName;
 //use function Servebolt\Optimizer\Helpers\createLiTagsFromArray;
 //use function Servebolt\Optimizer\Helpers\requireSuperadmin;
@@ -101,6 +103,7 @@ class PurgeActions extends SharedAjaxMethods
         }
 
         try {
+            setCachePurgeOriginEvent('manual_trigger');
             WordPressCachePurge::purgeAll();
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
@@ -191,6 +194,7 @@ class PurgeActions extends SharedAjaxMethods
         }
 
         try {
+            setCachePurgeOriginEvent('manual_trigger');
             WordPressCachePurge::purgeByUrl($url);
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success([
@@ -280,6 +284,7 @@ class PurgeActions extends SharedAjaxMethods
         }
 
         try {
+            setCachePurgeOriginEvent('manual_trigger');
             WordPressCachePurge::purgeByPost($postId);
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
@@ -376,6 +381,7 @@ class PurgeActions extends SharedAjaxMethods
         }
 
         try {
+            setCachePurgeOriginEvent('manual_trigger');
             WordPressCachePurge::purgeByTerm($termId, $term->taxonomy);
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
