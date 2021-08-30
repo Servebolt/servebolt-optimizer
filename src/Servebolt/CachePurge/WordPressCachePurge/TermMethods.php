@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use function Servebolt\Optimizer\Helpers\getCachePurgeOriginEvent;
 use function Servebolt\Optimizer\Helpers\isQueueItem;
 
 /**
@@ -64,12 +65,16 @@ trait TermMethods
 
         if (self::shouldPurgeByQueue()) {
             $queueInstance = WpObjectQueue::getInstance();
-            return isQueueItem($queueInstance->add([
+            $queueItemData = [
                 'type' => 'term',
                 'id'   => $termId,
                 'args' => compact('taxonomySlug'),
                 'simplePurge' => true,
-            ]));
+            ];
+            if ($originEvent = getCachePurgeOriginEvent()) {
+                $queueItemData['originEvent'] = $originEvent;
+            }
+            return isQueueItem($queueInstance->add($queueItemData));
         } else {
             $cachePurgeDriver = CachePurgeDriver::getInstance();
             $termUrl = get_term_link($termId);
@@ -97,11 +102,15 @@ trait TermMethods
 
         if (self::shouldPurgeByQueue()) {
             $queueInstance = WpObjectQueue::getInstance();
-            return isQueueItem($queueInstance->add([
+            $queueItemData = [
                 'type' => 'term',
-                'id'   => $termId,
+                'id' => $termId,
                 'args' => compact('taxonomySlug'),
-            ]));
+            ];
+            if ($originEvent = getCachePurgeOriginEvent()) {
+                $queueItemData['originEvent'] = $originEvent;
+            }
+            return isQueueItem($queueInstance->add($queueItemData));
         } else {
             if (self::$preventDoublePurge && self::$preventTermDoublePurge && array_key_exists($termId . '-' . $taxonomySlug, self::$recentlyPurgedTerms)) {
                 return self::$recentlyPurgedTerms[$termId . '-' . $taxonomySlug];

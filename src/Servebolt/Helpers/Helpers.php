@@ -127,6 +127,29 @@ function ajaxUserAllowedByFunction($method, bool $returnResult = false)
 }
 
 /**
+ * Flag cache purge origin event.
+ *
+ * @param string $origin
+ */
+function setCachePurgeOriginEvent(string $origin): void
+{
+    remove_all_filters('sb_optimizer_cache_purge_origin');
+    add_filter('sb_optimizer_cache_purge_origin', function() use ($origin) {
+        return $origin;
+    });
+}
+
+/**
+ * Get and clear the purge origin event flag.
+ *
+ * @return mixed|void|null
+ */
+function getCachePurgeOriginEvent()
+{
+    return pickupValueFromFilter('sb_optimizer_cache_purge_origin');
+}
+
+/**
  * Pick up value from a filter, then clear the filter.
  *
  * @param string $key

@@ -9,6 +9,7 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use Exception;
 use Servebolt\Optimizer\Traits\EventToggler;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\setCachePurgeOriginEvent;
 
 /**
  * Class SlugChangeTrigger
@@ -75,6 +76,7 @@ class SlugChangeTrigger
             if ($previousTermPermalink = get_term_link($term)) {
                 try {
                     // TODO: Consider whether we should add pagination-support to this cache purge
+                    setCachePurgeOriginEvent('term_permalink_changed');
                     WordPressCachePurge::purgeByUrl($previousTermPermalink);
                 } catch (Exception $e) {}
             }
@@ -115,6 +117,7 @@ class SlugChangeTrigger
     {
         if ($this->postPermalinkDidChange($postId)) {
             try {
+                setCachePurgeOriginEvent('post_permalink_changed');
                 WordPressCachePurge::purgeByUrl($this->previousPostPermalink);
             } catch (Exception $e) {}
         }
