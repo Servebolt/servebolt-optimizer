@@ -15,7 +15,7 @@ trait SharedMethods
      *
      * @var int
      */
-    private static $transientVersion = '1.0';
+    private static $transientVersion = '1.1';
 
     /**
      * The TTL for the menu signature index transient (default 180 days).
@@ -87,6 +87,17 @@ trait SharedMethods
     }
 
     /**
+     * Delete menu signature index.
+     *
+     * @param $menuId
+     */
+    private static function deleteMenuSignatureIndex($menuId): void
+    {
+        $transientKey = self::menuSignatureIndexTransientKey($menuId);
+        delete_transient($transientKey);
+    }
+
+    /**
      * Add a menu signature to the menu signature index.
      *
      * @param $menuSignature
@@ -151,6 +162,11 @@ trait SharedMethods
      */
     private static function getMenuSignatureFromArgs(object $args): string
     {
-        return apply_filters('sb_optimizer_menu_cache_signature', wp_json_encode($args), $args);
+        $signatureBase = md5(wp_json_encode($args));
+        return apply_filters(
+            'sb_optimizer_menu_cache_signature',
+            $signatureBase,
+            $args
+        );
     }
 }

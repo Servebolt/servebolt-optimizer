@@ -99,31 +99,39 @@ class MenuCache
      */
     private static function ensureMenuObjectIsResolved(&$args): void
     {
-        // Get the nav menu based on the requested menu
-        $menu = wp_get_nav_menu_object($args->menu);
+        /* This section is from the function "wp_nav_menu" in the WP core files. It is here to find a menu when none is provided. */
 
-        // Get the nav menu based on the theme_location
-        if (
-            !$menu
-            && $args->theme_location
-            && ($locations = get_nav_menu_locations())
-            && isset($locations[$args->theme_location])
-        ) {
-            $menu = wp_get_nav_menu_object($locations[$args->theme_location]);
+        // @codingStandardsIgnoreStart
+
+        // Get the nav menu based on the requested menu.
+        $menu = wp_get_nav_menu_object( $args->menu );
+
+        // Get the nav menu based on the theme_location.
+        $locations = get_nav_menu_locations();
+        if ( ! $menu && $args->theme_location && $locations && isset( $locations[ $args->theme_location ] ) ) {
+            $menu = wp_get_nav_menu_object( $locations[ $args->theme_location ] );
         }
 
-        // get the first menu that has items if we still can't find a menu
-        if (!$menu && !$args->theme_location) {
+        // Get the first menu that has items if we still can't find a menu.
+        if ( ! $menu && ! $args->theme_location ) {
             $menus = wp_get_nav_menus();
-            foreach ($menus as $menuMaybe) {
-                if (wp_get_nav_menu_items($menuMaybe->term_id, ['update_post_term_cache' => false])) {
-                    $menu = $menuMaybe;
+            foreach ( $menus as $menu_maybe ) {
+                $menu_items = wp_get_nav_menu_items( $menu_maybe->term_id, array( 'update_post_term_cache' => false ) );
+                if ( $menu_items ) {
+                    $menu = $menu_maybe;
                     break;
                 }
             }
         }
 
         if ( empty( $args->menu ) ) {
+            $args->menu = $menu;
+        }
+
+        // @codingStandardsIgnoreEnd
+
+        // Fallback to catch faulty wp_nav_menu argument filtering (originating from plugin AstraPro). Jira ticket WPSO-400.
+        if ( is_numeric( $args->menu ) ) {
             $args->menu = $menu;
         }
     }

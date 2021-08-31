@@ -18,8 +18,30 @@ class MenuCachePurge
     public static function init(): void
     {
         if (self::shouldAutoPurgeCachedMenus()) {
-            add_action('wp_update_nav_menu', __CLASS__ . '::purgeMenuCache', 10, 2);
+            add_action('wp_update_nav_menu', __CLASS__ . '::purgeMenuCache', 10, 1);
+            add_action('wp_delete_nav_menu', __CLASS__ . '::purgeMenuCache', 10, 1);
+            add_filter('pre_set_theme_mod_nav_menu_locations', __CLASS__ . '::purgeMenuCacheOnDisplayLocationChange', 10, 2);
         }
+    }
+
+    /**
+     * Purge menu cache whenever it is not active at any theme locations anymore.
+     *
+     * @param $new
+     * @param $old
+     * @return mixed
+     */
+    public static function purgeMenuCacheOnDisplayLocationChange($new, $old)
+    {
+        $activeMenus = array_values($new);
+        $oldMenus = array_values($old);
+        foreach ($oldMenus as $menuId) {
+            // Purge cache if the menu is not set as active at any location
+            if (!in_array($menuId, $activeMenus)) {
+                self::purgeMenuCache($menuId);
+            }
+        }
+        return $new;
     }
 
     /**
@@ -38,22 +60,15 @@ class MenuCachePurge
      * @param int $menuId
      * @param array|null $menuData
      */
-    public static function purgeMenuCache(int $menuId, ?array $menuData = null)
+    public static function purgeMenuCache(int $menuId)
     {
-        if (!is_array($menuData) || !isset($menuData['menu-name'])) {
-            return;
-        }
-        $menu = wp_get_nav_menu_object($menuData['menu-name']);
-        if (!isset($menu->term_id)) {
-            return;
-        }
-        $menuSignatureIndex = self::getMenuSignatureIndex($menu->term_id);
+        $menuSignatureIndex = self::getMenuSignatureIndex($menuId);
+        self::deleteMenuSignatureIndex($menuId);
         if (empty($menuSignatureIndex)) {
             return;
         }
         foreach ($menuSignatureIndex as $menuSignature) {
             delete_transient(self::menuCacheTransientKey($menuSignature));
         }
-        self::setMenuSignatureIndex([], $menu->term_id);
     }
 }
