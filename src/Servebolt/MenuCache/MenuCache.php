@@ -130,7 +130,7 @@ class MenuCache
 
         // @codingStandardsIgnoreEnd
 
-        // Fallback to catch faulty wp_nav_menu argument filtering (originating from plugin AstraPro). Jira ticket WPSO-400.
+        // Fallback to catch faulty wp_nav_menu-argument filtering (originating from plugin Astra Pro). Jira ticket WPSO-400.
         if ( is_numeric( $args->menu ) ) {
             $args->menu = $menu;
         }
