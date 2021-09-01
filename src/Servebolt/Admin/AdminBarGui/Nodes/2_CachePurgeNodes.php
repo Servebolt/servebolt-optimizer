@@ -79,7 +79,6 @@ class CachePurgeNodes implements NodeInterface
             'title' => __('Purge Cloudflare Cache for all sites', 'servebolt-wp'),
             'href'  => '#',
             'meta'  => [
-                'target' => '_blank',
                 'class' => 'sb-admin-button sb-purge-network-cache'
             ]
         ];
