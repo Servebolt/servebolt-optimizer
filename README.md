@@ -40,6 +40,10 @@ Credentials for the SVN repository is stored in the password manager. The creden
 If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to WordPress.org.
 
 ## Changelog
+#### 3.2.1
+* Improved cache purge in menu cache feature.
+* Improved and avoided a bug when used together with plugin Astra Pro.
+
 #### 3.2
 * Improved automated cache purging - The automatic cache purge has been improved, primarily in 3 areas. Whenever a post/term gets deleted then the cache gets purged. Whenever an attachment gets updated (resized, cropped etc.) we purge cache for URLs, including all image sizes if the attachment is an image. Whenever a post gets excluded from the HTML Cache (formerly Full Page Cache) then we also purge cache.
 * Custom cache TTL per post type - One can now control the cache TTL (time-to-live) per post type. This allows for more fine-grained cache control.
