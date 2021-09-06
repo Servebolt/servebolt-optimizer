@@ -19,7 +19,7 @@ class ProductVariationCachePurge
     public function __construct()
     {
         if (apply_filters('sb_optimizer_woocommerce_cache_purge_for_variations', true) === false) {
-            return false; // We're not suppose to purge cache for variations
+            return false; // We're not supposed to purge cache for variations
         }
         add_action('sb_optimizer_post_cache_purge_3rd_party_urls_post_type_product', [$this, 'addProductVariationUrls'], 10, 2);
     }
