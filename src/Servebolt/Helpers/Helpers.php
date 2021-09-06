@@ -127,6 +127,48 @@ function ajaxUserAllowedByFunction($method, bool $returnResult = false)
 }
 
 /**
+ * Flag cache purge origin event.
+ *
+ * @param string $origin
+ */
+function setCachePurgeOriginEvent(string $origin): void
+{
+    remove_all_filters('sb_optimizer_cache_purge_origin');
+    add_filter('sb_optimizer_cache_purge_origin', function() use ($origin) {
+        return $origin;
+    });
+}
+
+/**
+ * Get and clear the purge origin event flag.
+ *
+ * @return mixed|void|null
+ */
+function getCachePurgeOriginEvent()
+{
+    return pickupValueFromFilter('sb_optimizer_cache_purge_origin');
+}
+
+/**
+ * Pick up value from a filter, then clear the filter.
+ *
+ * @param string $key
+ * @param bool $clearAfterPickup
+ * @return mixed|void|null
+ */
+function pickupValueFromFilter(string $key, bool $clearAfterPickup = true)
+{
+    if (!has_filter($key)) {
+        return null;
+    }
+    $value = apply_filters($key, null);
+    if ($clearAfterPickup) {
+        remove_all_filters($key);
+    }
+    return $value;
+}
+
+/**
  * Check if current user has capability, abort if not.
  *
  * @param bool $returnResult
