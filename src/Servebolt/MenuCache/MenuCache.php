@@ -12,78 +12,25 @@ use function Servebolt\Optimizer\Helpers\isDevDebug;
  */
 class MenuCache
 {
+    use SharedMethods;
 
     /**
-     * Static property for storing navMenu arguments during caching.
-     *
-     * @var null|object
-     */
-    private static $navMenuArgs = null;
-
-    /**
-     * Static property to store transient key for menu markup.
-     *
-     * @var null
-     */
-    private static $menuMarkupTransientKey = null;
-
-    /**
-     * The version key used in transient keys so we can easily bust all cache.
-     *
-     * @var int
-     */
-    private static $transientVersion = '1.0';
-
-    /**
-     * Whether to return the cached version of menus (should always be true, unless you're debugging).
-     *
-     * @var bool
-     */
-    private static $returnCachedMenu = true;
-
-    /**
-     * The TTL for the menu signature index transient.
-     *
-     * @var int
-     */
-    private static $menuSignatureIndexCacheExpirationTime = 0;
-
-    /**
-     * The TTL for the menu markup transient.
-     *
-     * @var int
-     */
-    private static $menuMarkupCacheExpirationTime = 0;
-
-    /**
-     * MenuCache constructor.
+     * MenuCache init.
      */
     public static function init()
     {
-        self::cacheInit();
-        self::cachePurgeInit();
-    }
-
-    public static function cacheInit(): void
-    {
-        if (self::shouldReturnCachedMenu()) {
-            self::returnCachedMenuIfCached();
-        }
-    }
-
-    public static function cachePurgeInit(): void
-    {
-        if (apply_filters('sb_optimizer_menu_cache_automatic_purge_enabled', true)) {
-            add_action('wp_update_nav_menu', __CLASS__ . '::purgeMenuCache', 10, 2);
+        if (self::shouldCacheMenus()) {
+            add_filter('pre_wp_nav_menu', __CLASS__ . '::preWpNavMenu', 10, 2);
+            add_filter('wp_nav_menu', __CLASS__ . '::wpNavMenu', 10, 2);
         }
     }
 
     /**
-     * Check whether we should return the cached menu.
+     * Check whether we should cache menus.
      *
      * @return bool
      */
-    private static function shouldReturnCachedMenu(): bool
+    private static function shouldCacheMenus()
     {
         if (apply_filters('sb_optimizer_menu_cache_disabled_for_unauthenticated_users', false)) {
             return !is_user_logged_in();
@@ -92,74 +39,7 @@ class MenuCache
     }
 
     /**
-     * Purge menu cache.
-     *
-     * @param int $menuId
-     * @param array|null $menuData
-     */
-    public static function purgeMenuCache(int $menuId, ?array $menuData = null)
-    {
-        if (!is_array($menuData) || !isset($menuData['menu-name'])) {
-            return;
-        }
-        $menu = wp_get_nav_menu_object($menuData['menu-name']);
-        if (!isset($menu->term_id)) {
-            return;
-        }
-        $cachedVersions = self::getMenuSignatureIndex($menu->term_id);
-        if (empty($cachedVersions)) {
-            return;
-        }
-        foreach ($cachedVersions as $transientKey) {
-            delete_transient($transientKey);
-        }
-        self::setMenuSignatureIndex($menu->term_id, []);
-    }
-
-    /**
-     * Start the caching process.
-     */
-    public static function returnCachedMenuIfCached(): void
-    {
-        self::preWpNavMenuOn();
-    }
-
-    /**
-     * Return the cached output.
-     *
-     * @param $output
-     * @return mixed|string
-     */
-    private static function returnCachedOutput($output)
-    {
-        if (apply_filters('sb_optimizer_menu_cache_print_cached_comment', false)) {
-            if (isDevDebug()) {
-                $output .= '<h1>This menu is cached</h1>' . PHP_EOL;
-            }
-            $output .= '<!-- This menu is cached by Servebolt Optimizer -->' . PHP_EOL;
-        }
-        return $output;
-    }
-
-    /**
-     * Return the newly cached output.
-     *
-     * @param $output
-     * @return mixed|string
-     */
-    private static function returnNewlyCachedOutput($output)
-    {
-        if (apply_filters('sb_optimizer_menu_cache_print_cached_comment', false)) {
-            if (isDevDebug()) {
-                $output .= '<h1>This menu was just cached</h1>' . PHP_EOL;
-            }
-            $output .= '<!-- This menu was just cached by Servebolt Optimizer -->' . PHP_EOL;
-        }
-        return $output;
-    }
-
-    /**
-     * Hook in early in the menu loading and see if we got a cached version.
+     * Hook in early in the menu loading using the 'pre_wp_nav_menu'-filter and see if we got a cached version.
      *
      * @param string|null $output
      * @param object $args
@@ -167,217 +47,92 @@ class MenuCache
      */
     public static function preWpNavMenu(?string $output, object $args): ?string
     {
-        if ($cachedOutput = self::getCachedMenu($args)) {
-            return $cachedOutput;
-        }
-        return $output;
-    }
-
-    /**
-     * Get cached menu, and it not cached then we'll cache and return it.
-     *
-     * @param object $args
-     * @return false|string|void
-     */
-    private static function getCachedMenu(object $args)
-    {
-        self::$menuMarkupTransientKey = self::getTransientKeyByArgs($args);
-        if (self::$returnCachedMenu) {
-            $cachedMenuOutput = get_transient(self::$menuMarkupTransientKey);
-            if ($cachedMenuOutput) {
-                return self::returnCachedOutput($cachedMenuOutput);
+        self::ensureMenuObjectIsResolved($args);
+        if (self::getMenuSignatureIndex($args->menu->term_id)) {
+            $menuSignature = self::getMenuSignatureFromArgs($args);
+            if ($cachedOutput = self::getMenuCache($menuSignature)) {
+                return self::returnCachedOutput($cachedOutput);
             }
         }
-        return self::cacheAndReturnMenu($args);
-    }
-
-    /**
-     * Cache and return menu markup.
-     *
-     * @param $args
-     * @return mixed|string
-     */
-    private static function cacheAndReturnMenu($args)
-    {
-        self::preWpNavMenuOff();
-        $ourArgs = clone $args;
-        $ourArgs->echo = false;
-        self::wpNavMenuOn();
-        $output = wp_nav_menu($ourArgs);
-        $navMenuArgs = self::getNavMenuArgs();
-        if ($navMenuArgs) {
-            self::addMenuSignatureToMenuSignatureIndex(self::$menuMarkupTransientKey, $navMenuArgs);
-            set_transient(self::$menuMarkupTransientKey, $output);
-            self::preWpNavMenuOn();
-            return self::returnNewlyCachedOutput($output);
-        }
         return $output;
     }
 
     /**
-     * Get menu signature index transient key.
+     * Hook into the 'wp_nav_menu'-filter and maybe set cache.
      *
-     * @param int $menuId
-     * @return string
+     * @param $navMenu
+     * @param $args
+     * @return mixed
      */
-    private static function menuSignatureTransientKey(int $menuId): string
+    public static function wpNavMenu($navMenu, $args)
     {
-        return 'sb-menu-cache-menu-id-' . $menuId . '-v' . self::$transientVersion;
-    }
-
-    /**
-     * Get menu signature index by menu.
-     *
-     * @param int $menuId
-     * @return array
-     */
-    private static function getMenuSignatureIndex(int $menuId): array
-    {
-        $transientKey = self::menuSignatureTransientKey($menuId);
-        $cachedVersions = get_transient($transientKey);
-        return $cachedVersions === false ? [] : json_decode($cachedVersions);
-    }
-
-    /**
-     * Set menu signature index for menu.
-     *
-     * @param int $menuId
-     * @param array $cachedVersions
-     */
-    private static function setMenuSignatureIndex(int $menuId, array $cachedVersions): void
-    {
-        set_transient(
-            self::menuSignatureTransientKey($menuId),
-            wp_json_encode($cachedVersions),
-            self::getMenuSignatureIndexCacheExpirationTime()
-        );
-    }
-
-    /**
-     * Add menu signature to menu signature index.
-     *
-     * @param string $menuSignature
-     * @param object $args
-     */
-    private static function addMenuSignatureToMenuSignatureIndex(string $menuSignature, object $args): void
-    {
-        $cachedVersions = self::getMenuSignatureIndex($args->menu->term_id);
-        if (!in_array($menuSignature, $cachedVersions, true)) {
-            $cachedVersions[] = $menuSignature;
+        if (isset($args->menu->term_id)) {
+            $menuSignature = self::getMenuSignatureFromArgs($args);
+            self::setMenuCache($navMenu, $menuSignature);
+            self::addMenuSignatureToIndex($menuSignature, $args->menu->term_id);
         }
-        self::setMenuSignatureIndex($args->menu->term_id, $cachedVersions);
-    }
-
-    /**
-     * Get transient key for storing menu markup.
-     *
-     * @param string $menuSignature
-     * @return string
-     */
-    private static function getTransientKey(string $menuSignature): string
-    {
-        return 'sb-menu-cache-' . self::$transientVersion . '-' . $menuSignature;
-    }
-
-    /**
-     * Get transient key by menu orguments for storing menu markup.
-     *
-     * @param object $args
-     * @return string
-     */
-    private static function getTransientKeyByArgs(object $args): string
-    {
-        return self::getTransientKey(self::getMenuSignature($args));
-    }
-
-    /**
-     * Get menu signature.
-     *
-     * @param object $args
-     * @return string
-     */
-    private static function getMenuSignature(object $args): string
-    {
-        global $wp_query;
-        return md5(wp_json_encode($args) . $wp_query->query_vars_hash);
-    }
-
-    /**
-     * Get the expiration in seconds for storing the menu signature index.
-     *
-     * @return int
-     */
-    private static function getMenuSignatureIndexCacheExpirationTime(): int
-    {
-        return apply_filters('sb_optimizer_menu_cache_menu_signature_index_expiration_time', self::$menuSignatureIndexCacheExpirationTime);
-    }
-
-    /**
-     * Get the expiration in seconds for storing the menu markup.
-     *
-     * @return int
-     */
-    private static function getMenuMarkupCacheExpirationTime(): int
-    {
-        return apply_filters('sb_optimizer_menu_cache_menu_markup_expiration_time', self::$menuMarkupCacheExpirationTime);
-    }
-
-    /**
-     * Register menu cache hook.
-     */
-    private static function wpNavMenuOn(): void
-    {
-        add_filter('wp_nav_menu', __CLASS__ . '::recordNavMenuArgs', 10, 2);
-    }
-
-    /**
-     * Get result from nav menu object "recording" during menu caching.
-     *
-     * @return object|null
-     */
-    private static function getNavMenuArgs()
-    {
-        self::wpNavMenuOff();
-        $navMenuArgs = self::$navMenuArgs;
-        self::$navMenuArgs = null;
-        return $navMenuArgs;
-    }
-
-    /**
-     * "Record" nav menu object during menu caching.
-     *
-     * @param string|null $navMenu
-     * @param object $args
-     * @return string|null
-     */
-    public static function recordNavMenuArgs(?string $navMenu, object $args)
-    {
-        self::$navMenuArgs = $args;
         return $navMenu;
     }
 
     /**
-     * De-register menu cache hook.
+     * Return the cached output adding a cache "hit" indicator.
+     *
+     * @param $output
+     * @return mixed|string
      */
-    private static function wpNavMenuOff(): void
+    private static function returnCachedOutput($output)
     {
-        remove_filter('wp_nav_menu', __CLASS__ . '::recordNavMenuArgs', 10, 2);
+        if (apply_filters('sb_optimizer_menu_cache_print_cached_comment', true)) {
+            if (isDevDebug()) {
+                $output .= '<h3>This menu is cached by Servebolt Optimizer</h3>' . PHP_EOL; // For debugging purposes
+            } else {
+                $output .= '<!-- This menu is cached by Servebolt Optimizer -->' . PHP_EOL;
+            }
+        }
+        return $output;
     }
 
     /**
-     * Register menu cache hook.
+     * Ensure that we have the menu object in the argument object.
+     *
+     * @param $args
      */
-    private static function preWpNavMenuOn(): void
+    private static function ensureMenuObjectIsResolved(&$args): void
     {
-        add_filter('pre_wp_nav_menu', __CLASS__ . '::preWpNavMenu', 10, 2);
-    }
+        /* This section is from the function "wp_nav_menu" in the WP core files. It is here to find a menu when none is provided. */
 
-    /**
-     * De-register menu cache hook.
-     */
-    private static function preWpNavMenuOff(): void
-    {
-        remove_all_filters('pre_wp_nav_menu');
-        //remove_filter('pre_wp_nav_menu', __CLASS__ . '::preWpNavMenu', 10, 2);
+        // @codingStandardsIgnoreStart
+
+        // Get the nav menu based on the requested menu.
+        $menu = wp_get_nav_menu_object( $args->menu );
+
+        // Get the nav menu based on the theme_location.
+        $locations = get_nav_menu_locations();
+        if ( ! $menu && $args->theme_location && $locations && isset( $locations[ $args->theme_location ] ) ) {
+            $menu = wp_get_nav_menu_object( $locations[ $args->theme_location ] );
+        }
+
+        // Get the first menu that has items if we still can't find a menu.
+        if ( ! $menu && ! $args->theme_location ) {
+            $menus = wp_get_nav_menus();
+            foreach ( $menus as $menu_maybe ) {
+                $menu_items = wp_get_nav_menu_items( $menu_maybe->term_id, array( 'update_post_term_cache' => false ) );
+                if ( $menu_items ) {
+                    $menu = $menu_maybe;
+                    break;
+                }
+            }
+        }
+
+        if ( empty( $args->menu ) ) {
+            $args->menu = $menu;
+        }
+
+        // @codingStandardsIgnoreEnd
+
+        // Fallback to catch faulty wp_nav_menu-argument filtering (originating from plugin Astra Pro). Jira ticket WPSO-400.
+        if ( is_numeric( $args->menu ) ) {
+            $args->menu = $menu;
+        }
     }
 }
