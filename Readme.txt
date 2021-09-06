@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.8
 Requires PHP: 7.3
-Stable tag: 3.2
+Stable tag: 3.2.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.2.1 =
+* Bugfix - WP admin bar markup error - Fixed minor markup error in the WP admin bar dropdown menu. An obsolete “target”-attribute was added to the parent div element which is invalid.
+* Bugfix - menu cache feature issue with filters - Whenever a 3rd party adds a menu using the filter wp_nav_menu_args we could not cache the result due to how we interact using WordPress-filters. This should now be fixed.
+* Bugfix - menu cache feature producing excessive amount of transient rows - The menu cache feature produced way too many transients due to the way the transient key (a.k.a. cache key) was generated. Solved by making the transient key less complicated and by adding a filter so that 3rd parties can modify the cache behaviour instead.
+
 = 3.2 =
 * Improved automated cache purging - The automatic cache purge has been improved, primarily in 3 areas. Whenever a post/term gets deleted then the cache gets purged. Whenever an attachment gets updated (resized, cropped etc.) we purge cache for URLs, including all image sizes if the attachment is an image. Whenever a post gets excluded from the HTML Cache (formerly Full Page Cache) then we also purge cache.
 * Custom cache TTL per post type - One can now control the cache TTL (time-to-live) per post type. This allows for more fine-grained cache control.
