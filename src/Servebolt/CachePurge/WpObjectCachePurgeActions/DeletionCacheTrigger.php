@@ -67,8 +67,11 @@ class DeletionCacheTrigger
      *
      * @param int $termId
      */
-    public function deleteTerm(int $termId): void
+    public function deleteTerm($termId): void
     {
+        if (!$termId) {
+            return;
+        }
         $taxonomySlug = (getTaxonomyFromTermId($termId))->name;
         try {
             setCachePurgeOriginEvent('term_deleted');
