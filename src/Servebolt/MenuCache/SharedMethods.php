@@ -140,7 +140,7 @@ trait SharedMethods
      */
     private static function menuCacheTransientKey(string $menuSignature): string
     {
-        return 'sb-menu-cache-v' . $menuSignature . '-' . self::$transientVersion;
+        return 'sb-menu-cache-' . $menuSignature . '-v' . self::$transientVersion;
     }
 
     /**
