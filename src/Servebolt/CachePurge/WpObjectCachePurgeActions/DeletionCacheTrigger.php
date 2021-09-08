@@ -9,6 +9,7 @@ use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Traits\EventToggler;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
+use function Servebolt\Optimizer\Helpers\setCachePurgeOriginEvent;
 
 /**
  * Class DeletionCacheTrigger
@@ -66,10 +67,14 @@ class DeletionCacheTrigger
      *
      * @param int $termId
      */
-    public function deleteTerm(int $termId): void
+    public function deleteTerm($termId): void
     {
+        if (!$termId) {
+            return;
+        }
         $taxonomySlug = (getTaxonomyFromTermId($termId))->name;
         try {
+            setCachePurgeOriginEvent('term_deleted');
             WordPressCachePurge::skipQueueOnce();
             WordPressCachePurge::purgeByTermId($termId, $taxonomySlug);
         } catch (Exception $e) {}
@@ -83,6 +88,7 @@ class DeletionCacheTrigger
     public function deletePost(int $postId): void
     {
         try {
+            setCachePurgeOriginEvent('post_deleted');
             WordPressCachePurge::skipQueueOnce();
             WordPressCachePurge::purgeByPostId($postId);
         } catch (Exception $e) {}

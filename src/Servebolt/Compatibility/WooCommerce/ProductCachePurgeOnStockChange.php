@@ -44,7 +44,21 @@ class ProductCachePurgeOnStockChange
         if ($productId = $this->resolveProductPostId($product)) {
             if (ContentChangeTrigger::shouldPurgePostCache($productId)) { // Check if we should purge cache for the current product in regards to rules in ContentChangeTrigger::class
                 try {
-                    WordPressCachePurge::purgeByPostId($productId);
+                    /**
+                     * Determine whether we should do a simple purge during WooCommerce product
+                     *
+                     * @param bool $doSimplePurge Whether we should do a simple purge or not.
+                     * @param string $context The context of the purge.
+                     */
+                    if (apply_filters(
+                        'sb_optimizer_woocommerce_do_simple_purge',
+                        true,
+                        'woocommerce_product_stock_change'
+                    )) {
+                        WordPressCachePurge::purgePostCacheSimple($productId);
+                    } else {
+                        WordPressCachePurge::purgeByPostId($productId);
+                    }
                 } catch (Exception $e) {}
             }
         }

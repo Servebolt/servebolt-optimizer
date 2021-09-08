@@ -31,6 +31,7 @@ use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\javascriptRedirect;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
 use function Servebolt\Optimizer\Helpers\listenForOptionChange;
+use function Servebolt\Optimizer\Helpers\pickupValueFromFilter;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
@@ -810,5 +811,23 @@ class HelpersTest extends ServeboltWPUnitTestCase
             $this->assertEquals($expectedArray, getAllImageSizesByImage($attachmentId));
             $this->deleteAttachment($attachmentId);
         }
+    }
+
+    public function testThatWeCanPickUpValueFromFilter()
+    {
+        $key = 'some_filter_to_test';
+        $this->assertNull(pickupValueFromFilter($key));
+        add_filter('some_filter_to_test', function() {
+            return 'value';
+        });
+        $this->assertEquals('value', pickupValueFromFilter($key));
+        $this->assertNull(pickupValueFromFilter($key));
+
+        add_filter('some_filter_to_test', function() {
+            return 'value';
+        });
+        $this->assertEquals('value', pickupValueFromFilter($key, false));
+        $this->assertEquals('value', pickupValueFromFilter($key));
+        $this->assertNull(pickupValueFromFilter($key));
     }
 }

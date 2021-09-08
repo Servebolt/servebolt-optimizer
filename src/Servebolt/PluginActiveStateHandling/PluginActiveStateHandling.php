@@ -30,7 +30,7 @@ class PluginActiveStateHandling
      */
     public function activatePlugin(): void
     {
-        MigrationRunner::migrate(); // Run database migrations
+        MigrationRunner::run(); // Run database migrations
         cacheCookieCheck();
     }
 

@@ -97,8 +97,17 @@ class WpObjectQueue
                 arrayGet('type', $payload),
             );
 
-            if ($purgeObject->success() && $urls = $purgeObject->getUrls()) {
-                return $urls;
+            if ($purgeObject->success()) {
+
+                // Handle simple purge - purging of only object URL without full URL hierachy.
+                if (arrayGet('simplePurge', $payload) === true) {
+                    return [
+                        $purgeObject->getBaseUrl()
+                    ];
+                }
+                if ($urls = $purgeObject->getUrls()) {
+                    return $urls;
+                }
             }
             return null;
         } elseif ($payload['type'] == 'url' && $payload['url']) {
