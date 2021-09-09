@@ -9,6 +9,7 @@ use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 use Exception;
+use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 
 /**
  * Class Configuration
@@ -118,8 +119,9 @@ class Configuration extends SharedAjaxMethods
         parse_str($_POST['form'], $formData);
         $errors = [];
 
-        $featureIsActive = arrayGet('servebolt_cache_purge_switch', $formData) === true;
+        $featureIsActive = checkboxIsChecked(arrayGet('servebolt_cache_purge_switch', $formData)) === true;
         $cfIsActive = arrayGet('servebolt_cache_purge_driver', $formData) == 'cloudflare';
+
         $authType = sanitize_text_field(arrayGet('servebolt_cf_auth_type', $formData));
         $apiToken = sanitize_text_field(arrayGet('servebolt_cf_api_token', $formData));
         $email = sanitize_text_field(arrayGet('servebolt_cf_email', $formData));
