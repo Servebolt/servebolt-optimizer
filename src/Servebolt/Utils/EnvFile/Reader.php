@@ -127,8 +127,7 @@ class Reader
             $this->extractedData = $parsedData;
             $this->success = true;
             return true;
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }
