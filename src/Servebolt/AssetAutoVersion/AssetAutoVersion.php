@@ -4,6 +4,8 @@ namespace Servebolt\Optimizer\AssetAutoVersion;
 
 if (!defined('ABSPATH')) exit;
 
+use Exception;
+
 /**
  * Class AssetAutoVersion
  */
