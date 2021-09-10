@@ -21,7 +21,7 @@
 
             <div class="sb-pwd">
                 <input type="password" id="sb_api_key" value="<?php echo esc_attr($serveboltApi->getApiToken()); ?>" class="regular-text validate-field" readonly>
-                <button type="button" class="button button-secondary wp-hide-pw sb-hide-pwd hide-if-no-js" data-toggle="0" aria-label="Show password">
+                <button type="button" class="button button-secondary wp-hide-pw sb-hide-pwd hide-if-no-js" data-toggle="0" aria-label="<?php echo esc_attr(__('Show password', 'servebolt-wp')); ?>">
                     <span class="dashicons dashicons-visibility" aria-hidden="true"></span>
                 </button>
             </div>

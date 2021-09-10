@@ -134,7 +134,10 @@ class UrlQueue
                 }
             }
             try {
-                if (!empty($urls) && $cachePurgeDriver->purgeByUrls($urls)) {
+                if (
+                    !empty($urls)
+                    && $cachePurgeDriver->purgeByUrls($urls)
+                ) {
                     $this->queue->completeItems($items);
                 }
             } catch (Exception $e) {}

@@ -51,7 +51,7 @@ class AcceleratedDomainsImageResizeControl
     }
 
     /**
-     * Flag "Performance optimizer"-page as active when on Prefetching-page.
+     * Flag "Performance Optimizer"-page as active when on Prefetching-page.
      */
     private function rewriteHighlightedMenuItem(): void
     {

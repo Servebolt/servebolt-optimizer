@@ -59,7 +59,7 @@ class CachePurgeControl
         // Fix faulty page title
         add_filter('admin_title', function($admin_title, $title) {
             if (isScreen('admin_page_servebolt-cache-purge-control')) {
-                return __('Cache purging', 'servebolt-wp') . ' ' . $admin_title;
+                return __('Cache Purging', 'servebolt-wp') . ' ' . $admin_title;
             }
             return $admin_title;
         }, 10, 2);

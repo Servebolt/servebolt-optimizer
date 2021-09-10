@@ -19,7 +19,7 @@
 
 <?php if (isHostedAtServebolt()) : ?>
     <a href="<?php echo admin_url('admin.php?page=servebolt-html-cache'); ?>" class="sb-button yellow">
-        <?php _e('Cache settings', 'servebolt-wp') ?>
+        <?php _e('Cache Settings', 'servebolt-wp') ?>
     </a>
 <?php endif; ?>
 
@@ -29,10 +29,10 @@
 
 <?php if (isHostedAtServebolt()) : ?>
     <a href="<?php echo admin_url('admin.php?page=servebolt-logs'); ?>" class="sb-button yellow">
-        <?php _e('Review the error log', 'servebolt-wp') ?>
+        <?php _e('Review the Error Log', 'servebolt-wp') ?>
     </a>
 <?php endif; ?>
 
 <a href="<?php echo admin_url('admin.php?page=servebolt-general-settings'); ?>" class="sb-button yellow">
-    <?php _e('General settings', 'servebolt-wp'); ?>
+    <?php _e('General Settings', 'servebolt-wp'); ?>
 </a>

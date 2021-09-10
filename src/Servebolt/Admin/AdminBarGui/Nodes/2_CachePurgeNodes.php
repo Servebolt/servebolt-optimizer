@@ -34,7 +34,10 @@ class CachePurgeNodes implements NodeInterface
     {
         return apply_filters(
             'sb_optimizer_admin_bar_display_cache_purge_node',
-            CachePurge::featureIsAvailable()
+            (
+                !is_network_admin()
+                && CachePurge::featureIsAvailable()
+            )
         );
     }
 
@@ -45,44 +48,11 @@ class CachePurgeNodes implements NodeInterface
      */
     public static function generateNodes(): array
     {
-        if (is_network_admin()) {
-            self::addPurgeAllNetworkNode();
-        } else {
-            self::addPurgeAllNode();
-        }
-
+        self::addPurgePost();
+        self::addPurgeTerm();
         self::addPurgeUrlNode();
-
-        if (!is_network_admin()) {
-            self::addPurgePost();
-            self::addPurgeTerm();
-        }
-
+        self::addPurgeAllNode();
         return self::$nodes;
-    }
-
-    /**
-     * Purge all cache (for all sites in multisite).
-     */
-    private static function addPurgeAllNetworkNode(): void
-    {
-        // TODO: Re-introduce this feature
-        /*
-        if (!apply_filters(
-            'sb_optimizer_admin_bar_cache_purge_can_purge_all_network',
-            current_user_can('manage_options')
-        )) {
-            return;
-        }
-        self::$nodes[] = [
-            'id'    => 'servebolt-clear-cf-network-cache',
-            'title' => __('Purge Cloudflare Cache for all sites', 'servebolt-wp'),
-            'href'  => '#',
-            'meta'  => [
-                'class' => 'sb-admin-button sb-purge-network-cache'
-            ]
-        ];
-        */
     }
 
     /**
@@ -98,7 +68,7 @@ class CachePurgeNodes implements NodeInterface
         }
         self::$nodes[] = [
             'id' => 'servebolt-clear-all-cf-cache',
-            'title' => __('Purge all cache', 'servebolt-wp'),
+            'title' => __('Purge All Cache', 'servebolt-wp'),
             'href' => '#',
             'meta' => [
                 'class' => 'sb-admin-button sb-purge-all-cache'

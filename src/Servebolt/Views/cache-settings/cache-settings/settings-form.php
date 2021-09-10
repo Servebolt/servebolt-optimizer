@@ -49,10 +49,10 @@ $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
                             <button type="button" class="button action sb-remove-selected-exclude-items" disabled><?php _e('Remove selected', 'servebolt-wp'); ?></button>
                         </div>
                         <div class="alignleft actions bulkactions">
-                            <button type="button" style="float:left;" class="button action sb-flush-html-cache-exclude-items"<?php if ( count($idsToExclude) === 0 ) echo ' disabled'; ?>><?php _e('Flush posts', 'servebolt-wp'); ?></button>
+                            <button type="button" style="float:left;" class="button action sb-flush-html-cache-exclude-items"<?php if (count($idsToExclude) === 0) echo ' disabled'; ?>><?php _e('Flush posts', 'servebolt-wp'); ?></button>
                         </div>
                         <div class="alignleft actions bulkactions">
-                            <button type="button" class="button button-primary sb-add-exclude-post">Add post to exclude</button>
+                            <button type="button" class="button button-primary sb-add-exclude-post"><?php _e('Add post to exclude', 'servebolt-wp'); ?></button>
                         </div>
                         <span class="spinner flush-html-cache-exclude-list-loading-spinner"></span>
                         <br class="clear">

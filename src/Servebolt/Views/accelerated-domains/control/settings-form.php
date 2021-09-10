@@ -38,6 +38,7 @@
 
     <p class="submit">
         <?php submit_button(null, 'primary', 'form-submit', false); ?>
+        <button type="button" class="button-secondary" id="sb-acd-purge-all-cache">Purge all cache</button>
     </p>
 
 </form>

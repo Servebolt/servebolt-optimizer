@@ -196,21 +196,21 @@ function ajaxUserAllowed(bool $returnResult = false, $capability = 'manage_optio
  * Create li-tags from array.
  *
  * @param $iterator
- * @param $closure
- * @param bool $includeUl
+ * @param callable|bool $closure
+ * @param bool|string $includeUlOrStyling
  *
  * @return string
  */
-function createLiTagsFromArray($iterator, $closure = false, bool $includeUl = true): string
+function createLiTagsFromArray($iterator, $closure = false, $includeUlOrStyling = true): string
 {
     $markup = '';
-    if ($includeUl) {
-        $markup .= '<ul>';
+    if ($includeUlOrStyling) {
+        $markup .= '<ul' . (is_string($includeUlOrStyling) ? ' style="' . $includeUlOrStyling . '"' : '') . '>';
     }
     array_map(function($item) use (&$markup, $closure) {
-        $markup .= '<li>' . ( is_callable($closure) ? $closure($item) : $item ) . '</li>';
+        $markup .= '<li>' . (is_callable($closure) ? $closure($item) : $item) . '</li>';
     }, $iterator);
-    if ($includeUl) {
+    if ($includeUlOrStyling) {
         $markup .= '</ul>';
     }
     return $markup;
@@ -997,7 +997,7 @@ function htmlCacheExcludePostTableRowMarkup($postId, bool $echo = true)
  *
  * @return string
  */
-function formatArrayToCsv($array, $glue = ','): string
+function formatArrayToCsv($array, string $glue = ','): string
 {
     return implode($glue, $array);
 }
@@ -1099,12 +1099,31 @@ function getVersionForStaticAsset(string $assetSrc): string
 }
 
 /**
- * Require the user to be a super admin.
+ * Check whether the current user is a superadmin.
+ *
+ * @return bool
  */
-function requireSuperadmin()
+function isSuperadmin(): bool
+{
+    return requireSuperadmin(true);
+}
+
+/**
+ * Require the user to be a super admin.
+ *
+ * @param bool $returnBoolean
+ * @return bool
+ */
+function requireSuperadmin(bool $returnBoolean = false)
 {
     if (!is_multisite() || !is_super_admin()) {
+        if ($returnBoolean) {
+            return false;
+        }
         wp_die();
+    }
+    if ($returnBoolean) {
+        return true;
     }
 }
 
