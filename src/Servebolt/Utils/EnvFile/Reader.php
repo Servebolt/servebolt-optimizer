@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Utils\EnvFile;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Exception;
 use Servebolt\Optimizer\Traits\Singleton;
 
 /**
@@ -126,8 +127,7 @@ class Reader
             $this->extractedData = $parsedData;
             $this->success = true;
             return true;
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }

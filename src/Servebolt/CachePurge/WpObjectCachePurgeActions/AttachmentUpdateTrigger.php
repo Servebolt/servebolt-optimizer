@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Exception;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Traits\EventToggler;
