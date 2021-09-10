@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Utils\EnvFile;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Exception;
 use Servebolt\Optimizer\Traits\Singleton;
 
 /**
