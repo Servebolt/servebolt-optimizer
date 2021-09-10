@@ -5,7 +5,7 @@
         <button type="button" class="button action sb-remove-selected-acd-image-sizes" disabled><?php _e('Remove selected', 'servebolt-wp'); ?></button>
     </div>
     <div class="alignleft actions bulkactions">
-        <button type="button" class="button button-primary" id="sb-add-acd-image-size">Add size</button>
+        <button type="button" class="button button-primary" id="sb-add-acd-image-size"><?php _e('Add size', 'servebolt-wp'); ?></button>
     </div>
     <span class="spinner acd-image-size-index-loading-spinner"></span>
     <br class="clear">

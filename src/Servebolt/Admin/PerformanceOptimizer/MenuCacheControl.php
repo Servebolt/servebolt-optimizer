@@ -36,7 +36,7 @@ class MenuCacheControl
     }
 
     /**
-     * Flag "Performance optimizer"-page as active when on Menu cache-page.
+     * Flag "Performance Optimizer"-page as active when on Menu cache-page.
      */
     private function rewriteHighlightedMenuItem(): void
     {

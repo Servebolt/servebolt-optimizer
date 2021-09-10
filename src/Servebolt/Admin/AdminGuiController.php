@@ -202,11 +202,11 @@ class AdminGuiController
     private function cacheSettingsMenu(): void
     {
         if (isHostedAtServebolt()) {
-            add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-html-cache', [FullPageCacheControl::getInstance(), 'render']);
+            add_submenu_page('servebolt-wp', __('Cache Settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-html-cache', [FullPageCacheControl::getInstance(), 'render']);
             add_submenu_page(null, null, null, 'manage_options', 'servebolt-cache-ttl', [CacheTtlControl::getInstance(), 'render']);
             add_submenu_page(null, null, null, 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
         } else {
-            add_submenu_page('servebolt-wp', __('Cache settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
+            add_submenu_page('servebolt-wp', __('Cache Settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
         }
 
         // Legacy redirects
@@ -232,7 +232,7 @@ class AdminGuiController
      */
     private function errorLogMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Error log', 'servebolt-wp'), __('Error log', 'servebolt-wp'), 'manage_options', 'servebolt-logs', [LogViewer::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Error Log', 'servebolt-wp'), __('Error Log', 'servebolt-wp'), 'manage_options', 'servebolt-logs', [LogViewer::getInstance(), 'render']);
     }
 
     /**
@@ -248,7 +248,7 @@ class AdminGuiController
      */
     private function performanceOptimizerMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Performance optimizer', 'servebolt-wp'), __('Performance optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-optimizer', [PerformanceOptimizer::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Performance Optimizer', 'servebolt-wp'), __('Performance Optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-optimizer', [PerformanceOptimizer::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-advanced', [PerformanceOptimizerAdvanced::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-database', [DatabaseOptimizations::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-menu-cache', [MenuCacheControl::getInstance(), 'render']);
@@ -278,7 +278,7 @@ class AdminGuiController
      */
     private function generalSettingsMenu(): void
     {
-        add_submenu_page('servebolt-wp', __('Settings', 'servebolt-wp'), __('General settings', 'servebolt-wp'), 'manage_options', 'servebolt-general-settings', [GeneralSettings::getInstance(), 'render']);
+        add_submenu_page('servebolt-wp', __('Settings', 'servebolt-wp'), __('General Settings', 'servebolt-wp'), 'manage_options', 'servebolt-general-settings', [GeneralSettings::getInstance(), 'render']);
     }
 
     /**
