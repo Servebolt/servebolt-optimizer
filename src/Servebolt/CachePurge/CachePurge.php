@@ -137,7 +137,31 @@ class CachePurge
      */
     public static function featureIsAvailable(?int $blogId = null): bool
     {
-        return self::isActive($blogId) && self::featureIsConfigured($blogId);
+        return self::isActive($blogId)
+            && self::featureIsConfigured($blogId)
+            && !self::apiConnectionErrorIsFlagged($blogId);
+    }
+
+    /**
+     * Check whether the API connection has been flagged as inactive due to error.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function apiConnectionErrorIsFlagged(?int $blogId = null): bool
+    {
+        return smartGetOption($blogId, 'cache_purge_auto_on_attachment_update') === true;
+    }
+
+    /**
+     * Set the API connection error flag.
+     *
+     * @param bool $state
+     * @param int|null $blogId
+     */
+    public static function setApiConnectionErrorFlag(bool $state = true, ?int $blogId = null): void
+    {
+        smartUpdateOption($blogId, 'cache_purge_auto_on_attachment_update', $state);
     }
 
     /**

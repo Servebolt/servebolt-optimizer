@@ -12,7 +12,6 @@ use Servebolt\Optimizer\FullPageCache\FullPageCache;
 use Servebolt\Optimizer\MenuCache\WpMenuCache;
 use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
 use Servebolt\Optimizer\TextDomainLoader\WpTextDomainLoader;
-use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use Servebolt\Optimizer\Utils\Crypto\OptionEncryption;
 use Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Queue\QueueEventHandler;
