@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Admin\Prefetching;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax\PrefetchingFileGeneration;
+use Servebolt\Optimizer\Admin\Prefetching\Ajax\PrefetchingFileGeneration;
 use Servebolt\Optimizer\Prefetching\ManifestFilesModel;
 use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
 use Servebolt\Optimizer\Prefetching\WpPrefetching;

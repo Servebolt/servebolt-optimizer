@@ -859,7 +859,7 @@ function featureIsAvailable(string $feature): ?bool
         case 'custom_text_domain_loader':
             return true;
         case 'prefetching':
-            return false; // Waiting for CF to fix their end
+            return true;
         case 'cf_image_resize':
             //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || (getCloudflareImageResizeInstance())::resizingIsActive();
             return true;
