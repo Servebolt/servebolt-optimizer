@@ -1508,7 +1508,7 @@ function jetpackIsActive(): bool
  * @param bool $ensureConstantsAreSet
  * @return object WP_Filesystem_Direct instance
  */
-function wpDirectFilesystem(bool $ensureConstantsAreSet = false): object
+function wpDirectFilesystem(bool $ensureConstantsAreSet = true): object
 {
     if ($ensureConstantsAreSet || (defined('WP_TESTS_ARE_RUNNING') && WP_TESTS_ARE_RUNNING === true)) {
         // Set the permission constants if not already set.
