@@ -34,7 +34,7 @@ class Prefetching
     private static $transientKey = 'servebolt_manifest_written';
 
     /**
-     * Check whether we have already loaded the front page during this exection.
+     * Check whether we have already loaded the front page during this execution.
      *
      * @var bool
      */
