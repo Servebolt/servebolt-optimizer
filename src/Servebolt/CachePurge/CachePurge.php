@@ -150,7 +150,7 @@ class CachePurge
      */
     public static function apiConnectionErrorIsFlagged(?int $blogId = null): bool
     {
-        return smartGetOption($blogId, 'cache_purge_auto_on_attachment_update') === true;
+        return smartGetOption($blogId, 'api_connection_error') === true;
     }
 
     /**
@@ -161,7 +161,7 @@ class CachePurge
      */
     public static function setApiConnectionErrorFlag(bool $state = true, ?int $blogId = null): void
     {
-        smartUpdateOption($blogId, 'cache_purge_auto_on_attachment_update', $state);
+        smartUpdateOption($blogId, 'api_connection_error', $state);
     }
 
     /**
