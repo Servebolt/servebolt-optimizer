@@ -75,6 +75,16 @@ class MenuCache
     }
 
     /**
+     * The message that flags the menu as cached or not.
+     *
+     * @return string
+     */
+    public static function menuCacheMessage(): string
+    {
+        return 'This menu is cached by Servebolt Optimizer';
+    }
+
+    /**
      * Return the cached output adding a cache "hit" indicator.
      *
      * @param $output
@@ -84,9 +94,9 @@ class MenuCache
     {
         if (apply_filters('sb_optimizer_menu_cache_print_cached_comment', true)) {
             if (isDevDebug()) {
-                $output .= '<h3>This menu is cached by Servebolt Optimizer</h3>' . PHP_EOL; // For debugging purposes
+                $output .= '<h3>' . self::menuCacheMessage() . '</h3>' . PHP_EOL; // For debugging purposes
             } else {
-                $output .= '<!-- This menu is cached by Servebolt Optimizer -->' . PHP_EOL;
+                $output .= '<!-- ' . self::menuCacheMessage() . ' -->' . PHP_EOL;
             }
         }
         return $output;
