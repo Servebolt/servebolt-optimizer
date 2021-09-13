@@ -793,13 +793,13 @@ class HelpersTest extends ServeboltWPUnitTestCase
     {
         add_image_size('69x69', 69, 69);
         if ($attachmentId = $this->createAttachment('woocommerce-placeholder.png')) {
-            $filename = basename(get_attached_file($attachmentId));
-            if (!preg_match('/^(.+)-([0-9]+)\.png$/', $filename, $matches)) {
-                $this->deleteAttachment($attachmentId);
-                $this->fail('Could not test image size URLs');
-                return;
-            }
-            $baseUrl = get_site_url() . '/wp-content/uploads/2021/07/woocommerce-placeholder-' . $matches[2];
+            $filePath = get_attached_file($attachmentId);
+
+            $filenameParts = pathinfo($filePath);
+            $filenameWithoutExtension = $filenameParts['filename'];
+
+            $baseUrl = get_site_url() . '/wp-content/uploads/' . date('Y') . '/' . date('m') . '/' . $filenameWithoutExtension;
+
             $expectedArray = [
                 $baseUrl . '-150x150.png',
                 $baseUrl . '-300x300.png',
@@ -808,6 +808,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
                 $baseUrl . '.png',
                 $baseUrl . '-69x69.png',
             ];
+
             $this->assertEquals($expectedArray, getAllImageSizesByImage($attachmentId));
             $this->deleteAttachment($attachmentId);
         }

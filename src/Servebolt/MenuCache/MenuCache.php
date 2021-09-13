@@ -76,7 +76,7 @@ class MenuCache
 
     /**
      * The message that flags the menu as cached or not.
-     * 
+     *
      * @return string
      */
     public static function menuCacheMessage(): string
