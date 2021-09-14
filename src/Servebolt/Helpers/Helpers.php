@@ -1137,22 +1137,21 @@ function isHostedAtServebolt(): bool
 {
     $isHostedAtServebolt = false;
     $context = null;
-    /*if (file_exists('/etc/bolt-release')) {
-        $isHostedAtServebolt = true;
-        $context = 'file';
-    } else*/
     if (arrayGet('SERVER_ADMIN', $_SERVER) === 'support@servebolt.com') {
         $isHostedAtServebolt = true;
-        $context = 'SERVER_ADMIN';
+        $context = 'server_admin_check';
     } elseif (
         strEndsWith(arrayGet('HOSTNAME', $_SERVER), 'servebolt.com')
         || strEndsWith(arrayGet('HOSTNAME', $_SERVER), 'servebolt.cloud')
     ) {
         $isHostedAtServebolt = true;
-        $context = 'HOSTNAME';
+        $context = 'hostname_check';
     } elseif (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
         $isHostedAtServebolt = HOST_IS_SERVEBOLT_OVERRIDE;
-        $context = 'OVERRIDE';
+        $context = 'override';
+    } elseif (isCli() && file_exists('/etc/bolt-release')) {
+        $isHostedAtServebolt = true;
+        $context = 'file_exist_check';
     }
     return apply_filters('sb_optimizer_is_hosted_at_servebolt', $isHostedAtServebolt, $context);
 }
