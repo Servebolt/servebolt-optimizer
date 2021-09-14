@@ -1156,7 +1156,10 @@ function isHostedAtServebolt(): bool
 {
     $isHostedAtServebolt = false;
     $context = null;
-    if (arrayGet('SERVER_ADMIN', $_SERVER) === 'support@servebolt.com') {
+    if (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
+        $isHostedAtServebolt = HOST_IS_SERVEBOLT_OVERRIDE;
+        $context = 'override';
+    } else if (arrayGet('SERVER_ADMIN', $_SERVER) === 'support@servebolt.com') {
         $isHostedAtServebolt = true;
         $context = 'server_admin_check';
     } elseif (
@@ -1165,9 +1168,6 @@ function isHostedAtServebolt(): bool
     ) {
         $isHostedAtServebolt = true;
         $context = 'hostname_check';
-    } elseif (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
-        $isHostedAtServebolt = HOST_IS_SERVEBOLT_OVERRIDE;
-        $context = 'override';
     } elseif (isCli() && file_exists('/etc/bolt-release')) {
         $isHostedAtServebolt = true;
         $context = 'file_exist_check';
