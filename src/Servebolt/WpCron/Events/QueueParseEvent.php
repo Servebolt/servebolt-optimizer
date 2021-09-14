@@ -8,25 +8,31 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use function Servebolt\Optimizer\Helpers\getFiltersForHook;
 
 /**
- * Class MinuteEvent
+ * Class QueueParseEvent
  * @package Servebolt\Optimizer\WpCron
  */
-class MinuteEvent
+class QueueParseEvent
 {
+
+    /**
+     * @var string
+     */
+    private static $recurrence = 'every_minute';
+
     /**
      * @var string The action hook used when triggering this event.
      */
     public static $hook = 'servebolt_optimizer_every_minute_cron_event';
 
     /**
-     * MinuteEvent constructor.
+     * QueueParseEvent constructor.
      */
     public function __construct()
     {
         if (
             $this->hasActionsRegistered()
 
-            // TODO: Consider to move this somewhere else, prehaps to class "QueueEventHandler"
+            // TODO: Consider to move this somewhere else, perhaps to class "QueueEventHandler"
             && CachePurge::featureIsActive()
             && CachePurge::queueBasedCachePurgeIsActive()
         ) {
@@ -57,7 +63,7 @@ class MinuteEvent
             switch_to_blog($blogId);
         }
         if (!wp_next_scheduled(self::$hook)) {
-            wp_schedule_event(time(), 'every_minute', self::$hook);
+            wp_schedule_event(time(), self::$recurrence, self::$hook);
         }
         if ($blogId) {
             restore_current_blog();
