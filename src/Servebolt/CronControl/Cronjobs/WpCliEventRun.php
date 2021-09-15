@@ -68,7 +68,7 @@ class WpCliEventRun extends AbstractCommand
 
     /**
      * Generate command to be executed.
-     * 
+     *
      * @return mixed|string
      */
     public static function generateCommand()
