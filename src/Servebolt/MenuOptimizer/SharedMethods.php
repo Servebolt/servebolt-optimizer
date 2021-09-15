@@ -119,7 +119,7 @@ trait SharedMethods
      */
     private static function getMenuMarkupCacheExpirationTime(): int
     {
-        return apply_filters('sb_optimizer_menu_cache_menu_markup_expiration_time', self::$menuMarkupCacheExpirationTime);
+        return apply_filters('sb_optimizer_menu_optimizer_menu_markup_expiration_time', self::$menuMarkupCacheExpirationTime);
     }
 
     /**
@@ -129,7 +129,7 @@ trait SharedMethods
      */
     private static function getMenuSignatureIndexCacheExpirationTime(): int
     {
-        return apply_filters('sb_optimizer_menu_cache_menu_signature_index_expiration_time', self::$menuSignatureIndexCacheExpirationTime);
+        return apply_filters('sb_optimizer_menu_optimizer_menu_signature_index_expiration_time', self::$menuSignatureIndexCacheExpirationTime);
     }
 
     /**
@@ -164,7 +164,7 @@ trait SharedMethods
     {
         $signatureBase = md5(wp_json_encode($args));
         return apply_filters(
-            'sb_optimizer_menu_cache_signature',
+            'sb_optimizer_menu_optimizer_menu_signature',
             $signatureBase,
             $args
         );

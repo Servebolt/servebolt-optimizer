@@ -13,8 +13,8 @@
             <td>
                 <fieldset>
                     <legend class="screen-reader-text"><span><?php _e('Menu optimizer-feature active?', 'servebolt-wp'); ?></span></legend>
-                    <label for="menu_cache_switch">
-                        <input name="<?php echo getOptionName('menu_cache_switch'); ?>" type="checkbox" id="menu_cache_switch" class="options-field-switch" value="1" <?php checked($settings['menu_cache_switch']); ?>>
+                    <label for="menu_optimizer_switch">
+                        <input name="<?php echo getOptionName('menu_cache_switch'); ?>" type="checkbox" id="menu_optimizer_switch" class="options-field-switch" value="1" <?php checked($settings['menu_cache_switch']); ?>>
                         <?php _e('Enable', 'servebolt-wp'); ?>
                     </label>
                 </fieldset>
@@ -26,8 +26,8 @@
                 <td>
                     <fieldset>
                         <legend class="screen-reader-text"><span><?php _e('Disable for logged in users?', 'servebolt-wp'); ?></span></legend>
-                        <label for="menu_cache_disabled_for_authenticated_switch">
-                            <input name="<?php echo getOptionName('menu_cache_disabled_for_authenticated_switch'); ?>" type="checkbox" id="menu_cache_disabled_for_authenticated_switch" value="1" <?php checked($settings['menu_cache_disabled_for_authenticated_switch']); ?>>
+                        <label for="menu_optimizer_disabled_for_authenticated_switch">
+                            <input name="<?php echo getOptionName('menu_cache_disabled_for_authenticated_switch'); ?>" type="checkbox" id="menu_optimizer_disabled_for_authenticated_switch" value="1" <?php checked($settings['menu_cache_disabled_for_authenticated_switch']); ?>>
                             <?php _e('Enable', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>

@@ -31,7 +31,7 @@ class WpMenuOptimizer
     public function __construct()
     {
         if (self::disabledForAuthenticatedUsers()) {
-            add_filter('sb_optimizer_menu_cache_disabled_for_unauthenticated_users', '__return_true');
+            add_filter('sb_optimizer_menu_optimizer_disabled_for_unauthenticated_users', '__return_true');
         }
         if (isFrontEnd()) {
             add_action('init', __NAMESPACE__ . '\\MenuOptimizer::init');

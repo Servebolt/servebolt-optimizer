@@ -32,7 +32,7 @@ class MenuOptimizer
      */
     private static function shouldCacheMenus()
     {
-        if (apply_filters('sb_optimizer_menu_cache_disabled_for_unauthenticated_users', false)) {
+        if (apply_filters('sb_optimizer_menu_optimizer_disabled_for_unauthenticated_users', false)) {
             return !is_user_logged_in();
         }
         return true;
@@ -82,7 +82,7 @@ class MenuOptimizer
      */
     private static function returnCachedOutput($output)
     {
-        if (apply_filters('sb_optimizer_menu_cache_print_cached_comment', true)) {
+        if (apply_filters('sb_optimizer_menu_optimizer_print_cached_comment', true)) {
             if (isDevDebug()) {
                 $output .= '<h3>This menu is cached by Servebolt Optimizer</h3>' . PHP_EOL; // For debugging purposes
             } else {
