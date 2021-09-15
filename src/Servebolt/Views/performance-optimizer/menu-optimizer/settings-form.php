@@ -4,15 +4,15 @@
 <?php settings_errors(); ?>
 
 <form method="post" autocomplete="off" action="options.php">
-    <?php settings_fields('sb-menu-cache-feature-options-page'); ?>
-    <?php do_settings_sections('sb-menu-cache-feature-options-page'); ?>
+    <?php settings_fields('sb-menu-optimizer-feature-options-page'); ?>
+    <?php do_settings_sections('sb-menu-optimizer-feature-options-page'); ?>
 
     <table class="form-table" role="presentation">
         <tr>
-            <th scope="row"><?php _e('Menu Cache', 'servebolt-wp'); ?></th>
+            <th scope="row"><?php _e('Menu Optimizer', 'servebolt-wp'); ?></th>
             <td>
                 <fieldset>
-                    <legend class="screen-reader-text"><span><?php _e('Menu cache-feature active?', 'servebolt-wp'); ?></span></legend>
+                    <legend class="screen-reader-text"><span><?php _e('Menu optimizer-feature active?', 'servebolt-wp'); ?></span></legend>
                     <label for="menu_cache_switch">
                         <input name="<?php echo getOptionName('menu_cache_switch'); ?>" type="checkbox" id="menu_cache_switch" class="options-field-switch" value="1" <?php checked($settings['menu_cache_switch']); ?>>
                         <?php _e('Enable', 'servebolt-wp'); ?>

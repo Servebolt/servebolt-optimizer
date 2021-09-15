@@ -540,7 +540,7 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'acd_img_resize_upscale',
         'acd_img_resize_size_index',
 
-        // Menu cache feature
+        // Menu Optimizer (formerly Menu cache) feature
         'menu_cache_switch',
         'menu_cache_disabled_for_authenticated_switch',
 
