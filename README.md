@@ -51,7 +51,7 @@ If you want to build a local production-ready version of the plugin you can run 
 * Bugfix - Fixed broken Cloudflare API credentials validation in form - Whenever Cloudflare was selected as cache provider in the cache purge configuration form the validation did not function. This is now fixed.
 * Bugfix - Fixed unhandled exceptions - Due to missing namespace some exceptions went unhandled which again caused fatal errors in some cases. Highly unfortunate! This is now fixed.
 * Bugfix - Could not determine if in Servebolt hosting environment from Cron-trigged CLI context - Due to absence of server variables the system could not determine whether the code was executing in a Servebolt server environment when it was ran in CLI-context trigged by Cron. This is now fixed.
-* Changed name of menu cache feature - Due to confusion between Cloudflare/Accelerated Domains-cache and the menu cache feature we said feature to “Menu Optimizer”.
+* Changed name of menu cache feature - Due to confusion between Cloudflare/Accelerated Domains-cache and the menu cache feature we changed the name said feature to “Menu Optimizer”.
 
 #### 3.2
 * Improved automated cache purging - The automatic cache purge has been improved, primarily in 3 areas. Whenever a post/term gets deleted then the cache gets purged. Whenever an attachment gets updated (resized, cropped etc.) we purge cache for URLs, including all image sizes if the attachment is an image. Whenever a post gets excluded from the HTML Cache (formerly Full Page Cache) then we also purge cache.
