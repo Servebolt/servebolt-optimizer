@@ -9,7 +9,7 @@ use Servebolt\Optimizer\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Compatibility\Compatibility as PluginCompatibility;
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\FullPageCache\FullPageCache;
-use Servebolt\Optimizer\MenuCache\WpMenuCache;
+use Servebolt\Optimizer\MenuOptimizer\WpMenuOptimizer;
 use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
 use Servebolt\Optimizer\TextDomainLoader\WpTextDomainLoader;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
@@ -61,8 +61,8 @@ class ServeboltOptimizer
         // Make sure we don't store certain options (like API credentials) in clear text.
         new OptionEncryption;
 
-        if (WpMenuCache::isActive()) {
-            WpMenuCache::init();
+        if (WpMenuOptimizer::isActive()) {
+            WpMenuOptimizer::init();
         }
 
         if (isHostedAtServebolt()) {

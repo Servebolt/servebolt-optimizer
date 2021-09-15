@@ -3,13 +3,13 @@
 namespace Unit;
 
 use ServeboltWPUnitTestCase;
-use Servebolt\Optimizer\MenuCache\MenuCache;
+use Servebolt\Optimizer\MenuOptimizer\MenuOptimizer;
 
 /**
- * Class WpAssetTest
+ * Class WpMenuOptimizerTest
  * @package Unit
  */
-class WpMenuCacheTest extends ServeboltWPUnitTestCase
+class WpMenuOptimizerTest extends ServeboltWPUnitTestCase
 {
     public function testThatMenuGetsCached(): void
     {
@@ -24,9 +24,9 @@ class WpMenuCacheTest extends ServeboltWPUnitTestCase
             'echo' => false,
         ];
         $menu = wp_nav_menu($menuArguments);
-        $menuCacheMessage = MenuCache::menuCacheMessage();
+        $menuCacheMessage = MenuOptimizer::menuCacheMessage();
         $this->assertNotContains($menuCacheMessage, $menu);
-        MenuCache::init();
+        MenuOptimizer::init();
         wp_nav_menu($menuArguments); // Load it once to warm the cache
         $menu = wp_nav_menu($menuArguments);
         $this->assertContains($menuCacheMessage, $menu);
