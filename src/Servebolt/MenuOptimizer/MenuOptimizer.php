@@ -1,21 +1,21 @@
 <?php
 
-namespace Servebolt\Optimizer\MenuCache;
+namespace Servebolt\Optimizer\MenuOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\isDevDebug;
 
 /**
- * Class MenuCache
- * @package Servebolt\Optimizer\MenuCache
+ * Class MenuOptimizer
+ * @package Servebolt\Optimizer\MenuOptimizer
  */
-class MenuCache
+class MenuOptimizer
 {
     use SharedMethods;
 
     /**
-     * MenuCache init.
+     * MenuOptimizer init.
      */
     public static function init()
     {
@@ -32,7 +32,7 @@ class MenuCache
      */
     private static function shouldCacheMenus()
     {
-        if (apply_filters('sb_optimizer_menu_cache_disabled_for_unauthenticated_users', false)) {
+        if (apply_filters('sb_optimizer_menu_optimizer_disabled_for_unauthenticated_users', false)) {
             return !is_user_logged_in();
         }
         return true;
@@ -92,7 +92,7 @@ class MenuCache
      */
     private static function returnCachedOutput($output)
     {
-        if (apply_filters('sb_optimizer_menu_cache_print_cached_comment', true)) {
+        if (apply_filters('sb_optimizer_menu_optimizer_print_cached_comment', true)) {
             if (isDevDebug()) {
                 $output .= '<h3>' . self::menuCacheMessage() . '</h3>' . PHP_EOL; // For debugging purposes
             } else {
