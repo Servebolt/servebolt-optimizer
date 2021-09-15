@@ -1,19 +1,19 @@
 <?php
 
-namespace Servebolt\Optimizer\MenuCache;
+namespace Servebolt\Optimizer\MenuOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
- * Class MenuCachePurge
- * @package Servebolt\Optimizer\MenuCache
+ * Class MenuOptimizerCachePurge
+ * @package Servebolt\Optimizer\MenuOptimizer
  */
-class MenuCachePurge
+class MenuOptimizerCachePurge
 {
     use SharedMethods;
 
     /**
-     * MenuCachePurge init.
+     * MenuOptimizerCachePurge init.
      */
     public static function init(): void
     {
@@ -58,7 +58,6 @@ class MenuCachePurge
      * Purge menu cache.
      *
      * @param int $menuId
-     * @param array|null $menuData
      */
     public static function purgeMenuCache(int $menuId)
     {

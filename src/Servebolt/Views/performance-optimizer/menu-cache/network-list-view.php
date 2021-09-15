@@ -1,5 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
-<?php use \Servebolt\Optimizer\MenuCache\WpMenuCache; ?>
+<?php use \Servebolt\Optimizer\MenuOptimizer\WpMenuOptimizer; ?>
 
 <br>
 <table class="wp-list-table widefat striped">
@@ -24,7 +24,7 @@
         <tr>
             <td><?php echo $site->blog_id; ?></td>
             <td><?php echo $site->domain . $site->path; ?></td>
-            <td><?php echo WpMenuCache::isActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
+            <td><?php echo WpMenuOptimizer::isActive($site->blog_id) ? __('Yes', 'servebolt-wp') : __('No', 'servebolt-wp'); ?></td>
             <td><a href="<?php echo get_admin_url($site->blog_id, 'admin.php?page=servebolt-menu-cache'); ?>" class="button btn"><?php _e('Go to site settings', 'servebolt-wp'); ?></a></td>
         </tr>
     <?php endforeach; ?>

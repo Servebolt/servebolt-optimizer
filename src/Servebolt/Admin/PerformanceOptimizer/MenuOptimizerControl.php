@@ -14,10 +14,10 @@ use function Servebolt\Optimizer\Helpers\overrideParentMenuPage;
 use function Servebolt\Optimizer\Helpers\view;
 
 /**
- * Class MenuCacheControl
+ * Class MenuOptimizerControl
  * @package Servebolt\Optimizer\Admin\PerformanceOptimizer
  */
-class MenuCacheControl
+class MenuOptimizerControl
 {
     use Singleton;
 
@@ -27,7 +27,7 @@ class MenuCacheControl
     }
 
     /**
-     * MenuCacheControl constructor.
+     * MenuOptimizerControl constructor.
      */
     public function __construct()
     {

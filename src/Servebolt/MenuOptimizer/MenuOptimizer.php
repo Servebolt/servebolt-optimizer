@@ -1,21 +1,21 @@
 <?php
 
-namespace Servebolt\Optimizer\MenuCache;
+namespace Servebolt\Optimizer\MenuOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\isDevDebug;
 
 /**
- * Class MenuCache
- * @package Servebolt\Optimizer\MenuCache
+ * Class MenuOptimizer
+ * @package Servebolt\Optimizer\MenuOptimizer
  */
-class MenuCache
+class MenuOptimizer
 {
     use SharedMethods;
 
     /**
-     * MenuCache init.
+     * MenuOptimizer init.
      */
     public static function init()
     {

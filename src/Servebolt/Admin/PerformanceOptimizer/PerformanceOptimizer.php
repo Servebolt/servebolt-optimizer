@@ -30,7 +30,7 @@ class PerformanceOptimizer
     {
         DatabaseOptimizations::init();
         PerformanceOptimizerAdvanced::init();
-        MenuCacheControl::init();
+        MenuOptimizerControl::init();
     }
 
     /**

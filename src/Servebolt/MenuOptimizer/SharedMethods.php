@@ -1,17 +1,17 @@
 <?php
 
-namespace Servebolt\Optimizer\MenuCache;
+namespace Servebolt\Optimizer\MenuOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Trait SharedMethods
- * @package Servebolt\Optimizer\MenuCache
+ * @package Servebolt\Optimizer\MenuOptimizer
  */
 trait SharedMethods
 {
     /**
-     * The version key used in transient keys so we can easily bust all cache.
+     * The version key used in the transient keys so we can easily purge all cache.
      *
      * @var int
      */
