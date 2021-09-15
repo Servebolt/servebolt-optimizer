@@ -298,7 +298,23 @@ function getSiteId()
     if ($env->id) {
         return $env->id;
     }
-    if (preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", getWebrootPath(), $matches) && isset($matches[1])) {
+    if ($id = getSiteIdFromWebrootPath()) {
+        return $id;
+    }
+    return null;
+}
+
+/**
+ * Get site ID from the webroot folder path.
+ *
+ * @return string|null
+ */
+function getSiteIdFromWebrootPath():? string
+{
+    if (
+        preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", getWebrootPath(), $matches)
+        && isset($matches[1])
+    ) {
         return $matches[1];
     }
     return null;
@@ -309,10 +325,11 @@ function getSiteId()
  *
  * @return string
  */
-function getWebrootPath(): string
+function getWebrootPath():? string
 {
-    if (isDevDebug()) {
-        $path = '/kunder/serveb_1234/custom_4321/public';
+    if (isHostedAtServebolt()) {
+        $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
+        $path = $env->public_dir;
     } else {
         if (!function_exists('get_home_path')) {
             require_once ABSPATH . 'wp-admin/includes/file.php';
