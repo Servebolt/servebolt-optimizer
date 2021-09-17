@@ -2,9 +2,9 @@
 
 namespace Servebolt\Optimizer\CronControl\Cronjobs;
 
-use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 
 class WpCliEventRun extends AbstractCommand
 {
