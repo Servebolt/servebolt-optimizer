@@ -2,9 +2,9 @@
 
 namespace Servebolt\Optimizer\CronControl\Cronjobs;
 
-use Servebolt\Optimizer\Traits\Singleton;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use Servebolt\Optimizer\Traits\Singleton;
 
 abstract class AbstractCommand
 {
@@ -26,6 +26,46 @@ abstract class AbstractCommand
             self::$commentTemplate,
             static::$commandName,
             static::$commandRevision
+        );
+    }
+
+    /**
+     * Get command interval.
+     *
+     * @return mixed|string
+     */
+    public static function getInterval()
+    {
+        /**
+         * @param string $preferredInterval At what interval the command should be run.
+         * @param string $context The name of the command.
+         */
+        return apply_filters(
+            'sb_optimizer_cron_control_command_interval',
+            static::$preferredInterval,
+            static::$commandName
+        );
+    }
+
+    /**
+     * Get full crontab row for command.
+     *
+     * @return mixed|string
+     */
+    public static function generateCronjob($includeComment = true)
+    {
+        $cronjob = self::getInterval() . ' ' . static::generateCommand();
+        if ($includeComment) {
+            $cronjob .= ' ' . self::generateComment();
+        }
+        /**
+         * @param string $cronjob The full row to be inserted into the crontab.
+         * @param string $context The name of the command.
+         */
+        return apply_filters(
+            'sb_optimizer_cron_control_command_interval',
+            $cronjob,
+            static::$commandName
         );
     }
 }
