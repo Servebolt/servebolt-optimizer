@@ -12,6 +12,7 @@ use Servebolt\Optimizer\Cli\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\Cli\General\General;
 use Servebolt\Optimizer\Cli\GeneralSettings\GeneralSettings;
 use Servebolt\Optimizer\Cli\Optimizations\Optimizations;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 
 /**
  * Class Cli
@@ -29,10 +30,13 @@ class Cli
         new Cache;
         new CloudflareImageResize;
         new HtmlCache;
-        new CronControl;
         new General;
         new GeneralSettings;
         new Optimizations;
+
+        if (isHostedAtServebolt()) {
+            new CronControl;
+        }
     }
 
     public static function init()
