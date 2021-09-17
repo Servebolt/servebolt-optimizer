@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit;
+namespace Unit\AcceleratedDomainsImageResize;
 
 use Unit\Traits\AttachmentTrait;
 use WP_UnitTestCase;

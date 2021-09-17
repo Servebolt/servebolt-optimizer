@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Cli\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Cli\Cache\Cache;
+use Servebolt\Optimizer\Cli\CronControl\CronControl;
 use Servebolt\Optimizer\Cli\HtmlCache\HtmlCache;
 use Servebolt\Optimizer\Cli\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\Cli\General\General;
@@ -28,6 +29,7 @@ class Cli
         new Cache;
         new CloudflareImageResize;
         new HtmlCache;
+        new CronControl;
         new General;
         new GeneralSettings;
         new Optimizations;

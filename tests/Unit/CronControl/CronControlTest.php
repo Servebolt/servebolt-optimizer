@@ -2,6 +2,7 @@
 
 namespace Unit;
 
+use Servebolt\Optimizer\CronControl\CronControl;
 use Servebolt\Optimizer\CronControl\MultisiteCronInstaller\MultisiteCronInstaller;
 use Servebolt\Optimizer\CronControl\Cronjobs\WpCliEventRun;
 use Unit\Traits\EnvFile\EnvFileReaderTrait;
@@ -11,6 +12,27 @@ use function Servebolt\Optimizer\Helpers\wpDirectFilesystem;
 class CronControlTest extends ServeboltWPUnitTestCase
 {
     use EnvFileReaderTrait;
+
+    public function testThatWeCanControlWpCron()
+    {
+        add_filter('sb_optimizer_wp_config_path', function() {
+            return __DIR__ . '/wp-config-sample.php';
+        });
+        CronControl::enableWpCron();
+
+        $this->assertTrue(CronControl::wpCronIsEnabled());
+        $this->assertFalse(CronControl::wpCronIsDisabled());
+
+        CronControl::disableWpCron();
+        $this->assertFalse(CronControl::wpCronIsEnabled());
+        $this->assertTrue(CronControl::wpCronIsDisabled());
+
+        CronControl::enableWpCron();
+        $this->assertTrue(CronControl::wpCronIsEnabled());
+        $this->assertFalse(CronControl::wpCronIsDisabled());
+
+        remove_all_filters('sb_optimizer_wp_config_path');
+    }
 
     public function testThatWeCanInstallMultisiteCronScript()
     {

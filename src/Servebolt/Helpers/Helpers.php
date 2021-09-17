@@ -1541,6 +1541,27 @@ function wpDirectFilesystem(bool $ensureConstantsAreSet = false): object
 }
 
 /**
+ * Get the path of the "wp-config.php"-file.
+ *
+ * @return string|null
+ */
+function getWpConfigPath(): ?string
+{
+    if (file_exists(ABSPATH . 'wp-config.php')) {
+        $path = ABSPATH . 'wp-config.php';
+    } elseif (
+        @file_exists(dirname(ABSPATH) . '/wp-config.php')
+        && !@file_exists(dirname(ABSPATH) . '/wp-settings.php')
+    ) {
+        $path = dirname(ABSPATH) . '/wp-config.php';
+    } else {
+        $path = null;
+    }
+
+    return apply_filters('sb_optimizer_wp_config_path', $path);
+}
+
+/**
  * This is a clone of the function "wp_calculate_image_sizes" in the WP core-files.
  * @param $size
  * @param null $image_src
