@@ -2,17 +2,17 @@
 
 namespace Servebolt\Optimizer\CronControl\Cronjobs;
 
-use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-class WpCliEventRun extends AbstractCommand
+use Servebolt\Optimizer\CronControl\MultisiteCronInstaller\MultisiteCronInstaller;
+
+class WpCliEventRunMultisite extends AbstractCommand
 {
 
     /**
      * @var string The name of the command.
      */
-    public static $commandName = 'wp-cron-single-site';
+    public static $commandName = 'wp-cron-multisite';
 
     /**
      * @var string The revision number of the command.
@@ -22,12 +22,12 @@ class WpCliEventRun extends AbstractCommand
     /**
      * @var string The command template.
      */
-    public static $command = 'wp cron event run --due-now --path=%s --quiet';
+    public static $command = '%s';
 
     /**
      * @var string The interval for the command.
      */
-    public static $preferredInterval = '*/10 * * * *';
+    public static $preferredInterval = '*/30 * * * *';
 
     /**
      * Generate command to be executed.
@@ -36,7 +36,7 @@ class WpCliEventRun extends AbstractCommand
      */
     public static function generateCommand()
     {
-        $command = sprintf(static::$command, self::getPublicPath());
+        $command = sprintf(static::$command, self::getScriptPath());
         /**
          * @param string $command The comment to be executed.
          * @param string $context The name of the command.
@@ -49,13 +49,12 @@ class WpCliEventRun extends AbstractCommand
     }
 
     /**
-     * Get sites public path.
+     * Get script path.
      *
      * @return string|null
      */
-    public static function getPublicPath(): ?string
+    public static function getScriptPath(): ?string
     {
-        $env = EnvFileReader::getInstance();
-        return $env->public_dir;
+        return MultisiteCronInstaller::getFilePath();
     }
 }
