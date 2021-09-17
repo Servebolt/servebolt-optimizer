@@ -4,7 +4,6 @@ namespace Servebolt\Optimizer\CronControl\Cronjobs;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use phpDocumentor\Reflection\Types\Static_;
 use Servebolt\Optimizer\Traits\Singleton;
 
 abstract class AbstractCommand
