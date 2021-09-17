@@ -34,7 +34,7 @@ class WpCliEventRun extends AbstractCommand
      *
      * @return mixed|string
      */
-    private static function getInterval()
+    public static function getInterval()
     {
         /**
          * @param string $preferredInterval At what interval the command should be run.
@@ -52,9 +52,12 @@ class WpCliEventRun extends AbstractCommand
      *
      * @return mixed|string
      */
-    public static function generateCronjob()
+    public static function generateCronjob($includeComment = true)
     {
         $cronjob = self::getInterval() . ' ' . self::generateCommand();
+        if ($includeComment) {
+            $cronjob .= ' ' . self::generateComment();
+        }
         /**
          * @param string $cronjob The full row to be inserted into the crontab.
          * @param string $context The name of the command.
