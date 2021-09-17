@@ -31,7 +31,7 @@ class CronControl
     public function enableWpCron()
     {
         CronControlNotCli::enableWpCron();
-        WP_CLI::line(__('WP Cron is enabled.', 'servebolt-wp' )));
+        WP_CLI::line(__('WP Cron is enabled.', 'servebolt-wp' ));
     }
 
     /**
@@ -46,6 +46,6 @@ class CronControl
     public function disableWpCron()
     {
         CronControlNotCli::disableWpCron();
-        WP_CLI::line(__('WP Cron is disabled.', 'servebolt-wp' )));
+        WP_CLI::line(__('WP Cron is disabled.', 'servebolt-wp' ));
     }
 }
