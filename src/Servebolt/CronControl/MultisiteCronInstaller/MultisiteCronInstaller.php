@@ -2,10 +2,10 @@
 
 namespace Servebolt\Optimizer\CronControl\MultisiteCronInstaller;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 use function Servebolt\Optimizer\Helpers\wpDirectFilesystem;
-
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class MultisiteCronInstaller
