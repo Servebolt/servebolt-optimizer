@@ -87,7 +87,6 @@ class MultisiteCronInstaller
     {
         // Set WP path
         if (!$wpPath = self::getWpPath()) {
-            die('ja');
             return null;
         }
         $fileContent = str_replace('/path/to/wp', $wpPath, $fileContent);
