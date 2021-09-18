@@ -25,5 +25,6 @@ class WooCommerce
         }
         new ProductVariationCachePurge;
         new ProductCachePurgeOnStockChange;
+        //new DisableActionScheduler;
     }
 }
