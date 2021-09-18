@@ -133,9 +133,9 @@ class MultisiteCronInstaller
     /**
      * Resolve the install folder path.
      *
-     * @return string
+     * @return null|string
      */
-    private static function resolveInstallPath(): string
+    private static function resolveInstallPath(): ?string
     {
         $env = EnvFileReader::getInstance();
         return $env->home_dir;

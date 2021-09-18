@@ -5,7 +5,7 @@ namespace Servebolt\Optimizer\Cli\CronControl;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
-use Servebolt\Optimizer\CronControl\CronControl as CronControlNotCli;
+use Servebolt\Optimizer\CronControl\WpCronControl;
 
 /**
  * Class CronControl
@@ -15,6 +15,7 @@ class CronControl
 {
     public function __construct()
     {
+        new CronStatus;
         WP_CLI::add_command('servebolt cron wp enable', [$this, 'enableWpCron']);
         WP_CLI::add_command('servebolt cron wp disable', [$this, 'disableWpCron']);
     }
@@ -30,8 +31,12 @@ class CronControl
      */
     public function enableWpCron()
     {
-        CronControlNotCli::enableWpCron();
-        WP_CLI::line(__('WP Cron is enabled.', 'servebolt-wp' ));
+        if (WpCronControl::wpCronIsEnabled()) {
+            WP_CLI::success(__('WP Cron is already enabled.', 'servebolt-wp' ));
+            return;
+        }
+        WpCronControl::enableWpCron();
+        WP_CLI::success(__('WP Cron is enabled.', 'servebolt-wp' ));
     }
 
     /**
@@ -45,7 +50,11 @@ class CronControl
      */
     public function disableWpCron()
     {
-        CronControlNotCli::disableWpCron();
-        WP_CLI::line(__('WP Cron is disabled.', 'servebolt-wp' ));
+        if (WpCronControl::wpCronIsDisabled()) {
+            WP_CLI::success(__('WP Cron is already disabled.', 'servebolt-wp' ));
+            return;
+        }
+        WpCronControl::disableWpCron();
+        WP_CLI::success(__('WP Cron is disabled.', 'servebolt-wp' ));
     }
 }

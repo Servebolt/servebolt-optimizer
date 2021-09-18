@@ -5,97 +5,90 @@ namespace Servebolt\Optimizer\CronControl;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Exception;
+use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
+use Servebolt\Optimizer\CronControl\Cronjobs\WpCliEventRun;
+use Servebolt\Optimizer\CronControl\Cronjobs\WpCliEventRunMultisite;
 use Servebolt\Optimizer\Traits\Singleton;
-use Servebolt\Optimizer\Utils\WPConfigTransformer;
-use function Servebolt\Optimizer\Helpers\getWpConfigPath;
+use function Servebolt\Optimizer\Helpers\arrayGet;
 
 class CronControl
 {
     use Singleton;
 
     /**
-     * Check whether WP Cron is enabled.
+     * Parse cronjob comment.
      *
-     * @return bool
+     * @param string $comment
+     * @return array|null
      */
-    public static function wpCronIsEnabled(): bool
+    public static function parseComment(string $comment): ?array
     {
-        return !self::wpCronIsDisabled();
-    }
-
-    /**
-     * Check whether WP Cron is disabled.
-     *
-     * @return bool
-     */
-    public static function wpCronIsDisabled(): bool
-    {
-        try {
-            $ct = self::getWPConfigTransformer();
-            if ($ct && $ct->exists('constant', 'DISABLE_WP_CRON')) {
-                $value = $ct->get_value('constant', 'DISABLE_WP_CRON');
-                if ($value !== 'false' && $value !== '0') {
-                    return true;
-                }
-            }
-        } catch (Exception $e) {}
-        return false; // Default value
-    }
-
-    /**
-     * Get instance of "WPConfigTransformer".
-     *
-     * @return object|null
-     * @throws Exception
-     */
-    private static function getWPConfigTransformer(): ?object
-    {
-        $configFilePath = getWpConfigPath();
-        if (!$configFilePath) {
+        preg_match('/\((.*)\)/', $comment, $matches);
+        if (!isset($matches[1])) {
             return null;
         }
-        return new WPConfigTransformer($configFilePath);
+        $items = array_map(function($item) {
+            return explode('=', $item);
+        }, array_map('trim', explode(',', $matches[1])));
+        $array = [];
+        foreach ($items as $item) {
+            $array[$item[0]] = $item[1];
+        }
+        if (empty($array)) {
+            return null;
+        }
+        return $array;
     }
 
     /**
-     * Toggle Wp Cron on/off.
+     * Check whether UNIX cron is set up correctly using the Servebolt API.
      *
-     * @param bool $cronEnabled
+     * @return bool
      */
-    private static function toggleWpCron($cronEnabled)
+    public static function unixCronIsSetup(): bool
     {
+        $api = ServeboltApi::getInstance();
         try {
-            $ct = self::getWPConfigTransformer();
-            if (!$ct) {
-                return;
-            }
-            if ($cronEnabled) {
-                if ($ct->exists('constant', 'DISABLE_WP_CRON')) {
-                    $ct->remove('constant', 'DISABLE_WP_CRON');
-                }
-            } else {
-                if ($ct->exists('constant', 'DISABLE_WP_CRON')) {
-                    $ct->update('constant', 'DISABLE_WP_CRON', 'true');
-                } else {
-                    $ct->add('constant', 'DISABLE_WP_CRON', 'true');
-                }
-            }
-        } catch (Exception $e) {}
-    }
+            $response = $api->cron->list();
+        } catch (Exception $e) {
+            return false;
+        }
+        if (!$response->wasSuccessful() || !$response->hasResult()) {
+            return false;
+        }
 
-    /**
-     * Enable WP Cron.
-     */
-    public static function enableWpCron(): void
-    {
-        self::toggleWpCron(true);
-    }
+        if (is_multisite()) {
+            $commandNameToCheck = WpCliEventRunMultisite::$commandName;
+            $commandToCheck = WpCliEventRunMultisite::generateCommand();
+        } else {
+            $commandNameToCheck = WpCliEventRun::$commandName;
+            $commandToCheck = WpCliEventRun::generateCommand();
+        }
 
-    /**
-     * Disable WP Cron.
-     */
-    public static function disableWpCron(): void
-    {
-        self::toggleWpCron(false);
+        $cronjobs = $response->getResultItems();
+        if ($cronjobs && is_array($cronjobs)) {
+            foreach ($cronjobs as $cronjob) {
+                if (!isset($cronjob->attributes->enabled) || !$cronjob->attributes->enabled) {
+                    continue; // Cronjob not active
+                }
+                if (!isset($cronjob->attributes->command)) {
+                    continue;
+                }
+                $command = $cronjob->attributes->command;
+                if ($command === $commandToCheck) {
+                    return true; // We found the command in the crontab
+                }
+
+                if (!isset($cronjob->attributes->comment)) {
+                    continue;
+                }
+                $comment = $cronjob->attributes->comment;
+                $parsedComment = self::parseComment($comment);
+                if (arrayGet('name', $parsedComment) == $commandNameToCheck) {
+                    return true; // We found the command name in the crontab
+                }
+            }
+        }
+        return false;
     }
 }

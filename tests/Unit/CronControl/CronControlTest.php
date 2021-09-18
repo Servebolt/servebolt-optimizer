@@ -3,6 +3,7 @@
 namespace Unit;
 
 use Servebolt\Optimizer\CronControl\CronControl;
+use Servebolt\Optimizer\CronControl\WpCronControl;
 use Servebolt\Optimizer\CronControl\MultisiteCronInstaller\MultisiteCronInstaller;
 use Servebolt\Optimizer\CronControl\Cronjobs\WpCliEventRun;
 use Servebolt\Optimizer\CronControl\Cronjobs\WpCliEventRunMultisite;
@@ -15,23 +16,33 @@ class CronControlTest extends ServeboltWPUnitTestCase
 {
     use EnvFileReaderTrait;
 
+    public function testThatWeCanParseCronjobComment()
+    {
+        $comment = WpCliEventRun::generateComment();
+        $parsedComment = CronControl::parseComment($comment);
+        $this->assertArrayHasKey('name', $parsedComment);
+        $this->assertArrayHasKey('rev', $parsedComment);
+        $this->assertEquals(WpCliEventRun::$commandName, $parsedComment['name']);
+        $this->assertEquals(WpCliEventRun::$commandRevision, $parsedComment['rev']);
+    }
+
     public function testThatWeCanControlWpCron()
     {
         add_filter('sb_optimizer_wp_config_path', function() {
             return __DIR__ . '/wp-config-sample.php';
         });
-        CronControl::enableWpCron();
+        WpCronControl::enableWpCron();
 
-        $this->assertTrue(CronControl::wpCronIsEnabled());
-        $this->assertFalse(CronControl::wpCronIsDisabled());
+        $this->assertTrue(WpCronControl::wpCronIsEnabled());
+        $this->assertFalse(WpCronControl::wpCronIsDisabled());
 
-        CronControl::disableWpCron();
-        $this->assertFalse(CronControl::wpCronIsEnabled());
-        $this->assertTrue(CronControl::wpCronIsDisabled());
+        WpCronControl::disableWpCron();
+        $this->assertFalse(WpCronControl::wpCronIsEnabled());
+        $this->assertTrue(WpCronControl::wpCronIsDisabled());
 
-        CronControl::enableWpCron();
-        $this->assertTrue(CronControl::wpCronIsEnabled());
-        $this->assertFalse(CronControl::wpCronIsDisabled());
+        WpCronControl::enableWpCron();
+        $this->assertTrue(WpCronControl::wpCronIsEnabled());
+        $this->assertFalse(WpCronControl::wpCronIsDisabled());
 
         remove_all_filters('sb_optimizer_wp_config_path');
     }
