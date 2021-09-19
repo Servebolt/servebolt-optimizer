@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.8
 Requires PHP: 7.3
-Stable tag: 3.2
+Stable tag: 3.3
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,19 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.3 =
+* Bugfix - WP admin bar markup error - Fixed minor markup error in the WP admin bar dropdown menu. An obsolete “target”-attribute was added to the parent div element which is invalid.
+* Bugfix - menu cache feature issue with filters - Whenever a 3rd party adds a menu using the filter wp_nav_menu_args, we could not cache the result due to how we interact using WordPress filters. This should now be fixed.
+* Bugfix - menu cache feature producing excessive amount of transient rows - The menu cache feature produced way too many transients due to the way the transient key (a.k.a. cache key) was generated. Solved by making the transient key less complicated and by adding a filter so that 3rd parties can modify the cache behaviour instead.
+* Cache purge queue origin metadata - Whenever an item is added to the cache purge queue, we now also add the origin of this event. For example a manual cache purge, or an automatic cache purge on content update etc.
+* Simplified cache purge - During cache purge we previously purged related URLs for a WP object (post, terms etc.). Related URLs could be the front page, archives etc. In some cases this caused big amounts of URLs to be purged cache for even when not needed. We have now attempted to simplify cache purge in some cases, like for example during checkout in WooCommerce.
+* Improved cache purging for the menu cache feature - Whenever a menu is assigned to a menu location we now purge cache for the previously assigned menu. This process prevents orphaned transient rows and help prevent the options table from getting bloated.
+* Bugfix - Migration error on plugin activation/deactivation in CLI-context - Whenever the plugin was activated or deactivated there was, in some cases, an error due to the database migration not being ran correctly. This should now be solved.
+* Bugfix - Fixed broken Cloudflare API credentials validation in form - Whenever Cloudflare was selected as cache provider in the cache purge configuration form the validation did not function. This is now fixed.
+* Bugfix - Fixed unhandled exceptions - Due to missing namespace some exceptions went unhandled which again caused fatal errors in some cases. Highly unfortunate! This is now fixed.
+* Bugfix - Could not determine if in Servebolt hosting environment from Cron-trigged CLI context - Due to absence of server variables the system could not determine whether the code was executing in a Servebolt server environment when it was ran in CLI-context trigged by Cron. This is now fixed.
+* Changed name of menu cache feature - Due to confusion between Cloudflare/Accelerated Domains-cache and the menu cache feature we changed the name said feature to “Menu Optimizer”.
+
 = 3.2 =
 * Improved automated cache purging - The automatic cache purge has been improved, primarily in 3 areas. Whenever a post/term gets deleted then the cache gets purged. Whenever an attachment gets updated (resized, cropped etc.) we purge cache for URLs, including all image sizes if the attachment is an image. Whenever a post gets excluded from the HTML Cache (formerly Full Page Cache) then we also purge cache.
 * Custom cache TTL per post type - One can now control the cache TTL (time-to-live) per post type. This allows for more fine-grained cache control.

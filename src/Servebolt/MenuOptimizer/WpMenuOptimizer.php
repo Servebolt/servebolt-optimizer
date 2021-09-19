@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\MenuCache;
+namespace Servebolt\Optimizer\MenuOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -10,10 +10,10 @@ use function Servebolt\Optimizer\Helpers\isFrontEnd;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 
 /**
- * Class MenuCache
- * @package Servebolt\Optimizer\MenuCache
+ * Class WpMenuOptimizer
+ * @package Servebolt\Optimizer\MenuOptimizer
  */
-class WpMenuCache
+class WpMenuOptimizer
 {
     use Singleton;
 
@@ -26,17 +26,17 @@ class WpMenuCache
     }
 
     /**
-     * MenuCache constructor.
+     * WpMenuOptimizer constructor.
      */
     public function __construct()
     {
         if (self::disabledForAuthenticatedUsers()) {
-            add_filter('sb_optimizer_menu_cache_disabled_for_unauthenticated_users', '__return_true');
+            add_filter('sb_optimizer_menu_optimizer_disabled_for_unauthenticated_users', '__return_true');
         }
         if (isFrontEnd()) {
-            add_action('init', __NAMESPACE__ . '\\MenuCache::cacheInit');
+            add_action('init', __NAMESPACE__ . '\\MenuOptimizer::init');
         }
-        add_action('admin_init', __NAMESPACE__ . '\\MenuCache::cachePurgeInit');
+        add_action('admin_init', __NAMESPACE__ . '\\MenuOptimizerCachePurge::init');
     }
 
     /**

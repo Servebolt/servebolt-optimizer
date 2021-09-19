@@ -14,10 +14,10 @@ use function Servebolt\Optimizer\Helpers\overrideParentMenuPage;
 use function Servebolt\Optimizer\Helpers\view;
 
 /**
- * Class MenuCacheControl
+ * Class MenuOptimizerControl
  * @package Servebolt\Optimizer\Admin\PerformanceOptimizer
  */
-class MenuCacheControl
+class MenuOptimizerControl
 {
     use Singleton;
 
@@ -27,7 +27,7 @@ class MenuCacheControl
     }
 
     /**
-     * MenuCacheControl constructor.
+     * MenuOptimizerControl constructor.
      */
     public function __construct()
     {
@@ -36,12 +36,12 @@ class MenuCacheControl
     }
 
     /**
-     * Flag "Performance optimizer"-page as active when on Menu cache-page.
+     * Flag "Performance optimizer"-page as active when on "Menu Optimizer"-page.
      */
     private function rewriteHighlightedMenuItem(): void
     {
-        overrideParentMenuPage('servebolt-menu-cache', 'servebolt-performance-optimizer');
-        overrideMenuTitle('admin_page_servebolt-menu-cache', __('Menu Cache', 'servebolt-wp'));
+        overrideParentMenuPage('servebolt-menu-optimizer', 'servebolt-performance-optimizer');
+        overrideMenuTitle('admin_page_servebolt-menu-optimizer', __('Menu Optimizer', 'servebolt-wp'));
     }
 
     /**
@@ -50,7 +50,7 @@ class MenuCacheControl
     public function render(): void
     {
         $settings = $this->getSettingsItemsWithValues();
-        view('performance-optimizer.menu-cache.menu-cache', compact('settings'));
+        view('performance-optimizer.menu-optimizer.menu-optimizer', compact('settings'));
     }
 
     private function initSettings(): void
@@ -80,7 +80,7 @@ class MenuCacheControl
     public function registerSettings(): void
     {
         foreach ($this->getSettingsItems() as $key) {
-            register_setting('sb-menu-cache-feature-options-page', getOptionName($key));
+            register_setting('sb-menu-optimizer-feature-options-page', getOptionName($key));
         }
     }
 

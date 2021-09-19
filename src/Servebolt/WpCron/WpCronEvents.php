@@ -18,9 +18,16 @@ class WpCronEvents
         $this->registerEvents();
     }
 
+    /**
+     * Register events.
+     */
     private function registerEvents(): void
     {
-        foreach(glob(__DIR__ . '/Events/*.php') as $file) {
+        //$events = glob(__DIR__ . '/Events/*.php');
+        $events = [
+            __DIR__ . '/Events/QueueParseEvent.php',
+        ];
+        foreach($events as $file) {
             $class = '\\Servebolt\\Optimizer\\WpCron\\Events\\' . basename($file, '.php');
             if (class_exists($class)) {
                 new $class;

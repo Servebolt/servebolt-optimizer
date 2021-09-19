@@ -38,10 +38,6 @@ class SettingsNode implements NodeInterface
                 'id'    => 'servebolt-plugin-settings',
                 'title' => __('Settings', 'servebolt-wp'),
                 'href'  => $method('admin.php?page=servebolt-wp'),
-                'meta'  => [
-                    'target' => '',
-                    'class' => 'sb-admin-button'
-                ]
             ]
         ];
     }

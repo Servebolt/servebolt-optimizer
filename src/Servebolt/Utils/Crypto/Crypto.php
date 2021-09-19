@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Utils\Crypto;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Exception;
 use function Servebolt\Optimizer\Helpers\generateRandomPermanentKey;
 
 /**

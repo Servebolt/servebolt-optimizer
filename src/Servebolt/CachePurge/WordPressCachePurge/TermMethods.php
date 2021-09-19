@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use function Servebolt\Optimizer\Helpers\getCachePurgeOriginEvent;
 use function Servebolt\Optimizer\Helpers\isQueueItem;
 
 /**
@@ -45,6 +46,43 @@ trait TermMethods
     }
 
     /**
+     * Do cache purge for a term without resolving the whole URL hierarchy.
+     *
+     * @param int $termId
+     * @param string $taxonomySlug
+     * @return bool
+     */
+    public static function purgeTermCacheSimple(int $termId, string $taxonomySlug): bool
+    {
+        /**
+         * Fires when cache is being purged for a term.
+         *
+         * @param int $termId ID of the term that's being purge cache for.
+         * @param bool $simplePurge Whether this is a simple purge or not, a simple purge meaning that we purge the URL only, and not the full URL hierarchy, like archives etc.
+         */
+        do_action('sb_optimizer_purged_term_cache', $termId, true);
+        do_action('sb_optimizer_purged_term_cache_for_' . $termId, true);
+
+        if (self::shouldPurgeByQueue()) {
+            $queueInstance = WpObjectQueue::getInstance();
+            $queueItemData = [
+                'type' => 'term',
+                'id'   => $termId,
+                'args' => compact('taxonomySlug'),
+                'simplePurge' => true,
+            ];
+            if ($originEvent = getCachePurgeOriginEvent()) {
+                $queueItemData['originEvent'] = $originEvent;
+            }
+            return isQueueItem($queueInstance->add($queueItemData));
+        } else {
+            $cachePurgeDriver = CachePurgeDriver::getInstance();
+            $termUrl = get_term_link($termId);
+            return $cachePurgeDriver->purgeByUrl($termUrl);
+        }
+    }
+
+    /**
      * Purge cache for term.
      *
      * @param int $termId
@@ -53,16 +91,26 @@ trait TermMethods
      */
     public static function purgeTermCache(int $termId, string $taxonomySlug): bool
     {
-        do_action('sb_optimizer_purged_term_cache', $termId);
-        do_action('sb_optimizer_purged_term_cache_for_' . $termId);
+        /**
+         * Fires when cache is being purged for a term.
+         *
+         * @param int $termId ID of the term that's being purge cache for.
+         * @param bool $simplePurge Whether this is a simple purge or not, a simple purge meaning that we purge the URL only, and not the full URL hierarchy, like archives etc.
+         */
+        do_action('sb_optimizer_purged_term_cache', $termId, false);
+        do_action('sb_optimizer_purged_term_cache_for_' . $termId, false);
 
         if (self::shouldPurgeByQueue()) {
             $queueInstance = WpObjectQueue::getInstance();
-            return isQueueItem($queueInstance->add([
+            $queueItemData = [
                 'type' => 'term',
-                'id'   => $termId,
+                'id' => $termId,
                 'args' => compact('taxonomySlug'),
-            ]));
+            ];
+            if ($originEvent = getCachePurgeOriginEvent()) {
+                $queueItemData['originEvent'] = $originEvent;
+            }
+            return isQueueItem($queueInstance->add($queueItemData));
         } else {
             if (self::$preventDoublePurge && self::$preventTermDoublePurge && array_key_exists($termId . '-' . $taxonomySlug, self::$recentlyPurgedTerms)) {
                 return self::$recentlyPurgedTerms[$termId . '-' . $taxonomySlug];

@@ -9,7 +9,7 @@ use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\AcceleratedDomainsI
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\DatabaseOptimizations;
 use Servebolt\Optimizer\Admin\Prefetching\PrefetchingControl;
-use Servebolt\Optimizer\Admin\PerformanceOptimizer\MenuCacheControl;
+use Servebolt\Optimizer\Admin\PerformanceOptimizer\MenuOptimizerControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\FullPageCacheControl;
 use Servebolt\Optimizer\Admin\FullPageCacheControl\CacheTtlControl;
 use Servebolt\Optimizer\Admin\GeneralSettings\GeneralSettings;
@@ -251,10 +251,11 @@ class AdminGuiController
         add_submenu_page('servebolt-wp', __('Performance optimizer', 'servebolt-wp'), __('Performance optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-optimizer', [PerformanceOptimizer::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-advanced', [PerformanceOptimizerAdvanced::getInstance(), 'render']);
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-optimizer-database', [DatabaseOptimizations::getInstance(), 'render']);
-        add_submenu_page(null, null, null, 'manage_options', 'servebolt-menu-cache', [MenuCacheControl::getInstance(), 'render']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-menu-optimizer', [MenuOptimizerControl::getInstance(), 'render']);
 
         // Legacy redirect
         add_submenu_page(null, null, null, 'manage_options', 'servebolt-performance-tools', [$this, 'performanceOptimizerLegacyRedirect']);
+        add_submenu_page(null, null, null, 'manage_options', 'servebolt-menu-cache', [$this, 'menuOptimizerLegacyRedirect']);
     }
 
     /**
@@ -263,6 +264,14 @@ class AdminGuiController
     public function performanceOptimizerLegacyRedirect(): void
     {
         javascriptRedirect(admin_url('admin.php?page=servebolt-performance-optimizer'));
+    }
+
+    /**
+     * Redirect from menu optimizer page to the new one.
+     */
+    public function menuOptimizerLegacyRedirect(): void
+    {
+        javascriptRedirect(admin_url('admin.php?page=servebolt-menu-optimizer'));
     }
 
     /**

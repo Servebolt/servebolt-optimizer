@@ -127,6 +127,48 @@ function ajaxUserAllowedByFunction($method, bool $returnResult = false)
 }
 
 /**
+ * Flag cache purge origin event.
+ *
+ * @param string $origin
+ */
+function setCachePurgeOriginEvent(string $origin): void
+{
+    remove_all_filters('sb_optimizer_cache_purge_origin');
+    add_filter('sb_optimizer_cache_purge_origin', function() use ($origin) {
+        return $origin;
+    });
+}
+
+/**
+ * Get and clear the purge origin event flag.
+ *
+ * @return mixed|void|null
+ */
+function getCachePurgeOriginEvent()
+{
+    return pickupValueFromFilter('sb_optimizer_cache_purge_origin');
+}
+
+/**
+ * Pick up value from a filter, then clear the filter.
+ *
+ * @param string $key
+ * @param bool $clearAfterPickup
+ * @return mixed|void|null
+ */
+function pickupValueFromFilter(string $key, bool $clearAfterPickup = true)
+{
+    if (!has_filter($key)) {
+        return null;
+    }
+    $value = apply_filters($key, null);
+    if ($clearAfterPickup) {
+        remove_all_filters($key);
+    }
+    return $value;
+}
+
+/**
  * Check if current user has capability, abort if not.
  *
  * @param bool $returnResult
@@ -498,7 +540,7 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'acd_img_resize_upscale',
         'acd_img_resize_size_index',
 
-        // Menu cache feature
+        // Menu Optimizer (formerly Menu cache) feature
         'menu_cache_switch',
         'menu_cache_disabled_for_authenticated_switch',
 
@@ -1095,22 +1137,21 @@ function isHostedAtServebolt(): bool
 {
     $isHostedAtServebolt = false;
     $context = null;
-    /*if (file_exists('/etc/bolt-release')) {
+    if (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
+        $isHostedAtServebolt = HOST_IS_SERVEBOLT_OVERRIDE;
+        $context = 'override';
+    } elseif (arrayGet('SERVER_ADMIN', $_SERVER) === 'support@servebolt.com') {
         $isHostedAtServebolt = true;
-        $context = 'file';
-    } else*/
-    if (arrayGet('SERVER_ADMIN', $_SERVER) === 'support@servebolt.com') {
-        $isHostedAtServebolt = true;
-        $context = 'SERVER_ADMIN';
+        $context = 'server_admin_check';
     } elseif (
         strEndsWith(arrayGet('HOSTNAME', $_SERVER), 'servebolt.com')
         || strEndsWith(arrayGet('HOSTNAME', $_SERVER), 'servebolt.cloud')
     ) {
         $isHostedAtServebolt = true;
-        $context = 'HOSTNAME';
-    } elseif (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
-        $isHostedAtServebolt = HOST_IS_SERVEBOLT_OVERRIDE;
-        $context = 'OVERRIDE';
+        $context = 'hostname_check';
+    } elseif (isCli() && file_exists('/etc/bolt-release')) {
+        $isHostedAtServebolt = true;
+        $context = 'file_exist_check';
     }
     return apply_filters('sb_optimizer_is_hosted_at_servebolt', $isHostedAtServebolt, $context);
 }

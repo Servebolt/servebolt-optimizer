@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\DatabaseOptimizer;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
+use Exception;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use Servebolt\Optimizer\Traits\Singleton;
 use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;

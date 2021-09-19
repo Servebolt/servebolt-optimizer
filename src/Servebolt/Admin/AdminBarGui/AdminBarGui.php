@@ -102,10 +102,6 @@ class AdminBarGui
                     'id' => $parentId,
                     'title' => __('Servebolt Optimizer', 'servebolt-wp'),
                     'href' => false,
-                    'meta' => [
-                        'target' => '_blank',
-                        'class' => 'sb-admin-button'
-                    ]
                 ]
             ], $nodes);
         }

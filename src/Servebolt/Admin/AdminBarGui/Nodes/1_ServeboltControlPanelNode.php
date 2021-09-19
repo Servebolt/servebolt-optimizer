@@ -41,7 +41,6 @@ class ServeboltControlPanelNode implements NodeInterface
                     'href'  => $adminUrl,
                     'meta'  => [
                         'target' => '_blank',
-                        'class' => 'sb-admin-button'
                     ]
                 ]
             ];

@@ -4,11 +4,13 @@ namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Exception;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Traits\EventToggler;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\setCachePurgeOriginEvent;
 
 /**
  * Class AttachmentUpdateTrigger
@@ -75,6 +77,7 @@ class AttachmentUpdateTrigger
     public function purgeCacheForAttachment(int $attachmentId): void
     {
         try {
+            setCachePurgeOriginEvent('attachment_updated');
             WordPressCachePurge::purgeByPostId($attachmentId);
         } catch (Exception $e) {}
     }
