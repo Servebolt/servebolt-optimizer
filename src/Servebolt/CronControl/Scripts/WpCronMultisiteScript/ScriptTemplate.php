@@ -1,13 +1,13 @@
 <?php
 
-namespace Servebolt\Optimizer\CronControl;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 return <<<EOF
 
 #!/bin/bash
 # Copyright © 2015 Bjørn Johansen
+# Modified by Robert Sæther (Servebolt) to work with WooCommerce' Action Scheduler.
+#
 # This work is free. You can redistribute it and/or modify it under the
 # terms of the Do What The Fuck You Want To Public License, Version 2,
 # as published by Sam Hocevar. See http://www.wtfpl.net/ for more details.

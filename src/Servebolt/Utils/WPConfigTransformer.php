@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Utils;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use Exception;
 
 /**

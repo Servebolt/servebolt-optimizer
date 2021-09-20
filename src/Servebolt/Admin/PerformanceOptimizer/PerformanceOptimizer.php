@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks;
 use Servebolt\Optimizer\Traits\Singleton;
-use function Servebolt\Optimizer\Helpers\featureIsAvailable;
+use function Servebolt\Optimizer\Helpers\wpCronDisabled;
 use function Servebolt\Optimizer\Helpers\view;
 
 /**
@@ -40,7 +40,7 @@ class PerformanceOptimizer
     {
         $checksInstance = DatabaseChecks::getInstance();
         view('performance-optimizer.performance-optimizer', [
-            'wpCronDisabled' => $checksInstance->wpCronDisabled(),
+            'wpCronDisabled' => wpCronDisabled(),
         ]);
     }
 }

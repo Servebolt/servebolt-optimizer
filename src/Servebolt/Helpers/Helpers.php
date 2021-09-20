@@ -1784,3 +1784,13 @@ function getAllImageSizesByImage(int $attachmentId): ?array
     $imageUrls = array_values(array_unique($imageUrls));
     return $imageUrls;
 }
+
+/**
+ * Check if WP cron is disabled.
+ *
+ * @return bool
+ */
+function wpCronDisabled(): bool
+{
+    return defined('DISABLE_WP_CRON') && DISABLE_WP_CRON;
+}
