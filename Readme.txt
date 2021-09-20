@@ -30,7 +30,7 @@ This project is maintained on [Github](https://servebo.lt/sog).
 - View Apache/PHP error log (**Servebolt clients only**)
 - Database optimization - Convert tables to InnoDB
 - Database optimization - Add performance improving indexes
-- Automatic Cloudflare cache purge
+- Automatic cache purge for Cloudflare and Accelerated Domains
 - Recommendations on additional performance improvements
 - Multi-site support
 - WP CLI support
