@@ -4,15 +4,15 @@ namespace Servebolt\Optimizer\CronControl\Cronjobs;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\CronControl\Scripts\WpCronMultisiteScript\WpCronMultisiteScript;
+use Servebolt\Optimizer\CronControl\Scripts\ActionSchedulerMultisiteScript\ActionSchedulerMultisiteScript;
 
-class WpCliEventRunMultisite extends AbstractCommand
+class ActionSchedulerRunMultisite extends AbstractCommand
 {
 
     /**
      * @var string The name of the command.
      */
-    public static $commandName = 'wp-cron-multisite';
+    public static $commandName = 'action-scheduler-multisite';
 
     /**
      * @var string The revision number of the command.
@@ -27,7 +27,7 @@ class WpCliEventRunMultisite extends AbstractCommand
     /**
      * @var string The interval for the command.
      */
-    public static $preferredInterval = '*/30 * * * *';
+    public static $preferredInterval = '* * * * *';
 
     /**
      * Generate command to be executed.
@@ -55,6 +55,6 @@ class WpCliEventRunMultisite extends AbstractCommand
      */
     public static function getScriptPath(): ?string
     {
-        return (new WpCronMultisiteScript)->getFilePath();
+        return (new ActionSchedulerMultisiteScript())->getFilePath();
     }
 }

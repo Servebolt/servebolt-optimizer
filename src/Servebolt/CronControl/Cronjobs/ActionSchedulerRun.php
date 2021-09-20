@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 
-class ActionScheduler extends AbstractCommand
+class ActionSchedulerRun extends AbstractCommand
 {
 
     /**
