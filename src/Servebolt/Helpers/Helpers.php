@@ -1466,6 +1466,16 @@ function woocommerceIsActive(): bool
 }
 
 /**
+ * Check if Action Scheduler is active.
+ *
+ * @return bool
+ */
+function actionSchedulerIsActive(): bool
+{
+    return class_exists('ActionScheduler');
+}
+
+/**
  * Check whether plugin WP Rocket is active.
  *
  * @return bool

@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Cli;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Cli\ActionScheduler\ActionScheduler;
 use Servebolt\Optimizer\Cli\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Cli\Cache\Cache;
 use Servebolt\Optimizer\Cli\HtmlCache\HtmlCache;
@@ -31,6 +32,7 @@ class Cli
         new General;
         new GeneralSettings;
         new Optimizations;
+        new ActionScheduler;
     }
 
     public static function init()
