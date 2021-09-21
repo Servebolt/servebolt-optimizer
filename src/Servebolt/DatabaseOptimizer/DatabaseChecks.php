@@ -155,15 +155,4 @@ class DatabaseChecks
 		global $wpdb;
 		return $wpdb->get_results("SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE LOWER(engine) = 'myisam' AND TABLE_SCHEMA = '" . DB_NAME . "' AND TABLE_NAME LIKE '{$wpdb->prefix}%'");
 	}
-
-	/**
-	 * Check if WP cron is disabled.
-	 *
-	 * @return bool
-	 */
-	function wpCronDisabled(): bool
-    {
-		return defined('DISABLE_WP_CRON') && DISABLE_WP_CRON === true;
-	}
-
 }

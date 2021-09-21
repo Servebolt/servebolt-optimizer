@@ -298,7 +298,23 @@ function getSiteId()
     if ($env->id) {
         return $env->id;
     }
-    if (preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", getWebrootPath(), $matches) && isset($matches[1])) {
+    if ($id = getSiteIdFromWebrootPath()) {
+        return $id;
+    }
+    return null;
+}
+
+/**
+ * Get site ID from the webroot folder path.
+ *
+ * @return string|null
+ */
+function getSiteIdFromWebrootPath():? string
+{
+    if (
+        preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", getWebrootPath(), $matches)
+        && isset($matches[1])
+    ) {
         return $matches[1];
     }
     return null;
@@ -309,10 +325,11 @@ function getSiteId()
  *
  * @return string
  */
-function getWebrootPath(): string
+function getWebrootPath():? string
 {
-    if (isDevDebug()) {
-        $path = '/kunder/serveb_1234/custom_4321/public';
+    if (isHostedAtServebolt()) {
+        $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
+        $path = $env->public_dir;
     } else {
         if (!function_exists('get_home_path')) {
             require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -1534,6 +1551,27 @@ function wpDirectFilesystem(bool $ensureConstantsAreSet = false): object
 }
 
 /**
+ * Get the path of the "wp-config.php"-file.
+ *
+ * @return string|null
+ */
+function getWpConfigPath(): ?string
+{
+    if (file_exists(ABSPATH . 'wp-config.php')) {
+        $path = ABSPATH . 'wp-config.php';
+    } elseif (
+        @file_exists(dirname(ABSPATH) . '/wp-config.php')
+        && !@file_exists(dirname(ABSPATH) . '/wp-settings.php')
+    ) {
+        $path = dirname(ABSPATH) . '/wp-config.php';
+    } else {
+        $path = null;
+    }
+
+    return apply_filters('sb_optimizer_wp_config_path', $path);
+}
+
+/**
  * This is a clone of the function "wp_calculate_image_sizes" in the WP core-files.
  * @param $size
  * @param null $image_src
@@ -1755,4 +1793,14 @@ function getAllImageSizesByImage(int $attachmentId): ?array
     }
     $imageUrls = array_values(array_unique($imageUrls));
     return $imageUrls;
+}
+
+/**
+ * Check if WP cron is disabled.
+ *
+ * @return bool
+ */
+function wpCronDisabled(): bool
+{
+    return defined('DISABLE_WP_CRON') && DISABLE_WP_CRON;
 }

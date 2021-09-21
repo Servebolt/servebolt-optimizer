@@ -1,15 +1,17 @@
 <?php
 
-namespace Unit\EnvFile;
+namespace Unit\Traits;
 
 use WP_UnitTestCase;
-use Servebolt\Optimizer\Utils\EnvFile\Reader;
+use Unit\Traits\EnvFile\EnvFileReaderTrait;
 
 class EnvironmentFileReaderTest extends WP_UnitTestCase
 {
+    use EnvFileReaderTrait;
+
     public function testThatWeCanReadFileWithAutoResolution()
     {
-        $reader = new Reader(__DIR__ . '/');
+        $reader = self::getEnvFileReader('auto', false);
         $this->assertTrue($reader->isSuccess());
         $this->assertTrue($reader->isFileType('json'));
         $this->assertEquals($reader->bolt_id, 123456);
@@ -20,7 +22,7 @@ class EnvironmentFileReaderTest extends WP_UnitTestCase
 
     public function testThatWeCanReadJsonFile()
     {
-        $reader = new Reader(__DIR__ . '/', 'json');
+        $reader = self::getEnvFileReader('json', false);
         $this->assertTrue($reader->isSuccess());
         $this->assertTrue($reader->isFileType('json'));
         $this->assertEquals($reader->bolt_id, 123456);
@@ -31,7 +33,7 @@ class EnvironmentFileReaderTest extends WP_UnitTestCase
 
     public function testThatWeCanReadIniFile()
     {
-        $reader = new Reader(__DIR__ . '/', 'ini');
+        $reader = self::getEnvFileReader('ini', false);
         $this->assertTrue($reader->isSuccess());
         $this->assertTrue($reader->isFileType('ini'));
         $this->assertEquals($reader->bolt_id, 123456);
