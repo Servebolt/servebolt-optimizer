@@ -50,9 +50,7 @@ class ActionSchedulerCronControl
     public static function tearDown()
     {
         DisableActionSchedulerDefaultRunner::toggleActive(false);
-        if (is_multisite()) {
-            (new ActionSchedulerMultisiteScript)->uninstall();
-        }
+        (new ActionSchedulerMultisiteScript)->uninstall(); // Run regardless of multisite or not
         ActionSchedulerUnixCronControl::tearDown();
     }
 }

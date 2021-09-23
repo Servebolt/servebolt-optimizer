@@ -72,7 +72,7 @@ class WpCronControl
     public function disable()
     {
         $isSetUp = WpCronControlNotCli::isSetUp();
-        WpCronControl::tearDown();
+        WpCronControlNotCli::tearDown();
         if (!$isSetUp) {
             WP_CLI::success(__('WP Cron is already not set up to run from UNIX cron.', 'servebolt-wp' ));
         } else {

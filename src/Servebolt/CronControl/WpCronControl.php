@@ -49,9 +49,7 @@ class WpCronControl
     public static function tearDown()
     {
         WpCronDisabler::enableWpCron();
-        if (is_multisite()) {
-            (new WpCronMultisiteScript)->uninstall();
-        }
+        (new WpCronMultisiteScript)->uninstall();
         WpUnixCronControl::tearDown();
     }
 }

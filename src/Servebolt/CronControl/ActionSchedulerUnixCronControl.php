@@ -11,54 +11,30 @@ use Servebolt\Optimizer\CronControl\Commands\ActionSchedulerRunMultisite;
  * Class ActionSchedulerUnixCronControl
  * @package Servebolt\Optimizer\CronControl
  */
-class ActionSchedulerUnixCronControl
+class ActionSchedulerUnixCronControl extends UnixCronControl
 {
     /**
-     * Check whether the command is set up in UNIX cron.
-     * @return bool
-     */
-    public static function isSetUp(): bool
-    {
-        return UnixCronModel::exists(self::getCommandClass());
-    }
-
-    /**
-     * Set up Action Scheduler to be run from the UNIX cron.
+     * Get the all command instances for Action Scheduler cron.
      *
-     * @return bool
+     * @return array
      */
-    public static function setUp(): bool
+    private static function getCommandClasses(): array
     {
-        $commandClass = self::getCommandClass();
-        if (UnixCronModel::exists($commandClass)) {
-            return true;
-        }
-        return UnixCronModel::add($commandClass);
+        return [
+            new ActionSchedulerRunMultisite,
+            new ActionSchedulerRun
+        ];
     }
 
     /**
-     * Disable Action Scheduler to be run from the UNIX cron.
-     *
-     * @return bool
-     */
-    public static function tearDown(): bool
-    {
-        $commandClass = self::getCommandClass();
-        if (!UnixCronModel::exists($commandClass)) {
-            return true;
-        }
-        return UnixCronModel::delete($commandClass);
-    }
-
-    /**
-     * Get the command instance based on multisite or not.
+     * Get the command instance based on single or multisite.
      *
      * @return object
      */
-    private static function getCommandClass(): object
+    private static function getCurrentCommandClass(): object
     {
         if (is_multisite()) {
-            return new ActionSchedulerRunMultisite();
+            return new ActionSchedulerRunMultisite;
         } else {
             return new ActionSchedulerRun;
         }

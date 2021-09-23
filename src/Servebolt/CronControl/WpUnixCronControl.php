@@ -8,50 +8,26 @@ use Servebolt\Optimizer\CronControl\Commands\WpCliEventRun;
 use Servebolt\Optimizer\CronControl\Commands\WpCliEventRunMultisite;
 
 /**
- * Class CronControl
+ * Class WpUnixCronControl
  * @package Servebolt\Optimizer\CronControl
  */
-class WpUnixCronControl
+class WpUnixCronControl extends UnixCronControl
 {
     /**
-     * Check whether the command is set up in UNIX cron.
-     * @return bool
-     */
-    public static function isSetUp(): bool
-    {
-        return UnixCronModel::exists(self::getCommandClass());
-    }
-
-    /**
-     * Set up WP Cron to be run from the UNIX cron.
+     * Get the all command instances for WP Cron.
      *
-     * @return bool
+     * @return array
      */
-    public static function setUp(): bool
+    private static function getCommandClasses(): array
     {
-        $commandClass = self::getCommandClass();
-        if (UnixCronModel::exists($commandClass)) {
-            return true;
-        }
-        return UnixCronModel::add($commandClass);
+        return [
+            new WpCliEventRunMultisite,
+            new WpCliEventRun
+        ];
     }
 
     /**
-     * Disable WP Cron to be run from the UNIX cron.
-     *
-     * @return bool
-     */
-    public static function tearDown(): bool
-    {
-        $commandClass = self::getCommandClass();
-        if (!UnixCronModel::exists($commandClass)) {
-            return true;
-        }
-        return UnixCronModel::delete($commandClass);
-    }
-
-    /**
-     * Get the command instance based on multisite or not.
+     * Get the command instance based on single or multisite.
      *
      * @return object
      */
