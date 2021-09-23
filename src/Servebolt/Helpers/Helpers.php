@@ -329,14 +329,19 @@ function getWebrootPath():? string
 {
     if (isHostedAtServebolt()) {
         $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
-        $path = $env->public_dir;
-    } else {
-        if (!function_exists('get_home_path')) {
-            require_once ABSPATH . 'wp-admin/includes/file.php';
+        if ($env->public_dir) {
+            return apply_filters('sb_optimizer_wp_webroot_path', $env->public_dir);
         }
-        $path = get_home_path();
     }
-    return apply_filters('sb_optimizer_wp_webroot_path', $path);
+    if (!function_exists('get_home_path')) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
+    if (function_exists('get_home_path')) {
+        if ($path = get_home_path()) {
+            return apply_filters('sb_optimizer_wp_webroot_path', $path);
+        }
+    }
+    return null;
 }
 
 /**
@@ -1166,7 +1171,7 @@ function strEndsWith(string $haystack, string $needle, bool $php8Fallback = true
 
 /**
  * Check if a string contains substring.
- * 
+ *
  * @param string $haystack
  * @param string $needle
  * @param bool $php8Fallback
