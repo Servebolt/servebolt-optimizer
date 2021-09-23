@@ -19,9 +19,9 @@ class ActionScheduler
      */
     public function __construct()
     {
-        WP_CLI::add_command('servebolt action-scheduler status', [$this, 'status']);
-        WP_CLI::add_command('servebolt action-scheduler enable', [$this, 'enable']);
-        WP_CLI::add_command('servebolt action-scheduler disable', [$this, 'disable']);
+        WP_CLI::add_command('servebolt action-scheduler cron status', [$this, 'status']);
+        WP_CLI::add_command('servebolt action-scheduler cron enable', [$this, 'enable']);
+        WP_CLI::add_command('servebolt action-scheduler cron disable', [$this, 'disable']);
     }
 
     /**
@@ -68,7 +68,7 @@ class ActionScheduler
     }
 
     /**
-     * Disable the Action Scheduler to be run from the UNIX cron.
+     * Disable the Action Scheduler from being run from the UNIX cron.
      *
      * ## EXAMPLES
      *
