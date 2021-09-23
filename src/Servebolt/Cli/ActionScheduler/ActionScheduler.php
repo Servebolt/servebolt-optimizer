@@ -29,7 +29,7 @@ class ActionScheduler
      *
      * ## EXAMPLES
      *
-     *     wp action-scheduler status
+     *     wp action-scheduler cron status
      */
     public function status()
     {
@@ -51,7 +51,7 @@ class ActionScheduler
      *
      * ## EXAMPLES
      *
-     *     wp action-scheduler enable
+     *     wp action-scheduler cron enable
      */
     public function enable()
     {
@@ -72,7 +72,7 @@ class ActionScheduler
      *
      * ## EXAMPLES
      *
-     *     wp action-scheduler disable
+     *     wp action-scheduler cron disable
      */
     public function disable()
     {
