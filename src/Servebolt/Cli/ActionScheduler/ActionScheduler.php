@@ -76,6 +76,9 @@ class ActionScheduler
      */
     public function disable()
     {
+        if (!actionSchedulerIsActive()) {
+            WP_CLI::confirm(__('Action Scheduler does not seem to be installed. Do you still want to continue?', 'servebolt-wp'));
+        }
         $isSetUp = ActionSchedulerCronControl::isSetUp();
         ActionSchedulerCronControl::tearDown();
         if (!$isSetUp) {
