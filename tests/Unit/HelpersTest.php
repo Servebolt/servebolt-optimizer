@@ -70,6 +70,7 @@ use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\updateSiteOption;
 use function Servebolt\Optimizer\Helpers\view;
+use function Servebolt\Optimizer\Helpers\wpCronDisabled;
 use function Servebolt\Optimizer\Helpers\writeLog;
 
 class HelpersTest extends ServeboltWPUnitTestCase
@@ -843,5 +844,15 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertEquals('value', pickupValueFromFilter($key, false));
         $this->assertEquals('value', pickupValueFromFilter($key));
         $this->assertNull(pickupValueFromFilter($key));
+    }
+
+    public function testThatWeCanDetermineWpCronDisabling()
+    {
+        add_filter('sb_optimizer_wp_cron_disabled', '__return_true');
+        $this->assertTrue(wpCronDisabled());
+        remove_all_filters('sb_optimizer_wp_cron_disabled');
+        add_filter('sb_optimizer_wp_cron_disabled', '__return_false');
+        $this->assertFalse(wpCronDisabled());
+        remove_all_filters('sb_optimizer_wp_cron_disabled');
     }
 }

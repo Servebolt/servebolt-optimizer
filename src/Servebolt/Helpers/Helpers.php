@@ -1816,5 +1816,8 @@ function getAllImageSizesByImage(int $attachmentId): ?array
  */
 function wpCronDisabled(): bool
 {
-    return defined('DISABLE_WP_CRON') && DISABLE_WP_CRON;
+    return apply_filters(
+        'sb_optimizer_wp_cron_disabled',
+        (defined('DISABLE_WP_CRON') && DISABLE_WP_CRON)
+    );
 }
