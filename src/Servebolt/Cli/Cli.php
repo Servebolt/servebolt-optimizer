@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Cli\ActionScheduler\ActionScheduler;
 use Servebolt\Optimizer\Cli\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Cli\Cache\Cache;
-use Servebolt\Optimizer\Cli\CronControl\CronControl;
+use Servebolt\Optimizer\Cli\WpCronControl\WpCronControl;
 use Servebolt\Optimizer\Cli\HtmlCache\HtmlCache;
 use Servebolt\Optimizer\Cli\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\Cli\General\General;
@@ -37,7 +37,7 @@ class Cli
 
         if (isHostedAtServebolt()) {
             new ActionScheduler;
-            new CronControl;
+            new WpCronControl;
         }
     }
 
