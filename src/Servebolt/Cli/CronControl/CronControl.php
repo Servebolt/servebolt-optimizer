@@ -6,7 +6,6 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
 use Servebolt\Optimizer\CronControl\WpCronControl;
-use Servebolt\Optimizer\CronControl\Scripts\WpCronMultisiteScript\WpCronMultisiteScript;
 
 /**
  * Class CronControl

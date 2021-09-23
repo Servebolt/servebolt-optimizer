@@ -5,7 +5,7 @@ namespace Servebolt\Optimizer\Cli\CronControl;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
-use Servebolt\Optimizer\CronControl\WpCronControl;
+use Servebolt\Optimizer\CronControl\WpCronDisabler;
 use Servebolt\Optimizer\CronControl\WpUnixCronControl;
 
 /**
@@ -14,6 +14,9 @@ use Servebolt\Optimizer\CronControl\WpUnixCronControl;
  */
 class CronStatus
 {
+    /**
+     * CronStatus Constructor.
+     */
     public function __construct()
     {
         WP_CLI::add_command('servebolt cron status', [$this, 'status']);
@@ -30,15 +33,21 @@ class CronStatus
      */
     public function status()
     {
-        if (WpCronControl::wpCronIsDisabled()) {
-            WP_CLI::success(__('WP Cron is disabled.', 'servebolt-wp'));
+        $allGood = true;
+        if (WpCronDisabler::wpCronIsDisabled()) {
+            WP_CLI::success(__('WP Cron is disabled (in wp-config.php).', 'servebolt-wp'));
         } else {
-            WP_CLI::error(__('WP Cron is not disabled.', 'servebolt-wp'), false);
+            $allGood = false;
+            WP_CLI::error(__('WP Cron is not disabled (in wp-config.php).', 'servebolt-wp'), false);
         }
-        if (WpUnixCronControl::unixCronIsSetup()) {
+        if (WpUnixCronControl::isSetUp()) {
             WP_CLI::success(__('Unix cron setup ok!', 'servebolt-wp'));
         } else {
+            $allGood = false;
             WP_CLI::error(__('Unix cron is not set up correctly.', 'servebolt-wp'), false);
+        }
+        if (!$allGood) {
+            WP_CLI::line(__('Please run "wp servebolt cron setup" to fix this.', 'servebolt-wp'), false);
         }
     }
 }
