@@ -20,7 +20,7 @@ class ActionSchedulerCronControl
      */
     public static function isSetUp(): bool
     {
-        if (DisableActionSchedulerDefaultRunner::isActive()) {
+        if (!DisableActionSchedulerDefaultRunner::isActive()) {
             return false;
         }
         if (is_multisite() && !(new ActionSchedulerMultisiteScript)->isInstalled()) {

@@ -4,8 +4,8 @@ namespace Servebolt\Optimizer\Cli\ActionScheduler;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\CronControl\ActionSchedulerCronControl;
 use WP_CLI;
+use Servebolt\Optimizer\CronControl\ActionSchedulerCronControl;
 use function Servebolt\Optimizer\Helpers\actionSchedulerIsActive;
 
 /**
@@ -58,7 +58,12 @@ class ActionScheduler
         if (!actionSchedulerIsActive()) {
             WP_CLI::confirm(__('Action Scheduler does not seem to be installed. Do you still want to continue?', 'servebolt-wp'));
         }
+        $isSetUp = ActionSchedulerCronControl::isSetUp();
         ActionSchedulerCronControl::setUp();
+        if ($isSetUp) {
+            WP_CLI::success(__('The Action Scheduler is already set up to run from the UNIX cron.', 'servebolt-wp'));
+            return;
+        }
         WP_CLI::success(__('The Action Scheduler is now set up to run from the UNIX cron.', 'servebolt-wp'));
     }
 
@@ -71,7 +76,12 @@ class ActionScheduler
      */
     public function disable()
     {
+        $isSetUp = ActionSchedulerCronControl::isSetUp();
         ActionSchedulerCronControl::tearDown();
+        if (!$isSetUp) {
+            WP_CLI::success(__('The Action Scheduler is already not set up to run from the UNIX cron.', 'servebolt-wp'));
+            return;
+        }
         WP_CLI::success(__('The Action Scheduler is no longer set up to run from the UNIX cron.', 'servebolt-wp'));
     }
 }
