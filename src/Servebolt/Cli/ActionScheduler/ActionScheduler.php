@@ -58,9 +58,9 @@ class ActionScheduler
         if (!actionSchedulerIsActive()) {
             WP_CLI::confirm(__('Action Scheduler does not seem to be installed. Do you still want to continue?', 'servebolt-wp'));
         }
-        $isSetUp = ActionSchedulerCronControl::isSetUp();
+        $wasSatUp = ActionSchedulerCronControl::isSetUp();
         ActionSchedulerCronControl::setUp();
-        if ($isSetUp) {
+        if ($wasSatUp) {
             WP_CLI::success(__('The Action Scheduler is already set up to run from the UNIX cron.', 'servebolt-wp'));
             return;
         }
@@ -79,9 +79,9 @@ class ActionScheduler
         if (!actionSchedulerIsActive()) {
             WP_CLI::confirm(__('Action Scheduler does not seem to be installed. Do you still want to continue?', 'servebolt-wp'));
         }
-        $isSetUp = ActionSchedulerCronControl::isSetUp();
+        $wasSatUp = ActionSchedulerCronControl::isSetUp();
         ActionSchedulerCronControl::tearDown();
-        if (!$isSetUp) {
+        if (!$wasSatUp) {
             WP_CLI::success(__('The Action Scheduler is already not set up to run from the UNIX cron.', 'servebolt-wp'));
             return;
         }

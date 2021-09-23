@@ -52,9 +52,9 @@ class WpCronControl
      */
     public function enable()
     {
-        $isSetUp = WpCronControlNotCli::isSetUp();
+        $wasSatUp = WpCronControlNotCli::isSetUp();
         WpCronControlNotCli::setUp();
-        if ($isSetUp) {
+        if ($wasSatUp) {
             WP_CLI::success(__('WP Cron is already set up to run from UNIX cron.', 'servebolt-wp' ));
         } else {
             WP_CLI::success(__('WP Cron is now set up to run from UNIX cron.', 'servebolt-wp' ));
@@ -71,9 +71,9 @@ class WpCronControl
      */
     public function disable()
     {
-        $isSetUp = WpCronControlNotCli::isSetUp();
+        $wasSatUp = WpCronControlNotCli::isSetUp();
         WpCronControlNotCli::tearDown();
-        if (!$isSetUp) {
+        if (!$wasSatUp) {
             WP_CLI::success(__('WP Cron is already not set up to run from UNIX cron.', 'servebolt-wp' ));
         } else {
             WP_CLI::success(__('WP Cron is no longer set up to run from UNIX cron.', 'servebolt-wp' ));
