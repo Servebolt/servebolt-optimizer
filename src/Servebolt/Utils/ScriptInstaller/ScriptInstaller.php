@@ -9,7 +9,7 @@ use function Servebolt\Optimizer\Helpers\wpDirectFilesystem;
 
 /**
  * Class ScriptInstaller
- * @package Servebolt\Optimizer\Utils
+ * @package Servebolt\Optimizer\Utils\ScriptInstaller
  */
 class ScriptInstaller
 {

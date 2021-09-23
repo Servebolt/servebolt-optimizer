@@ -4,6 +4,10 @@ namespace Servebolt\Optimizer\Utils\ScriptInstaller;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+/**
+ * Interface ScriptInstallerInterface
+ * @package Servebolt\Optimizer\Utils\ScriptInstaller
+ */
 interface ScriptInstallerInterface
 {
     /**
