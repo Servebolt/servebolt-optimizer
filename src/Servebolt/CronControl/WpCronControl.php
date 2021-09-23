@@ -4,98 +4,54 @@ namespace Servebolt\Optimizer\CronControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
-use Servebolt\Optimizer\Traits\Singleton;
-use Servebolt\Optimizer\Utils\WPConfigTransformer;
-use function Servebolt\Optimizer\Helpers\getWpConfigPath;
+use Servebolt\Optimizer\CronControl\Scripts\WpCronMultisiteScript\WpCronMultisiteScript;
 
+/**
+ * Class WpCronControl
+ * @package Servebolt\Optimizer\CronControl
+ */
 class WpCronControl
 {
-    use Singleton;
-
     /**
-     * Check whether WP Cron is enabled.
+     * Check if Action Scheduler is set up to run from UNIX cron.
      *
      * @return bool
      */
-    public static function wpCronIsEnabled(): bool
+    public static function isSetUp(): bool
     {
-        return !self::wpCronIsDisabled();
-    }
-
-    /**
-     * Check whether WP Cron is disabled.
-     *
-     * @return bool
-     */
-    public static function wpCronIsDisabled(): bool
-    {
-        try {
-            $ct = self::getWPConfigTransformer();
-            if ($ct && $ct->exists('constant', 'DISABLE_WP_CRON')) {
-                $value = $ct->get_value('constant', 'DISABLE_WP_CRON');
-                if ($value !== 'false' && $value !== '0') {
-                    return true;
-                }
-            }
-        } catch (Exception $e) {}
-        return false; // Default value
-    }
-
-    /**
-     * Get instance of "WPConfigTransformer".
-     *
-     * @return object|null
-     * @throws Exception
-     */
-    private static function getWPConfigTransformer(): ?object
-    {
-        $configFilePath = getWpConfigPath();
-        if (!$configFilePath) {
-            return null;
+        if (WpCronDisabler::wpCronIsEnabled()) {
+            return false;
         }
-        return new WPConfigTransformer($configFilePath);
+        if (is_multisite() && !(new WpCronMultisiteScript)->isInstalled()) {
+            return false;
+        }
+        if (!WpUnixCronControl::isSetUp()) {
+            return false;
+        }
+        return true;
     }
 
     /**
-     * Toggle Wp Cron on/off.
-     *
-     * @param bool $cronEnabled
+     * Disable WP Cron to run natively, and run WP Cron from UNIX cron.
      */
-    private static function toggleWpCron($cronEnabled)
+    public static function setUp()
     {
-        try {
-            $ct = self::getWPConfigTransformer();
-            if (!$ct) {
-                return;
-            }
-            if ($cronEnabled) {
-                if ($ct->exists('constant', 'DISABLE_WP_CRON')) {
-                    $ct->remove('constant', 'DISABLE_WP_CRON');
-                }
-            } else {
-                if ($ct->exists('constant', 'DISABLE_WP_CRON')) {
-                    $ct->update('constant', 'DISABLE_WP_CRON', 'true');
-                } else {
-                    $ct->add('constant', 'DISABLE_WP_CRON', 'true');
-                }
-            }
-        } catch (Exception $e) {}
+        WpCronDisabler::disableWpCron();
+        if (is_multisite()) {
+            (new WpCronMultisiteScript)->install();
+        }
+        WpUnixCronControl::setUp();
     }
 
     /**
-     * Enable WP Cron.
+     * Enable WP Cron to run natively, and do not run WP Cron from UNIX cron.
      */
-    public static function enableWpCron(): void
+    public static function tearDown()
     {
-        self::toggleWpCron(true);
-    }
-
-    /**
-     * Disable WP Cron.
-     */
-    public static function disableWpCron(): void
-    {
-        self::toggleWpCron(false);
+        WpCronDisabler::enableWpCron();
+        if (is_multisite()) {
+            (new WpCronMultisiteScript)->uninstall();
+        }
+        WpUnixCronControl::tearDown();
     }
 }

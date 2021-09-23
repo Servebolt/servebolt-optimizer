@@ -1165,6 +1165,20 @@ function strEndsWith(string $haystack, string $needle, bool $php8Fallback = true
 }
 
 /**
+ * @param string $haystack
+ * @param string $needle
+ * @param bool $php8Fallback
+ * @return bool
+ */
+function strContains(string $haystack, string $needle, bool $php8Fallback = true): bool
+{
+    if (function_exists('str_contains') && $php8Fallback) {
+        return str_contains($haystack, $needle);
+    }
+    return strpos($haystack, $needle) !== false;
+}
+
+/**
  * Check if the site is hosted at Servebolt.
  *
  * @return bool

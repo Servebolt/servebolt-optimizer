@@ -4,8 +4,8 @@ namespace Servebolt\Optimizer\Cli\ActionScheduler;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\CronControl\ActionSchedulerCronControl;
 use WP_CLI;
-use Servebolt\Optimizer\Compatibility\ActionScheduler\DisableActionSchedulerDefaultRunner;
 use function Servebolt\Optimizer\Helpers\actionSchedulerIsActive;
 
 /**
@@ -24,11 +24,6 @@ class ActionScheduler
         WP_CLI::add_command('servebolt action-scheduler disable', [$this, 'disable']);
     }
 
-    private function unixCronSetUp(): bool
-    {
-        return false; // TODO: Add proper condition check
-    }
-
     /**
      * Check if the Action Scheduler is installed and if it is set up to run from the UNIX cron.
      *
@@ -39,15 +34,15 @@ class ActionScheduler
     public function status()
     {
         if (actionSchedulerIsActive()) {
-            WP_CLI::success(__('Action Scheduler seems to be installed.', 'servebol-wp'));
+            WP_CLI::success(__('Action Scheduler seems to be installed.', 'servebolt-wp'));
         } else {
-            WP_CLI::warning(__('Action Scheduler is not installed.', 'servebol-wp'));
+            WP_CLI::warning(__('Action Scheduler is not installed.', 'servebolt-wp'));
         }
-        if ($this->unixCronSetUp()) {
-            WP_CLI::success(__('Action Scheduler is set up to be ran from the UNIX cron.', 'servebol-wp'));
+        if (ActionSchedulerCronControl::isSetUp()) {
+            WP_CLI::success(__('Action Scheduler is set up to be ran from the UNIX cron.', 'servebolt-wp'));
         } else {
-            WP_CLI::error(__('Action Scheduler is not set up to be ran from the UNIX cron.', 'servebol-wp'), false);
-            WP_CLI::line(__('Please run "wp servebolt action-scheduler enable" to fix this.', 'servebol-wp'), false);
+            WP_CLI::error(__('Action Scheduler is not set up to be ran from the UNIX cron.', 'servebolt-wp'), false);
+            WP_CLI::line(__('Please run "wp servebolt action-scheduler enable" to fix this.', 'servebolt-wp'), false);
         }
     }
 
@@ -63,8 +58,7 @@ class ActionScheduler
         if (!actionSchedulerIsActive()) {
             WP_CLI::confirm(__('Action Scheduler does not seem to be installed. Do you still want to continue?', 'servebolt-wp'));
         }
-        DisableActionSchedulerDefaultRunner::toggleActive(true);
-        // TODO: Enabled Action Scheduler to be ran from UNIX cron
+        ActionSchedulerCronControl::setUp();
         WP_CLI::success(__('The Action Scheduler is now set up to run from the UNIX cron.', 'servebolt-wp'));
     }
 
@@ -77,8 +71,7 @@ class ActionScheduler
      */
     public function disable()
     {
-        DisableActionSchedulerDefaultRunner::toggleActive(false);
-        // TODO: Disable Action Scheduler to be ran from UNIX cron
+        ActionSchedulerCronControl::tearDown();
         WP_CLI::success(__('The Action Scheduler is no longer set up to run from the UNIX cron.', 'servebolt-wp'));
     }
 }

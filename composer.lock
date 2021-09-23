@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9508053e5f3d4e6de1a853315a19cac2",
+    "content-hash": "61178323fda8d07429209dee394ca130",
     "packages": [
         {
             "name": "composer/installers",
@@ -373,12 +373,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "4095c77b73893521ef1c84109b95f97aa35e48b8"
+                "reference": "a613efc651c43185e577112f79e02c3ccdd00d5e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/4095c77b73893521ef1c84109b95f97aa35e48b8",
-                "reference": "4095c77b73893521ef1c84109b95f97aa35e48b8",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/a613efc651c43185e577112f79e02c3ccdd00d5e",
+                "reference": "a613efc651c43185e577112f79e02c3ccdd00d5e",
                 "shasum": ""
             },
             "require": {
@@ -481,7 +481,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-09-05T19:59:03+00:00"
+            "time": "2021-09-19T23:27:27+00:00"
         },
         {
             "name": "jakeasmith/http_build_url",
@@ -729,16 +729,16 @@
         },
         {
             "name": "servebolt/sdk",
-            "version": "dev-master",
+            "version": "1.1.0-beta.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Servebolt/php-sdk.git",
-                "reference": "134dbaf65126359abacc0aca6b68e77afebe5077"
+                "reference": "d9c1df1be7f41e1f40f34602553ae5ec0bde1376"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/134dbaf65126359abacc0aca6b68e77afebe5077",
-                "reference": "134dbaf65126359abacc0aca6b68e77afebe5077",
+                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/d9c1df1be7f41e1f40f34602553ae5ec0bde1376",
+                "reference": "d9c1df1be7f41e1f40f34602553ae5ec0bde1376",
                 "shasum": ""
             },
             "require": {
@@ -756,7 +756,6 @@
                 "squizlabs/php_codesniffer": "^3.5",
                 "vlucas/phpdotenv": "^5.3"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -778,9 +777,9 @@
             "homepage": "https://servebolt.com",
             "support": {
                 "issues": "https://github.com/Servebolt/php-sdk/issues",
-                "source": "https://github.com/Servebolt/php-sdk/tree/1.0.0"
+                "source": "https://github.com/Servebolt/php-sdk/tree/1.1.0-beta.1"
             },
-            "time": "2021-09-09T07:09:08+00:00"
+            "time": "2021-09-23T12:22:21+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -4633,7 +4632,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "servebolt/sdk": 20,
         "symfony/var-dumper": 20
     },
     "prefer-stable": false,

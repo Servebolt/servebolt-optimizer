@@ -1,11 +1,16 @@
 <?php
 
-namespace Servebolt\Optimizer\CronControl\Cronjobs;
+namespace Servebolt\Optimizer\CronControl\Commands;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CronControl\Scripts\ActionSchedulerMultisiteScript\ActionSchedulerMultisiteScript;
+use function Servebolt\Optimizer\Helpers\strContains;
 
+/**
+ * Class ActionSchedulerRunMultisite
+ * @package Servebolt\Optimizer\CronControl\Commands
+ */
 class ActionSchedulerRunMultisite extends AbstractCommand
 {
 
@@ -30,6 +35,20 @@ class ActionSchedulerRunMultisite extends AbstractCommand
     public static $preferredInterval = '* * * * *';
 
     /**
+     * Try to match the current command with a specified command.
+     *
+     * @param $command
+     * @return bool
+     */
+    public static function is($command): bool
+    {
+        if (strContains($command, self::generateCommand())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Generate command to be executed.
      *
      * @return mixed|string
@@ -37,6 +56,7 @@ class ActionSchedulerRunMultisite extends AbstractCommand
     public static function generateCommand()
     {
         $command = sprintf(static::$command, self::getScriptPath());
+
         /**
          * @param string $command The comment to be executed.
          * @param string $context The name of the command.

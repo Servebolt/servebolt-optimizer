@@ -5,6 +5,8 @@ namespace Servebolt\Optimizer;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\WpCachePurge;
+use Servebolt\Optimizer\CronControl\Commands\WpCliEventRun;
+use Servebolt\Optimizer\CronControl\UnixCronModel;
 use Servebolt\Optimizer\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Compatibility\Compatibility as PluginCompatibility;
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;

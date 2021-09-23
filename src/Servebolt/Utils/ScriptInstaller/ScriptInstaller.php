@@ -145,7 +145,7 @@ class ScriptInstaller
      */
     public function getFilePath(): string
     {
-        return $this->resolveInstallPath(). '/' . $this->getFileName();
+        return trailingslashit($this->resolveInstallPath()) . $this->getFileName();
     }
 
     /**

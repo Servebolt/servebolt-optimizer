@@ -2,14 +2,13 @@
 
 namespace Unit;
 
-use Servebolt\Optimizer\CronControl\WpCronControl;
-use Servebolt\Optimizer\CronControl\CronControl;
-use Servebolt\Optimizer\CronControl\Cronjobs\ActionSchedulerRunMultisite;
+use Servebolt\Optimizer\CronControl\Commands\ActionSchedulerRunMultisite;
 use Servebolt\Optimizer\CronControl\Scripts\ActionSchedulerMultisiteScript\ActionSchedulerMultisiteScript;
 use Servebolt\Optimizer\CronControl\Scripts\WpCronMultisiteScript\WpCronMultisiteScript;
-use Servebolt\Optimizer\CronControl\Cronjobs\WpCliEventRun;
-use Servebolt\Optimizer\CronControl\Cronjobs\WpCliEventRunMultisite;
-use Servebolt\Optimizer\CronControl\Cronjobs\ActionSchedulerRun;
+use Servebolt\Optimizer\CronControl\Commands\WpCliEventRun;
+use Servebolt\Optimizer\CronControl\Commands\WpCliEventRunMultisite;
+use Servebolt\Optimizer\CronControl\Commands\ActionSchedulerRun;
+use Servebolt\Optimizer\CronControl\WpCronDisabler;
 use Unit\Traits\EnvFile\EnvFileReaderTrait;
 use ServeboltWPUnitTestCase;
 use function Servebolt\Optimizer\Helpers\wpDirectFilesystem;
@@ -18,7 +17,8 @@ class CronControlTest extends ServeboltWPUnitTestCase
 {
     use EnvFileReaderTrait;
 
-    public function testThatWeCanParseCronjobComment()
+    /*
+    public function testThatWeCanParseCronJobComment()
     {
         $comment = WpCliEventRun::generateComment();
         $parsedComment = CronControl::parseComment($comment);
@@ -27,24 +27,25 @@ class CronControlTest extends ServeboltWPUnitTestCase
         $this->assertEquals(WpCliEventRun::$commandName, $parsedComment['name']);
         $this->assertEquals(WpCliEventRun::$commandRevision, $parsedComment['rev']);
     }
+    */
 
     public function testThatWeCanControlWpCron()
     {
         add_filter('sb_optimizer_wp_config_path', function() {
             return __DIR__ . '/wp-config-sample.php';
         });
-        WpCronControl::enableWpCron();
+        WpCronDisabler::enableWpCron();
 
-        $this->assertTrue(WpCronControl::wpCronIsEnabled());
-        $this->assertFalse(WpCronControl::wpCronIsDisabled());
+        $this->assertTrue(WpCronDisabler::wpCronIsEnabled());
+        $this->assertFalse(WpCronDisabler::wpCronIsDisabled());
 
-        WpCronControl::disableWpCron();
-        $this->assertFalse(WpCronControl::wpCronIsEnabled());
-        $this->assertTrue(WpCronControl::wpCronIsDisabled());
+        WpCronDisabler::disableWpCron();
+        $this->assertFalse(WpCronDisabler::wpCronIsEnabled());
+        $this->assertTrue(WpCronDisabler::wpCronIsDisabled());
 
-        WpCronControl::enableWpCron();
-        $this->assertTrue(WpCronControl::wpCronIsEnabled());
-        $this->assertFalse(WpCronControl::wpCronIsDisabled());
+        WpCronDisabler::enableWpCron();
+        $this->assertTrue(WpCronDisabler::wpCronIsEnabled());
+        $this->assertFalse(WpCronDisabler::wpCronIsDisabled());
 
         remove_all_filters('sb_optimizer_wp_config_path');
     }
@@ -72,8 +73,7 @@ class CronControlTest extends ServeboltWPUnitTestCase
         $this->assertEquals($command, WpCliEventRun::generateCommand());
         $this->assertEquals($comment, WpCliEventRun::generateComment());
         $this->assertEquals($interval, WpCliEventRun::getInterval());
-        $this->assertEquals($interval . ' ' . $command, WpCliEventRun::generateCronjob(false));
-        $this->assertEquals($interval . ' ' . $command . ' ' . $comment, WpCliEventRun::generateCronjob());
+        $this->assertTrue(WpCliEventRun::is('wp cron event run --bogus-argument --path=/kunder/serveb_123456/optimi_56789/public'));
     }
 
     public function testThatWeCanGenerateWpCronEventRunMultisiteCommand()
@@ -87,8 +87,7 @@ class CronControlTest extends ServeboltWPUnitTestCase
         $this->assertEquals($command, WpCliEventRunMultisite::generateCommand());
         $this->assertEquals($comment, WpCliEventRunMultisite::generateComment());
         $this->assertEquals($interval, WpCliEventRunMultisite::getInterval());
-        $this->assertEquals($interval . ' ' . $command, WpCliEventRunMultisite::generateCronjob(false));
-        $this->assertEquals($interval . ' ' . $command . ' ' . $comment, WpCliEventRunMultisite::generateCronjob());
+        $this->assertTrue(WpCliEventRunMultisite::is($command));
     }
 
     public function testThatWeCanGenerateActionSchedulerEventRunCommand()
@@ -102,8 +101,7 @@ class CronControlTest extends ServeboltWPUnitTestCase
         $this->assertEquals($command, ActionSchedulerRun::generateCommand());
         $this->assertEquals($comment, ActionSchedulerRun::generateComment());
         $this->assertEquals($interval, ActionSchedulerRun::getInterval());
-        $this->assertEquals($interval . ' ' . $command, ActionSchedulerRun::generateCronjob(false));
-        $this->assertEquals($interval . ' ' . $command . ' ' . $comment, ActionSchedulerRun::generateCronjob());
+        $this->assertTrue(ActionSchedulerRun::is('wp action-scheduler run --bogus-argument --path=/kunder/serveb_123456/optimi_56789/public'));
     }
 
     public function testThatWeCanGenerateActionSchedulerEventRunMultisiteCommand()
@@ -117,8 +115,7 @@ class CronControlTest extends ServeboltWPUnitTestCase
         $this->assertEquals($command, ActionSchedulerRunMultisite::generateCommand());
         $this->assertEquals($comment, ActionSchedulerRunMultisite::generateComment());
         $this->assertEquals($interval, ActionSchedulerRunMultisite::getInterval());
-        $this->assertEquals($interval . ' ' . $command, ActionSchedulerRunMultisite::generateCronjob(false));
-        $this->assertEquals($interval . ' ' . $command . ' ' . $comment, ActionSchedulerRunMultisite::generateCronjob());
+        $this->assertTrue(ActionSchedulerRunMultisite::is($command));
     }
 
     private function validateScriptInstall($i)

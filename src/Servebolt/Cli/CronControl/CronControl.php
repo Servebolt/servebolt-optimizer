@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
 use Servebolt\Optimizer\CronControl\WpCronControl;
+use Servebolt\Optimizer\CronControl\Scripts\WpCronMultisiteScript\WpCronMultisiteScript;
 
 /**
  * Class CronControl
@@ -16,21 +17,12 @@ class CronControl
     public function __construct()
     {
         new CronStatus;
-        WP_CLI::add_command('servebolt cron fix', [$this, 'fixCronSetup']);
-        WP_CLI::add_command('servebolt cron wp enable', [$this, 'enableWpCron']);
-        WP_CLI::add_command('servebolt cron wp disable', [$this, 'disableWpCron']);
-    }
-
-    public function fixCronSetup()
-    {
-        // TODO: Disable WP Cron
-        // TODO: If multisite, set up cron
-        // TODO: Set up cron in UNIX crontab
+        WP_CLI::add_command('servebolt cron setup', [$this, 'enableWpCron']);
+        WP_CLI::add_command('servebolt cron teardown', [$this, 'disableWpCron']);
     }
 
     /**
-     * Enabled the WP Cron.
-     *
+     * Set up WP Cron to be executed via the UNIX cron.
      *
      * ## EXAMPLES
      *
@@ -39,17 +31,16 @@ class CronControl
      */
     public function enableWpCron()
     {
-        if (WpCronControl::wpCronIsEnabled()) {
-            WP_CLI::success(__('WP Cron is already enabled.', 'servebolt-wp' ));
+        if (WpCronControl::isSetUp()) {
+            WP_CLI::success(__('WP Cron is already set up to run from UNIX cron.', 'servebolt-wp' ));
             return;
         }
-        WpCronControl::enableWpCron();
-        WP_CLI::success(__('WP Cron is enabled.', 'servebolt-wp' ));
+        WpCronControl::setUp();
+        WP_CLI::success(__('WP Cron is now set up to run from UNIX cron.', 'servebolt-wp' ));
     }
 
     /**
-     * Disabled the WP Cron.
-     *
+     * Disable WP Cron to be executed via the UNIX cron (revert to native WP Cron setup).
      *
      * ## EXAMPLES
      *
@@ -58,11 +49,11 @@ class CronControl
      */
     public function disableWpCron()
     {
-        if (WpCronControl::wpCronIsDisabled()) {
-            WP_CLI::success(__('WP Cron is already disabled.', 'servebolt-wp' ));
+        if (!WpCronControl::isSetUp()) {
+            WP_CLI::success(__('WP Cron is already not set up to run from UNIX cron.', 'servebolt-wp' ));
             return;
         }
-        WpCronControl::disableWpCron();
-        WP_CLI::success(__('WP Cron is disabled.', 'servebolt-wp' ));
+        WpCronControl::tearDown();
+        WP_CLI::success(__('WP Cron is no longer set up to run from UNIX cron.', 'servebolt-wp' ));
     }
 }

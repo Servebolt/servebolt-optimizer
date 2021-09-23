@@ -2,10 +2,14 @@
 
 namespace Servebolt\Optimizer\CronControl\Scripts;
 
-use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
+
+/**
+ * Trait SharedMethods
+ * @package Servebolt\Optimizer\CronControl\Scripts
+ */
 trait SharedMethods
 {
     /**

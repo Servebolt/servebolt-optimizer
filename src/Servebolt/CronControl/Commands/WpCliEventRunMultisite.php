@@ -1,11 +1,16 @@
 <?php
 
-namespace Servebolt\Optimizer\CronControl\Cronjobs;
+namespace Servebolt\Optimizer\CronControl\Commands;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CronControl\Scripts\WpCronMultisiteScript\WpCronMultisiteScript;
+use function Servebolt\Optimizer\Helpers\strContains;
 
+/**
+ * Class WpCliEventRunMultisite
+ * @package Servebolt\Optimizer\CronControl\Commands
+ */
 class WpCliEventRunMultisite extends AbstractCommand
 {
 
@@ -28,6 +33,20 @@ class WpCliEventRunMultisite extends AbstractCommand
      * @var string The interval for the command.
      */
     public static $preferredInterval = '*/30 * * * *';
+
+    /**
+     * Try to match the current command with a specified command.
+     *
+     * @param $command
+     * @return bool
+     */
+    public static function is($command): bool
+    {
+        if (strContains($command, self::generateCommand())) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Generate command to be executed.
