@@ -125,7 +125,7 @@ class UnixCronModel
      * @param $commandInstance
      * @return array
      */
-    private static function buildCronJobDataFromCommand($commandInstance): array
+    public static function buildCronJobDataFromCommand($commandInstance): array
     {
         return [
             'attributes' => [
@@ -144,12 +144,14 @@ class UnixCronModel
      * @param object|string $commandInstance
      * @return object|string
      */
-    private static function ensureCommandInstance($commandInstance)
+    public static function ensureCommandInstance($commandInstance)
     {
         if (is_string($commandInstance) && class_exists($commandInstance)) {
-            $commandInstance = new $commandInstance;
+            return new $commandInstance;
+        } else if (is_object($commandInstance)) {
+            return $commandInstance;
         }
-        return $commandInstance;
+        return false;
     }
 
     /**

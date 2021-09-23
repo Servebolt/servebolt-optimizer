@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit;
+namespace Unit\CronControl;
 
 use Servebolt\Optimizer\CronControl\Scripts\ActionSchedulerMultisiteScript\ActionSchedulerMultisiteScript;
 use Servebolt\Optimizer\CronControl\Scripts\WpCronMultisiteScript\WpCronMultisiteScript;

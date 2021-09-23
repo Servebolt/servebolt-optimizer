@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit;
+namespace Unit\CronControl;
 
 use Servebolt\Optimizer\CronControl\Commands\ActionSchedulerRun;
 use Servebolt\Optimizer\CronControl\Commands\ActionSchedulerRunMultisite;
