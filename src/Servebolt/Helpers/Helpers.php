@@ -1165,6 +1165,8 @@ function strEndsWith(string $haystack, string $needle, bool $php8Fallback = true
 }
 
 /**
+ * Check if a string contains substring.
+ * 
  * @param string $haystack
  * @param string $needle
  * @param bool $php8Fallback
