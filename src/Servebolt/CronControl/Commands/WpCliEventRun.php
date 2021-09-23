@@ -37,7 +37,7 @@ class WpCliEventRun extends AbstractCommand
     /**
      * @var string The interval for the command.
      */
-    public static $preferredInterval = '*/10 * * * *';
+    public static $interval = '*/10 * * * *';
 
     /**
      * Try to match the current command with a specified command.

@@ -37,12 +37,12 @@ abstract class AbstractCommand
     public static function getInterval()
     {
         /**
-         * @param string $preferredInterval At what interval the command should be run.
+         * @param string $interval At what interval the command should be run.
          * @param string $context The name of the command.
          */
         return apply_filters(
             'sb_optimizer_cron_control_command_interval',
-            static::$preferredInterval,
+            static::$interval,
             static::$commandName
         );
     }

@@ -32,7 +32,7 @@ class ActionSchedulerRunMultisite extends AbstractCommand
     /**
      * @var string The interval for the command.
      */
-    public static $preferredInterval = '* * * * *';
+    public static $interval = '* * * * *';
 
     /**
      * Try to match the current command with a specified command.

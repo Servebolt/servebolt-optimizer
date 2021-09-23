@@ -32,7 +32,7 @@ class WpCliEventRunMultisite extends AbstractCommand
     /**
      * @var string The interval for the command.
      */
-    public static $preferredInterval = '*/30 * * * *';
+    public static $interval = '*/30 * * * *';
 
     /**
      * Try to match the current command with a specified command.

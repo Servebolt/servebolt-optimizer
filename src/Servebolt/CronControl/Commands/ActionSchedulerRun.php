@@ -37,7 +37,7 @@ class ActionSchedulerRun extends AbstractCommand
     /**
      * @var string The interval for the command.
      */
-    public static $preferredInterval = '* * * * *';
+    public static $interval = '* * * * *';
 
     /**
      * Try to match the current command with a given command.
