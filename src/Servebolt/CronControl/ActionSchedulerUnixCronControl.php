@@ -18,7 +18,7 @@ class ActionSchedulerUnixCronControl extends UnixCronControl
      *
      * @return array
      */
-    private static function getCommandClasses(): array
+    protected static function getCommandClasses(): array
     {
         return [
             new ActionSchedulerRunMultisite,
@@ -31,7 +31,7 @@ class ActionSchedulerUnixCronControl extends UnixCronControl
      *
      * @return object
      */
-    private static function getCurrentCommandClass(): object
+    protected static function getCurrentCommandClass(): object
     {
         if (is_multisite()) {
             return new ActionSchedulerRunMultisite;

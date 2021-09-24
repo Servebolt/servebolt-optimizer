@@ -4,13 +4,13 @@ namespace Servebolt\Optimizer\Admin\PerformanceOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks;
-use Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax\OptimizeActions;
+use Servebolt\Optimizer\CronControl\ActionSchedulerCronControl;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
-use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
-use function Servebolt\Optimizer\Helpers\isScreen;
+use function Servebolt\Optimizer\Helpers\getSiteOption;
+use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionUpdates;
+use function Servebolt\Optimizer\Helpers\listenForCheckboxSiteOptionUpdates;
 use function Servebolt\Optimizer\Helpers\overrideMenuTitle;
 use function Servebolt\Optimizer\Helpers\overrideParentMenuPage;
 use function Servebolt\Optimizer\Helpers\view;
@@ -36,6 +36,32 @@ class PerformanceOptimizerAdvanced
     {
         $this->initSettings();
         $this->rewriteHighlightedMenuItem();
+        $this->listenForActionSchedulerUnixCronActivation();
+        new SiteOptionsHandling;
+    }
+
+    /**
+     * Activate/disable Action Scheduler UNIX cron on option update.
+     */
+    private function listenForActionSchedulerUnixCronActivation(): void
+    {
+        listenForCheckboxOptionUpdates('action_scheduler_unix_cron_active', [$this, 'handleActionSchedulerUnixCronActivation']);
+        listenForCheckboxSiteOptionUpdates('action_scheduler_unix_cron_active', [$this, 'handleActionSchedulerUnixCronActivation']);
+    }
+
+    /**
+     * Handle whenever Action Scheduler UNIX cron gets enabled/disabled.
+     *
+     * @param $wasActive
+     * @param $isActive
+     * @param $optionName
+     */
+    public function handleActionSchedulerUnixCronActivation($wasActive, $isActive, $optionName) {
+        if ($isActive) {
+            ActionSchedulerCronControl::setUp();
+        } else {
+            ActionSchedulerCronControl::tearDown();
+        }
     }
 
     private function initSettings(): void
@@ -73,7 +99,7 @@ class PerformanceOptimizerAdvanced
         foreach ($items as $item) {
             switch ($item) {
                 default:
-                    $itemsWithValues[$item] = getOption($item);
+                    $itemsWithValues[$item] = is_network_admin() ? getSiteOption($item) : getOption($item);
                     break;
             }
         }
@@ -96,6 +122,7 @@ class PerformanceOptimizerAdvanced
     {
         return [
             'custom_text_domain_loader_switch',
+            'action_scheduler_unix_cron_active',
         ];
     }
 }

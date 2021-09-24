@@ -18,7 +18,7 @@ class WpUnixCronControl extends UnixCronControl
      *
      * @return array
      */
-    private static function getCommandClasses(): array
+    protected static function getCommandClasses(): array
     {
         return [
             new WpCliEventRunMultisite,
@@ -31,7 +31,7 @@ class WpUnixCronControl extends UnixCronControl
      *
      * @return object
      */
-    private static function getCommandClass(): object
+    protected static function getCurrentCommandClass(): object
     {
         if (is_multisite()) {
             return new WpCliEventRunMultisite();

@@ -18,6 +18,7 @@ use Servebolt\Optimizer\Admin\PerformanceOptimizer\PerformanceOptimizer;
 use Servebolt\Optimizer\Admin\LogViewer\LogViewer;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\PerformanceOptimizerAdvanced;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\javascriptRedirect;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;

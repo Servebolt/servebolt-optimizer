@@ -13,7 +13,7 @@ use Servebolt\Optimizer\CronControl\Scripts\WpCronMultisiteScript\WpCronMultisit
 class WpCronControl
 {
     /**
-     * Check if Action Scheduler is set up to run from UNIX cron.
+     * Check if WP Cron is default in WordPress and set up to run from UNIX cron.
      *
      * @return bool
      */
@@ -22,6 +22,19 @@ class WpCronControl
         if (WpCronDisabler::wpCronIsEnabled()) {
             return false;
         }
+        if (!self::cronIsSetUp()) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Check if WP Cron is set up to run from UNIX cron.
+     *
+     * @return bool
+     */
+    public static function cronIsSetUp(): bool
+    {
         if (is_multisite() && !(new WpCronMultisiteScript)->isInstalled()) {
             return false;
         }

@@ -481,6 +481,52 @@ function getPostTypeSingularName(int $postId): string
 }
 
 /**
+ * Get all site option names.
+ *
+ * @param bool $includeMigrationOptions
+ * @return string[]
+ */
+function getAllSiteOptionNames(bool $includeMigrationOptions = false): array
+{
+    $optionNames = [
+        // Wipe nonce
+        'ajax_nonce',
+
+        // Action Scheduler compatibility
+        'action_scheduler_disable',
+
+        // Wipe encryption keys
+        'mcrypt_key',
+        'openssl_key',
+        'openssl_iv',
+    ];
+
+    if ($includeMigrationOptions) {
+        $optionNames = array_merge($optionNames, [
+
+            // Migration related
+            'migration_version',
+
+        ]);
+    }
+
+    return $optionNames;
+}
+
+/**
+ * Delete plugin settings - site options.
+ *
+ * @param bool $includeMigrationOptions
+ */
+function deleteAllSiteSettings(bool $includeMigrationOptions = false): void
+{
+    $optionNames = getAllSiteOptionNames($includeMigrationOptions);
+    foreach ($optionNames as $optionName) {
+        deleteSiteOption($optionName);
+    }
+}
+
+/**
  * Get all options names.
  *
  * @param bool $includeMigrationOptions Whether to delete the options related to database migrations.
@@ -496,9 +542,9 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
 
         // Wipe nonce
         'ajax_nonce',
-        'record_max_num_pages_nonce',
 
         // Legacy
+        'record_max_num_pages_nonce',
         'sb_optimizer_record_max_num_pages',
 
         // Wipe encryption keys
@@ -511,6 +557,9 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
 
         // Advanced performance optimizations
         'custom_text_domain_loader_switch',
+
+        // Action Scheduler compatibility
+        'action_scheduler_disable',
 
         // Prefetching
         'prefetch_switch',
@@ -696,7 +745,7 @@ function getAjaxNonce(): string
 }
 
 /**
- * Get ajax nonce key, generate one if it does not exists.
+ * Get ajax nonce key, generate one if it does not exist.
  *
  * @return string
  */
@@ -1693,7 +1742,102 @@ function listenForOptionChange($optionNameOrNames, $closureOrAction): void
 }
 
 /**
- * Listen for changes to one or multiple checkbox options.
+ * Check if we should skip reacting on event listen for certain option name.
+ *
+ * @param string $optionName
+ * @param bool $deleteFromListOnSkip
+ * @return bool
+ */
+function shouldSkipEventListen(string $optionName, bool $deleteFromListOnSkip = true): bool
+{
+    $key = 'sb_optimizer_option_event_listen_skip';
+    if (array_key_exists($key, $GLOBALS)) {
+        $shouldSkip = in_array($optionName, $GLOBALS[$key]);
+        if ($deleteFromListOnSkip) {
+            $GLOBALS[$key] = array_filter($GLOBALS[$key], function($item) use ($optionName) {
+                return $item != $optionName;
+            });
+        }
+        return $shouldSkip;
+    }
+    return false;
+}
+
+/**
+ * Skip reacting on event listen for certain option name.
+ *
+ * @param string $optionName
+ */
+function skipNextListen($optionName): void
+{
+    $key = 'sb_optimizer_option_event_listen_skip';
+    $toSkip = array_key_exists($key, $GLOBALS) ? $GLOBALS[$key] : [];
+    if (!in_array($optionName, $toSkip)) {
+        $toSkip[] = $optionName;
+    }
+    $GLOBALS[$key] = $toSkip;
+}
+
+/**
+ * Listen for updates to one or multiple site options.
+ *
+ * @param string|array $optionNameOrNames
+ * @param string|callable $closureOrAction
+ */
+function listenForCheckboxSiteOptionUpdates($optionNameOrNames, $closureOrAction): void
+{
+    if (!is_array($optionNameOrNames)) {
+        $optionNameOrNames = [$optionNameOrNames];
+    }
+    foreach ($optionNameOrNames as $optionName) {
+        add_filter('pre_update_site_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
+            if (shouldSkipEventListen($optionName)) {
+                return $newValue;
+            }
+            $wasActive = checkboxIsChecked($oldValue);
+            $isActive = checkboxIsChecked($newValue);
+            $didChange = $wasActive !== $isActive;
+            if (is_callable($closureOrAction)) {
+                $closureOrAction($wasActive, $isActive, $didChange, $optionName);
+            } else {
+                do_action('servebolt_' . $closureOrAction, $wasActive, $isActive, $didChange, $optionName);
+            }
+            return $newValue;
+        }, 10, 2);
+    }
+}
+
+/**
+ * Listen for updates to one or multiple options.
+ *
+ * @param string|array $optionNameOrNames
+ * @param string|callable $closureOrAction
+ */
+function listenForCheckboxOptionUpdates($optionNameOrNames, $closureOrAction): void
+{
+    if (!is_array($optionNameOrNames)) {
+        $optionNameOrNames = [$optionNameOrNames];
+    }
+    foreach ($optionNameOrNames as $optionName) {
+        add_filter('pre_update_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
+            if (shouldSkipEventListen($optionName)) {
+                return $newValue;
+            }
+            $wasActive = checkboxIsChecked($oldValue);
+            $isActive = checkboxIsChecked($newValue);
+            $didChange = $wasActive !== $isActive;
+            if (is_callable($closureOrAction)) {
+                $closureOrAction($wasActive, $isActive, $didChange, $optionName);
+            } else {
+                do_action('servebolt_' . $closureOrAction, $wasActive, $isActive, $didChange, $optionName);
+            }
+            return $newValue;
+        }, 10, 2);
+    }
+}
+
+/**
+ * Listen for changes to one or multiple options.
  *
  * @param string|array $optionNameOrNames
  * @param string|callable $closureOrAction

@@ -16,11 +16,13 @@ use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
 use function Servebolt\Optimizer\Helpers\clearDefaultOption;
 use function Servebolt\Optimizer\Helpers\clearOptionsOverride;
 use function Servebolt\Optimizer\Helpers\deleteAllSettings;
+use function Servebolt\Optimizer\Helpers\deleteAllSiteSettings;
 use function Servebolt\Optimizer\Helpers\deleteBlogOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
 use function Servebolt\Optimizer\Helpers\getAllImageSizesByImage;
 use function Servebolt\Optimizer\Helpers\getAllOptionsNames;
+use function Servebolt\Optimizer\Helpers\getAllSiteOptionNames;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getFiltersForHook;
@@ -31,10 +33,12 @@ use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\javascriptRedirect;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
+use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionUpdates;
 use function Servebolt\Optimizer\Helpers\listenForOptionChange;
 use function Servebolt\Optimizer\Helpers\pickupValueFromFilter;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
+use function Servebolt\Optimizer\Helpers\skipNextListen;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
@@ -531,6 +535,21 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertNull(smartGetOption(null, $key));
     }
 
+    public function testThatAllSiteSettingsGetsDeleted()
+    {
+        $this->multisiteOnly();
+        $allSiteOptionsNames = getAllSiteOptionNames(true);
+        foreach ($allSiteOptionsNames as $option) {
+            updateSiteOption($option, $option);
+            $this->assertEquals($option, getSiteOption($option));
+        }
+        deleteAllSiteSettings(true);
+        foreach ($allSiteOptionsNames as $option) {
+            $value = getSiteOption($option);
+            $this->assertNull($value);
+        }
+    }
+
     public function testThatAllSettingsGetsDeleted()
     {
         $this->multisiteOnly();
@@ -661,6 +680,39 @@ class HelpersTest extends ServeboltWPUnitTestCase
         deleteOption($optionsKey);
         clearDefaultOption($optionsKey);
         $this->assertNull(getOption($optionsKey));
+    }
+
+    public function testThatWeCanSkipOptionChangeOrUpdateEvent()
+    {
+        $key = 'some-checkbox-value';
+        $callCount = 0;
+        listenForCheckboxOptionUpdates($key, function($wasActive, $isActive, $didChange, $optionName) use (&$callCount) {
+            $callCount++;
+        });
+        updateOption($key, 1);
+        updateOption($key, 1);
+        skipNextListen($key);
+        updateOption($key, 1);
+        updateOption($key, 0);
+        updateOption($key, 0);
+        updateOption($key, 1);
+        $this->assertEquals(5, $callCount);
+    }
+
+    public function testThatWeCanDetectCheckboxOptionUpdateUsingFunctionClosure()
+    {
+        $key = 'some-checkbox-value';
+        $callCount = 0;
+        listenForCheckboxOptionUpdates($key, function($wasActive, $isActive, $didChange, $optionName) use (&$callCount) {
+            $callCount++;
+        });
+        updateOption($key, 1);
+        updateOption($key, 1);
+        updateOption($key, 1);
+        updateOption($key, 0);
+        updateOption($key, 0);
+        updateOption($key, 1);
+        $this->assertEquals(6, $callCount);
     }
 
     public function testThatWeCanDetectCheckboxOptionChangeUsingFunctionClosure()
