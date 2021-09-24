@@ -325,7 +325,7 @@ function getSiteIdFromWebrootPath():? string
  *
  * @return string
  */
-function getWebrootPath():? string
+function getWebrootPath(): ?string
 {
     if (isHostedAtServebolt()) {
         $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
