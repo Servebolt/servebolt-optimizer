@@ -8,6 +8,7 @@
 
     <table class="form-table" role="presentation">
         <?php view('performance-optimizer.advanced.shared-settings.action-scheduler', compact('settings')); ?>
+        <?php view('performance-optimizer.advanced.shared-settings.wp-cron', compact('settings')); ?>
     </table>
 
     <p class="submit">

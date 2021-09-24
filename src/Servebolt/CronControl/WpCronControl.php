@@ -52,6 +52,8 @@ class WpCronControl
         WpCronDisabler::disableWpCron();
         if (is_multisite()) {
             (new WpCronMultisiteScript)->install();
+        } else {
+            (new WpCronMultisiteScript)->uninstall();
         }
         WpUnixCronControl::setUp();
     }

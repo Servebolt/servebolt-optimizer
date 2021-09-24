@@ -40,6 +40,8 @@ class ActionSchedulerCronControl
         DisableActionSchedulerDefaultRunner::toggleActive(true);
         if (is_multisite()) {
             (new ActionSchedulerMultisiteScript)->install();
+        } else {
+            (new ActionSchedulerMultisiteScript)->uninstall();
         }
         ActionSchedulerUnixCronControl::setUp();
     }

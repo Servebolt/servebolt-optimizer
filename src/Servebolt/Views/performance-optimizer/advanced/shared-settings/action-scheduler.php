@@ -1,5 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
+<?php use function Servebolt\Optimizer\Helpers\actionSchedulerIsActive; ?>
+<?php if (actionSchedulerIsActive()): ?>
 <tr>
     <th scope="row"><?php _e('Run Action Scheduler from UNIX cron', 'servebolt-wp'); ?></th>
     <td>
@@ -13,3 +15,4 @@
         </fieldset>
     </td>
 </tr>
+<?php endif; ?>

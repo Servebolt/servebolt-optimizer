@@ -27,6 +27,20 @@ class ActionSchedulerUnixCronControl extends UnixCronControl
     }
 
     /**
+     * Get the opposite command instance based on single or multisite.
+     *
+     * @return object
+     */
+    protected static function getOtherCommandClass(): object
+    {
+        if (!is_multisite()) {
+            return new ActionSchedulerRunMultisite;
+        } else {
+            return new ActionSchedulerRun;
+        }
+    }
+
+    /**
      * Get the command instance based on single or multisite.
      *
      * @return object
