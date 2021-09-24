@@ -492,8 +492,10 @@ function getAllSiteOptionNames(bool $includeMigrationOptions = false): array
         // Wipe nonce
         'ajax_nonce',
 
-        // Action Scheduler compatibility
+        // Cron control
         'action_scheduler_disable',
+        'action_scheduler_unix_cron_active',
+        'wp_unix_cron_active',
 
         // Wipe encryption keys
         'mcrypt_key',
@@ -558,8 +560,10 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         // Advanced performance optimizations
         'custom_text_domain_loader_switch',
 
-        // Action Scheduler compatibility
+        // Cron control
         'action_scheduler_disable',
+        'action_scheduler_unix_cron_active',
+        'wp_unix_cron_active',
 
         // Prefetching
         'prefetch_switch',

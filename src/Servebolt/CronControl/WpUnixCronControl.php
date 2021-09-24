@@ -27,6 +27,20 @@ class WpUnixCronControl extends UnixCronControl
     }
 
     /**
+     * Get the opposite command instance based on single or multisite.
+     *
+     * @return object
+     */
+    protected static function getOtherCommandClass(): object
+    {
+        if (!is_multisite()) {
+            return new WpCliEventRunMultisite;
+        } else {
+            return new WpCliEventRun;
+        }
+    }
+
+    /**
      * Get the command instance based on single or multisite.
      *
      * @return object
@@ -34,7 +48,7 @@ class WpUnixCronControl extends UnixCronControl
     protected static function getCurrentCommandClass(): object
     {
         if (is_multisite()) {
-            return new WpCliEventRunMultisite();
+            return new WpCliEventRunMultisite;
         } else {
             return new WpCliEventRun;
         }

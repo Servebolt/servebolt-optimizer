@@ -25,8 +25,11 @@
                 </fieldset>
             </td>
         </tr>
-        <?php if (!is_multisite() && isHostedAtServebolt() && actionSchedulerIsActive()) : ?>
-            <?php view('performance-optimizer.advanced.shared-settings.action-scheduler', compact('settings')); ?>
+        <?php if (!is_multisite() && isHostedAtServebolt()) : ?>
+            <?php if (actionSchedulerIsActive()): ?>
+                <?php view('performance-optimizer.advanced.shared-settings.action-scheduler', compact('settings')); ?>
+            <?php endif; ?>
+            <?php view('performance-optimizer.advanced.shared-settings.wp-cron', compact('settings')); ?>
         <?php endif; ?>
     </table>
 

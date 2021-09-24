@@ -27,6 +27,10 @@ abstract class UnixCronControl
      */
     public static function setUp(): bool
     {
+        $commandClass = static::getOtherCommandClass();
+        if (UnixCronModel::exists($commandClass)) {
+            UnixCronModel::delete($commandClass);
+        }
         $commandClass = static::getCurrentCommandClass();
         if (UnixCronModel::exists($commandClass)) {
             return true;

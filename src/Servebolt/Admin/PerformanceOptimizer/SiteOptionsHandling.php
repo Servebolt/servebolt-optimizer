@@ -18,6 +18,7 @@ class SiteOptionsHandling
      */
     private $options = [
         'action_scheduler_unix_cron_active',
+        'wp_unix_cron_active',
     ];
 
     /**

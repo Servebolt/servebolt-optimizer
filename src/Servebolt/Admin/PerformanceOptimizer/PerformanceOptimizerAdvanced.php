@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Admin\PerformanceOptimizer;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CronControl\ActionSchedulerCronControl;
+use Servebolt\Optimizer\CronControl\WpCronControl;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
@@ -37,7 +38,33 @@ class PerformanceOptimizerAdvanced
         $this->initSettings();
         $this->rewriteHighlightedMenuItem();
         $this->listenForActionSchedulerUnixCronActivation();
+        $this->listenForWpUnixCronActivation();
         new SiteOptionsHandling;
+    }
+
+    /**
+     * Activate/disable WP UNIX cron on option update.
+     */
+    private function listenForWpUnixCronActivation(): void
+    {
+        listenForCheckboxOptionUpdates('wp_unix_cron_active', [$this, 'handleWpUnixCronActivation']);
+        listenForCheckboxSiteOptionUpdates('wp_unix_cron_active', [$this, 'handleWpUnixCronActivation']);
+    }
+
+    /**
+     * Handle whenever WP UNIX cron gets enabled/disabled.
+     *
+     * @param $wasActive
+     * @param $isActive
+     * @param $optionName
+     */
+    public function handleWpUnixCronActivation($wasActive, $isActive, $optionName)
+    {
+        if ($isActive) {
+            WpCronControl::setUp();
+        } else {
+            WpCronControl::tearDown();
+        }
     }
 
     /**
@@ -56,7 +83,8 @@ class PerformanceOptimizerAdvanced
      * @param $isActive
      * @param $optionName
      */
-    public function handleActionSchedulerUnixCronActivation($wasActive, $isActive, $optionName) {
+    public function handleActionSchedulerUnixCronActivation($wasActive, $isActive, $optionName)
+    {
         if ($isActive) {
             ActionSchedulerCronControl::setUp();
         } else {
@@ -123,6 +151,7 @@ class PerformanceOptimizerAdvanced
         return [
             'custom_text_domain_loader_switch',
             'action_scheduler_unix_cron_active',
+            'wp_unix_cron_active',
         ];
     }
 }

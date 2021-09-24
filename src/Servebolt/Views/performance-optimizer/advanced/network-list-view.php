@@ -3,7 +3,7 @@
 <?php use function Servebolt\Optimizer\Helpers\isHostedAtServebolt; ?>
 <?php use function Servebolt\Optimizer\Helpers\actionSchedulerIsActive; ?>
 
-<?php if (isHostedAtServebolt() && actionSchedulerIsActive()) : ?>
+<?php if (isHostedAtServebolt()) : ?>
 <?php view('performance-optimizer.advanced.network-settings-form', compact('settings')); ?>
 <hr>
 <h2>Site specific settings</h2>
