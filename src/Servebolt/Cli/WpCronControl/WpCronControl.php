@@ -38,7 +38,7 @@ class WpCronControl
             WP_CLI::success(__('WP Cron setup ok!', 'servebolt-wp'));
         } else {
             WP_CLI::error(__('WP Cron is not set up correctly.', 'servebolt-wp'), false);
-            WP_CLI::line(__('Please run "wp servebolt cron setup" to fix this.', 'servebolt-wp'), false);
+            WP_CLI::line(__('Please run "wp servebolt cron enable" to fix this.', 'servebolt-wp'), false);
         }
     }
 
