@@ -187,6 +187,13 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertEquals('true', displayValue(true));
         $this->assertEquals('false', displayValue(false));
         $this->assertEquals('string', displayValue('string'));
+
+        $array = ['test', 'test2'];
+        ob_start();
+        var_dump($array);
+        $output = ob_get_contents();
+        ob_end_clean();
+        $this->assertEquals($output, displayValue($array));
     }
 
     public function testCamelCaseToSnakeCase()
