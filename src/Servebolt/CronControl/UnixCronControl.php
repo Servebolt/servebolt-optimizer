@@ -17,7 +17,7 @@ abstract class UnixCronControl
      */
     public static function isSetUp(): bool
     {
-        return UnixCronModel::exists(self::getCommandClass());
+        return UnixCronModel::exists(static::getCurrentCommandClass());
     }
 
     /**
@@ -27,7 +27,7 @@ abstract class UnixCronControl
      */
     public static function setUp(): bool
     {
-        $commandClass = self::getCommandClass();
+        $commandClass = static::getCurrentCommandClass();
         if (UnixCronModel::exists($commandClass)) {
             return true;
         }
@@ -42,9 +42,9 @@ abstract class UnixCronControl
     public static function tearDown(bool $bothMultiAndSingleSite = true): void
     {
         if ($bothMultiAndSingleSite) {
-            $commandClasses = self::getCommandClasses();
+            $commandClasses = static::getCommandClasses();
         } else {
-            $commandClasses = [self::getCurrentCommandClass()];
+            $commandClasses = [static::getCurrentCommandClass()];
         }
         foreach($commandClasses as $commandClass) {
             if (!UnixCronModel::exists($commandClass)) {

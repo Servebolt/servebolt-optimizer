@@ -4,7 +4,9 @@ namespace Servebolt\Optimizer\Admin\PerformanceOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks;
+use Servebolt\Optimizer\CronControl\Scripts\WpCronMultisiteScript\WpCronMultisiteScript;
+use Servebolt\Optimizer\CronControl\WpCronControl;
+use Servebolt\Optimizer\CronControl\WpUnixCronControl;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\wpCronDisabled;
 use function Servebolt\Optimizer\Helpers\view;
@@ -38,9 +40,12 @@ class PerformanceOptimizer
      */
     public function render()
     {
-        $checksInstance = DatabaseChecks::getInstance();
+
         view('performance-optimizer.performance-optimizer', [
             'wpCronDisabled' => wpCronDisabled(),
+            'unixCronSetup' => WpCronControl::cronIsSetUp(),
         ]);
+
+
     }
 }

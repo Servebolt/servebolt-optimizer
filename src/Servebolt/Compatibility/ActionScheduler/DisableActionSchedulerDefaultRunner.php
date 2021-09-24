@@ -2,11 +2,13 @@
 
 namespace Servebolt\Optimizer\Compatibility\ActionScheduler;
 
-use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
-use function Servebolt\Optimizer\Helpers\smartGetOption;
-use function Servebolt\Optimizer\Helpers\smartUpdateOption;
-
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
+use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+use function Servebolt\Optimizer\Helpers\getOption;
+use function Servebolt\Optimizer\Helpers\getSiteOption;
+use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\updateSiteOption;
 
 /**
  * Class DisableActionSchedulerDefaultRunner
@@ -35,20 +37,26 @@ class DisableActionSchedulerDefaultRunner
     /**
      * Check whether we should disable the default runner for the Action Scheduler.
      *
-     * @param int|null $blogId
      * @return bool
      */
-    public static function isActive(?int $blogId = null): bool
+    public static function isActive(): bool
     {
-        return checkboxIsChecked(smartGetOption($blogId, 'action_scheduler_disable'));
+        if (is_multisite()) {
+            return checkboxIsChecked(getSiteOption('action_scheduler_disable'));
+        } else {
+            return checkboxIsChecked(getOption('action_scheduler_disable'));
+        }
     }
 
     /**
      * @param bool $state
-     * @param int|null $blogId
      */
-    public static function toggleActive(bool $state, ?int $blogId = null): void
+    public static function toggleActive(bool $state): void
     {
-        smartUpdateOption($blogId, 'action_scheduler_disable', $state);
+        if (is_multisite()) {
+            updateSiteOption('action_scheduler_disable', $state);
+        } else {
+            updateOption('action_scheduler_disable', $state);
+        }
     }
 }

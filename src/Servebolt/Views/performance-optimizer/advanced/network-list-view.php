@@ -1,4 +1,13 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
+<?php use function Servebolt\Optimizer\Helpers\view; ?>
+<?php use function Servebolt\Optimizer\Helpers\isHostedAtServebolt; ?>
+<?php use function Servebolt\Optimizer\Helpers\actionSchedulerIsActive; ?>
+
+<?php if (isHostedAtServebolt() && actionSchedulerIsActive()) : ?>
+<?php view('performance-optimizer.advanced.network-settings-form', compact('settings')); ?>
+<hr>
+<h2>Site specific settings</h2>
+<?php endif; ?>
 
 <br>
 <table class="wp-list-table widefat striped">
