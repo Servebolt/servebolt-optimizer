@@ -1250,7 +1250,7 @@ function isHostedAtServebolt(): bool
     if (defined('HOST_IS_SERVEBOLT_OVERRIDE') && is_bool(HOST_IS_SERVEBOLT_OVERRIDE)) {
         $isHostedAtServebolt = HOST_IS_SERVEBOLT_OVERRIDE;
         $context = 'override';
-    } else if (arrayGet('SERVER_ADMIN', $_SERVER) === 'support@servebolt.com') {
+    } elseif (arrayGet('SERVER_ADMIN', $_SERVER) === 'support@servebolt.com') {
         $isHostedAtServebolt = true;
         $context = 'server_admin_check';
     } elseif (

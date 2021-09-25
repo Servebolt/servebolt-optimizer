@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2021-09-10T12:04:38+00:00\n"
+"POT-Creation-Date: 2021-09-19T10:37:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: servebolt-wp\n"
@@ -98,9 +98,9 @@ msgid "Purge Cache for all sites"
 msgstr ""
 
 #: src/Servebolt/Admin/AdminBarGui/Nodes/4_SettingsNode.php:39
-#: src/Servebolt/Admin/AdminGuiController.php:281
-#: src/Servebolt/Admin/AdminGuiController.php:304
-#: src/Servebolt/Admin/AdminGuiController.php:317
+#: src/Servebolt/Admin/AdminGuiController.php:290
+#: src/Servebolt/Admin/AdminGuiController.php:313
+#: src/Servebolt/Admin/AdminGuiController.php:326
 msgid "Settings"
 msgstr ""
 
@@ -152,16 +152,16 @@ msgstr ""
 #: src/Servebolt/Views/dashboard/dashboard-single-site.php:5
 #: src/Servebolt/Views/performance-optimizer/advanced/advanced.php:5
 #: src/Servebolt/Views/performance-optimizer/database-optimizations/database-optimizations.php:6
-#: src/Servebolt/Views/performance-optimizer/menu-cache/menu-cache.php:5
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/menu-optimizer.php:5
 #: src/Servebolt/Views/performance-optimizer/performance-optimizer.php:5
 msgid "Performance Optimizer"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminGuiController.php:273
+#: src/Servebolt/Admin/AdminGuiController.php:282
 msgid "General"
 msgstr ""
 
-#: src/Servebolt/Admin/AdminGuiController.php:281
+#: src/Servebolt/Admin/AdminGuiController.php:290
 #: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:37
 #: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:37
 #: src/Servebolt/Views/dashboard/dashboard-single-site.php:37
@@ -450,9 +450,9 @@ msgstr ""
 msgid "Database"
 msgstr ""
 
-#: src/Servebolt/Admin/PerformanceOptimizer/MenuCacheControl.php:44
-#: src/Servebolt/Views/performance-optimizer/menu-cache/settings-form.php:12
-msgid "Menu Cache"
+#: src/Servebolt/Admin/PerformanceOptimizer/MenuOptimizerControl.php:44
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/settings-form.php:12
+msgid "Menu Optimizer"
 msgstr ""
 
 #: src/Servebolt/Admin/PerformanceOptimizer/PerformanceOptimizerAdvanced.php:52
@@ -581,8 +581,8 @@ msgstr ""
 #: src/Servebolt/Views/general-settings/network-list-view.php:16
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:7
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:15
-#: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:8
-#: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:16
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/network-list-view.php:8
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/network-list-view.php:16
 msgid "Blog ID"
 msgstr ""
 
@@ -898,115 +898,115 @@ msgstr ""
 msgid "Could not analyze tables."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:88
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:89
 msgid "Starting optimization..."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:148
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:149
 msgid "No changes needed, database looks healthy, and everything is good!"
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:151
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:152
 msgid "Nice, we got to do some changes to the database and it seems that we we're successful!"
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:164
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:165
 msgid "Summary:"
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:204
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:205
 msgid "Post meta table already have an index on the meta_value-column."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:210
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:211
 msgid "Could not add meta_value-column index on post meta-table."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:216
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:217
 msgid "Added meta_value-column index to post meta-table."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:224
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:225
 msgid "All post meta tables already has an index on the meta_value-column."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:231
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:232
 msgid "Failed to add meta_value-column index on all post meta-tables."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:239
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:240
 msgid "Failed to add meta_value-column index to post meta-tables on sites:"
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:246
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:247
 msgid "Added meta_value-column index to all post meta tables."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:257
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:258
 msgid "Options table already have an index on the autoload-column."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:263
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:264
 msgid "Could not add autoload-column index on options-table."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:269
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:270
 msgid "Added autoload-column index to options-table."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:277
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:278
 msgid "All options tables already has an index on the autoload-column."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:284
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:285
 msgid "Failed to add autoload-column index on all options-tables"
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:288
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:289
 msgid "Failed to add autoload-column index to options tables on sites:"
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:299
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:300
 msgid "Added autoload-column index to all options tables."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:309
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:310
 msgid "All tables are already using InnoDB."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:316
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:317
 msgid "Could not convert tables to InnoDB."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:320
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:321
 msgid "Failed to convert the following tables to InnoDB:"
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:331
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:332
 msgid "All tables converted to InnoDB."
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:457
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:458
 msgid "Added index to table \"%s\""
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:468
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:469
 msgid "Could not add index to table \"%s\""
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:521
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:522
 msgid "Added index to table \"options table"
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:532
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:533
 msgid "Could not add index to options table"
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:869
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:870
 msgid "Converted table \"%s\" to InnoDB"
 msgstr ""
 
-#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:880
+#: src/Servebolt/DatabaseOptimizer/DatabaseOptimizer.php:881
 msgid "Could not convert table \"%s\" to InnoDB"
 msgstr ""
 
@@ -1034,7 +1034,7 @@ msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/acd-promo.php:11
 #: src/Servebolt/Views/accelerated-domains/acd-promo.php:13
-#: src/Servebolt/Views/performance-optimizer/menu-cache/promo.php:11
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/promo.php:11
 msgid "Get started"
 msgstr ""
 
@@ -1064,8 +1064,8 @@ msgstr ""
 #: src/Servebolt/Views/general-settings/network-list-view.php:17
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:8
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:16
-#: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:9
-#: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:17
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/network-list-view.php:9
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/network-list-view.php:17
 msgid "URL"
 msgstr ""
 
@@ -1090,8 +1090,8 @@ msgstr ""
 #: src/Servebolt/Views/general-settings/network-list-view.php:21
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:10
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:18
-#: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:11
-#: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:19
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/network-list-view.php:11
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/network-list-view.php:19
 msgid "Controls"
 msgstr ""
 
@@ -1113,7 +1113,7 @@ msgstr ""
 #: src/Servebolt/Views/general-settings/network-list-view.php:30
 #: src/Servebolt/Views/general-settings/network-list-view.php:31
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:26
-#: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:27
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/network-list-view.php:27
 msgid "Yes"
 msgstr ""
 
@@ -1135,7 +1135,7 @@ msgstr ""
 #: src/Servebolt/Views/general-settings/network-list-view.php:30
 #: src/Servebolt/Views/general-settings/network-list-view.php:31
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:26
-#: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:27
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/network-list-view.php:27
 msgid "No"
 msgstr ""
 
@@ -1157,8 +1157,8 @@ msgstr ""
 #: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:21
 #: src/Servebolt/Views/cloudflare-image-resize/configration.php:59
 #: src/Servebolt/Views/performance-optimizer/advanced/settings-form.php:18
-#: src/Servebolt/Views/performance-optimizer/menu-cache/settings-form.php:18
-#: src/Servebolt/Views/performance-optimizer/menu-cache/settings-form.php:31
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/settings-form.php:18
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/settings-form.php:31
 msgid "Enable"
 msgstr ""
 
@@ -1621,7 +1621,7 @@ msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-settings/promo.php:4
 #: src/Servebolt/Views/cache-settings/cache-settings/promo.php:20
-#: src/Servebolt/Views/performance-optimizer/menu-cache/promo.php:4
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/promo.php:4
 msgid "Servebolt Control Panel dashboard"
 msgstr ""
 
@@ -1749,7 +1749,7 @@ msgstr ""
 #: src/Servebolt/Views/cloudflare-image-resize/configration.php:39
 #: src/Servebolt/Views/general-settings/network-list-view.php:32
 #: src/Servebolt/Views/performance-optimizer/advanced/network-list-view.php:27
-#: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:28
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/network-list-view.php:28
 msgid "Go to site settings"
 msgstr ""
 
@@ -1965,29 +1965,29 @@ msgstr ""
 msgid "Optimize!"
 msgstr ""
 
-#: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:10
-#: src/Servebolt/Views/performance-optimizer/menu-cache/network-list-view.php:18
-msgid "Menu cache Active"
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/network-list-view.php:10
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/network-list-view.php:18
+msgid "Menu optimizer Active"
 msgstr ""
 
-#: src/Servebolt/Views/performance-optimizer/menu-cache/promo.php:12
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/promo.php:12
 msgid "Generating the menus in WordPress is resource intensive. Sites with small menus and few visitors might not notice. But sites with large menus, like in a mega menu, the server must spend a lot of time generating these large menus on each page view that is not served from cache."
 msgstr ""
 
-#: src/Servebolt/Views/performance-optimizer/menu-cache/promo.php:13
-msgid "Enabling the menu cache speeds up the delivery of menus by multiples. The cache is updated whenever you update your menus."
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/promo.php:13
+msgid "Enabling the menu optimizer speeds up the delivery of menus by multiples. The cache is updated whenever you update your menus."
 msgstr ""
 
-#: src/Servebolt/Views/performance-optimizer/menu-cache/promo.php:14
-msgid "Make sure to test this setting before activating it in production."
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/promo.php:14
+msgid "%sLearn more about this settings here%s and make sure to test this setting before activating it in production."
 msgstr ""
 
-#: src/Servebolt/Views/performance-optimizer/menu-cache/settings-form.php:15
-msgid "Menu cache-feature active?"
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/settings-form.php:15
+msgid "Menu optimizer-feature active?"
 msgstr ""
 
-#: src/Servebolt/Views/performance-optimizer/menu-cache/settings-form.php:25
-#: src/Servebolt/Views/performance-optimizer/menu-cache/settings-form.php:28
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/settings-form.php:25
+#: src/Servebolt/Views/performance-optimizer/menu-optimizer/settings-form.php:28
 msgid "Disable for logged in users?"
 msgstr ""
 
