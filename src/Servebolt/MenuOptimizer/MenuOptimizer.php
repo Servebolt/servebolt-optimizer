@@ -48,7 +48,10 @@ class MenuOptimizer
     public static function preWpNavMenu(?string $output, object $args): ?string
     {
         self::ensureMenuObjectIsResolved($args);
-        if (isset($args->menu->term_id) && self::getMenuSignatureIndex($args->menu->term_id)) {
+        if (
+            isset($args->menu->term_id)
+            && self::getMenuSignatureIndex($args->menu->term_id)
+        ) {
             $menuSignature = self::getMenuSignatureFromArgs($args);
             if ($cachedOutput = self::getMenuCache($menuSignature)) {
                 return self::returnCachedOutput($cachedOutput);
