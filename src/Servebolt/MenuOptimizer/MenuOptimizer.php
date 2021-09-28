@@ -48,7 +48,10 @@ class MenuOptimizer
     public static function preWpNavMenu(?string $output, object $args): ?string
     {
         self::ensureMenuObjectIsResolved($args);
-        if (self::getMenuSignatureIndex($args->menu->term_id)) {
+        if (
+            isset($args->menu->term_id)
+            && self::getMenuSignatureIndex($args->menu->term_id)
+        ) {
             $menuSignature = self::getMenuSignatureFromArgs($args);
             if ($cachedOutput = self::getMenuCache($menuSignature)) {
                 return self::returnCachedOutput($cachedOutput);
@@ -141,7 +144,7 @@ class MenuOptimizer
         // @codingStandardsIgnoreEnd
 
         // Fallback to catch faulty wp_nav_menu-argument filtering (originating from plugin Astra Pro). Jira ticket WPSO-400.
-        if ( is_numeric( $args->menu ) ) {
+        if (is_numeric($args->menu)) {
             $args->menu = $menu;
         }
     }
