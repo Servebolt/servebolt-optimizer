@@ -13,7 +13,7 @@ class CronCommandsTest extends ServeboltWPUnitTestCase
 {
     use EnvFileReaderTrait;
 
-    private $intervalRegexPattern = '/^([0-9]{1,2},){11}([0-9]{1,2}) \* \* \* \*$/';
+    private $intervalRegexPattern = '/^(([0-5]?[0-9]),){11}([0-5]?[0-9]) \* \* \* \*$/';
 
     public function testThatWeCanGenerateWpCronEventRunCommand()
     {
