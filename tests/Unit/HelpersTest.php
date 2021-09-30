@@ -20,6 +20,7 @@ use function Servebolt\Optimizer\Helpers\deleteAllSiteSettings;
 use function Servebolt\Optimizer\Helpers\deleteBlogOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
+use function Servebolt\Optimizer\Helpers\generateRandomInteger;
 use function Servebolt\Optimizer\Helpers\getAllImageSizesByImage;
 use function Servebolt\Optimizer\Helpers\getAllOptionsNames;
 use function Servebolt\Optimizer\Helpers\getAllSiteOptionNames;
@@ -913,5 +914,10 @@ class HelpersTest extends ServeboltWPUnitTestCase
         add_filter('sb_optimizer_wp_cron_disabled', '__return_false');
         $this->assertFalse(wpCronDisabled());
         remove_all_filters('sb_optimizer_wp_cron_disabled');
+    }
+
+    public function testRandomIntegerGenerator()
+    {
+        $this->assertIsInt(generateRandomInteger(0, 12));
     }
 }

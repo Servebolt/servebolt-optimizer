@@ -35,11 +35,6 @@ class WpCliEventRun extends AbstractCommand
     public static $arguments = '--due-now --path=%s --quiet';
 
     /**
-     * @var string The interval for the command.
-     */
-    public static $interval = '*/10 * * * *';
-
-    /**
      * Try to match the current command with a specified command.
      *
      * @param string $command

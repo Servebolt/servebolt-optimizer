@@ -1768,6 +1768,21 @@ function shouldSkipEventListen(string $optionName, bool $deleteFromListOnSkip = 
 }
 
 /**
+ * Generate random integer.
+ *
+ * @param int $min
+ * @param int $max
+ * @return int
+ */
+function generateRandomInteger(int $min, int $max): int
+{
+    if (function_exists('mt_rand')) {
+        return mt_rand($min, $max);
+    }
+    return rand($min, $max);
+}
+
+/**
  * Skip reacting on event listen for certain option name.
  *
  * @param string $optionName
