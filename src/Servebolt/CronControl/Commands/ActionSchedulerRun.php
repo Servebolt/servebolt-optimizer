@@ -25,9 +25,14 @@ class ActionSchedulerRun extends AbstractCommand
     public static $commandRevision = '1';
 
     /**
+     * @var string The pre command template.
+     */
+    public static $preCommand = 'flock -n ~/.wp_cron_as.lock';
+
+    /**
      * @var string The base command template.
      */
-    public static $command = 'wp action-scheduler run';
+    public static $baseCommand = 'wp action-scheduler run';
 
     /**
      * @var string The command argument template.
@@ -35,7 +40,7 @@ class ActionSchedulerRun extends AbstractCommand
     public static $arguments = '--path=%s --quiet';
 
     /**
-     * Try to match the current command with a given command.
+     * Try to match the current command with a specified command.
      *
      * @param string $command
      * @return bool
@@ -43,7 +48,7 @@ class ActionSchedulerRun extends AbstractCommand
     public static function is($command): bool
     {
         if (
-            strContains($command, self::$command) // Check if base command is present
+            strContains($command, self::$baseCommand) // Check if base command is present
             && strContains($command, self::getPublicPath()) // Check that correct path is present
         ) {
             return true;
@@ -58,7 +63,7 @@ class ActionSchedulerRun extends AbstractCommand
      */
     public static function generateCommand()
     {
-        $command = self::generateBaseCommand() . ' ' . self::generateArguments();
+        $command = self::$preCommand . ' ' . self::generateBaseCommand() . ' ' . self::generateArguments();
 
         /**
          * @param string $command The comment to be executed.
@@ -84,7 +89,7 @@ class ActionSchedulerRun extends AbstractCommand
          */
         return apply_filters(
             'sb_optimizer_cron_control_base_command',
-            static::$command,
+            static::$baseCommand,
             self::$commandName
         );
     }

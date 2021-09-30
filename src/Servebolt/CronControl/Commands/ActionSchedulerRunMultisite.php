@@ -27,7 +27,7 @@ class ActionSchedulerRunMultisite extends AbstractCommand
     /**
      * @var string The command template.
      */
-    public static $command = '%s';
+    public static $baseCommand = '%s';
 
     /**
      * Try to match the current command with a specified command.
@@ -50,7 +50,7 @@ class ActionSchedulerRunMultisite extends AbstractCommand
      */
     public static function generateCommand()
     {
-        $command = sprintf(static::$command, self::getScriptPath());
+        $command = sprintf(static::$baseCommand, self::getScriptPath());
 
         /**
          * @param string $command The comment to be executed.

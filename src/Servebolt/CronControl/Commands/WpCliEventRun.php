@@ -25,9 +25,14 @@ class WpCliEventRun extends AbstractCommand
     public static $commandRevision = '1';
 
     /**
-     * @var string The command template.
+     * @var string The pre command template.
      */
-    public static $command = 'wp cron event run';
+    public static $preCommand = 'flock -n ~/.wp_cron.lock';
+
+    /**
+     * @var string The base command template.
+     */
+    public static $baseCommand = 'wp cron event run';
 
     /**
      * @var string The command argument template.
@@ -43,7 +48,7 @@ class WpCliEventRun extends AbstractCommand
     public static function is($command): bool
     {
         if (
-            strContains($command, self::$command)
+            strContains($command, self::$baseCommand)
             && strContains($command, self::getPublicPath())
         ) {
             return true;
@@ -58,7 +63,7 @@ class WpCliEventRun extends AbstractCommand
      */
     public static function generateCommand()
     {
-        $command = self::generateBaseCommand() . ' ' . self::generateArguments();
+        $command = self::$preCommand . ' ' . self::generateBaseCommand() . ' ' . self::generateArguments();
 
         /**
          * @param string $command The comment to be executed.
@@ -84,7 +89,7 @@ class WpCliEventRun extends AbstractCommand
          */
         return apply_filters(
             'sb_optimizer_cron_control_base_command',
-            static::$command,
+            static::$baseCommand,
             self::$commandName
         );
     }

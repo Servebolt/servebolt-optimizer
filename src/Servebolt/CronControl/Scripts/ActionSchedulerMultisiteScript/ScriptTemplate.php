@@ -37,7 +37,7 @@ fi
 for SITE_URL in \$SITE_URLS
 do
     # Run Action Scheduler
-	wp action-scheduler run --url="\$SITE_URL" --path="\$WP_PATH" --quiet	
+	flock -n "~/.wp_cron_as_\$SITE_URL.lock" wp action-scheduler run --url="\$SITE_URL" --path="\$WP_PATH" --quiet	
 done
 
 EOF;
