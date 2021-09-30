@@ -35,11 +35,6 @@ class ActionSchedulerRun extends AbstractCommand
     public static $arguments = '--path=%s --quiet';
 
     /**
-     * @var string The interval for the command.
-     */
-    public static $interval = '* * * * *';
-
-    /**
      * Try to match the current command with a given command.
      *
      * @param string $command
