@@ -69,7 +69,7 @@ abstract class AbstractCommand
      *
      * @param int $interval
      * @param int|null $offset
-     * @return array|null
+     * @return string|null
      */
     private static function createCronMinuteIntervals(int $interval, ?int $offset = null): ?string
     {
