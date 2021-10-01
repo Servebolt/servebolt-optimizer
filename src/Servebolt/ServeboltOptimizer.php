@@ -14,7 +14,7 @@ use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
 use Servebolt\Optimizer\TextDomainLoader\WpTextDomainLoader;
 use Servebolt\Optimizer\Utils\Crypto\OptionEncryption;
 use Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
-use Servebolt\Optimizer\Queue\QueueEventHandler;
+use Servebolt\Optimizer\Queue\QueueParseEventHandler;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
 use Servebolt\Optimizer\Admin\AdminBarGui\AdminBarGui;
@@ -87,7 +87,7 @@ class ServeboltOptimizer
         }
 
         // Queue system
-        new QueueEventHandler; // Register event listener for queues
+        new QueueParseEventHandler; // Register event listener for queues
 
         // Register cron schedule & event
         new WpCronCustomSchedules; // Register cron schedule

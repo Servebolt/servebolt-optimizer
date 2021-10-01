@@ -9,13 +9,13 @@ use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use Servebolt\Optimizer\Queue\Queues\UrlQueue;
 
 /**
- * Class QueueEventHandler
+ * Class QueueParseEventHandler
  * @package Servebolt\Optimizer\Queue
  */
-class QueueEventHandler
+class QueueParseEventHandler
 {
     /**
-     * QueueHandler constructor.
+     * QueueParseEventHandler constructor.
      */
     public function __construct()
     {
