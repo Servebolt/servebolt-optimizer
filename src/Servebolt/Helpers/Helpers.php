@@ -1991,3 +1991,15 @@ function wpCronDisabled(): bool
         (defined('DISABLE_WP_CRON') && DISABLE_WP_CRON)
     );
 }
+
+/**
+ * Validate JSON string.
+ *
+ * @param string $allegedJson
+ * @return bool
+ */
+function isValidJson(string $allegedJson): bool
+{
+    @json_decode($allegedJson);
+    return (json_last_error() === JSON_ERROR_NONE);
+}

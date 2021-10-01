@@ -2,9 +2,10 @@
 
 namespace Unit\AcceleratedDomainsImageResize;
 
-use Unit\Traits\AttachmentTrait;
 use WP_UnitTestCase;
-use Servebolt\AllowSvgUploads;
+use Servebolt\Optimizer\AcceleratedDomains\ImageResize\FeatureAccess;
+use Servebolt\Optimizer\Utils\EnvironmentConfig;
+use Unit\Traits\AttachmentTrait;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageResize;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
@@ -12,6 +13,16 @@ use function Servebolt\Optimizer\Helpers\setOptionOverride;
 class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
 {
     use AttachmentTrait;
+
+    public function testThatWeCanCheckFeatureAccess()
+    {
+        $config = EnvironmentConfig::getInstance();
+        $this->assertFalse(FeatureAccess::hasAccess());
+        $config->setConfigObject((object) ['sb_acd_image_resize' => true]);
+        $this->assertTrue(FeatureAccess::hasAccess());
+        $config->reset();
+        $this->assertFalse(FeatureAccess::hasAccess());
+    }
 
     public function setUp()
     {

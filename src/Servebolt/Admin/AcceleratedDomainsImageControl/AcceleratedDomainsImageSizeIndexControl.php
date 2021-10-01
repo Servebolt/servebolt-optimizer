@@ -12,6 +12,7 @@ use function Servebolt\Optimizer\Helpers\isScreen;
 
 /**
  * Class AcceleratedDomainsImageSizeIndexControl
+ * @package Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl
  */
 class AcceleratedDomainsImageSizeIndexControl
 {
