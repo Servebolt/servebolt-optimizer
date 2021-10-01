@@ -30,7 +30,8 @@
     "phpunit/phpunit": "7.5.20",
     "phan/phan": "^4.0",
     "overtrue/phplint": "^2.0",
-    "symfony/var-dumper": "5.4.x-dev"
+    "symfony/var-dumper": "5.4.x-dev",
+    "symfony/dotenv": "5.4.x-dev"
   },
   "keywords": [
     "blocks",
