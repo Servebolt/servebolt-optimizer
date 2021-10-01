@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax;
+namespace Servebolt\Optimizer\Admin\Prefetching\Ajax;
 
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use Servebolt\Optimizer\Prefetching\WpPrefetching;
@@ -21,7 +21,7 @@ class PrefetchingFileGeneration extends SharedAjaxMethods
     }
 
     /**
-     *
+     * AJAX callback for prefetch file generation.
      */
     public function generateFiles(): void
     {

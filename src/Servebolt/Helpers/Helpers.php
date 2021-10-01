@@ -934,7 +934,7 @@ function featureIsAvailable(string $feature): ?bool
         case 'custom_text_domain_loader':
             return true;
         case 'prefetching':
-            return false; // Waiting for CF to fix their end
+            return true;
         case 'cf_image_resize':
             //return ( defined('SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE') && SERVEBOLT_CF_IMAGE_RESIZE_ACTIVE === true ) || (getCloudflareImageResizeInstance())::resizingIsActive();
             return true;
@@ -1608,7 +1608,7 @@ function jetpackIsActive(): bool
  * @param bool $ensureConstantsAreSet
  * @return object WP_Filesystem_Direct instance
  */
-function wpDirectFilesystem(bool $ensureConstantsAreSet = false): object
+function wpDirectFilesystem(bool $ensureConstantsAreSet = true): object
 {
     if ($ensureConstantsAreSet || (defined('WP_TESTS_ARE_RUNNING') && WP_TESTS_ARE_RUNNING === true)) {
         // Set the permission constants if not already set.

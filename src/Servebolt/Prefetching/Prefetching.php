@@ -34,7 +34,7 @@ class Prefetching
     private static $transientKey = 'servebolt_manifest_written';
 
     /**
-     * Check whether we have already loaded the front page during this exection.
+     * Check whether we have already loaded the front page during this execution.
      *
      * @var bool
      */
@@ -109,10 +109,10 @@ class Prefetching
                     $this->startOrIncrementDependencyCount($type, $dependencyHandle);
                 }
             }
-            $this->addToManifestData($type, $handle);
+            $this->addToManifestData($handle, $type);
         }
 
-        if (isset($this->manifestDependencies[$type])) {
+        if (isset($this->manifestDependencies[$type]) && is_array($this->manifestDependencies[$type])) {
             foreach ($this->manifestDependencies[$type] as $handle => $count) {
                 if ($dependencies = $this->resolveDependenciesFromHandle($handle, $type)) {
                     foreach ($dependencies as $dependencyHandle) {
@@ -122,10 +122,10 @@ class Prefetching
             }
         }
 
-        if (isset($this->manifestDependencies[$type])) {
+        if (isset($this->manifestDependencies[$type]) && is_array($this->manifestDependencies[$type])) {
             foreach ($this->manifestDependencies[$type] as $handle => $count) {
                 if ($wpAssetsArray->registered[$handle]->src) {
-                    $this->addToManifestData($type, $handle, $count);
+                    $this->addToManifestData($handle, $type, $count);
                 }
             }
         }
@@ -151,11 +151,11 @@ class Prefetching
     /**
      * Add asset to manifest data array.
      *
-     * @param string $type
      * @param string $handle
+     * @param string $type
      * @param int|null $priority
      */
-    private function addToManifestData(string $type = 'script', string $handle, ?int $priority = 1): void
+    private function addToManifestData(string $handle, string $type = 'script', ?int $priority = 1): void
     {
         if (!array_key_exists($type, $this->manifestData)) {
             $this->manifestData[$type] = [];
