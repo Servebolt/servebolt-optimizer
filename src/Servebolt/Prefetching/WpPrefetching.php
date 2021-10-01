@@ -2,11 +2,11 @@
 
 namespace Servebolt\Optimizer\Prefetching;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
-
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class Prefetching
@@ -52,6 +52,9 @@ class WpPrefetching extends Prefetching
         if ($this->shouldAddHeaders()) {
             add_action('send_headers', [__NAMESPACE__ . '\\ManifestHeaders', 'printManifestHeaders'], PHP_INT_MAX);
         }
+
+        // Handle purge
+        new FilePurge;
 
         if (!Prefetching::shouldGenerateManifestData()) {
             return;
