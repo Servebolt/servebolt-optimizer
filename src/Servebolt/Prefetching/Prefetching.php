@@ -208,7 +208,7 @@ class Prefetching
      */
     protected function shouldWriteFilesUsingCron(): bool
     {
-        return apply_filters('sb_optimizer_prefetch_should_write_manifest_files_using_cron', true);
+        return apply_filters('sb_optimizer_prefetching_should_write_manifest_files_using_cron', true);
     }
 
     /**
@@ -224,7 +224,7 @@ class Prefetching
 
         // Write content to files
         if ($this->shouldWriteFilesUsingCron()) {
-            wp_schedule_single_event(time(), 'sb_optimizer_prefetch_write_manifest_files');
+            wp_schedule_single_event(time(), 'sb_optimizer_prefetching_write_manifest_files');
         } else {
             ManifestFileWriter::write();
         }
@@ -289,6 +289,6 @@ class Prefetching
         if (is_null(self::$shouldGenerateManifestData)) {
             self::$shouldGenerateManifestData = get_transient(self::$transientKey) === false;
         }
-        return apply_filters('sb_optimizer_prefetch_should_generate_manifest_data', self::$shouldGenerateManifestData);
+        return apply_filters('sb_optimizer_prefetching_should_generate_manifest_data', self::$shouldGenerateManifestData);
     }
 }

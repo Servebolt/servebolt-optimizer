@@ -15,27 +15,25 @@ class FilePurge
      */
     public function __construct()
     {
-        $this->handleMenuUpdate();
+        if (apply_filters('sb_optimizer_prefetching_should_purge_on_menu_update', true)) {
+            $this->purgeOnMenuUpdate();
+        }
     }
 
-    private function handleMenuUpdate()
+    /**
+     * Purge menu manifest file on menu update.
+     */
+    private function purgeOnMenuUpdate(): void
     {
-        add_action('wp_update_nav_menu', __CLASS__ . '::purgeMenuCache', 10, 0);
-        add_action('wp_delete_nav_menu', __CLASS__ . '::purgeMenuCache', 10, 0);
-        add_filter('pre_set_theme_mod_nav_menu_locations', __CLASS__ . '::purgeMenuCacheOnDisplayLocationChange', 10, 0);
+        add_action('wp_update_nav_menu', [$this, 'removeMenuManifestFile'], 10, 0);
+        add_action('wp_delete_nav_menu', [$this, 'removeMenuManifestFile'], 10, 0);
+        add_filter('pre_set_theme_mod_nav_menu_locations', [$this, 'removeMenuManifestFile'], 10, 0);
     }
 
-    public static function purgeMenuCacheOnDisplayLocationChange()
-    {
-        self::removeMenuManifestFile();
-    }
-
-    public static function purgeMenuCache()
-    {
-        self::removeMenuManifestFile();
-    }
-
-    private static function removeMenuManifestFile()
+    /**
+     * Purge menu manifest file.
+     */
+    private function removeMenuManifestFile(): void
     {
         ManifestFileWriter::clear('menu');
         ManifestFileWriter::removeFromWrittenFiles('menu');
