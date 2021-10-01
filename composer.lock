@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9508053e5f3d4e6de1a853315a19cac2",
+    "content-hash": "61178323fda8d07429209dee394ca130",
     "packages": [
         {
             "name": "composer/installers",
@@ -373,12 +373,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "4095c77b73893521ef1c84109b95f97aa35e48b8"
+                "reference": "a613efc651c43185e577112f79e02c3ccdd00d5e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/4095c77b73893521ef1c84109b95f97aa35e48b8",
-                "reference": "4095c77b73893521ef1c84109b95f97aa35e48b8",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/a613efc651c43185e577112f79e02c3ccdd00d5e",
+                "reference": "a613efc651c43185e577112f79e02c3ccdd00d5e",
                 "shasum": ""
             },
             "require": {
@@ -481,7 +481,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-09-05T19:59:03+00:00"
+            "time": "2021-09-19T23:27:27+00:00"
         },
         {
             "name": "jakeasmith/http_build_url",
@@ -729,16 +729,16 @@
         },
         {
             "name": "servebolt/sdk",
-            "version": "dev-master",
+            "version": "1.1.0-beta.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Servebolt/php-sdk.git",
-                "reference": "134dbaf65126359abacc0aca6b68e77afebe5077"
+                "reference": "d9c1df1be7f41e1f40f34602553ae5ec0bde1376"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/134dbaf65126359abacc0aca6b68e77afebe5077",
-                "reference": "134dbaf65126359abacc0aca6b68e77afebe5077",
+                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/d9c1df1be7f41e1f40f34602553ae5ec0bde1376",
+                "reference": "d9c1df1be7f41e1f40f34602553ae5ec0bde1376",
                 "shasum": ""
             },
             "require": {
@@ -756,7 +756,6 @@
                 "squizlabs/php_codesniffer": "^3.5",
                 "vlucas/phpdotenv": "^5.3"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -778,9 +777,9 @@
             "homepage": "https://servebolt.com",
             "support": {
                 "issues": "https://github.com/Servebolt/php-sdk/issues",
-                "source": "https://github.com/Servebolt/php-sdk/tree/1.0.0"
+                "source": "https://github.com/Servebolt/php-sdk/tree/1.1.0-beta.1"
             },
-            "time": "2021-09-09T07:09:08+00:00"
+            "time": "2021-09-23T12:22:21+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -788,12 +787,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/deprecation-contracts.git",
-                "reference": "5f38c8804a9e97d23e0c8d63341088cd8a22d627"
+                "reference": "6f981ee24cf69ee7ce9736146d1c57c2780598a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/5f38c8804a9e97d23e0c8d63341088cd8a22d627",
-                "reference": "5f38c8804a9e97d23e0c8d63341088cd8a22d627",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/6f981ee24cf69ee7ce9736146d1c57c2780598a8",
+                "reference": "6f981ee24cf69ee7ce9736146d1c57c2780598a8",
                 "shasum": ""
             },
             "require": {
@@ -803,7 +802,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.4-dev"
+                    "dev-main": "2.5-dev"
                 },
                 "thanks": {
                     "name": "symfony/contracts",
@@ -832,7 +831,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/v2.4.0"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/main"
             },
             "funding": [
                 {
@@ -848,7 +847,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-03-23T23:28:01+00:00"
+            "time": "2021-07-12T14:48:14+00:00"
         }
     ],
     "packages-dev": [
@@ -3445,18 +3444,19 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/finder.git",
-                "reference": "ccccb9d48ca42757dd12f2ca4bf857a4e217d90d"
+                "reference": "982b4a1044ec54a2ad55c8001bf66dbdb3e3c4c1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/finder/zipball/ccccb9d48ca42757dd12f2ca4bf857a4e217d90d",
-                "reference": "ccccb9d48ca42757dd12f2ca4bf857a4e217d90d",
+                "url": "https://api.github.com/repos/symfony/finder/zipball/982b4a1044ec54a2ad55c8001bf66dbdb3e3c4c1",
+                "reference": "982b4a1044ec54a2ad55c8001bf66dbdb3e3c4c1",
                 "shasum": ""
             },
             "require": {
-                "php": ">=7.2.5"
+                "php": ">=7.2.5",
+                "symfony/deprecation-contracts": "^2.1|^3",
+                "symfony/polyfill-php80": "^1.16"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -3483,7 +3483,7 @@
             "description": "Finds files and directories via an intuitive fluent interface",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/finder/tree/v5.3.0-RC1"
+                "source": "https://github.com/symfony/finder/tree/5.4"
             },
             "funding": [
                 {
@@ -3499,7 +3499,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-05-16T13:07:46+00:00"
+            "time": "2021-08-25T15:53:43+00:00"
         },
         {
             "name": "symfony/polyfill-ctype",
@@ -3915,12 +3915,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php80.git",
-                "reference": "eca0bf41ed421bed1b57c4958bab16aa86b757d0"
+                "reference": "57b712b08eddb97c762a8caa32c84e037892d2e9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/eca0bf41ed421bed1b57c4958bab16aa86b757d0",
-                "reference": "eca0bf41ed421bed1b57c4958bab16aa86b757d0",
+                "url": "https://api.github.com/repos/symfony/polyfill-php80/zipball/57b712b08eddb97c762a8caa32c84e037892d2e9",
+                "reference": "57b712b08eddb97c762a8caa32c84e037892d2e9",
                 "shasum": ""
             },
             "require": {
@@ -3975,7 +3975,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-php80/tree/v1.23.0"
+                "source": "https://github.com/symfony/polyfill-php80/tree/main"
             },
             "funding": [
                 {
@@ -3991,7 +3991,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-02-19T12:13:01+00:00"
+            "time": "2021-09-13T13:58:33+00:00"
         },
         {
             "name": "symfony/polyfill-php81",
@@ -4632,7 +4632,6 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "servebolt/sdk": 20,
         "symfony/var-dumper": 20
     },
     "prefer-stable": false,

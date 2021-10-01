@@ -298,7 +298,23 @@ function getSiteId()
     if ($env->id) {
         return $env->id;
     }
-    if (preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", getWebrootPath(), $matches) && isset($matches[1])) {
+    if ($id = getSiteIdFromWebrootPath()) {
+        return $id;
+    }
+    return null;
+}
+
+/**
+ * Get site ID from the webroot folder path.
+ *
+ * @return string|null
+ */
+function getSiteIdFromWebrootPath():? string
+{
+    if (
+        preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", getWebrootPath(), $matches)
+        && isset($matches[1])
+    ) {
         return $matches[1];
     }
     return null;
@@ -309,17 +325,23 @@ function getSiteId()
  *
  * @return string
  */
-function getWebrootPath(): string
+function getWebrootPath(): ?string
 {
-    if (isDevDebug()) {
-        $path = '/kunder/serveb_1234/custom_4321/public';
-    } else {
-        if (!function_exists('get_home_path')) {
-            require_once ABSPATH . 'wp-admin/includes/file.php';
+    if (isHostedAtServebolt()) {
+        $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
+        if ($env->public_dir) {
+            return apply_filters('sb_optimizer_wp_webroot_path', $env->public_dir);
         }
-        $path = get_home_path();
     }
-    return apply_filters('sb_optimizer_wp_webroot_path', $path);
+    if (!function_exists('get_home_path')) {
+        require_once ABSPATH . 'wp-admin/includes/file.php';
+    }
+    if (function_exists('get_home_path')) {
+        if ($path = get_home_path()) {
+            return apply_filters('sb_optimizer_wp_webroot_path', $path);
+        }
+    }
+    return null;
 }
 
 /**
@@ -459,6 +481,54 @@ function getPostTypeSingularName(int $postId): string
 }
 
 /**
+ * Get all site option names.
+ *
+ * @param bool $includeMigrationOptions
+ * @return string[]
+ */
+function getAllSiteOptionNames(bool $includeMigrationOptions = false): array
+{
+    $optionNames = [
+        // Wipe nonce
+        'ajax_nonce',
+
+        // Cron control
+        'action_scheduler_disable',
+        'action_scheduler_unix_cron_active',
+        'wp_unix_cron_active',
+
+        // Wipe encryption keys
+        'mcrypt_key',
+        'openssl_key',
+        'openssl_iv',
+    ];
+
+    if ($includeMigrationOptions) {
+        $optionNames = array_merge($optionNames, [
+
+            // Migration related
+            'migration_version',
+
+        ]);
+    }
+
+    return $optionNames;
+}
+
+/**
+ * Delete plugin settings - site options.
+ *
+ * @param bool $includeMigrationOptions
+ */
+function deleteAllSiteSettings(bool $includeMigrationOptions = false): void
+{
+    $optionNames = getAllSiteOptionNames($includeMigrationOptions);
+    foreach ($optionNames as $optionName) {
+        deleteSiteOption($optionName);
+    }
+}
+
+/**
  * Get all options names.
  *
  * @param bool $includeMigrationOptions Whether to delete the options related to database migrations.
@@ -474,9 +544,9 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
 
         // Wipe nonce
         'ajax_nonce',
-        'record_max_num_pages_nonce',
 
         // Legacy
+        'record_max_num_pages_nonce',
         'sb_optimizer_record_max_num_pages',
 
         // Wipe encryption keys
@@ -489,6 +559,11 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
 
         // Advanced performance optimizations
         'custom_text_domain_loader_switch',
+
+        // Cron control
+        'action_scheduler_disable',
+        'action_scheduler_unix_cron_active',
+        'wp_unix_cron_active',
 
         // Prefetching
         'prefetch_switch',
@@ -674,7 +749,7 @@ function getAjaxNonce(): string
 }
 
 /**
- * Get ajax nonce key, generate one if it does not exists.
+ * Get ajax nonce key, generate one if it does not exist.
  *
  * @return string
  */
@@ -1148,6 +1223,22 @@ function strEndsWith(string $haystack, string $needle, bool $php8Fallback = true
 }
 
 /**
+ * Check if a string contains substring.
+ *
+ * @param string $haystack
+ * @param string $needle
+ * @param bool $php8Fallback
+ * @return bool
+ */
+function strContains(string $haystack, string $needle, bool $php8Fallback = true): bool
+{
+    if (function_exists('str_contains') && $php8Fallback) {
+        return str_contains($haystack, $needle);
+    }
+    return strpos($haystack, $needle) !== false;
+}
+
+/**
  * Check if the site is hosted at Servebolt.
  *
  * @return bool
@@ -1466,6 +1557,16 @@ function woocommerceIsActive(): bool
 }
 
 /**
+ * Check if Action Scheduler is active.
+ *
+ * @return bool
+ */
+function actionSchedulerIsActive(): bool
+{
+    return class_exists('ActionScheduler');
+}
+
+/**
  * Check whether plugin WP Rocket is active.
  *
  * @return bool
@@ -1521,6 +1622,27 @@ function wpDirectFilesystem(bool $ensureConstantsAreSet = false): object
     require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-base.php';
     require_once ABSPATH . 'wp-admin/includes/class-wp-filesystem-direct.php';
     return new \WP_Filesystem_Direct(new \StdClass());
+}
+
+/**
+ * Get the path of the "wp-config.php"-file.
+ *
+ * @return string|null
+ */
+function getWpConfigPath(): ?string
+{
+    if (file_exists(ABSPATH . 'wp-config.php')) {
+        $path = ABSPATH . 'wp-config.php';
+    } elseif (
+        @file_exists(dirname(ABSPATH) . '/wp-config.php')
+        && !@file_exists(dirname(ABSPATH) . '/wp-settings.php')
+    ) {
+        $path = dirname(ABSPATH) . '/wp-config.php';
+    } else {
+        $path = null;
+    }
+
+    return apply_filters('sb_optimizer_wp_config_path', $path);
 }
 
 /**
@@ -1624,7 +1746,117 @@ function listenForOptionChange($optionNameOrNames, $closureOrAction): void
 }
 
 /**
- * Listen for changes to one or multiple checkbox options.
+ * Check if we should skip reacting on event listen for certain option name.
+ *
+ * @param string $optionName
+ * @param bool $deleteFromListOnSkip
+ * @return bool
+ */
+function shouldSkipEventListen(string $optionName, bool $deleteFromListOnSkip = true): bool
+{
+    $key = 'sb_optimizer_option_event_listen_skip';
+    if (array_key_exists($key, $GLOBALS)) {
+        $shouldSkip = in_array($optionName, $GLOBALS[$key]);
+        if ($deleteFromListOnSkip) {
+            $GLOBALS[$key] = array_filter($GLOBALS[$key], function($item) use ($optionName) {
+                return $item != $optionName;
+            });
+        }
+        return $shouldSkip;
+    }
+    return false;
+}
+
+/**
+ * Generate random integer.
+ *
+ * @param int $min
+ * @param int $max
+ * @return int
+ */
+function generateRandomInteger(int $min, int $max): int
+{
+    if (function_exists('mt_rand')) {
+        return mt_rand($min, $max);
+    }
+    return rand($min, $max);
+}
+
+/**
+ * Skip reacting on event listen for certain option name.
+ *
+ * @param string $optionName
+ */
+function skipNextListen($optionName): void
+{
+    $key = 'sb_optimizer_option_event_listen_skip';
+    $toSkip = array_key_exists($key, $GLOBALS) ? $GLOBALS[$key] : [];
+    if (!in_array($optionName, $toSkip)) {
+        $toSkip[] = $optionName;
+    }
+    $GLOBALS[$key] = $toSkip;
+}
+
+/**
+ * Listen for updates to one or multiple site options.
+ *
+ * @param string|array $optionNameOrNames
+ * @param string|callable $closureOrAction
+ */
+function listenForCheckboxSiteOptionUpdates($optionNameOrNames, $closureOrAction): void
+{
+    if (!is_array($optionNameOrNames)) {
+        $optionNameOrNames = [$optionNameOrNames];
+    }
+    foreach ($optionNameOrNames as $optionName) {
+        add_filter('pre_update_site_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
+            if (shouldSkipEventListen($optionName)) {
+                return $newValue;
+            }
+            $wasActive = checkboxIsChecked($oldValue);
+            $isActive = checkboxIsChecked($newValue);
+            $didChange = $wasActive !== $isActive;
+            if (is_callable($closureOrAction)) {
+                $closureOrAction($wasActive, $isActive, $didChange, $optionName);
+            } else {
+                do_action('servebolt_' . $closureOrAction, $wasActive, $isActive, $didChange, $optionName);
+            }
+            return $newValue;
+        }, 10, 2);
+    }
+}
+
+/**
+ * Listen for updates to one or multiple options.
+ *
+ * @param string|array $optionNameOrNames
+ * @param string|callable $closureOrAction
+ */
+function listenForCheckboxOptionUpdates($optionNameOrNames, $closureOrAction): void
+{
+    if (!is_array($optionNameOrNames)) {
+        $optionNameOrNames = [$optionNameOrNames];
+    }
+    foreach ($optionNameOrNames as $optionName) {
+        add_filter('pre_update_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
+            if (shouldSkipEventListen($optionName)) {
+                return $newValue;
+            }
+            $wasActive = checkboxIsChecked($oldValue);
+            $isActive = checkboxIsChecked($newValue);
+            $didChange = $wasActive !== $isActive;
+            if (is_callable($closureOrAction)) {
+                $closureOrAction($wasActive, $isActive, $didChange, $optionName);
+            } else {
+                do_action('servebolt_' . $closureOrAction, $wasActive, $isActive, $didChange, $optionName);
+            }
+            return $newValue;
+        }, 10, 2);
+    }
+}
+
+/**
+ * Listen for changes to one or multiple options.
  *
  * @param string|array $optionNameOrNames
  * @param string|callable $closureOrAction
@@ -1745,6 +1977,19 @@ function getAllImageSizesByImage(int $attachmentId): ?array
     }
     $imageUrls = array_values(array_unique($imageUrls));
     return $imageUrls;
+}
+
+/**
+ * Check if WP cron is disabled.
+ *
+ * @return bool
+ */
+function wpCronDisabled(): bool
+{
+    return apply_filters(
+        'sb_optimizer_wp_cron_disabled',
+        (defined('DISABLE_WP_CRON') && DISABLE_WP_CRON)
+    );
 }
 
 /**

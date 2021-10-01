@@ -6,7 +6,7 @@
     <?php view('performance-optimizer.tabs-menu', ['selectedTab' => 'servebolt-performance-optimizer-advanced']); ?>
 
     <?php if (is_network_admin()) : ?>
-        <?php view('performance-optimizer.advanced.network-list-view'); ?>
+        <?php view('performance-optimizer.advanced.network-list-view', compact('settings')); ?>
     <?php else : ?>
         <?php view('performance-optimizer.advanced.settings-form', compact('settings')); ?>
     <?php endif; ?>

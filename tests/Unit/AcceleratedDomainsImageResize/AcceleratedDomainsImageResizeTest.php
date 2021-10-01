@@ -1,6 +1,6 @@
 <?php
 
-namespace Unit;
+namespace Unit\AcceleratedDomainsImageResize;
 
 use WP_UnitTestCase;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\FeatureAccess;
