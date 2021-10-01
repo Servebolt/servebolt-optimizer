@@ -48,8 +48,8 @@ class WpCliEventRun extends AbstractCommand
     public static function is($command): bool
     {
         if (
-            strContains($command, self::$baseCommand)
-            && strContains($command, self::getPublicPath())
+            strContains($command, self::$baseCommand) // Check if base command is present
+            && strContains($command, self::getPublicPath()) // Check that correct path is present
         ) {
             return true;
         }
