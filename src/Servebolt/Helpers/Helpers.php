@@ -1746,3 +1746,15 @@ function getAllImageSizesByImage(int $attachmentId): ?array
     $imageUrls = array_values(array_unique($imageUrls));
     return $imageUrls;
 }
+
+/**
+ * Validate JSON string.
+ *
+ * @param string $allegedJson
+ * @return bool
+ */
+function isValidJson(string $allegedJson): bool
+{
+    @json_decode($allegedJson);
+    return (json_last_error() === JSON_ERROR_NONE);
+}
