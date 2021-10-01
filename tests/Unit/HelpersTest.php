@@ -27,6 +27,7 @@ use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
 use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
+use function Servebolt\Optimizer\Helpers\isValidJson;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\javascriptRedirect;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
@@ -830,5 +831,14 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertEquals('value', pickupValueFromFilter($key, false));
         $this->assertEquals('value', pickupValueFromFilter($key));
         $this->assertNull(pickupValueFromFilter($key));
+    }
+
+    public function testThatWeCanValidateJson()
+    {
+        $data = ['foo' => 'bar', 'some' => 'thing'];
+        $validJson = json_encode($data);
+        $this->assertTrue(isValidJson($validJson));
+        $invalidJson = mb_substr($validJson, 2);
+        $this->assertFalse(isValidJson($invalidJson));
     }
 }
