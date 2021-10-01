@@ -31,8 +31,6 @@ class QueueParseEvent
     {
         if (
             $this->hasActionsRegistered()
-
-            // TODO: Consider to move this somewhere else, perhaps to class "QueueEventHandler"
             && CachePurge::featureIsActive()
             && CachePurge::queueBasedCachePurgeIsActive()
         ) {
