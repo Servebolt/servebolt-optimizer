@@ -22,7 +22,7 @@ class QueueParseEvent
     /**
      * @var string The action hook used when triggering this event.
      */
-    public static $hook = 'servebolt_optimizer_every_minute_cron_event';
+    public static $hook = 'servebolt_optimizer_queue_parse_event';
 
     /**
      * QueueParseEvent constructor.
