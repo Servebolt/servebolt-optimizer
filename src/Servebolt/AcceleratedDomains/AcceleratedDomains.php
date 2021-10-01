@@ -7,8 +7,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize;
+use Servebolt\Optimizer\AcceleratedDomains\ImageResize\FeatureAccess;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
-use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
@@ -37,7 +37,7 @@ class AcceleratedDomains
         new AcceleratedDomainsHeaders;
         new AcceleratedDomainsSettings;
 
-        if (AcceleratedDomainsImageResize::hasAccessToFeature()) {
+        if (FeatureAccess::hasAccess()) {
             new AcceleratedDomainsImageResize;
         }
 

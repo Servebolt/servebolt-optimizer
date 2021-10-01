@@ -9,6 +9,8 @@ use Servebolt\Optimizer\Compatibility\WooCommerce\WooCommerce as WooCommerceComp
 use Servebolt\Optimizer\Compatibility\WpRocket\WpRocket as WpRocketCompatibility;
 use Servebolt\Optimizer\Compatibility\YoastPremium\YoastPremium as YoastPremiumCompatibility;
 use Servebolt\Optimizer\Compatibility\Jetpack\Jetpack as JetpackCompatibility;
+use Servebolt\Optimizer\Compatibility\ActionScheduler\ActionScheduler as ActionSchedulerCompatibility;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 
 /**
  * Class Compatibility
@@ -26,5 +28,9 @@ class Compatibility
         new CloudflareCompatibility;
         new YoastPremiumCompatibility;
         new JetpackCompatibility;
+
+        if (isHostedAtServebolt()) {
+            new ActionSchedulerCompatibility;
+        }
     }
 }

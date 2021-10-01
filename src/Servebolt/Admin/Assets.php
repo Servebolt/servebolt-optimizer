@@ -120,7 +120,10 @@ class Assets {
      */
 	public function pluginAdminScripts(): void
     {
-        if ($this->isBlockEditor() && apply_filters('sb_optimizer_add_block_editor_plugin_menu', true)) {
+        if (
+            $this->isBlockEditor()
+            && apply_filters('sb_optimizer_add_block_editor_plugin_menu', true)
+        ) {
             $this->enqueueScript(
                 'servebolt-optimizer-block-editor-cache-purge-menu-scripts',
                 'assets/dist/js/block-editor-cache-purge-menu.js',

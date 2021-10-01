@@ -62,7 +62,6 @@ class FullPageCache
             return;
         }
 
-
         add_action('sb_optimizer_post_added_to_html_cache_exclusion', function($postId) {
             try {
                 WordPressCachePurge::purgeByPostId($postId);

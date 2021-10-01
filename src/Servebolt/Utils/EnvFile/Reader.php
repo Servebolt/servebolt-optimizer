@@ -156,7 +156,19 @@ class Reader
             return null;
         }
         if (array_key_exists($name, $this->extractedData)) {
-            return $this->extractedData[$name];
+            /**
+             * Filter the output of the environment file.
+             *
+             * @param mixed $value The value about to be returned.
+             * @param string $name The name of the value.
+             * @param object $instance The instance of the environment file reader class.
+             */
+            return apply_filters(
+                'sb_optimizer_env_file_reader_get_' . $name,
+                $this->extractedData[$name],
+                $name,
+                $this
+            );
         }
         return null;
     }

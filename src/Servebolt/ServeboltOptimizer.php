@@ -9,13 +9,12 @@ use Servebolt\Optimizer\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Compatibility\Compatibility as PluginCompatibility;
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 use Servebolt\Optimizer\FullPageCache\FullPageCache;
-use Servebolt\Optimizer\MenuCache\WpMenuCache;
+use Servebolt\Optimizer\MenuOptimizer\WpMenuOptimizer;
 use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
 use Servebolt\Optimizer\TextDomainLoader\WpTextDomainLoader;
-use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use Servebolt\Optimizer\Utils\Crypto\OptionEncryption;
 use Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
-use Servebolt\Optimizer\Queue\QueueEventHandler;
+use Servebolt\Optimizer\Queue\QueueParseEventHandler;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
 use Servebolt\Optimizer\Admin\AdminBarGui\AdminBarGui;
@@ -38,13 +37,11 @@ use function Servebolt\Optimizer\Helpers\featureIsActive;
  */
 class ServeboltOptimizer
 {
-
     /**
      * Boot the plugin.
      */
     public static function boot()
     {
-
         // Handle activation/deactivation
         new PluginActiveStateHandling;
 
@@ -62,8 +59,8 @@ class ServeboltOptimizer
         // Make sure we don't store certain options (like API credentials) in clear text.
         new OptionEncryption;
 
-        if (WpMenuCache::isActive()) {
-            WpMenuCache::init();
+        if (WpMenuOptimizer::isActive()) {
+            WpMenuOptimizer::init();
         }
 
         if (isHostedAtServebolt()) {
@@ -90,7 +87,7 @@ class ServeboltOptimizer
         }
 
         // Queue system
-        new QueueEventHandler; // Register event listener for queues
+        new QueueParseEventHandler; // Register event listener for queues
 
         // Register cron schedule & event
         new WpCronCustomSchedules; // Register cron schedule

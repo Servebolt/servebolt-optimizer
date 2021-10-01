@@ -16,9 +16,9 @@
         ];
     }
     $tabs[] = [
-        'id' => 'servebolt-menu-cache',
-        'url' => $urlMethod('admin.php?page=servebolt-menu-cache'),
-        'title' => 'Menu Cache',
+        'id' => 'servebolt-menu-optimizer',
+        'url' => $urlMethod('admin.php?page=servebolt-menu-optimizer'),
+        'title' => 'Menu Optimizer',
     ];
     $tabs[] = [
         'id' => 'servebolt-performance-optimizer-advanced',

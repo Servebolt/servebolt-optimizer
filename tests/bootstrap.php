@@ -53,7 +53,12 @@ Servebolt\AllowSvgUploads::allow();
 require $_tests_dir . '/includes/bootstrap.php';
 
 // Include custom traits
-foreach([__DIR__ . '/Unit/Traits/*Trait.php', __DIR__ . '/Feature/Traits/*Trait.php'] as $traitFolder) {
+foreach([
+    __DIR__ . '/Unit/Traits/*.php',
+    __DIR__ . '/Unit/Traits/*/*.php',
+    __DIR__ . '/Feature/Traits/*.php',
+    __DIR__ . '/Feature/Traits/*/*.php',
+] as $traitFolder) {
     foreach (glob($traitFolder) as $traitFile) {
         require_once $traitFile;
     }
