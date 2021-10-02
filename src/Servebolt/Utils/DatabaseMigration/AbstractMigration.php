@@ -12,6 +12,13 @@ abstract class AbstractMigration
 {
 
     /**
+     * MySQL storage engine.
+     *
+     * @var string
+     */
+    protected $storageEngine = 'InnoDB';
+
+    /**
      * Whether to use the function "dbDelta" when running queries.
      *
      * @var bool
@@ -79,21 +86,12 @@ abstract class AbstractMigration
             $sql = str_replace('%table-name%', $tableName, $sql);
         }
 
-        $mysqlEngine = apply_filters('sb_optimizer_migration_mysql_charset', 'InnoDB');
-        $mysqlCharset = apply_filters('sb_optimizer_migration_mysql_charset', $wpdb->charset);
-        $mysqlCharsetCollate = apply_filters('sb_optimizer_migration_mysql_charset_collate', $wpdb->collate);
-
-        if (!$mysqlCharset) {
-            $mysqlCharset = apply_filters('sb_optimizer_migration_mysql_charset_fallback', 'utf8mb4');
-        }
-        if (!$mysqlCharsetCollate) {
-            $mysqlCharsetCollate = apply_filters('sb_optimizer_migration_mysql_charset_collate_fallback', 'utf8mb4_unicode_520_ci');
-        }
+        $storageEngine = apply_filters('sb_optimizer_migration_mysql_charset', $this->storageEngine);
 
         $sql = str_replace('%prefix%', $wpdb->prefix, $sql);
-        $sql = str_replace('%mysql-engine%', $mysqlEngine, $sql);
-        $sql = str_replace('%charset%', $mysqlCharset, $sql);
-        $sql = str_replace('%charset-collate%', $mysqlCharsetCollate, $sql);
+        $sql = str_replace('%storage-engine%', $storageEngine, $sql);
+        $sql = str_replace('%charset-collate%', $wpdb->get_charset_collate(), $sql);
+
         return $sql;
     }
 

@@ -36,13 +36,13 @@ class CacheExclusionMigration extends AbstractMigration
         $sql = <<<EOF
 CREATE TABLE IF NOT EXISTS `%table-name%` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `url` varchar(255) COLLATE %charset-collate% NOT NULL DEFAULT '',
-  `object_type` varchar(25) COLLATE %charset-collate% NOT NULL DEFAULT 'post',
+  `url` varchar(255) NOT NULL DEFAULT '',
+  `object_type` varchar(25) NOT NULL DEFAULT 'post',
   `object_id` bigint(20) unsigned NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=%mysql-engine% DEFAULT CHARSET=%charset% COLLATE=%charset-collate%;
+) ENGINE=%storage-engine% %charset-collate%;
 EOF;
         $this->runSql($sql);
     }
