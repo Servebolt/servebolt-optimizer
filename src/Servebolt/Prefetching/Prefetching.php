@@ -34,7 +34,7 @@ class Prefetching
     private static $transientKey = 'servebolt_manifest_written';
 
     /**
-     * Check whether we have already loaded the front page during this exection.
+     * Check whether we have already loaded the front page during this execution.
      *
      * @var bool
      */
@@ -109,10 +109,10 @@ class Prefetching
                     $this->startOrIncrementDependencyCount($type, $dependencyHandle);
                 }
             }
-            $this->addToManifestData($type, $handle);
+            $this->addToManifestData($handle, $type);
         }
 
-        if (isset($this->manifestDependencies[$type])) {
+        if (isset($this->manifestDependencies[$type]) && is_array($this->manifestDependencies[$type])) {
             foreach ($this->manifestDependencies[$type] as $handle => $count) {
                 if ($dependencies = $this->resolveDependenciesFromHandle($handle, $type)) {
                     foreach ($dependencies as $dependencyHandle) {
@@ -122,10 +122,10 @@ class Prefetching
             }
         }
 
-        if (isset($this->manifestDependencies[$type])) {
+        if (isset($this->manifestDependencies[$type]) && is_array($this->manifestDependencies[$type])) {
             foreach ($this->manifestDependencies[$type] as $handle => $count) {
                 if ($wpAssetsArray->registered[$handle]->src) {
-                    $this->addToManifestData($type, $handle, $count);
+                    $this->addToManifestData($handle, $type, $count);
                 }
             }
         }
@@ -151,11 +151,11 @@ class Prefetching
     /**
      * Add asset to manifest data array.
      *
-     * @param string $type
      * @param string $handle
+     * @param string $type
      * @param int|null $priority
      */
-    private function addToManifestData(string $type = 'script', string $handle, ?int $priority = 1): void
+    private function addToManifestData(string $handle, string $type = 'script', ?int $priority = 1): void
     {
         if (!array_key_exists($type, $this->manifestData)) {
             $this->manifestData[$type] = [];
@@ -208,7 +208,7 @@ class Prefetching
      */
     protected function shouldWriteFilesUsingCron(): bool
     {
-        return apply_filters('sb_optimizer_prefetch_should_write_manifest_files_using_cron', true);
+        return apply_filters('sb_optimizer_prefetching_should_write_manifest_files_using_cron', true);
     }
 
     /**
@@ -224,7 +224,7 @@ class Prefetching
 
         // Write content to files
         if ($this->shouldWriteFilesUsingCron()) {
-            wp_schedule_single_event(time(), 'sb_optimizer_prefetch_write_manifest_files');
+            wp_schedule_single_event(time(), 'sb_optimizer_prefetching_write_manifest_files');
         } else {
             ManifestFileWriter::write();
         }
@@ -289,6 +289,6 @@ class Prefetching
         if (is_null(self::$shouldGenerateManifestData)) {
             self::$shouldGenerateManifestData = get_transient(self::$transientKey) === false;
         }
-        return apply_filters('sb_optimizer_prefetch_should_generate_manifest_data', self::$shouldGenerateManifestData);
+        return apply_filters('sb_optimizer_prefetching_should_generate_manifest_data', self::$shouldGenerateManifestData);
     }
 }

@@ -2,11 +2,11 @@
 
 namespace Servebolt\Optimizer\Prefetching;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
-
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class Prefetching
@@ -40,7 +40,7 @@ class WpPrefetching extends Prefetching
     private function registerCronHook(): void
     {
         if ($this->shouldWriteFilesUsingCron()) {
-            add_action('sb_optimizer_prefetch_write_manifest_files', __NAMESPACE__ . '\\ManifestFileWriter::write');
+            add_action('sb_optimizer_prefetching_write_manifest_files', __NAMESPACE__ . '\\ManifestFileWriter::write');
         }
     }
 
@@ -52,6 +52,9 @@ class WpPrefetching extends Prefetching
         if ($this->shouldAddHeaders()) {
             add_action('send_headers', [__NAMESPACE__ . '\\ManifestHeaders', 'printManifestHeaders'], PHP_INT_MAX);
         }
+
+        // Handle purge
+        new FilePurge;
 
         if (!Prefetching::shouldGenerateManifestData()) {
             return;
@@ -81,7 +84,7 @@ class WpPrefetching extends Prefetching
     private function setMaxNumberOfLines(): void
     {
         if ($maxNumberOfLines = self::getMaxNumberOfLines()) {
-            add_filter('sb_optimizer_prefetch_max_number_of_lines', function() use ($maxNumberOfLines) {
+            add_filter('sb_optimizer_prefetching_max_number_of_lines', function() use ($maxNumberOfLines) {
                 return $maxNumberOfLines;
             });
         }
@@ -93,7 +96,7 @@ class WpPrefetching extends Prefetching
     private function setRelativeOrFullUrls(): void
     {
         if (self::writeFullUrls()) {
-            add_filter('sb_optimizer_prefetch_include_domain', '__return_true'); // Use full URLs
+            add_filter('sb_optimizer_prefetching_include_domain', '__return_true'); // Use full URLs
         } else {
             // Use relative URLs
         }
@@ -165,7 +168,7 @@ class WpPrefetching extends Prefetching
      */
     public static function getDefaultMaxNumberOfLines(): ?int
     {
-        return apply_filters('sb_optimizer_prefetch_default_max_number_of_lines', self::$defaultMaxNumberOfLines);
+        return apply_filters('sb_optimizer_prefetching_default_max_number_of_lines', self::$defaultMaxNumberOfLines);
     }
 
     /**
@@ -180,30 +183,30 @@ class WpPrefetching extends Prefetching
 
     private function shouldAddHeaders(): bool
     {
-        return apply_filters('sb_optimizer_asset_prefetch_add_headers', true);
+        return apply_filters('sb_optimizer_prefetching_add_headers', true);
     }
 
     private function shouldRecordStyles(): bool
     {
-        return apply_filters('sb_optimizer_asset_prefetch_record_styles', self::fileIsActive('style'));
+        return apply_filters('sb_optimizer_prefetching_record_styles', self::fileIsActive('style'));
     }
 
     private function shouldRecordScripts(): bool
     {
-        return apply_filters('sb_optimizer_asset_prefetch_record_scripts', self::fileIsActive('script'));
+        return apply_filters('sb_optimizer_prefetching_record_scripts', self::fileIsActive('script'));
     }
 
     private function shouldRecordMenuItems(): bool
     {
-        return apply_filters('sb_optimizer_asset_prefetch_record_menu_items', self::fileIsActive('menu'));
+        return apply_filters('sb_optimizer_prefetching_record_menu_items', self::fileIsActive('menu'));
     }
 
     private function shouldStoreManifestData(): bool
     {
-        return apply_filters('sb_optimizer_asset_prefetch_write_manifest_file_override', false)
+        return apply_filters('sb_optimizer_prefetching_write_manifest_file_override', false)
         ||
         (
-            apply_filters('sb_optimizer_asset_prefetch_write_manifest_file', true)
+            apply_filters('sb_optimizer_prefetching_write_manifest_file', true)
             || $this->shouldRecordScripts()
             || $this->shouldRecordStyles()
             || $this->shouldRecordMenuItems()

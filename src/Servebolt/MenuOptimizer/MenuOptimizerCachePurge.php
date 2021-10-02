@@ -59,7 +59,7 @@ class MenuOptimizerCachePurge
      *
      * @param int $menuId
      */
-    public static function purgeMenuCache(int $menuId)
+    public static function purgeMenuCache($menuId)
     {
         $menuSignatureIndex = self::getMenuSignatureIndex($menuId);
         self::deleteMenuSignatureIndex($menuId);
