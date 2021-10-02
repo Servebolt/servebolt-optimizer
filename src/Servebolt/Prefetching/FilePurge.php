@@ -47,7 +47,7 @@ class FilePurge
      */
     public function removeMenuManifestFile(): void
     {
-        ManifestFileWriter::clear('menu');
-        ManifestFileWriter::removeFromWrittenFiles('menu');
+        WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
+        WpPrefetching::recordPrefetchItems();
     }
 }
