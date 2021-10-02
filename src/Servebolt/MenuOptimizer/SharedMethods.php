@@ -162,7 +162,8 @@ trait SharedMethods
      */
     private static function getMenuSignatureFromArgs(object $args): string
     {
-        $signatureBase = md5(wp_json_encode($args));
+        global $wp_query;
+        $signatureBase = md5(wp_json_encode($args) . $wp_query->query_vars_hash);
         return apply_filters(
             'sb_optimizer_menu_optimizer_menu_signature',
             $signatureBase,
