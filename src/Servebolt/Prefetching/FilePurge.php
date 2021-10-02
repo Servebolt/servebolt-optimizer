@@ -27,7 +27,19 @@ class FilePurge
     {
         add_action('wp_update_nav_menu', [$this, 'removeMenuManifestFile'], 10, 0);
         add_action('wp_delete_nav_menu', [$this, 'removeMenuManifestFile'], 10, 0);
-        add_filter('pre_set_theme_mod_nav_menu_locations', [$this, 'removeMenuManifestFile'], 10, 0);
+        add_filter('pre_set_theme_mod_nav_menu_locations', [$this, 'removeMenuManifestFileOnDisplayLocationChange'], 10, 1);
+    }
+
+    /**
+     * Purge menu manifest file on menu display location change.
+     *
+     * @param array $value
+     * @return array
+     */
+    public function removeMenuManifestFileOnDisplayLocationChange($value)
+    {
+        $this->removeMenuManifestFile();
+        return $value;
     }
 
     /**
