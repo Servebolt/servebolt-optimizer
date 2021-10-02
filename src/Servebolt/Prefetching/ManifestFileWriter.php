@@ -123,7 +123,7 @@ class ManifestFileWriter
      *
      * @param string $itemType
      */
-    public function removeFromWrittenFiles(string $itemType): void
+    public static function removeFromWrittenFiles(string $itemType): void
     {
         ManifestFilesModel::remove(self::getFileUrl($itemType));
     }

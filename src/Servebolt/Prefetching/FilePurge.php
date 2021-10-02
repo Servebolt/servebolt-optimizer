@@ -33,7 +33,7 @@ class FilePurge
     /**
      * Purge menu manifest file.
      */
-    private function removeMenuManifestFile(): void
+    public function removeMenuManifestFile(): void
     {
         ManifestFileWriter::clear('menu');
         ManifestFileWriter::removeFromWrittenFiles('menu');
