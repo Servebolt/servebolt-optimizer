@@ -22,6 +22,11 @@ class EnvironmentConfig
     private $suffix = 'acd-cgi/config';
 
     /**
+     * @var int Timeout in seconds when retrieving environment config.
+     */
+    private $requestTimeout = 2;
+
+    /**
      * @var string The key used for cache storage.
      */
     private $cacheKey = 'sb_optimizer_environment_config';
@@ -158,7 +163,11 @@ class EnvironmentConfig
         if (!isHostedAtServebolt()) {
             return false;
         }
-        $response = wp_remote_get($this->getEnvironmentConfigUrl());
+
+        $response = wp_remote_get($this->getEnvironmentConfigUrl(), [
+            'timeout' => $this->requestTimeout,
+            'sslverify' => false,
+        ]);
         $httpCode = wp_remote_retrieve_response_code($response);
         if ($httpCode !== 200) {
             return false;

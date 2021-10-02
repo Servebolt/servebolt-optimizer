@@ -37,9 +37,9 @@ class QueueMigration extends AbstractMigration
 CREATE TABLE IF NOT EXISTS `%table-name%` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `parent_id` bigint(20) unsigned DEFAULT NULL,
-  `parent_queue_name` varchar(255) COLLATE %charset-collate% DEFAULT NULL,
-  `queue` varchar(255) COLLATE %charset-collate% NOT NULL,
-  `payload` longtext COLLATE %charset-collate% NOT NULL,
+  `parent_queue_name` varchar(255) DEFAULT NULL,
+  `queue` varchar(255) NOT NULL,
+  `payload` longtext NOT NULL,
   `attempts` tinyint(3) unsigned NOT NULL,
   `force_retry` tinyint(1) unsigned DEFAULT 0,
   `failed_at_gmt` int(10) unsigned DEFAULT NULL,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `%table-name%` (
   `created_at_gmt` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `jobs_queue_index` (`queue`)
-) ENGINE=%mysql-engine% DEFAULT CHARSET=%charset% COLLATE=%charset-collate%;
+) ENGINE=%storage-engine% %charset-collate%;
 EOF;
         $this->runSql($sql);
     }
