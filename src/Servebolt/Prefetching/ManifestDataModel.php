@@ -2,11 +2,11 @@
 
 namespace Servebolt\Optimizer\Prefetching;
 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
+
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
-
-if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class ManifestDataModel

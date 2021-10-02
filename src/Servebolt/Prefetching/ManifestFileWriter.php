@@ -90,7 +90,7 @@ class ManifestFileWriter
             // Write the contents to the manifest file
             (self::getFs())->put_contents(
                 self::getFilePath($itemType),
-                apply_filters('sb_optimizer_prefetch_data', $data, $itemType)
+                apply_filters('sb_optimizer_prefetching_prefetch_data', $data, $itemType)
             );
 
             // Flag that we wrote file for this item type
@@ -101,7 +101,7 @@ class ManifestFileWriter
         // Store which files we wrote to disk
         self::storeWrittenFiles();
 
-        do_action('sb_optimizer_prefetch_manifest_files_written');
+        do_action('sb_optimizer_prefetching_manifest_files_written');
 
         // Maybe clear data in options
         if (self::shouldClearDataAfterFileWrite()) {
@@ -123,7 +123,7 @@ class ManifestFileWriter
      *
      * @param string $itemType
      */
-    public function removeFromWrittenFiles(string $itemType): void
+    public static function removeFromWrittenFiles(string $itemType): void
     {
         ManifestFilesModel::remove(self::getFileUrl($itemType));
     }
@@ -145,7 +145,7 @@ class ManifestFileWriter
      */
     private static function shouldClearDataAfterFileWrite(): bool
     {
-        return apply_filters('sb_optimizer_prefetch_clear_manifest_data_after_file_write', self::$clearDataAfterFileWrite);
+        return apply_filters('sb_optimizer_prefetching_clear_manifest_data_after_file_write', self::$clearDataAfterFileWrite);
     }
 
     /**
@@ -262,7 +262,7 @@ class ManifestFileWriter
      */
     private static function getItemTypes(): array
     {
-        return apply_filters('sb_optimizer_prefetch_active_item_types', self::$itemTypes);
+        return apply_filters('sb_optimizer_prefetching_active_item_types', self::$itemTypes);
     }
 
     /**
@@ -290,18 +290,18 @@ class ManifestFileWriter
 
         // We can force to HTTPS since ACD only runs on HTTPS
         if (empty($url['scheme'])) {
-            $url['scheme'] = apply_filters('sb_optimizer_prefetch_item_scheme', 'https');
+            $url['scheme'] = apply_filters('sb_optimizer_prefetching_item_scheme', 'https');
         }
 
         // We only want to prefetch stuff from current domain for now
         if (!self::shouldLimitHostname() || strpos($url['host'], $domain['host']) !== false) {
 
-            if (apply_filters('sb_optimizer_prefetch_include_domain', false)) {
+            if (apply_filters('sb_optimizer_prefetching_include_domain', false)) {
                 $line = $url['scheme'] . '://' . $url['host'] . $url['path'];
             } else {
                 $line = $url['path'];
             }
-            $line = apply_filters('sb_optimizer_prefetch_handle_item', $line, $url);
+            $line = apply_filters('sb_optimizer_prefetching_handle_item', $line, $url);
 
             // If a version string exists we most likely need to add that to the url
             if (array_key_exists('ver', $prefetchItem) && $prefetchItem['ver']) {
@@ -375,7 +375,7 @@ class ManifestFileWriter
             return $b['priority'] <=> $a['priority'];
         });
 
-        $maxLineNumber = apply_filters('sb_optimizer_prefetch_max_number_of_lines', false, $itemType);
+        $maxLineNumber = apply_filters('sb_optimizer_prefetching_max_number_of_lines', false, $itemType);
         if (is_numeric($maxLineNumber)) {
             $prefetchItems = array_slice($prefetchItems, 0, $maxLineNumber);
         }
