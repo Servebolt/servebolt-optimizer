@@ -115,7 +115,7 @@ class MenuOptimizer
      * @param $args
      * @return bool
      */
-    private static function resolveMenuObject($args): bool
+    private static function resolveMenuObject(&$args): bool
     {
         // Reset menu object
         self::$menuObject = null;
@@ -143,6 +143,10 @@ class MenuOptimizer
                     break;
                 }
             }
+        }
+
+        if ( empty( $args->menu ) ) {
+            $args->menu = $menu;
         }
 
         // @codingStandardsIgnoreEnd
