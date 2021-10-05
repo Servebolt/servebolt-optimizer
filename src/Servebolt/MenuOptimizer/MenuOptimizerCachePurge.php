@@ -51,7 +51,7 @@ class MenuOptimizerCachePurge
      */
     private static function shouldAutoPurgeCachedMenus()
     {
-        return apply_filters('sb_optimizer_menu_optimizer_automatic_purge_enabled', true);
+        return apply_filters('sb_optimizer_menu_optimizer_automatic_purge_enabled', WpMenuOptimizer::automaticCachePurgeOnMenuChange());
     }
 
     /**

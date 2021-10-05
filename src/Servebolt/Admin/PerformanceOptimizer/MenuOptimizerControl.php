@@ -94,6 +94,7 @@ class MenuOptimizerControl
         return [
             'menu_cache_switch',
             'menu_cache_disabled_for_authenticated_switch',
+            'menu_cache_auto_cache_purge',
         ];
     }
 }

@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\isFrontEnd;
+use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 
 /**
@@ -30,6 +31,7 @@ class WpMenuOptimizer
      */
     public function __construct()
     {
+        $this->defaultOptionValues();
         if (self::disabledForAuthenticatedUsers()) {
             add_filter('sb_optimizer_menu_optimizer_disabled_for_unauthenticated_users', '__return_true');
         }
@@ -37,6 +39,14 @@ class WpMenuOptimizer
             add_action('init', __NAMESPACE__ . '\\MenuOptimizer::init');
         }
         add_action('admin_init', __NAMESPACE__ . '\\MenuOptimizerCachePurge::init');
+    }
+
+    /**
+     * Set default option values.
+     */
+    private function defaultOptionValues(): void
+    {
+        setDefaultOption('menu_cache_auto_cache_purge', '__return_true');
     }
 
     /**
@@ -59,5 +69,16 @@ class WpMenuOptimizer
     public static function disabledForAuthenticatedUsers(?int $blogId = null): bool
     {
         return checkboxIsChecked(smartGetOption($blogId, 'menu_cache_disabled_for_authenticated_switch'));
+    }
+
+    /**
+     * Check if we should automatically purge cache whenever menu is updated.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function automaticCachePurgeOnMenuChange(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(smartGetOption($blogId, 'menu_cache_auto_cache_purge'));
     }
 }
