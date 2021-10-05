@@ -15,6 +15,11 @@ class MenuOptimizer
     use SharedMethods;
 
     /**
+     * @var null|\WP_Term Property to hold menu term object.
+     */
+    private static $menuObject;
+
+    /**
      * MenuOptimizer init.
      */
     public static function init()
@@ -47,10 +52,9 @@ class MenuOptimizer
      */
     public static function preWpNavMenu(?string $output, object $args): ?string
     {
-        self::ensureMenuObjectIsResolved($args);
         if (
-            isset($args->menu->term_id)
-            && self::getMenuSignatureIndex($args->menu->term_id)
+            self::resolveMenuObject($args)
+            && self::getMenuSignatureIndex(self::$menuObject->term_id)
         ) {
             $menuSignature = self::getMenuSignatureFromArgs($args);
             if ($cachedOutput = self::getMenuCache($menuSignature)) {
@@ -69,10 +73,10 @@ class MenuOptimizer
      */
     public static function wpNavMenu($navMenu, $args)
     {
-        if (isset($args->menu->term_id)) {
+        if (self::$menuObject) {
             $menuSignature = self::getMenuSignatureFromArgs($args);
             self::setMenuCache($navMenu, $menuSignature);
-            self::addMenuSignatureToIndex($menuSignature, $args->menu->term_id);
+            self::addMenuSignatureToIndex($menuSignature, self::$menuObject->term_id);
         }
         return $navMenu;
     }
@@ -109,9 +113,13 @@ class MenuOptimizer
      * Ensure that we have the menu object in the argument object.
      *
      * @param $args
+     * @return bool
      */
-    private static function ensureMenuObjectIsResolved(&$args): void
+    private static function resolveMenuObject($args): bool
     {
+        // Reset menu object
+        self::$menuObject = null;
+
         /* This section is from the function "wp_nav_menu" in the WP core files. It is here to find a menu when none is provided. */
 
         // @codingStandardsIgnoreStart
@@ -137,15 +145,13 @@ class MenuOptimizer
             }
         }
 
-        if ( empty( $args->menu ) ) {
-            $args->menu = $menu;
-        }
-
         // @codingStandardsIgnoreEnd
 
-        // Fallback to catch faulty wp_nav_menu-argument filtering (originating from plugin Astra Pro). Jira ticket WPSO-400.
-        if (is_numeric($args->menu)) {
-            $args->menu = $menu;
+        if ($menu && isset($menu->term_id)) {
+            self::$menuObject = $menu;
+            return true;
         }
+
+        return false;
     }
 }
