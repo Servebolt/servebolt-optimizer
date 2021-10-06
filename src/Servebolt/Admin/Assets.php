@@ -162,6 +162,13 @@ class Assets {
                 ['jquery'],
                 true
             );
+
+            $this->enqueueScript(
+                'servebolt-optimizer-env-config',
+                'assets/dist/js/env-config.js',
+                [],
+                true
+            );
             $this->enqueueScript(
                 'servebolt-optimizer-scripts-vanilla',
                 'assets/dist/js/general-vanilla.js',
@@ -176,6 +183,7 @@ class Assets {
             );
             wp_localize_script('servebolt-optimizer-cache-purge-trigger-scripts', 'sb_ajax_object', [
                 'ajax_nonce'                         => getAjaxNonce(),
+                'site_url'                           => get_site_url(),
                 'use_native_js_fallback'             => booleanToString($generalSettings->useNativeJsFallback()),
                 'ajaxurl'                            => admin_url('admin-ajax.php'),
                 'cron_purge_is_active'               => false, // TODO: Add real boolean value

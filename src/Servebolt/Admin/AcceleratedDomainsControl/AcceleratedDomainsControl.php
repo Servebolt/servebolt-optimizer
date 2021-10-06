@@ -47,7 +47,10 @@ class AcceleratedDomainsControl
 
     public function enqueueScripts(): void
     {
-        if (!isScreen('servebolt_page_servebolt-acd')) {
+        if (
+            !isScreen('servebolt_page_servebolt-acd')
+            && !isScreen('admin_page_servebolt-acd-image-resize')
+        ) {
             return;
         }
         wp_enqueue_script(

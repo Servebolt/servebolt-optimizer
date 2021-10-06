@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageSizeIndexModel;
+use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\Ajax\DisableFeature;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
@@ -31,8 +32,14 @@ class AcceleratedDomainsImageResizeControl
     public function __construct()
     {
         AcceleratedDomainsImageSizeIndexControl::getInstance();
+        $this->initAjax();
         $this->initSettings();
         $this->rewriteHighlightedMenuItem();
+    }
+
+    private function initAjax(): void
+    {
+        new DisableFeature;
     }
 
     /**
