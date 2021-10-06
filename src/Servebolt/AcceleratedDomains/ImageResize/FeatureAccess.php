@@ -14,7 +14,7 @@ class FeatureAccess
 {
 
     /**
-     * Check if current site has access to the Accelerated DOmains Image Resize feature.
+     * Check if current site has access to the Accelerated Domains Image Resize-feature.
      *
      * @param bool $purgeCache
      * @return bool
