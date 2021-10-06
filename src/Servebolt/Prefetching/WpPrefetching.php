@@ -39,9 +39,27 @@ class WpPrefetching extends Prefetching
      */
     private function registerCronHook(): void
     {
-        if ($this->shouldWriteFilesUsingCron()) {
+        if (self::shouldWriteFilesUsingCron()) {
             add_action('sb_optimizer_prefetching_write_manifest_files', __NAMESPACE__ . '\\ManifestFileWriter::write');
         }
+        add_action('sb_optimizer_prefetching_record_prefetch_items', [$this, 'handleScheduledPrefetchItemsRecording']);
+    }
+
+    /**
+     * Schedule the regeneration of prefetch items using WP Cron.
+     */
+    public static function scheduleRecordPrefetchItems()
+    {
+        wp_schedule_single_event(time(), 'sb_optimizer_prefetching_record_prefetch_items');
+    }
+
+    /**
+     * Handle the regeneration of prefetch items using WP Cron.
+     */
+    public function handleScheduledPrefetchItemsRecording()
+    {
+        self::rescheduleManifestDataGeneration(); // Delete transient so that we will record prefetch items on next page load
+        self::recordPrefetchItems(); // Load the front page to record prefetch items
     }
 
     /**
@@ -53,8 +71,10 @@ class WpPrefetching extends Prefetching
             add_action('send_headers', [__NAMESPACE__ . '\\ManifestHeaders', 'printManifestHeaders'], PHP_INT_MAX);
         }
 
-        // Handle purge
-        new FilePurge;
+        add_action('admin_init', function () {
+            // Handle purge
+            new FilePurge;
+        });
 
         if (!Prefetching::shouldGenerateManifestData()) {
             return;
