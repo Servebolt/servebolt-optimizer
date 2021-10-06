@@ -206,7 +206,7 @@ class Prefetching
      *
      * @return bool
      */
-    protected function shouldWriteFilesUsingCron(): bool
+    public static function shouldWriteFilesUsingCron(): bool
     {
         return apply_filters('sb_optimizer_prefetching_should_write_manifest_files_using_cron', true);
     }
@@ -223,7 +223,7 @@ class Prefetching
         ManifestDataModel::store($this->manifestData);
 
         // Write content to files
-        if ($this->shouldWriteFilesUsingCron()) {
+        if (self::shouldWriteFilesUsingCron()) {
             wp_schedule_single_event(time(), 'sb_optimizer_prefetching_write_manifest_files');
         } else {
             ManifestFileWriter::write();
@@ -272,11 +272,14 @@ class Prefetching
      */
     public static function loadFrontPage(): void
     {
-        $frontPageUrl = get_home_url(null, '?cachebuster=' . time());
-        (new WP_Http)->request($frontPageUrl, [
-            'timeout' => 10,
-            'sslverify' => false,
-        ]);
+        $path = '?cachebuster=' . time();
+        $frontPageUrl = apply_filters('sb_optimizer_prefetching_site_url', get_site_url(null, $path), $path);
+        if ($frontPageUrl) {
+            (new WP_Http)->request($frontPageUrl, [
+                'timeout' => 10,
+                'sslverify' => false,
+            ]);
+        }
     }
 
     /**
