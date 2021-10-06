@@ -576,9 +576,9 @@ class HelpersTest extends ServeboltWPUnitTestCase
                 $value = getBlogOption($site->blog_id, $option);
                 switch ($option) {
                     // Default options
-                    //case 'prefetch_file_style_switch':
-                    //case 'prefetch_file_script_switch':
-                    //case 'prefetch_file_menu_switch':
+                    case 'prefetch_file_style_switch':
+                    case 'prefetch_file_script_switch':
+                    case 'prefetch_file_menu_switch':
                     case 'cache_purge_auto':
                     case 'cache_purge_auto_on_slug_change':
                     case 'cache_purge_auto_on_deletion':
@@ -921,7 +921,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
     {
         $this->assertIsInt(generateRandomInteger(0, 12));
     }
-  
+
     public function testThatWeCanValidateJson()
     {
         $data = ['foo' => 'bar', 'some' => 'thing'];
