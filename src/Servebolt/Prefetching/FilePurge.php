@@ -38,7 +38,7 @@ class FilePurge
      */
     private function purgeOnThemeSwitch()
     {
-        add_action('switch_theme', [$this, 'scheduleManifestFileRegeneration']);
+        add_action('switch_theme', [$this, 'scheduleManifestFileRegeneration'], 10, 0);
     }
 
     /**
