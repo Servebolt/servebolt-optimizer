@@ -10,7 +10,7 @@ use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 
 /**
- * Class Prefetching
+ * Class WpPrefetching
  * @package Servebolt\Optimizer\Prefetching
  */
 class WpPrefetching extends Prefetching
@@ -24,7 +24,7 @@ class WpPrefetching extends Prefetching
     public static $defaultMaxNumberOfLines = 100;
 
     /**
-     * Prefetching constructor.
+     * WpPrefetching constructor.
      */
     public function __construct()
     {
@@ -71,7 +71,7 @@ class WpPrefetching extends Prefetching
         if ($this->shouldAddHeaders()) {
             add_action('send_headers', [__NAMESPACE__ . '\\ManifestHeaders', 'printManifestHeaders'], PHP_INT_MAX);
         }
-        if (Prefetching::shouldGenerateManifestData()) {
+        if (self::shouldGenerateManifestData()) {
             add_action('template_redirect', [$this, 'recordPrefetchItemsDuringTemplateLoading']);
         }
     }
