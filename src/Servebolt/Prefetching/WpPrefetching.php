@@ -5,11 +5,12 @@ namespace Servebolt\Optimizer\Prefetching;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+use function Servebolt\Optimizer\Helpers\isFrontEnd;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 
 /**
- * Class Prefetching
+ * Class WpPrefetching
  * @package Servebolt\Optimizer\Prefetching
  */
 class WpPrefetching extends Prefetching
@@ -23,14 +24,15 @@ class WpPrefetching extends Prefetching
     public static $defaultMaxNumberOfLines = 100;
 
     /**
-     * Prefetching constructor.
+     * WpPrefetching constructor.
      */
     public function __construct()
     {
         $this->defaultOptionValues();
         if (self::isActive()) {
             $this->registerCronHook();
-            $this->initFeature();
+            add_action('init', [$this, 'initFeature']);
+            add_action('admin_init', __NAMESPACE__ . '\\FilePurge::init');
         }
     }
 
@@ -39,30 +41,48 @@ class WpPrefetching extends Prefetching
      */
     private function registerCronHook(): void
     {
-        if ($this->shouldWriteFilesUsingCron()) {
+        if (self::shouldWriteFilesUsingCron()) {
             add_action('sb_optimizer_prefetching_write_manifest_files', __NAMESPACE__ . '\\ManifestFileWriter::write');
         }
+        add_action('sb_optimizer_prefetching_record_prefetch_items', [$this, 'handleScheduledPrefetchItemsRecording']);
+    }
+
+    /**
+     * Schedule the regeneration of prefetch items using WP Cron.
+     */
+    public static function scheduleRecordPrefetchItems()
+    {
+        wp_schedule_single_event(time(), 'sb_optimizer_prefetching_record_prefetch_items');
+    }
+
+    /**
+     * Handle the regeneration of prefetch items using WP Cron.
+     */
+    public function handleScheduledPrefetchItemsRecording()
+    {
+        self::recordPrefetchItems(); // Load the front page to record prefetch items
     }
 
     /**
      * Initialize feature.
      */
-    private function initFeature(): void
+    public function initFeature(): void
     {
         if ($this->shouldAddHeaders()) {
             add_action('send_headers', [__NAMESPACE__ . '\\ManifestHeaders', 'printManifestHeaders'], PHP_INT_MAX);
         }
-
-        // Handle purge
-        new FilePurge;
-
-        if (!Prefetching::shouldGenerateManifestData()) {
-            return;
+        if (self::shouldGenerateManifestData()) {
+            add_action('template_redirect', [$this, 'recordPrefetchItemsDuringTemplateLoading']);
         }
+    }
 
+    /**
+     * Add filters to record prefetch items, then write them to the model.
+     */
+    public function recordPrefetchItemsDuringTemplateLoading(): void
+    {
         $this->setMaxNumberOfLines();
         $this->setRelativeOrFullUrls();
-
         if ($this->shouldRecordStyles()) {
             add_action('wp_print_styles', [$this, 'getStylesToPrefetch'], 99);
         }
@@ -70,7 +90,7 @@ class WpPrefetching extends Prefetching
             add_action('wp_print_scripts', [$this, 'getScriptsToPrefetch'], 99);
         }
         if ($this->shouldRecordMenuItems()) {
-            add_action('wp_footer', [$this, 'prefetchListMenuItems'], 99);
+            add_action('wp_footer', [$this, 'getPrefetchListMenuItems'], 99);
         }
 
         if ($this->shouldStoreManifestData()) {
@@ -181,24 +201,29 @@ class WpPrefetching extends Prefetching
         setDefaultOption('prefetch_file_menu_switch', '__return_true');
     }
 
+    /**
+     * Whether to add the prefetching headers to the response.
+     *
+     * @return bool
+     */
     private function shouldAddHeaders(): bool
     {
-        return apply_filters('sb_optimizer_prefetching_add_headers', true);
+        return (bool) apply_filters('sb_optimizer_prefetching_add_headers', (isFrontEnd() && !is_user_logged_in()));
     }
 
     private function shouldRecordStyles(): bool
     {
-        return apply_filters('sb_optimizer_prefetching_record_styles', self::fileIsActive('style'));
+        return (bool) apply_filters('sb_optimizer_prefetching_record_styles', self::fileIsActive('style'));
     }
 
     private function shouldRecordScripts(): bool
     {
-        return apply_filters('sb_optimizer_prefetching_record_scripts', self::fileIsActive('script'));
+        return (bool) apply_filters('sb_optimizer_prefetching_record_scripts', self::fileIsActive('script'));
     }
 
     private function shouldRecordMenuItems(): bool
     {
-        return apply_filters('sb_optimizer_prefetching_record_menu_items', self::fileIsActive('menu'));
+        return (bool) apply_filters('sb_optimizer_prefetching_record_menu_items', self::fileIsActive('menu'));
     }
 
     private function shouldStoreManifestData(): bool

@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Admin\Prefetching\Ajax\PrefetchingFileGeneration;
 use Servebolt\Optimizer\Prefetching\ManifestFilesModel;
 use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
+use Servebolt\Optimizer\Prefetching\ManifestDataModel;
 use Servebolt\Optimizer\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
@@ -70,7 +71,9 @@ class PrefetchingControl
     {
         $settings = $this->getSettingsItemsWithValues();
         $defaultMaxNumberOfLines = WpPrefetching::$defaultMaxNumberOfLines;
-        view('accelerated-domains.prefetching.prefetching', compact('settings', 'defaultMaxNumberOfLines'));
+        $prefetchData = ManifestDataModel::get();
+        $prefetchFiles = ManifestFilesModel::get();
+        view('accelerated-domains.prefetching.prefetching', compact('settings', 'defaultMaxNumberOfLines', 'prefetchData', 'prefetchFiles'));
     }
 
     private function initSettings(): void
