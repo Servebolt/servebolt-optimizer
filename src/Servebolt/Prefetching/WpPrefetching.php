@@ -72,14 +72,14 @@ class WpPrefetching extends Prefetching
             add_action('send_headers', [__NAMESPACE__ . '\\ManifestHeaders', 'printManifestHeaders'], PHP_INT_MAX);
         }
         if (Prefetching::shouldGenerateManifestData()) {
-            add_action('template_redirect', [$this, 'recordDuringTemplateLoading']);
+            add_action('template_redirect', [$this, 'recordPrefetchItemsDuringTemplateLoading']);
         }
     }
 
     /**
      * Add filters to record prefetch items, then write them to the model.
      */
-    public function recordDuringTemplateLoading(): void
+    public function recordPrefetchItemsDuringTemplateLoading(): void
     {
         $this->setMaxNumberOfLines();
         $this->setRelativeOrFullUrls();
