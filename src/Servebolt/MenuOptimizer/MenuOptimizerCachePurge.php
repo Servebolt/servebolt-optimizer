@@ -27,21 +27,21 @@ class MenuOptimizerCachePurge
     /**
      * Purge menu cache whenever it is not active at any theme locations anymore.
      *
-     * @param $new
-     * @param $old
+     * @param array $value
+     * @param array $oldValue
      * @return mixed
      */
-    public static function purgeMenuCacheOnDisplayLocationChange($new, $old)
+    public static function purgeMenuCacheOnDisplayLocationChange($value, $oldValue)
     {
-        $activeMenus = array_values($new);
-        $oldMenus = array_values($old);
+        $activeMenus = array_values($value);
+        $oldMenus = array_values($oldValue);
         foreach ($oldMenus as $menuId) {
             // Purge cache if the menu is not set as active at any location
             if (!in_array($menuId, $activeMenus)) {
                 self::purgeMenuCache($menuId);
             }
         }
-        return $new;
+        return $value;
     }
 
     /**

@@ -1240,6 +1240,18 @@ function strContains(string $haystack, string $needle, bool $php8Fallback = true
 }
 
 /**
+ * Check if current request is through Accelerated Domains.
+ *
+ * @return bool
+ */
+function isAcd(): bool
+{
+    $allHeaders = getallheaders();
+    $isAcd = is_array($allHeaders) && arrayGet('x-acd-proxy', $allHeaders) === 'active';
+    return apply_filters('sb_optimizer_is_accelerated_domains', $isAcd);
+}
+
+/**
  * Check if the site is hosted at Servebolt.
  *
  * @return bool

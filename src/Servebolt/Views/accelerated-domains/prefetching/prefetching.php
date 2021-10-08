@@ -9,6 +9,6 @@
     <?php if (is_network_admin()) : ?>
         <?php view('accelerated-domains.prefetching.network-list-view'); ?>
     <?php else : ?>
-        <?php view('accelerated-domains.prefetching.settings-form', compact('settings', 'defaultMaxNumberOfLines')); ?>
+        <?php view('accelerated-domains.prefetching.settings-form', compact('settings', 'defaultMaxNumberOfLines', 'prefetchData', 'prefetchFiles')); ?>
     <?php endif; ?>
 </div>

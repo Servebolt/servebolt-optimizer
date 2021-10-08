@@ -54,7 +54,7 @@ class ManifestFileWriter
     private static $fs = null;
 
     /**
-     * Whether to clear the manifest data from options after writing to files.
+     * Whether to clear the manifest data from options after writing to the manifest files.
      *
      * @var bool
      */

@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Utils;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\isAcd;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\isValidJson;
 
@@ -107,6 +108,9 @@ class EnvironmentConfig
      */
     public function retrieveConfig(): bool
     {
+        if (!isAcd() || !isHostedAtServebolt()) {
+            return false;
+        }
         if (is_null($this->configObject)) {
             if ($this->cacheActive && $cachedConfigObject = $this->retrieveCachedConfigObject()) {
                 $this->setConfigObject($cachedConfigObject);
@@ -160,10 +164,6 @@ class EnvironmentConfig
      */
     public function requestConfigObject()
     {
-        if (!isHostedAtServebolt()) {
-            return false;
-        }
-
         $response = wp_remote_get($this->getEnvironmentConfigUrl(), [
             'timeout' => $this->requestTimeout,
             'sslverify' => false,
