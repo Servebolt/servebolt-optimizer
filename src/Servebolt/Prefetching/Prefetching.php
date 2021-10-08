@@ -299,7 +299,6 @@ class Prefetching
      */
     public static function shouldGenerateManifestData(): bool
     {
-        return true;
         if (
             apply_filters(
                 'sb_optimizer_prefetching_should_abort_generate_manifest_data_if_logged_in',
@@ -311,6 +310,6 @@ class Prefetching
         if (is_null(self::$shouldGenerateManifestData)) {
             self::$shouldGenerateManifestData = get_transient(self::$transientKey) === false;
         }
-        return apply_filters('sb_optimizer_prefetching_should_generate_manifest_data', self::$shouldGenerateManifestData);
+        return (bool) apply_filters('sb_optimizer_prefetching_should_generate_manifest_data', self::$shouldGenerateManifestData);
     }
 }
