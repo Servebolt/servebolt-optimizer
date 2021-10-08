@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\AcceleratedDomains\ImageResize;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Utils\EnvironmentConfig;
+//use Servebolt\Optimizer\Utils\EnvironmentConfig;
 
 /**
  * Class FeatureAccess

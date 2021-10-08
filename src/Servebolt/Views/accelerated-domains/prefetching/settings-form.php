@@ -17,6 +17,11 @@
                         <input name="<?php echo getOptionName('prefetch_switch'); ?>" class="options-field-switch" type="checkbox" id="prefetch_switch" value="1" <?php checked($settings['prefetch_switch']); ?>>
                         <?php _e('Enable', 'servebolt-wp'); ?>
                     </label>
+                    <p>
+                        <?php _e('This feature is using WP Cron to write the prefetch manifest files to the disk, so it is required that you have a working WP Cron-setup.', 'servebolt-wp'); ?><br>
+                        <?php printf(__('Check out %sSuggested optimizations%s for more information about this.', 'servebolt-wp'), '<a href="' . admin_url('admin.php?page=servebolt-performance-optimizer') . '">', '</a>'); ?>
+                    </p>
+                    <p></p>
                 </fieldset>
             </td>
         </tr>
@@ -62,6 +67,26 @@
                     <label for="<?php echo getOptionName('prefetch_max_number_of_lines'); ?>">
                         <p><?php _e('Use this field to limit the number of lines in the prefetch files. This can be useful for example if the website has a large amount of menu items.', 'servebolt-wp'); ?></p>
                     </label>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><?php _e('Current prefetch files', 'servebolt-wp'); ?></th>
+                <td>
+                    <?php if (is_array($prefetchFiles) && !empty($prefetchFiles)): ?>
+                    <ul>
+                        <?php foreach ($prefetchFiles as $prefetchFile): ?>
+                        <li><a href="<?php echo esc_attr($prefetchFile); ?>" target="_blank"><?php echo basename($prefetchFile); ?></a></li>
+                        <?php endforeach; ?>
+                    </ul>
+                    <?php else: ?>
+                    <?php _e('No manifest files', 'servebolt-wp'); ?>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><?php _e('Current prefetch data preview', 'servebolt-wp'); ?></th>
+                <td>
+                    <textarea class="large-text code" rows="10"><?php echo json_encode($prefetchData, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES) ?></textarea>
                 </td>
             </tr>
         </tbody>

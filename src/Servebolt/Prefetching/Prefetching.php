@@ -73,7 +73,7 @@ class Prefetching
     /**
      * Add menu item URLs to prefetch list.
      */
-    function prefetchListMenuItems(): void
+    function getPrefetchListMenuItems(): void
     {
         if ($menus = wp_get_nav_menus()) {
             $manifestKey = 'menu';
@@ -219,15 +219,25 @@ class Prefetching
         // Set the transient and expire it in a month
         set_transient(self::$transientKey, time(), $this->transientExpiration);
 
-        // Write the data to option (so that it can be written to files at a later point)
+        // Write the data to option (so that it can be written to the files at a later point)
         ManifestDataModel::store($this->manifestData);
 
-        // Write content to files
-        if (self::shouldWriteFilesUsingCron()) {
+        // Write content to files (only if action is not triggered by cron)
+        if (self::shouldWriteFilesUsingCron() && !self::isCron()) {
             wp_schedule_single_event(time(), 'sb_optimizer_prefetching_write_manifest_files');
         } else {
             ManifestFileWriter::write();
         }
+    }
+
+    /**
+     * Check whether the request is triggered by the cron.
+     *
+     * @return bool
+     */
+    private static function isCron(): bool
+    {
+        return array_key_exists('triggeredByCron', $_GET);
     }
 
     /**
@@ -272,7 +282,7 @@ class Prefetching
      */
     public static function loadFrontPage(): void
     {
-        $path = '?cachebuster=' . time();
+        $path = '?cachebuster=' . time() . '&triggeredByCron';
         $frontPageUrl = apply_filters('sb_optimizer_prefetching_site_url', get_site_url(null, $path), $path);
         if ($frontPageUrl) {
             (new WP_Http)->request($frontPageUrl, [
@@ -289,6 +299,15 @@ class Prefetching
      */
     public static function shouldGenerateManifestData(): bool
     {
+        return true;
+        if (
+            apply_filters(
+                'sb_optimizer_prefetching_should_abort_generate_manifest_data_if_logged_in',
+                is_user_logged_in()
+            )
+        ) {
+            return false; // We should not generate manifest file data whenever a user is logged in
+        }
         if (is_null(self::$shouldGenerateManifestData)) {
             self::$shouldGenerateManifestData = get_transient(self::$transientKey) === false;
         }
