@@ -60,7 +60,7 @@ class WpPrefetching extends Prefetching
      */
     public function handleScheduledPrefetchItemsRecording()
     {
-        self::recordPrefetchItems(true); // Load the front page to record prefetch items
+        self::recordPrefetchItems(); // Load the front page to record prefetch items
     }
 
     /**
