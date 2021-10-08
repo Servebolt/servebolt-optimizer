@@ -119,7 +119,10 @@ trait SharedMethods
      */
     private static function getMenuMarkupCacheExpirationTime(): int
     {
-        return apply_filters('sb_optimizer_menu_optimizer_menu_markup_expiration_time', self::$menuMarkupCacheExpirationTime);
+        return apply_filters(
+            'sb_optimizer_menu_optimizer_menu_markup_expiration_time',
+            self::$menuMarkupCacheExpirationTime
+        );
     }
 
     /**
@@ -129,7 +132,10 @@ trait SharedMethods
      */
     private static function getMenuSignatureIndexCacheExpirationTime(): int
     {
-        return apply_filters('sb_optimizer_menu_optimizer_menu_signature_index_expiration_time', self::$menuSignatureIndexCacheExpirationTime);
+        return apply_filters(
+            'sb_optimizer_menu_optimizer_menu_signature_index_expiration_time',
+            self::$menuSignatureIndexCacheExpirationTime
+        );
     }
 
     /**
@@ -157,17 +163,21 @@ trait SharedMethods
     /**
      * Get menu signature based on arguments with a filter to allow 3rd party developers to determine the menu signature and alter the cache behaviour.
      *
-     * @param object $args
      * @return string
      */
-    private static function getMenuSignatureFromArgs(object $args): string
+    private static function getMenuSignatureFromArgs(): string
     {
         global $wp_query;
-        $signatureBase = md5(wp_json_encode($args) . $wp_query->query_vars_hash);
+        $signatureBase = md5(wp_json_encode(self::$args) . $wp_query->query_vars_hash);
+
+        /**
+         * @param string $signatureBase The base of the menu signature.
+         * @param object $args The arguments used to create menu signature.
+         */
         return apply_filters(
             'sb_optimizer_menu_optimizer_menu_signature',
             $signatureBase,
-            $args
+            self::$args
         );
     }
 }
