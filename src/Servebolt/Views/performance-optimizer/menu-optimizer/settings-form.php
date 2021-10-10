@@ -37,9 +37,21 @@
                 <th scope="row"><?php _e('Automatic cache purging when menu is updated?', 'servebolt-wp'); ?></th>
                 <td>
                     <fieldset>
-                        <legend class="screen-reader-text"><span><?php _e('Automatic cache purging when menu is updated??', 'servebolt-wp'); ?></span></legend>
-                        <label for="menu_cache_auto_cache_purge">
-                            <input name="<?php echo getOptionName('menu_cache_auto_cache_purge'); ?>" type="checkbox" id="menu_cache_auto_cache_purge" value="1" <?php checked($settings['menu_cache_auto_cache_purge']); ?>>
+                        <legend class="screen-reader-text"><span><?php _e('Automatic cache purging when menu is updated?', 'servebolt-wp'); ?></span></legend>
+                        <label for="menu_cache_auto_cache_purge_on_menu_update">
+                            <input name="<?php echo getOptionName('menu_cache_auto_cache_purge_on_menu_update'); ?>" type="checkbox" id="menu_cache_auto_cache_purge_on_menu_update" value="1" <?php checked($settings['menu_cache_auto_cache_purge_on_menu_update']); ?>>
+                            <?php _e('Enable', 'servebolt-wp'); ?>
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row"><?php _e('Automatic cache purging when front page settings is updated?', 'servebolt-wp'); ?></th>
+                <td>
+                    <fieldset>
+                        <legend class="screen-reader-text"><span><?php _e('Automatic cache purging when front page settings is updated?', 'servebolt-wp'); ?></span></legend>
+                        <label for="menu_cache_auto_cache_purge_on_front_page_settings_update">
+                            <input name="<?php echo getOptionName('menu_cache_auto_cache_purge_on_front_page_settings_update'); ?>" type="checkbox" id="menu_cache_auto_cache_purge_on_front_page_settings_update" value="1" <?php checked($settings['menu_cache_auto_cache_purge_on_front_page_settings_update']); ?>>
                             <?php _e('Enable', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
@@ -50,6 +62,7 @@
 
     <p class="submit">
         <?php submit_button(null, 'primary', 'form-submit', false); ?>
+        <button type="button" class="button-secondary" id="sb-menu-optimizer-purge-all-cache"><?php _e('Purge all menu cache', 'servebolt-wp'); ?></button>
     </p>
 
 </form>

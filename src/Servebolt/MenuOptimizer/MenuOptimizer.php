@@ -57,14 +57,14 @@ class MenuOptimizer
      */
     public static function preWpNavMenu(?string $output, object $args): ?string
     {
+        self::$args = clone $args;
         if (
             self::resolveMenuObject($args)
             && self::getMenuSignatureIndex(self::$menuObject->term_id)
         ) {
-            self::$args = clone $args;
             $menuSignature = self::getMenuSignatureFromArgs();
             if ($cachedOutput = self::getMenuCache($menuSignature)) {
-                return self::returnCachedOutput($cachedOutput);
+                return self::addCacheIndicatorOutput($cachedOutput);
             }
         }
         return $output;
@@ -83,6 +83,7 @@ class MenuOptimizer
             $menuSignature = self::getMenuSignatureFromArgs();
             self::setMenuCache($navMenu, $menuSignature);
             self::addMenuSignatureToIndex($menuSignature, self::$menuObject->term_id);
+            return self::addCacheIndicatorOutput($navMenu, self::menuJustCacheMessage());
         }
         return $navMenu;
     }
@@ -98,18 +99,32 @@ class MenuOptimizer
     }
 
     /**
+     * The message that flags the menu as cached or not.
+     *
+     * @return string
+     */
+    public static function menuJustCacheMessage(): string
+    {
+        return 'This menu was just cached by Servebolt Optimizer';
+    }
+
+    /**
      * Return the cached output adding a cache "hit" indicator.
      *
-     * @param $output
+     * @param string $output
+     * @param string|null $text
      * @return mixed|string
      */
-    private static function returnCachedOutput($output)
+    private static function addCacheIndicatorOutput($output, $text = null)
     {
+        if (!$text) {
+            $text = self::menuCacheMessage();
+        }
         if (apply_filters('sb_optimizer_menu_optimizer_print_cached_comment', true)) {
             if (isDevDebug()) {
-                $output .= '<h3>' . self::menuCacheMessage() . '</h3>' . PHP_EOL; // For debugging purposes
+                $output .= '<h3>' . $text . '</h3>' . PHP_EOL; // For debugging purposes
             } else {
-                $output .= '<!-- ' . self::menuCacheMessage() . ' -->' . PHP_EOL;
+                $output .= '<!-- ' . $text . ' -->' . PHP_EOL;
             }
         }
         return $output;
@@ -160,5 +175,14 @@ class MenuOptimizer
         }
 
         return false;
+    }
+
+    /**
+     * Purge menu optimizer cache.
+     */
+    public static function purgeCache(): void
+    {
+        global $wpdb;
+        $wpdb->query($wpdb->prepare('DELETE FROM ' . $wpdb->options . ' WHERE option_name LIKE %s', '_transient_sb-menu-cache-%'));
     }
 }

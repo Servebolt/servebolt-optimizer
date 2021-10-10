@@ -35,7 +35,7 @@ window.ensureAcdImageResizeDisabled = function () {
    fetch(sb_ajax_object.ajaxurl, {
        method: 'POST',
        body: data
-    });
+   });
 };
 
 /**

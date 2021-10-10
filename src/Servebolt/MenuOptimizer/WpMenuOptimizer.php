@@ -46,7 +46,8 @@ class WpMenuOptimizer
      */
     private function defaultOptionValues(): void
     {
-        setDefaultOption('menu_cache_auto_cache_purge', '__return_true');
+        setDefaultOption('menu_cache_auto_cache_purge_on_menu_update', '__return_true');
+        setDefaultOption('menu_cache_auto_cache_purge_on_front_page_settings_update', '__return_true');
     }
 
     /**
@@ -79,6 +80,17 @@ class WpMenuOptimizer
      */
     public static function automaticCachePurgeOnMenuChange(?int $blogId = null): bool
     {
-        return checkboxIsChecked(smartGetOption($blogId, 'menu_cache_auto_cache_purge'));
+        return checkboxIsChecked(smartGetOption($blogId, 'menu_cache_auto_cache_purge_on_menu_update'));
+    }
+
+    /**
+     * Check if we should automatically purge cache whenever front page settings is updated.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function automaticCachePurgeOnFrontPageSettingsUpdate(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(smartGetOption($blogId, 'menu_cache_auto_cache_purge_on_front_page_settings_update'));
     }
 }

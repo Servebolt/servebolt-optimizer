@@ -619,6 +619,8 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'menu_cache_switch',
         'menu_cache_disabled_for_authenticated_switch',
         'menu_cache_auto_cache_purge',
+        'menu_cache_auto_cache_purge_on_menu_update',
+        'menu_cache_auto_cache_purge_on_front_page_settings_update',
 
         // HTML Cache-related options (formerly FPC / Full Page Cache)
         'fpc_switch',
@@ -1737,15 +1739,24 @@ function clearOptionsOverride(string $optionName, $closureOrFunctionName = null)
  *
  * @param string|array $optionNameOrNames
  * @param string|callable $closureOrAction
+ * @param bool $serveboltOption
+ * @param bool $strictComparison
  */
-function listenForOptionChange($optionNameOrNames, $closureOrAction): void
+function listenForOptionChange($optionNameOrNames, $closureOrAction, bool $serveboltOption = true, bool $strictComparison = true): void
 {
     if (!is_array($optionNameOrNames)) {
         $optionNameOrNames = [$optionNameOrNames];
     }
     foreach ($optionNameOrNames as $optionName) {
-        add_filter('pre_update_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
-            $didChange = $newValue !== $oldValue;
+        if ($serveboltOption) {
+            $optionName = getOptionName($optionName);
+        }
+        add_filter('pre_update_option_' . $optionName, function ($newValue, $oldValue) use ($closureOrAction, $optionName, $strictComparison) {
+            if ($strictComparison) {
+                $didChange = $newValue !== $oldValue;
+            } else {
+                $didChange = $newValue != $oldValue;
+            }
             if ($didChange) {
                 if (is_callable($closureOrAction)) {
                     $closureOrAction($newValue, $oldValue, $optionName);

@@ -11,14 +11,14 @@ use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 use function Servebolt\Optimizer\Helpers\isDevDebug;
 
 /**
- * Class OptimizeActions
+ * Class DatabaseOptimizationActions
  * @package Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax
  */
-class OptimizeActions extends SharedAjaxMethods
+class DatabaseOptimizationActions extends SharedAjaxMethods
 {
 
     /**
-     * OptimizeActions constructor.
+     * DatabaseOptimizationActions constructor.
      */
     public function __construct()
     {

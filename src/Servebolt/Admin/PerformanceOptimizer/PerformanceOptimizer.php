@@ -41,12 +41,9 @@ class PerformanceOptimizer
      */
     public function render()
     {
-
         view('performance-optimizer.performance-optimizer', [
             'wpCronDisabled' => wpCronDisabled(),
             'unixCronSetup' => isHostedAtServebolt() && WpCronControl::cronIsSetUp(),
         ]);
-
-
     }
 }

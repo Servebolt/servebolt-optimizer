@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Admin\PerformanceOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax\MenuOptimizerActions;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
@@ -31,8 +32,37 @@ class MenuOptimizerControl
      */
     public function __construct()
     {
+        $this->initAjax();
+        $this->initAssets();
         $this->initSettings();
         $this->rewriteHighlightedMenuItem();
+    }
+
+    /**
+     * Init assets.
+     */
+    private function initAssets(): void
+    {
+        add_action('admin_enqueue_scripts', [$this, 'enqueueScripts']);
+    }
+
+    /**
+     * Plugin scripts.
+     */
+    public function enqueueScripts(): void
+    {
+        if (!isScreen('admin_page_servebolt-menu-optimizer')) {
+            return;
+        }
+        wp_enqueue_script( 'servebolt-optimizer-menu-optimizer-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/menu-optimizer.js', ['servebolt-optimizer-scripts'], getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/menu-optimizer.js'), true );
+    }
+
+    /**
+     * Add AJAX handling.
+     */
+    private function initAjax(): void
+    {
+        new MenuOptimizerActions;
     }
 
     /**
@@ -94,7 +124,8 @@ class MenuOptimizerControl
         return [
             'menu_cache_switch',
             'menu_cache_disabled_for_authenticated_switch',
-            'menu_cache_auto_cache_purge',
+            'menu_cache_auto_cache_purge_on_menu_update',
+            'menu_cache_auto_cache_purge_on_front_page_settings_update',
         ];
     }
 }

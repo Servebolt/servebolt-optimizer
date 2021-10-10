@@ -163,9 +163,9 @@ trait SharedMethods
     /**
      * Generate a seed from URI / query string to be used in the menu signature.
      *
-     * @return string
+     * @return null|string
      */
-    private static function querySeed(): string
+    private static function querySeed(): ?string
     {
         if (apply_filters('sb_optimizer_menu_optimizer_use_query_vars_hash_for_query_seed', false)) {
             global $wp_query;
@@ -202,6 +202,7 @@ trait SharedMethods
         ) {
             $signatureBase .= 'search-'; // Add a prefix for the menu signatures during search
         }
+
         $signatureBase .= md5(wp_json_encode(self::$args) . self::querySeed());
 
         /**
