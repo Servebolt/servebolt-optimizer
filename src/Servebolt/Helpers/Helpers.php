@@ -1748,10 +1748,8 @@ function listenForOptionChange($optionNameOrNames, $closureOrAction, bool $serve
         $optionNameOrNames = [$optionNameOrNames];
     }
     foreach ($optionNameOrNames as $optionName) {
-        if ($serveboltOption) {
-            $optionName = getOptionName($optionName);
-        }
-        add_filter('pre_update_option_' . $optionName, function ($newValue, $oldValue) use ($closureOrAction, $optionName, $strictComparison) {
+        $hookOptionName = $serveboltOption ? getOptionName($optionName) : $optionName;
+        add_filter('pre_update_option_' . $hookOptionName, function ($newValue, $oldValue) use ($closureOrAction, $optionName, $strictComparison) {
             if ($strictComparison) {
                 $didChange = $newValue !== $oldValue;
             } else {
