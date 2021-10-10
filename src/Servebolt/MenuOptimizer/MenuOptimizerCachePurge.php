@@ -58,7 +58,10 @@ class MenuOptimizerCachePurge
      */
     public static function shouldPurgeOnFrontPageChange(): bool
     {
-        return (bool) apply_filters('sb_optimizer_menu_optimizer_automatic_purge_on_front_page_enabled', WpMenuOptimizer::automaticCachePurgeOnFrontPageSettingsUpdate());
+        return (bool) apply_filters(
+            'sb_optimizer_menu_optimizer_automatic_purge_on_front_page_enabled',
+            WpMenuOptimizer::automaticCachePurgeOnFrontPageSettingsUpdate()
+        );
     }
 
     /**
@@ -88,7 +91,10 @@ class MenuOptimizerCachePurge
      */
     private static function shouldAutoPurgeCachedMenus()
     {
-        return apply_filters('sb_optimizer_menu_optimizer_automatic_purge_enabled', WpMenuOptimizer::automaticCachePurgeOnMenuChange());
+        return apply_filters(
+            'sb_optimizer_menu_optimizer_automatic_purge_enabled',
+            WpMenuOptimizer::automaticCachePurgeOnMenuChange()
+        );
     }
 
     /**
