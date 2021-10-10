@@ -8,6 +8,7 @@ use Servebolt\Optimizer\CronControl\Scripts\WpCronMultisiteScript\WpCronMultisit
 use Servebolt\Optimizer\CronControl\WpCronControl;
 use Servebolt\Optimizer\CronControl\WpUnixCronControl;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\wpCronDisabled;
 use function Servebolt\Optimizer\Helpers\view;
 
@@ -40,12 +41,9 @@ class PerformanceOptimizer
      */
     public function render()
     {
-
         view('performance-optimizer.performance-optimizer', [
             'wpCronDisabled' => wpCronDisabled(),
-            'unixCronSetup' => WpCronControl::cronIsSetUp(),
+            'unixCronSetup' => isHostedAtServebolt() && WpCronControl::cronIsSetUp(),
         ]);
-
-
     }
 }

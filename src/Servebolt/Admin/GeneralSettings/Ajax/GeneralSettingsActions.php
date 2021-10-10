@@ -17,7 +17,7 @@ class GeneralSettingsActions extends SharedAjaxMethods
 {
 
     /**
-     * OptimizeActions constructor.
+     * GeneralSettingsActions constructor.
      */
     public function __construct()
     {

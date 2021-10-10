@@ -119,7 +119,10 @@ trait SharedMethods
      */
     private static function getMenuMarkupCacheExpirationTime(): int
     {
-        return apply_filters('sb_optimizer_menu_optimizer_menu_markup_expiration_time', self::$menuMarkupCacheExpirationTime);
+        return apply_filters(
+            'sb_optimizer_menu_optimizer_menu_markup_expiration_time',
+            self::$menuMarkupCacheExpirationTime
+        );
     }
 
     /**
@@ -129,7 +132,10 @@ trait SharedMethods
      */
     private static function getMenuSignatureIndexCacheExpirationTime(): int
     {
-        return apply_filters('sb_optimizer_menu_optimizer_menu_signature_index_expiration_time', self::$menuSignatureIndexCacheExpirationTime);
+        return apply_filters(
+            'sb_optimizer_menu_optimizer_menu_signature_index_expiration_time',
+            self::$menuSignatureIndexCacheExpirationTime
+        );
     }
 
     /**
@@ -155,19 +161,58 @@ trait SharedMethods
     }
 
     /**
+     * Generate a seed from URI / query string to be used in the menu signature.
+     *
+     * @return null|string
+     */
+    private static function querySeed(): ?string
+    {
+        if (apply_filters('sb_optimizer_menu_optimizer_use_query_vars_hash_for_query_seed', false)) {
+            global $wp_query;
+            return $wp_query->query_vars_hash;
+        }
+        global $wp;
+        $string = $wp->request;
+        $permalinkStructure = get_option('permalink_structure');
+        if (
+            !$permalinkStructure
+            || apply_filters('sb_optimizer_menu_optimizer_add_query_string_to_query_seed', false, $permalinkStructure)
+        ) {
+            $string .= '?' . $wp->query_string;
+        }
+        return $string;
+    }
+
+    /**
      * Get menu signature based on arguments with a filter to allow 3rd party developers to determine the menu signature and alter the cache behaviour.
      *
-     * @param object $args
      * @return string
      */
-    private static function getMenuSignatureFromArgs(object $args): string
+    private static function getMenuSignatureFromArgs(): string
     {
-        global $wp_query;
-        $signatureBase = md5(wp_json_encode($args) . $wp_query->query_vars_hash);
+        $signatureBase = '';
+        if (
+            is_404()
+            && apply_filters('sb_optimizer_menu_optimizer_simplify_signature_for_404', true)
+        ) {
+            $signatureBase .= '404-not-found-'; // Add a prefix for the menu signatures during 404
+        } elseif (
+            is_search()
+            && apply_filters('sb_optimizer_menu_optimizer_simplify_signature_for_search', true)
+        ) {
+            $signatureBase .= 'search-'; // Add a prefix for the menu signatures during search
+        }
+
+        $signatureBase .= md5(wp_json_encode(self::$args) . self::querySeed());
+
+        /**
+         * @param string $signatureBase The base of the menu signature.
+         * @param object $args The arguments used to create menu signature.
+         */
         return apply_filters(
             'sb_optimizer_menu_optimizer_menu_signature',
             $signatureBase,
-            $args
+            self::$args
         );
     }
 }

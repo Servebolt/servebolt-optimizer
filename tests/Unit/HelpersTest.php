@@ -794,6 +794,31 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertEquals(3, $callCount);
     }
 
+    public function testThatWeCanDetectOptionValueChangeUsingFunctionClosureAndNonServeboltOptions()
+    {
+        $key = 'some-string-value';
+        $callCount = 0;
+        listenForOptionChange($key, function($newValue, $oldValue, $optionName) use (&$callCount) {
+            $callCount++;
+        }, false);
+        update_option($key, 12);
+        $this->assertEquals(1, $callCount);
+    }
+
+    public function testThatWeCanDetectOptionValueChangeUsingFunctionClosureAndNonStrictComparison()
+    {
+        $key = 'some-string-value';
+        $callCount = 0;
+        listenForOptionChange($key, function($newValue, $oldValue, $optionName) use (&$callCount) {
+            $callCount++;
+        }, true, false);
+        updateOption($key, 12);
+        updateOption($key, '12');
+        updateOption($key, '12');
+        updateOption($key, 12);
+        $this->assertEquals(1, $callCount);
+    }
+
     public function testThatWeCanDetectOptionValueChangeUsingActions()
     {
         $key = 'some-string-value-2';

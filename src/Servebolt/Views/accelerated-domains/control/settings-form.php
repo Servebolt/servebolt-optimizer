@@ -38,7 +38,7 @@
 
     <p class="submit">
         <?php submit_button(null, 'primary', 'form-submit', false); ?>
-        <button type="button" class="button-secondary" id="sb-acd-purge-all-cache">Purge all cache</button>
+        <button type="button" class="button-secondary" id="sb-acd-purge-all-cache"><?php _e('Purge all cache', 'servebolt-wp'); ?></button>
     </p>
 
 </form>

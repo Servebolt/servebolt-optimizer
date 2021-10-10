@@ -15,6 +15,16 @@ class MenuOptimizer
     use SharedMethods;
 
     /**
+     * @var null|\WP_Term Property to hold menu term object.
+     */
+    private static $menuObject;
+
+    /**
+     * @var Object The WP_Nav menu arguments object.
+     */
+    private static $args;
+
+    /**
      * MenuOptimizer init.
      */
     public static function init()
@@ -39,7 +49,7 @@ class MenuOptimizer
     }
 
     /**
-     * Hook in early in the menu loading using the 'pre_wp_nav_menu'-filter and see if we got a cached version.
+     * Hook in early in the menu loading using the "pre_wp_nav_menu"-filter and see if we got a cached version.
      *
      * @param string|null $output
      * @param object $args
@@ -47,21 +57,21 @@ class MenuOptimizer
      */
     public static function preWpNavMenu(?string $output, object $args): ?string
     {
-        self::ensureMenuObjectIsResolved($args);
+        self::$args = clone $args;
         if (
-            isset($args->menu->term_id)
-            && self::getMenuSignatureIndex($args->menu->term_id)
+            self::resolveMenuObject($args)
+            && self::getMenuSignatureIndex(self::$menuObject->term_id)
         ) {
-            $menuSignature = self::getMenuSignatureFromArgs($args);
+            $menuSignature = self::getMenuSignatureFromArgs();
             if ($cachedOutput = self::getMenuCache($menuSignature)) {
-                return self::returnCachedOutput($cachedOutput);
+                return self::addCacheIndicatorOutput($cachedOutput);
             }
         }
         return $output;
     }
 
     /**
-     * Hook into the 'wp_nav_menu'-filter and maybe set cache.
+     * Hook into the "wp_nav_menu"-filter and maybe set cache.
      *
      * @param $navMenu
      * @param $args
@@ -69,10 +79,11 @@ class MenuOptimizer
      */
     public static function wpNavMenu($navMenu, $args)
     {
-        if (isset($args->menu->term_id)) {
-            $menuSignature = self::getMenuSignatureFromArgs($args);
+        if (self::$menuObject) {
+            $menuSignature = self::getMenuSignatureFromArgs();
             self::setMenuCache($navMenu, $menuSignature);
-            self::addMenuSignatureToIndex($menuSignature, $args->menu->term_id);
+            self::addMenuSignatureToIndex($menuSignature, self::$menuObject->term_id);
+            return self::addCacheIndicatorOutput($navMenu, self::menuJustCacheMessage());
         }
         return $navMenu;
     }
@@ -88,18 +99,32 @@ class MenuOptimizer
     }
 
     /**
+     * The message that flags the menu as cached or not.
+     *
+     * @return string
+     */
+    public static function menuJustCacheMessage(): string
+    {
+        return 'This menu was just cached by Servebolt Optimizer';
+    }
+
+    /**
      * Return the cached output adding a cache "hit" indicator.
      *
-     * @param $output
+     * @param string $output
+     * @param string|null $text
      * @return mixed|string
      */
-    private static function returnCachedOutput($output)
+    private static function addCacheIndicatorOutput($output, $text = null)
     {
+        if (!$text) {
+            $text = self::menuCacheMessage();
+        }
         if (apply_filters('sb_optimizer_menu_optimizer_print_cached_comment', true)) {
             if (isDevDebug()) {
-                $output .= '<h3>' . self::menuCacheMessage() . '</h3>' . PHP_EOL; // For debugging purposes
+                $output .= '<h3>' . $text . '</h3>' . PHP_EOL; // For debugging purposes
             } else {
-                $output .= '<!-- ' . self::menuCacheMessage() . ' -->' . PHP_EOL;
+                $output .= '<!-- ' . $text . ' -->' . PHP_EOL;
             }
         }
         return $output;
@@ -109,10 +134,15 @@ class MenuOptimizer
      * Ensure that we have the menu object in the argument object.
      *
      * @param $args
+     * @return bool
      */
-    private static function ensureMenuObjectIsResolved(&$args): void
+    private static function resolveMenuObject($args): bool
     {
-        /* This section is from the function "wp_nav_menu" in the WP core files. It is here to find a menu when none is provided. */
+        // Reset menu object
+        self::$menuObject = null;
+
+        // This section is from the function "wp_nav_menu" in the WP core files. It is here to find a menu when none is provided.
+        // wp-includes/nav-menu-template.php:125 (as of WP v5.8.1)
 
         // @codingStandardsIgnoreStart
 
@@ -137,15 +167,22 @@ class MenuOptimizer
             }
         }
 
-        if ( empty( $args->menu ) ) {
-            $args->menu = $menu;
-        }
-
         // @codingStandardsIgnoreEnd
 
-        // Fallback to catch faulty wp_nav_menu-argument filtering (originating from plugin Astra Pro). Jira ticket WPSO-400.
-        if (is_numeric($args->menu)) {
-            $args->menu = $menu;
+        if ($menu && isset($menu->term_id)) {
+            self::$menuObject = $menu; // We had to resolve the menu ourselves (prior to WP doing so)
+            return true;
         }
+
+        return false;
+    }
+
+    /**
+     * Purge menu optimizer cache.
+     */
+    public static function purgeCache(): void
+    {
+        global $wpdb;
+        $wpdb->query($wpdb->prepare('DELETE FROM ' . $wpdb->options . ' WHERE option_name LIKE %s', '_transient_sb-menu-cache-%'));
     }
 }

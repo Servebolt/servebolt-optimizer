@@ -4,6 +4,8 @@ namespace Servebolt\Optimizer\MenuOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use function Servebolt\Optimizer\Helpers\listenForOptionChange;
+
 /**
  * Class MenuOptimizerCachePurge
  * @package Servebolt\Optimizer\MenuOptimizer
@@ -13,15 +15,53 @@ class MenuOptimizerCachePurge
     use SharedMethods;
 
     /**
+     * @var bool State to prevent cache to be purged multiple times during a request.
+     */
+    private static $hasPurgedCache = false;
+
+    /**
      * MenuOptimizerCachePurge init.
      */
     public static function init(): void
     {
+        if (self::shouldPurgeOnFrontPageChange()) {
+            listenForOptionChange('show_on_front', __CLASS__ . '::purgeCacheOnFrontPageChange', false);
+            listenForOptionChange('page_on_front', __CLASS__ . '::purgeCacheOnFrontPageChange', false, false);
+        }
         if (self::shouldAutoPurgeCachedMenus()) {
             add_action('wp_update_nav_menu', __CLASS__ . '::purgeMenuCache', 10, 1);
             add_action('wp_delete_nav_menu', __CLASS__ . '::purgeMenuCache', 10, 1);
             add_filter('pre_set_theme_mod_nav_menu_locations', __CLASS__ . '::purgeMenuCacheOnDisplayLocationChange', 10, 2);
         }
+    }
+
+    /**
+     * Purge cache whenever the front page is changed.
+     *
+     * @param $newValue
+     * @param $oldValue
+     * @param $option
+     */
+    public static function purgeCacheOnFrontPageChange($newValue, $oldValue, $option): void
+    {
+        if (!self::$hasPurgedCache) {
+            MenuOptimizer::purgeCache();
+            self::$hasPurgedCache = true;
+        }
+
+    }
+
+    /**
+     * Whether to purge cache automatically whenever the front page changes.
+     *
+     * @return bool
+     */
+    public static function shouldPurgeOnFrontPageChange(): bool
+    {
+        return (bool) apply_filters(
+            'sb_optimizer_menu_optimizer_automatic_purge_on_front_page_enabled',
+            WpMenuOptimizer::automaticCachePurgeOnFrontPageSettingsUpdate()
+        );
     }
 
     /**
@@ -51,7 +91,10 @@ class MenuOptimizerCachePurge
      */
     private static function shouldAutoPurgeCachedMenus()
     {
-        return apply_filters('sb_optimizer_menu_optimizer_automatic_purge_enabled', true);
+        return apply_filters(
+            'sb_optimizer_menu_optimizer_automatic_purge_enabled',
+            WpMenuOptimizer::automaticCachePurgeOnMenuChange()
+        );
     }
 
     /**
