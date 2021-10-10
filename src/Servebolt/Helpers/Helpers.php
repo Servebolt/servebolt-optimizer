@@ -618,7 +618,7 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         // Menu Optimizer (formerly Menu cache) feature
         'menu_cache_switch',
         'menu_cache_disabled_for_authenticated_switch',
-        'menu_cache_auto_cache_purge',
+        'menu_cache_auto_cache_purge', // Legacy
         'menu_cache_auto_cache_purge_on_menu_update',
         'menu_cache_auto_cache_purge_on_front_page_settings_update',
 
