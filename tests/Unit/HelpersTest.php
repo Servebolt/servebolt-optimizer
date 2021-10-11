@@ -32,6 +32,7 @@ use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
 use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
+use function Servebolt\Optimizer\Helpers\isLogin;
 use function Servebolt\Optimizer\Helpers\isValidJson;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\javascriptRedirect;
@@ -961,5 +962,10 @@ class HelpersTest extends ServeboltWPUnitTestCase
     {
         $object = (object) ['some' => (object)['array', 'and', 'something', 'more']];
         $this->assertEquals(['some' => ['array', 'and', 'something', 'more']], convertObjectToArray($object));
+    }
+
+    public function testThatLoginContextIsFalse()
+    {
+        $this->assertFalse(isLogin());
     }
 }
