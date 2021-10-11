@@ -705,6 +705,22 @@ function isFrontEnd(): bool
 }
 
 /**
+ * Check whether we're in login context.
+ *
+ * @return bool
+ */
+function isLogin(): bool
+{
+    if (
+        strEndsWith(arrayGet('SCRIPT_NAME', $_SERVER), 'wp-login.php')
+        || strEndsWith(arrayGet('PHP_SELF', $_SERVER), 'wp-login.php')
+    ) {
+        return true;
+    }
+    return false;
+}
+
+/**
  * Check if we are running Unit tests.
  *
  * @return bool

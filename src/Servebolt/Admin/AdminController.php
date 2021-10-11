@@ -7,7 +7,6 @@ if (!defined('ABSPATH')) exit;
 use Servebolt\Optimizer\Admin\AcceleratedDomainsControl\AcceleratedDomainsControl;
 use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\AcceleratedDomainsImageResizeControl;
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
-use Servebolt\Optimizer\Admin\ClearSiteDataHeader\ClearSiteDataHeader;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\DatabaseOptimizations;
 use Servebolt\Optimizer\Admin\Prefetching\PrefetchingControl;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\MenuOptimizerControl;
@@ -19,7 +18,6 @@ use Servebolt\Optimizer\Admin\PerformanceOptimizer\PerformanceOptimizer;
 use Servebolt\Optimizer\Admin\LogViewer\LogViewer;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\PerformanceOptimizerAdvanced;
 use Servebolt\Optimizer\Traits\Singleton;
-use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\javascriptRedirect;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
@@ -39,7 +37,8 @@ class AdminController
      */
     public function __construct()
     {
-        add_action('init', [$this, 'init']);
+        add_action('init', [$this, 'initAuthenticated']);
+        add_action('init', [$this, 'initUnauthenticated']);
         add_action('admin_init', [$this, 'adminInit']);
     }
 
@@ -49,13 +48,22 @@ class AdminController
     public function adminInit()
     {
         $this->initPluginSettingsLink();
-        new ClearSiteDataHeader;
     }
 
     /**
-     * Init.
+     * Init while unauthenticated.
      */
-    public function init()
+    public function initUnauthenticated(): void
+    {
+        if (is_user_logged_in()) {
+            return;
+        }
+    }
+
+    /**
+     * Init while authenticated.
+     */
+    public function initAuthenticated(): void
     {
         if (!is_user_logged_in()) {
             return;

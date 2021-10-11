@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\Admin\ClearSiteDataHeader\ClearSiteDataHeader;
 use Servebolt\Optimizer\CachePurge\WpCachePurge;
 use Servebolt\Optimizer\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Compatibility\Compatibility as PluginCompatibility;
@@ -27,6 +28,7 @@ use Servebolt\Optimizer\PluginActiveStateHandling\PluginActiveStateHandling;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
+use function Servebolt\Optimizer\Helpers\isLogin;
 use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\isFrontEnd;
 use function Servebolt\Optimizer\Helpers\featureIsActive;
@@ -100,13 +102,17 @@ class ServeboltOptimizer
         // Load assets
         new AdminAssets;
 
+        if (isLogin()) {
+            new ClearSiteDataHeader;
+        }
+
         // Only load the plugin interface in WP Admin
         if (
             is_admin()
             || isTesting()
         ) {
 
-            // Load this plugins interface
+            // Load this plugins admin interface
             AdminController::getInstance();
 
         }
