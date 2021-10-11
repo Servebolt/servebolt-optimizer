@@ -141,7 +141,7 @@ class DatabaseOptimizationActions extends SharedAjaxMethods
         // Require table name to be specified
         $tableName = array_key_exists('table_name', $_POST) ? (string) sanitize_text_field($_POST['table_name']) : false;
         if (!$tableName) {
-            return new WP_Error( 'table_name_not_specified', __('Table name not specified', 'servebolt-wp') );
+            return new WP_Error('table_name_not_specified', __('Table name not specified', 'servebolt-wp'));
         }
 
         if (is_multisite()) {
@@ -149,13 +149,13 @@ class DatabaseOptimizationActions extends SharedAjaxMethods
             // Require blog Id to be specified
             $blogId = array_key_exists('blog_id', $_POST) ? (int) sanitize_text_field($_POST['blog_id']) : false;
             if (!$blogId) {
-                return new WP_Error( 'blog_id_not_specified', __('Blog ID not specified', 'servebolt-wp') );
+                return new WP_Error('blog_id_not_specified', __('Blog ID not specified', 'servebolt-wp'));
             }
 
             // Require blog to exist
             $blog = get_blog_details(['blog_id' => $blogId]);
             if (!$blog) {
-                return new WP_Error( 'invalid_blog_id', __('Invalid blog Id', 'servebolt-wp') );
+                return new WP_Error('invalid_blog_id', __('Invalid blog Id', 'servebolt-wp'));
             }
 
         }
@@ -165,7 +165,7 @@ class DatabaseOptimizationActions extends SharedAjaxMethods
         // Make sure we know which column to add index on in the table
         $column = $databaseChecks->getIndexColumnFromTable($tableName);
         if (!$column) {
-            return new WP_Error( 'invalid_table_name', __('Invalid table name', 'servebolt-wp') );
+            return new WP_Error('invalid_table_name', __('Invalid table name', 'servebolt-wp'));
         }
 
         $databaseOptimizer = DatabaseOptimizer::getInstance();
@@ -173,13 +173,13 @@ class DatabaseOptimizationActions extends SharedAjaxMethods
         // Make sure we found the table name to interact with
         $fullTableName = is_multisite() ? $databaseOptimizer->getTableNameByBlogId($blogId, $tableName) : $databaseOptimizer->getTableName($tableName);
         if (!$fullTableName) {
-            return new WP_Error( 'could_not_resolve_full_table_name', __('Could not resolve full table name', 'servebolt-wp') );
+            return new WP_Error('could_not_resolve_full_table_name', __('Could not resolve full table name', 'servebolt-wp'));
         }
 
         // Make sure we know which method to run to create the index
         $indexAdditionMethod = $this->getIndexCreationMethodByTableName($tableName);
         if (!$indexAdditionMethod) {
-            return new WP_Error( 'could_not_resolve_index_creation_method_from_table_name', __('Could not resolve index creation method from table name', 'servebolt-wp') );
+            return new WP_Error('could_not_resolve_index_creation_method_from_table_name', __('Could not resolve index creation method from table name', 'servebolt-wp'));
         }
 
         if (is_multisite()) {
@@ -217,7 +217,7 @@ class DatabaseOptimizationActions extends SharedAjaxMethods
         // Require table name to be specified
         $tableName = array_key_exists('table_name', $_POST) ? (string) sanitize_text_field($_POST['table_name']) : false;
         if (!$tableName) {
-            return new WP_Error( 'table_name_not_specified', __('Table name not specified', 'servebolt-wp') );
+            return new WP_Error('table_name_not_specified', __('Table name not specified', 'servebolt-wp'));
         }
         return $tableName;
 

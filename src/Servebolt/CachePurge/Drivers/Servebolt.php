@@ -172,7 +172,7 @@ class Servebolt implements CachePurgeInterface
      */
     private function getDomainsWithThirdPartySupport(): array
     {
-        $sites = array_map( 'get_object_vars', get_sites( array( 'deleted' => 0 ) ) ); //WP 4.6+
+        $sites = array_map('get_object_vars', get_sites(['deleted' => 0])); //WP 4.6+
         $domains = [];
         foreach ($sites as $site) {
 

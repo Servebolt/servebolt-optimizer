@@ -172,7 +172,7 @@ class DatabaseOptimizer
                                 WP_CLI::error($value['message'], false);
                                 break;
                             case 'table':
-                                WP_CLI_FormatItems( 'table', $value['table'], array_keys(current($value['table'])));
+                                WP_CLI_FormatItems('table', $value['table'], array_keys(current($value['table'])));
                                 break;
                         }
                     }

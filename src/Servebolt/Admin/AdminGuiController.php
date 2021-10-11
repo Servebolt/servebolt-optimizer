@@ -311,7 +311,7 @@ class AdminGuiController
      */
     public function addSettingsLinkToPlugin($links): array
     {
-        $links[] = sprintf('<a href="%s">%s</a>', admin_url( 'options-general.php?page=servebolt-wp' ), __('Settings', 'servebolt-wp'));
+        $links[] = sprintf('<a href="%s">%s</a>', admin_url('options-general.php?page=servebolt-wp'), __('Settings', 'servebolt-wp'));
         return $links;
     }
 

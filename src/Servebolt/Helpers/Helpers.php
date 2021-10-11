@@ -1699,7 +1699,7 @@ function sbCalculateImageSizes( $size, $image_src = null, $image_meta = null, $a
      * @param array|null   $image_meta    The image meta data as returned by wp_get_attachment_metadata() or null.
      * @param int          $attachment_id Image attachment ID of the original image or 0.
      */
-    return apply_filters( 'sb_calculate_image_sizes', $width, $size, $image_src, $image_meta, $attachment_id );
+    return apply_filters('sb_calculate_image_sizes', $width, $size, $image_src, $image_meta, $attachment_id);
 }
 
 /**

@@ -75,7 +75,7 @@ class CloudflareImageResize
 
         // Alter srcset-attribute URLs
         if ( apply_filters('sb_optimizer_cf_image_resize_alter_srcset', true ) ) {
-            add_filter( 'wp_calculate_image_srcset', [ $this, 'alterSrcsetImageUrls' ] );
+            add_filter('wp_calculate_image_srcset', [$this, 'alterSrcsetImageUrls']);
         }
 
         // Alter image src-attribute URL

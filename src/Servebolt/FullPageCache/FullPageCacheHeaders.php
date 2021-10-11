@@ -460,9 +460,9 @@ class FullPageCacheHeaders
     {
         do_action('sb_optimizer_fpc_no_cache_headers', $this);
         if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true)) {
-            $this->header( 'Cache-Control: max-age=0,no-cache,s-maxage=0' );
-            $this->header( 'Pragma: no-cache' );
-            $this->header( 'X-Servebolt-Plugin: active' );
+            $this->header('Cache-Control: max-age=0,no-cache,s-maxage=0');
+            $this->header('Pragma: no-cache');
+            $this->header('X-Servebolt-Plugin: active');
         }
 	}
 
