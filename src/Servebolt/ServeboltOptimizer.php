@@ -59,9 +59,7 @@ class ServeboltOptimizer
         // Make sure we don't store certain options (like API credentials) in clear text.
         new OptionEncryption;
 
-        if (WpMenuOptimizer::isActive()) {
-            WpMenuOptimizer::init();
-        }
+        WpMenuOptimizer::init();
 
         if (isHostedAtServebolt()) {
             // ACD Init
