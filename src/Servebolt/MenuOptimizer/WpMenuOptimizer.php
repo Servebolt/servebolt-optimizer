@@ -100,8 +100,19 @@ class WpMenuOptimizer
      * @param int|null $blogId
      * @return bool
      */
-    public static function automaticCacheRunTiming(?int $blogId = null): bool
+    public static function runTiming(?int $blogId = null): bool
     {
         return checkboxIsChecked(smartGetOption($blogId, 'menu_cache_run_timing'));
+    }
+
+    /**
+     * Check if we should use simple menu signature.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function useSimpleMenuSignature(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(smartGetOption($blogId, 'menu_cache_simple_menu_signature'));
     }
 }

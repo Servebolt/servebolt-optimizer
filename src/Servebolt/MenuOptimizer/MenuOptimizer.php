@@ -46,7 +46,7 @@ class MenuOptimizer
      */
     private static function shouldRunTiming(): bool
     {
-        return apply_filters('sb_optimizer_menu_optimizer_run_timing', WpMenuOptimizer::automaticCacheRunTiming());
+        return apply_filters('sb_optimizer_menu_optimizer_run_timing', WpMenuOptimizer::runTiming());
     }
 
     /**
