@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\MenuOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use function Servebolt\Optimizer\Helpers\convertObjectToArray;
 use function Servebolt\Optimizer\Helpers\isDevDebug;
 
 /**
@@ -57,7 +58,7 @@ class MenuOptimizer
      */
     public static function preWpNavMenu(?string $output, object $args): ?string
     {
-        self::$args = clone $args;
+        self::$args = convertObjectToArray($args);
         if (
             self::resolveMenuObject($args)
             && self::getMenuSignatureIndex(self::$menuObject->term_id)

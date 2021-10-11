@@ -2025,3 +2025,14 @@ function isValidJson(string $allegedJson): bool
     @json_decode($allegedJson);
     return (json_last_error() === JSON_ERROR_NONE);
 }
+
+/**
+ * Convert object to array.
+ *
+ * @param object $object
+ * @return array|mixed
+ */
+function convertObjectToArray(object $object)
+{
+    return json_decode(json_encode($object), true);
+}

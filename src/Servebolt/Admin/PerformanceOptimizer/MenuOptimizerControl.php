@@ -5,11 +5,13 @@ namespace Servebolt\Optimizer\Admin\PerformanceOptimizer;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax\MenuOptimizerActions;
+use Servebolt\Optimizer\MenuOptimizer\MenuOptimizer;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 use function Servebolt\Optimizer\Helpers\isScreen;
+use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
 use function Servebolt\Optimizer\Helpers\overrideMenuTitle;
 use function Servebolt\Optimizer\Helpers\overrideParentMenuPage;
 use function Servebolt\Optimizer\Helpers\view;
@@ -35,7 +37,18 @@ class MenuOptimizerControl
         $this->initAjax();
         $this->initAssets();
         $this->initSettings();
+        $this->initSettingsActions();
         $this->rewriteHighlightedMenuItem();
+    }
+
+    /**
+     * Add listeners for Menu Optimizer active state change.
+     */
+    private function initSettingsActions(): void
+    {
+        listenForCheckboxOptionChange('menu_cache_switch', function($wasActive, $isActive, $optionName) {
+            MenuOptimizer::purgeCache();
+        });
     }
 
     /**
