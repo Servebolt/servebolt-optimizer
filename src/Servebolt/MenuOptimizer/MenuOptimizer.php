@@ -30,7 +30,7 @@ class MenuOptimizer
     public static function init()
     {
         if (self::shouldCacheMenus()) {
-            add_filter('pre_wp_nav_menu', __CLASS__ . '::preWpNavMenu', 10, 2);
+            add_filter('pre_wp_nav_menu', __CLASS__ . '::preWpNavMenu', PHP_INT_MAX, 2);
             add_filter('wp_nav_menu', __CLASS__ . '::wpNavMenu', 10, 2);
         }
     }
