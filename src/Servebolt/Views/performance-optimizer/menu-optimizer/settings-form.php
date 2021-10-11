@@ -34,10 +34,10 @@
                 </td>
             </tr>
             <tr>
-                <th scope="row"><?php _e('Automatic cache purging when menu is updated?', 'servebolt-wp'); ?></th>
+                <th scope="row"><?php _e('Automatic cache purging when a menu is updated?', 'servebolt-wp'); ?></th>
                 <td>
                     <fieldset>
-                        <legend class="screen-reader-text"><span><?php _e('Automatic cache purging when menu is updated?', 'servebolt-wp'); ?></span></legend>
+                        <legend class="screen-reader-text"><span><?php _e('Automatic cache purging when a menu is updated?', 'servebolt-wp'); ?></span></legend>
                         <label for="menu_cache_auto_cache_purge_on_menu_update">
                             <input name="<?php echo getOptionName('menu_cache_auto_cache_purge_on_menu_update'); ?>" type="checkbox" id="menu_cache_auto_cache_purge_on_menu_update" value="1" <?php checked($settings['menu_cache_auto_cache_purge_on_menu_update']); ?>>
                             <?php _e('Enable', 'servebolt-wp'); ?>
