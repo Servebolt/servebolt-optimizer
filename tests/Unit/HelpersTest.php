@@ -15,6 +15,7 @@ use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
 use function Servebolt\Optimizer\Helpers\clearDefaultOption;
 use function Servebolt\Optimizer\Helpers\clearOptionsOverride;
+use function Servebolt\Optimizer\Helpers\convertObjectToArray;
 use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 use function Servebolt\Optimizer\Helpers\deleteAllSiteSettings;
 use function Servebolt\Optimizer\Helpers\deleteBlogOption;
@@ -954,5 +955,11 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertTrue(isValidJson($validJson));
         $invalidJson = mb_substr($validJson, 2);
         $this->assertFalse(isValidJson($invalidJson));
+    }
+
+    public function testThatWeCanConvertObjectToArray()
+    {
+        $object = (object) ['some' => (object)['array', 'and', 'something', 'more']];
+        $this->assertEquals(['some' => ['array', 'and', 'something', 'more']], convertObjectToArray($object));
     }
 }

@@ -93,4 +93,26 @@ class WpMenuOptimizer
     {
         return checkboxIsChecked(smartGetOption($blogId, 'menu_cache_auto_cache_purge_on_front_page_settings_update'));
     }
+
+    /**
+     * Check if we should run timing.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function runTiming(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(smartGetOption($blogId, 'menu_cache_run_timing'));
+    }
+
+    /**
+     * Check if we should use simple menu signature.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function useSimpleMenuSignature(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(smartGetOption($blogId, 'menu_cache_simple_menu_signature'));
+    }
 }

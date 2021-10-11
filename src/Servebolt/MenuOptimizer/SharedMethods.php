@@ -190,20 +190,23 @@ trait SharedMethods
      */
     private static function getMenuSignatureFromArgs(): string
     {
-        $signatureBase = '';
-        if (
-            is_404()
-            && apply_filters('sb_optimizer_menu_optimizer_simplify_signature_for_404', true)
-        ) {
-            $signatureBase .= '404-not-found-'; // Add a prefix for the menu signatures during 404
-        } elseif (
-            is_search()
-            && apply_filters('sb_optimizer_menu_optimizer_simplify_signature_for_search', true)
-        ) {
-            $signatureBase .= 'search-'; // Add a prefix for the menu signatures during search
+        if (WpMenuOptimizer::useSimpleMenuSignature()) {
+            $signatureBase = md5(wp_json_encode(self::$args));
+        } else {
+            $signatureBase = '';
+            if (
+                is_404()
+                && apply_filters('sb_optimizer_menu_optimizer_simplify_signature_for_404', true)
+            ) {
+                $signatureBase .= '404-not-found-'; // Add a prefix for the menu signatures during 404
+            } elseif (
+                is_search()
+                && apply_filters('sb_optimizer_menu_optimizer_simplify_signature_for_search', true)
+            ) {
+                $signatureBase .= 'search-'; // Add a prefix for the menu signatures during search
+            }
+            $signatureBase .= md5(wp_json_encode(self::$args) . self::querySeed());
         }
-
-        $signatureBase .= md5(wp_json_encode(self::$args) . self::querySeed());
 
         /**
          * @param string $signatureBase The base of the menu signature.
