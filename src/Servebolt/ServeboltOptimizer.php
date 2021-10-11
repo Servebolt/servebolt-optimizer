@@ -19,7 +19,7 @@ use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
 use Servebolt\Optimizer\Admin\AdminBarGui\AdminBarGui;
 use Servebolt\Optimizer\Admin\Assets as AdminAssets;
-use Servebolt\Optimizer\Admin\AdminGuiController;
+use Servebolt\Optimizer\Admin\AdminController;
 use Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
 use Servebolt\Optimizer\Cli\Cli;
 use Servebolt\Optimizer\PluginActiveStateHandling\PluginActiveStateHandling;
@@ -107,7 +107,7 @@ class ServeboltOptimizer
         ) {
 
             // Load this plugins interface
-            AdminGuiController::getInstance();
+            AdminController::getInstance();
 
         }
 

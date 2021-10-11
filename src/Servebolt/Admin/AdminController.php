@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit;
 use Servebolt\Optimizer\Admin\AcceleratedDomainsControl\AcceleratedDomainsControl;
 use Servebolt\Optimizer\Admin\AcceleratedDomainsImageControl\AcceleratedDomainsImageResizeControl;
 use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
+use Servebolt\Optimizer\Admin\ClearSiteDataHeader\ClearSiteDataHeader;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\DatabaseOptimizations;
 use Servebolt\Optimizer\Admin\Prefetching\PrefetchingControl;
 use Servebolt\Optimizer\Admin\PerformanceOptimizer\MenuOptimizerControl;
@@ -25,13 +26,16 @@ use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isDevDebug;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 
-class AdminGuiController
+/**
+ * Class AdminController
+ * @package Servebolt\Optimizer\Admin
+ */
+class AdminController
 {
-
     use Singleton;
 
     /**
-     * AdminGuiController constructor.
+     * AdminController constructor.
      */
     public function __construct()
     {
@@ -45,6 +49,7 @@ class AdminGuiController
     public function adminInit()
     {
         $this->initPluginSettingsLink();
+        new ClearSiteDataHeader;
     }
 
     /**
