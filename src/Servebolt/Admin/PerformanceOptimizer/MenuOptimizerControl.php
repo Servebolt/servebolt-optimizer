@@ -139,6 +139,7 @@ class MenuOptimizerControl
             'menu_cache_disabled_for_authenticated_switch',
             'menu_cache_auto_cache_purge_on_menu_update',
             'menu_cache_auto_cache_purge_on_front_page_settings_update',
+            'menu_cache_run_timing',
         ];
     }
 }

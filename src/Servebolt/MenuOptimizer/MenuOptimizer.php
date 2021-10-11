@@ -30,10 +30,32 @@ class MenuOptimizer
      */
     public static function init()
     {
+        if (self::shouldRunTiming()) {
+            new TimingCheck;
+        }
         if (self::shouldCacheMenus()) {
-            add_filter('pre_wp_nav_menu', __CLASS__ . '::preWpNavMenu', PHP_INT_MAX, 2);
+            add_filter('pre_wp_nav_menu', __CLASS__ . '::preWpNavMenu', self::preWpNavMenuCallbackPriority(), 2);
             add_filter('wp_nav_menu', __CLASS__ . '::wpNavMenu', 10, 2);
         }
+    }
+
+    /**
+     * Whether we should run the timing to inspect the result of the menu optimizer cache.
+     *
+     * @return bool
+     */
+    private static function shouldRunTiming(): bool
+    {
+        return apply_filters('sb_optimizer_menu_optimizer_run_timing', WpMenuOptimizer::automaticCacheRunTiming());
+    }
+
+    /**
+     * Get the callback priority for the "pre_wp_nav_menu"-filter callback.
+     * @return int
+     */
+    private static function preWpNavMenuCallbackPriority(): int
+    {
+        return PHP_INT_MAX - 1;
     }
 
     /**

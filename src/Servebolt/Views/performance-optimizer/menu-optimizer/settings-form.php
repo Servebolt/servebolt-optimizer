@@ -57,6 +57,19 @@
                     </fieldset>
                 </td>
             </tr>
+            <tr>
+                <th scope="row"><?php _e('Display timing metrics?', 'servebolt-wp'); ?></th>
+                <td>
+                    <fieldset>
+                        <legend class="screen-reader-text"><span><?php _e('Display timing metrics?', 'servebolt-wp'); ?></span></legend>
+                        <label for="menu_cache_run_timing">
+                            <input name="<?php echo getOptionName('menu_cache_run_timing'); ?>" type="checkbox" id="menu_cache_run_timing" value="1" <?php checked($settings['menu_cache_run_timing']); ?>>
+                            <?php _e('Enable', 'servebolt-wp'); ?>
+                        </label>
+                    </fieldset>
+                    <p><?php _e('Use this only for debugging purposes. Metrics will be displayed in the system log.', 'servebolt-wp'); ?></p>
+                </td>
+            </tr>
         </tbody>
     </table>
 
