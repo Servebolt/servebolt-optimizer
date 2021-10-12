@@ -581,11 +581,13 @@ class HelpersTest extends ServeboltWPUnitTestCase
                     case 'prefetch_file_style_switch':
                     case 'prefetch_file_script_switch':
                     case 'prefetch_file_menu_switch':
+                    case 'custom_cache_ttl_switch':
                     case 'cache_purge_auto':
                     case 'cache_purge_auto_on_slug_change':
                     case 'cache_purge_auto_on_deletion':
                     case 'cache_purge_auto_on_attachment_update':
-                    case 'custom_cache_ttl_switch':
+                    case 'menu_cache_auto_cache_purge_on_menu_update':
+                    case 'menu_cache_auto_cache_purge_on_front_page_settings_update':
                         $this->assertTrue($value);
                         break;
                     case 'fpc_settings':
@@ -609,6 +611,11 @@ class HelpersTest extends ServeboltWPUnitTestCase
                         $this->assertEquals('default', $value['post_format']);
                         break;
                     default:
+                        /*
+                        if (!is_null($value)) {
+                            die($option);
+                        }
+                        */
                         $this->assertNull($value);
                         break;
                 }
