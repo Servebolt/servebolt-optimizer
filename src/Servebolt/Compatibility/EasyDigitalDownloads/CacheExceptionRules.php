@@ -30,7 +30,7 @@ class CacheExceptionRules
     public function noCacheCheck($shouldNotCache): bool
     {
         if (is_null($shouldNotCache)) {
-            return edd_is_checkout() || edd_is_success_page() && edd_is_purchase_history_page();
+            return edd_is_checkout() || edd_is_success_page() || edd_is_purchase_history_page();
         }
         return $shouldNotCache;
     }
