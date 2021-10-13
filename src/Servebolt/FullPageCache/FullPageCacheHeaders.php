@@ -228,7 +228,7 @@ class FullPageCacheHeaders
      *
      * @return bool
      */
-    private function isEcommerceNoCachePage(): bool
+    private function isEcommerceNoCachePage(): ?bool
     {
         return apply_filters('sb_optimizer_fpc_ecommerce_pages_no_cache_bool', null);
     }
@@ -238,7 +238,7 @@ class FullPageCacheHeaders
      *
      * @return bool
      */
-    private function isEcommerceCachePage(): bool
+    private function isEcommerceCachePage(): ?bool
     {
         return apply_filters('sb_optimizer_fpc_ecommerce_pages_cache_bool', null);
     }
