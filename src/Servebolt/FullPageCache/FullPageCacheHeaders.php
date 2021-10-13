@@ -162,12 +162,12 @@ class FullPageCacheHeaders
         // Only trigger this function once
         remove_filter('posts_results', [$this, 'setHeaders']);
 
-        if ($this->isWoocommerceNoCachePage()) {
+        if ($this->isEcommerceNoCachePage()) {
             $this->noCacheHeaders();
             if ($debug) {
                 $this->header('No-cache-trigger: 2');
             }
-        } elseif ($this->isWoocommerceCachePage()) {
+        } elseif ($this->isEcommerceCachePage()) {
             $this->cacheHeaders();
             if ($debug) {
                 $this->header('Cache-trigger: 11');
@@ -224,23 +224,23 @@ class FullPageCacheHeaders
     }
 
     /**
-     * Check if we are in a WooCommerce-context and check if we should not cache.
+     * Check if we are in an Ecommerce-context and check if we should not cache.
      *
      * @return bool
      */
-    private function isWoocommerceNoCachePage(): bool
+    private function isEcommerceNoCachePage(): ?bool
     {
-        return apply_filters('sb_optimizer_fpc_woocommerce_pages_no_cache_bool', (woocommerceIsActive() && (is_cart() || is_checkout() || is_account_page())));
+        return apply_filters('sb_optimizer_fpc_ecommerce_pages_no_cache_bool', null);
     }
 
     /**
-     * Check if we are in a WooCommerce-context and check if we should cache.
+     * Check if we are in an Ecommerce-context and check if we should cache.
      *
      * @return bool
      */
-    private function isWoocommerceCachePage(): bool
+    private function isEcommerceCachePage(): ?bool
     {
-        return apply_filters('sb_optimizer_fpc_woocommerce_pages_cache_bool', (woocommerceIsActive() && (is_shop() || is_product_category() || is_product_tag() || is_product())));
+        return apply_filters('sb_optimizer_fpc_ecommerce_pages_cache_bool', null);
     }
 
     /**
