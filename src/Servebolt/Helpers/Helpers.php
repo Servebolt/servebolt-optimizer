@@ -1623,6 +1623,19 @@ function yoastSeoPremiumIsActive(): bool
 }
 
 /**
+ * Check whether plugin Easy Digital Downloads is active.
+ *
+ * @return bool
+ */
+function easyDigitalDownloadsIsActive(): bool
+{
+    if (!function_exists('is_plugin_active')) {
+        require_once(ABSPATH . 'wp-admin/includes/plugin.php');
+    }
+    return is_plugin_active('easy-digital-downloads/easy-digital-downloads.php');
+}
+
+/**
  * Check whether plugin Jetpack is active.
  *
  * @return bool
