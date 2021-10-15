@@ -78,7 +78,10 @@ class DeletionCacheTrigger
         if (!$taxonomyObject) {
             return;
         }
-        $taxonomySlug = $taxonomyObject->name;
+        $taxonomySlug = (isset($taxonomyObject->name) && !empty($taxonomyObject->name)) ? (string) $taxonomyObject->name : false;
+        if (!$taxonomySlug) {
+            return;
+        }
         try {
             setCachePurgeOriginEvent('term_deleted');
             WordPressCachePurge::skipQueueOnce();

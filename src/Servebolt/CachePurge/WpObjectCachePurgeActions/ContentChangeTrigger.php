@@ -221,7 +221,7 @@ class ContentChangeTrigger
         }
         try {
             setCachePurgeOriginEvent('post_change');
-            WordPressCachePurge::purgeByPostId((int) $postId);
+            WordPressCachePurge::purgeByPostId($postId);
         } catch (Exception $e) {}
     }
 

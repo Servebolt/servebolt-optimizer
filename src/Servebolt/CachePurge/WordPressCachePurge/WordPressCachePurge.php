@@ -193,7 +193,7 @@ class WordPressCachePurge
             return false;
         }
         iterateSites(function($site) {
-            self::purgeAllByBlogId($site->blog_id);
+            self::purgeAllByBlogId((int) $site->blog_id);
         });
     }
 }
