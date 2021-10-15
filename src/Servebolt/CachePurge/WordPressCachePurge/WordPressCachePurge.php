@@ -64,7 +64,7 @@ class WordPressCachePurge
             add_filter('sb_optimizer_purge_by_post_original_url', function() use ($url) {
                 return $url;
             });
-            return self::purgePostCache($postId);
+            return self::purgePostCache((int) $postId);
         } else {
             if ($shouldPurgeByQueue) {
                 $queueInstance = WpObjectQueue::getInstance();
