@@ -327,7 +327,7 @@ class PurgeActions extends SharedAjaxMethods
 
         try {
             setCachePurgeOriginEvent('manual_trigger');
-            WordPressCachePurge::purgeByTerm($termId, $term->taxonomy);
+            WordPressCachePurge::purgeByTerm((int) $termId, $term->taxonomy);
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
                     'title'   => __('Just a moment', 'servebolt-wp'),
