@@ -78,7 +78,7 @@ class SlugChangeTrigger
                     try {
                         // TODO: Consider whether we should add pagination-support to this cache purge
                         setCachePurgeOriginEvent('term_permalink_changed');
-                        WordPressCachePurge::purgeByUrl($previousTermPermalink);
+                        WordPressCachePurge::purgeByUrl((string) $previousTermPermalink);
                     } catch (Exception $e) {}
                 }
             }
@@ -120,7 +120,7 @@ class SlugChangeTrigger
         if ($this->postPermalinkDidChange($postId)) {
             try {
                 setCachePurgeOriginEvent('post_permalink_changed');
-                WordPressCachePurge::purgeByUrl($this->previousPostPermalink);
+                WordPressCachePurge::purgeByUrl((string) $this->previousPostPermalink);
             } catch (Exception $e) {}
         }
     }

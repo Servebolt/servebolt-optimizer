@@ -207,7 +207,7 @@ class PurgeActions extends SharedAjaxMethods
         $this->checkAjaxReferer();
         $this->ensureCachePurgeFeatureIsActive();
 
-        $postId = intval(arrayGet('post_id', $_POST));
+        $postId = (int) arrayGet('post_id', $_POST);
 
         if (!$postId || empty($postId)) {
             wp_send_json_error(['message' => __('Please specify the post you would like to purge cache for.', 'servebolt-wp')]);
@@ -302,7 +302,7 @@ class PurgeActions extends SharedAjaxMethods
         $this->checkAjaxReferer();
         $this->ensureCachePurgeFeatureIsActive();
 
-        $termId = intval(arrayGet('term_id', $_POST));
+        $termId = (int) arrayGet('term_id', $_POST);
 
         if (!$termId || empty($termId)) {
             wp_send_json_error(['message' => __('Please specify the term you would like to purge cache for.', 'servebolt-wp')]);
@@ -327,7 +327,7 @@ class PurgeActions extends SharedAjaxMethods
 
         try {
             setCachePurgeOriginEvent('manual_trigger');
-            WordPressCachePurge::purgeByTerm((int) $termId, $term->taxonomy);
+            WordPressCachePurge::purgeByTerm($termId, $term->taxonomy);
             if ($queueBasedCachePurgeIsActive) {
                 wp_send_json_success( [
                     'title'   => __('Just a moment', 'servebolt-wp'),
@@ -423,7 +423,7 @@ class PurgeActions extends SharedAjaxMethods
         $result = [];
 
         iterateSites(function($site) use (&$result) {
-            $result[] = $this->purgeNetworkCacheForSite($site->blog_id);
+            $result[] = $this->purgeNetworkCacheForSite((int) $site->blog_id);
         }, true);
 
         $formattedResult = $this->purgeAllNetworkResponseMessages($result);
