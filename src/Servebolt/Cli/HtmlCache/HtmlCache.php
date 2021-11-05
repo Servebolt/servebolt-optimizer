@@ -278,7 +278,7 @@ class HtmlCache
                 $array[] = $this->htmlCacheGetExcludedPosts($site->blog_id, $extended);
             });
         } else {
-            $array[] = $this->htmlCacheGetExcludedPosts(false, $extended);
+            $array[] = $this->htmlCacheGetExcludedPosts(null, $extended);
         }
         WP_CLI_FormatItems('table', $array, array_keys(current($array)));
     }
@@ -597,7 +597,7 @@ class HtmlCache
      *
      * @return array
      */
-    private function htmlCacheGetExcludedPosts(?int $blogId = null, $extended = false)
+    private function htmlCacheGetExcludedPosts(?int $blogId = null, bool $extended = false)
     {
         if ($blogId) {
             $array = ['Blog' => $blogId];
