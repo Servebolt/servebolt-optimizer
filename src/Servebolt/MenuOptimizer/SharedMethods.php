@@ -155,7 +155,7 @@ trait SharedMethods
      * @param int $menuId
      * @return string
      */
-    private static function menuSignatureIndexTransientKey(int $menuId): string
+    private static function menuSignatureIndexTransientKey($menuId): string
     {
         return 'sb-menu-cache-menu-id-' . $menuId . '-v' . self::$transientVersion;
     }
