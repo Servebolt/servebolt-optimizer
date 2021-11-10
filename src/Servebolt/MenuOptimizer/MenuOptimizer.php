@@ -63,7 +63,7 @@ class MenuOptimizer
      *
      * @return bool
      */
-    private static function shouldCacheMenus()
+    private static function shouldCacheMenus(): bool
     {
         if (apply_filters('sb_optimizer_menu_optimizer_disabled_for_unauthenticated_users', false)) {
             return !is_user_logged_in();
@@ -192,7 +192,11 @@ class MenuOptimizer
 
         // @codingStandardsIgnoreEnd
 
-        if ($menu && isset($menu->term_id)) {
+        if (
+            $menu
+            && isset($menu->term_id)
+            && is_numeric($menu->term_id)
+        ) {
             self::$menuObject = $menu; // We had to resolve the menu ourselves (prior to WP doing so)
             return true;
         }
