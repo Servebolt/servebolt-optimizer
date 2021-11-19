@@ -21,7 +21,6 @@ class ServeboltCdn
     {
         $response = $this->apiInstance->environment->purgeCdnCache(
             $this->apiInstance->getEnvironmentId(),
-            [],
             $this->getPurgeAllPrefixes()
         );
         if ($response->wasSuccessful()) {
@@ -41,7 +40,6 @@ class ServeboltCdn
     {
         $response = $this->apiInstance->environment->purgeCdnCache(
             $this->apiInstance->getEnvironmentId(),
-            [],
             $this->getPurgeAllPrefixesWithMultisiteSupport()
         );
         if ($response->wasSuccessful()) {
