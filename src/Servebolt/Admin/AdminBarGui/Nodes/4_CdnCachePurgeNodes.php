@@ -6,10 +6,8 @@ if (!defined('ABSPATH')) exit;
 
 use Servebolt\Optimizer\Admin\AdminBarGui\NodeInterface;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
-use Servebolt\Optimizer\Admin\CachePurgeControl\CachePurgeControl;
 use Servebolt\Optimizer\CachePurge\CachePurge;
-use function Servebolt\Optimizer\Helpers\getPostTypeSingularName;
-use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 
 /**
  * Class CdnCachePurgeNodes
@@ -36,6 +34,7 @@ class CdnCachePurgeNodes implements NodeInterface
             'sb_optimizer_admin_bar_display_cache_purge_node',
             (
                 !is_network_admin()
+                && isHostedAtServebolt()
                 && CachePurge::featureIsAvailable()
             )
         );
