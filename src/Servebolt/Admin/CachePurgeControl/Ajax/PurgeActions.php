@@ -70,6 +70,19 @@ class PurgeActions extends SharedAjaxMethods
     }
 
     /**
+     * Check if current user can purge CDN cache.
+     *
+     * @return bool
+     */
+    public static function canPurgeCdnCache(): bool
+    {
+        return apply_filters(
+            'sb_optimizer_can_purge_cdn_cache',
+            current_user_can('edit_others_posts')
+        );
+    }
+
+    /**
      * Check if current user can purge all cache.
      *
      * @return bool
