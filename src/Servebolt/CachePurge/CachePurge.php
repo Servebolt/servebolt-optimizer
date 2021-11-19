@@ -300,7 +300,7 @@ class CachePurge
     }
 
     /**
-     * Check whether cache purge driver is overriden using a filter.
+     * Check whether cache purge driver is overridden using a filter.
      *
      * @return bool
      */
