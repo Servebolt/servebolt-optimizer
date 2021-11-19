@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
+use Servebolt\Optimizer\CachePurge\Drivers\ServeboltCdn as ServeboltCdnDriver;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use function Servebolt\Optimizer\Helpers\getCachePurgeOriginEvent;
 use function Servebolt\Optimizer\Helpers\isQueueItem;
@@ -171,6 +172,30 @@ class WordPressCachePurge
             $cachePurgeDriver = CachePurgeDriver::getInstance();
             return $cachePurgeDriver->purgeAll();
         }
+    }
+
+    /**
+     * Purge CDN cache on the site.
+     *
+     * @param bool $returnWpError
+     * @return bool
+     */
+    public static function purgeCdn(bool $returnWpError = false)
+    {
+        $driver = ServeboltCdnDriver::getInstance();
+        return $driver->purgeCdn();
+    }
+
+    /**
+     * Purge CDN cache in network (only for multisites).
+     *
+     * @param bool $returnWpError
+     * @return bool
+     */
+    public static function purgeCdnNetwork(bool $returnWpError = false)
+    {
+        $driver = ServeboltCdnDriver::getInstance();
+        return $driver->purgeCdnNetwork();
     }
 
     /**

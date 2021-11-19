@@ -108,8 +108,7 @@ class PurgeActions extends SharedAjaxMethods
 
         try {
             setCachePurgeOriginEvent('manual_trigger');
-            //WordPressCachePurge::purgeAll();
-            // TODO: Insert correct method call
+            WordPressCachePurge::purgeCdn();
             wp_send_json_success(['message' => __('CDN cache was purged.', 'servebolt-wp')]);
         } catch (QueueError $e) {
             // TODO: Handle response from queue system
