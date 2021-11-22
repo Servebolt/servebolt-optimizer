@@ -84,6 +84,7 @@ class CachePurgeControl
         $acdLock = CachePurge::cachePurgeIsLockedTo('acd');
         $queueBasedCachePurgeActiveStateIsOverridden = CachePurge::queueBasedCachePurgeActiveStateIsOverridden();
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
+        $automaticCachePurgeIsAvailable = CachePurge::automaticCachePurgeIsAvailable();
 
         view(
             'cache-settings.cache-purge.cache-purge',
@@ -93,6 +94,7 @@ class CachePurgeControl
                 'isHostedAtServebolt',
                 'selectedCfZone',
                 'cfZones',
+                'automaticCachePurgeIsAvailable',
                 'cachePurgeIsActive',
                 'automaticCachePurgeOnContentUpdateIsActive',
                 'automaticCachePurgeOnSlugChangeIsActive',
