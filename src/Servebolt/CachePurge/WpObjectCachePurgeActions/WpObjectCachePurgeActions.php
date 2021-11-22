@@ -17,7 +17,7 @@ class WpObjectCachePurgeActions
         // Skip this feature if the cache purge feature is inactive or insufficiently configured
         if (
             !CachePurge::featureIsAvailable()
-            || CachePurge::automaticCachePurgeIsAvailable()
+            || !CachePurge::automaticCachePurgeIsAvailable()
         ) {
             return false;
         }
