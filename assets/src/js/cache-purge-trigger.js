@@ -16,13 +16,6 @@ jQuery(document).ready(function($) {
     window.sb_purge_all_cache();
   });
 
-  // Purge CDN cache
-  $('#sb-configuration .sb-purge-cdn-cache, #wpadminbar .sb-purge-cdn-cache').click(function (e) {
-    e.preventDefault();
-    sb_close_admin_bar_menu();
-    window.sb_purge_cdn_cache();
-  });
-
   var list = document.querySelector('#the-list');
   if (list) {
 
@@ -197,74 +190,12 @@ jQuery(document).ready(function($) {
   }
 
   /**
-   * Clear CDN cache in Cloudflare.
-   */
-  window.sb_purge_cdn_cache = function() {
-    if (window.sb_use_native_js_fallback()) {
-      if (window.confirm('Do you want to purge CDN cache?')) {
-        sb_purge_cdn_cache_confirmed();
-      }
-    } else {
-      Swal.fire({
-        title: 'Do you want to purge CDN cache?',
-        icon: 'warning',
-        showCancelButton: true,
-        customClass: {
-          confirmButton: 'servebolt-button yellow',
-          cancelButton: 'servebolt-button light'
-        },
-        buttonsStyling: false
-      }).then((result) => {
-        if (result.value) {
-          sb_purge_cdn_cache_confirmed();
-        }
-      });
-    }
-  }
-
-  /**
    * Confirm callback for function "sb_purge_all_cache".
    */
   function sb_purge_all_cache_confirmed() {
     window.sb_loading(true);
     var data = {
       action: 'servebolt_purge_all_cache',
-      security: sb_ajax_object.ajax_nonce,
-    };
-    $.ajax({
-      type: 'POST',
-      url: sb_ajax_object.ajaxurl,
-      data: data,
-      success: function(response) {
-        window.sb_loading(false);
-        if (response.success) {
-          setTimeout(function () {
-            sb_cache_purge_success(
-              window.sb_get_message_from_response(response),
-              window.sb_get_from_response(response, 'title')
-            );
-            //window.update_cache_purge_list();
-          }, 100);
-          return;
-        }
-        sb_cache_purge_error();
-        // TODO: Display errors to the user
-        //window.handle_unsuccessful_cache_purge(response);
-      },
-      error: function() {
-        window.sb_loading(false);
-        sb_cache_purge_error(); // General error
-      }
-    });
-  };
-
-  /**
-   * Confirm callback for function "sb_purge_all_cache".
-   */
-  function sb_purge_cdn_cache_confirmed() {
-    window.sb_loading(true);
-    var data = {
-      action: 'servebolt_purge_cdn_cache',
       security: sb_ajax_object.ajax_nonce,
     };
     $.ajax({
