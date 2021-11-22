@@ -4,10 +4,15 @@ namespace Servebolt\Optimizer\CachePurge\Drivers;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeAllInterface;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Exceptions\ServeboltApiError;
 
-class ServeboltCdn
+/**
+ * Class ServeboltCdn
+ * @package Servebolt\Optimizer\CachePurge\Drivers
+ */
+class ServeboltCdn implements CachePurgeAllInterface
 {
     use Singleton, ServeboltDriverTrait;
 
@@ -17,7 +22,7 @@ class ServeboltCdn
      * @return bool
      * @throws ServeboltApiError
      */
-    public function purgeCdn(): bool
+    public function purgeAll(): bool
     {
         $response = $this->apiInstance->environment->purgeCdnCache(
             $this->apiInstance->getEnvironmentId(),
@@ -36,7 +41,7 @@ class ServeboltCdn
      * @return bool
      * @throws ServeboltApiError
      */
-    public function purgeCdnNetwork(): bool
+    public function purgeAllNetwork(): bool
     {
         $response = $this->apiInstance->environment->purgeCdnCache(
             $this->apiInstance->getEnvironmentId(),

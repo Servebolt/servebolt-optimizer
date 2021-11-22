@@ -5,12 +5,17 @@ namespace Servebolt\Optimizer\CachePurge\Drivers;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Api\Cloudflare\Cloudflare as CloudflareApi;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeUrlInterface;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeAllInterface;
 use Servebolt\Optimizer\Exceptions\CloudflareApiError;
 use Servebolt\Optimizer\Traits\Singleton;
-use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeInterface;
 use Servebolt\Optimizer\Sdk\Cloudflare\Exceptions\ApiError as CloudflareSdkApiError;
 
-class Cloudflare implements CachePurgeInterface
+/**
+ * Class Cloudflare
+ * @package Servebolt\Optimizer\CachePurge\Drivers
+ */
+class Cloudflare implements CachePurgeAllInterface, CachePurgeUrlInterface
 {
     use Singleton;
 

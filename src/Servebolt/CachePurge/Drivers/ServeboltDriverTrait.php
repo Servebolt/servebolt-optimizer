@@ -6,6 +6,10 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
 
+/**
+ * Trait ServeboltDriverTrait
+ * @package Servebolt\Optimizer\CachePurge\Drivers
+ */
 trait ServeboltDriverTrait
 {
     private $apiInstance;

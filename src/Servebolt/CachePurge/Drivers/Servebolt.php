@@ -5,10 +5,15 @@ namespace Servebolt\Optimizer\CachePurge\Drivers;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
-use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeInterface;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeUrlInterface;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeAllInterface;
 use Servebolt\Optimizer\Exceptions\ServeboltApiError;
 
-class Servebolt implements CachePurgeInterface
+/**
+ * Class Servebolt
+ * @package Servebolt\Optimizer\CachePurge\Drivers
+ */
+class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface
 {
     use Singleton, ServeboltDriverTrait;
 
