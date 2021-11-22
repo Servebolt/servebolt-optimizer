@@ -118,7 +118,7 @@ class CachePurgeNodes implements NodeInterface
             'title' => sprintf('<span data-object-name="%s" data-id="%s">%s</span>', $objectName, $postId, $nodeText),
             'href'  => '#',
             'meta'  => [
-                'class' => 'sb-admin-button sb-purge-current-post-cache',
+                'class' => 'sb-admin-button sb-purge-current-post-cache sb-purge-item',
             ]
         ];
     }
@@ -144,7 +144,7 @@ class CachePurgeNodes implements NodeInterface
             'title' => sprintf('<span data-object-name="%s" data-id="%s">%s</span>', $objectName, $termId, $nodeText),
             'href' => '#',
             'meta' => [
-                'class' => 'sb-admin-button sb-purge-current-term-cache',
+                'class' => 'sb-admin-button sb-purge-current-term-cache sb-purge-item',
             ]
         ];
     }

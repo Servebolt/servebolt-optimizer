@@ -2,8 +2,9 @@ jQuery(document).ready(function($) {
 
   // Toggle cache purge feature active/inactive
   $('#sb-configuration #cache_purge_switch').change(function() {
-    sbToggleCachePurgeFeatureActive($(this).is(':checked'));
-    if ($(this).is(':checked')) {
+    var isActive = $(this).is(':checked');
+    sbToggleCachePurgeFeatureActive(isActive);
+    if (isActive) {
       $('#sb-configuration input[name="servebolt_cache_purge_driver"]:checked').change();
     }
   });
@@ -201,6 +202,38 @@ jQuery(document).ready(function($) {
   }
 
   /**
+   * Toggle visibility of a cache purge button on or off.
+   *
+   * @param {string} action - The action of the button.
+   * @param {boolean} isVisible - Whether the button should be visible or not.
+   */
+  function sbToggleCachePurgeButtons(action, isVisible)
+  {
+    var items = $('#sb-configuration .sb-button.sb-' + action);
+    if (isVisible) {
+      items.removeClass('sb-button-hidden');
+    } else {
+      items.addClass('sb-button-hidden');
+    }
+  }
+
+  /**
+   * Toggle visibility of a WP Admin bar menu item.
+   *
+   * @param {string} action - The action of the item.
+   * @param {boolean} isVisible - Whether the item should be visible or not.
+   */
+  function sbToggleWpAdminBarButtons(action, isVisible)
+  {
+    var items = $('#wpadminbar .sb-' + action);
+    if (isVisible) {
+      items.removeClass('sb-button-hidden');
+    } else {
+      items.addClass('sb-button-hidden');
+    }
+  }
+
+  /**
    * Toggle cache purge-related form elements to show/hide based on active state.
    *
    * @param {boolean} isVisible - Whether the fields should be visible or not.
@@ -214,10 +247,32 @@ jQuery(document).ready(function($) {
     case 'acd':
       sbToggleConfigItemVisibility('acd', true);
       sbToggleConfigItemVisibility('cloudflare', false);
+      sbToggleConfigItemVisibility('automatic-purge', true);
+
+      // Purge action triggers
+      sbToggleCachePurgeButtons('purge-url', true);
+      sbToggleWpAdminBarButtons('purge-url', true);
+      sbToggleWpAdminBarButtons('purge-item', true);
+      break;
+      case 'serveboltcdn':
+      sbToggleConfigItemVisibility('acd', true);
+      sbToggleConfigItemVisibility('cloudflare', false);
+      sbToggleConfigItemVisibility('automatic-purge', false);
+
+      // Purge action triggers
+      sbToggleCachePurgeButtons('purge-url', false);
+      sbToggleWpAdminBarButtons('purge-url', false);
+      sbToggleWpAdminBarButtons('purge-item', false);
       break;
     case 'cloudflare':
       sbToggleConfigItemVisibility('acd', false);
       sbToggleConfigItemVisibility('cloudflare', true);
+      sbToggleConfigItemVisibility('automatic-purge', true);
+
+      // Purge action triggers
+      sbToggleCachePurgeButtons('purge-url', true);
+      sbToggleWpAdminBarButtons('purge-url', true);
+      sbToggleWpAdminBarButtons('purge-item', true);
       break;
     }
   }
