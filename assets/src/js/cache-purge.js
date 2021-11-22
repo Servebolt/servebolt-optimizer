@@ -233,18 +233,21 @@ jQuery(document).ready(function($) {
       sbToggleConfigItemVisibility('cloudflare', false);
       sbToggleConfigItemVisibility('automatic-purge', true);
       sbToggleCachePurgeButtons('purge-url', true);
+      sbToggleCachePurgeButtons('purge-item', true);
       break;
       case 'serveboltcdn':
       sbToggleConfigItemVisibility('acd', true);
       sbToggleConfigItemVisibility('cloudflare', false);
       sbToggleConfigItemVisibility('automatic-purge', false);
       sbToggleCachePurgeButtons('purge-url', false);
+      sbToggleCachePurgeButtons('purge-item', false);
       break;
     case 'cloudflare':
       sbToggleConfigItemVisibility('acd', false);
       sbToggleConfigItemVisibility('cloudflare', true);
       sbToggleConfigItemVisibility('automatic-purge', true);
       sbToggleCachePurgeButtons('purge-url', true);
+      sbToggleCachePurgeButtons('purge-item', true);
       break;
     }
   }
