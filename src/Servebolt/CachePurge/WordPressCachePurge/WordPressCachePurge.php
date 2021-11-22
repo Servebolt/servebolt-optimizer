@@ -175,30 +175,6 @@ class WordPressCachePurge
     }
 
     /**
-     * Purge CDN cache on the site.
-     *
-     * @param bool $returnWpError
-     * @return bool
-     */
-    public static function purgeCdn(bool $returnWpError = false)
-    {
-        $driver = ServeboltCdnDriver::getInstance();
-        return $driver->purgeCdn();
-    }
-
-    /**
-     * Purge CDN cache in network (only for multisites).
-     *
-     * @param bool $returnWpError
-     * @return bool
-     */
-    public static function purgeCdnNetwork(bool $returnWpError = false)
-    {
-        $driver = ServeboltCdnDriver::getInstance();
-        return $driver->purgeCdnNetwork();
-    }
-
-    /**
      * Purge all cache for given site (only for multisites).
      *
      * @param int $blogId
