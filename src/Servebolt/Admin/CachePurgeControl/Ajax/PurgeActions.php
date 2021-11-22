@@ -34,7 +34,6 @@ class PurgeActions extends SharedAjaxMethods
      */
     public function __construct()
     {
-        add_action('wp_ajax_servebolt_purge_cdn_cache', [$this, 'purgeCdnCacheCallback']);
         add_action('wp_ajax_servebolt_purge_all_cache', [$this, 'purgeAllCacheCallback']);
         add_action('wp_ajax_servebolt_purge_url_cache', [$this, 'purgeUrlCacheCallback']);
         add_action('wp_ajax_servebolt_purge_post_cache', [$this, 'purgePostCacheCallback']);
@@ -94,29 +93,6 @@ class PurgeActions extends SharedAjaxMethods
             'sb_optimizer_can_purge_all_cache',
             current_user_can('edit_others_posts')
         );
-    }
-
-    /**
-     * Purge CDN cache cache.
-     */
-    public function purgeCdnCacheCallback()
-    {
-        $this->checkAjaxReferer();
-        ajaxUserAllowedByFunction(__CLASS__ . '::canPurgeCdnCache');
-
-        $this->ensureCachePurgeFeatureIsActive();
-
-        try {
-            setCachePurgeOriginEvent('manual_trigger');
-            WordPressCachePurge::purgeCdn();
-            wp_send_json_success(['message' => __('CDN cache was purged.', 'servebolt-wp')]);
-        } catch (QueueError $e) {
-            // TODO: Handle response from queue system
-        } catch (ApiMessage $e) {
-            // TODO: Handle messages from API.
-        } catch (ApiError|Exception $e) {
-            $this->handleErrors($e);
-        }
     }
 
     /**
