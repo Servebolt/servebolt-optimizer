@@ -378,7 +378,7 @@ class CachePurge
     }
 
     /**
-     * Alias for "driverSupportsUrlCachePurge" to check whether we can purge cache for WP items (through URL caching).
+     * Alias for "driverSupportsUrlCachePurge" to check whether we can purge cache for WP items (through URL cache purging).
      *
      * @return bool
      */
