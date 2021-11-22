@@ -218,6 +218,22 @@ jQuery(document).ready(function($) {
   }
 
   /**
+   * Toggle visibility of a WP Admin bar menu item.
+   *
+   * @param {string} action - The action of the item.
+   * @param {boolean} isVisible - Whether the item should be visible or not.
+   */
+  function sbToggleWpAdminBarButtons(action, isVisible)
+  {
+    var items = $('#wpadminbar .sb-' + action);
+    if (isVisible) {
+      items.removeClass('sb-button-hidden');
+    } else {
+      items.addClass('sb-button-hidden');
+    }
+  }
+
+  /**
    * Toggle cache purge-related form elements to show/hide based on active state.
    *
    * @param {boolean} isVisible - Whether the fields should be visible or not.
@@ -232,22 +248,31 @@ jQuery(document).ready(function($) {
       sbToggleConfigItemVisibility('acd', true);
       sbToggleConfigItemVisibility('cloudflare', false);
       sbToggleConfigItemVisibility('automatic-purge', true);
+
+      // Purge action triggers
       sbToggleCachePurgeButtons('purge-url', true);
-      sbToggleCachePurgeButtons('purge-item', true);
+      sbToggleWpAdminBarButtons('purge-url', true);
+      sbToggleWpAdminBarButtons('purge-item', true);
       break;
       case 'serveboltcdn':
       sbToggleConfigItemVisibility('acd', true);
       sbToggleConfigItemVisibility('cloudflare', false);
       sbToggleConfigItemVisibility('automatic-purge', false);
+
+      // Purge action triggers
       sbToggleCachePurgeButtons('purge-url', false);
-      sbToggleCachePurgeButtons('purge-item', false);
+      sbToggleWpAdminBarButtons('purge-url', false);
+      sbToggleWpAdminBarButtons('purge-item', false);
       break;
     case 'cloudflare':
       sbToggleConfigItemVisibility('acd', false);
       sbToggleConfigItemVisibility('cloudflare', true);
       sbToggleConfigItemVisibility('automatic-purge', true);
+
+      // Purge action triggers
       sbToggleCachePurgeButtons('purge-url', true);
-      sbToggleCachePurgeButtons('purge-item', true);
+      sbToggleWpAdminBarButtons('purge-url', true);
+      sbToggleWpAdminBarButtons('purge-item', true);
       break;
     }
   }
