@@ -1,5 +1,5 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
-<?php use Servebolt\Optimizer\Prefetching\WpPrefetching; ?>
+<?php use Servebolt\Optimizer\AcceleratedDomains\Prefetching\WpPrefetching; ?>
 
 <br>
 <table class="wp-list-table widefat striped">

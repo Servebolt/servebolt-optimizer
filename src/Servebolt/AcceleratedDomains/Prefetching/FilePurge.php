@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\Prefetching;
+namespace Servebolt\Optimizer\AcceleratedDomains\Prefetching;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -8,11 +8,18 @@ use Servebolt\Optimizer\Traits\Singleton;
 
 /**
  * Class FilePurge
- * @package Servebolt\Optimizer\Prefetching
+ * @package Servebolt\Optimizer\AcceleratedDomains\Prefetching
  */
 class FilePurge
 {
     use Singleton;
+
+    /**
+     * Whether we have already initiated purge (prevent from purging multiple times per execution).
+     *
+     * @var bool
+     */
+    private $isPurged = false;
 
     /**
      * Alias for "getInstance".
@@ -52,6 +59,7 @@ class FilePurge
      */
     private function purgeOnMenuUpdate(): void
     {
+        add_action('wp_update_nav_menu_item', [$this, 'scheduleMenuManifestFileRegeneration'], 10, 0);
         add_action('wp_update_nav_menu', [$this, 'scheduleMenuManifestFileRegeneration'], 10, 0);
         add_action('wp_delete_nav_menu', [$this, 'scheduleMenuManifestFileRegeneration'], 10, 0);
         add_filter('pre_set_theme_mod_nav_menu_locations', [$this, 'regenerateMenuManifestFileOnDisplayLocationChange'], 10, 1);
@@ -70,10 +78,13 @@ class FilePurge
      */
     public function scheduleManifestFileRegeneration(): void
     {
+        if ($this->isPurged) {
+            return;
+        }
+        $this->isPurged = true;
         WpPrefetching::rescheduleManifestDataGeneration(); // Delete transient so that we will record prefetch items on next page load
         ManifestFilesModel::clear(); // Prevent prefetch files from being printed to headers
         ManifestFileWriter::clear(); // Delete prefetch files
-
         if (WpPrefetching::shouldWriteFilesUsingCron()) {
             WpPrefetching::scheduleRecordPrefetchItems();
         }

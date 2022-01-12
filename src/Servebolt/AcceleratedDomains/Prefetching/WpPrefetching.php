@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\Prefetching;
+namespace Servebolt\Optimizer\AcceleratedDomains\Prefetching;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -11,7 +11,7 @@ use function Servebolt\Optimizer\Helpers\smartGetOption;
 
 /**
  * Class WpPrefetching
- * @package Servebolt\Optimizer\Prefetching
+ * @package Servebolt\Optimizer\AcceleratedDomains\Prefetching
  */
 class WpPrefetching extends Prefetching
 {
@@ -52,7 +52,10 @@ class WpPrefetching extends Prefetching
      */
     public static function scheduleRecordPrefetchItems()
     {
-        wp_schedule_single_event(time(), 'sb_optimizer_prefetching_record_prefetch_items');
+        $hook = 'sb_optimizer_prefetching_record_prefetch_items';
+        if (!wp_next_scheduled($hook)) {
+            wp_schedule_single_event(time(), $hook);
+        }
     }
 
     /**

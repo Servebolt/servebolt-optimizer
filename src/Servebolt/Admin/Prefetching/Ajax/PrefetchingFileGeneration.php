@@ -2,8 +2,8 @@
 
 namespace Servebolt\Optimizer\Admin\Prefetching\Ajax;
 
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
-use Servebolt\Optimizer\Prefetching\WpPrefetching;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
 
 /**
