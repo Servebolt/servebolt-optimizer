@@ -1,12 +1,12 @@
 <?php
 
-namespace Servebolt\Optimizer\Prefetching;
+namespace Servebolt\Optimizer\AcceleratedDomains\Prefetching;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
  * Class ManifestHeaders
- * @package Servebolt\Optimizer\Prefetching
+ * @package Servebolt\Optimizer\AcceleratedDomains\Prefetching
  */
 class ManifestHeaders
 {

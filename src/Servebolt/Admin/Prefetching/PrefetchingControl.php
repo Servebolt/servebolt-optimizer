@@ -4,11 +4,11 @@ namespace Servebolt\Optimizer\Admin\Prefetching;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\ManifestDataModel;
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\ManifestFilesModel;
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\ManifestFileWriter;
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Admin\Prefetching\Ajax\PrefetchingFileGeneration;
-use Servebolt\Optimizer\Prefetching\ManifestFilesModel;
-use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
-use Servebolt\Optimizer\Prefetching\ManifestDataModel;
-use Servebolt\Optimizer\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
@@ -120,7 +120,7 @@ class PrefetchingControl
      */
     private function refreshManifestFiles(): void
     {
-        $callback = 'Servebolt\\Optimizer\\Prefetching\\WpPrefetching::recordPrefetchItems';
+        $callback = 'Servebolt\\Optimizer\\AcceleratedDomains\\Prefetching\\WpPrefetching::recordPrefetchItems';
         if (!has_action('shutdown', $callback)) {
             WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
             add_action('shutdown', $callback);

@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\Prefetching;
+namespace Servebolt\Optimizer\AcceleratedDomains\Prefetching;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -8,7 +8,7 @@ use WP_Http;
 
 /**
  * Class Prefetching
- * @package Servebolt\Optimizer\Prefetching
+ * @package Servebolt\Optimizer\AcceleratedDomains\Prefetching
  */
 class Prefetching
 {

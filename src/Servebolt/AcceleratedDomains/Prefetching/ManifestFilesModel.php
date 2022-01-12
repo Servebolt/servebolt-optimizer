@@ -1,6 +1,6 @@
 <?php
 
-namespace Servebolt\Optimizer\Prefetching;
+namespace Servebolt\Optimizer\AcceleratedDomains\Prefetching;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
@@ -9,10 +9,10 @@ use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 
 /**
- * Class ManifestDataModel
- * @package Servebolt\Optimizer\Prefetching
+ * Class ManifestFilesModel
+ * @package Servebolt\Optimizer\AcceleratedDomains\Prefetching
  */
-class ManifestDataModel
+class ManifestFilesModel
 {
 
     /**
@@ -20,7 +20,7 @@ class ManifestDataModel
      *
      * @var string
      */
-    private static $optionName = 'manifest_file_content';
+    private static $optionName = 'manifest_available_files';
 
     /**
      * Store manifest files data in options.
@@ -30,6 +30,20 @@ class ManifestDataModel
     public static function store(array $data): void
     {
         updateOption(self::$optionName, $data);
+    }
+
+    /**
+     * Remove item from model.
+     *
+     * @param string $itemToRemove
+     */
+    public static function remove(string $itemToRemove): void
+    {
+        $items = self::get();
+        $items = array_filter($items, function($itemType) use ($itemToRemove) {
+            return $itemType !== $itemToRemove;
+        });
+        self::store($items);
     }
 
     /**

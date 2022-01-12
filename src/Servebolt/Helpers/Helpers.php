@@ -691,6 +691,19 @@ function isCli(): bool
 }
 
 /**
+ * Check whether we should add new pages to menu(s).
+ *
+ * @return bool
+ */
+/*
+function autoAddPagesToMenu(): bool
+{
+    $navMenuOption = (array) get_option('nav_menu_options');
+    return isset($navMenuOption['auto_add']) && !empty((array) $navMenuOption['auto_add']);
+}
+*/
+
+/**
  * Check if we are front-end.
  *
  * @return bool
