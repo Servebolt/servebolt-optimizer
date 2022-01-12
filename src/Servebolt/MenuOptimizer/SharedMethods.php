@@ -78,9 +78,8 @@ trait SharedMethods
      */
     private static function setMenuSignatureIndex($menuSignatureIndex, $menuId): void
     {
-        $transientKey = self::menuSignatureIndexTransientKey($menuId);
         set_transient(
-            $transientKey,
+            self::menuSignatureIndexTransientKey($menuId),
             wp_json_encode($menuSignatureIndex),
             self::getMenuSignatureIndexCacheExpirationTime()
         );
@@ -93,8 +92,7 @@ trait SharedMethods
      */
     private static function deleteMenuSignatureIndex($menuId): void
     {
-        $transientKey = self::menuSignatureIndexTransientKey($menuId);
-        delete_transient($transientKey);
+        delete_transient(self::menuSignatureIndexTransientKey($menuId));
     }
 
     /**
