@@ -1,10 +1,10 @@
 # Servebolt Optimizer
 
 This repository contains the WordPress plugin Servebolt Optimizer - a plugin that:
-- Optimizes your WordPress-site through markup cleanup, adding indexes and ensuring that your database is running with the best MySQL DB enfine
+- Optimizes your WordPress-site through markup cleanup, adding indexes and ensuring that your database is running with the best MySQL storage engine.
 - Adds support and control features for Servebolt Accelerated Domains
-- Gives you neat features related to Cloudflare's services (cache purge, image resize)
-- Gives you additional benefits when hosting your site at Servebolt
+- Gives you neat features related to Cloudflares services (cache purge, image resize)
+- Gives you additional benefits when hosting your site at Servebolt (cache control, cache purging)
 
 The plugin infrastructure is loosely based on: https://github.com/avillegasn/wp-beb
 
