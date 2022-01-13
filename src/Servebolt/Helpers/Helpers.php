@@ -1574,6 +1574,41 @@ function smartDeleteOption(?int $blogId = null, string $optionName, bool $assert
 }
 
 /**
+ * Check if a table exists.
+ *
+ * @param string $tableName
+ * @return bool
+ */
+function tableExists(string $tableName): bool
+{
+    global $wpdb;
+    return in_array($tableName,
+        $wpdb->get_col(
+            $wpdb->prepare('SHOW TABLES LIKE %s', $tableName),
+            0),
+        true);
+}
+
+/**
+ * Check if a table has a given index.
+ *
+ * @param string $tableName
+ * @param string $indexName
+ * @return bool
+ */
+function tableHasIndex(string $tableName, string $indexName): bool
+{
+    global $wpdb;
+    $indexes  = $wpdb->get_results( "SHOW INDEX FROM {$tableName}" );
+    foreach ($indexes as $index) {
+        if ($index->Table == $tableName && $index->Key_name == $indexName) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * A function that will get the option at the right place (in current blog or a specified blog).
  *
  * @param int|null $blogId

@@ -5,12 +5,14 @@ namespace Servebolt\Optimizer\Utils\DatabaseMigration\Migrations;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Utils\DatabaseMigration\AbstractMigration;
+use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationInterface;
+use function Servebolt\Optimizer\Helpers\tableExists;
 
 /**
  * Class QueueMigration
  * @package Servebolt\Optimizer\Utils\DatabaseMigration\Migrations
  */
-class QueueMigration extends AbstractMigration
+class QueueMigration extends AbstractMigration implements MigrationInterface
 {
 
     /**
@@ -52,6 +54,16 @@ CREATE TABLE IF NOT EXISTS `%table-name%` (
 ) ENGINE=%storage-engine% %charset-collate%;
 EOF;
         $this->runSql($sql);
+    }
+
+    /**
+     * Check whether the table exists.
+     *
+     * @return bool
+     */
+    public function hasBeenRun(): bool
+    {
+        return tableExists($this->getTableNameWithPrefix());
     }
 
     /**

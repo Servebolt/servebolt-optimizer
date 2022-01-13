@@ -10,6 +10,7 @@ use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
+use function Servebolt\Optimizer\Helpers\tableExists;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\updateSiteOption;
 
@@ -197,7 +198,7 @@ class MigrationRunner
         if ($migrations = $this->resolveMigrations()) {
             foreach ($migrations as $migration) {
                 $tableName = (new $migration)->getTableNameWithPrefix();
-                if (!$this->tableExists($tableName)) {
+                if (!tableExists($tableName)) {
                     return false;
                 }
             }
@@ -206,21 +207,7 @@ class MigrationRunner
         return true;
     }
 
-    /**
-     * Check if a table exists.
-     *
-     * @param string $tableName
-     * @return bool
-     */
-    public function tableExists(string $tableName): bool
-    {
-        global $wpdb;
-        return in_array($tableName,
-            $wpdb->get_col(
-                $wpdb->prepare('SHOW TABLES LIKE %s', $tableName),
-                0),
-            true);
-    }
+
 
     private function doMigration(): void
     {
@@ -293,6 +280,30 @@ class MigrationRunner
     }
 
     /**
+     * Check if migration is already executed.
+     *
+     * @param $instance
+     * @param $migrationMethod
+     * @return bool
+     */
+    private function alreadyCompleted($instance, $migrationMethod): bool
+    {
+        return (
+            method_exists($instance, 'hasBeenRun')
+            && (
+                (
+                    $migrationMethod == 'up'
+                    && $instance->hasBeenRun() === true
+                ) ||
+                (
+                    $migrationMethod == 'down'
+                    && $instance->hasBeenRun() === false
+                )
+            )
+        );
+    }
+
+    /**
      * Run migration steps.
      *
      * @param $migrationClass
@@ -301,6 +312,9 @@ class MigrationRunner
     {
         $instance = new $migrationClass;
         $migrationMethod = $this->migrationDirection;
+        if ($this->alreadyCompleted($instance, $migrationMethod)) {
+            return; // Skip it, this migration is already completed
+        }
         if (method_exists($instance, $migrationMethod)) {
             if ($this->runPrePostMethods) {
                 if (method_exists($instance, 'preMigration')) {
