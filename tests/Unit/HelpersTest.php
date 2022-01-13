@@ -397,15 +397,18 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testCountSitesHelper()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $this->assertEquals(1, countSites());
         $this->createBlogs(3);
         $this->assertEquals(4, countSites());
+        $this->deleteBlogs();
+        $this->assertEquals(1, countSites());
     }
+
 
     public function testSmartOptionsHelpersMultisite()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $this->createBlogs(3);
         iterateSites(function ($site) {
             $key = 'some-option-for-testing';
@@ -415,6 +418,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
             $this->assertTrue(smartDeleteOption($site->blog_id, $key));
             $this->assertNull(smartGetOption($site->blog_id, $key));
         }, true);
+        $this->deleteBlogs();
     }
 
     public function testOptionsOverride()
@@ -439,7 +443,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testBlogOptionsOverride()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $this->createBlogs(2);
         iterateSites(function ($site) {
             $override = function($value) {
@@ -447,6 +451,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
             };
             $key = 'some-overrideable-blog-options-key';
             $fullKey = 'servebolt_' . $key;
+            deleteBlogOption($site->blog_id, $key);
             $this->assertEquals('some-default-value', getBlogOption($site->blog_id, $key, 'some-default-value'));
             add_filter('sb_optimizer_get_blog_option_' . $fullKey, $override);
             $this->assertEquals('override', getBlogOption($site->blog_id, $key));
@@ -459,6 +464,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
             remove_filter('sb_optimizer_get_blog_option_' . $fullKey, $override);
             $this->assertEquals('a-value', getBlogOption($site->blog_id, $key));
         }, true);
+        $this->deleteBlogs();
     }
 
     public function testDefaultValuesForOptionsHelpers()
@@ -481,20 +487,23 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testDefaultValuesForBlogOptionsHelpers()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $this->createBlogs(3);
         iterateSites(function ($site) {
             $key = 'default-options-value-test-key';
+            deleteBlogOption($site->blog_id, $key, 'an-actual-value');
             $this->assertEquals('default-value', getBlogOption($site->blog_id, $key, 'default-value'));
             updateBlogOption($site->blog_id, $key, 'an-actual-value');
             $this->assertNotEquals('default-value', getBlogOption($site->blog_id, $key, 'default-value'));
             $this->assertEquals('an-actual-value', getBlogOption($site->blog_id, $key, 'default-value'));
         }, true);
+        $this->deleteBlogs();
     }
 
     public function testDefaultValuesForSmartOptionsHelpers()
     {
         $key = 'default-options-value-test-key';
+        smartDeleteOption(null, $key);
         $this->assertEquals('default-value', smartGetOption(null, $key, 'default-value'));
         smartUpdateOption(null, $key, 'an-actual-value');
         $this->assertNotEquals('default-value', smartGetOption(null, $key, 'default-value'));
@@ -524,7 +533,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testOptionsHelpersMultisite()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $this->createBlogs(2);
         iterateSites(function ($site) {
             $key = 'some-option-for-testing-multisite';
@@ -534,6 +543,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
             $this->assertTrue(deleteBlogOption($site->blog_id, $key));
             $this->assertNull(getBlogOption($site->blog_id, $key));
         }, true);
+        $this->deleteBlogs();
     }
 
     public function testSmartOptionsHelpers()
@@ -548,7 +558,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testThatAllSiteSettingsGetsDeleted()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $allSiteOptionsNames = getAllSiteOptionNames(true);
         foreach ($allSiteOptionsNames as $option) {
             updateSiteOption($option, $option);
@@ -563,7 +573,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testThatAllSettingsGetsDeleted()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $this->createBlogs(2);
         $allOptionsNames = getAllOptionsNames(true);
         iterateSites(function ($site) use ($allOptionsNames) {
@@ -621,6 +631,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
                 }
             }
         });
+        $this->deleteBlogs();
     }
 
     public function testThatWeCanOverrideOptions(): void
