@@ -3,6 +3,7 @@
 namespace Unit;
 
 use ServeboltWPUnitTestCase;
+use Unit\Traits\MultisiteTrait;
 use function Servebolt\Optimizer\Helpers\deleteBlogOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
@@ -17,9 +18,12 @@ use function Servebolt\Optimizer\Helpers\updateSiteOption;
 
 class OptionEncryptionTest extends ServeboltWPUnitTestCase
 {
+    use MultisiteTrait;
+
     public function testMultisiteOptions()
     {
         $this->skipWithoutMultisite();
+        $this->createBlogs(3);
         iterateSites(function ($site) {
             $value = 'test-value-' . $site->blog_id;
             $key = 'sb-test-options-key';
@@ -30,6 +34,7 @@ class OptionEncryptionTest extends ServeboltWPUnitTestCase
             deleteBlogOption($site->blog_id, $key);
             $this->assertNull(getBlogOption($site->blog_id, $key));
         }, true);
+        $this->deleteBlogs();
     }
 
     public function testSiteOptions()
