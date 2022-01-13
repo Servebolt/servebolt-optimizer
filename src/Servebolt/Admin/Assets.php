@@ -11,6 +11,7 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\getAjaxNonce;
 use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
+use function Servebolt\Optimizer\Helpers\isDevDebug;
 
 /**
  * Class Assets
@@ -182,12 +183,13 @@ class Assets {
                 true
             );
             wp_localize_script('servebolt-optimizer-cache-purge-trigger-scripts', 'sb_ajax_object', [
-                'ajax_nonce'                         => getAjaxNonce(),
-                'site_url'                           => get_site_url(),
-                'use_native_js_fallback'             => booleanToString($generalSettings->useNativeJsFallback()),
-                'ajaxurl'                            => admin_url('admin-ajax.php'),
-                'cron_purge_is_active'               => false, // TODO: Add real boolean value
-                //'cron_purge_is_active'               => sb_cf_cache()->cron_purge_is_active(),
+                'is_dev'                 => isDevDebug(),
+                'ajax_nonce'             => getAjaxNonce(),
+                'site_url'               => get_site_url(),
+                'use_native_js_fallback' => booleanToString($generalSettings->useNativeJsFallback()),
+                'ajaxurl'                => admin_url('admin-ajax.php'),
+                'cron_purge_is_active'   => false, // TODO: Add real boolean value
+                //'cron_purge_is_active'   => sb_cf_cache()->cron_purge_is_active(),
             ]);
         }
 	}

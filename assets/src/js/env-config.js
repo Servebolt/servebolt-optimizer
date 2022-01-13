@@ -1,6 +1,6 @@
 /**
  * Environment config retrieval class.
- * 
+ *
  * @type {{retrieveConfig: ((function(): Promise<Object|boolean|*>)|*), workerSuffix: string, useDummyData: boolean, defaultValue: null, get: ((function(*=): Promise<*|null>)|*), dummyData: (function(): {sb_acd_worker_3pp_proxy: boolean, sb_acd_image_resize: boolean, sb_acd_worker_google_fonts: boolean}), getSiteUrl: (function(): *), getConfigUrl: (function())}}
  */
 window.envConfig = {

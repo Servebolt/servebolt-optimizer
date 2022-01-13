@@ -11,6 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
  * Check if the current site has access to the Accelerated Domains Image Resize-feature.
  */
 window.acdImageResizeAccessCheck = function () {
+   if (sb_ajax_object.is_dev) {
+      window.acdImageResizeActivate();
+      return;
+   }
    window.envConfig.get('sb_acd_image_resize').then(function(result) {
       if (result) {
          window.acdImageResizeActivate();
@@ -21,28 +25,44 @@ window.acdImageResizeAccessCheck = function () {
 };
 
 /**
- * Disable the Accelerated Domains Image Resize-feature
+ * Disable the Accelerated Domains Image Resize-feature.
  */
 window.ensureAcdImageResizeDisabled = function () {
-   var element = document.getElementById('acd_image_resize_switch');
-   if (!element.checked) {
-      return;
-   }
-   element.checked = false;
+   window.acdImageResizeDeactivate();
+   window.disableAcdImageResizeAjax();
+};
+
+/**
+ * Disable ACD Image Resize-feature using AJAX.
+ */
+window.disableAcdImageResizeAjax = function () {
    const data = new FormData();
    data.append('action', 'servebolt_acd_image_resize_disable');
    data.append('security', sb_ajax_object.ajax_nonce);
    fetch(sb_ajax_object.ajaxurl, {
-       method: 'POST',
-       body: data
+      method: 'POST',
+      body: data
    });
+};
+
+/**
+ * Deactivate the option to enable/disable the Accelerated Domains Image Resize-feature.
+ */
+window.acdImageResizeDeactivate = function () {
+   var element = document.getElementById('acd_image_resize_switch');
+   element.disabled = true;
+   element.checked = false;
+   element.title = element.getAttribute('disabled-title');
+   element.dispatchEvent(new Event('change'));
 };
 
 /**
  * Activate the option to enable/disable the Accelerated Domains Image Resize-feature.
  */
 window.acdImageResizeActivate = function () {
-   document.getElementById('acd_image_resize_switch').disabled = false;
+   var element = document.getElementById('acd_image_resize_switch');
+   element.disabled = false;
+   element.removeAttribute('title');
 };
 
 /**
