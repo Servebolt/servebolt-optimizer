@@ -133,7 +133,7 @@ class UnixCronModel
                 'command' => $commandInstance->generateCommand(),
                 'comment' => $commandInstance->generateComment(),
                 'schedule' => $commandInstance->getInterval(),
-                'notifications' => apply_filters('sb_optimizer_unix_cron_model_default_notification', 'all', $commandInstance),
+                'notifications' => apply_filters('sb_optimizer_unix_cron_model_default_notification', 'none', $commandInstance),
             ]
         ];
     }
