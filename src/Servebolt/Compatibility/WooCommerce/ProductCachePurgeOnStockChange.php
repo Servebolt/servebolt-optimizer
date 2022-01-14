@@ -125,7 +125,7 @@ class ProductCachePurgeOnStockChange
     private function shouldPurgeCacheOnStockAmountChange(): bool
     {
         if (apply_filters('sb_optimizer_woocommerce_product_cache_purge_on_stock_amount_change', true) === false) {
-            return false; // We're not suppose to purge cache on WooCommerce stock change
+            return false; // We're not supposed to purge cache on WooCommerce stock change
         }
         return $this->shouldPurgeCacheOnStockCommonCondition();
     }
@@ -156,7 +156,7 @@ class ProductCachePurgeOnStockChange
         }
 
         if (apply_filters('sb_optimizer_woocommerce_product_cache_purge_on_stock_change', true) === false) {
-            return false; // We're not suppose to purge cache on WooCommerce stock status change
+            return false; // We're not supposed to purge cache on WooCommerce stock status change
         }
 
         /*

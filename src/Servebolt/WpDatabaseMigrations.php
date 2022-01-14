@@ -25,8 +25,7 @@ class WpDatabaseMigrations
     {
         // Run up/down migration for new/deleted sites
         if (!isTesting()) {
-            add_action('wp_initialize_site', [$this, 'siteCreation'], 10, 1);
-            add_action('wp_uninitialize_site', [$this, 'siteDeletion'], 10, 1);
+            add_action('admin_init', [$this, 'multisiteSupport']);
         }
 
         $method = 'Servebolt\\Optimizer\\Utils\\DatabaseMigration\\MigrationRunner::run';
@@ -41,6 +40,17 @@ class WpDatabaseMigrations
         ) {
             add_action('init', $method);
         }
+    }
+
+    /**
+     * Make migrations work in a multisite-network.
+     *
+     * @return void
+     */
+    public function multisiteSupport()
+    {
+        add_action('wp_initialize_site', [$this, 'siteCreation'], 10, 1);
+        add_action('wp_uninitialize_site', [$this, 'siteDeletion'], 10, 1);
     }
 
     /**
