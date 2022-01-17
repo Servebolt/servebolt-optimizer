@@ -25,10 +25,10 @@ class CacheExceptionRules
      * @param null|boolean $shouldNotCache
      * @return bool
      */
-    public function noCacheCheck($shouldNotCache): bool
+    public function noCacheCheck(bool $shouldNotCache): bool
     {
-        if (is_null($shouldNotCache)) {
-            return is_cart() || is_checkout() || is_account_page();
+        if (is_cart() || is_checkout() || is_account_page()) {
+            return true;
         }
         return $shouldNotCache;
     }
@@ -39,10 +39,10 @@ class CacheExceptionRules
      * @param null|boolean $shouldCache
      * @return bool
      */
-    public function cacheCheck($shouldCache): bool
+    public function cacheCheck(bool $shouldCache): bool
     {
-        if (is_null($shouldCache)) {
-            return is_shop() || is_product_category() || is_product_tag() || is_product();
+        if (is_shop() || is_product_category() || is_product_tag() || is_product()) {
+            return true;
         }
         return $shouldCache;
     }

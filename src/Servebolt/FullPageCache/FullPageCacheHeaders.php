@@ -230,7 +230,7 @@ class FullPageCacheHeaders
      */
     private function isEcommerceNoCachePage(): ?bool
     {
-        return apply_filters('sb_optimizer_fpc_ecommerce_pages_no_cache_bool', null);
+        return apply_filters('sb_optimizer_fpc_ecommerce_pages_no_cache_bool', false);
     }
 
     /**
@@ -240,7 +240,7 @@ class FullPageCacheHeaders
      */
     private function isEcommerceCachePage(): ?bool
     {
-        return apply_filters('sb_optimizer_fpc_ecommerce_pages_cache_bool', null);
+        return apply_filters('sb_optimizer_fpc_ecommerce_pages_cache_bool', false);
     }
 
     /**

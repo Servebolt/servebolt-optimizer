@@ -24,13 +24,13 @@ class CacheExceptionRules
     /**
      * Check if we are in an EDD-context and check if we should not cache.
      *
-     * @param null|boolean $shouldNotCache
+     * @param boolean $shouldNotCache
      * @return bool
      */
-    public function noCacheCheck($shouldNotCache): bool
+    public function noCacheCheck(bool $shouldNotCache): bool
     {
-        if (is_null($shouldNotCache)) {
-            return edd_is_checkout() || edd_is_success_page() || edd_is_purchase_history_page();
+        if (edd_is_checkout() || edd_is_success_page() || edd_is_purchase_history_page()) {
+            return true;
         }
         return $shouldNotCache;
     }
@@ -38,13 +38,13 @@ class CacheExceptionRules
     /**
      * Check if we are in an EDD-context and check if we should cache.
      *
-     * @param null|boolean $shouldCache
+     * @param boolean $shouldCache
      * @return bool
      */
-    public function cacheCheck($shouldCache): bool
+    public function cacheCheck(bool $shouldCache): bool
     {
-        if (is_null($shouldCache)) {
-            return edd_is_failed_transaction_page() || $this->isShop() || $this->isProductCategory() || $this->isProductTag() || $this->isProduct();
+        if (edd_is_failed_transaction_page() || $this->isShop() || $this->isProductCategory() || $this->isProductTag() || $this->isProduct()) {
+            return true;
         }
         return $shouldCache;
     }
