@@ -19,7 +19,7 @@ class FilePurge
      *
      * @var bool
      */
-    private $isPurged = false;
+    private $isAlreadyPurged = false;
 
     /**
      * Alias for "getInstance".
@@ -78,10 +78,6 @@ class FilePurge
      */
     public function scheduleManifestFileRegeneration(): void
     {
-        if ($this->isPurged) {
-            return;
-        }
-        $this->isPurged = true;
         WpPrefetching::rescheduleManifestDataGeneration(); // Delete transient so that we will record prefetch items on next page load
         ManifestFilesModel::clear(); // Prevent prefetch files from being printed to headers
         ManifestFileWriter::clear(); // Delete prefetch files
@@ -107,6 +103,10 @@ class FilePurge
      */
     public function scheduleMenuManifestFileRegeneration(): void
     {
+        if ($this->isAlreadyPurged) {
+            return;
+        }
+        $this->isAlreadyPurged = true;
         WpPrefetching::rescheduleManifestDataGeneration(); // Delete transient so that we will record prefetch items on next page load
         ManifestFileWriter::clear('menu'); // Delete menu prefetch files
         ManifestFileWriter::removeFromWrittenFiles('menu'); // Prevent menu prefetch file from being printed to headers

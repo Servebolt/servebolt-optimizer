@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\isFrontEnd;
+use function Servebolt\Optimizer\Helpers\isWpRest;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 
@@ -32,7 +33,11 @@ class WpPrefetching extends Prefetching
         if (self::isActive()) {
             $this->registerCronHook();
             add_action('init', [$this, 'initFeature']);
-            add_action('admin_init', __NAMESPACE__ . '\\FilePurge::init');
+            if (isWpRest()) {
+                add_action('init', __NAMESPACE__ . '\\FilePurge::init');
+            } else {
+                add_action('admin_init', __NAMESPACE__ . '\\FilePurge::init');
+            }
         }
     }
 
