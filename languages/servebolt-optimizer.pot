@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Servebolt Optimizer 3.4\n"
+"Project-Id-Version: Servebolt Optimizer 3.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/servebolt-optimizer\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2022-01-13T12:38:36+00:00\n"
+"POT-Creation-Date: 2022-01-25T13:22:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: servebolt-wp\n"
@@ -42,6 +42,10 @@ msgstr ""
 
 #: php-outdated.php:24
 msgid "Servebolt Optimizer cannot run on PHP-versions older than PHP %s. You currently run PHP version %s. Please upgrade your PHP version to be able to run Servebolt Optimizer."
+msgstr ""
+
+#: src/Servebolt/AcceleratedDomains/Prefetching/WpPrefetching.php:82
+msgid "The manifest files are now generated and should be updated in Accelerated Domains. You will now be sent back to WP Admin."
 msgstr ""
 
 #: src/Servebolt/Admin/AcceleratedDomainsControl/Ajax/PurgeActions.php:36
@@ -463,8 +467,8 @@ msgstr ""
 msgid "Settings saved."
 msgstr ""
 
-#: src/Servebolt/Admin/Prefetching/PrefetchingControl.php:54
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:12
+#: src/Servebolt/Admin/Prefetching/PrefetchingControl.php:53
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:14
 msgid "Prefetching"
 msgstr ""
 
@@ -870,16 +874,20 @@ msgstr ""
 msgid "Cloudflare Image Resize feature is deactivated."
 msgstr ""
 
-#: src/Servebolt/Cli/General/General.php:49
+#: src/Servebolt/Cli/General/General.php:51
 msgid "Do you really want to delete all settings? This will affect all sites in multi-site network."
 msgstr ""
 
-#: src/Servebolt/Cli/General/General.php:51
+#: src/Servebolt/Cli/General/General.php:53
 msgid "Do you really want to delete all settings?"
 msgstr ""
 
-#: src/Servebolt/Cli/General/General.php:55
+#: src/Servebolt/Cli/General/General.php:57
 msgid "All settings deleted!"
+msgstr ""
+
+#: src/Servebolt/Cli/General/General.php:90
+msgid "Successfully ran re-migration."
 msgstr ""
 
 #: src/Servebolt/Cli/HtmlCache/HtmlCache.php:210
@@ -1192,6 +1200,7 @@ msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/control/network-list-view.php:26
 #: src/Servebolt/Views/accelerated-domains/prefetching/network-list-view.php:27
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:96
 #: src/Servebolt/Views/cache-settings/cache-purge/network-admin/list.php:32
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:31
 #: src/Servebolt/Views/cache-settings/cache-ttl/network-list-view.php:27
@@ -1224,8 +1233,8 @@ msgstr ""
 #: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:21
 #: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:53
 #: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:66
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:18
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:58
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:20
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:63
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:44
 #: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:21
 #: src/Servebolt/Views/cloudflare-image-resize/configration.php:59
@@ -1421,80 +1430,104 @@ msgstr ""
 msgid "Go to site prefetch settings"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:15
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:17
 msgid "Prefetching-feature active?"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:21
-msgid "This feature is using WP Cron to write the prefetch manifest files to the disk, so it is required that you have a working WP Cron-setup."
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:23
+msgid "This feature is using WP Cron to write the prefetch manifest files to the disk, so it is strongly recommended that you have a working WP Cron-setup. Otherwise you can use the button below called \"Generate manually\"."
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:22
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:24
 msgid "Check out %sSuggested optimizations%s for more information about this."
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:30
-msgid "Manifest files"
-msgstr ""
-
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:33
-msgid "Generate style manifest-file?"
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:27
+msgid "The manifest files will be regenerated when a setting is changed on this page, when the theme is changed, when a plugin is activated/deactivated, or when a menu is changed/deleted or its position is changed."
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:35
-msgid "Styles"
+msgid "Manifest files"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:38
-msgid "Generate script manifest-file?"
+msgid "Generate style manifest-file?"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:40
-msgid "Scripts"
+msgid "Styles"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:43
-msgid "Generate menu manifest-file?"
+msgid "Generate script manifest-file?"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:45
-msgid "Menu"
+msgid "Scripts"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:48
+msgid "Generate menu manifest-file?"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:50
+msgid "Menu"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:53
 msgid "Check the file types that you would like to generate."
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:52
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:57
 msgid "Use full URLs in manifest files"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:55
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:60
 msgid "Use full URLs in manifest files?"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:64
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:69
 msgid "Max number of lines"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:68
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:73
 msgid "Use this field to limit the number of lines in the prefetch files. This can be useful for example if the website has a large amount of menu items."
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:73
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:78
 msgid "Current prefetch files"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:82
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:87
 msgid "No manifest files"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:87
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:92
+msgid "Is scheduled for manifest file generation?"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:96
+msgid "Yes, at %s."
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:100
 msgid "Current prefetch data preview"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:97
-msgid "Regenerate files"
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:106
+msgid "Actions"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:108
+msgid "Generate manually"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:109
+msgid "Regenerate immediately"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:110
+msgid "Regenerate using WP Cron"
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/acd-configuration.php:8
@@ -2119,7 +2152,7 @@ msgid "Enabling the menu optimizer speeds up the delivery of menus by multiples.
 msgstr ""
 
 #: src/Servebolt/Views/performance-optimizer/menu-optimizer/promo.php:14
-msgid "%sLearn more about this settings here%s and make sure to test this setting before activating it in production."
+msgid "%sLearn more about this settings here%s and %smake sure to test this setting before activating it in production%s."
 msgstr ""
 
 #: src/Servebolt/Views/performance-optimizer/menu-optimizer/settings-form.php:15
