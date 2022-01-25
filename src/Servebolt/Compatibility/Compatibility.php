@@ -29,7 +29,7 @@ class Compatibility
         new CloudflareCompatibility;
         new YoastPremiumCompatibility;
         new JetpackCompatibility;
-        new EasyDigitalDownloadsCompatibility;
+        //new EasyDigitalDownloadsCompatibility;
 
         if (isHostedAtServebolt()) {
             new ActionSchedulerCompatibility;
