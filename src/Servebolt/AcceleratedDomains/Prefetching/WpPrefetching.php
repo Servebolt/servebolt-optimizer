@@ -82,6 +82,16 @@ class WpPrefetching extends Prefetching
             alert('<?php _e('The manifest files are now generated and should be updated in Accelerated Domains. You will now be sent back to WP Admin.', 'servebolt-wp'); ?>');
         </script>
         <?php
+        $this->redirectBackToWpAdmin();
+    }
+
+    /**
+     * Redirect back to WP Admin after prefetch items record.
+     *
+     * @return void
+     */
+    private function redirectBackToWpAdmin(): void
+    {
         javascriptRedirect(wp_login_url(get_admin_url(null, 'admin.php?page=servebolt-prefetching&manual-prefetch-success')));
     }
 
@@ -160,7 +170,7 @@ class WpPrefetching extends Prefetching
         }
 
         if ($this->shouldRedirect()) {
-            add_action('wp_footer', [$this, 'redirectToExposeManifestFilesToCloudflare'], 100);
+            add_action('wp_footer', [$this, 'redirectAfterPrefetchItemsRecord'], 100);
         }
     }
 
@@ -169,9 +179,13 @@ class WpPrefetching extends Prefetching
      *
      * @return void
      */
-    public function redirectToExposeManifestFilesToCloudflare(): void
+    public function redirectAfterPrefetchItemsRecord(): void
     {
-        javascriptRedirect(self::getCloudflareRefreshUrlWithParameters());
+        if (self::shouldExposeManifestFilesAfterPrefetchItemsRecord()) {
+            javascriptRedirect(self::getCloudflareRefreshUrlWithParameters());
+        } else {
+            $this->redirectBackToWpAdmin();
+        }
     }
 
     /**

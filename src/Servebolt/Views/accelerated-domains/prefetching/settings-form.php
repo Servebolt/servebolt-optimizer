@@ -23,6 +23,9 @@
                         <?php _e('This feature is using WP Cron to write the prefetch manifest files to the disk, so it is strongly recommended that you have a working WP Cron-setup. Otherwise you can use the button below called "Generate manually".', 'servebolt-wp'); ?><br>
                         <?php printf(__('Check out %sSuggested optimizations%s for more information about this.', 'servebolt-wp'), '<a href="' . admin_url('admin.php?page=servebolt-performance-optimizer') . '">', '</a>'); ?>
                     </p>
+                    <p>
+                        <?php _e('The manifest files will be regenerated when a setting is changed on this page, when the theme is changed, when a plugin is activated/deactivated, or when a menu is changed/deleted or its position is changed.', 'servebolt-wp'); ?>
+                    </p>
                     <p></p>
                 </fieldset>
             </td>
@@ -73,9 +76,9 @@
             </tr>
             <tr>
                 <th scope="row"><?php _e('Current prefetch files', 'servebolt-wp'); ?></th>
-                <td>
+                <td style="vertical-align: top;padding-top: 20px;">
                     <?php if (is_array($prefetchFiles) && !empty($prefetchFiles)): ?>
-                    <ul>
+                    <ul style="margin-top: 0;">
                         <?php foreach ($prefetchFiles as $prefetchFile): ?>
                         <li><a href="<?php echo esc_attr($prefetchFile); ?>" target="_blank"><?php echo basename($prefetchFile); ?></a></li>
                         <?php endforeach; ?>
@@ -87,7 +90,7 @@
             </tr>
             <tr>
                 <th scope="row"><?php _e('Is scheduled for manifest file generation?', 'servebolt-wp'); ?></th>
-                <td>
+                <td style="vertical-align: top;padding-top: 20px;">
                     <?php $next = wp_next_scheduled(WpPrefetching::$hook); ?>
                     <?php $nextLocal = get_date_from_gmt(gmdate('Y-m-d H:i:s', $next), 'Y-m-d H:i:s'); ?>
                     <?php echo $next ? sprintf(__('Yes, at %s.', 'servebolt-wp'), $nextLocal) : __('No', 'servebolt-wp'); ?>
@@ -99,14 +102,20 @@
                     <textarea class="large-text code" rows="20" readonly><?php echo json_encode($prefetchData, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES) ?></textarea>
                 </td>
             </tr>
+            <tr>
+                <th scope="row"><?php _e('Actions', 'servebolt-wp'); ?></th>
+                <td>
+                    <button type="button" class="btn button button-secondary" id="sb-manually-generate-manifest-files" data-href="<?php echo esc_url(WpPrefetching::getFrontPageUrlWithParameters(true)); ?>"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>><?php _e('Generate manually', 'servebolt-wp'); ?></button>
+                    <button type="button" class="btn button button-secondary" id="sb-regenerate-manifest-files"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>><?php _e('Regenerate immediately', 'servebolt-wp'); ?></button>
+                    <button type="button" class="btn button button-secondary" id="sb-regenerate-manifest-files-using-cron"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>><?php _e('Regenerate using WP Cron', 'servebolt-wp'); ?></button>
+                    <span class="spinner regenerate-manifest-files-loading-spinner"></span>
+                </td>
+            </tr>
         </tbody>
     </table>
 
     <p class="submit">
         <?php submit_button(null, 'primary', 'form-submit', false); ?>
-        <button type="button" class="btn button button-secondary options-fields" id="sb-regenerate-manifest-files"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>><?php _e('Regenerate using WP Cron', 'servebolt-wp'); ?></button>
-        <a href="<?php echo esc_url(WpPrefetching::getFrontPageUrlWithParameters(true)); ?>" class="btn button button-secondary options-fields" id="sb-manually-generate-manifest-files"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>><?php _e('Generate manually', 'servebolt-wp'); ?></a>
-        <span class="spinner regenerate-manifest-files-loading-spinner"></span>
     </p>
 
 </form>

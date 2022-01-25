@@ -2,10 +2,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Trigger prefetch file regeneration
     document.getElementById('sb-regenerate-manifest-files').addEventListener('click', window.generateManifestFiles);
+    document.getElementById('sb-regenerate-manifest-files-using-cron').addEventListener('click', window.generateManifestFilesUsingCron);
     document.getElementById('sb-manually-generate-manifest-files').addEventListener('click', window.manuallyGenerateManifestFiles);
 
+    // Maybe display success message after manual manifest file generation.
     maybeDisplaySuccessMessageForManualManifestFileGeneration();
-
 });
 
 /**
@@ -58,8 +59,7 @@ window.manuallyGenerateManifestFilesConfirmed = function(url) {
  * @param e
  */
 window.manuallyGenerateManifestFiles = function(e) {
-    var url = this.href;
-    e.preventDefault();
+    var url = this.dataset.href;
     var title = 'Are you sure?';
     var text = 'To generate manifest files we need to load the front page while not logged in. Continuing will log you out of WP Admin. Do you want to continue?';
     if (window.sb_use_native_js_fallback()) {
@@ -97,34 +97,7 @@ window.prefetchingSpinner = function(shouldSpin) {
     } else {
         spinner.classList.remove('is-active');
     }
-}
-
-/**
- * Execute AJAX request to regenerate manifest files.
- */
-window.generateManifestFilesConfirmed = function () {
-    window.prefetchingSpinner(true);
-    const data = new FormData();
-    data.append('action', 'servebolt_prefetching_generate_files');
-    data.append('security', sb_ajax_object.ajax_nonce);
-    fetch(sb_ajax_object.ajaxurl,
-        {
-            method: 'POST',
-            body: data
-        }
-    )
-    .then(function(response) {
-        return response.json();
-    })
-    .then(function(data) {
-        window.prefetchingSpinner(false);
-        window.sb_success('Files were scheduled for regeneration.');
-    })
-    .catch(function(error) {
-        window.prefetchingSpinner(false);
-        window.sb_error('Something went wrong!', 'Please check your input data and try again.');
-    });
-}
+};
 
 /**
  * Confirm the action for regenerating the manifest files.
@@ -153,4 +126,91 @@ window.generateManifestFiles = function() {
             }
         });
     }
+};
+
+/**
+ * Execute AJAX request to regenerate manifest files.
+ */
+window.generateManifestFilesConfirmed = function () {
+    window.prefetchingSpinner(true);
+    const data = new FormData();
+    data.append('action', 'servebolt_prefetching_generate_files');
+    data.append('security', sb_ajax_object.ajax_nonce);
+    fetch(sb_ajax_object.ajaxurl,
+        {
+            method: 'POST',
+            body: data
+        }
+    )
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            window.prefetchingSpinner(false);
+            window.sb_success('Files were regenerated.', null, null, function () {
+                location.reload();
+            });
+        })
+        .catch(function(error) {
+            window.prefetchingSpinner(false);
+            window.sb_error('Something went wrong!', 'Please check your input data and try again.');
+        });
+};
+
+/**
+ * Confirm the action for regenerating the manifest files using cron.
+ */
+window.generateManifestFilesUsingCron = function() {
+    var title = 'Are you sure?';
+    var text = 'Do you really want to generate manifest files?';
+    if (window.sb_use_native_js_fallback()) {
+        if (window.confirm(title + "\n" + text)) {
+            window.generateManifestFilesUsingCronConfirmed();
+        }
+    } else {
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: 'warning',
+            showCancelButton: true,
+            customClass: {
+                confirmButton: 'servebolt-button yellow',
+                cancelButton: 'servebolt-button light'
+            },
+            buttonsStyling: false
+        }).then(function(result) {
+            if (result.value) {
+                window.generateManifestFilesUsingCronConfirmed();
+            }
+        });
+    }
+};
+
+/**
+ * Execute AJAX request to regenerate manifest files using cron.
+ */
+window.generateManifestFilesUsingCronConfirmed = function () {
+    window.prefetchingSpinner(true);
+    const data = new FormData();
+    data.append('action', 'servebolt_prefetching_generate_files_using_cron');
+    data.append('security', sb_ajax_object.ajax_nonce);
+    fetch(sb_ajax_object.ajaxurl,
+        {
+            method: 'POST',
+            body: data
+        }
+    )
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            window.prefetchingSpinner(false);
+            window.sb_success('Files were scheduled for regeneration.', null, null, function () {
+                location.reload();
+            });
+        })
+        .catch(function(error) {
+            window.prefetchingSpinner(false);
+            window.sb_error('Something went wrong!', 'Please check your input data and try again.');
+        });
 };

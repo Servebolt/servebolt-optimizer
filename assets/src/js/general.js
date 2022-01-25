@@ -159,8 +159,8 @@ jQuery(document).ready(function($) {
    * @param text
    * @param html
    */
-  window.sb_success = function(title, text, html) {
-    window.sb_popup('success', title, text, html);
+  window.sb_success = function(title, text, html, onCloseEvent) {
+    window.sb_popup('success', title, text, html, onCloseEvent);
   }
 
   /**
@@ -170,8 +170,8 @@ jQuery(document).ready(function($) {
    * @param text
    * @param html
    */
-  window.sb_warning = function(title, text, html) {
-    window.sb_popup('warning', title, text, html);
+  window.sb_warning = function(title, text, html, onCloseEvent) {
+    window.sb_popup('warning', title, text, html, onCloseEvent);
   }
 
   /**
@@ -181,8 +181,8 @@ jQuery(document).ready(function($) {
    * @param text
    * @param html
    */
-  window.sb_error = function(title, text, html) {
-    window.sb_popup('error', title, text, html);
+  window.sb_error = function(title, text, html, onCloseEvent) {
+    window.sb_popup('error', title, text, html, onCloseEvent);
   }
 
   /**
@@ -193,11 +193,19 @@ jQuery(document).ready(function($) {
    * @param text
    * @param html
    */
-  window.sb_popup = function(type, title, text, html) {
+  window.sb_popup = function(type, title, text, html, onCloseEvent) {
     if ( window.sb_use_native_js_fallback() ) {
       var verboseType = type.charAt(0).toUpperCase() + type.slice(1);
-      var message = html ? window.sb_strip(html, true) : window.sb_strip(text);
+      var message = '';
+      if (html) {
+        message = window.sb_strip(html, true);
+      } else if (text) {
+        message = window.sb_strip(text);
+      }
       window.alert(verboseType + ': ' + window.sb_strip(title) + "\n" + message);
+      if (typeof onCloseEvent === 'function') {
+        onCloseEvent();
+      }
     } else {
       var config = {
         icon: type,
@@ -206,13 +214,16 @@ jQuery(document).ready(function($) {
         },
         buttonsStyling: false
       };
-      if ( title ) {
+      if (onCloseEvent) {
+        config.onClose = onCloseEvent;
+      }
+      if (title) {
         config.title = title;
       }
-      if ( text ) {
+      if (text) {
         config.text = text;
       }
-      if ( html ) {
+      if (html) {
         config.html = html;
       }
       Swal.fire(config);
@@ -223,10 +234,14 @@ jQuery(document).ready(function($) {
    * Strip HTML from a string.
    *
    * @param html
-   * @returns {string | string}
+   * @param br2nl
+   * @returns {string|string}
    */
   window.sb_strip = function(html, br2nl) {
-    if ( br2nl === true ) {
+    if (!html) {
+      return '';
+    }
+    if (br2nl === true) {
       html = html.replace('<br>', "\n");
       html = html.replace('<ul><li>', "<ul><li>\n");
       html = html.replace('</li><li>', "</li><li>\n");

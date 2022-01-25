@@ -19,7 +19,27 @@ class PrefetchingControlAjax extends SharedAjaxMethods
     public function __construct()
     {
         add_action('wp_ajax_servebolt_prefetching_generate_files', [$this, 'generateFiles']);
+        add_action('wp_ajax_servebolt_prefetching_generate_files_using_cron', [$this, 'generateFilesUsingCron']);
         add_action('wp_ajax_servebolt_prefetching_prepare_for_manual_generation', [$this, 'prepareForManualManifestFileGeneration']);
+    }
+
+    /**
+     * AJAX callback for prefetch file generation using cron.
+     */
+    public function generateFilesUsingCron(): void
+    {
+        $this->checkAjaxReferer();
+        ajaxUserAllowed();
+        if (!WpPrefetching::isActive()) {
+            wp_send_json_error();
+            return;
+        }
+        try {
+            WpPrefetching::scheduleRecordPrefetchItems();
+            wp_send_json_success();
+        } catch (Exception $e) {
+            wp_send_json_error();
+        }
     }
 
     /**

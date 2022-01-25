@@ -231,7 +231,7 @@ class Prefetching
      */
     protected static function isRecordPrefetchItemsRequest(): bool
     {
-        return array_key_exists('recordPrefetchItems', $_GET);
+        return array_key_exists('record-prefetch-items', $_GET);
     }
 
     /**
@@ -241,7 +241,7 @@ class Prefetching
      */
     protected static function isCloudflareManifestFilesRefreshRequest(): bool
     {
-        return array_key_exists('cloudflareManifestFilesRefresh', $_GET);
+        return array_key_exists('cloudflare-manifest-files-refresh', $_GET);
     }
 
     /**
@@ -263,6 +263,19 @@ class Prefetching
     }
 
     /**
+     * Whether we should expose manifest file after prefetch items record.
+     *
+     * @return bool
+     */
+    public static function shouldExposeManifestFilesAfterPrefetchItemsRecord(): bool
+    {
+        return (bool) apply_filters(
+            'sb_optimizer_prefetching_expose_manifest_files_after_prefetch_items_record',
+            true
+        );
+    }
+
+    /**
      * Record prefetch items by loading the front page, followed by another request to trigger manifest file update in Cloudflare.
      *
      * @return void
@@ -271,10 +284,7 @@ class Prefetching
     {
         self::clearDataAndFiles(); // Clear all previous data
         self::recordPrefetchItems(); // Record new data
-        if (apply_filters(
-            'sb_optimizer_prefetching_expose_manifest_files_after_prefetch_items_record',
-            true
-        )) {
+        if (self::shouldExposeManifestFilesAfterPrefetchItemsRecord()) {
             self::exposeManifestFiles(); // Attempt to expose the new data to Cloudflare
         }
     }
@@ -308,7 +318,7 @@ class Prefetching
      */
     public static function getCloudflareRefreshUrlWithParameters(): string
     {
-        $path = '?cachebuster=' . time() . '&cloudflareManifestFilesRefresh';
+        $path = '?cachebuster=' . time() . '&cloudflare-manifest-files-refresh';
         return self::getFrontPageUrl($path);
     }
 
@@ -330,7 +340,7 @@ class Prefetching
      */
     public static function getFrontPageUrlWithParameters($redirect = false): string
     {
-        $path = '?cachebuster=' . time() . '&recordPrefetchItems';
+        $path = '?cachebuster=' . time() . '&record-prefetch-items';
         if ($redirect) {
             $path .= '&redirect=true';
         }
