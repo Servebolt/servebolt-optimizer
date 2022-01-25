@@ -20,7 +20,17 @@ class ManifestFilesModel
      *
      * @var string
      */
-    private static $optionName = 'manifest_available_files';
+    private static $optionName = 'prefetching_available_manifest_files';
+
+    /**
+     * Get manifest files data from options.
+     *
+     * @return array
+     */
+    public static function get(): array
+    {
+        return getOption(self::$optionName, []);
+    }
 
     /**
      * Store manifest files data in options.
@@ -40,9 +50,9 @@ class ManifestFilesModel
     public static function remove(string $itemToRemove): void
     {
         $items = self::get();
-        $items = array_filter($items, function($itemType) use ($itemToRemove) {
-            return $itemType !== $itemToRemove;
-        });
+        if (array_key_exists($itemToRemove, $items)) {
+            unset($items[$itemToRemove]);
+        }
         self::store($items);
     }
 
@@ -52,15 +62,5 @@ class ManifestFilesModel
     public static function clear(): void
     {
         deleteOption(self::$optionName);
-    }
-
-    /**
-     * Get manifest files data from options.
-     *
-     * @return array
-     */
-    public static function get(): array
-    {
-        return getOption(self::$optionName, []);
     }
 }

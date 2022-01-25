@@ -3,7 +3,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Trigger prefetch file regeneration
     document.getElementById('sb-regenerate-manifest-files').addEventListener('click', window.generateManifestFiles);
     document.getElementById('sb-regenerate-manifest-files-using-cron').addEventListener('click', window.generateManifestFilesUsingCron);
-    document.getElementById('sb-manually-generate-manifest-files').addEventListener('click', window.manuallyGenerateManifestFiles);
+    var element = document.getElementById('sb-manually-generate-manifest-files');
+    if (element) {
+        element.addEventListener('click', window.manuallyGenerateManifestFiles);
+    }
 
     // Maybe display success message after manual manifest file generation.
     maybeDisplaySuccessMessageForManualManifestFileGeneration();
@@ -104,7 +107,8 @@ window.prefetchingSpinner = function(shouldSpin) {
  */
 window.generateManifestFiles = function() {
     var title = 'Are you sure?';
-    var text = 'Do you really want to generate manifest files?';
+    //var text = 'Do you really want to generate manifest files?';
+    var text = 'To generate manifest files we need to load the front page while not logged in. Continuing will log you out of WP Admin. Do you want to continue?';
     if (window.sb_use_native_js_fallback()) {
         if (window.confirm(title + "\n" + text)) {
             window.generateManifestFilesConfirmed();
@@ -129,12 +133,22 @@ window.generateManifestFiles = function() {
 };
 
 /**
+ * Display success message after successfully generating manifest files.
+ */
+window.generateManifestFilesSuccess = function (url) {
+    window.prefetchingSpinner(false);
+    window.sb_success('Files were regenerated.', null, null, function () {
+        window.location.href = url;
+    });
+}
+
+/**
  * Execute AJAX request to regenerate manifest files.
  */
 window.generateManifestFilesConfirmed = function () {
     window.prefetchingSpinner(true);
     const data = new FormData();
-    data.append('action', 'servebolt_prefetching_generate_files');
+    data.append('action', 'servebolt_prefetching_generate_files_instructions');
     data.append('security', sb_ajax_object.ajax_nonce);
     fetch(sb_ajax_object.ajaxurl,
         {
@@ -142,19 +156,29 @@ window.generateManifestFilesConfirmed = function () {
             body: data
         }
     )
-        .then(function(response) {
-            return response.json();
-        })
-        .then(function(data) {
-            window.prefetchingSpinner(false);
-            window.sb_success('Files were regenerated.', null, null, function () {
-                location.reload();
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            fetch(data.data.generation_url).then(function() {
+                if (data.data.should_expose_manifest_files_after_prefetch_items_record) {
+                    fetch(data.data.manifest_files_expose_url).then(function () {
+                        window.generateManifestFilesSuccess(data.data.login_url);
+                    });
+                } else {
+                    window.generateManifestFilesSuccess(data.data.login_url);
+                }
             });
-        })
-        .catch(function(error) {
+        } else {
             window.prefetchingSpinner(false);
             window.sb_error('Something went wrong!', 'Please check your input data and try again.');
-        });
+        }
+    })
+    .catch(function(error) {
+        window.prefetchingSpinner(false);
+        window.sb_error('Something went wrong!', 'Please check your input data and try again.');
+    });
 };
 
 /**

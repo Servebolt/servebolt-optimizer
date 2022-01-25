@@ -44,7 +44,7 @@ class ManifestFileWriter
      *
      * @var string
      */
-    private static $fileNameMask = 'manifest-%s.txt';
+    private static $fileNameMask = 'manifest-%s-%s.txt';
 
     /**
      * WP Filesystem instance.
@@ -54,18 +54,25 @@ class ManifestFileWriter
     private static $fs = null;
 
     /**
-     * Whether to clear the manifest data from options after writing to the manifest files.
-     *
-     * @var bool
-     */
-    private static $clearDataAfterFileWrite = false;
-
-    /**
      * Whether to order the items alphabetically before we order by prioritization.
      *
      * @var bool
      */
     private static $orderAlphabetically = false;
+
+    /**
+     * Resolve existing manifest files, their path and their type.
+     *
+     * @return array
+     */
+    public static function resolveExistingFiles(): array
+    {
+        $fs = self::getFs();
+        $folderPath = self::getFolderPath();
+        return array_map(function($fileName) use ($folderPath) {
+            return $folderPath . $fileName;
+        }, array_keys($fs->dirlist($folderPath)));
+    }
 
     /**
      * Execute manifest file writing.
@@ -88,64 +95,35 @@ class ManifestFileWriter
             }
 
             // Write the contents to the manifest file
+            $fileName = self::generateFileName($itemType);
+            $filePath = self::getFilePath($fileName);
             (self::getFs())->put_contents(
-                self::getFilePath($itemType),
+                $filePath,
                 apply_filters('sb_optimizer_prefetching_prefetch_data', $data, $itemType)
             );
 
             // Flag that we wrote file for this item type
-            self::wroteFile($itemType);
+            self::wroteFile($itemType, $fileName);
 
         }
 
         // Store which files we wrote to disk
-        self::storeWrittenFiles();
-
-        do_action('sb_optimizer_prefetching_manifest_files_written');
-
-        // Maybe clear data in options
-        if (self::shouldClearDataAfterFileWrite()) {
-            ManifestDataModel::clear();
-        }
-    }
-
-    /**
-     * Store the URLs of the files we wrote to the disk.
-     *
-     */
-    private static function storeWrittenFiles()
-    {
         ManifestFilesModel::store(self::$writtenFiles);
-    }
 
-    /**
-     * Remove a given manifest file for written files.
-     *
-     * @param string $itemType
-     */
-    public static function removeFromWrittenFiles(string $itemType): void
-    {
-        ManifestFilesModel::remove(self::getFileUrl($itemType));
+        // Third-party action
+        do_action('sb_optimizer_prefetching_manifest_files_written');
     }
 
     /**
      * Flag a file as written.
      *
      * @param string $itemType
+     * @param string $filePath
+     * @return void
      */
-    private static function wroteFile(string $itemType): void
+    private static function wroteFile(string $itemType, string $filePath): void
     {
-        self::$writtenFiles[] = self::getFileUrl($itemType);
-    }
-
-    /**
-     * Check whether we should clear the options data after file write.
-     *
-     * @return bool
-     */
-    private static function shouldClearDataAfterFileWrite(): bool
-    {
-        return apply_filters('sb_optimizer_prefetching_clear_manifest_data_after_file_write', self::$clearDataAfterFileWrite);
+        self::$writtenFiles[$itemType] = self::getFileUrl($filePath);
     }
 
     /**
@@ -165,9 +143,9 @@ class ManifestFileWriter
      * @param string $fileType
      * @return string
      */
-    public static function getFilePath(string $fileType): string
+    public static function generateFileName(string $fileType): string
     {
-        return self::getFolderPath() . sprintf(self::$fileNameMask, $fileType);
+        return sprintf(self::$fileNameMask, $fileType, time());
     }
 
     /**
@@ -182,14 +160,25 @@ class ManifestFileWriter
     }
 
     /**
-     * Get manifest file path.
+     * Get file path.
      *
-     * @param string $fileType
+     * @param $fileName
      * @return string
      */
-    private static function getFileUrl(string $fileType): string
+    private static function getFilePath($fileName): string
     {
-        return self::getFolderUrl() . sprintf(self::$fileNameMask, $fileType);
+        return self::getFolderPath() . $fileName;
+    }
+
+    /**
+     * Get manifest file path.
+     *
+     * @param string $fileName
+     * @return string
+     */
+    private static function getFileUrl(string $fileName): string
+    {
+        return self::getFolderUrl() . $fileName;
     }
 
     /**
@@ -231,28 +220,46 @@ class ManifestFileWriter
     public static function clear(?string $itemType = null, bool $removeFolder = false): bool
     {
         $fs = self::getFs();
-        $itemTypes = self::getItemTypes();
         if ($itemType) {
+            $itemTypes = self::getItemTypes();
             if (!in_array($itemType, $itemTypes)) {
                 return false;
             }
-            $itemTypes = [$itemType];
-        }
-
-        foreach ($itemTypes as $itemType) {
-            $filePath = self::getFilePath($itemType);
-            if ($fs->exists($filePath)) {
+            $existingFiles = ManifestFilesModel::get();
+            if (array_key_exists($itemType, $existingFiles)) {
+                $filePath = self::getFilePath(basename($existingFiles[$itemType]));
                 $fs->delete($filePath);
             }
-        }
+            ManifestFilesModel::remove($itemType);
+        } else {
 
-        if ($removeFolder) {
-            $folderPath = self::getFolderPath();
-            if ($fs->exists($folderPath)) {
-                $fs->delete($folderPath);
+            // Delete using the files model
+            if ($existingFiles = ManifestFilesModel::get()) {
+                foreach ($existingFiles as $file) {
+                    $filePath = self::getFilePath(basename($file));
+                    $fs->delete($filePath);
+                }
+            }
+            ManifestFilesModel::clear();
+
+            // Delete any remaining orphaned files
+            if ($files = self::resolveExistingFiles()) {
+                foreach ($files as $file) {
+                    $fs->delete($file);
+                }
+            }
+
+            // Remove folder (optional)
+            if ($removeFolder) {
+                $folderPath = self::getFolderPath();
+                if ($fs->exists($folderPath)) {
+                    $fs->delete($folderPath);
+                }
             }
         }
+
         return true;
+
     }
 
     /**
