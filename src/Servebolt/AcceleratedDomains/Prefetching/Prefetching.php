@@ -28,13 +28,6 @@ class Prefetching
     private $manifestDependencies = [];
 
     /**
-     * Key used to store transient.
-     *
-     * @var string
-     */
-    private static $transientKey = 'servebolt_manifest_written';
-
-    /**
      * Check whether we have already loaded the front page during this execution.
      *
      * @var bool
@@ -47,13 +40,6 @@ class Prefetching
      * @var bool
      */
     private static $alreadyRefreshed = false;
-
-    /**
-     * Expiration in seconds for transient.
-     *
-     * @var int
-     */
-    private $transientExpiration = MONTH_IN_SECONDS;
 
     /**
      * "Record" all scripts so that we can prefetch them.
