@@ -34,7 +34,7 @@ class FilePurge
      */
     public function __construct()
     {
-        if (apply_filters('sb_optimizer_prefetching_should_purge_on_menu_update', true)) {
+        if (apply_filters('sb_optimizer_prefetching_should_purge_on_menu_update', WpPrefetching::shouldRecordMenuItems())) {
             $this->purgeOnMenuUpdate();
         }
         if (apply_filters('sb_optimizer_prefetching_should_purge_on_theme_switch', true)) {
@@ -50,10 +50,8 @@ class FilePurge
      */
     private function purgeOnMenuUpdate(): void
     {
+        add_filter('pre_set_theme_mod_nav_menu_locations', [$this, 'scheduleManifestFileRegenerationOnDisplayLocationChange'], 10, 1); // When a menu changes
         add_action('transition_post_status', [$this, 'wpRestAutoAddToMenuHandling'], 9, 3); // During automatic addition of a page to one or more menus
-        add_action('wp_update_nav_menu', [$this, 'scheduleManifestFileRegeneration'], 10, 0); // During manual menu update
-        add_action('wp_delete_nav_menu', [$this, 'scheduleManifestFileRegeneration'], 10, 0); // During menu deletion
-        add_filter('pre_set_theme_mod_nav_menu_locations', [$this, 'scheduleManifestFileRegenerationOnDisplayLocationChange'], 10, 1); // During menu allocation to a display location
     }
 
     /**
@@ -142,7 +140,7 @@ class FilePurge
      */
     public function scheduleManifestFileRegeneration(): void
     {
-        if ($this->isAlreadyPurged) {
+        if ($this->isAlreadyPurged === true) {
             return;
         }
         $this->isAlreadyPurged = true;

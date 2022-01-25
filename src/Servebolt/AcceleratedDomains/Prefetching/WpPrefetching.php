@@ -171,7 +171,7 @@ class WpPrefetching extends Prefetching
         if ($this->shouldRecordScripts()) {
             add_action('wp_print_scripts', [$this, 'getScriptsToPrefetch'], 99);
         }
-        if ($this->shouldRecordMenuItems()) {
+        if (self::shouldRecordMenuItems()) {
             add_action('wp_footer', [$this, 'getPrefetchListMenuItems'], 99);
         }
 
@@ -340,7 +340,7 @@ class WpPrefetching extends Prefetching
         return (bool) apply_filters('sb_optimizer_prefetching_record_scripts', self::fileIsActive('script'));
     }
 
-    private function shouldRecordMenuItems(): bool
+    public static function shouldRecordMenuItems(): bool
     {
         return (bool) apply_filters('sb_optimizer_prefetching_record_menu_items', self::fileIsActive('menu'));
     }
@@ -364,6 +364,6 @@ class WpPrefetching extends Prefetching
         return apply_filters('sb_optimizer_prefetching_write_manifest_file', true)
             || $this->shouldRecordScripts()
             || $this->shouldRecordStyles()
-            || $this->shouldRecordMenuItems();
+            || self::shouldRecordMenuItems();
     }
 }
