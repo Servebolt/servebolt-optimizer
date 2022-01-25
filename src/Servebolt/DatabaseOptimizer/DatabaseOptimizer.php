@@ -354,10 +354,10 @@ class DatabaseOptimizer
 	 */
 	private function addCronHandling()
     {
-		$cronKey = 'servebolt_cron_hook_analyze_tables';
-		add_action($cronKey, [$this, 'analyzeTables']);
-		if (!wp_next_scheduled($cronKey)) {
-			wp_schedule_event(time(), 'daily', $cronKey);
+		$hook = 'sb_optimizer_cron_hook_analyze_tables';
+		add_action($hook, [$this, 'analyzeTables']);
+		if (!wp_next_scheduled($hook)) {
+			wp_schedule_event(time(), 'daily', $hook);
 		}
 	}
 

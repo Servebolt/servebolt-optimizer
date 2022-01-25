@@ -391,6 +391,9 @@ class HelpersTest extends ServeboltWPUnitTestCase
     {
         $versionNumber = getCurrentPluginVersion(false);
         $this->assertIsString($versionNumber);
+        if (strContains($versionNumber, '-rev')) {
+            $versionNumber = preg_replace('/-rev([0-9]{1,2})/', '', $versionNumber);
+        }
         $this->assertRegExp('/^(\d\.){1,2}(\d)$/', $versionNumber);
         //$this->assertRegExp('/^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/', $versionNumber);
     }

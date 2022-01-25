@@ -105,10 +105,16 @@
             <tr>
                 <th scope="row"><?php _e('Actions', 'servebolt-wp'); ?></th>
                 <td>
-                    <button type="button" class="btn button button-secondary" id="sb-manually-generate-manifest-files" data-href="<?php echo esc_url(WpPrefetching::getFrontPageUrlWithParameters(true)); ?>"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>><?php _e('Generate manually', 'servebolt-wp'); ?></button>
-                    <button type="button" class="btn button button-secondary" id="sb-regenerate-manifest-files"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>><?php _e('Regenerate immediately', 'servebolt-wp'); ?></button>
+                    <?php if (!$settings['prefetch_switch']): ?>
+                    <p><?php _e('Please save the form to access these actions.', 'servebolt-wp'); ?></p>
+                    <?php else: ?>
+                    <button type="button" class="btn button button-secondary" id="sb-regenerate-manifest-files"><?php _e('Regenerate immediately', 'servebolt-wp'); ?></button>
+                    <?php if (apply_filters('sb_optimizer_prefetching_alternative_immediate_manifest_file_generation', false)): ?>
+                    <button type="button" class="btn button button-secondary" id="sb-manually-generate-manifest-files" data-href="<?php echo esc_url(WpPrefetching::getFrontPageUrlWithParameters(true)); ?>"><?php _e('Regenerate immediately (alternative)', 'servebolt-wp'); ?></button>
+                    <?php endif; ?>
                     <button type="button" class="btn button button-secondary" id="sb-regenerate-manifest-files-using-cron"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>><?php _e('Regenerate using WP Cron', 'servebolt-wp'); ?></button>
                     <span class="spinner regenerate-manifest-files-loading-spinner"></span>
+                    <?php endif; ?>
                 </td>
             </tr>
         </tbody>

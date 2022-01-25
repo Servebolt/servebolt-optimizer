@@ -92,7 +92,17 @@ class WpPrefetching extends Prefetching
      */
     private function redirectBackToWpAdmin(): void
     {
-        javascriptRedirect(wp_login_url(get_admin_url(null, 'admin.php?page=servebolt-prefetching&manual-prefetch-success')));
+        javascriptRedirect(self::loginUrl());
+    }
+
+    /**
+     * URL for logging back in, after recording prefetch items.
+     *
+     * @return string
+     */
+    public static function loginUrl(): string
+    {
+        return wp_login_url(get_admin_url(null, 'admin.php?page=servebolt-prefetching&manual-prefetch-success'));
     }
 
     /**

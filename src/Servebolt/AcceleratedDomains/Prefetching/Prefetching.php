@@ -422,11 +422,9 @@ class Prefetching
         if ($type) {
             ManifestDataModel::clear($type); // Delete menu data from prefetch items/manifest data
             ManifestFileWriter::clear($type); // Delete menu manifest file from disk
-            ManifestFileWriter::removeFromWrittenFiles($type); // Delete menu manifest file from file model
         } else {
-            ManifestDataModel::clear(); // Delete prefetch items data
-            ManifestFilesModel::clear(); // Delete manifest file index
-            ManifestFileWriter::clear(); // Delete manifest files
+            ManifestDataModel::clear(); // Delete all prefetch items data
+            ManifestFileWriter::clear(); // Delete all manifest files
         }
     }
 }
