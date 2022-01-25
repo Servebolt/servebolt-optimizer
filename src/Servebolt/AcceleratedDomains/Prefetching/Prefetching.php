@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\AcceleratedDomains\Prefetching;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_Http;
+use Exception;
 
 /**
  * Class Prefetching
@@ -41,18 +42,18 @@ class Prefetching
     private static $alreadyRecorded = false;
 
     /**
+     * Check whether we have already refreshed the manifest files (exposed them to Cloudflare).
+     *
+     * @var bool
+     */
+    private static $alreadyRefreshed = false;
+
+    /**
      * Expiration in seconds for transient.
      *
      * @var int
      */
     private $transientExpiration = MONTH_IN_SECONDS;
-
-    /**
-     * Boolean value for whether we should generate the manifest data.
-     *
-     * @var null|bool
-     */
-    private static $shouldGenerateManifestData = null;
 
     /**
      * "Record" all scripts so that we can prefetch them.
@@ -166,7 +167,7 @@ class Prefetching
     }
 
     /**
-     * Resolve script/style depedencies by handle.
+     * Resolve script/style dependencies by handle.
      *
      * @param string $handle
      * @param string $type
@@ -202,13 +203,13 @@ class Prefetching
     }
 
     /**
-     * Check whether we should write manifest files immediately or afterwards using single schedule event with the WP Cron.
+     * Check whether we should use WP Cron to record prefetch items and write manifest files.
      *
      * @return bool
      */
-    public static function shouldWriteFilesUsingCron(): bool
+    public static function shouldUseCron(): bool
     {
-        return apply_filters('sb_optimizer_prefetching_should_write_manifest_files_using_cron', true);
+        return apply_filters('sb_optimizer_prefetching_use_cron', false);
     }
 
     /**
@@ -216,28 +217,31 @@ class Prefetching
      */
     public function generateManifestFilesData(): void
     {
-        // Set the transient and expire it in a month
-        set_transient(self::$transientKey, time(), $this->transientExpiration);
-
         // Write the data to option (so that it can be written to the files at a later point)
         ManifestDataModel::store($this->manifestData);
 
-        // Write content to files (only if action is not triggered by cron)
-        if (self::shouldWriteFilesUsingCron() && !self::isCron()) {
-            wp_schedule_single_event(time(), 'sb_optimizer_prefetching_write_manifest_files');
-        } else {
-            ManifestFileWriter::write();
-        }
+        // Write content to files
+        ManifestFileWriter::write();
     }
 
     /**
-     * Check whether the request is triggered by the cron.
+     * Check whether the request is intending to update/record the prefetch items.
      *
      * @return bool
      */
-    private static function isCron(): bool
+    protected static function isRecordPrefetchItemsRequest(): bool
     {
-        return array_key_exists('triggeredByCron', $_GET);
+        return array_key_exists('recordPrefetchItems', $_GET);
+    }
+
+    /**
+     * Check whether the request is a Cloudflare manifest file refresh-request.
+     *
+     * @return bool
+     */
+    protected static function isCloudflareManifestFilesRefreshRequest(): bool
+    {
+        return array_key_exists('cloudflareManifestFilesRefresh', $_GET);
     }
 
     /**
@@ -259,11 +263,20 @@ class Prefetching
     }
 
     /**
-     * Clear transient so that we re-generate the manifest data.
+     * Record prefetch items by loading the front page, followed by another request to trigger manifest file update in Cloudflare.
+     *
+     * @return void
      */
-    public static function rescheduleManifestDataGeneration(): void
+    public static function recordPrefetchItemsAndExposeManifestFiles(): void
     {
-        delete_transient(self::$transientKey);
+        self::clearDataAndFiles(); // Clear all previous data
+        self::recordPrefetchItems(); // Record new data
+        if (apply_filters(
+            'sb_optimizer_prefetching_expose_manifest_files_after_prefetch_items_record',
+            true
+        )) {
+            self::exposeManifestFiles(); // Attempt to expose the new data to Cloudflare
+        }
     }
 
     /**
@@ -272,24 +285,97 @@ class Prefetching
     public static function recordPrefetchItems(): void
     {
         if (!self::$alreadyRecorded) {
-            self::loadFrontPage();
+            self::loadFrontPage(); // Record prefetch items
             self::$alreadyRecorded = true;
         }
     }
 
     /**
-     * Load the front page.
+     * Expose manifest files to Cloudflare by loading the front page.
      */
-    public static function loadFrontPage(): void
+    public static function exposeManifestFiles(): void
     {
-        $path = '?cachebuster=' . time() . '&triggeredByCron';
-        $frontPageUrl = apply_filters('sb_optimizer_prefetching_site_url', get_site_url(null, $path), $path);
-        if ($frontPageUrl) {
-            (new WP_Http)->request($frontPageUrl, [
+        if (!self::$alreadyRefreshed) {
+            self::refreshCloudflareManifest(); // Expose manifest files to Cloudflare
+            self::$alreadyRefreshed = true;
+        }
+    }
+
+    /**
+     * Get the full URL for the front page loading that will expose the manifest files to Cloudflare.
+     *
+     * @return string
+     */
+    public static function getCloudflareRefreshUrlWithParameters(): string
+    {
+        $path = '?cachebuster=' . time() . '&cloudflareManifestFilesRefresh';
+        return self::getFrontPageUrl($path);
+    }
+
+    /**
+     * Load the front page for the purposes of exposing the updated manifest files to Cloudflare.
+     */
+    private static function refreshCloudflareManifest(): void
+    {
+        if ($frontPageUrl = self::getCloudflareRefreshUrlWithParameters()) {
+            self::sendRequest($frontPageUrl);
+        }
+    }
+
+    /**
+     * Get the full URL for the front page loading.
+     *
+     * @param bool $redirect
+     * @return string
+     */
+    public static function getFrontPageUrlWithParameters($redirect = false): string
+    {
+        $path = '?cachebuster=' . time() . '&recordPrefetchItems';
+        if ($redirect) {
+            $path .= '&redirect=true';
+        }
+        return self::getFrontPageUrl($path);
+    }
+
+    /**
+     * Load the front page for the purposes of record the prefetch items.
+     *
+     * @return void
+     */
+    private static function loadFrontPage(): void
+    {
+        if ($frontPageUrl = self::getFrontPageUrlWithParameters()) {
+            self::sendRequest($frontPageUrl);
+        }
+    }
+
+    /**
+     * Get front page URL with including parameters.
+     *
+     * @param $path
+     * @return mixed|void
+     */
+    private static function getFrontPageUrl($path)
+    {
+        return apply_filters('sb_optimizer_prefetching_site_url', get_site_url(null, $path), $path);
+    }
+
+    /**
+     * Send GET-request.
+     *
+     * @param string $url
+     * @return void
+     */
+    private static function sendRequest($url)
+    {
+        try {
+            (new WP_Http)->request($url, [
                 'timeout' => 10,
                 'sslverify' => false,
             ]);
-        }
+            return true;
+        } catch (Exception $e) {}
+        return false;
     }
 
     /**
@@ -299,17 +385,38 @@ class Prefetching
      */
     public static function shouldGenerateManifestData(): bool
     {
-        if (
-            apply_filters(
-                'sb_optimizer_prefetching_should_abort_generate_manifest_data_if_logged_in',
-                is_user_logged_in()
-            )
-        ) {
-            return false; // We should not generate manifest file data whenever a user is logged in
+        /**
+         * @param bool $shouldGenerateManifestData Whether we should generate manifest data during this request.
+         * @param bool $isRecordPrefetchItemsRequest
+         * @param bool $isCloudflareManifestFilesRefreshRequest
+         */
+        return (bool) apply_filters(
+            'sb_optimizer_prefetching_should_generate_manifest_data',
+            (
+                self::isRecordPrefetchItemsRequest()
+                && !self::isCloudflareManifestFilesRefreshRequest()
+            ),
+            self::isRecordPrefetchItemsRequest(),
+            self::isCloudflareManifestFilesRefreshRequest()
+        );
+    }
+
+    /**
+     * Clean the current manifest data, optionally only for one type of manifest file.
+     *
+     * @param $type
+     * @return void
+     */
+    public static function clearDataAndFiles($type = null): void
+    {
+        if ($type) {
+            ManifestDataModel::clear($type); // Delete menu data from prefetch items/manifest data
+            ManifestFileWriter::clear($type); // Delete menu manifest file from disk
+            ManifestFileWriter::removeFromWrittenFiles($type); // Delete menu manifest file from file model
+        } else {
+            ManifestDataModel::clear(); // Delete prefetch items data
+            ManifestFilesModel::clear(); // Delete manifest file index
+            ManifestFileWriter::clear(); // Delete manifest files
         }
-        if (is_null(self::$shouldGenerateManifestData)) {
-            self::$shouldGenerateManifestData = get_transient(self::$transientKey) === false;
-        }
-        return (bool) apply_filters('sb_optimizer_prefetching_should_generate_manifest_data', self::$shouldGenerateManifestData);
     }
 }

@@ -9,13 +9,17 @@ window.sbShowHideOptionsFields = function() {
     var optionsFieldSwitch = document.querySelector('.options-field-switch');
     if (optionsFieldSwitch) {
         optionsFieldSwitch.addEventListener('change', function () {
-            var optionsFieldsWrapper = document.querySelector('#options-fields');
-            if (optionsFieldsWrapper) {
-                if (this.checked) {
-                    optionsFieldsWrapper.removeAttribute('style');
-                } else {
-                    optionsFieldsWrapper.style.display = 'none';
-                }
+            var isChecked = this.checked;
+            var optionsFieldsWrappers = document.querySelectorAll('#options-fields, .options-fields');
+            if (optionsFieldsWrappers) {
+                [].forEach.call(optionsFieldsWrappers, function(optionsFieldsWrapper) {
+                    if (isChecked) {
+                        optionsFieldsWrapper.removeAttribute('style');
+                    } else {
+                        optionsFieldsWrapper.style.display = 'none';
+                    }
+                });
+
             }
         });
     }

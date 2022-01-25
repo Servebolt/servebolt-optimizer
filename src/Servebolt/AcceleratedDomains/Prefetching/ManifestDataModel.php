@@ -33,11 +33,21 @@ class ManifestDataModel
     }
 
     /**
-     * Delete manifest files data in options.
+     * Delete manifest data (prefetch item data) in options.
+     *
+     * @param string|null $itemType
+     * @return void
      */
-    public static function clear(): void
+    public static function clear($itemType = null): void
     {
-        deleteOption(self::$optionName);
+        if ($itemType && $data = self::get()) {
+            if (array_key_exists($itemType, $data)) {
+                unset($data[$itemType]);
+                self::store($data);
+            }
+        } else {
+            deleteOption(self::$optionName);
+        }
     }
 
     /**

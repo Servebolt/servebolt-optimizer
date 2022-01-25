@@ -1,9 +1,11 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
+<?php use function Servebolt\Optimizer\Helpers\arrayGet; ?>
+<?php use Servebolt\Optimizer\AcceleratedDomains\Prefetching\WpPrefetching; ?>
 
 <?php settings_errors(); ?>
 
-<form method="post" autocomplete="off" action="options.php">
+<form method="post" autocomplete="off" action="options.php" id="sb-prefetching" data-did-manual-generation="<?php echo array_key_exists('manual-prefetch-success', $_GET); ?>">
     <?php settings_fields('sb-prefetch-feature-options-page'); ?>
     <?php do_settings_sections('sb-prefetch-feature-options-page'); ?>
 
@@ -18,14 +20,14 @@
                         <?php _e('Enable', 'servebolt-wp'); ?>
                     </label>
                     <p>
-                        <?php _e('This feature is using WP Cron to write the prefetch manifest files to the disk, so it is required that you have a working WP Cron-setup.', 'servebolt-wp'); ?><br>
+                        <?php _e('This feature is using WP Cron to write the prefetch manifest files to the disk, so it is strongly recommended that you have a working WP Cron-setup. Otherwise you can use the button below called "Generate manually".', 'servebolt-wp'); ?><br>
                         <?php printf(__('Check out %sSuggested optimizations%s for more information about this.', 'servebolt-wp'), '<a href="' . admin_url('admin.php?page=servebolt-performance-optimizer') . '">', '</a>'); ?>
                     </p>
                     <p></p>
                 </fieldset>
             </td>
         </tr>
-        <tbody id="options-fields"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>>
+        <tbody class="options-fields"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>>
             <tr>
                 <th scope="row"><?php _e('Manifest files', 'servebolt-wp'); ?></th>
                 <td>
@@ -84,9 +86,17 @@
                 </td>
             </tr>
             <tr>
+                <th scope="row"><?php _e('Is scheduled for manifest file generation?', 'servebolt-wp'); ?></th>
+                <td>
+                    <?php $next = wp_next_scheduled(WpPrefetching::$hook); ?>
+                    <?php $nextLocal = get_date_from_gmt(gmdate('Y-m-d H:i:s', $next), 'Y-m-d H:i:s'); ?>
+                    <?php echo $next ? sprintf(__('Yes, at %s.', 'servebolt-wp'), $nextLocal) : __('No', 'servebolt-wp'); ?>
+                </td>
+            </tr>
+            <tr>
                 <th scope="row"><?php _e('Current prefetch data preview', 'servebolt-wp'); ?></th>
                 <td>
-                    <textarea class="large-text code" rows="10"><?php echo json_encode($prefetchData, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES) ?></textarea>
+                    <textarea class="large-text code" rows="20" readonly><?php echo json_encode($prefetchData, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES) ?></textarea>
                 </td>
             </tr>
         </tbody>
@@ -94,8 +104,9 @@
 
     <p class="submit">
         <?php submit_button(null, 'primary', 'form-submit', false); ?>
-        <a class="btn button button-secondary" id="sb-regenerate-prefetch-files"><?php _e('Regenerate files', 'servebolt-wp'); ?></a>
-        <span class="spinner regenerate-prefetch-files-loading-spinner"></span>
+        <button type="button" class="btn button button-secondary options-fields" id="sb-regenerate-manifest-files"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>><?php _e('Regenerate using WP Cron', 'servebolt-wp'); ?></button>
+        <a href="<?php echo esc_url(WpPrefetching::getFrontPageUrlWithParameters(true)); ?>" class="btn button button-secondary options-fields" id="sb-manually-generate-manifest-files"<?php if (!$settings['prefetch_switch']) echo ' style="display: none;"'; ?>><?php _e('Generate manually', 'servebolt-wp'); ?></a>
+        <span class="spinner regenerate-manifest-files-loading-spinner"></span>
     </p>
 
 </form>

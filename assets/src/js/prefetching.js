@@ -1,9 +1,89 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // Trigger prefetch file regeneration
-    document.getElementById('sb-regenerate-prefetch-files').addEventListener('click', window.generatePrefetchFiles);
+    document.getElementById('sb-regenerate-manifest-files').addEventListener('click', window.generateManifestFiles);
+    document.getElementById('sb-manually-generate-manifest-files').addEventListener('click', window.manuallyGenerateManifestFiles);
+
+    maybeDisplaySuccessMessageForManualManifestFileGeneration();
 
 });
+
+/**
+ * Maybe display success message after manual manifest file generation.
+ */
+function maybeDisplaySuccessMessageForManualManifestFileGeneration()
+{
+    var form = document.querySelector('form#sb-prefetching');
+    if (form.dataset.didManualGeneration) {
+        history.replaceState && history.replaceState(null, '', location.pathname + location.search.replace(/[\?&]manual-prefetch-success[^&]*/, '').replace(/^&/, '?'));
+        if (window.sb_use_native_js_fallback()) {
+            alert('Manual manifest file generation is completed!');
+        } else {
+            window.sb_success('Success', 'Manual manifest file generation is completed!');
+        }
+    }
+}
+
+/**
+ * Generate manifest files manually - confirmed.
+ *
+ * @param url
+ */
+window.manuallyGenerateManifestFilesConfirmed = function(url) {
+    var data = new FormData();
+    data.append('action', 'servebolt_prefetching_prepare_for_manual_generation');
+    data.append('security', sb_ajax_object.ajax_nonce);
+    fetch(sb_ajax_object.ajaxurl, {
+        method: 'POST',
+        body: data
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(response) {
+        if (response.success) {
+            window.location.href = url;
+        } else {
+            alert('Error. Please try again or contact the plugin author.');
+        }
+    })
+    .catch(function(error) {
+        alert('Error. Please try again or contact the plugin author.');
+    });
+}
+
+/**
+ * Generate manifest files manually.
+ *
+ * @param e
+ */
+window.manuallyGenerateManifestFiles = function(e) {
+    var url = this.href;
+    e.preventDefault();
+    var title = 'Are you sure?';
+    var text = 'To generate manifest files we need to load the front page while not logged in. Continuing will log you out of WP Admin. Do you want to continue?';
+    if (window.sb_use_native_js_fallback()) {
+        if (window.confirm(title + "\n" + text)) {
+            window.manuallyGenerateManifestFilesConfirmed(url);
+        }
+    } else {
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: 'warning',
+            showCancelButton: true,
+            customClass: {
+                confirmButton: 'servebolt-button yellow',
+                cancelButton: 'servebolt-button light'
+            },
+            buttonsStyling: false
+        }).then(function(result) {
+            if (result.value) {
+                window.manuallyGenerateManifestFilesConfirmed(url);
+            }
+        });
+    }
+}
 
 /**
  * Toggle spinner.
@@ -11,7 +91,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * @param shouldSpin
  */
 window.prefetchingSpinner = function(shouldSpin) {
-    var spinner = document.querySelector('.regenerate-prefetch-files-loading-spinner');
+    var spinner = document.querySelector('.regenerate-manifest-files-loading-spinner');
     if (shouldSpin) {
         spinner.classList.add('is-active');
     } else {
@@ -20,9 +100,9 @@ window.prefetchingSpinner = function(shouldSpin) {
 }
 
 /**
- * Execute AJAX request to regenerate prefetch files.
+ * Execute AJAX request to regenerate manifest files.
  */
-window.generatePrefetchFilesConfirmed = function () {
+window.generateManifestFilesConfirmed = function () {
     window.prefetchingSpinner(true);
     const data = new FormData();
     data.append('action', 'servebolt_prefetching_generate_files');
@@ -38,7 +118,7 @@ window.generatePrefetchFilesConfirmed = function () {
     })
     .then(function(data) {
         window.prefetchingSpinner(false);
-        window.sb_success('Files were regenerated.');
+        window.sb_success('Files were scheduled for regeneration.');
     })
     .catch(function(error) {
         window.prefetchingSpinner(false);
@@ -47,14 +127,14 @@ window.generatePrefetchFilesConfirmed = function () {
 }
 
 /**
- * Confirm the action for regenerating the prefetch files.
+ * Confirm the action for regenerating the manifest files.
  */
-window.generatePrefetchFiles = function() {
+window.generateManifestFiles = function() {
     var title = 'Are you sure?';
     var text = 'Do you really want to generate manifest files?';
     if (window.sb_use_native_js_fallback()) {
         if (window.confirm(title + "\n" + text)) {
-            window.generatePrefetchFilesConfirmed();
+            window.generateManifestFilesConfirmed();
         }
     } else {
         Swal.fire({
@@ -69,7 +149,7 @@ window.generatePrefetchFiles = function() {
             buttonsStyling: false
         }).then(function(result) {
             if (result.value) {
-                window.generatePrefetchFilesConfirmed();
+                window.generateManifestFilesConfirmed();
             }
         });
     }
