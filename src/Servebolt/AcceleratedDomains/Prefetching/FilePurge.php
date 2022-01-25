@@ -46,23 +46,66 @@ class FilePurge
     }
 
     /**
-     * Purge manifest files on plugin activation/deactivation.
-     */
-    private function purgeOnPluginActivationToggle(): void
-    {
-        add_action('activated_plugin', [$this, 'scheduleManifestFileRegeneration']);
-        add_action('deactivated_plugin', [$this, 'scheduleManifestFileRegeneration']);
-    }
-
-    /**
      * Purge menu manifest file on menu update.
      */
     private function purgeOnMenuUpdate(): void
     {
-        add_action('wp_update_nav_menu_item', [$this, 'scheduleMenuManifestFileRegeneration'], 10, 0);
-        add_action('wp_update_nav_menu', [$this, 'scheduleMenuManifestFileRegeneration'], 10, 0);
-        add_action('wp_delete_nav_menu', [$this, 'scheduleMenuManifestFileRegeneration'], 10, 0);
-        add_filter('pre_set_theme_mod_nav_menu_locations', [$this, 'regenerateMenuManifestFileOnDisplayLocationChange'], 10, 1);
+        add_action('transition_post_status', [$this, 'wpRestAutoAddToMenuHandling'], 9, 3); // During automatic addition of a page to one or more menus
+        add_action('wp_update_nav_menu', [$this, 'scheduleManifestFileRegeneration'], 10, 0); // During manual menu update
+        add_action('wp_delete_nav_menu', [$this, 'scheduleManifestFileRegeneration'], 10, 0); // During menu deletion
+        add_filter('pre_set_theme_mod_nav_menu_locations', [$this, 'scheduleManifestFileRegenerationOnDisplayLocationChange'], 10, 1); // During menu allocation to a display location
+    }
+
+    /**
+     * Schedule manifest file regeneration when a menu item is automatically added to one or more menus from a page creation-context.
+     *
+     * @return void
+     */
+    public function wpRestAutoAddToMenuHandling($newStatus, $oldStatus, $post)
+    {
+        if ($this->shouldAutoAddPagesToMenus($newStatus, $oldStatus, $post) === true) {
+            $this->scheduleManifestFileRegeneration();
+        }
+    }
+
+    /**
+     * Check whether we should automatically add new pages to menus.
+     * This code was taken from WP Core (v5.8.3): wp-includes/nav-menu.php:1090
+     *
+     * @param $new_status
+     * @param $old_status
+     * @param $post
+     * @return bool|void
+     */
+    private function shouldAutoAddPagesToMenus($new_status, $old_status, $post)
+    {
+        if ( 'publish' !== $new_status || 'publish' === $old_status || 'page' !== $post->post_type ) {
+            return;
+        }
+        if ( ! empty( $post->post_parent ) ) {
+            return;
+        }
+        $auto_add = get_option( 'nav_menu_options' );
+        if ( empty( $auto_add ) || ! is_array( $auto_add ) || ! isset( $auto_add['auto_add'] ) ) {
+            return;
+        }
+        $auto_add = $auto_add['auto_add'];
+        if ( empty( $auto_add ) || ! is_array( $auto_add ) ) {
+            return;
+        }
+
+        foreach ( $auto_add as $menu_id ) {
+            $items = wp_get_nav_menu_items( $menu_id, array( 'post_status' => 'publish,draft' ) );
+            if ( ! is_array( $items ) ) {
+                continue;
+            }
+            foreach ( $items as $item ) {
+                if ( $post->ID == $item->object_id ) {
+                    continue 2;
+                }
+            }
+            return true;
+        }
     }
 
     /**
@@ -74,45 +117,35 @@ class FilePurge
     }
 
     /**
-     * Schedule manifest files to be regenerated.
+     * Purge manifest files on plugin activation/deactivation.
      */
-    public function scheduleManifestFileRegeneration(): void
+    private function purgeOnPluginActivationToggle(): void
     {
-        WpPrefetching::rescheduleManifestDataGeneration(); // Delete transient so that we will record prefetch items on next page load
-        ManifestFilesModel::clear(); // Prevent prefetch files from being printed to headers
-        ManifestFileWriter::clear(); // Delete prefetch files
-        if (WpPrefetching::shouldWriteFilesUsingCron()) {
-            WpPrefetching::scheduleRecordPrefetchItems();
-        }
+        add_action('activated_plugin', [$this, 'scheduleManifestFileRegeneration']);
+        add_action('deactivated_plugin', [$this, 'scheduleManifestFileRegeneration']);
     }
 
     /**
      * Schedule manifest files to be regenerated on menu display location change.
      *
-     * @param array $value
-     * @return array
+     * @param mixed $value
+     * @return mixed
      */
-    public function regenerateMenuManifestFileOnDisplayLocationChange($value)
+    public function scheduleManifestFileRegenerationOnDisplayLocationChange($value)
     {
-        $this->scheduleMenuManifestFileRegeneration();
+        $this->scheduleManifestFileRegeneration();
         return $value;
     }
 
     /**
-     * Schedule menu manifest files to be regenerated.
+     * Schedule all manifest files to be regenerated.
      */
-    public function scheduleMenuManifestFileRegeneration(): void
+    public function scheduleManifestFileRegeneration(): void
     {
         if ($this->isAlreadyPurged) {
             return;
         }
         $this->isAlreadyPurged = true;
-        WpPrefetching::rescheduleManifestDataGeneration(); // Delete transient so that we will record prefetch items on next page load
-        ManifestFileWriter::clear('menu'); // Delete menu prefetch files
-        ManifestFileWriter::removeFromWrittenFiles('menu'); // Prevent menu prefetch file from being printed to headers
-
-        if (WpPrefetching::shouldWriteFilesUsingCron()) {
-            WpPrefetching::scheduleRecordPrefetchItems();
-        }
+        WpPrefetching::scheduleRecordPrefetchItems();
     }
 }

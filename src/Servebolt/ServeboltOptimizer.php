@@ -77,7 +77,7 @@ class ServeboltOptimizer
 
         // Prefetching feature init
         if (featureIsAvailable('prefetching')) {
-            new WpPrefetching;
+            WpPrefetching::init();
         }
 
         // Prefetching feature init
