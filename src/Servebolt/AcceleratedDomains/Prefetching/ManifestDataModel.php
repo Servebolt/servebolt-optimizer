@@ -20,7 +20,7 @@ class ManifestDataModel
      *
      * @var string
      */
-    private static $optionName = 'manifest_file_content';
+    private static $optionName = 'prefetching_file_data';
 
     /**
      * Store manifest files data in options.
