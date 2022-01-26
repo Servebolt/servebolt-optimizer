@@ -2,15 +2,15 @@
 <?php use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl; ?>
 
 
-<div class="welcome-panel" id="acd-welcome-panel">
-    <div class="welcome-panel-content">
-        <div class="welcome-panel-column-container">
+<div class="sb-welcome-panel" id="acd-welcome-panel">
+    <div class="sb-welcome-panel-content">
+        <div class="sb-welcome-panel-column-container">
             <div>
                 <h2><?php _e('Image Resizing', 'servebolt-wp'); ?></h2>
             </div>
         </div>
 
-        <div class="welcome-panel-column" style="padding: 0 1rem 1.5rem 0;">
+        <div class="sb-welcome-panel-column" style="padding: 0 1rem 1.5rem 0;">
             <h3><?php _e('What is Image Resizing?', 'servebolt-wp'); ?></h3>
             <p>
                 <?php
@@ -24,7 +24,7 @@
             </p>
 
         </div>
-        <div class="welcome-panel-column welcome-panel-last" style="padding: 0 1rem 1.5rem 0;">
+        <div class="sb-welcome-panel-column" style="padding: 0 1rem 1.5rem 0;">
             <h3><?php _e('Improving Responsive Images', 'servebolt-wp'); ?></h3>
             <p>
                 <?php
@@ -37,7 +37,7 @@
                 ?>
             </p>
         </div>
-        <div class="welcome-panel-column welcome-panel-last" style="padding: 0 1rem 1.5rem 0;">
+        <div class="sb-welcome-panel-column" style="padding: 0 1rem 1.5rem 0;">
             <h3><?php _e('Public Beta', 'servebolt-wp'); ?></h3>
             <p>
                 <?php

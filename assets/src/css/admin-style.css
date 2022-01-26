@@ -201,3 +201,52 @@
     pointer-events: none;
     opacity: .5;
 }
+
+.sb-welcome-panel {
+    position: relative;
+    box-shadow: rgba(0, 0, 0, 0.04) 0px 1px 1px;
+    font-size: 13px;
+    line-height: 1.7;
+    overflow: auto;
+    margin: 16px 0px;
+    padding: 23px 10px 0px;
+    border-width: 1px;
+    border-style: solid;
+    border-color: rgb(195, 196, 199);
+    border-image: initial;
+    background: rgb(255, 255, 255);
+}
+
+.sb-welcome-panel-content {
+    margin-left: 13px;
+    max-width: 1500px;
+}
+
+.sb-welcome-panel .sb-welcome-panel-column-container {
+    clear: both;
+    position: relative;
+}
+
+.sb-welcome-panel .sb-welcome-panel-column {
+    width: 32%;
+    min-width: 200px;
+    float: left;
+}
+
+.sb-welcome-panel h3 {
+    font-size: 16px;
+    margin: 1.33em 0px 0px;
+}
+
+.sb-welcome-panel .button.button-hero {
+    margin: 15px 13px 3px 0;
+    padding: 12px 36px;
+    height: auto;
+    line-height: 1.4285714;
+    white-space: normal;
+}
+
+.sb-welcome-panel-column p {
+    margin-top: 7px;
+    color: rgb(60, 67, 74);
+}
