@@ -68,7 +68,7 @@ class ServeboltOptimizer
         }
 
         // Sets the correct cache headers for the HTML Cache
-        FullPageCache::getInstance();
+        FullPageCache::init();
 
         // Initialize image resizing
         if (featureIsActive('cf_image_resize')) {

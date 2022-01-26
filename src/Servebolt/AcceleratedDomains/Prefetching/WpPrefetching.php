@@ -12,6 +12,7 @@ use function Servebolt\Optimizer\Helpers\isWpRest;
 use function Servebolt\Optimizer\Helpers\javascriptRedirect;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
+use function Servebolt\Optimizer\Helpers\strContains;
 
 /**
  * Class WpPrefetching
@@ -48,9 +49,38 @@ class WpPrefetching extends Prefetching
     {
         $this->defaultOptionValues();
         if (self::isActive()) {
+            $this->addPrefetchAgentHandling();
             $this->registerCronActionHooks();
             $this->filePurgeHandling();
             add_action('init', [$this, 'initFeature']);
+        }
+    }
+
+    /**
+     * Check if current request is originating from Cloudflare's Prefetch agent.
+     *
+     * @return bool
+     */
+    public function requestIsFromCloudflarePrefetchAgent(): bool
+    {
+        if ('HEAD' !== $_SERVER['REQUEST_METHOD']) {
+            return false;
+        }
+        if (!strContains($_SERVER['HTTP_USER_AGENT'], 'CloudFlare-Prefetch')) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Add HEAD-request handling (allow for WordPress to execute the whole request including our cache headers when the Cloudflare Prefetching-agent comes to warm its cache).
+     *
+     * @return void
+     */
+    private function addPrefetchAgentHandling(): void
+    {
+        if (self::requestIsFromCloudflarePrefetchAgent()) {
+            add_filter('exit_on_http_head', '__return_false');
         }
     }
 

@@ -139,6 +139,7 @@ class FullPageCacheHeaders
         if ($this->headersAlreadySet) {
             return $posts;
         }
+
         $this->setHeaderAlreadySetState(true);
 
         // Set "no cache"-headers if HTML Cache is not active, or if we are logged in

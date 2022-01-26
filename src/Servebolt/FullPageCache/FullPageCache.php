@@ -21,6 +21,14 @@ class FullPageCache
     use Singleton;
 
     /**
+     * Alias for "getInstance".
+     */
+    public static function init()
+    {
+        self::getInstance();
+    }
+
+    /**
      * FullPageCache constructor.
      */
     public function __construct()
