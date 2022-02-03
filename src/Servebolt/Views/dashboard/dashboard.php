@@ -4,7 +4,7 @@
 
 <div class="wrap sb-content">
 	<div class="sb-logo"></div>
-	<h1 class="heading"><?php _e('Performance tools', 'servebolt-wp'); ?></h1>
+	<h1 class="heading"><?php _e('Performance Tools', 'servebolt-wp'); ?></h1>
 
     <?php settings_errors(); ?>
 

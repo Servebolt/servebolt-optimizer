@@ -5,7 +5,7 @@ namespace Servebolt\Optimizer\Admin\PerformanceOptimizer;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\DatabaseOptimizer\DatabaseChecks;
-use Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax\OptimizeActions;
+use Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax\DatabaseOptimizationActions;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 use function Servebolt\Optimizer\Helpers\isScreen;
@@ -59,11 +59,10 @@ class DatabaseOptimizations
      */
     public function enqueueScripts(): void
     {
-        $currentScreen = get_current_screen();
         if (!isScreen('admin_page_servebolt-performance-optimizer-database')) {
             return;
         }
-        wp_enqueue_script( 'servebolt-optimizer-performance-optimizer-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/performance-optimizer.js', ['servebolt-optimizer-scripts'], getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/performance-optimizer.js'), true );
+        wp_enqueue_script('servebolt-optimizer-performance-optimizer-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/performance-optimizer.js', ['servebolt-optimizer-scripts'], getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/performance-optimizer.js'), true);
     }
 
     /**
@@ -71,7 +70,7 @@ class DatabaseOptimizations
      */
     private function initAjax(): void
     {
-        new OptimizeActions;
+        new DatabaseOptimizationActions;
     }
 
     /**

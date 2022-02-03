@@ -24,12 +24,12 @@ class WpMenuOptimizerTest extends ServeboltWPUnitTestCase
             'echo' => false,
         ];
         $menu = wp_nav_menu($menuArguments);
-        $this->assertNotContains('cache', $menu);
-        add_filter('sb_optimizer_is_dev_debug', '__return_true');
-        add_filter('sb_optimizer_menu_cache_print_cached_comment', '__return_true');
+        $menuCacheMessage = MenuOptimizer::menuCacheMessage();
+        $this->assertNotContains($menuCacheMessage, $menu);
         MenuOptimizer::init();
+        wp_nav_menu($menuArguments); // Load it once to warm the cache
         $menu = wp_nav_menu($menuArguments);
-        $this->assertContains('cache', $menu);
+        $this->assertContains($menuCacheMessage, $menu);
     }
 
     private function createDummyMenu(?string $themeLocation = null): void

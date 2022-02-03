@@ -241,11 +241,19 @@ abstract class SharedMethods
             'post_type'   => 'any',
             'post_status' => 'publish',
         ]);
-        $queryArgs = (array) apply_filters('sb_optimizer_cf_cache_purge_pages_needed_post_query_arguments', $queryArgs, $type, $this->getId());
+        $queryArgs = (array) apply_filters('sb_optimizer_cache_purge_pages_needed_post_query_arguments', $queryArgs, $type, $this->getId());
         $query = new WP_Query($queryArgs);
         if (!$query->have_posts()) {
-            return (int) apply_filters('sb_optimizer_cf_cache_purge_pages_needed_no_posts', 0, $type, $this->getId());
+            return (int) apply_filters('sb_optimizer_cache_purge_pages_needed_no_posts', 0, $type, $this->getId());
         }
-        return (int) apply_filters('sb_optimizer_cf_cache_purge_pages_needed', $query->max_num_pages, $type, $this->getId());
+
+        /**
+         * Determine how many pages is needed for the current archive.
+         *
+         * @param int $maxNumPages Number of pages needed according to the WP Query.
+         * @param string $type The object type, either "post" or "term".
+         * @param id $id The ID of the object.
+         */
+        return (int) apply_filters('sb_optimizer_cache_purge_pages_needed', $query->max_num_pages, $type, $this->getId());
     }
 }

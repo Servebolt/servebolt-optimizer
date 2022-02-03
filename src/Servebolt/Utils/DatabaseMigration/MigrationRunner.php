@@ -10,10 +10,9 @@ use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
+use function Servebolt\Optimizer\Helpers\tableExists;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\updateSiteOption;
-
-// TODO: Handle upgrade from single site to multisite
 
 /**
  * Class Migration
@@ -58,11 +57,44 @@ class MigrationRunner
     private $migrationVersionOptionsKey = 'migration_version';
 
     /**
+     * @var null|int The Id of the site we want to interact with.
+     */
+    private $siteId;
+
+    /**
      * @return string
      */
     private function migrationVersionOptionsKey(): string
     {
         return apply_filters('sb_optimizer_migration_version_options_key', $this->migrationVersionOptionsKey);
+    }
+
+    /**
+     * If a site is created we need to run all our migrations for that site.
+     *
+     * @param $siteId
+     * @return void
+     */
+    public static function handleNewSite($siteId): void
+    {
+        $instance = new self;
+        $instance->siteId = $siteId;
+        $instance->migrateFromZero(false);
+        $instance->siteId = null;
+    }
+
+    /**
+     * If a site is deleted we need to roll back all our migrations for that site.
+     *
+     * @param $siteId
+     * @return void
+     */
+    public static function handleDeletedSite($siteId): void
+    {
+        $instance = new self;
+        $instance->siteId = $siteId;
+        $instance->rollbackToZero(false);
+        $instance->siteId = null;
     }
 
     /**
@@ -79,7 +111,7 @@ class MigrationRunner
     public static function migrateFresh(): void
     {
         (new self)->rollbackToZero();
-        (new self)->rollbackFromZero();
+        (new self)->migrateFromZero();
     }
 
     /**
@@ -87,7 +119,7 @@ class MigrationRunner
      */
     public static function migrate(): void
     {
-        (new self)->rollbackFromZero();
+        (new self)->migrateFromZero();
     }
 
     /**
@@ -99,9 +131,12 @@ class MigrationRunner
     }
 
     /**
-     * Running all migrations from zero to the
+     * Running all migrations from zero to the latest migration.
+     *
+     * @param bool $setMigratedVersionAfter Whether we should clear the migration version value after rolling back from zero.
+     * @return void
      */
-    public function rollbackFromZero()
+    public function migrateFromZero($setMigratedVersionAfter = true)
     {
         $this->runPrePostMethods = false;
         $this->ignoreUpperConstraint = true;
@@ -111,13 +146,18 @@ class MigrationRunner
                 $this->runMigration($migration);
             }
         }
-        $this->updateMigratedVersion();
+        if ($setMigratedVersionAfter) {
+            $this->updateMigratedVersion();
+        }
     }
 
     /**
      * Rollback from current migration to zero, effectively deleting all traces of the plugin in the database.
+     *
+     * @param bool $clearMigratedVersionAfter Whether we should clear the migration version value after rolling back to zero.
+     * @return void
      */
-    public function rollbackToZero()
+    public function rollbackToZero($clearMigratedVersionAfter = true)
     {
         $this->runPrePostMethods = false;
         $this->ignoreLowerConstraint = true;
@@ -127,7 +167,9 @@ class MigrationRunner
                 $this->runMigration($migration);
             }
         }
-        $this->clearMigratedVersion();
+        if ($clearMigratedVersionAfter) {
+            $this->clearMigratedVersion();
+        }
     }
 
     private function setCurrentVersions(): void
@@ -156,7 +198,7 @@ class MigrationRunner
         if ($migrations = $this->resolveMigrations()) {
             foreach ($migrations as $migration) {
                 $tableName = (new $migration)->getTableNameWithPrefix();
-                if (!$this->tableExists($tableName)) {
+                if (!tableExists($tableName)) {
                     return false;
                 }
             }
@@ -165,21 +207,7 @@ class MigrationRunner
         return true;
     }
 
-    /**
-     * Check if a table exists.
-     *
-     * @param string $tableName
-     * @return bool
-     */
-    public function tableExists(string $tableName): bool
-    {
-        global $wpdb;
-        return in_array($tableName,
-            $wpdb->get_col(
-                $wpdb->prepare('SHOW TABLES LIKE %s', $tableName),
-                0),
-            true);
-    }
+
 
     private function doMigration(): void
     {
@@ -236,14 +264,43 @@ class MigrationRunner
     {
         $multisiteSupport = is_multisite() && (!property_exists($migrationClass, 'multisiteSupport') || $migrationClass::$multisiteSupport === true);
         if ($multisiteSupport) {
-            iterateSites(function ($site) use ($migrationClass) {
-                switch_to_blog($site->blog_id);
+            if ($this->siteId) {
+                switch_to_blog($this->siteId);
                 $this->runMigrationSteps($migrationClass);
-                restore_current_blog();
-            });
+            } else {
+                iterateSites(function ($site) use ($migrationClass) {
+                    switch_to_blog($site->blog_id);
+                    $this->runMigrationSteps($migrationClass);
+                });
+            }
+            restore_current_blog();
         } else {
             $this->runMigrationSteps($migrationClass);
         }
+    }
+
+    /**
+     * Check if migration is already executed.
+     *
+     * @param $instance
+     * @param $migrationMethod
+     * @return bool
+     */
+    private function alreadyCompleted($instance, $migrationMethod): bool
+    {
+        return (
+            method_exists($instance, 'hasBeenRun')
+            && (
+                (
+                    $migrationMethod == 'up'
+                    && $instance->hasBeenRun() === true
+                ) ||
+                (
+                    $migrationMethod == 'down'
+                    && $instance->hasBeenRun() === false
+                )
+            )
+        );
     }
 
     /**
@@ -255,6 +312,9 @@ class MigrationRunner
     {
         $instance = new $migrationClass;
         $migrationMethod = $this->migrationDirection;
+        if ($this->alreadyCompleted($instance, $migrationMethod)) {
+            return; // Skip it, this migration is already completed
+        }
         if (method_exists($instance, $migrationMethod)) {
             if ($this->runPrePostMethods) {
                 if (method_exists($instance, 'preMigration')) {

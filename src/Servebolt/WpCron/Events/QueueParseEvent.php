@@ -22,7 +22,7 @@ class QueueParseEvent
     /**
      * @var string The action hook used when triggering this event.
      */
-    public static $hook = 'servebolt_optimizer_every_minute_cron_event';
+    public static $hook = 'sb_optimizer_queue_parse_event';
 
     /**
      * QueueParseEvent constructor.
@@ -31,8 +31,6 @@ class QueueParseEvent
     {
         if (
             $this->hasActionsRegistered()
-
-            // TODO: Consider to move this somewhere else, perhaps to class "QueueEventHandler"
             && CachePurge::featureIsActive()
             && CachePurge::queueBasedCachePurgeIsActive()
         ) {

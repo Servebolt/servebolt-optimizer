@@ -60,7 +60,7 @@ class PurgeActions
         CliHelpers::setReturnJson($assocArgs);
         list($url) = $args;
         try {
-            if (WordPressCachePurge::purgeByUrl($url)) {
+            if (WordPressCachePurge::purgeByUrl((string) $url)) {
                 $message = sprintf(__('Cache purged for URL "%s".', 'servebolt-wp'), $url);
                 if (CliHelpers::returnJson()) {
                     CliHelpers::printJson([

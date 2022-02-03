@@ -4,6 +4,7 @@ namespace Unit;
 
 use Unit\Traits\AttachmentTrait;
 use Unit\Traits\MultisiteTrait;
+use Unit\Traits\EnvFile\EnvFileReaderTrait;
 use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 use Servebolt\Optimizer\Utils\Queue\QueueItem;
@@ -14,12 +15,16 @@ use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\camelCaseToSnakeCase;
 use function Servebolt\Optimizer\Helpers\clearDefaultOption;
 use function Servebolt\Optimizer\Helpers\clearOptionsOverride;
+use function Servebolt\Optimizer\Helpers\convertObjectToArray;
 use function Servebolt\Optimizer\Helpers\deleteAllSettings;
+use function Servebolt\Optimizer\Helpers\deleteAllSiteSettings;
 use function Servebolt\Optimizer\Helpers\deleteBlogOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
+use function Servebolt\Optimizer\Helpers\generateRandomInteger;
 use function Servebolt\Optimizer\Helpers\getAllImageSizesByImage;
 use function Servebolt\Optimizer\Helpers\getAllOptionsNames;
+use function Servebolt\Optimizer\Helpers\getAllSiteOptionNames;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getFiltersForHook;
@@ -27,13 +32,17 @@ use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
 use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
+use function Servebolt\Optimizer\Helpers\isLogin;
+use function Servebolt\Optimizer\Helpers\isValidJson;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\javascriptRedirect;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
+use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionUpdates;
 use function Servebolt\Optimizer\Helpers\listenForOptionChange;
 use function Servebolt\Optimizer\Helpers\pickupValueFromFilter;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
+use function Servebolt\Optimizer\Helpers\skipNextListen;
 use function Servebolt\Optimizer\Helpers\smartDeleteOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
@@ -63,16 +72,18 @@ use function Servebolt\Optimizer\Helpers\resolveViewPath;
 use function Servebolt\Optimizer\Helpers\isUrl;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\getWebrootPath;
+use function Servebolt\Optimizer\Helpers\strContains;
 use function Servebolt\Optimizer\Helpers\strEndsWith;
 use function Servebolt\Optimizer\Helpers\updateBlogOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\updateSiteOption;
 use function Servebolt\Optimizer\Helpers\view;
+use function Servebolt\Optimizer\Helpers\wpCronDisabled;
 use function Servebolt\Optimizer\Helpers\writeLog;
 
 class HelpersTest extends ServeboltWPUnitTestCase
 {
-    use MultisiteTrait, AttachmentTrait;
+    use MultisiteTrait, AttachmentTrait, EnvFileReaderTrait;
 
     private function activateSbDebug(): void
     {
@@ -107,7 +118,10 @@ class HelpersTest extends ServeboltWPUnitTestCase
     {
         $this->assertContains('tests/bin/tmp/wordpress/', getWebrootPath());
         $this->activateSbDebug();
-        $this->assertEquals('/kunder/serveb_1234/custom_4321/public', getWebrootPath());
+        self::getEnvFileReader();
+        add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        $this->assertEquals('/kunder/serveb_123456/optimi_56789/public', getWebrootPath());
+        remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
         add_filter('sb_optimizer_wp_webroot_path', function() {
             return '/some/path/to/somewhere/';
         });
@@ -119,12 +133,9 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->activateSbDebug();
 
         // Test with site ID extracted from webroot path
-        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=4321', getServeboltAdminUrl());
-        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=4321', getServeboltAdminUrl(['page' => 'accelerated-domains']));
-
-        // Create custom env file reader instance
-        EnvFileReader::destroyInstance();
-        EnvFileReader::getInstance(__DIR__ . '/EnvFile/');
+        self::getEnvFileReader();
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=56789', getServeboltAdminUrl(['page' => 'accelerated-domains']));
 
         // Test with site ID extracted from environment file
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl([]));
@@ -134,11 +145,14 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=56789', getServeboltAdminUrl('accelerated-domains'));
 
         // Test with site ID extracted from webroot path
-        EnvFileReader::disable();
-        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=4321', getServeboltAdminUrl());
+        add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        add_filter('sb_optimizer_env_file_reader_get_id', '__return_null');
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
+        remove_filter('sb_optimizer_env_file_reader_get_id', '__return_null');
+        remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        return;
 
         // Test with site ID extracted from environment file
-        EnvFileReader::enable();
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
 
         // Revert env file reader to default state
@@ -177,6 +191,13 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertEquals('true', displayValue(true));
         $this->assertEquals('false', displayValue(false));
         $this->assertEquals('string', displayValue('string'));
+
+        $array = ['test', 'test2'];
+        ob_start();
+        var_dump($array);
+        $output = ob_get_contents();
+        ob_end_clean();
+        $this->assertEquals($output, displayValue($array));
     }
 
     public function testCamelCaseToSnakeCase()
@@ -310,6 +331,8 @@ class HelpersTest extends ServeboltWPUnitTestCase
     {
         $array = ['array', 'with', 'some', 'values'];
         $this->assertEquals('array,with,some,values', formatArrayToCsv($array));
+        $array = ['array', 'with', 'some', 'values'];
+        $this->assertEquals('array - with - some - values', formatArrayToCsv($array, ' - '));
     }
 
     public function testNaturalLanguageJoinHelper()
@@ -319,6 +342,14 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertEquals('Something or Something', naturalLanguageJoin(['Something', 'Something'], 'or', ''));
         $this->assertEquals('Something, Something or Another thing', naturalLanguageJoin(['Something', 'Something', 'Another thing'], 'or', ''));
         $this->assertEquals("'Something', 'something' and 'another thing'", naturalLanguageJoin(['Something', 'something', 'another thing'], null, "'"));
+    }
+
+    public function testThatStringContains()
+    {
+        $this->assertTrue(strContains('some-long-string', 'long', false));
+        $this->assertFalse(strContains('some-long-string', 'long2', false));
+        $this->assertTrue(strContains('some-long-string', 'long', true));
+        $this->assertFalse(strContains('some-long-string', 'long2', true));
     }
 
     public function testThatStringEndsWith()
@@ -360,21 +391,27 @@ class HelpersTest extends ServeboltWPUnitTestCase
     {
         $versionNumber = getCurrentPluginVersion(false);
         $this->assertIsString($versionNumber);
+        if (strContains($versionNumber, '-rev')) {
+            $versionNumber = preg_replace('/-rev([0-9]{1,2})/', '', $versionNumber);
+        }
         $this->assertRegExp('/^(\d\.){1,2}(\d)$/', $versionNumber);
         //$this->assertRegExp('/^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/', $versionNumber);
     }
 
     public function testCountSitesHelper()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $this->assertEquals(1, countSites());
         $this->createBlogs(3);
         $this->assertEquals(4, countSites());
+        $this->deleteBlogs();
+        $this->assertEquals(1, countSites());
     }
+
 
     public function testSmartOptionsHelpersMultisite()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $this->createBlogs(3);
         iterateSites(function ($site) {
             $key = 'some-option-for-testing';
@@ -384,6 +421,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
             $this->assertTrue(smartDeleteOption($site->blog_id, $key));
             $this->assertNull(smartGetOption($site->blog_id, $key));
         }, true);
+        $this->deleteBlogs();
     }
 
     public function testOptionsOverride()
@@ -408,7 +446,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testBlogOptionsOverride()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $this->createBlogs(2);
         iterateSites(function ($site) {
             $override = function($value) {
@@ -416,6 +454,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
             };
             $key = 'some-overrideable-blog-options-key';
             $fullKey = 'servebolt_' . $key;
+            deleteBlogOption($site->blog_id, $key);
             $this->assertEquals('some-default-value', getBlogOption($site->blog_id, $key, 'some-default-value'));
             add_filter('sb_optimizer_get_blog_option_' . $fullKey, $override);
             $this->assertEquals('override', getBlogOption($site->blog_id, $key));
@@ -428,6 +467,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
             remove_filter('sb_optimizer_get_blog_option_' . $fullKey, $override);
             $this->assertEquals('a-value', getBlogOption($site->blog_id, $key));
         }, true);
+        $this->deleteBlogs();
     }
 
     public function testDefaultValuesForOptionsHelpers()
@@ -450,20 +490,23 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testDefaultValuesForBlogOptionsHelpers()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $this->createBlogs(3);
         iterateSites(function ($site) {
             $key = 'default-options-value-test-key';
+            deleteBlogOption($site->blog_id, $key, 'an-actual-value');
             $this->assertEquals('default-value', getBlogOption($site->blog_id, $key, 'default-value'));
             updateBlogOption($site->blog_id, $key, 'an-actual-value');
             $this->assertNotEquals('default-value', getBlogOption($site->blog_id, $key, 'default-value'));
             $this->assertEquals('an-actual-value', getBlogOption($site->blog_id, $key, 'default-value'));
         }, true);
+        $this->deleteBlogs();
     }
 
     public function testDefaultValuesForSmartOptionsHelpers()
     {
         $key = 'default-options-value-test-key';
+        smartDeleteOption(null, $key);
         $this->assertEquals('default-value', smartGetOption(null, $key, 'default-value'));
         smartUpdateOption(null, $key, 'an-actual-value');
         $this->assertNotEquals('default-value', smartGetOption(null, $key, 'default-value'));
@@ -493,7 +536,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testOptionsHelpersMultisite()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $this->createBlogs(2);
         iterateSites(function ($site) {
             $key = 'some-option-for-testing-multisite';
@@ -503,6 +546,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
             $this->assertTrue(deleteBlogOption($site->blog_id, $key));
             $this->assertNull(getBlogOption($site->blog_id, $key));
         }, true);
+        $this->deleteBlogs();
     }
 
     public function testSmartOptionsHelpers()
@@ -515,9 +559,24 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertNull(smartGetOption(null, $key));
     }
 
+    public function testThatAllSiteSettingsGetsDeleted()
+    {
+        $this->skipWithoutMultisite();
+        $allSiteOptionsNames = getAllSiteOptionNames(true);
+        foreach ($allSiteOptionsNames as $option) {
+            updateSiteOption($option, $option);
+            $this->assertEquals($option, getSiteOption($option));
+        }
+        deleteAllSiteSettings(true);
+        foreach ($allSiteOptionsNames as $option) {
+            $value = getSiteOption($option);
+            $this->assertNull($value);
+        }
+    }
+
     public function testThatAllSettingsGetsDeleted()
     {
-        $this->multisiteOnly();
+        $this->skipWithoutMultisite();
         $this->createBlogs(2);
         $allOptionsNames = getAllOptionsNames(true);
         iterateSites(function ($site) use ($allOptionsNames) {
@@ -532,14 +591,16 @@ class HelpersTest extends ServeboltWPUnitTestCase
                 $value = getBlogOption($site->blog_id, $option);
                 switch ($option) {
                     // Default options
-                    //case 'prefetch_file_style_switch':
-                    //case 'prefetch_file_script_switch':
-                    //case 'prefetch_file_menu_switch':
+                    case 'prefetch_file_style_switch':
+                    case 'prefetch_file_script_switch':
+                    case 'prefetch_file_menu_switch':
+                    case 'custom_cache_ttl_switch':
                     case 'cache_purge_auto':
                     case 'cache_purge_auto_on_slug_change':
                     case 'cache_purge_auto_on_deletion':
                     case 'cache_purge_auto_on_attachment_update':
-                    case 'custom_cache_ttl_switch':
+                    case 'menu_cache_auto_cache_purge_on_menu_update':
+                    case 'menu_cache_auto_cache_purge_on_front_page_settings_update':
                         $this->assertTrue($value);
                         break;
                     case 'fpc_settings':
@@ -563,11 +624,17 @@ class HelpersTest extends ServeboltWPUnitTestCase
                         $this->assertEquals('default', $value['post_format']);
                         break;
                     default:
+                        /*
+                        if (!is_null($value)) {
+                            die($option);
+                        }
+                        */
                         $this->assertNull($value);
                         break;
                 }
             }
         });
+        $this->deleteBlogs();
     }
 
     public function testThatWeCanOverrideOptions(): void
@@ -647,6 +714,39 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertNull(getOption($optionsKey));
     }
 
+    public function testThatWeCanSkipOptionChangeOrUpdateEvent()
+    {
+        $key = 'some-checkbox-value';
+        $callCount = 0;
+        listenForCheckboxOptionUpdates($key, function($wasActive, $isActive, $didChange, $optionName) use (&$callCount) {
+            $callCount++;
+        });
+        updateOption($key, 1);
+        updateOption($key, 1);
+        skipNextListen($key);
+        updateOption($key, 1);
+        updateOption($key, 0);
+        updateOption($key, 0);
+        updateOption($key, 1);
+        $this->assertEquals(5, $callCount);
+    }
+
+    public function testThatWeCanDetectCheckboxOptionUpdateUsingFunctionClosure()
+    {
+        $key = 'some-checkbox-value';
+        $callCount = 0;
+        listenForCheckboxOptionUpdates($key, function($wasActive, $isActive, $didChange, $optionName) use (&$callCount) {
+            $callCount++;
+        });
+        updateOption($key, 1);
+        updateOption($key, 1);
+        updateOption($key, 1);
+        updateOption($key, 0);
+        updateOption($key, 0);
+        updateOption($key, 1);
+        $this->assertEquals(6, $callCount);
+    }
+
     public function testThatWeCanDetectCheckboxOptionChangeUsingFunctionClosure()
     {
         $key = 'some-checkbox-value';
@@ -715,6 +815,31 @@ class HelpersTest extends ServeboltWPUnitTestCase
         updateOption($key, 'another-value');
         updateOption($key, 'a-third-value');
         $this->assertEquals(3, $callCount);
+    }
+
+    public function testThatWeCanDetectOptionValueChangeUsingFunctionClosureAndNonServeboltOptions()
+    {
+        $key = 'some-string-value';
+        $callCount = 0;
+        listenForOptionChange($key, function($newValue, $oldValue, $optionName) use (&$callCount) {
+            $callCount++;
+        }, false);
+        update_option($key, 12);
+        $this->assertEquals(1, $callCount);
+    }
+
+    public function testThatWeCanDetectOptionValueChangeUsingFunctionClosureAndNonStrictComparison()
+    {
+        $key = 'some-string-value';
+        $callCount = 0;
+        listenForOptionChange($key, function($newValue, $oldValue, $optionName) use (&$callCount) {
+            $callCount++;
+        }, true, false);
+        updateOption($key, 12);
+        updateOption($key, '12');
+        updateOption($key, '12');
+        updateOption($key, 12);
+        $this->assertEquals(1, $callCount);
     }
 
     public function testThatWeCanDetectOptionValueChangeUsingActions()
@@ -791,13 +916,13 @@ class HelpersTest extends ServeboltWPUnitTestCase
     {
         add_image_size('69x69', 69, 69);
         if ($attachmentId = $this->createAttachment('woocommerce-placeholder.png')) {
-            $filename = basename(get_attached_file($attachmentId));
-            if (!preg_match('/^(.+)-([0-9]+)\.png$/', $filename, $matches)) {
-                $this->deleteAttachment($attachmentId);
-                $this->fail('Could not test image size URLs');
-                return;
-            }
-            $baseUrl = get_site_url() . '/wp-content/uploads/2021/07/woocommerce-placeholder-' . $matches[2];
+            $filePath = get_attached_file($attachmentId);
+
+            $filenameParts = pathinfo($filePath);
+            $filenameWithoutExtension = $filenameParts['filename'];
+
+            $baseUrl = get_site_url() . '/wp-content/uploads/' . date('Y') . '/' . date('m') . '/' . $filenameWithoutExtension;
+
             $expectedArray = [
                 $baseUrl . '-150x150.png',
                 $baseUrl . '-300x300.png',
@@ -806,6 +931,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
                 $baseUrl . '.png',
                 $baseUrl . '-69x69.png',
             ];
+
             $this->assertEquals($expectedArray, getAllImageSizesByImage($attachmentId));
             $this->deleteAttachment($attachmentId);
         }
@@ -827,5 +953,40 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertEquals('value', pickupValueFromFilter($key, false));
         $this->assertEquals('value', pickupValueFromFilter($key));
         $this->assertNull(pickupValueFromFilter($key));
+    }
+
+    public function testThatWeCanDetermineWpCronDisabling()
+    {
+        add_filter('sb_optimizer_wp_cron_disabled', '__return_true');
+        $this->assertTrue(wpCronDisabled());
+        remove_all_filters('sb_optimizer_wp_cron_disabled');
+        add_filter('sb_optimizer_wp_cron_disabled', '__return_false');
+        $this->assertFalse(wpCronDisabled());
+        remove_all_filters('sb_optimizer_wp_cron_disabled');
+    }
+
+    public function testRandomIntegerGenerator()
+    {
+        $this->assertIsInt(generateRandomInteger(0, 12));
+    }
+
+    public function testThatWeCanValidateJson()
+    {
+        $data = ['foo' => 'bar', 'some' => 'thing'];
+        $validJson = json_encode($data);
+        $this->assertTrue(isValidJson($validJson));
+        $invalidJson = mb_substr($validJson, 2);
+        $this->assertFalse(isValidJson($invalidJson));
+    }
+
+    public function testThatWeCanConvertObjectToArray()
+    {
+        $object = (object) ['some' => (object)['array', 'and', 'something', 'more']];
+        $this->assertEquals(['some' => ['array', 'and', 'something', 'more']], convertObjectToArray($object));
+    }
+
+    public function testThatLoginContextIsFalse()
+    {
+        $this->assertFalse(isLogin());
     }
 }

@@ -45,8 +45,8 @@
     <?php else : ?>
 
         <form method="post" autocomplete="off" action="options.php" id="sb-image-resizing-configuration-form">
-            <?php settings_fields( 'sb-cf-image-resizing-options-page' ) ?>
-            <?php do_settings_sections( 'sb-cf-image-resizing-options-page' ) ?>
+            <?php settings_fields('sb-cf-image-resizing-options-page'); ?>
+            <?php do_settings_sections('sb-cf-image-resizing-options-page'); ?>
 
             <table class="form-table" id="sb-image-resizing-configuration-table" role="presentation">
                 <tr>

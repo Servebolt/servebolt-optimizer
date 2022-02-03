@@ -1,0 +1,11 @@
+{
+  "bolt_id": 123456,
+  "name": "Testbolt-robert",
+  "private_dir": "/kunder/serveb_123456/optimi_56789/private",
+  "internal_url": "https://optimizer-56789.optimizer-osl.servebolt.cloud",
+  "home_dir": "/kunder/serveb_123456/optimi_56789",
+  "public_dir": "/kunder/serveb_123456/optimi_56789/public",
+  "internal_domain": "optimizer-56789.optimizer-osl.servebolt.cloud",
+  "api_key": "my-api-key",
+  "id": 56789
+}

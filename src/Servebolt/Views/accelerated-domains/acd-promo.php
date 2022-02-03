@@ -1,13 +1,13 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl; ?>
-<div class="welcome-panel" id="acd-welcome-panel">
-    <div class="welcome-panel-content">
-        <div class="welcome-panel-column-container">
+<div class="sb-welcome-panel" id="acd-welcome-panel">
+    <div class="sb-welcome-panel-content">
+        <div class="sb-welcome-panel-column-container">
             <div>
                 <img style="max-width: 250px; width: 50%;" src="<?= SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/images/acd-logo-color.svg'; ?>">
             </div>
 
-            <div class="welcome-panel-column">
+            <div class="sb-welcome-panel-column">
                 <h3><?php _e('Get started', 'servebolt-wp'); ?></h3>
                 <a class="button button-primary button-hero" href="<?php echo getServeboltAdminUrl('accelerated-domains'); ?>">
                     <?= _e('Get started', 'servebolt-wp'); ?>
@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <div class="welcome-panel-column" style="padding: .5rem">
+        <div class="sb-welcome-panel-column" style="padding: .5rem">
             <h3><?php _e('What is Accelerated Domains?', 'servebolt-wp'); ?></h3>
             <p>
                 <?php
@@ -27,7 +27,7 @@
                 ?>
             </p>
         </div>
-        <div class="welcome-panel-column welcome-panel-last" style="padding: .5rem">
+        <div class="sb-welcome-panel-column" style="padding: .5rem">
             <h3><?php _e('What does this plugin do?', 'servebolt-wp'); ?></h3>
             <p>
                 <?php

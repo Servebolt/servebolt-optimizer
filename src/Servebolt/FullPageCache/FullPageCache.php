@@ -21,6 +21,14 @@ class FullPageCache
     use Singleton;
 
     /**
+     * Alias for "getInstance".
+     */
+    public static function init()
+    {
+        self::getInstance();
+    }
+
+    /**
      * FullPageCache constructor.
      */
     public function __construct()
@@ -62,10 +70,9 @@ class FullPageCache
             return;
         }
 
-
         add_action('sb_optimizer_post_added_to_html_cache_exclusion', function($postId) {
             try {
-                WordPressCachePurge::purgeByPostId($postId);
+                WordPressCachePurge::purgeByPostId((int) $postId);
             } catch (Exception $e) {}
         }, 10, 1);
     }

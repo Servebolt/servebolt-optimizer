@@ -1,10 +1,11 @@
 <?php
 
-namespace Unit;
+namespace Unit\AcceleratedDomainsImageResize;
 
-use Unit\Traits\AttachmentTrait;
 use WP_UnitTestCase;
-use Servebolt\AllowSvgUploads;
+use Servebolt\Optimizer\AcceleratedDomains\ImageResize\FeatureAccess;
+use Servebolt\Optimizer\Utils\EnvironmentConfig;
+use Unit\Traits\AttachmentTrait;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\ImageResize;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
@@ -12,6 +13,23 @@ use function Servebolt\Optimizer\Helpers\setOptionOverride;
 class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
 {
     use AttachmentTrait;
+
+    public function testThatWeCanCheckFeatureAccess()
+    {
+        $this->assertTrue(FeatureAccess::hasAccess());
+        /*
+        $config = EnvironmentConfig::getInstance();
+        $this->assertFalse(FeatureAccess::hasAccess());
+        add_filter('sb_optimizer_is_accelerated_domains', '__return_true');
+        add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        $config->setConfigObject((object) ['sb_acd_image_resize' => true]);
+        $this->assertTrue(FeatureAccess::hasAccess());
+        $config->reset();
+        $this->assertFalse(FeatureAccess::hasAccess());
+        remove_all_filters('sb_optimizer_is_accelerated_domains');
+        remove_all_filters('sb_optimizer_is_hosted_at_servebolt');
+        */
+    }
 
     public function setUp()
     {

@@ -52,8 +52,17 @@ Servebolt\AllowSvgUploads::allow();
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
 
+// Load env-file for testing
+$dotenv = new Symfony\Component\Dotenv\Dotenv();
+$dotenv->load(__DIR__ . '/.env');
+
 // Include custom traits
-foreach([__DIR__ . '/Unit/Traits/*Trait.php', __DIR__ . '/Feature/Traits/*Trait.php'] as $traitFolder) {
+foreach([
+    __DIR__ . '/Unit/Traits/*.php',
+    __DIR__ . '/Unit/Traits/*/*.php',
+    __DIR__ . '/Feature/Traits/*.php',
+    __DIR__ . '/Feature/Traits/*/*.php',
+] as $traitFolder) {
     foreach (glob($traitFolder) as $traitFile) {
         require_once $traitFile;
     }

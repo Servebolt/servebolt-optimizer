@@ -73,7 +73,15 @@ class DeletionCacheTrigger
         if (!$termId) {
             return;
         }
-        $taxonomySlug = (getTaxonomyFromTermId($termId))->name;
+        $termId = (int) $termId;
+        $taxonomyObject = getTaxonomyFromTermId($termId);
+        if (!$taxonomyObject) {
+            return;
+        }
+        $taxonomySlug = (isset($taxonomyObject->name) && !empty($taxonomyObject->name)) ? (string) $taxonomyObject->name : false;
+        if (!$taxonomySlug) {
+            return;
+        }
         try {
             setCachePurgeOriginEvent('term_deleted');
             WordPressCachePurge::skipQueueOnce();
@@ -86,12 +94,12 @@ class DeletionCacheTrigger
      *
      * @param int $postId
      */
-    public function deletePost(int $postId): void
+    public function deletePost($postId): void
     {
         try {
             setCachePurgeOriginEvent('post_deleted');
             WordPressCachePurge::skipQueueOnce();
-            WordPressCachePurge::purgeByPostId($postId);
+            WordPressCachePurge::purgeByPostId((int) $postId);
         } catch (Exception $e) {}
     }
 }

@@ -172,7 +172,7 @@ class DatabaseOptimizer
                                 WP_CLI::error($value['message'], false);
                                 break;
                             case 'table':
-                                WP_CLI_FormatItems( 'table', $value['table'], array_keys(current($value['table'])));
+                                WP_CLI_FormatItems('table', $value['table'], array_keys(current($value['table'])));
                                 break;
                         }
                     }
@@ -354,10 +354,10 @@ class DatabaseOptimizer
 	 */
 	private function addCronHandling()
     {
-		$cronKey = 'servebolt_cron_hook_analyze_tables';
-		add_action($cronKey, [$this, 'analyzeTables']);
-		if (!wp_next_scheduled($cronKey)) {
-			wp_schedule_event(time(), 'daily', $cronKey);
+		$hook = 'sb_optimizer_cron_hook_analyze_tables';
+		add_action($hook, [$this, 'analyzeTables']);
+		if (!wp_next_scheduled($hook)) {
+			wp_schedule_event(time(), 'daily', $hook);
 		}
 	}
 

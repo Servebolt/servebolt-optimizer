@@ -42,7 +42,7 @@
                     None
                 <?php endif; ?>
             </td>
-            <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-html-cache' ); ?>" class="button btn"><?php _e('Go to site HTML Cache settings', 'servebolt-wp'); ?></a></td>
+            <td><a href="<?php echo get_admin_url( $site->blog_id, 'admin.php?page=servebolt-html-cache' ); ?>" class="button btn"><?php _e('Go to site HTML Cache Settings', 'servebolt-wp'); ?></a></td>
         </tr>
     <?php endforeach; ?>
     </tbody>
