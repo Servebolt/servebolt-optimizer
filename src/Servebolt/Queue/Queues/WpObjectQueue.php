@@ -138,10 +138,12 @@ class WpObjectQueue
 
     /**
      * Clear queue.
+     *
+     * @param bool $skipConstraintBoolean
      */
-    public function clearQueue(): void
+    public function clearQueue(bool $skipConstraintBoolean = false): void
     {
-        $this->queue->clearQueue();
+        $this->queue->clearQueue($skipConstraintBoolean);
     }
 
     /**

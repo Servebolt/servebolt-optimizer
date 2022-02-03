@@ -93,7 +93,8 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
-= 3.4 =
+= 3.5 =
+* Added support for cache provider "Servebolt CDN"
 
 = 3.3 =
 * Bugfix - WP admin bar markup error - Fixed minor markup error in the WP admin bar dropdown menu. An obsolete “target”-attribute was added to the parent div element which is invalid.
