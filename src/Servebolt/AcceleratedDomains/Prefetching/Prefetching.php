@@ -257,7 +257,7 @@ class Prefetching
     {
         return (bool) apply_filters(
             'sb_optimizer_prefetching_expose_manifest_files_after_prefetch_items_record',
-            true
+            false
         );
     }
 

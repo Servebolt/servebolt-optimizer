@@ -44,7 +44,8 @@ class ManifestFileWriter
      *
      * @var string
      */
-    private static $fileNameMask = 'manifest-%s-%s.txt';
+    //private static $fileNameMask = 'manifest-%s-%s.txt';
+    private static $fileNameMask = 'manifest-%s.txt';
 
     /**
      * WP Filesystem instance.
@@ -145,7 +146,8 @@ class ManifestFileWriter
      */
     public static function generateFileName(string $fileType): string
     {
-        return sprintf(self::$fileNameMask, $fileType, time());
+        //return sprintf(self::$fileNameMask, $fileType, time());
+        return sprintf(self::$fileNameMask, $fileType);
     }
 
     /**
