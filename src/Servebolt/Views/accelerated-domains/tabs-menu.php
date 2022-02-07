@@ -25,7 +25,7 @@ if (featureIsAvailable('prefetching')) {
     $tabs[] = [
         'id' => 'servebolt-prefetching',
         'url' => $urlMethod('admin.php?page=servebolt-prefetching'),
-        'title' => 'Prefetching',
+        'title' => 'Prefetching (beta)',
     ];
 }
 
