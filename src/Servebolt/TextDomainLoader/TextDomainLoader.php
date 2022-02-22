@@ -42,7 +42,7 @@ class TextDomainLoader
                 'entries' => $mo->entries,
                 'headers' => $mo->headers
             ];
-            set_transient($transientKey, $data);
+            set_transient($transientKey, $data, YEAR_IN_SECONDS);
         } else {
             $mo->entries = $data['entries'];
             $mo->headers = $data['headers'];
