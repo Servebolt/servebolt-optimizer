@@ -38,7 +38,7 @@ class CachePostExclusion
             return $idsToExclude;
         }
         if (is_null(self::$idsToExcludeCache)) {
-            $idsToExclude = getOption( 'fpc_exclude');
+            $idsToExclude = getOption('fpc_exclude');
             if (!is_array($idsToExclude)) {
                 $idsToExclude = [];
             }

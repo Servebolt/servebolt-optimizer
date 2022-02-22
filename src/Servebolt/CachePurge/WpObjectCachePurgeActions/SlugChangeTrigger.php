@@ -2,13 +2,14 @@
 
 namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
-if (!defined( 'ABSPATH')) exit; // Exit if accessed directly
+if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Exception;
 use Servebolt\Optimizer\Traits\EventToggler;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\setCachePurgeOriginEvent;
 
 /**
@@ -64,21 +65,22 @@ class SlugChangeTrigger
      * Check if the term permalink changed, and if so then purge the old one.
      *
      * @param array $updateData
-     * @param $termId
-     * @param $taxonomy
-     * @return array
+     * @param int $termId
+     * @param string $taxonomy
+     * @return array|mixed
      */
-    public function checkPreviousTermPermalink(array $updateData, $termId, $taxonomy): array
+    public function checkPreviousTermPermalink($updateData, $termId, $taxonomy)
     {
-        $term = get_term($termId, $taxonomy);
-        $termSlugDidChange = $term->slug !== $updateData['slug'];
-        if ($termSlugDidChange) {
-            if ($previousTermPermalink = get_term_link($term)) {
-                try {
-                    // TODO: Consider whether we should add pagination-support to this cache purge
-                    setCachePurgeOriginEvent('term_permalink_changed');
-                    WordPressCachePurge::purgeByUrl($previousTermPermalink);
-                } catch (Exception $e) {}
+        if (is_array($updateData)) {
+            if ($term = get_term($termId, $taxonomy)) {
+                $termSlugDidChange = $term->slug !== arrayGet('slug', $updateData);
+                if ($termSlugDidChange && $previousTermPermalink = get_term_link($term)) {
+                    try {
+                        // TODO: Consider whether we should add pagination-support to this cache purge
+                        setCachePurgeOriginEvent('term_permalink_changed');
+                        WordPressCachePurge::purgeByUrl((string) $previousTermPermalink);
+                    } catch (Exception $e) {}
+                }
             }
         }
         return $updateData;
@@ -118,7 +120,7 @@ class SlugChangeTrigger
         if ($this->postPermalinkDidChange($postId)) {
             try {
                 setCachePurgeOriginEvent('post_permalink_changed');
-                WordPressCachePurge::purgeByUrl($this->previousPostPermalink);
+                WordPressCachePurge::purgeByUrl((string) $this->previousPostPermalink);
             } catch (Exception $e) {}
         }
     }

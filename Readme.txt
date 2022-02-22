@@ -30,7 +30,7 @@ This project is maintained on [Github](https://servebo.lt/sog).
 - View Apache/PHP error log (**Servebolt clients only**)
 - Database optimization - Convert tables to InnoDB
 - Database optimization - Add performance improving indexes
-- Automatic Cloudflare cache purge
+- Automatic cache purge for Cloudflare and Accelerated Domains
 - Recommendations on additional performance improvements
 - Multi-site support
 - WP CLI support
@@ -93,6 +93,8 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.4 =
+
 = 3.3 =
 * Bugfix - WP admin bar markup error - Fixed minor markup error in the WP admin bar dropdown menu. An obsolete “target”-attribute was added to the parent div element which is invalid.
 * Bugfix - menu cache feature issue with filters - Whenever a 3rd party adds a menu using the filter wp_nav_menu_args, we could not cache the result due to how we interact using WordPress filters. This should now be fixed.

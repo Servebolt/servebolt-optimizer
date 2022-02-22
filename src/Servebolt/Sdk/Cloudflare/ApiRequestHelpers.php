@@ -34,8 +34,8 @@ class ApiRequestHelpers
     public static function getMessagesFromRequest($request): array
     {
         $response = $request['json'];
-        if (isset($response->errors) && is_array($response->errors)) {
-            return $response->errors;
+        if (isset($response->messages) && is_array($response->messages)) {
+            return $response->messages;
         }
         return [];
     }

@@ -9,6 +9,7 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use Exception;
 use Servebolt\Optimizer\Traits\EventToggler;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\setCachePurgeOriginEvent;
 
 /**
@@ -23,7 +24,7 @@ class ContentChangeTrigger
     public function deregisterEvents(): void
     {
         remove_action('edit_term', [$this, 'purgeTermOnSave'], 99, 3);
-        remove_action('save_post', [$this, 'purgePostOnSave'], 99, 3);
+        remove_action('save_post', [$this, 'purgePostOnSave'], 99, 1);
         remove_action('comment_post', [$this, 'purgePostOnCommentPost'], 99, 3);
         remove_action('transition_comment_status', [$this, 'purgePostOnCommentApproval'], 99, 3);
     }
@@ -51,7 +52,7 @@ class ContentChangeTrigger
 
         // Purge post on post update
         if (apply_filters('sb_optimizer_automatic_purge_on_post_save', true)) {
-            add_action('save_post', [$this, 'purgePostOnSave'], 99, 3);
+            add_action('save_post', [$this, 'purgePostOnSave'], 99, 1);
         }
 
         // Purge post on comment post
@@ -66,22 +67,24 @@ class ContentChangeTrigger
     }
 
     /**
-     * @param $termId
-     * @param $termTaxonomyId
-     * @param $taxonomy
+     * Purge cache for term on save.
+     *
+     * @param int $termId The term ID.
+     * @param int $termTaxonomyId The term taxonomy ID.
+     * @param string $taxonomy The taxonomy slug.
      */
     public function purgeTermOnSave($termId, $termTaxonomyId, $taxonomy): void
     {
-        $this->maybePurgeTerm($termId, $taxonomy);
+        $this->maybePurgeTerm((int) $termId, (string) $taxonomy);
     }
 
     /**
      * Check whether we should purge cache for given term.
      *
-     * @param $termId
-     * @param $taxonomy
+     * @param int $termId
+     * @param string|mixed $taxonomy
      */
-    private function maybePurgeTerm($termId, $taxonomy): void
+    private function maybePurgeTerm(int $termId, string $taxonomy): void
     {
         if (!$this->shouldPurgeTermCache($termId, $taxonomy)) {
             return;
@@ -95,16 +98,27 @@ class ContentChangeTrigger
     /**
      * Check if we should clear cache for post that is being updated.
      *
-     * @param $termId
-     * @param $taxonomy
+     * @param int $termId
+     * @param string $taxonomy
      *
      * @return bool|void
      */
-    private function shouldPurgeTermCache($termId, $taxonomy): bool
+    private function shouldPurgeTermCache(int $termId, string $taxonomy): bool
     {
 
-        // Let users override the outcome
-        $overrideByTermId = apply_filters('sb_optimizer_should_purge_term_cache', null, $termId, $taxonomy);
+        /**
+         * Let 3rd party devs decide whether we should purge term cache or not.
+         *
+         * @param null|boolean $shouldPurge Whether to purge the cache or not.
+         * @param int $termId The ID of the term.
+         * @param string $taxonomy The taxonomy slug.
+         */
+        $overrideByTermId = apply_filters(
+            'sb_optimizer_should_purge_term_cache',
+            null,
+            $termId,
+            $taxonomy
+        );
         if (is_bool($overrideByTermId)) {
             return $overrideByTermId;
         }
@@ -188,21 +202,19 @@ class ContentChangeTrigger
     /**
      * Purge post on post save.
      *
-     * @param int $postId
-     * @param WP_Post|object $post
-     * @param bool $update
+     * @param int|mixed $postId
      */
-    public function purgePostOnSave(int $postId, object $post, bool $update): void
+    public function purgePostOnSave($postId): void
     {
-        $this->maybePurgePost($postId);
+        $this->maybePurgePost((int) $postId);
     }
 
     /**
      * Maybe purge post by post ID.
      *
-     * @param $postId
+     * @param int $postId
      */
-    private function maybePurgePost($postId): void
+    private function maybePurgePost(int $postId): void
     {
         if (!self::shouldPurgePostCache($postId)) {
             return;
@@ -216,21 +228,34 @@ class ContentChangeTrigger
     /**
      * Purge post cache on comment post.
      *
-     * @param $commentId
-     * @param $commentApproved
-     * @param $commentData
+     * @param int $commentId
+     * @param int|string $commentApproved
+     * @param array $commentData
      */
     public function purgePostOnCommentPost($commentId, $commentApproved, $commentData): void
     {
-        $postId = $this->getPostIdFromComment($commentData);
+        $postId = $this->getPostIdFromComment((array) $commentData);
 
         // Bail on the cache purge if we could not figure out which post was commented on
         if (!$postId) {
             return;
         }
 
-        // Bail on the cache purge if the comment needs to be approved first
-        $commentIsApproved = apply_filters('sb_optimizer_comment_approved_cache_purge', $commentApproved, $commentData, $commentId);
+        /**
+         * Bail on the cache purge if the comment needs to be approved first.
+         *
+         * @param int|string $commentApproved Whether the comment is approved, or whether it's spam.
+         * @param array $commentData An array containing the comment data.
+         * @param int $commentId The ID of the comment.
+         * @param int $post The ID of the post where the comment was posted.
+         */
+        $commentIsApproved = apply_filters(
+            'sb_optimizer_comment_approved_cache_purge',
+            $commentApproved,
+            $commentData,
+            $commentId,
+            $postId
+        );
         if (
             apply_filters('sb_optimizer_prevent_cache_purge_on_unapproved_comments', true)
             && !$commentIsApproved
@@ -252,7 +277,7 @@ class ContentChangeTrigger
     {
         $statusDidChange = $oldStatus != $newStatus;
         if ($statusDidChange && $newStatus == 'approved') {
-            $postId = $this->getPostIdFromComment($commentData);
+            $postId = $this->getPostIdFromComment((array) $commentData);
             if (!$postId) {
                 return;
             }
@@ -263,16 +288,16 @@ class ContentChangeTrigger
     /**
      * Get post ID from comment data.
      *
-     * @param $commentData
+     * @param array $commentData
      *
-     * @return bool|int
+     * @return null|int
      */
-    private function getPostIdFromComment($commentData)
+    private function getPostIdFromComment(array $commentData): ?int
     {
-        $commentData = (array) $commentData;
-        if (!array_key_exists('comment_post_ID', $commentData)) {
-            return false;
+        $commentPostId = arrayGet('comment_post_ID', $commentData);
+        if (!$commentPostId) {
+            return null;
         }
-        return $commentData['comment_post_ID'];
+        return (int) $commentPostId;
     }
 }

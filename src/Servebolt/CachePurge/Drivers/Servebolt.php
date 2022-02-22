@@ -9,6 +9,10 @@ use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeInterface;
 use Servebolt\Optimizer\Exceptions\ServeboltApiError;
 
+/**
+ * Class Servebolt
+ * @package Servebolt\Optimizer\CachePurge\Drivers
+ */
 class Servebolt implements CachePurgeInterface
 {
     use Singleton;
@@ -172,7 +176,7 @@ class Servebolt implements CachePurgeInterface
      */
     private function getDomainsWithThirdPartySupport(): array
     {
-        $sites = array_map( 'get_object_vars', get_sites( array( 'deleted' => 0 ) ) ); //WP 4.6+
+        $sites = array_map('get_object_vars', get_sites(['deleted' => 0])); //WP 4.6+
         $domains = [];
         foreach ($sites as $site) {
 
@@ -181,8 +185,8 @@ class Servebolt implements CachePurgeInterface
 
             // Support for Mercator
             if (class_exists('\\Mercator\\Mapping') && $mappings = \Mercator\Mapping::get_by_site($site['blog_id'])) {
-                foreach ( $mappings as $mapping ) {
-                    if ( $mapping->is_active() ) {
+                foreach ($mappings as $mapping) {
+                    if ($mapping->is_active()) {
                         if ($domain = $mapping->get_domain()) {
                             $domains[] = $domain;
                         }

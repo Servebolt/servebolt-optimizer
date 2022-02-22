@@ -54,7 +54,7 @@ class AttachmentUpdateTrigger
      */
     public function wpImageEditorCallback(): void
     {
-        if ($this->shouldActOnThisAjaxAction() && $attachmentId = (int) $_POST['postid']) {
+        if ($this->shouldActOnThisAjaxAction() && $attachmentId = $_POST['postid']) {
             $this->purgeCacheForAttachment($attachmentId);
         }
     }
@@ -66,19 +66,19 @@ class AttachmentUpdateTrigger
      */
     private function shouldActOnThisAjaxAction(): bool
     {
-        return in_array(arrayGet('do', $_POST), ['restore', 'save', 'scale']);
+        return in_array(arrayGet('do', $_POST, []), ['restore', 'save', 'scale']);
     }
 
     /**
      * Purge cache for attachment on metadata generation.
      *
-     * @param int $attachmentId
+     * @param int|mixed $attachmentId The ID of the attachment that should be purged cache for.
      */
-    public function purgeCacheForAttachment(int $attachmentId): void
+    public function purgeCacheForAttachment($attachmentId): void
     {
         try {
             setCachePurgeOriginEvent('attachment_updated');
-            WordPressCachePurge::purgeByPostId($attachmentId);
+            WordPressCachePurge::purgeByPostId((int) $attachmentId);
         } catch (Exception $e) {}
     }
 }

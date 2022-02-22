@@ -71,7 +71,12 @@ class RedirectCachePurge
     private function purgeUrl($url): void
     {
         try {
-            WordPressCachePurge::purgeByUrl($this->formatUrl($url), false);
+            if ($url) {
+                WordPressCachePurge::purgeByUrl(
+                    $this->formatUrl((string) $url),
+                    false
+                );
+            }
         } catch (Exception $e) {}
     }
 

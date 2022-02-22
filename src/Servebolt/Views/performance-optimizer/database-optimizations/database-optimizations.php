@@ -60,34 +60,34 @@
 	</table>
 
   <br>
-	<h3><?php _e('Database Table Storage Engines', 'servebolt-wp'); ?></h3>
+	<h3><?php _e('Database tables using MyISAM Storage Engines', 'servebolt-wp'); ?> (<?php echo count($myisamTables); ?>)</h3>
 	<table class="wp-list-table widefat fixed striped">
 		<thead>
 		<tr>
 			<th><?php _e('Table', 'servebolt-wp'); ?></th>
-			<th><?php _e('Engine', 'servebolt-wp'); ?></th>
-			<th><?php _e('Convert to', 'servebolt-wp'); ?></th>
+			<!--<th><?php _e('Engine', 'servebolt-wp'); ?></th>-->
+			<th><!--<?php _e('Convert to', 'servebolt-wp'); ?>--></th>
 		</tr>
 		</thead>
 		<tfoot>
 		<tr>
 			<th><?php _e('Table', 'servebolt-wp'); ?></th>
-			<th><?php _e('Engine', 'servebolt-wp'); ?></th>
-			<th><?php _e('Convert to', 'servebolt-wp'); ?></th>
+			<!--<th><?php _e('Engine', 'servebolt-wp'); ?></th>-->
+			<th><!--<?php _e('Convert to', 'servebolt-wp'); ?>--></th>
 		</tr>
 		</tfoot>
 		<tbody>
 		<?php if (empty($myisamTables)) : ?>
 			<tr>
 				<td><?php esc_html_e('All tables use modern storage engines', 'servebolt-wp'); ?></td>
-				<td></td>
+				<!--<td></td>-->
 				<td></td>
 			</tr>
 		<?php else : ?>
 			<?php foreach ($myisamTables as $obj) : ?>
 				<tr>
 					<td><?php echo $obj->TABLE_NAME; ?></td>
-					<td><?php echo $obj->ENGINE; ?></td>
+					<!--<td><?php echo $obj->ENGINE; ?></td>-->
 					<td><a href="#" class="sb-convert-table" data-table="<?php echo $obj->TABLE_NAME; ?>"><?php _e('Convert to InnoDB', 'servebolt-wp'); ?></a></td>
 				</tr>
 			<?php endforeach; ?>

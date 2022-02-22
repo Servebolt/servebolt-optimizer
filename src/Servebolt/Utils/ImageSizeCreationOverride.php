@@ -51,7 +51,7 @@ class ImageSizeCreationOverride
         $this->originalSizes = $sizes;
 
         // Re-add image sizes after file creation
-        add_filter( 'wp_get_attachment_metadata', [ $this, 'reAddImageSizes' ] );
+        add_filter('wp_get_attachment_metadata', [$this, 'reAddImageSizes']);
 
         // Determine which image sizes we should generate files for
         $uploadedImageRatio = $imageMeta['width'] / $imageMeta['height'];

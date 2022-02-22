@@ -5,12 +5,14 @@ namespace Servebolt\Optimizer\Utils\DatabaseMigration\Migrations;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Utils\DatabaseMigration\AbstractMigration;
+use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationInterface;
+use function Servebolt\Optimizer\Helpers\tableHasIndex;
 
 /**
  * Class AddParentIdIndexToQueueTable
  * @package Servebolt\Optimizer\Utils\DatabaseMigration\Migrations
  */
-class AddParentIdIndexToQueueTable extends AbstractMigration
+class AddParentIdIndexToQueueTable extends AbstractMigration implements MigrationInterface
 {
 
     /**
@@ -41,6 +43,16 @@ class AddParentIdIndexToQueueTable extends AbstractMigration
     public function up(): void
     {
         $this->runSql('ALTER TABLE `%table-name%` ADD INDEX `parent_id_index` (`parent_id`);');
+    }
+
+    /**
+     * Check whether the table has the index.
+     *
+     * @return bool
+     */
+    public function hasBeenRun(): bool
+    {
+        return tableHasIndex($this->getTableNameWithPrefix(), 'parent_id_index');
     }
 
     /**

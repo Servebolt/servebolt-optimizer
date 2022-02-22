@@ -1,10 +1,10 @@
 # Servebolt Optimizer
 
 This repository contains the WordPress plugin Servebolt Optimizer - a plugin that:
-- Optimizes your WordPress-site through markup cleanup, adding indexes and ensuring that your database is running with the best MySQL DB enfine
+- Optimizes your WordPress-site through markup cleanup, adding indexes and ensuring that your database is running with the best MySQL storage engine.
 - Adds support and control features for Servebolt Accelerated Domains
-- Gives you neat features related to Cloudflare's services (cache purge, image resize)
-- Gives you additional benefits when hosting your site at Servebolt
+- Gives you neat features related to Cloudflares services (cache purge, image resize)
+- Gives you additional benefits when hosting your site at Servebolt (cache control, cache purging)
 
 The plugin infrastructure is loosely based on: https://github.com/avillegasn/wp-beb
 
@@ -40,6 +40,8 @@ Credentials for the SVN repository is stored in the password manager. The creden
 If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to WordPress.org.
 
 ## Changelog
+#### 3.4
+
 #### 3.3
 * Bugfix - WP admin bar markup error - Fixed minor markup error in the WP admin bar dropdown menu. An obsolete “target”-attribute was added to the parent div element which is invalid.
 * Bugfix - menu cache feature issue with filters - Whenever a 3rd party adds a menu using the filter wp_nav_menu_args, we could not cache the result due to how we interact using WordPress filters. This should now be fixed.

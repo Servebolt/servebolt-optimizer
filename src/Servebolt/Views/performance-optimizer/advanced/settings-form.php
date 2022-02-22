@@ -1,5 +1,8 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
+<?php use function Servebolt\Optimizer\Helpers\view; ?>
+<?php use function Servebolt\Optimizer\Helpers\actionSchedulerIsActive; ?>
+<?php use function Servebolt\Optimizer\Helpers\isHostedAtServebolt; ?>
 
 <?php settings_errors(); ?>
 
@@ -22,6 +25,10 @@
                 </fieldset>
             </td>
         </tr>
+        <?php if (!is_multisite() && isHostedAtServebolt()) : ?>
+            <?php view('performance-optimizer.advanced.shared-settings.action-scheduler', compact('settings')); ?>
+            <?php view('performance-optimizer.advanced.shared-settings.wp-cron', compact('settings')); ?>
+        <?php endif; ?>
     </table>
 
     <p class="submit">

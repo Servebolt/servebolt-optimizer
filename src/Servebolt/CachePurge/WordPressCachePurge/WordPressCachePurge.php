@@ -8,6 +8,7 @@ use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use function Servebolt\Optimizer\Helpers\getCachePurgeOriginEvent;
 use function Servebolt\Optimizer\Helpers\isQueueItem;
+use function Servebolt\Optimizer\Helpers\iterateSites;
 
 /**
  * Class WordPressCachePurge
@@ -18,7 +19,6 @@ use function Servebolt\Optimizer\Helpers\isQueueItem;
  */
 class WordPressCachePurge
 {
-
     use PostMethods, TermMethods;
 
     /**
@@ -44,13 +44,16 @@ class WordPressCachePurge
      * Purge cache by URL.
      *
      * @param string $url
-     * @param bool $attemptToResolvePostIdFromUrl
+     * @param bool $shouldAttemptToResolvePostIdFromUrl
      * @return bool
      */
-    public static function purgeByUrl(string $url, bool $attemptToResolvePostIdFromUrl = true)
+    public static function purgeByUrl(string $url, bool $shouldAttemptToResolvePostIdFromUrl = true)
     {
         $shouldPurgeByQueue = self::shouldPurgeByQueue();
-        if ($attemptToResolvePostIdFromUrl && $postId = self::attemptToResolvePostIdFromUrl($url)) { // Resolve URL to post ID, then purge by post ID
+        if (
+            $shouldAttemptToResolvePostIdFromUrl
+            && $postId = self::attemptToResolvePostIdFromUrl($url)
+        ) { // Resolve URL to post ID, then purge by post ID
             /*
             if ($url !== get_permalink($postId)) {
                 // Purge only URL, not post?
@@ -61,7 +64,7 @@ class WordPressCachePurge
             add_filter('sb_optimizer_purge_by_post_original_url', function() use ($url) {
                 return $url;
             });
-            return self::purgePostCache($postId);
+            return self::purgePostCache((int) $postId);
         } else {
             if ($shouldPurgeByQueue) {
                 $queueInstance = WpObjectQueue::getInstance();
@@ -150,59 +153,32 @@ class WordPressCachePurge
     }
 
     /**
-     * Purge all cache on the site.
+     * Purge all cache on the current site.
      *
      * @param bool $returnWpError
      * @return bool
      */
     public static function purgeAll(bool $returnWpError = false)
     {
-        if (self::shouldPurgeByQueue()) {
-            $queueInstance = WpObjectQueue::getInstance();
-            $queueItemData = [
-                'type' => 'purge-all',
-                'networkPurge' => false,
-            ];
-            if ($originEvent = getCachePurgeOriginEvent()) {
-                $queueItemData['originEvent'] = $originEvent;
-            }
-            return isQueueItem($queueInstance->add($queueItemData));
-        } else {
-            $cachePurgeDriver = CachePurgeDriver::getInstance();
-            return $cachePurgeDriver->purgeAll();
-        }
+        return self::purgeAllByBlogId();
     }
 
     /**
-     * Purge all cache for given site (only for multisites).
+     * Purge all cache for given site.
      *
-     * @param int $blogId
+     * @param int|null $blogId
      * @param bool $returnWpError
      * @return bool
      */
-    public static function purgeAllByBlogId(int $blogId, bool $returnWpError = false)
+    public static function purgeAllByBlogId(?int $blogId = null, bool $returnWpError = false)
     {
-        $shouldPurgeByQueue = self::shouldPurgeByQueue($blogId);
-        if (!is_multisite()) {
-            return false;
-        }
-        if ($blogId) {
-            switch_to_blog($blogId);
-        }
-        if ($shouldPurgeByQueue) {
-            $queueInstance = WpObjectQueue::getInstance();
-            $result = isQueueItem($queueInstance->add([
-                'type' => 'purge-all',
-                'networkPurge' => false,
-            ]));
+        if (self::shouldPurgeByQueue($blogId)) {
+            $queueInstance = WpObjectQueue::getInstance($blogId);
+            return isQueueItem($queueInstance->add(['type' => 'purge-all']));
         } else {
-            $cachePurgeDriver = CachePurgeDriver::getInstance();
-            $result = $cachePurgeDriver->purgeAll();
+            $cachePurgeDriver = CachePurgeDriver::getInstance($blogId);
+            return $cachePurgeDriver->purgeAll();
         }
-        if ($blogId) {
-            restore_current_blog();
-        }
-        return $result;
     }
 
     /**
@@ -213,19 +189,11 @@ class WordPressCachePurge
      */
     public static function purgeAllNetwork(bool $returnWpError = false)
     {
-        $shouldPurgeByQueue = self::shouldPurgeByQueue();
         if (!is_multisite()) {
             return false;
         }
-        if ($shouldPurgeByQueue) {
-            $queueInstance = WpObjectQueue::getInstance();
-            return isQueueItem($queueInstance->add([
-                'type' => 'purge-all',
-                'networkPurge' => true,
-            ]));
-        } else {
-            $cachePurgeDriver = CachePurgeDriver::getInstance();
-            return $cachePurgeDriver->purgeAll();
-        }
+        iterateSites(function($site) {
+            self::purgeAllByBlogId((int) $site->blog_id);
+        });
     }
 }

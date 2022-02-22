@@ -144,7 +144,7 @@ class Post extends SharedMethods
      */
     private function dateArchiveActive(): bool
     {
-        return (bool) apply_filters('sb_optimizer_cf_cache_purge_date_archive_active', false);
+        return (bool) apply_filters('sb_optimizer_cache_purge_date_archive_active', false);
     }
 
     /**
@@ -187,7 +187,7 @@ class Post extends SharedMethods
      */
     private function postTypeArchiveShouldBePurged(string $postType): bool
     {
-        return (bool) apply_filters('sb_optimizer_cf_cache_purge_taxonomy_should_be_purged', true, $postType);
+        return (bool) apply_filters('sb_optimizer_cache_purge_post_type_should_be_purged', true, $postType);
     }
 
     /**
@@ -217,7 +217,7 @@ class Post extends SharedMethods
             $authorUrl = get_author_posts_url($author);
             if ($authorUrl && !is_wp_error($authorUrl)) {
                 $pagesNeeded = $this->getPagesNeeded([
-                    'post_type' => apply_filters('sb_optimizer_cf_cache_purge_author_archive_post_type', 'post'),
+                    'post_type' => apply_filters('sb_optimizer_cache_purge_author_archive_post_type', 'post'),
                     'author'    => $author,
                 ], 'post');
                 $this->addUrls(paginateLinksAsArray($authorUrl, $pagesNeeded));
@@ -233,7 +233,7 @@ class Post extends SharedMethods
      */
     private function taxonomyArchiveShouldBePurged($taxonomy): bool
     {
-        return (bool) apply_filters('sb_optimizer_cf_cache_purge_taxonomy_should_be_purged', true, $taxonomy);
+        return (bool) apply_filters('sb_optimizer_cache_purge_taxonomy_should_be_purged', true, $taxonomy);
     }
 
     /**
@@ -284,7 +284,7 @@ class Post extends SharedMethods
         $dateArchive = get_day_link($year, $month, $day);
         if ($dateArchive && !is_wp_error($dateArchive)) {
             $pagesNeeded = $this->getPagesNeeded([
-                'post_type'  => apply_filters('sb_optimizer_cf_cache_purge_date_archive_post_type', 'post'),
+                'post_type'  => apply_filters('sb_optimizer_cache_purge_date_archive_post_type', 'post'),
                 'date_query' => [
                     compact('year', 'month', 'day')
                 ]

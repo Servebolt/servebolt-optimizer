@@ -4,33 +4,33 @@ namespace Servebolt\Optimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\CachePurge\WpCachePurge;
-use Servebolt\Optimizer\Prefetching\WpPrefetching;
-use Servebolt\Optimizer\Compatibility\Compatibility as PluginCompatibility;
 use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
-use Servebolt\Optimizer\FullPageCache\FullPageCache;
-use Servebolt\Optimizer\MenuOptimizer\WpMenuOptimizer;
-use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
-use Servebolt\Optimizer\TextDomainLoader\WpTextDomainLoader;
-use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
-use Servebolt\Optimizer\Utils\Crypto\OptionEncryption;
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\WpPrefetching;
+use Servebolt\Optimizer\Admin\AdminBarGui\AdminBarGui;
+use Servebolt\Optimizer\Admin\AdminController;
+use Servebolt\Optimizer\Admin\Assets as AdminAssets;
+use Servebolt\Optimizer\Admin\ClearSiteDataHeader\ClearSiteDataHeader;
+use Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
+use Servebolt\Optimizer\CachePurge\WpCachePurge;
+use Servebolt\Optimizer\Cli\Cli;
 use Servebolt\Optimizer\CloudflareImageResize\CloudflareImageResize;
-use Servebolt\Optimizer\Queue\QueueEventHandler;
+use Servebolt\Optimizer\Compatibility\Compatibility as PluginCompatibility;
+use Servebolt\Optimizer\FullPageCache\FullPageCache;
+use Servebolt\Optimizer\GenericOptimizations\GenericOptimizations;
+use Servebolt\Optimizer\MenuOptimizer\WpMenuOptimizer;
+use Servebolt\Optimizer\PluginActiveStateHandling\PluginActiveStateHandling;
+use Servebolt\Optimizer\Queue\QueueParseEventHandler;
+use Servebolt\Optimizer\TextDomainLoader\WpTextDomainLoader;
+use Servebolt\Optimizer\Utils\Crypto\OptionEncryption;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
-use Servebolt\Optimizer\Admin\AdminBarGui\AdminBarGui;
-use Servebolt\Optimizer\Admin\Assets as AdminAssets;
-use Servebolt\Optimizer\Admin\AdminGuiController;
-use Servebolt\Optimizer\AssetAutoVersion\AssetAutoVersion;
-use Servebolt\Optimizer\Cli\Cli;
-use Servebolt\Optimizer\PluginActiveStateHandling\PluginActiveStateHandling;
-
+use function Servebolt\Optimizer\Helpers\featureIsActive;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isCli;
-use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
-use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\isFrontEnd;
-use function Servebolt\Optimizer\Helpers\featureIsActive;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
+use function Servebolt\Optimizer\Helpers\isLogin;
+use function Servebolt\Optimizer\Helpers\isTesting;
 
 /**
  * Class ServeboltOptimizer
@@ -38,7 +38,6 @@ use function Servebolt\Optimizer\Helpers\featureIsActive;
  */
 class ServeboltOptimizer
 {
-
     /**
      * Boot the plugin.
      */
@@ -61,9 +60,7 @@ class ServeboltOptimizer
         // Make sure we don't store certain options (like API credentials) in clear text.
         new OptionEncryption;
 
-        if (WpMenuOptimizer::isActive()) {
-            WpMenuOptimizer::init();
-        }
+        WpMenuOptimizer::init();
 
         if (isHostedAtServebolt()) {
             // ACD Init
@@ -71,7 +68,7 @@ class ServeboltOptimizer
         }
 
         // Sets the correct cache headers for the HTML Cache
-        FullPageCache::getInstance();
+        FullPageCache::init();
 
         // Initialize image resizing
         if (featureIsActive('cf_image_resize')) {
@@ -80,7 +77,7 @@ class ServeboltOptimizer
 
         // Prefetching feature init
         if (featureIsAvailable('prefetching')) {
-            new WpPrefetching;
+            WpPrefetching::init();
         }
 
         // Prefetching feature init
@@ -89,7 +86,7 @@ class ServeboltOptimizer
         }
 
         // Queue system
-        new QueueEventHandler; // Register event listener for queues
+        new QueueParseEventHandler; // Register event listener for queues
 
         // Register cron schedule & event
         new WpCronCustomSchedules; // Register cron schedule
@@ -104,14 +101,18 @@ class ServeboltOptimizer
         // Load assets
         new AdminAssets;
 
+        if (isLogin()) {
+            new ClearSiteDataHeader;
+        }
+
         // Only load the plugin interface in WP Admin
         if (
             is_admin()
             || isTesting()
         ) {
 
-            // Load this plugins interface
-            AdminGuiController::getInstance();
+            // Load this plugins admin interface
+            AdminController::getInstance();
 
         }
 

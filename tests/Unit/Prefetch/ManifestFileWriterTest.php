@@ -2,12 +2,12 @@
 
 namespace Unit\Prefetch;
 
-use Servebolt\Optimizer\Prefetching\ManifestFilesModel;
-use Servebolt\Optimizer\Prefetching\ManifestHeaders;
-use Unit\Traits\MultisiteTrait;
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\ManifestDataModel;
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\ManifestFilesModel;
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\ManifestFileWriter;
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\ManifestHeaders;
 use ServeboltWPUnitTestCase;
-use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
-use Servebolt\Optimizer\Prefetching\ManifestDataModel;
+use Unit\Traits\MultisiteTrait;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
 
