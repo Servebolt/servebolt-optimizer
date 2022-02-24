@@ -22,8 +22,9 @@
     <!--<p><?php echo sprintf(__('Run %swp servebolt cache-purge --help%s to see available commands.', 'servebolt-wp'), '<code>', '</code>'); ?></p>-->
 
     <style type="text/css">
-        .sb-config-field-hidden {
-            display: none;
+        .sb-config-field-hidden,
+        .sb-button-hidden {
+            display: none !important;
         }
     </style>
 
@@ -48,6 +49,34 @@
             </tr>
 
             <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
+                <th scope="row"><?php _e('Cache provider', 'servebolt-wp'); ?></th>
+                <td>
+                    <?php if ($acdLock): ?>
+                        <p class="description"><?php echo sprintf(esc_html__('Cache provider is automatically set when %sAccelerated Domains%s is active.', 'servebolt-wp'), '<a href="' . admin_url('admin.php?page=servebolt-acd') . '">', '</a>'); ?></p>
+                    <?php else: ?>
+                        <fieldset>
+                            <label>
+                                <input type="radio" name="<?php echo getOptionName('cache_purge_driver'); ?>" value="cloudflare" <?php checked($settings['cache_purge_driver'] == 'cloudflare'); ?>><a href="https://servebo.lt/0fzxq" target="_blank"><?php _e('Cloudflare', 'servebolt-wp'); ?></a>
+                            </label>
+                            <br>
+                            <label<?php if (!$isHostedAtServebolt) echo ' style="opacity: 0.5;pointer-events:none;"'; ?>>
+                                <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo getOptionName('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?>><a href="https://servebo.lt/a5dk3" target="_blank"><?php _e('Accelerated Domains', 'servebolt-wp'); ?></a>
+                            </label>
+                            <br>
+                            <label<?php if (!$isHostedAtServebolt) echo ' style="opacity: 0.5;pointer-events:none;"'; ?>>
+                                <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo getOptionName('cache_purge_driver'); ?>" value="serveboltcdn" <?php checked($settings['cache_purge_driver'] == 'serveboltcdn'); ?>><?php _e('Servebolt CDN', 'servebolt-wp'); ?>
+                            </label>
+                            <br>
+                            <label style="opacity: 0.5;pointer-events:none;">
+                                <input type="radio" readonly><?php _e('Servebolt Cloud', 'servebolt-wp'); ?>
+                                <em>- <?php _e('Coming soon', 'servebolt-wp'); ?></em>
+                            </label>
+                        </fieldset>
+                    <?php endif; ?>
+                </td>
+            </tr>
+
+            <tr class="sb-config-field-general sb-config-field-automatic-purge <?php if (!$cachePurgeIsActive || !$automaticCachePurgeIsAvailable) echo ' sb-config-field-hidden'; ?>">
                 <th scope="row"><?php _e('Automatic purge on update', 'servebolt-wp'); ?></th>
                 <td>
 
@@ -76,31 +105,6 @@
                             <?php _e('On attachment update', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
-                </td>
-            </tr>
-
-            <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
-                <th scope="row"><?php _e('Cache provider', 'servebolt-wp'); ?></th>
-                <td>
-                    <?php if ($acdLock): ?>
-                        <p class="description"><?php echo sprintf(esc_html__('Cache provider is automatically set when %sAccelerated Domains%s is active.', 'servebolt-wp'), '<a href="' . admin_url('admin.php?page=servebolt-acd') . '">', '</a>'); ?></p>
-                    <?php else: ?>
-                    <fieldset>
-                        <label>
-                            <input type="radio" name="<?php echo getOptionName('cache_purge_driver'); ?>" value="cloudflare" <?php checked($settings['cache_purge_driver'] == 'cloudflare'); ?>>
-                            <a href="https://servebo.lt/0fzxq" target="_blank"><?php _e('Cloudflare', 'servebolt-wp'); ?></a>
-                        </label>
-                        <br>
-                        <label<?php if (!$isHostedAtServebolt) echo ' style="opacity: 0.5;pointer-events:none;"'; ?>>
-                            <input type="radio"<?php if (!$isHostedAtServebolt) echo ' readonly'; ?> name="<?php echo getOptionName('cache_purge_driver'); ?>" value="acd" <?php checked($settings['cache_purge_driver'] == 'acd'); ?>><a href="https://servebo.lt/a5dk3" target="_blank"><?php _e('Accelerated Domains', 'servebolt-wp'); ?></a>
-                        </label>
-                        <br>
-                        <label style="opacity: 0.5;pointer-events:none;">
-                            <input type="radio" readonly><?php _e('Servebolt Cloud', 'servebolt-wp'); ?>
-                            <em>- <?php _e('Coming soon', 'servebolt-wp'); ?></em>
-                        </label>
-                    </fieldset>
-                    <?php endif; ?>
                 </td>
             </tr>
 

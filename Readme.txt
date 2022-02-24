@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.8
 Requires PHP: 7.3
-Stable tag: 3.3
+Stable tag: 3.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,7 +93,25 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
-= 3.4 =
+= 3.5 =
+* Added support for cache provider "Servebolt CDN"
+* Bugfix - WP Admin markup error. The styling for the information panel used in for example the cache settings page was broken in WordPress v5.9, but this is now fixed.
+* New feature - Clear site data on login. In v3.5 a new feature was added - every time a user logs in then we return a header telling the browser to clear local storage and browser cache. This is useful to ensure that cached content gets cleared for logged in users.
+* New feature - Support for Servebolt CDN. The plugin now supports Servebolt CDN.
+* Beta feature - Accelerated Domains Prefetching. We’ve added a new feature for users of Accelerated Domains - Prefetching of assets and menu items. This feature allows for our infrastructure to preliminary fetch the assets of a webpage and cache them in our infrastructure which results in reduction of load time. Another feature is that menu items gets prefetched as well, meaning that when you navigate to a subpage it has already been cached and is ready to be served in no time!
+* New feature - Cache purging when Accelerated Domains is disabled
+We have added a feature to purge all cache even when Accelerated Domains is disabled. This is useful when deactivating Accelerated Domains and doing a proper “cleaning up” by clearing all cache.
+* New feature - Automatic WP Cron setup (including Action Scheduler) (Servebolt-clients only). We have added a feature to automatically set up the WP Cron so that it runs using the UNIX cron. This offloads WordPress from having to trigger scheduled tasks as well as making the process of setting it up a lot easier. Note that this feature also sets up the Action Scheduler (used by WooCommerce and other plugins) to be run using the UNIX cron.
+* Bugfix - Accelerated Domains Image Resize can only be enabled when site has access
+Previously a Servebolt-client was able to enable Accelerated Domains Image Resizing even when the client did not have access to it (based on their subscription). We’ve not added a check so only eligible clients can enable the feature. Note that enabling the feature while not having access to it will result in the feature not being active. The subscription needs to be in place for the feature to work. This “bugfix” only fixes the GUI so that we communicate better to the client whether they have access or not.
+* Bugfix - Improved cache purge queue feature
+We’ve improved the cleanup of the cache purge queue to prevent the queu from growing too big. This is done by removing all completed queue items as well as removing failed queue items that are older than 1 month.
+* New feature - Purge all network feature
+We’ve now added a feature to purge all cache for all sites in a multisite-network. You can find it in the dropdown in the top bar in WP Admin.
+* Bugfix - WooCommerce product simple cache purge on checkout
+Whenever a user checks out in WooCommerce then the cache for the products in the cart will be purged. Due to how we purge cache a whole range of URLs might be included in the cache purging. This is because a post/page/product might be visible on the front page, in archives etc. and thus we include the front page URL, archive URL in the cache purge actions. But in the context of WooCommerce checkout and WooCommerce product we decided that a simple cache purge will suffice - this meaning that we only purge cache for the product URL, not the front page URL or any other related URL.
+* Bugfix - WooCommerce product immediate cache purge on checkout. Whenever a user checks out in WooCommerce then the cache for the products in the cart will be purged. For many users this means using the queue to purge the cache of these products, but in the case of WooCommerce checkouts we now purge cache immediately regardless of whether they have the queue based cache purge active or not.
+* Bugfix in Menu optimizer – We saw that the menu optimizer feature was incompatible with some WordPress-themes. The feature was therefore refactored and should now be better suited to work with most WordPress-themes.
 
 = 3.3 =
 * Bugfix - WP admin bar markup error - Fixed minor markup error in the WP admin bar dropdown menu. An obsolete “target”-attribute was added to the parent div element which is invalid.

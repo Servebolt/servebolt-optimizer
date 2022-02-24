@@ -15,8 +15,11 @@ class WpObjectCachePurgeActions
     public static function on(): bool
     {
         // Skip this feature if the cache purge feature is inactive or insufficiently configured
-        if (!CachePurge::featureIsAvailable()) {
-            return  false;
+        if (
+            !CachePurge::featureIsAvailable()
+            || !CachePurge::automaticCachePurgeIsAvailable()
+        ) {
+            return false;
         }
 
         ContentChangeTrigger::on();

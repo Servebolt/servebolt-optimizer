@@ -1,5 +1,6 @@
 <?php
 
+use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Exceptions\ApiError;
 
@@ -12,6 +13,9 @@ use Servebolt\Optimizer\Exceptions\ApiError;
  */
 function sb_purge_url($url, bool $return_wp_error_object = false)
 {
+    if (!CachePurge::driverSupportsUrlCachePurge()) {
+        return false; // Current cache purge driver does not support purging of URLs.
+    }
     try {
         return WordPressCachePurge::purgeByUrl((string) $url);
     } catch (ApiError $e) {
@@ -36,6 +40,9 @@ function sb_purge_url($url, bool $return_wp_error_object = false)
  */
 function sb_purge_post_cache($post_id, bool $return_wp_error_object = false)
 {
+    if (!CachePurge::driverSupportsItemCachePurge()) {
+        return false; // Current cache purge driver does not support purging of URLs/posts.
+    }
     try {
         return WordPressCachePurge::purgeByPostId(
             (int) $post_id
@@ -66,6 +73,9 @@ function sb_purge_post_cache($post_id, bool $return_wp_error_object = false)
  */
 function sb_purge_term_cache($term_id, $taxonomy_slug, bool $return_wp_error_object = false)
 {
+    if (!CachePurge::driverSupportsItemCachePurge()) {
+        return false; // Current cache purge driver does not support purging of URLs/terms.
+    }
     try {
         return WordPressCachePurge::purgeByTermId(
             (int) $term_id,
@@ -95,6 +105,9 @@ function sb_purge_term_cache($term_id, $taxonomy_slug, bool $return_wp_error_obj
  */
 function sb_purge_all(bool $return_wp_error_object = false)
 {
+    if (!CachePurge::driverSupportsCachePurgeAll()) {
+        return false; // Current cache purge driver does not support purge all.
+    }
     try {
         return WordPressCachePurge::purgeAll();
     } catch (ApiError $e) {
@@ -124,6 +137,9 @@ function sb_purge_all_by_blog_id($blog_id, bool $return_wp_error_object = false)
     if (!is_multisite()) {
         return false;
     }
+    if (!CachePurge::driverSupportsCachePurgeAll()) {
+        return false; // Current cache purge driver does not support purge all.
+    }
     try {
         return WordPressCachePurge::purgeAllByBlogId((int) $blog_id);
     } catch (ApiError $e) {
@@ -151,6 +167,10 @@ function sb_purge_all_network(bool $return_wp_error_object = false)
 {
     if (!is_multisite()) {
         return false;
+    }
+    // TODO: Add multisite support for this check
+    if (!CachePurge::driverSupportsCachePurgeAll()) {
+        return false; // Current cache purge driver does not support purge all.
     }
     try {
         return WordPressCachePurge::purgeAllNetwork();

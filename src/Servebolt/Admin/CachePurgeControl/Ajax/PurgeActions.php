@@ -71,6 +71,22 @@ class PurgeActions extends SharedAjaxMethods
     }
 
     /**
+     * Check if current user can purge all cache.
+     *
+     * @return bool
+     */
+    public static function canPurgeAllCache(): bool
+    {
+        return apply_filters(
+            'sb_optimizer_can_purge_all_cache',
+            (
+                CachePurge::driverSupportsCachePurgeAll()
+                && current_user_can('edit_others_posts')
+            )
+        );
+    }
+
+    /**
      * Get errors and return in JSON-format.
      *
      * @param $exception
@@ -111,7 +127,10 @@ class PurgeActions extends SharedAjaxMethods
     {
         return apply_filters(
             'sb_optimizer_can_purge_cache_by_url',
-            current_user_can('edit_others_posts')
+            (
+                CachePurge::driverSupportsUrlCachePurge()
+                && current_user_can('edit_others_posts')
+            )
         );
     }
 
@@ -189,10 +208,13 @@ class PurgeActions extends SharedAjaxMethods
         return apply_filters(
             'sb_optimizer_can_purge_post_cache',
             (
-                current_user_can('edit_others_posts')
-                || (
-                    current_user_can('edit_published_posts')
-                    && current_user_can('edit_post', $postId)
+                CachePurge::driverSupportsItemCachePurge()
+                && (
+                    current_user_can('edit_others_posts')
+                    || (
+                        current_user_can('edit_published_posts')
+                        && current_user_can('edit_post', $postId)
+                    )
                 )
             ),
             $postId
@@ -285,7 +307,13 @@ class PurgeActions extends SharedAjaxMethods
         } elseif (!$taxonomyObject = getTaxonomyFromTermId($termId)) {
             $taxonomyObject = false;
         }
-        $canPurgeTermCache = $taxonomyObject && current_user_can($taxonomyObject->cap->manage_terms);
+        if (!CachePurge::driverSupportsItemCachePurge()) {
+            $canPurgeTermCache = false;
+        } else {
+            $canPurgeTermCache = $taxonomyObject
+                && isset($taxonomyObject->cap->manage_terms)
+                && current_user_can($taxonomyObject->cap->manage_terms);
+        }
         return apply_filters(
             'sb_optimizer_can_purge_term_cache',
             $canPurgeTermCache,
@@ -349,19 +377,6 @@ class PurgeActions extends SharedAjaxMethods
         } catch (Exception $e) {
             wp_send_json_error(['message' => $e->getMessage()]);
         }
-    }
-
-    /**
-     * Check if current user can purge all cache.
-     *
-     * @return bool
-     */
-    public static function canPurgeAllCache(): bool
-    {
-        return apply_filters(
-            'sb_optimizer_can_purge_all_cache',
-            current_user_can('edit_others_posts')
-        );
     }
 
     /**
