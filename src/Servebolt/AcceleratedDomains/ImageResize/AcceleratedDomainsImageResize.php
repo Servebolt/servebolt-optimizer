@@ -56,17 +56,6 @@ class AcceleratedDomainsImageResize
     }
 
     /**
-     * Check if user has access to resize feature.
-     *
-     * @return bool
-     */
-    public static function hasAccessToFeature(): bool
-    {
-        // TODO: Check if the user has access to this feature.
-        return true;
-    }
-
-    /**
      * Set default option values.
      */
     private function defaultOptionValues(): void

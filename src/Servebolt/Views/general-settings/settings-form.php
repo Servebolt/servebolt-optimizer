@@ -5,8 +5,8 @@
 <?php $settings = $generalSettings->getAllSettingsItems(); ?>
 
 <form method="post" action="options.php">
-    <?php settings_fields( 'sb-general-settings-options-page' ) ?>
-    <?php do_settings_sections( 'sb-general-settings-options-page' ) ?>
+    <?php settings_fields('sb-general-settings-options-page'); ?>
+    <?php do_settings_sections('sb-general-settings-options-page'); ?>
     <table class="form-table">
         <tr>
             <th scope="row"><?php _e('Enable Cloudflare APO support?', 'servebolt-wp'); ?></th>

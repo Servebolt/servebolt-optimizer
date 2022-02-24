@@ -14,19 +14,18 @@ use ServeboltWPUnitTestCase;
  */
 class SqlBuilderTest extends ServeboltWPUnitTestCase
 {
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->allowPersistenceInDatabase();
+        MigrationRunner::migrateFresh();
+    }
 
     public function tearDown(): void
     {
         parent::tearDown();
         MigrationRunner::cleanup();
         $this->disallowPersistenceInDatabase();
-    }
-
-    public function setUp(): void
-    {
-        parent::setUp();
-        $this->allowPersistenceInDatabase();
-        MigrationRunner::migrateFresh();
     }
 
     public function testSqlBuilderSelect()

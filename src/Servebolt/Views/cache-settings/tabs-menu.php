@@ -8,7 +8,7 @@
         $tabs[] = [
             'id' => 'cache-settings',
             'url' => $urlMethod('admin.php?page=servebolt-html-cache'),
-            'title' => 'Cache settings',
+            'title' => 'Cache Settings',
         ];
         $tabs[] = [
             'id' => 'cache-ttl-settings',
@@ -19,7 +19,7 @@
     $tabs[] = [
         'id' => 'cache-purge-settings',
         'url' => $urlMethod('admin.php?page=servebolt-cache-purge-control'),
-        'title' => 'Cache purging',
+        'title' => 'Cache Purging',
     ];
     $defaultTab = current($tabs)['id'];
     $selectedTab = isset($selectedTab) ? $selectedTab : $defaultTab;

@@ -28,7 +28,7 @@ class TextDomainLoader
             return false;
         }
 
-        $transientKey = md5($moFile);
+        $transientKey = 'sb-optimizer-text-domain-loader-' . md5($moFile);
         $data = get_transient($transientKey);
         $mtime = filemtime($moFile);
 
@@ -42,7 +42,7 @@ class TextDomainLoader
                 'entries' => $mo->entries,
                 'headers' => $mo->headers
             ];
-            set_transient($transientKey, $data);
+            set_transient($transientKey, $data, YEAR_IN_SECONDS);
         } else {
             $mo->entries = $data['entries'];
             $mo->headers = $data['headers'];

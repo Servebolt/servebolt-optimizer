@@ -112,7 +112,11 @@ trait TermMethods
             }
             return isQueueItem($queueInstance->add($queueItemData));
         } else {
-            if (self::$preventDoublePurge && self::$preventTermDoublePurge && array_key_exists($termId . '-' . $taxonomySlug, self::$recentlyPurgedTerms)) {
+            if (
+                self::$preventDoublePurge
+                && self::$preventTermDoublePurge
+                && array_key_exists($termId . '-' . $taxonomySlug, self::$recentlyPurgedTerms)
+            ) {
                 return self::$recentlyPurgedTerms[$termId . '-' . $taxonomySlug];
             }
             $urlsToPurge = self::getUrlsToPurgeByTermId($termId, $taxonomySlug);

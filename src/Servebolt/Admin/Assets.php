@@ -11,6 +11,7 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use function Servebolt\Optimizer\Helpers\booleanToString;
 use function Servebolt\Optimizer\Helpers\getAjaxNonce;
 use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
+use function Servebolt\Optimizer\Helpers\isDevDebug;
 
 /**
  * Class Assets
@@ -120,7 +121,10 @@ class Assets {
      */
 	public function pluginAdminScripts(): void
     {
-        if ($this->isBlockEditor() && apply_filters('sb_optimizer_add_block_editor_plugin_menu', true)) {
+        if (
+            $this->isBlockEditor()
+            && apply_filters('sb_optimizer_add_block_editor_plugin_menu', true)
+        ) {
             $this->enqueueScript(
                 'servebolt-optimizer-block-editor-cache-purge-menu-scripts',
                 'assets/dist/js/block-editor-cache-purge-menu.js',
@@ -159,6 +163,13 @@ class Assets {
                 ['jquery'],
                 true
             );
+
+            $this->enqueueScript(
+                'servebolt-optimizer-env-config',
+                'assets/dist/js/env-config.js',
+                [],
+                true
+            );
             $this->enqueueScript(
                 'servebolt-optimizer-scripts-vanilla',
                 'assets/dist/js/general-vanilla.js',
@@ -172,11 +183,13 @@ class Assets {
                 true
             );
             wp_localize_script('servebolt-optimizer-cache-purge-trigger-scripts', 'sb_ajax_object', [
-                'ajax_nonce'                         => getAjaxNonce(),
-                'use_native_js_fallback'             => booleanToString($generalSettings->useNativeJsFallback()),
-                'ajaxurl'                            => admin_url('admin-ajax.php'),
-                'cron_purge_is_active'               => false, // TODO: Add real boolean value
-                //'cron_purge_is_active'               => sb_cf_cache()->cron_purge_is_active(),
+                'is_dev'                 => isDevDebug(),
+                'ajax_nonce'             => getAjaxNonce(),
+                'site_url'               => get_site_url(),
+                'use_native_js_fallback' => booleanToString($generalSettings->useNativeJsFallback()),
+                'ajaxurl'                => admin_url('admin-ajax.php'),
+                'cron_purge_is_active'   => false, // TODO: Add real boolean value
+                //'cron_purge_is_active'   => sb_cf_cache()->cron_purge_is_active(),
             ]);
         }
 	}

@@ -74,17 +74,17 @@ class CloudflareImageResize
     {
 
         // Alter srcset-attribute URLs
-        if ( apply_filters('sb_optimizer_cf_image_resize_alter_srcset', true ) ) {
-            add_filter( 'wp_calculate_image_srcset', [ $this, 'alterSrcsetImageUrls' ] );
+        if (apply_filters('sb_optimizer_cf_image_resize_alter_srcset', true)) {
+            add_filter('wp_calculate_image_srcset', [$this, 'alterSrcsetImageUrls']);
         }
 
         // Alter image src-attribute URL
-        if ( apply_filters('sb_optimizer_cf_image_resize_alter_src', true ) ) {
+        if (apply_filters('sb_optimizer_cf_image_resize_alter_src', true)) {
             add_filter('wp_get_attachment_image_src', [$this, 'alterSingleImageUrl']);
         }
 
         // Prevent certain image sizes to be created since we are using Cloudflare for resizing
-        if ( apply_filters('sb_optimizer_cf_image_resize_alter_intermediate_sizes', true ) ) {
+        if (apply_filters('sb_optimizer_cf_image_resize_alter_intermediate_sizes',true)) {
             ImageSizeCreationOverride::getInstance();
         }
     }

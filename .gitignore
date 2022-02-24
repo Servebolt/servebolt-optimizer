@@ -1,6 +1,7 @@
 # Unit tests
 /tmp
 /tests/bin/tmp
+/tests/.env
 
 # Numerous always-ignore extensions
 .diff

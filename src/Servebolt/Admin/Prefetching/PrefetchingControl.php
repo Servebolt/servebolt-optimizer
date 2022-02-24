@@ -4,10 +4,10 @@ namespace Servebolt\Optimizer\Admin\Prefetching;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Admin\PerformanceOptimizer\Ajax\PrefetchingFileGeneration;
-use Servebolt\Optimizer\Prefetching\ManifestFilesModel;
-use Servebolt\Optimizer\Prefetching\ManifestFileWriter;
-use Servebolt\Optimizer\Prefetching\WpPrefetching;
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\ManifestDataModel;
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\ManifestFilesModel;
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\WpPrefetching;
+use Servebolt\Optimizer\Admin\Prefetching\Ajax\PrefetchingControlAjax;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
@@ -45,7 +45,7 @@ class PrefetchingControl
     }
 
     /**
-     * Flag "Performance optimizer"-page as active when on Prefetching-page.
+     * Flag "Performance Optimizer"-page as active when on Prefetching-page.
      */
     private function rewriteHighlightedMenuItem(): void
     {
@@ -55,7 +55,7 @@ class PrefetchingControl
 
     private function initAjax(): void
     {
-        new PrefetchingFileGeneration;
+        new PrefetchingControlAjax;
     }
 
     private function initAssets(): void
@@ -70,7 +70,9 @@ class PrefetchingControl
     {
         $settings = $this->getSettingsItemsWithValues();
         $defaultMaxNumberOfLines = WpPrefetching::$defaultMaxNumberOfLines;
-        view('accelerated-domains.prefetching.prefetching', compact('settings', 'defaultMaxNumberOfLines'));
+        $prefetchData = ManifestDataModel::get();
+        $prefetchFiles = ManifestFilesModel::get();
+        view('accelerated-domains.prefetching.prefetching', compact('settings', 'defaultMaxNumberOfLines', 'prefetchData', 'prefetchFiles'));
     }
 
     private function initSettings(): void
@@ -85,18 +87,18 @@ class PrefetchingControl
     {
         listenForCheckboxOptionChange('prefetch_switch', function ($wasActive, $isActive, $optionName) {
             if ($isActive) {
-                $this->refreshManifestFiles();
+                WpPrefetching::scheduleRecordPrefetchItems();
             } else {
-                ManifestFileWriter::clear(null, true);
-                ManifestFilesModel::clear();
+                WpPrefetching::unscheduleRecordPrefetchItems();
+                WpPrefetching::clearDataAndFiles();
             }
         });
         listenForOptionChange('prefetch_max_number_of_lines', function ($newValue, $oldValue, $optionName) {
-            $this->refreshManifestFiles();
+            WpPrefetching::scheduleRecordPrefetchItems();
         });
 
         listenForCheckboxOptionChange('prefetch_full_url_switch', function ($wasActive, $isActive, $optionName) {
-            $this->refreshManifestFiles();
+            WpPrefetching::scheduleRecordPrefetchItems();
         });
 
         listenForCheckboxOptionChange([
@@ -105,23 +107,11 @@ class PrefetchingControl
             'prefetch_file_menu_switch',
         ], function ($wasActive, $isActive, $optionName) {
             if ($isActive) {
-                $this->refreshManifestFiles();
+                WpPrefetching::scheduleRecordPrefetchItems();
             } else {
                 $this->removeManifestFile($optionName); // Remove manifest file on the fly
             }
         });
-    }
-
-    /**
-     * Refresh manifest files, but only do it once during the execution (at the end).
-     */
-    private function refreshManifestFiles(): void
-    {
-        $callback = 'Servebolt\\Optimizer\\Prefetching\\WpPrefetching::recordPrefetchItems';
-        if (!has_action('shutdown', $callback)) {
-            WpPrefetching::rescheduleManifestDataGeneration(); // We've changed settings, let's regenerate the data
-            add_action('shutdown', $callback);
-        }
     }
 
     /**
@@ -131,12 +121,31 @@ class PrefetchingControl
      */
     private function removeManifestFile(string $optionName): void
     {
-        if (preg_match('/^prefetch_file_(.+)_switch$/', $optionName, $matches)) {
-            ManifestFileWriter::clear($matches[1]);
-            ManifestFileWriter::removeFromWrittenFiles($matches[1]);
+        if ($fileType = $this->extractFileTypeFromOptionName($optionName)) {
+            WpPrefetching::clearDataAndFiles($fileType);
         }
     }
 
+    /**
+     * Extract file type from option name.
+     *
+     * @param $optionName
+     * @return false|mixed
+     */
+    private function extractFileTypeFromOptionName($optionName)
+    {
+        preg_match('/^prefetch_file_(.+)_switch$/', $optionName, $matches);
+        if (isset($matches[1])) {
+            return $matches[1];
+        }
+        return false;
+    }
+
+    /**
+     * Enqueue script file.
+     *
+     * @return void
+     */
     public function enqueueScripts(): void
     {
         // TODO: Fix multisite setup menu for prefetching
@@ -147,14 +156,14 @@ class PrefetchingControl
         wp_enqueue_script(
             'servebolt-optimizer-prefetching',
             SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/prefetching.js',
-            [],
+            ['servebolt-optimizer-scripts'],
             getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/prefetching.js'),
             true
         );
     }
 
     /**
-     * Get all plugin settings in array.
+     * Get all settings in array.
      *
      * @return array
      */

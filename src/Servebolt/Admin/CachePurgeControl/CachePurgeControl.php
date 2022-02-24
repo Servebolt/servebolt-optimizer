@@ -9,9 +9,12 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\Configuration;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
 //use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\QueueHandling;
+use Servebolt\Optimizer\Queue\Queues\UrlQueue;
+use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 use function Servebolt\Optimizer\Helpers\isScreen;
+use function Servebolt\Optimizer\Helpers\listenForOptionChange;
 use function Servebolt\Optimizer\Helpers\view;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\getOptionName;
@@ -38,10 +41,22 @@ class CachePurgeControl
         $this->initAjax();
         $this->initAssets();
         $this->initSettings();
+        $this->initSettingsActions();
         CachePurgeRowActions::init();
         if (isHostedAtServebolt()) {
             $this->rewriteHighlightedMenuItem();
         }
+    }
+
+    /**
+     * Add listeners for when the cache purge driver changes.
+     */
+    private function initSettingsActions()
+    {
+        listenForOptionChange('cache_purge_driver', function ($newValue, $oldValue, $optionName) {
+            (new WpObjectQueue)->clearQueue(true);
+            (new UrlQueue)->clearQueue(true);
+        });
     }
 
     /**
@@ -59,7 +74,7 @@ class CachePurgeControl
         // Fix faulty page title
         add_filter('admin_title', function($admin_title, $title) {
             if (isScreen('admin_page_servebolt-cache-purge-control')) {
-                return __('Cache purging', 'servebolt-wp') . ' ' . $admin_title;
+                return __('Cache Purging', 'servebolt-wp') . ' ' . $admin_title;
             }
             return $admin_title;
         }, 10, 2);
@@ -84,6 +99,7 @@ class CachePurgeControl
         $acdLock = CachePurge::cachePurgeIsLockedTo('acd');
         $queueBasedCachePurgeActiveStateIsOverridden = CachePurge::queueBasedCachePurgeActiveStateIsOverridden();
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
+        $automaticCachePurgeIsAvailable = CachePurge::automaticCachePurgeIsAvailable();
 
         view(
             'cache-settings.cache-purge.cache-purge',
@@ -93,6 +109,7 @@ class CachePurgeControl
                 'isHostedAtServebolt',
                 'selectedCfZone',
                 'cfZones',
+                'automaticCachePurgeIsAvailable',
                 'cachePurgeIsActive',
                 'automaticCachePurgeOnContentUpdateIsActive',
                 'automaticCachePurgeOnSlugChangeIsActive',

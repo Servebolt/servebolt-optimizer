@@ -134,7 +134,10 @@ class UrlQueue
                 }
             }
             try {
-                if (!empty($urls) && $cachePurgeDriver->purgeByUrls($urls)) {
+                if (
+                    !empty($urls)
+                    && $cachePurgeDriver->purgeByUrls($urls)
+                ) {
                     $this->queue->completeItems($items);
                 }
             } catch (Exception $e) {}
@@ -159,10 +162,12 @@ class UrlQueue
 
     /**
      * Clear queue.
+     *
+     * @param bool $skipConstraintBoolean
      */
-    public function clearQueue(): void
+    public function clearQueue(bool $skipConstraintBoolean = false): void
     {
-        $this->queue->clearQueue();
+        $this->queue->clearQueue($skipConstraintBoolean);
     }
 
     /**

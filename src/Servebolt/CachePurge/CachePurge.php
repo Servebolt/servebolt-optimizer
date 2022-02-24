@@ -4,14 +4,14 @@ namespace Servebolt\Optimizer\CachePurge;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Traits\Singleton;
+use Servebolt\Optimizer\Traits\Multiton;
 use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
 use Servebolt\Optimizer\Api\Cloudflare\Cloudflare as CloudflareApi;
 use Servebolt\Optimizer\CachePurge\Drivers\Servebolt as ServeboltDriver;
+use Servebolt\Optimizer\CachePurge\Drivers\ServeboltCdn as ServeboltCdnDriver;
 use Servebolt\Optimizer\CachePurge\Drivers\Cloudflare as CloudflareDriver;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
-use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 
@@ -25,7 +25,7 @@ use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 class CachePurge
 {
 
-    use Singleton;
+    use Multiton;
 
     /**
      * Cache purge driver instance.
@@ -40,7 +40,7 @@ class CachePurge
      */
     public function __construct(?int $blogId = null)
     {
-        $this->driver = $this->resolveDriverObject($blogId);
+        $this->driver = self::resolveDriverObject($blogId);
     }
 
     /**
@@ -84,10 +84,19 @@ class CachePurge
         if (
             isHostedAtServebolt()
             && self::isActive($blogId)
-            && self::acdIsSelected($blogId)
-            && self::acdIsConfigured()
         ) {
-            return $verbose ? 'Accelerated Domains' : 'acd';
+            if (
+                self::serveboltCdnIsSelected($blogId)
+                && self::serveboltCdnIsConfigured()
+            ) {
+                return $verbose ? 'Servebolt CDN' : 'serveboltcdn';
+            }
+            if (
+                self::acdIsSelected($blogId)
+                && self::acdIsConfigured()
+            ) {
+                return $verbose ? 'Accelerated Domains' : 'acd';
+            }
         }
         return self::defaultDriverName($verbose);
     }
@@ -98,15 +107,17 @@ class CachePurge
      * @param null|int $blogId
      * @return mixed
      */
-    private function resolveDriverObject(?int $blogId = null)
+    private static function resolveDriverObject(?int $blogId = null)
     {
         $driver = self::resolveDriverName($blogId);
-        if ($driver === 'acd') {
+        if ($driver === 'serveboltcdn') {
+            return ServeboltCdnDriver::getInstance();
+        } elseif ($driver === 'acd') {
             return ServeboltDriver::getInstance();
         } elseif ($driver === 'cloudflare') {
             return CloudflareDriver::getInstance();
         }
-        return $this->defaultDriverObject();
+        return self::defaultDriverObject();
     }
 
     /**
@@ -125,7 +136,7 @@ class CachePurge
      *
      * @return mixed
      */
-    private function defaultDriverObject()
+    private static function defaultDriverObject()
     {
         return CloudflareDriver::getInstance();
     }
@@ -169,6 +180,12 @@ class CachePurge
         if (
             self::acdIsSelected($blogId)
             && self::acdIsConfigured($blogId)
+        ) {
+            return true;
+        }
+        if (
+            self::serveboltCdnIsSelected($blogId)
+            && self::serveboltCdnIsConfigured($blogId)
         ) {
             return true;
         }
@@ -300,13 +317,24 @@ class CachePurge
     }
 
     /**
-     * Check whether cache purge driver is overriden using a filter.
+     * Check whether cache purge driver is overridden using a filter.
      *
      * @return bool
      */
     public static function cachePurgeDriverIsOverridden(): bool
     {
         return has_filter('sb_optimizer_selected_cache_purge_driver');
+    }
+
+    /**
+     * Check whether Servebolt CDN is selected as cache purge driver.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    private static function serveboltCdnIsSelected(?int $blogId = null): bool
+    {
+        return self::getSelectedCachePurgeDriver($blogId) == 'serveboltcdn';
     }
 
     /**
@@ -335,11 +363,76 @@ class CachePurge
     }
 
     /**
+     * Check whether the API-instance for Accelerated Domains is configured.
+     *
      * @return bool
      */
     private static function acdIsConfigured(): bool
     {
         if (apply_filters('sb_optimizer_acd_is_configured', false)) {
+            return true;
+        }
+        $sbApi = ServeboltApi::getInstance();
+        return $sbApi->isConfigured();
+    }
+
+    /**
+     * Alias for "driverSupportsUrlCachePurge" to check whether we can purge cache for WP items (through URL cache purging).
+     *
+     * @return bool
+     */
+    public static function driverSupportsItemCachePurge(): bool
+    {
+        return self::driverSupportsUrlCachePurge();
+    }
+
+    /**
+     * Check if the current driver supports URL cache purging.
+     *
+     * @return bool
+     */
+    public static function driverSupportsUrlCachePurge(): bool
+    {
+        $driver = self::resolveDriverObject();
+        $interfaces = class_implements($driver);
+        return is_array($interfaces)
+            && in_array('Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeUrlInterface', $interfaces);
+    }
+
+    /**
+     * Check if the current driver supports cache all purging.
+     *
+     * @return bool
+     */
+    public static function driverSupportsCachePurgeAll(): bool
+    {
+        $driver = self::resolveDriverObject();
+        $interfaces = class_implements($driver);
+        return is_array($interfaces)
+            && in_array('Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeAllInterface', $interfaces);
+    }
+
+    /**
+     * Check if automatic cache purging is available.
+     *
+     * @return bool
+     */
+    public static function automaticCachePurgeIsAvailable(): bool
+    {
+        if (apply_filters('sb_optimizer_automatic_cache_purge_is_available', false)) {
+            return true;
+        }
+        return self::driverSupportsUrlCachePurge();
+    }
+
+    /**
+     * Check whether the API-instance for Servebolt CDN is configured.
+     *
+     * @return bool
+     */
+    private static function serveboltCdnIsConfigured(): bool
+    {
+        if (apply_filters('sb_optimizer_serveboltcdn_is_configured', false)) {
             return true;
         }
         $sbApi = ServeboltApi::getInstance();

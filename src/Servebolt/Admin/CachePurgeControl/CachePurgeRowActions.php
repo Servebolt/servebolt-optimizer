@@ -83,7 +83,7 @@ class CachePurgeRowActions
                 $term->term_id,
                 getTaxonomySingularName($term->term_id),
                 'sb-purge-term-cache',
-                esc_html( __( 'Purge cache', 'servebolt-wp' ) )
+                esc_html(__('Purge cache', 'servebolt-wp'))
             );
         }
         return $actions;
@@ -108,7 +108,7 @@ class CachePurgeRowActions
                 $post->ID,
                 getPostTypeSingularName($post->ID),
                 'sb-purge-post-cache',
-                esc_html( __( 'Purge cache', 'servebolt-wp' ) )
+                esc_html(__('Purge cache', 'servebolt-wp'))
             );
         }
         return $actions;

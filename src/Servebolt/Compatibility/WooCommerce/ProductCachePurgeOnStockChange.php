@@ -44,15 +44,34 @@ class ProductCachePurgeOnStockChange
         if ($productId = $this->resolveProductPostId($product)) {
             if (ContentChangeTrigger::shouldPurgePostCache($productId)) { // Check if we should purge cache for the current product in regards to rules in ContentChangeTrigger::class
                 try {
+
                     /**
-                     * Determine whether we should do a simple purge during WooCommerce product
+                     * Determine whether we should do an immediate purge whenever the product stock changes.
+                     *
+                     * @param bool $forceImmediatePurge Whether we should force an immediate purge or not.
+                     * @param int $productId The product to be purged cache for.
+                     * @param string $context The context of the purge.
+                     */
+                    if (apply_filters(
+                        'sb_optimizer_woocommerce_force_immediate_purge',
+                        true,
+                        $productId,
+                        'woocommerce_product_stock_change'
+                    )) {
+                        WordPressCachePurge::purgeImmediately();
+                    }
+
+                    /**
+                     * Determine whether we should do a simple purge whenever the product stock changes.
                      *
                      * @param bool $doSimplePurge Whether we should do a simple purge or not.
+                     * @param int $productId The product to be purged cache for.
                      * @param string $context The context of the purge.
                      */
                     if (apply_filters(
                         'sb_optimizer_woocommerce_do_simple_purge',
                         true,
+                        $productId,
                         'woocommerce_product_stock_change'
                     )) {
                         WordPressCachePurge::purgePostCacheSimple($productId);
@@ -106,7 +125,7 @@ class ProductCachePurgeOnStockChange
     private function shouldPurgeCacheOnStockAmountChange(): bool
     {
         if (apply_filters('sb_optimizer_woocommerce_product_cache_purge_on_stock_amount_change', true) === false) {
-            return false; // We're not suppose to purge cache on WooCommerce stock change
+            return false; // We're not supposed to purge cache on WooCommerce stock change
         }
         return $this->shouldPurgeCacheOnStockCommonCondition();
     }
@@ -119,7 +138,7 @@ class ProductCachePurgeOnStockChange
     private function shouldPurgeCacheOnStockStatusChange(): bool
     {
         if (apply_filters('sb_optimizer_woocommerce_product_cache_purge_on_stock_status_change', true) === false) {
-            return false; // We're not suppose to purge cache on WooCommerce stock status change
+            return false; // We're not supposed to purge cache on WooCommerce stock status change
         }
 
         return $this->shouldPurgeCacheOnStockCommonCondition();
@@ -137,7 +156,7 @@ class ProductCachePurgeOnStockChange
         }
 
         if (apply_filters('sb_optimizer_woocommerce_product_cache_purge_on_stock_change', true) === false) {
-            return false; // We're not suppose to purge cache on WooCommerce stock status change
+            return false; // We're not supposed to purge cache on WooCommerce stock status change
         }
 
         /*
@@ -176,9 +195,12 @@ class ProductCachePurgeOnStockChange
      */
     private function resolveProductPostId($product): ?int
     {
-        if (is_object($product) && method_exists($product, 'get_id')) {
+        if (
+            is_object($product)
+            && method_exists($product, 'get_id')
+        ) {
             if ($productId = $product->get_id()) {
-                return $productId;
+                return (int) $productId;
             }
         }
         return null;
@@ -192,8 +214,14 @@ class ProductCachePurgeOnStockChange
      */
     private function resolveProductFromProductVariation($productVariation): ?object
     {
-        if (is_object($productVariation) && method_exists($productVariation, 'get_parent_id')) {
-            if ($productId = $productVariation->get_parent_id() && function_exists('wc_get_product')) {
+        if (
+            is_object($productVariation)
+            && method_exists($productVariation, 'get_parent_id')
+        ) {
+            if (
+                function_exists('wc_get_product')
+                && $productId = $productVariation->get_parent_id()
+            ) {
                 if ($product = wc_get_product($productId)) {
                     return $product;
                 }

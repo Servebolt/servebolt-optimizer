@@ -60,7 +60,13 @@ class FullPageCacheControl
         if (!isScreen('servebolt_page_servebolt-html-cache')) {
             return;
         }
-        wp_enqueue_script('servebolt-optimizer-fpc-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/html-cache.js', ['servebolt-optimizer-scripts'], getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/html-cache.js'), true );
+        wp_enqueue_script(
+            'servebolt-optimizer-fpc-scripts',
+            SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/html-cache.js',
+            ['servebolt-optimizer-scripts'],
+            getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/html-cache.js'),
+            true
+        );
     }
 
     /**

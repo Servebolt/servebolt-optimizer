@@ -5,7 +5,7 @@
 
 <?php settings_errors(); ?>
 
-<form method="post" autocomplete="off" action="options.php">
+<form method="post" autocomplete="off" action="options.php" id="sb-accelerated-domains-image-resize-options-page-form">
     <?php settings_fields('sb-accelerated-domains-image-resize-options-page'); ?>
     <?php do_settings_sections('sb-accelerated-domains-image-resize-options-page'); ?>
 
@@ -16,13 +16,14 @@
                 <fieldset>
                     <legend class="screen-reader-text"><span><?php _e('Image resize-feature active?', 'servebolt-wp'); ?></span></legend>
                     <label for="acd_image_resize_switch">
-                        <input name="<?php echo getOptionName('acd_image_resize_switch'); ?>" type="checkbox" class="options-field-switch" id="acd_image_resize_switch" value="1" <?php checked($settings['acd_image_resize_switch']); ?>>
+                        <?php $disabledTitle = esc_attr(__('Your domain does not have access to this feature.', 'servebolt-wp')); ?>
+                        <input name="<?php echo getOptionName('acd_image_resize_switch'); ?>" type="checkbox" disabled title="<?php echo $disabledTitle; ?>" disabled-title="<?php echo $disabledTitle; ?>" class="options-field-switch" id="acd_image_resize_switch" value="1" <?php checked($settings['acd_image_resize_switch']); ?>>
                         <?php _e('Enable', 'servebolt-wp'); ?>
                     </label><br>
                 </fieldset>
             </td>
         </tr>
-        <tbody id="options-fields"<?php if (!$settings['acd_image_resize_switch']) echo ' style="display: none;"'; ?>>
+        <tbody id="options-fields" <?php if (!$settings['acd_image_resize_switch']) echo ' style="display: none;"'; ?>>
             <tr>
                 <th scope="row"></th>
                 <td>
