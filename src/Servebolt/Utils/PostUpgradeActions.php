@@ -8,7 +8,6 @@ use Plugin_Upgrader;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\arrayGet;
-use function Servebolt\Optimizer\Helpers\writeLog;
 
 /**
  * Class PostUpgradeActions.
