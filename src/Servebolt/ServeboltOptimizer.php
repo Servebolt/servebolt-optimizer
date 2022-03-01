@@ -22,6 +22,7 @@ use Servebolt\Optimizer\PluginActiveStateHandling\PluginActiveStateHandling;
 use Servebolt\Optimizer\Queue\QueueParseEventHandler;
 use Servebolt\Optimizer\TextDomainLoader\WpTextDomainLoader;
 use Servebolt\Optimizer\Utils\Crypto\OptionEncryption;
+use Servebolt\Optimizer\Utils\PostUpgradeActions;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
 use function Servebolt\Optimizer\Helpers\featureIsActive;
@@ -45,6 +46,9 @@ class ServeboltOptimizer
     {
         // Handle activation/deactivation
         new PluginActiveStateHandling;
+
+        // Run actions after plugin upgrade
+        new PostUpgradeActions;
 
         // Add various improvements/optimizations
         new GenericOptimizations;
