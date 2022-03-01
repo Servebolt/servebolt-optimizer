@@ -25,11 +25,11 @@ trait SharedMethods
     private static $menuSignatureIndexCacheExpirationTime = 15552000;
 
     /**
-     * The TTL for the menu markup transient (default no expiration).
+     * The TTL for the menu markup transient (default 180 days).
      *
      * @var int
      */
-    private static $menuMarkupCacheExpirationTime = 0;
+    private static $menuMarkupCacheExpirationTime = 15552000;
 
     /**
      * Get cached menu.
@@ -117,7 +117,7 @@ trait SharedMethods
      */
     private static function getMenuMarkupCacheExpirationTime(): int
     {
-        return apply_filters(
+        return (int) apply_filters(
             'sb_optimizer_menu_optimizer_menu_markup_expiration_time',
             self::$menuMarkupCacheExpirationTime
         );
@@ -130,7 +130,7 @@ trait SharedMethods
      */
     private static function getMenuSignatureIndexCacheExpirationTime(): int
     {
-        return apply_filters(
+        return (int) apply_filters(
             'sb_optimizer_menu_optimizer_menu_signature_index_expiration_time',
             self::$menuSignatureIndexCacheExpirationTime
         );
