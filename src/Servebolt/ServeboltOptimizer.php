@@ -48,7 +48,7 @@ class ServeboltOptimizer
         new PluginActiveStateHandling;
 
         // Run actions after plugin upgrade
-        new PostUpgradeActions;
+        PostUpgradeActions::init();
 
         // Add various improvements/optimizations
         new GenericOptimizations;
