@@ -31,7 +31,6 @@ class PostUpgradeActions
     public function __construct()
     {
         add_action('upgrader_process_complete', [$this, 'upgradeProcessComplete'], 10, 2);
-        $this->doPostUpgradeActions();die;
     }
 
     /**
