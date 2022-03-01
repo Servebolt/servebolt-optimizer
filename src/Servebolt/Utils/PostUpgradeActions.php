@@ -8,6 +8,7 @@ use Plugin_Upgrader;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\writeLog;
 
 /**
  * Class PostUpgradeActions.
@@ -64,7 +65,13 @@ class PostUpgradeActions
      */
     private function ourPluginWasUpgraded($hookExtra): bool
     {
+        if (!$hookExtra) {
+            return false;
+        }
         $upgradedPlugins = arrayGet('plugins', $hookExtra);
+        if (!is_array($upgradedPlugins)) {
+            return false;
+        }
         return in_array(SERVEBOLT_PLUGIN_BASENAME, $upgradedPlugins);
     }
 
@@ -77,6 +84,8 @@ class PostUpgradeActions
      */
     public function upgradeProcessComplete($upgrader, $hookExtra)
     {
+        writeLog($upgrader);
+        writeLog($hookExtra);
         // Make sure we are doing plugin upgrades and that our plugin was part of that upgrade
         if (!$upgrader instanceof Plugin_Upgrader || !$this->ourPluginWasUpgraded($hookExtra)) {
             return;
