@@ -316,26 +316,34 @@ class MigrationRunner
             return; // Skip it, this migration is already completed
         }
         if (method_exists($instance, $migrationMethod)) {
-            if ($this->runPrePostMethods) {
-                if (method_exists($instance, 'preMigration')) {
-                    $instance->preMigration();
-                }
-                $preMethod = 'pre' . ucfirst($migrationMethod) . 'Migration';
-                if (method_exists($instance, $preMethod)) {
-                    $instance->{$preMethod}();
-                }
+            $this->runPreMigration($instance, $migrationMethod);
+            $instance->{$migrationMethod}(); // Run the actual migration
+            $this->runPostMigration($instance, $migrationMethod);
+        }
+    }
+
+    private function runPreMigration($instance, $migrationMethod)
+    {
+        if ($this->runPrePostMethods) {
+            if (method_exists($instance, 'preMigration')) {
+                $instance->preMigration();
             }
+            $preMethod = 'pre' . ucfirst($migrationMethod) . 'Migration';
+            if (method_exists($instance, $preMethod)) {
+                $instance->{$preMethod}();
+            }
+        }
+    }
 
-            $instance->{$migrationMethod}();
-
-            if ($this->runPrePostMethods) {
-                if (method_exists($instance, 'postMigration')) {
-                    $instance->postMigration();
-                }
-                $postMethod = 'post' . ucfirst($migrationMethod) . 'Migration';
-                if (method_exists($instance, $postMethod)) {
-                    $instance->{$postMethod}();
-                }
+    private function runPostMigration($instance, $migrationMethod)
+    {
+        if ($this->runPrePostMethods) {
+            if (method_exists($instance, 'postMigration')) {
+                $instance->postMigration();
+            }
+            $postMethod = 'post' . ucfirst($migrationMethod) . 'Migration';
+            if (method_exists($instance, $postMethod)) {
+                $instance->{$postMethod}();
             }
         }
     }

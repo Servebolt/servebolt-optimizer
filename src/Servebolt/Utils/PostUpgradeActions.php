@@ -8,7 +8,6 @@ use Plugin_Upgrader;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\arrayGet;
-use function Servebolt\Optimizer\Helpers\writeLog;
 
 /**
  * Class PostUpgradeActions.
@@ -31,30 +30,17 @@ class PostUpgradeActions
      */
     public function __construct()
     {
-        add_action('upgrader_process_complete', [$this, 'upgradeProcessComplete'], 10, 2);
+        add_action('upgrader_process_complete', [$this, 'upgradeProcessCompleteCallback'], 10, 2);
     }
 
     /**
+     * Post upgrade actions.
+     *
      * @return void
      */
     private function doPostUpgradeActions()
     {
-        $this->cleanLegacyTransients();
-    }
-
-    /**
-     * Clean legacy transients (transients with autoload=yes meaning that they have been set without expiry, which is undesirable).
-     *
-     * @return void
-     */
-    private function cleanLegacyTransients()
-    {
-        global $wpdb;
-        $transientsToClean = ['sb-optimizer-text-domain-loader', 'sb-menu-cache'];
-        foreach ($transientsToClean as $transientKey) {
-            $fullTransientKey = '_transient_' . $transientKey;
-            $wpdb->query($wpdb->prepare('DELETE FROM ' . $wpdb->options . ' WHERE autoload = %s AND option_name LIKE %s', 'yes', $fullTransientKey . '%'));
-        }
+        // This function can be utilized from version >3.5.1
     }
 
     /**
@@ -82,10 +68,8 @@ class PostUpgradeActions
      * @param $hookExtra
      * @return void
      */
-    public function upgradeProcessComplete($upgrader, $hookExtra)
+    public function upgradeProcessCompleteCallback($upgrader, $hookExtra)
     {
-        writeLog($upgrader);
-        writeLog($hookExtra);
         // Make sure we are doing plugin upgrades and that our plugin was part of that upgrade
         if (!$upgrader instanceof Plugin_Upgrader || !$this->ourPluginWasUpgraded($hookExtra)) {
             return;

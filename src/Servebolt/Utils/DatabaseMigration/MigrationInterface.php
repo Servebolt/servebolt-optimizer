@@ -11,7 +11,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 interface MigrationInterface {
 
     /**
-     * Check whether migration is already executed;
+     * Check whether migration is already executed.
+     *
      * @return bool|null
      */
     public function hasBeenRun();

@@ -2115,3 +2115,22 @@ function convertObjectToArray(object $object)
 {
     return json_decode(json_encode($object), true);
 }
+
+/**
+ * Check if a class is using a trait.
+ *
+ * @param $trait
+ * @param $class
+ * @return bool
+ */
+/*
+function classUsesTrait($class, $trait)
+{
+    try {
+        $traitsInUse = array_keys((new \ReflectionClass($class))->getTraits());
+        return in_array($trait, $traitsInUse);
+    } catch (\Exception $e) {
+        return false;
+    }
+}
+*/
