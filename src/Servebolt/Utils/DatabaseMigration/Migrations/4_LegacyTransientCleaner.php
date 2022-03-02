@@ -46,10 +46,10 @@ class LegacyTransientCleaner extends AbstractMigration
         $transientPatternsToClean = ['sb-menu-cache'];
         foreach ($transientPatternsToClean as $transientPattern) {
             $fullTransientKeyPattern = '_transient_' . $transientPattern;
-            $this->runSql($wpdb->prepare('DELETE FROM ' . $wpdb->options . ' WHERE autoload = %s AND option_name LIKE %s', 'yes', $wpdb->escape_like($fullTransientKeyPattern . '%')));
+            $this->runSql($wpdb->prepare('DELETE FROM ' . $wpdb->options . ' WHERE autoload = %s AND option_name LIKE %s', 'yes', $wpdb->esc_like($fullTransientKeyPattern . '%')));
         }
 
         // Delete legacy transients from the translation MO-file optimizer-feature
-        $this->runSql($wpdb->prepare('SELECT * FROM ' . $wpdb->options . ' WHERE autoload = %s AND option_name REGEXP "^_transient_[a-f0-9]+$" AND option_value LIKE %s AND option_value LIKE %s', 'yes', '%mtime%', '%entries%'));
+        $this->runSql($wpdb->prepare('SELECT * FROM ' . $wpdb->options . ' WHERE autoload = %s AND option_name REGEXP "^_transient_[a-f0-9]+$" AND option_value LIKE %s AND option_value LIKE %s', 'yes', $wpdb->esc_like('%mtime%'), $wpdb->esc_like('%entries%')));
     }
 }
