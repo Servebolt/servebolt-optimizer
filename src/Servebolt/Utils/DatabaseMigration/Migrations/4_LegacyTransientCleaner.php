@@ -41,10 +41,10 @@ class LegacyTransientCleaner extends AbstractMigration
     public function up(): void
     {
         global $wpdb;
-        $transientsToClean = ['sb-optimizer-text-domain-loader', 'sb-menu-cache'];
-        foreach ($transientsToClean as $transientKey) {
-            $fullTransientKey = '_transient_' . $transientKey;
-            $this->runSql($wpdb->prepare('DELETE FROM ' . $wpdb->options . ' WHERE autoload = %s AND option_name LIKE %s', 'yes', $fullTransientKey . '%'));
+        $transientPatternsToClean = ['sb-menu-cache'];
+        foreach ($transientPatternsToClean as $transientPattern) {
+            $fullTransientKeyPattern = '_transient_' . $transientPattern;
+            $this->runSql($wpdb->prepare('DELETE FROM ' . $wpdb->options . ' WHERE autoload = %s AND option_name LIKE %s', 'yes', $fullTransientKeyPattern . '%'));
         }
     }
 }

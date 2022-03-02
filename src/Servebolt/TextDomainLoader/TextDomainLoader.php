@@ -28,12 +28,14 @@ class TextDomainLoader
             return false;
         }
 
-        $transientKey = 'sb-optimizer-text-domain-loader-' . md5($moFile);
+        $moFileHash = md5($moFile);
+        $transientKey = 'sb-optimizer-text-domain-loader-' . $moFileHash;
         $data = get_transient($transientKey);
         $mtime = filemtime($moFile);
 
         $mo = new MO();
         if (!$data || !isset($data['mtime']) || $mtime > $data['mtime']) {
+            self::maybeCleanupLegacyTransient($moFileHash);
             if (!$mo->import_from_file($moFile)) {
                 return false;
             }
@@ -55,5 +57,16 @@ class TextDomainLoader
         $l10n[$domain] = &$mo;
 
         return true;
+    }
+
+    /**
+     * Delete legacy transient (transients set before we added our own prefix to it, which we should have done from the get-go).
+     *
+     * @param $transientKey
+     * @return void
+     */
+    private static function maybeCleanupLegacyTransient($transientKey)
+    {
+        delete_transient($transientKey);
     }
 }
