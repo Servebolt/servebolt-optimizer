@@ -35,7 +35,7 @@ use function Servebolt\Optimizer\Helpers\isTesting;
 
 /**
  * Class ServeboltOptimizer
- * @package Servebolt\Optimizer
+ * @package Servebolt\Optimizerf
  */
 class ServeboltOptimizer
 {
@@ -86,7 +86,7 @@ class ServeboltOptimizer
 
         // Prefetching feature init
         if (featureIsAvailable('custom_text_domain_loader')) {
-            new WpTextDomainLoader;
+            WpTextDomainLoader::init();
         }
 
         // Queue system

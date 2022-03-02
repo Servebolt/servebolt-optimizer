@@ -24,7 +24,7 @@ class AcceleratedDomains
     /**
      * Alias for "getInstance".
      */
-    public static function init()
+    public static function init(): void
     {
         self::getInstance();
     }
