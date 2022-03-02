@@ -21,6 +21,7 @@
                         <?php _e('Enable', 'servebolt-wp'); ?>
                         <p><?php _e('When WordPress reads the translation files for plugins, themes etc. it does so on every page load. This creates disk read activity which is not good for performance. Activating this feature will speed up this process by storing the translations in cache (transients), so that we get the translations from the cache, instead of reading files on the disk.', 'servebolt-wp'); ?></p>
                         <p><?php _e('Recommended for sites running in other languages than en_US.', 'servebolt-wp'); ?></p>
+                        <p style="color: red;"><?php _e('If you\'re site has many languages available/uses a lot of translations then it is strongly recommended to test this feature before activating it in production.', 'servebolt-wp'); ?></p>
                     </label>
                 </fieldset>
             </td>
