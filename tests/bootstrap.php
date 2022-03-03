@@ -54,7 +54,12 @@ require $_tests_dir . '/includes/bootstrap.php';
 
 // Load env-file for testing
 $dotenv = new Symfony\Component\Dotenv\Dotenv();
-$dotenv->load(__DIR__ . '/.env');
+$envFilePath = __DIR__ . '/.env';
+if (!file_exists($envFilePath)) {
+    echo "Could not find .env-file at path $envFilePath. Exiting." . PHP_EOL; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+    exit( 1 );
+}
+$dotenv->load($envFilePath);
 
 // Include custom traits
 foreach([

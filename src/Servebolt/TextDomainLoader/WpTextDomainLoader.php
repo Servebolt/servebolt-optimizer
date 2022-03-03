@@ -4,7 +4,6 @@ namespace Servebolt\Optimizer\TextDomainLoader;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 
@@ -14,14 +13,10 @@ use function Servebolt\Optimizer\Helpers\smartGetOption;
  */
 class WpTextDomainLoader extends TextDomainLoader
 {
-    use Singleton;
 
-    /**
-     * Alias for "getInstance".
-     */
     public static function init(): void
     {
-        self::getInstance();
+        new self;
     }
 
     /**
