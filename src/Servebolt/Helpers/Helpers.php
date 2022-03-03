@@ -1186,7 +1186,7 @@ function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
  *
  * @return string
  *
- * @internal This function is inteded for use in the Servebolt plugin and should not be used by others.
+ * @internal This function is intended for use in the Servebolt plugin and should not be used by others.
  */
 function getVersionForStaticAsset(string $assetSrc): string
 {
@@ -2115,3 +2115,22 @@ function convertObjectToArray(object $object)
 {
     return json_decode(json_encode($object), true);
 }
+
+/**
+ * Check if a class is using a trait.
+ *
+ * @param $trait
+ * @param $class
+ * @return bool
+ */
+/*
+function classUsesTrait($class, $trait)
+{
+    try {
+        $traitsInUse = array_keys((new \ReflectionClass($class))->getTraits());
+        return in_array($trait, $traitsInUse);
+    } catch (\Exception $e) {
+        return false;
+    }
+}
+*/

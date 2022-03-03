@@ -14,6 +14,11 @@ use function Servebolt\Optimizer\Helpers\smartGetOption;
 class WpTextDomainLoader extends TextDomainLoader
 {
 
+    public static function init(): void
+    {
+        new self;
+    }
+
     /**
      * WpTextDomainLoader constructor.
      */
