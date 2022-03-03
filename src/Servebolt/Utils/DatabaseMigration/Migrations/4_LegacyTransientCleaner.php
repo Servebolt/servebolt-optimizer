@@ -50,6 +50,6 @@ class LegacyTransientCleaner extends AbstractMigration
         }
 
         // Delete legacy transients from the translation MO-file optimizer-feature
-        $this->runSql($wpdb->prepare('SELECT * FROM ' . $wpdb->options . ' WHERE autoload = %s AND option_name REGEXP "^_transient_[a-f0-9]+$" AND option_value LIKE %s AND option_value LIKE %s', 'yes', $wpdb->esc_like('%mtime%'), $wpdb->esc_like('%entries%')));
+        $this->runSql($wpdb->prepare('SELECT * FROM ' . $wpdb->options . ' WHERE autoload = %s AND option_name REGEXP "^_transient_[a-f0-9]+$" AND option_value LIKE %s AND option_value LIKE %s AND option_value LIKE %s', 'yes', $wpdb->esc_like('%mtime%'), $wpdb->esc_like('%entries%'), $wpdb->esc_like('%headers%')));
     }
 }
