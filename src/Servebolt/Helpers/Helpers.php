@@ -957,6 +957,19 @@ function formatPostTypeSlug(string $postType): string
 }
 
 /**
+ * Get the blog ID of the main blog in Multisite network.
+ *
+ * @return int|null
+ */
+function getMainSiteBlogId()
+{
+    if (!is_multisite()) {
+        return null;
+    }
+    return get_network()->site_id;
+}
+
+/**
  * Check whether a feature is available.
  *
  * @param string $feature
@@ -1365,6 +1378,24 @@ function countSites(): int
 {
     $sites = getSites();
     return is_array($sites) ? count($sites) : 0;
+}
+
+/**
+ * Execute function closure for given in multisite-network.
+ *
+ * @param $function
+ * @param $blogId
+ * @return void
+ */
+function runForSite($function, $blogId)
+{
+    if (!is_multisite()) {
+        return false;
+    }
+    switch_to_blog($blogId);
+    $function();
+    restore_current_blog();
+    return true;
 }
 
 /**
