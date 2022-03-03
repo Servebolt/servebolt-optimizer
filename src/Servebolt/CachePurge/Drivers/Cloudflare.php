@@ -40,6 +40,7 @@ class Cloudflare implements CachePurgeAllInterface, CachePurgeUrlInterface
                 $e->getErrors(),
                 $e->getResponse()
             );
+            return false;
         }
     }
 
@@ -64,6 +65,7 @@ class Cloudflare implements CachePurgeAllInterface, CachePurgeUrlInterface
                 $e->getErrors(),
                 $e->getResponse()
             );
+            return false;
         }
     }
 
@@ -86,6 +88,7 @@ class Cloudflare implements CachePurgeAllInterface, CachePurgeUrlInterface
                 $e->getErrors(),
                 $e->getResponse()
             );
+            return false;
         }
     }
 }

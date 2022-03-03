@@ -32,6 +32,7 @@ class ServeboltCdn implements CachePurgeAllInterface
             return true;
         } else {
             throw new ServeboltApiError($response->getErrors(), $response);
+            return false;
         }
     }
 
@@ -51,6 +52,7 @@ class ServeboltCdn implements CachePurgeAllInterface
             return true;
         } else {
             throw new ServeboltApiError($response->getErrors(), $response);
+            return false;
         }
     }
 }

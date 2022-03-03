@@ -32,6 +32,7 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface
             return true;
         } else {
             throw new ServeboltApiError($response->getErrors(), $response);
+            return false;
         }
     }
 
@@ -50,6 +51,7 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface
             return true;
         } else {
             throw new ServeboltApiError($response->getErrors(), $response);
+            return false;
         }
     }
 
@@ -70,6 +72,7 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface
             return true;
         } else {
            throw new ServeboltApiError($response->getErrors(), $response);
+           return false;
         }
     }
 
@@ -90,6 +93,7 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface
             return true;
         } else {
             throw new ServeboltApiError($response->getErrors(), $response);
+            return false;
         }
     }
 }
