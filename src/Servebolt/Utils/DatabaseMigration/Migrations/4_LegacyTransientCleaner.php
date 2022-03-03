@@ -23,7 +23,7 @@ class LegacyTransientCleaner extends AbstractMigration
     /**
      * @var bool Whether the migration is active (optional, defaults to true if omitted).
      */
-    public static $active = true;
+    public static $active = false;
 
     /**
      * @var string Table name (without prefix) (optional).

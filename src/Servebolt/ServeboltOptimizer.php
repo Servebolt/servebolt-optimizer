@@ -35,7 +35,7 @@ use function Servebolt\Optimizer\Helpers\isTesting;
 
 /**
  * Class ServeboltOptimizer
- * @package Servebolt\Optimizerf
+ * @package Servebolt\Optimizer
  */
 class ServeboltOptimizer
 {
