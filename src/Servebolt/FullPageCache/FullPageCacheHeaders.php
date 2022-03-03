@@ -606,14 +606,13 @@ class FullPageCacheHeaders
         }
 
         // Handle roles that are just used for front-end authentication (subscribers, customers for WooCommerce etc.)
-        $rolesNotConsideredAuthenticated = apply_filters('sb_optimizer_roles_not_considered_authenticated', [
-            'subscriber',
-            'customer',
-        ]);
-        $user = wp_get_current_user();
-        foreach ($rolesNotConsideredAuthenticated as $role) {
-            if (in_array($role, $user->roles)) {
-                return false; // This user has a role that is not considered authenticated in regards to cache handling / logic
+        $rolesNotConsideredAuthenticated = apply_filters('sb_optimizer_roles_not_considered_authenticated', []);
+        if (is_array($rolesNotConsideredAuthenticated) && !empty($rolesNotConsideredAuthenticated)) {
+            $user = wp_get_current_user();
+            foreach ($rolesNotConsideredAuthenticated as $role) {
+                if (in_array($role, $user->roles)) {
+                    return false; // This user has a role that is not considered authenticated in regards to cache handling / logic
+                }
             }
         }
 
