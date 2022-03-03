@@ -9,6 +9,7 @@ use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\runForSite;
 use function Servebolt\Optimizer\Helpers\tableExists;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
+use function Servebolt\Optimizer\Helpers\deleteSiteOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
@@ -210,9 +211,20 @@ class MigrationRunner
                     $function(); // All sites in multisite-network
                 }, true);
             }
+            $this->cleanUpLegacySiteOption();
         } else {
             $function(); // Single site
         }
+    }
+
+    /**
+     * Delete legacy site option containing the current migrated version (this value was moved to the blog options table).
+     *
+     * @return void
+     */
+    private function cleanUpLegacySiteOption()
+    {
+        deleteSiteOption($this->migrationVersionOptionsKey());
     }
 
     /**
