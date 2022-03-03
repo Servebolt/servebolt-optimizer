@@ -35,8 +35,6 @@ class WpDatabaseMigrations
     public function __construct()
     {
 
-
-
         // Run up/down migration for new/deleted sites
         if (!isTesting()) {
             add_action('admin_init', [$this, 'multisiteSupport']);
