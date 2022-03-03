@@ -28,6 +28,7 @@ use function Servebolt\Optimizer\Helpers\getAllSiteOptionNames;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getFiltersForHook;
+use function Servebolt\Optimizer\Helpers\getMainSiteBlogId;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
@@ -511,6 +512,12 @@ class HelpersTest extends ServeboltWPUnitTestCase
         smartUpdateOption(null, $key, 'an-actual-value');
         $this->assertNotEquals('default-value', smartGetOption(null, $key, 'default-value'));
         $this->assertEquals('an-actual-value', smartGetOption(null, $key, 'default-value'));
+    }
+
+    public function testGetMainSiteBlogId()
+    {
+        $this->skipWithoutMultisite();
+        $this->assertEquals(1, getMainSiteBlogId());
     }
 
     public function testSiteOptionsHelpers()

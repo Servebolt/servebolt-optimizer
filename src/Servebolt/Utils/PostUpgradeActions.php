@@ -40,7 +40,8 @@ class PostUpgradeActions
      */
     private function doPostUpgradeActions()
     {
-        // This function can be utilized from version >3.5.1
+        // This action can be utilized from version >3.5.3
+        do_action('sb_optimizer_upgrader_process_complete');
     }
 
     /**

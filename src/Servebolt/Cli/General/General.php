@@ -86,7 +86,7 @@ class General
     public function checkDatabaseMigrations($args, $assocArgs)
     {
         CliHelpers::setReturnJson($assocArgs);
-        MigrationRunner::migrate();
+        MigrationRunner::remigrate();
         $message = __('Successfully ran re-migration.', 'servebolt-wp');
         if (CliHelpers::returnJson()) {
             CliHelpers::printJson([

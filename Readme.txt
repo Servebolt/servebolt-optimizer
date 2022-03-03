@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 5.8
 Requires PHP: 7.3
-Stable tag: 3.5.1
+Stable tag: 3.5.2
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,13 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.3 =
+* Added migration to clean up legacy transients (orphaned transients without expiry)
+* Fixed bug in database migration runner
+
+= 3.5.2 =
+* Fixed issue with cache headers and authentication-check (user role determination)
+
 = 3.5.1 =
 * Fixed issue with transient rows not expiring for the menu optimizer feature.
 
