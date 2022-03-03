@@ -1186,7 +1186,7 @@ function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
  *
  * @return string
  *
- * @internal This function is inteded for use in the Servebolt plugin and should not be used by others.
+ * @internal This function is intended for use in the Servebolt plugin and should not be used by others.
  */
 function getVersionForStaticAsset(string $assetSrc): string
 {
