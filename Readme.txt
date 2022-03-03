@@ -93,6 +93,10 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.3 =
+* Added migration to clean up legacy transients (orphaned transients without expiry)
+* Fixed bug in database migration runner
+
 = 3.5.2 =
 * Fixed issue with cache headers and authentication-check (user role determination)
 
