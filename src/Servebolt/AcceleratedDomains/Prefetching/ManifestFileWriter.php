@@ -66,13 +66,20 @@ class ManifestFileWriter
      *
      * @return array
      */
-    public static function resolveExistingFiles(): array
+    public static function resolveExistingFiles(): ?array
     {
         $fs = self::getFs();
         $folderPath = self::getFolderPath();
+        if (!is_dir($folderPath)) {
+            return null;
+        }
+        $files = $fs->dirlist($folderPath);
+        if (!is_array($files) || empty($files)) {
+            return null;
+        }
         return array_map(function($fileName) use ($folderPath) {
             return $folderPath . $fileName;
-        }, array_keys($fs->dirlist($folderPath)));
+        }, array_keys($files));
     }
 
     /**
