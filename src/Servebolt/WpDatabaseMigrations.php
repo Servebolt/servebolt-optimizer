@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Exception;
+use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use function Servebolt\Optimizer\Helpers\isAjax;
 use function Servebolt\Optimizer\Helpers\isCli;
@@ -18,19 +19,31 @@ use function Servebolt\Optimizer\Helpers\isWpRest;
  */
 class WpDatabaseMigrations
 {
+    use Singleton;
+
+    /**
+     * Alias for "getInstance".
+     */
+    public static function init(): void
+    {
+        self::getInstance();
+    }
+
     /**
      * WpDatabaseMigrations constructor.
      */
     public function __construct()
     {
+
+
+
         // Run up/down migration for new/deleted sites
         if (!isTesting()) {
             add_action('admin_init', [$this, 'multisiteSupport']);
         }
 
-        $method = 'Servebolt\\Optimizer\\Utils\\DatabaseMigration\\MigrationRunner::run';
         if (is_admin()) {
-            add_action('admin_init', $method);
+            add_action('admin_init', [$this, 'runMigration']);
         } elseif(
             isTesting()
             || isCli()
@@ -38,8 +51,13 @@ class WpDatabaseMigrations
             || isAjax()
             || isWpRest()
         ) {
-            add_action('init', $method);
+            add_action('init', [$this, 'runMigration']);
         }
+    }
+
+    public function runMigration()
+    {
+        MigrationRunner::run();
     }
 
     /**

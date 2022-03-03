@@ -54,7 +54,7 @@ class ServeboltOptimizer
         new GenericOptimizations;
 
         // Generate database tables etc.
-        new WpDatabaseMigrations;
+        WpDatabaseMigrations::init();
 
         // Plugin compatibility
         add_action('plugins_loaded', function () {
