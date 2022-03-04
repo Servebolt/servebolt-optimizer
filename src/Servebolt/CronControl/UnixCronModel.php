@@ -120,6 +120,21 @@ class UnixCronModel
     }
 
     /**
+     * Get the default active state.
+     *
+     * @param $commandInstance
+     * @return bool
+     */
+    private static function defaultActiveState($commandInstance): bool
+    {
+        $legacy = apply_filters('sb_optimizer_unix_cron_model_default_enabled', null, $commandInstance);
+        if (is_bool($legacy)) {
+            return $legacy;
+        }
+        return (bool) apply_filters('sb_optimizer_unix_cron_model_default_active', true, $commandInstance);
+    }
+
+    /**
      * Build the line that will be placed in the UNIX cron.
      *
      * @param $commandInstance
@@ -129,7 +144,7 @@ class UnixCronModel
     {
         return [
             'attributes' => [
-                'enabled' => apply_filters('sb_optimizer_unix_cron_model_default_enabled', true, $commandInstance),
+                'active' => self::defaultActiveState($commandInstance),
                 'command' => $commandInstance->generateCommand(),
                 'comment' => $commandInstance->generateComment(),
                 'schedule' => $commandInstance->getInterval(),
@@ -175,7 +190,7 @@ class UnixCronModel
         if ($cronJobs && is_array($cronJobs)) {
             if ($onlyActive) {
                 $filteredCronJobs = array_filter($cronJobs, function($cronjob) {
-                    return $cronjob->attributes->enabled;
+                    return $cronjob->attributes->active;
                 });
                 if ($filteredCronJobs) {
                     return $filteredCronJobs;
