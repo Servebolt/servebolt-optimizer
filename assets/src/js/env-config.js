@@ -43,7 +43,7 @@ window.envConfig = {
      * @returns {Promise<*>}
      */
     getSiteUrl: async function () {
-        return sb_ajax_object.site_url;
+        return servebolt_optimizer_ajax_object.site_url;
     },
 
     /**

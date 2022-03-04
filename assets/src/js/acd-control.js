@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
  * Check if the current site has access to the Accelerated Domains Image Resize-feature.
  */
 window.acdImageResizeAccessCheck = function () {
-   if (sb_ajax_object.is_dev) {
+   if (servebolt_optimizer_ajax_object.is_dev) {
       window.acdImageResizeActivate();
       return;
    }
@@ -38,8 +38,8 @@ window.ensureAcdImageResizeDisabled = function () {
 window.disableAcdImageResizeAjax = function () {
    const data = new FormData();
    data.append('action', 'servebolt_acd_image_resize_disable');
-   data.append('security', sb_ajax_object.ajax_nonce);
-   fetch(sb_ajax_object.ajaxurl, {
+   data.append('security', servebolt_optimizer_ajax_object.ajax_nonce);
+   fetch(servebolt_optimizer_ajax_object.ajaxurl, {
       method: 'POST',
       body: data
    });
@@ -98,8 +98,8 @@ window.acdPurgeAllConfirmed = function () {
    window.sb_loading(true);
    const data = new FormData();
    data.append('action', 'servebolt_acd_purge_all_cache');
-   data.append('security', sb_ajax_object.ajax_nonce);
-   fetch(sb_ajax_object.ajaxurl,
+   data.append('security', servebolt_optimizer_ajax_object.ajax_nonce);
+   fetch(servebolt_optimizer_ajax_object.ajaxurl,
        {
           method: 'POST',
           body: data

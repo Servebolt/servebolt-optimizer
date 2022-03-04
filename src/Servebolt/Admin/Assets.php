@@ -182,7 +182,7 @@ class Assets {
                 ['jquery'],
                 true
             );
-            wp_localize_script('servebolt-optimizer-cache-purge-trigger-scripts', 'sb_ajax_object', [
+            wp_localize_script('servebolt-optimizer-cache-purge-trigger-scripts', 'servebolt_optimizer_ajax_object', [
                 'is_dev'                 => isDevDebug(),
                 'ajax_nonce'             => getAjaxNonce(),
                 'site_url'               => get_site_url(),
