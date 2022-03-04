@@ -82,11 +82,11 @@ jQuery(document).ready(function($) {
     window.sb_loading(true);
     var data = {
       action: 'servebolt_clear_all_settings',
-      security: sb_ajax_object.ajax_nonce,
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
     };
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function (response) {
         window.sb_loading(false);
@@ -128,7 +128,7 @@ jQuery(document).ready(function($) {
    * @returns {boolean}
    */
   window.sb_use_native_js_fallback = function() {
-    return sb_ajax_object.use_native_js_fallback == 'true';
+    return servebolt_optimizer_ajax_object.use_native_js_fallback == 'true';
   }
 
   /**

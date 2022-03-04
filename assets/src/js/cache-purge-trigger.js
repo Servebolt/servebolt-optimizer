@@ -73,7 +73,7 @@ jQuery(document).ready(function($) {
    * Update cache purge queue list table.
    */
   window.update_cache_purge_list = function() {
-    if ( ! sb_ajax_object.cron_purge_is_active ) return;
+    if ( ! servebolt_optimizer_ajax_object.cron_purge_is_active ) return;
     var table = $('.sb-content #purge-items-table');
     if ( ! table.length ) return;
     var spinner = $('#sb-configuration .purge-queue-loading-spinner');
@@ -81,11 +81,11 @@ jQuery(document).ready(function($) {
     setTimeout(function () {
       var data = {
         action: 'servebolt_load_cache_purge_queue_list',
-        security: sb_ajax_object.ajax_nonce,
+        security: servebolt_optimizer_ajax_object.ajax_nonce,
       };
       $.ajax({
         type: 'POST',
-        url: sb_ajax_object.ajaxurl,
+        url: servebolt_optimizer_ajax_object.ajaxurl,
         data: data,
         success: function(response) {
           table.html(response.data.html);
@@ -132,11 +132,11 @@ jQuery(document).ready(function($) {
     window.sb_loading(true);
     var data = {
       action: 'servebolt_purge_all_network_cache',
-      security: sb_ajax_object.ajax_nonce,
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
     };
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function(response) {
         window.sb_loading(false);
@@ -195,11 +195,11 @@ jQuery(document).ready(function($) {
     window.sb_loading(true);
     var data = {
       action: 'servebolt_purge_all_cache',
-      security: sb_ajax_object.ajax_nonce,
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
     };
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function(response) {
         window.sb_loading(false);
@@ -345,12 +345,12 @@ jQuery(document).ready(function($) {
     window.sb_loading(true);
     const data = {
       action: 'servebolt_purge_term_cache',
-      security: sb_ajax_object.ajax_nonce,
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
       term_id: termId,
     };
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function(response) {
         window.sb_loading(false);
@@ -394,12 +394,12 @@ jQuery(document).ready(function($) {
     window.sb_loading(true);
     var data = {
       action: 'servebolt_purge_post_cache',
-      security: sb_ajax_object.ajax_nonce,
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
       post_id: post_id,
     };
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function(response) {
         window.sb_loading(false);
@@ -478,12 +478,12 @@ jQuery(document).ready(function($) {
     window.sb_loading(true);
     var data = {
       action: 'servebolt_purge_url_cache',
-      security: sb_ajax_object.ajax_nonce,
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
       url: value,
     };
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function(response) {
         window.sb_loading(false);

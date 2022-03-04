@@ -58,11 +58,11 @@ jQuery(document).ready(function($) {
     window.sb_loading(true);
     var data = {
       action: 'servebolt_optimize_db',
-      security: sb_ajax_object.ajax_nonce,
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
     };
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function (response) {
         window.sb_loading(false);
@@ -209,11 +209,11 @@ jQuery(document).ready(function($) {
     window.sb_loading(true);
     var data = {
       action: 'servebolt_wreak_havoc',
-      security: sb_ajax_object.ajax_nonce,
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
     };
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function (response) {
         window.sb_loading(false);
@@ -291,11 +291,11 @@ jQuery(document).ready(function($) {
     var data = {
       action: 'servebolt_convert_table_to_innodb',
       table_name: $(element).data('table'),
-      security: sb_ajax_object.ajax_nonce,
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
     };
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function(response) {
         window.sb_loading(false);
@@ -379,11 +379,11 @@ jQuery(document).ready(function($) {
       action: 'servebolt_create_index',
       table_name: $(element).data('table'),
       blog_id: $(element).data('blog-id'),
-      security: sb_ajax_object.ajax_nonce,
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
     };
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function(response) {
         window.sb_loading(false);
