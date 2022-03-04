@@ -368,21 +368,35 @@ function getServeboltAdminUrl($argsOrPage = []) :? string
 }
 
 /**
- * Check if we are currently viewing a given screen.
+ * Check if we are currently viewing a given network-screen.
  *
- * @param string $screenId
- * @param bool $networkSupport
+ * @param $screenId
  * @return bool
  */
-function isScreen(string $screenId, bool $networkSupport = true): bool
+function isNetworkScreen($screenId): bool
 {
     $currentScreen = get_current_screen();
-    if ($screenId == $currentScreen->id) {
-        return true;
-    }
-    if ($networkSupport) {
-        $networkScreenId = $screenId . '-network';
-        if ($networkScreenId == $currentScreen->id) {
+    return $screenId . '-network' == $currentScreen->id;
+}
+
+/**
+ * Check if we are currently viewing a given screen.
+ *
+ * @param string $screenId The ID of the screen to check for.
+ * @param bool $networkSupport Whether to support network
+ * @param bool $strict
+ * @return bool
+ */
+function isScreen(string $screenId, bool $networkSupport = true, bool $strict = false): bool
+{
+    $prefixes = $strict ? [''] : ['admin_', 'servebolt_'];
+    foreach ($prefixes as $prefix) {
+        $screenIdWithPrefix = $prefix . trim($screenId, '_');
+        $currentScreen = get_current_screen();
+        if ($screenIdWithPrefix == $currentScreen->id) {
+            return true;
+        }
+        if ($networkSupport && isNetworkScreen($screenIdWithPrefix)) {
             return true;
         }
     }

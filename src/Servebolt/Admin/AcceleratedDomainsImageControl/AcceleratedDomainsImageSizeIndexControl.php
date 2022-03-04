@@ -39,7 +39,7 @@ class AcceleratedDomainsImageSizeIndexControl
 
     public function enqueueScripts(): void
     {
-        if (!isScreen('admin_page_servebolt-acd-image-resize')) {
+        if (!isScreen('page_servebolt-acd-image-resize')) {
             return;
         }
         wp_enqueue_script(
