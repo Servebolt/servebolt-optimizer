@@ -1,7 +1,6 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 <?php use function Servebolt\Optimizer\Helpers\view; ?>
-<?php use function Servebolt\Optimizer\Helpers\actionSchedulerIsActive; ?>
 <?php use function Servebolt\Optimizer\Helpers\isHostedAtServebolt; ?>
 
 <?php settings_errors(); ?>
@@ -29,6 +28,14 @@
         <?php if (!is_multisite() && isHostedAtServebolt()) : ?>
             <?php view('performance-optimizer.advanced.shared-settings.action-scheduler', compact('settings')); ?>
             <?php view('performance-optimizer.advanced.shared-settings.wp-cron', compact('settings')); ?>
+        <?php endif; ?>
+        <?php if(is_multisite() && !is_network_admin() && is_super_admin()): ?>
+        <tr>
+            <th scope="row"><?php _e('More options', 'servebolt-wp'); ?></th>
+            <td>
+                <?php echo sprintf(__('Go to %snetwork settings%s for more site-wide options.', 'servebolt-wp'), '<a href="' . esc_url(network_admin_url('admin.php?page=servebolt-performance-optimizer-advanced')) . '">', '</a>'); ?>
+            </td>
+        </tr>
         <?php endif; ?>
     </table>
 
