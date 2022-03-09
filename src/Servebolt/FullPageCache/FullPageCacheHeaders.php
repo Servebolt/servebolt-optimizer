@@ -92,14 +92,12 @@ class FullPageCacheHeaders
      */
     private function __construct()
     {
-
         // Handle "no_cache"-header for authenticated users.
         FullPageCacheAuthHandling::init();
 
         // Unauthenticated cache handling
         if ($this->shouldSetCacheHeaders()) {
-            add_filter('posts_results', [$this, 'setHeaders']);
-            add_filter('template_include', [$this, 'lastCall']);
+            add_action('template_redirect', [$this, 'setHeaders']);
         }
     }
 
@@ -117,30 +115,12 @@ class FullPageCacheHeaders
     }
 
     /**
-     * @param $boolean
-     */
-    public function setHeaderAlreadySetState($boolean): void
-    {
-        $this->headersAlreadySet = $boolean;
-    }
-
-    /**
      * Set cache headers - Determine and set the type of headers to be used.
-     *
-     * @param $posts
-     *
-     * @return mixed
      */
-    public function setHeaders($posts)
+    public function setHeaders()
     {
+
         $debug = $this->shouldDebug();
-
-        // Abort if cache headers are already set
-        if ($this->headersAlreadySet) {
-            return $posts;
-        }
-
-        $this->setHeaderAlreadySetState(true);
 
         // Set "no cache"-headers if HTML Cache is not active, or if we are logged in
         if (!FullPageCacheSettings::htmlCacheIsActive() || $this->isAuthenticatedUser()) {
@@ -148,20 +128,10 @@ class FullPageCacheHeaders
             if ($debug) {
                 $this->header('No-cache-trigger: 1');
             }
-            return $posts;
+            return;
         }
 
-        global $wp_query;
         $postType = get_post_type();
-
-        // We don't have any posts at the time, abort
-        if (!isset($wp_query) || !$postType) {
-            $this->setHeaderAlreadySetState(false);
-            return $posts;
-        }
-
-        // Only trigger this function once
-        remove_filter('posts_results', [$this, 'setHeaders']);
 
         if ($this->isEcommerceNoCachePage()) {
             $this->noCacheHeaders();
@@ -173,7 +143,7 @@ class FullPageCacheHeaders
             if ($debug) {
                 $this->header('Cache-trigger: 11');
             }
-        } elseif (is_archive() && $this->shouldCacheArchive($posts)) {
+        } elseif (is_archive() && $this->shouldCacheArchive($postType)) {
             // Make sure the archive has only cacheable posts
             $this->cacheHeaders();
             if ($debug) {
@@ -221,7 +191,6 @@ class FullPageCacheHeaders
                 $this->header('No-cache-trigger: 10');
             }
         }
-        return $posts;
     }
 
     /**
@@ -328,19 +297,6 @@ class FullPageCacheHeaders
     }
 
     /**
-     * Last call - Run a last call to the set headers function before the template is loaded.
-     *
-     * @param $template
-     *
-     * @return mixed
-     */
-    public function lastCall($template)
-    {
-        $this->setHeaders([get_post()]);
-        return $template;
-    }
-
-    /**
      * Check if cache is active for given post type.
      *
      * @param $postType
@@ -371,20 +327,12 @@ class FullPageCacheHeaders
     /**
      * Check if we should cache an archive.
      *
-     * @param array $posts Posts in the archive
+     * @param string $postType Current post type.
      * @return boolean      Return true if all posts are cacheable
      */
-    private function shouldCacheArchive($posts): bool
+    private function shouldCacheArchive($postType): bool
     {
-        $postTypesToCache = (array)self::getPostTypesToCache();
-        foreach ($posts as $post) {
-            if (!in_array($post->post_type, $postTypesToCache)) {
-                return false;
-            } elseif (!in_array($post->post_type, (array)$this->postTypes)) {
-                $this->postTypes[] = $post->post_type;
-            }
-        }
-        return true;
+        return in_array($postType, (array) self::getPostTypesToCache());
     }
 
     /**
