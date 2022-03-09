@@ -119,78 +119,98 @@ class FullPageCacheHeaders
      */
     public function setHeaders()
     {
-
         $debug = $this->shouldDebug();
 
         // Set "no cache"-headers if HTML Cache is not active, or if we are logged in
         if (!FullPageCacheSettings::htmlCacheIsActive() || $this->isAuthenticatedUser()) {
             $this->noCacheHeaders();
-            if ($debug) {
-                $this->header('No-cache-trigger: 1');
-            }
+            if ($debug) $this->header('No-cache-trigger: 1');
             return;
         }
 
         $postType = get_post_type();
 
+        /*
+        echo '<pre>';
+        var_dump($postType);
+        var_dump(is_archive());
+        var_dump(is_home());
+        var_dump($this->shouldCacheArchive($postType));
+        var_dump(get_post_type_archive_link('post'));
+        var_dump(get_post_type_archive_link('download'));
+        die;
+        */
+
+        // E-commerce page handling
         if ($this->isEcommerceNoCachePage()) {
             $this->noCacheHeaders();
-            if ($debug) {
-                $this->header('No-cache-trigger: 2');
-            }
-        } elseif ($this->isEcommerceCachePage()) {
+            if ($debug) $this->header('No-cache-trigger: 2');
+            return;
+        }
+        if ($this->isEcommerceCachePage()) {
             $this->cacheHeaders();
-            if ($debug) {
-                $this->header('Cache-trigger: 11');
-            }
-        } elseif (is_archive() && $this->shouldCacheArchive($postType)) {
-            // Make sure the archive has only cacheable posts
+            if ($debug) $this->header('Cache-trigger: 11');
+            return;
+        }
+
+        // Posts page / archive handling
+        if (
+            (is_home() || is_archive())
+            && $this->shouldCacheArchive($postType)
+        ) {
             $this->cacheHeaders();
-            if ($debug) {
-                $this->header('Cache-trigger: 6');
-            }
-        } elseif (get_the_ID() && CachePostExclusion::shouldExcludePostFromCache(get_the_ID())) {
+            if ($debug) $this->header('Cache-trigger: 6');
+            return;
+        }
+
+        // Specific post exclusion handling
+        if (get_the_ID() && CachePostExclusion::shouldExcludePostFromCache(get_the_ID())) {
             $this->noCacheHeaders();
-            if ($debug) {
-                $this->header('No-cache-trigger: 3');
-            }
-        } elseif ((is_front_page() || is_singular() || is_page()) && $this->cacheActiveForPostType($postType)) {
+            if ($debug) $this->header('No-cache-trigger: 3');
+            return;
+        }
+
+        // Singular post handling
+        if (
+            (is_front_page() || is_singular() || is_page())
+            && $this->cacheActiveForPostType($postType)
+        ) {
             // Make sure the post type can be cached
             $this->postTypes[] = $postType;
             $this->cacheHeaders();
-            if ($debug) {
-                $this->header('Cache-trigger: 5');
-            }
-        } elseif ($this->cacheAllPostTypes()) {
+            if ($debug) $this->header('Cache-trigger: 5');
+            return;
+        }
+
+        /*
+        if ($this->cacheAllPostTypes()) {
             // Make sure the post type can be cached
             $this->postTypes[] = $postType;
             $this->cacheHeaders();
-            if ($debug) {
-                $this->header('Cache-trigger: 4');
-            }
-        } elseif (empty(self::getPostTypesToCache())) {
+            if ($debug) $this->header('Cache-trigger: 4');
+            return;
+        }
+
+        if (empty(self::getPostTypesToCache())) {
             $this->postTypes[] = $postType;
-            if ($debug) {
-                $this->header('Cache-trigger: 7');
-            }
+            if ($debug) $this->header('Cache-trigger: 7');
             if (in_array($postType, self::getDefaultPostTypesToCache())) {
                 $this->cacheHeaders();
-                if ($debug) {
-                    $this->header('Cache-trigger: 8');
-                }
+                if ($debug) $this->header('Cache-trigger: 8');
             }
-        } elseif (empty(self::getPostTypesToCache()) && (is_front_page() || is_singular() || is_page())) {
-            $this->cacheHeaders();
-            if ($debug) {
-                $this->header('Cache-trigger: 9');
-            }
-        } else {
-            // Default to no-cache headers
-            $this->noCacheHeaders();
-            if ($debug) {
-                $this->header('No-cache-trigger: 10');
-            }
+            return;
         }
+
+        if (empty(self::getPostTypesToCache()) && (is_front_page() || is_singular() || is_page())) {
+            $this->cacheHeaders();
+            if ($debug) $this->header('Cache-trigger: 9');
+            return;
+        }
+        */
+
+        // Default to no-cache headers
+        $this->noCacheHeaders();
+        if ($debug) $this->header('No-cache-trigger: 10');
     }
 
     /**
@@ -305,10 +325,10 @@ class FullPageCacheHeaders
      */
     private function cacheActiveForPostType($postType): bool
     {
-        if ($postType === 'all') {
+        if ($this->cacheAllPostTypes()) {
             return true;
         }
-        if (in_array($postType, (array)self::getPostTypesToCache())) {
+        if (in_array($postType, self::getPostTypesToCacheRaw())) {
             return true;
         }
         return false;
@@ -319,9 +339,12 @@ class FullPageCacheHeaders
      *
      * @return bool
      */
-    private function cacheAllPostTypes()
+    private function cacheAllPostTypes(): bool
     {
-        return $this->cacheActiveForPostType('all');
+        if (in_array('all', self::getPostTypesToCacheRaw())) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -332,7 +355,7 @@ class FullPageCacheHeaders
      */
     private function shouldCacheArchive($postType): bool
     {
-        return in_array($postType, (array) self::getPostTypesToCache());
+        return in_array($postType, self::getPostTypesToCacheRaw());
     }
 
     /**
@@ -346,7 +369,7 @@ class FullPageCacheHeaders
         // Default TTL
         if (is_null($this->htmlCacheTime)) {
             // Check if the constant SERVEBOLT_FPC_CACHE_TIME is set, and override $htmlCacheTime if it is
-            $this->htmlCacheTime = defined('SERVEBOLT_FPC_CACHE_TIME') ? (int) SERVEBOLT_FPC_CACHE_TIME : $this->defaultHtmlCacheTime;
+            $this->htmlCacheTime = defined('SERVEBOLT_FPC_CACHE_TIME') ? (int)SERVEBOLT_FPC_CACHE_TIME : $this->defaultHtmlCacheTime;
         }
         return $this->htmlCacheTime;
     }
@@ -372,10 +395,10 @@ class FullPageCacheHeaders
         return null;
     }
 
-	/**
-	 * Cache headers - Print headers that encourage caching.
-	 */
-	private function cacheHeaders()
+    /**
+     * Cache headers - Print headers that encourage caching.
+     */
+    private function cacheHeaders()
     {
         do_action('sb_optimizer_fpc_cache_headers', $this, $this->getQueriedObject());
         if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true)) {
@@ -400,12 +423,12 @@ class FullPageCacheHeaders
             $this->header(sprintf('Expires: %s', $expiryString));
             $this->header('X-Servebolt-Plugin: active');
         }
-	}
+    }
 
-	/**
-	 * No cache headers - Print headers that prevent caching.
-	 */
-	private function noCacheHeaders(): void
+    /**
+     * No cache headers - Print headers that prevent caching.
+     */
+    private function noCacheHeaders(): void
     {
         do_action('sb_optimizer_fpc_no_cache_headers', $this);
         if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true)) {
@@ -413,60 +436,69 @@ class FullPageCacheHeaders
             $this->header('Pragma: no-cache');
             $this->header('X-Servebolt-Plugin: active');
         }
-	}
+    }
 
-	/**
-	 * The option name/key we use to store the cacheable post types for the HTML Cache.
-	 *
-	 * @return string
-	 */
-	private static function htmlCacheCacheablePostTypesOptionKey(): string
+    /**
+     * The option name/key we use to store the cacheable post types for the HTML Cache.
+     *
+     * @return string
+     */
+    private static function htmlCacheCacheablePostTypesOptionKey(): string
     {
-		return 'fpc_settings';
-	}
+        return 'fpc_settings';
+    }
 
-	/**
-	 * Set cacheable post types.
-	 *
-	 * @param $postTypes
-	 * @param null|int $blogId
-	 *
-	 * @return bool|mixed
-	 */
-	public static function setCacheablePostTypes($postTypes, ?int $blogId = null)
+    /**
+     * Set cacheable post types.
+     *
+     * @param $postTypes
+     * @param null|int $blogId
+     *
+     * @return bool|mixed
+     */
+    public static function setCacheablePostTypes($postTypes, ?int $blogId = null)
     {
         return smartUpdateOption($blogId, self::htmlCacheCacheablePostTypesOptionKey(), $postTypes);
-	}
+    }
 
-	/**
-	 * Get post types that we can apply cache for.
-	 *
-	 * @param bool $includeAll
-	 *
-	 * @return array
-	 */
-	public static function getAvailablePostTypesToCache($includeAll = false): array
+    /**
+     * Get post types that we can apply cache for.
+     *
+     * @param bool $includeAll
+     *
+     * @return array
+     */
+    public static function getAvailablePostTypesToCache($includeAll = false): array
     {
         $postTypes = get_post_types(['public' => true], 'objects');
-		$array = [];
-		if ($includeAll) {
-			$array['all'] = __('All', 'servebolt-wp');
-		}
-		foreach ($postTypes as $postType) {
-			$array[$postType->name] = $postType->labels->singular_name;
-		}
-		return $array;
-	}
+        $array = [];
+        if ($includeAll) {
+            $array['all'] = __('All', 'servebolt-wp');
+        }
+        foreach ($postTypes as $postType) {
+            $array[$postType->name] = $postType->labels->singular_name;
+        }
+        return $array;
+    }
 
-	/**
-	 * Get the post types to cache.
-	 *
-	 * @param bool $respectDefaultFallback Whether to fall back on default post types.
-	 * @param bool $respectAll Whether to return all post types if all is selected.
-	 * @param null|int $blogId The ID of the blog we would like to interact with.
-	 *
-	 * @return array|mixed|string|void|null A list of cacheable post types.
-	 */
+    public static function getPostTypesToCacheRaw(?int $blogId = null)
+    {
+        $value = smartGetOption($blogId, self::htmlCacheCacheablePostTypesOptionKey(), []);
+        if (is_array($value)) {
+            return array_keys($value);
+        }
+        return [];
+    }
+
+    /**
+     * Get the post types to cache.
+     *
+     * @param bool $respectDefaultFallback Whether to fall back on default post types.
+     * @param bool $respectAll Whether to return all post types if all is selected.
+     * @param null|int $blogId The ID of the blog we would like to interact with.
+     *
+     * @return array|mixed|string|void|null A list of cacheable post types.
+     */
 	public static function getPostTypesToCache(bool $respectDefaultFallback = true, bool $respectAll = true, ?int $blogId = null)
     {
         $postTypesToCache = smartGetOption($blogId, self::htmlCacheCacheablePostTypesOptionKey());
