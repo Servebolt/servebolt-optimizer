@@ -33,6 +33,8 @@ else
 	SITE_URLS=(`wp option get siteurl --path="\$WP_PATH"`)
 fi
 
+mkdir -p ~/.cron-lockfiles/
+
 # Loop through all the sites
 for SITE_URL in \$SITE_URLS
 do
@@ -40,7 +42,7 @@ do
 	for EVENT_HOOK in $(wp cron event list --format=csv --fields=hook,next_run_relative --url="\$SITE_URL" --path="\$WP_PATH" | grep now$ | awk -F ',' '{print $1}')
 	do
         FLOCK_INDICATOR=$(echo -n "\$SITE_URL-\$EVENT_HOOK" | md5sum | awk '{print $1}')
-        flock -n ~/.wp_cron_\$FLOCK_INDICATOR.lock wp cron event run "\$EVENT_HOOK" --url="\$SITE_URL" --path="\$WP_PATH" --quiet
+        flock -n ~/.cron-lockfiles/.wp_cron_\$FLOCK_INDICATOR.lock wp cron event run "\$EVENT_HOOK" --url="\$SITE_URL" --path="\$WP_PATH" --quiet
 	done
 done
 
