@@ -390,13 +390,17 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testThatWeCanObtainPluginVersion()
     {
+        $versionNumber = getCurrentPluginVersion(true);
+        $this->assertRegExp('/^(\d\.){1,2}(\d)$/', $versionNumber);
+
         $versionNumber = getCurrentPluginVersion(false);
         $this->assertIsString($versionNumber);
-        if (strContains($versionNumber, '-rev')) {
-            $versionNumber = preg_replace('/-rev([0-9]{1,2})/', '', $versionNumber);
+        $pattern = '-(alpha|beta|rc)(|\.([0-9]{1,2}))';
+        if (preg_match('/' . $pattern . '$/', $versionNumber)) {
+            $this->assertRegExp('/^(\d\.){1,2}(\d)' . $pattern . '$/', $versionNumber);
+        } else {
+            $this->assertRegExp('/^(\d\.){1,2}(\d)$/', $versionNumber);
         }
-        $this->assertRegExp('/^(\d\.){1,2}(\d)$/', $versionNumber);
-        //$this->assertRegExp('/^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/', $versionNumber);
     }
 
     public function testCountSitesHelper()
