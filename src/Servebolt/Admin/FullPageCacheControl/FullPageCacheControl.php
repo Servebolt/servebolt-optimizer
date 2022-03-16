@@ -57,7 +57,7 @@ class FullPageCacheControl
      */
     public function enqueueScripts(): void
     {
-        if (!isScreen('servebolt_page_servebolt-html-cache')) {
+        if (!isScreen('page_servebolt-html-cache')) {
             return;
         }
         wp_enqueue_script(

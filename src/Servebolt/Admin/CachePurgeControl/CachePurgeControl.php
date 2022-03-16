@@ -73,7 +73,7 @@ class CachePurgeControl
         });
         // Fix faulty page title
         add_filter('admin_title', function($admin_title, $title) {
-            if (isScreen('admin_page_servebolt-cache-purge-control')) {
+            if (isScreen('page_servebolt-cache-purge-control')) {
                 return __('Cache Purging', 'servebolt-wp') . ' ' . $admin_title;
             }
             return $admin_title;
@@ -218,7 +218,7 @@ class CachePurgeControl
 
     public function enqueueScripts(): void
     {
-        if (!isScreen('admin_page_servebolt-cache-purge-control')) {
+        if (!isScreen('page_servebolt-cache-purge-control')) {
             return;
         }
         wp_enqueue_script(

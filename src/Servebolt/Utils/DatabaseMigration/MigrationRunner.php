@@ -6,13 +6,13 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\iterateSites;
-use function Servebolt\Optimizer\Helpers\deleteOption;
+use function Servebolt\Optimizer\Helpers\runForSite;
+use function Servebolt\Optimizer\Helpers\tableExists;
+use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\deleteSiteOption;
 use function Servebolt\Optimizer\Helpers\getOption;
-use function Servebolt\Optimizer\Helpers\getSiteOption;
-use function Servebolt\Optimizer\Helpers\tableExists;
+use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
-use function Servebolt\Optimizer\Helpers\updateSiteOption;
 
 /**
  * Class Migration
@@ -42,14 +42,19 @@ class MigrationRunner
     private $ignoreLowerConstraint = false;
 
     /**
+     * @var bool Whether the migration runs for a new site.
+     */
+    private $newSite = false;
+
+    /**
      * @var bool Whether to respect upper version constraint when selecting migrations.
      */
     private $ignoreUpperConstraint = false;
 
     /**
-     * @var bool Whether to run pre/post methods on migration.
+     * @var bool Whether to run pre and post methods on migration.
      */
-    private $runPrePostMethods = true;
+    private $runPreAndPostMethods = true;
 
     /**
      * @var string The options key used to store migration version.
@@ -57,13 +62,190 @@ class MigrationRunner
     private $migrationVersionOptionsKey = 'migration_version';
 
     /**
-     * @var null|int The Id of the site we want to interact with.
+     * @var null|int The Id of the blog we want to interact with.
      */
-    private $siteId;
+    private $blogId;
+
+    public function __construct()
+    {
+        $this->setCurrentPluginVersion();
+    }
 
     /**
-     * @return string
+     * Run migration if there are any un-run migrations that fit with the constraint of the current version of the plugin.
      */
+    public static function run(): void
+    {
+        (new self)->runAvailableMigrations();
+    }
+
+    /**
+     * Will roll all migration back to zero, then forward again to the latest migration.
+     */
+    public static function refresh(): void
+    {
+        (new self)->rollbackToZero();
+        (new self)->migrateFromZero();
+    }
+
+    /**
+     * Will roll migrations from zero & forward to the constraint of the current version of the plugin, potentially re-running migrations.
+     */
+    public static function remigrate(): void
+    {
+        (new self)->migrateFromZero();
+    }
+
+    /**
+     * Will roll all migration back to zero, effectively deleting the migration-related traces of the plugin in the database.
+     */
+    public static function cleanup(): void
+    {
+        (new self)->rollbackToZero();
+    }
+
+    private function setCurrentPluginVersion(): void
+    {
+        $this->currentPluginVersion = getCurrentPluginVersion(false);
+    }
+
+    private function setCurrentMigratedVersion(): void
+    {
+        $this->currentMigratedVersion = $this->getMigratedVersion();
+    }
+
+    private function resolveAndRunMigrations(): void
+    {
+        if ($migrationClasses = $this->resolveMigrations()) {
+            foreach ($migrationClasses as $migrationClass) {
+                $this->runMigration($migrationClass);
+            }
+        }
+    }
+
+    /**
+     * Run migration by class.
+     *
+     * @param $migrationClass
+     */
+    private function runMigration($migrationClass): void
+    {
+        $instance = new $migrationClass;
+        $migrationMethod = $this->migrationDirection;
+        if ($this->alreadyCompleted($instance, $migrationMethod)) {
+            return; // Skip it, this migration is already completed
+        }
+        if (method_exists($instance, $migrationMethod)) {
+            $this->runPreOrPostMigration('pre', $instance, $migrationMethod);
+            $instance->{$migrationMethod}(); // Run the actual migration
+            $this->runPreOrPostMigration('post', $instance, $migrationMethod);
+        }
+    }
+
+    public function runAvailableMigrations(): void
+    {
+        $this->executeMigrationStepsWithMultisiteSupport(function() {
+            $this->checkCurrentMigrationStateAndRunAvailableMigrations();
+        });
+    }
+
+    public function checkCurrentMigrationStateAndRunAvailableMigrations(): void
+    {
+        $this->setCurrentMigratedVersion();
+        if ($this->currentMigratedVersion !== $this->currentPluginVersion) {
+            $this->migrationDirection = $this->getMigrationDirection();
+            $this->resolveAndRunMigrations();
+            $this->setNewMigratedVersion();
+        }
+    }
+
+    /**
+     * Rollback from current migration to zero, effectively deleting all traces of the plugin in the database.
+     *
+     * @return void
+     */
+    public function rollbackToZero(): void
+    {
+        $this->runPreAndPostMethods = false;
+        $this->ignoreLowerConstraint = true;
+        $this->migrationDirection = 'down';
+        $this->executeMigrationStepsWithMultisiteSupport(function() {
+            $this->resolveAndRunMigrations();
+            $this->clearMigratedVersion();
+        });
+    }
+
+    /**
+     * Running all migrations from zero to the latest migration.
+     *
+     * @return void
+     */
+    public function migrateFromZero()
+    {
+        $this->runPreAndPostMethods = false;
+        $this->ignoreUpperConstraint = true;
+        $this->migrationDirection = 'up';
+        $this->executeMigrationStepsWithMultisiteSupport(function() {
+            $this->resolveAndRunMigrations();
+            $this->setNewMigratedVersion();
+        });
+    }
+
+    /**
+     * Run migration but with multisite-support.
+     *
+     * @param $function
+     * @return void
+     */
+    public function executeMigrationStepsWithMultisiteSupport($function)
+    {
+        if (is_multisite()) {
+            if ($this->blogId) {
+                runForSite(function ($site) use ($function) {
+                    $this->ensureBlogInheritsMigratedVersionFromSite();
+                    $function(); // Single site in multisite-network
+                });
+            } else {
+                iterateSites(function ($site) use ($function) {
+                    $this->ensureBlogInheritsMigratedVersionFromSite();
+                    $function(); // All sites in multisite-network
+                }, true);
+            }
+            $this->cleanUpLegacySiteOption();
+        } else {
+            $function(); // Single site
+        }
+    }
+
+    /**
+     * Delete legacy site option containing the current migrated version (this value was moved to the blog options table).
+     *
+     * @return void
+     */
+    private function cleanUpLegacySiteOption()
+    {
+        deleteSiteOption($this->migrationVersionOptionsKey());
+    }
+
+    /**
+     * Ensure that blog has own value of migrated version inherited from site-options.
+     * Previously we stored the migration version in the site-settings for multisites, but the migration version should be defined on blog level.
+     *
+     * @return void
+     */
+    private function ensureBlogInheritsMigratedVersionFromSite(): void
+    {
+        if ($this->newSite) {
+            return; // A new site will not have a current migrated version number
+        }
+        if (!$this->currentMigratedVersion) {
+            $siteOption = getSiteOption($this->migrationVersionOptionsKey());
+            if ($siteOption) {
+                $this->currentMigratedVersion = $siteOption;
+            }
+        }
+    }
+
     private function migrationVersionOptionsKey(): string
     {
         return apply_filters('sb_optimizer_migration_version_options_key', $this->migrationVersionOptionsKey);
@@ -72,118 +254,28 @@ class MigrationRunner
     /**
      * If a site is created we need to run all our migrations for that site.
      *
-     * @param $siteId
+     * @param $blogId
      * @return void
      */
-    public static function handleNewSite($siteId): void
+    public static function handleNewSite($blogId): void
     {
         $instance = new self;
-        $instance->siteId = $siteId;
-        $instance->migrateFromZero(false);
-        $instance->siteId = null;
+        $instance->blogId = $blogId;
+        $instance->newSite = true;
+        $instance->migrateFromZero();
     }
 
     /**
      * If a site is deleted we need to roll back all our migrations for that site.
      *
-     * @param $siteId
+     * @param $blogId
      * @return void
      */
-    public static function handleDeletedSite($siteId): void
+    public static function handleDeletedSite($blogId): void
     {
         $instance = new self;
-        $instance->siteId = $siteId;
-        $instance->rollbackToZero(false);
-        $instance->siteId = null;
-    }
-
-    /**
-     * Run migration.
-     */
-    public static function run(): void
-    {
-        (new self)->maybeRunMigrations();
-    }
-
-    /**
-     * Will roll all migration back to zero, then forward again to the constraint of the current version of the plugin.
-     */
-    public static function migrateFresh(): void
-    {
-        (new self)->rollbackToZero();
-        (new self)->migrateFromZero();
-    }
-
-    /**
-     * Will roll migrations forward to the constraint of the current version of the plugin.
-     */
-    public static function migrate(): void
-    {
-        (new self)->migrateFromZero();
-    }
-
-    /**
-     * Will roll all migration back to zero, effectively deleting all traces of the plugin in the database.
-     */
-    public static function cleanup(): void
-    {
-        (new self)->rollbackToZero();
-    }
-
-    /**
-     * Running all migrations from zero to the latest migration.
-     *
-     * @param bool $setMigratedVersionAfter Whether we should clear the migration version value after rolling back from zero.
-     * @return void
-     */
-    public function migrateFromZero($setMigratedVersionAfter = true)
-    {
-        $this->runPrePostMethods = false;
-        $this->ignoreUpperConstraint = true;
-        $this->migrationDirection = 'up';
-        if ($migrations = $this->resolveMigrations()) {
-            foreach ($migrations as $migration) {
-                $this->runMigration($migration);
-            }
-        }
-        if ($setMigratedVersionAfter) {
-            $this->updateMigratedVersion();
-        }
-    }
-
-    /**
-     * Rollback from current migration to zero, effectively deleting all traces of the plugin in the database.
-     *
-     * @param bool $clearMigratedVersionAfter Whether we should clear the migration version value after rolling back to zero.
-     * @return void
-     */
-    public function rollbackToZero($clearMigratedVersionAfter = true)
-    {
-        $this->runPrePostMethods = false;
-        $this->ignoreLowerConstraint = true;
-        $this->migrationDirection = 'down';
-        if ($migrations = $this->resolveMigrations()) {
-            foreach ($migrations as $migration) {
-                $this->runMigration($migration);
-            }
-        }
-        if ($clearMigratedVersionAfter) {
-            $this->clearMigratedVersion();
-        }
-    }
-
-    private function setCurrentVersions(): void
-    {
-        $this->currentMigratedVersion = $this->getCurrentMigratedVersion();
-        $this->currentPluginVersion = getCurrentPluginVersion();
-    }
-
-    public function maybeRunMigrations(): void
-    {
-        $this->setCurrentVersions();
-        if ($this->currentMigratedVersion !== $this->currentPluginVersion) {
-            $this->doMigration();
-        }
+        $instance->blogId = $blogId;
+        $instance->rollbackToZero();
     }
 
     /**
@@ -198,6 +290,9 @@ class MigrationRunner
         if ($migrations = $this->resolveMigrations()) {
             foreach ($migrations as $migration) {
                 $tableName = (new $migration)->getTableNameWithPrefix();
+                if (!$tableName) {
+                    return true; // This migration does not have a specific table
+                }
                 if (!tableExists($tableName)) {
                     return false;
                 }
@@ -205,19 +300,6 @@ class MigrationRunner
 
         }
         return true;
-    }
-
-
-
-    private function doMigration(): void
-    {
-        $this->migrationDirection = $this->getMigrationDirection();
-        if ($migrations = $this->resolveMigrations()) {
-            foreach ($migrations as $migration) {
-                $this->runMigration($migration);
-            }
-        }
-        $this->updateMigratedVersion();
     }
 
     private function getAllMigrationFiles(): array
@@ -256,30 +338,6 @@ class MigrationRunner
     }
 
     /**
-     * Run specified migration.
-     *
-     * @param string $migrationClass
-     */
-    private function runMigration(string $migrationClass): void
-    {
-        $multisiteSupport = is_multisite() && (!property_exists($migrationClass, 'multisiteSupport') || $migrationClass::$multisiteSupport === true);
-        if ($multisiteSupport) {
-            if ($this->siteId) {
-                switch_to_blog($this->siteId);
-                $this->runMigrationSteps($migrationClass);
-            } else {
-                iterateSites(function ($site) use ($migrationClass) {
-                    switch_to_blog($site->blog_id);
-                    $this->runMigrationSteps($migrationClass);
-                });
-            }
-            restore_current_blog();
-        } else {
-            $this->runMigrationSteps($migrationClass);
-        }
-    }
-
-    /**
      * Check if migration is already executed.
      *
      * @param $instance
@@ -303,49 +361,60 @@ class MigrationRunner
         );
     }
 
+    private function runPreOrPostMigration($preOrPost, $instance, $migrationMethod)
+    {
+        if ($this->runPreAndPostMethods) {
+            // General pre/post migration
+            $method = $preOrPost . 'Migration';
+            if (method_exists($instance, $method)) {
+                $instance->{$method}();
+            }
+
+            // Direction-specific pre/post migration
+            $method = $preOrPost . ucfirst($migrationMethod) . 'Migration';
+            if (method_exists($instance, $method)) {
+                $instance->{$method}();
+            }
+        }
+    }
+
     /**
-     * Run migration steps.
+     * Check if a migration is eligible for down-migration in current migration.
      *
-     * @param $migrationClass
+     * @param $migrationVersion string The version that the migration should be applied to.
+     * @param $fromVersion string The version we are migrating from.
+     * @param $toVersion string The version we want to migrate to.
+     * @return bool
      */
-    private function runMigrationSteps($migrationClass): void
+    public static function eligibleForDownMigration($migrationVersion, $fromVersion, $toVersion): bool
     {
-        $instance = new $migrationClass;
-        $migrationMethod = $this->migrationDirection;
-        if ($this->alreadyCompleted($instance, $migrationMethod)) {
-            return; // Skip it, this migration is already completed
+        if (
+            version_compare($migrationVersion, $fromVersion, '<')
+            && version_compare($migrationVersion, $toVersion, '>=')
+        ) {
+            return true;
         }
-        if (method_exists($instance, $migrationMethod)) {
-            $this->runPreMigration($instance, $migrationMethod);
-            $instance->{$migrationMethod}(); // Run the actual migration
-            $this->runPostMigration($instance, $migrationMethod);
-        }
+        return false;
     }
 
-    private function runPreMigration($instance, $migrationMethod)
+    /**
+     * Check if a migration is eligible for up-migration in current migration.
+     *
+     * @param $migrationVersion string The version that the migration should be applied to.
+     * @param $fromVersion string The version we are migrating from.
+     * @param $toVersion string The version we want to migrate to.
+     * @return bool
+     */
+    public static function eligibleForUpMigration($migrationVersion, $fromVersion, $toVersion): bool
     {
-        if ($this->runPrePostMethods) {
-            if (method_exists($instance, 'preMigration')) {
-                $instance->preMigration();
-            }
-            $preMethod = 'pre' . ucfirst($migrationMethod) . 'Migration';
-            if (method_exists($instance, $preMethod)) {
-                $instance->{$preMethod}();
-            }
+        if (
+            version_compare($migrationVersion, $toVersion, '<=')
+            && version_compare($migrationVersion, $fromVersion, '>')
+        )
+        {
+            return true;
         }
-    }
-
-    private function runPostMigration($instance, $migrationMethod)
-    {
-        if ($this->runPrePostMethods) {
-            if (method_exists($instance, 'postMigration')) {
-                $instance->postMigration();
-            }
-            $postMethod = 'post' . ucfirst($migrationMethod) . 'Migration';
-            if (method_exists($instance, $postMethod)) {
-                $instance->{$postMethod}();
-            }
-        }
+        return false;
     }
 
     /**
@@ -366,27 +435,23 @@ class MigrationRunner
             $this->migrationDirection == 'down'
             && (
                 $this->ignoreLowerConstraint
-                || (
-                    $migrationVersion > $this->currentPluginVersion
-                    && $migrationVersion <= $this->currentMigratedVersion
-                )
+                || self::eligibleForDownMigration($migrationVersion, $this->currentMigratedVersion, $this->currentPluginVersion)
             )
         ) {
             return true; // We should migrate down using this migration
-        } elseif (
+        }
+
+        if (
             $this->migrationDirection == 'up'
             && (
                 $this->ignoreUpperConstraint
-                || (
-                    $migrationVersion <= $this->currentPluginVersion
-                    && $migrationVersion > $this->currentMigratedVersion
-                )
+                || self::eligibleForUpMigration($migrationVersion, $this->currentMigratedVersion, $this->currentPluginVersion)
             )
         ) {
             return true; // We should migrate up using this migration
-        } else {
-            return false; // We should not run this migration
         }
+
+        return false; // We should not run this migration
     }
 
     private function getMigrationDirection(): string
@@ -394,35 +459,20 @@ class MigrationRunner
         return version_compare($this->currentMigratedVersion, $this->currentPluginVersion, '<') ? 'up' : 'down';
     }
 
-    public function updateMigratedVersion($version = null): void
+    public function getMigratedVersion(): ?string
     {
-        if (!$version) {
-            $version = getCurrentPluginVersion();
-        }
-        $this->currentMigratedVersion =  $version;
-        if (is_multisite()) {
-            updateSiteOption($this->migrationVersionOptionsKey(), $version);
-        } else {
-            updateOption($this->migrationVersionOptionsKey(), $version);
-        }
+        return getOption($this->migrationVersionOptionsKey());
+    }
+
+    public function setNewMigratedVersion(): void
+    {
+        $this->currentMigratedVersion = getCurrentPluginVersion(false);
+        updateOption($this->migrationVersionOptionsKey(), $this->currentMigratedVersion);
     }
 
     public function clearMigratedVersion(): void
     {
-        $this->currentMigratedVersion =  null;
-        if (is_multisite()) {
-            deleteSiteOption($this->migrationVersionOptionsKey());
-        } else {
-            deleteOption($this->migrationVersionOptionsKey());
-        }
-    }
-
-    public function getCurrentMigratedVersion(): ?string
-    {
-        if (is_multisite()) {
-            return getSiteOption($this->migrationVersionOptionsKey());
-        } else {
-            return getOption($this->migrationVersionOptionsKey());
-        }
+        $this->currentMigratedVersion = null;
+        deleteOption($this->migrationVersionOptionsKey());
     }
 }

@@ -209,12 +209,12 @@ jQuery(document).ready(function($) {
     window.sb_loading(true);
     var data = {
       action: 'servebolt_html_cache_exclude_post',
-      security: sb_ajax_object.ajax_nonce,
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
       post_ids: value,
     };
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function(response) {
         window.sb_loading(false);
@@ -256,13 +256,13 @@ jQuery(document).ready(function($) {
       var spinner = $('#sb-html-cache-form .flush-html-cache-exclude-list-loading-spinner'),
         data = {
           action: 'servebolt_update_html_cache_exclude_posts_list',
-          security: sb_ajax_object.ajax_nonce,
+          security: servebolt_optimizer_ajax_object.ajax_nonce,
           items: items,
         };
       spinner.addClass('is-active');
       $.ajax({
         type: 'POST',
-        url: sb_ajax_object.ajaxurl,
+        url: servebolt_optimizer_ajax_object.ajaxurl,
         data: data,
         success: function (response) {
           spinner.removeClass('is-active');

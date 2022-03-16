@@ -64,7 +64,7 @@ class MenuOptimizerControl
      */
     public function enqueueScripts(): void
     {
-        if (!isScreen('admin_page_servebolt-menu-optimizer')) {
+        if (!isScreen('page_servebolt-menu-optimizer')) {
             return;
         }
         wp_enqueue_script('servebolt-optimizer-menu-optimizer-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/menu-optimizer.js', ['servebolt-optimizer-scripts'], getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/menu-optimizer.js'), true);

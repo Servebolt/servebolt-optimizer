@@ -11,10 +11,10 @@ document.addEventListener('DOMContentLoaded', function() {
  * Check if the current site has access to the Accelerated Domains Image Resize-feature.
  */
 window.acdImageResizeAccessCheck = function () {
-   if (sb_ajax_object.is_dev) {
+   /*if (servebolt_optimizer_ajax_object.is_dev) {
       window.acdImageResizeActivate();
       return;
-   }
+   }*/
    window.envConfig.get('sb_acd_image_resize').then(function(result) {
       if (result) {
          window.acdImageResizeActivate();
@@ -38,8 +38,8 @@ window.ensureAcdImageResizeDisabled = function () {
 window.disableAcdImageResizeAjax = function () {
    const data = new FormData();
    data.append('action', 'servebolt_acd_image_resize_disable');
-   data.append('security', sb_ajax_object.ajax_nonce);
-   fetch(sb_ajax_object.ajaxurl, {
+   data.append('security', servebolt_optimizer_ajax_object.ajax_nonce);
+   fetch(servebolt_optimizer_ajax_object.ajaxurl, {
       method: 'POST',
       body: data
    });
@@ -54,6 +54,9 @@ window.acdImageResizeDeactivate = function () {
    element.checked = false;
    element.title = element.getAttribute('disabled-title');
    element.dispatchEvent(new Event('change'));
+
+   var element = document.getElementById('acd-image-resize-disabled-indicator');
+   element.classList.remove('hidden');
 };
 
 /**
@@ -63,6 +66,9 @@ window.acdImageResizeActivate = function () {
    var element = document.getElementById('acd_image_resize_switch');
    element.disabled = false;
    element.removeAttribute('title');
+
+   var element = document.getElementById('acd-image-resize-disabled-indicator');
+   element.classList.add('hidden');
 };
 
 /**
@@ -98,8 +104,8 @@ window.acdPurgeAllConfirmed = function () {
    window.sb_loading(true);
    const data = new FormData();
    data.append('action', 'servebolt_acd_purge_all_cache');
-   data.append('security', sb_ajax_object.ajax_nonce);
-   fetch(sb_ajax_object.ajaxurl,
+   data.append('security', servebolt_optimizer_ajax_object.ajax_nonce);
+   fetch(servebolt_optimizer_ajax_object.ajaxurl,
        {
           method: 'POST',
           body: data

@@ -36,8 +36,8 @@ function maybeDisplaySuccessMessageForManualManifestFileGeneration()
 window.manuallyGenerateManifestFilesConfirmed = function(url) {
     var data = new FormData();
     data.append('action', 'servebolt_prefetching_prepare_for_manual_generation');
-    data.append('security', sb_ajax_object.ajax_nonce);
-    fetch(sb_ajax_object.ajaxurl, {
+    data.append('security', servebolt_optimizer_ajax_object.ajax_nonce);
+    fetch(servebolt_optimizer_ajax_object.ajaxurl, {
         method: 'POST',
         body: data
     })
@@ -149,8 +149,8 @@ window.generateManifestFilesConfirmed = function () {
     window.prefetchingSpinner(true);
     const data = new FormData();
     data.append('action', 'servebolt_prefetching_generate_files_instructions');
-    data.append('security', sb_ajax_object.ajax_nonce);
-    fetch(sb_ajax_object.ajaxurl,
+    data.append('security', servebolt_optimizer_ajax_object.ajax_nonce);
+    fetch(servebolt_optimizer_ajax_object.ajaxurl,
         {
             method: 'POST',
             body: data
@@ -217,8 +217,8 @@ window.generateManifestFilesUsingCronConfirmed = function () {
     window.prefetchingSpinner(true);
     const data = new FormData();
     data.append('action', 'servebolt_prefetching_generate_files_using_cron');
-    data.append('security', sb_ajax_object.ajax_nonce);
-    fetch(sb_ajax_object.ajaxurl,
+    data.append('security', servebolt_optimizer_ajax_object.ajax_nonce);
+    fetch(servebolt_optimizer_ajax_object.ajaxurl,
         {
             method: 'POST',
             body: data

@@ -5,7 +5,6 @@ namespace Servebolt\Optimizer\Utils;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
-use function Servebolt\Optimizer\Helpers\isAcd;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\isValidJson;
 
@@ -35,7 +34,7 @@ class EnvironmentConfig
     /**
      * @var bool Whether to cache the environment config.
      */
-    private $cacheActive = true;
+    private $cacheActive = false;
 
     /**
      * @var float|int The Cache TTL.
@@ -108,7 +107,7 @@ class EnvironmentConfig
      */
     public function retrieveConfig(): bool
     {
-        if (!isAcd() || !isHostedAtServebolt()) {
+        if (!isHostedAtServebolt()) {
             return false;
         }
         if (is_null($this->configObject)) {

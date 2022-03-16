@@ -19,11 +19,6 @@ class MigrationTemplate extends AbstractMigration
 {
 
     /**
-     * @var bool Whether the migration should be executed for each blog in a multisite (optional, defaults to true if omitted).
-     */
-    public static $multisiteSupport = true;
-
-    /**
      * @var bool Whether the migration is active (optional, defaults to true if omitted).
      */
     public static $active = true;

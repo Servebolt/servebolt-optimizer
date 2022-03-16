@@ -59,7 +59,7 @@ class DatabaseOptimizations
      */
     public function enqueueScripts(): void
     {
-        if (!isScreen('admin_page_servebolt-performance-optimizer-database')) {
+        if (!isScreen('page_servebolt-performance-optimizer-database')) {
             return;
         }
         wp_enqueue_script('servebolt-optimizer-performance-optimizer-scripts', SERVEBOLT_PLUGIN_DIR_URL . 'assets/dist/js/performance-optimizer.js', ['servebolt-optimizer-scripts'], getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/performance-optimizer.js'), true);

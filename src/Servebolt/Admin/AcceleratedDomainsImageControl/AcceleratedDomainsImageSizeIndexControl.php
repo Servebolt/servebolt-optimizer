@@ -39,7 +39,7 @@ class AcceleratedDomainsImageSizeIndexControl
 
     public function enqueueScripts(): void
     {
-        if (!isScreen('admin_page_servebolt-acd-image-resize')) {
+        if (!isScreen('page_servebolt-acd-image-resize')) {
             return;
         }
         wp_enqueue_script(
@@ -49,7 +49,7 @@ class AcceleratedDomainsImageSizeIndexControl
             getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/acd-image-size-index.js'),
             true
         );
-        wp_localize_script('servebolt-optimizer-acd-image-size-index', 'sb_ajax_object_acd_image_size', [
+        wp_localize_script('servebolt-optimizer-acd-image-size-index', 'servebolt_optimizer_ajax_object_acd_image_size', [
             'image_size_regex_pattern' => ImageSizeIndexModel::getValidationRegexPattern(false),
         ]);
     }

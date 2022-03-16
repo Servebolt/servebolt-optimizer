@@ -40,8 +40,8 @@ window.menuOptimizerPurgeAllConfirmed = function () {
     window.sb_loading(true);
     const data = new FormData();
     data.append('action', 'servebolt_menu_optimizer_purge_all');
-    data.append('security', sb_ajax_object.ajax_nonce);
-    fetch(sb_ajax_object.ajaxurl, {
+    data.append('security', servebolt_optimizer_ajax_object.ajax_nonce);
+    fetch(servebolt_optimizer_ajax_object.ajaxurl, {
         method: 'POST',
         body: data
     })

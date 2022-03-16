@@ -16,7 +16,7 @@ class QueueQueryTest extends ServeboltWPUnitTestCase
     {
         parent::setUp();
         $this->allowPersistenceInDatabase();
-        MigrationRunner::migrateFresh();
+        MigrationRunner::refresh();
     }
 
     public function tearDown(): void

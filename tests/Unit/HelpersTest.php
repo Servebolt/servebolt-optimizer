@@ -28,6 +28,7 @@ use function Servebolt\Optimizer\Helpers\getAllSiteOptionNames;
 use function Servebolt\Optimizer\Helpers\getBlogOption;
 use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getFiltersForHook;
+use function Servebolt\Optimizer\Helpers\getMainSiteBlogId;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
@@ -389,13 +390,17 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testThatWeCanObtainPluginVersion()
     {
+        $versionNumber = getCurrentPluginVersion(true);
+        $this->assertRegExp('/^(\d\.){1,2}(\d)$/', $versionNumber);
+
         $versionNumber = getCurrentPluginVersion(false);
         $this->assertIsString($versionNumber);
-        if (strContains($versionNumber, '-rev')) {
-            $versionNumber = preg_replace('/-rev([0-9]{1,2})/', '', $versionNumber);
+        $pattern = '-(alpha|beta|rc)(|\.([0-9]{1,2}))';
+        if (preg_match('/' . $pattern . '$/', $versionNumber)) {
+            $this->assertRegExp('/^(\d\.){1,2}(\d)' . $pattern . '$/', $versionNumber);
+        } else {
+            $this->assertRegExp('/^(\d\.){1,2}(\d)$/', $versionNumber);
         }
-        $this->assertRegExp('/^(\d\.){1,2}(\d)$/', $versionNumber);
-        //$this->assertRegExp('/^([0-9]+)\.([0-9]+)\.([0-9]+)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+[0-9A-Za-z-]+)?$/', $versionNumber);
     }
 
     public function testCountSitesHelper()
@@ -511,6 +516,12 @@ class HelpersTest extends ServeboltWPUnitTestCase
         smartUpdateOption(null, $key, 'an-actual-value');
         $this->assertNotEquals('default-value', smartGetOption(null, $key, 'default-value'));
         $this->assertEquals('an-actual-value', smartGetOption(null, $key, 'default-value'));
+    }
+
+    public function testGetMainSiteBlogId()
+    {
+        $this->skipWithoutMultisite();
+        $this->assertEquals(1, getMainSiteBlogId());
     }
 
     public function testSiteOptionsHelpers()

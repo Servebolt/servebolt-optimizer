@@ -368,21 +368,35 @@ function getServeboltAdminUrl($argsOrPage = []) :? string
 }
 
 /**
- * Check if we are currently viewing a given screen.
+ * Check if we are currently viewing a given network-screen.
  *
- * @param string $screenId
- * @param bool $networkSupport
+ * @param $screenId
  * @return bool
  */
-function isScreen(string $screenId, bool $networkSupport = true): bool
+function isNetworkScreen($screenId): bool
 {
     $currentScreen = get_current_screen();
-    if ($screenId == $currentScreen->id) {
-        return true;
-    }
-    if ($networkSupport) {
-        $networkScreenId = $screenId . '-network';
-        if ($networkScreenId == $currentScreen->id) {
+    return $screenId . '-network' == $currentScreen->id;
+}
+
+/**
+ * Check if we are currently viewing a given screen.
+ *
+ * @param string $screenId The ID of the screen to check for.
+ * @param bool $networkSupport Whether to support network
+ * @param bool $strict
+ * @return bool
+ */
+function isScreen(string $screenId, bool $networkSupport = true, bool $strict = false): bool
+{
+    $prefixes = $strict ? [''] : ['admin_', 'servebolt_'];
+    foreach ($prefixes as $prefix) {
+        $screenIdWithPrefix = $prefix . trim($screenId, '_');
+        $currentScreen = get_current_screen();
+        if ($screenIdWithPrefix == $currentScreen->id) {
+            return true;
+        }
+        if ($networkSupport && isNetworkScreen($screenIdWithPrefix)) {
             return true;
         }
     }
@@ -957,6 +971,19 @@ function formatPostTypeSlug(string $postType): string
 }
 
 /**
+ * Get the blog ID of the main blog in Multisite network.
+ *
+ * @return int|null
+ */
+function getMainSiteBlogId()
+{
+    if (!is_multisite()) {
+        return null;
+    }
+    return get_network()->site_id;
+}
+
+/**
  * Check whether a feature is available.
  *
  * @param string $feature
@@ -1365,6 +1392,24 @@ function countSites(): int
 {
     $sites = getSites();
     return is_array($sites) ? count($sites) : 0;
+}
+
+/**
+ * Execute function closure for given in multisite-network.
+ *
+ * @param $function
+ * @param $blogId
+ * @return void
+ */
+function runForSite($function, $blogId)
+{
+    if (!is_multisite()) {
+        return false;
+    }
+    switch_to_blog($blogId);
+    $function();
+    restore_current_blog();
+    return true;
 }
 
 /**

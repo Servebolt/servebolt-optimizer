@@ -49,7 +49,7 @@ class CacheTtlControl
         });
         // Fix faulty page title
         add_filter('admin_title', function($admin_title, $title) {
-            if (isScreen('admin_page_servebolt-cache-ttl')) {
+            if (isScreen('page_servebolt-cache-ttl')) {
                 return __('Cache TTL', 'servebolt-wp') . ' ' . $admin_title;
             }
             return $admin_title;
@@ -93,7 +93,7 @@ class CacheTtlControl
 
     public function enqueueScripts(): void
     {
-        if (!isScreen('admin_page_servebolt-cache-ttl')) {
+        if (!isScreen('page_servebolt-cache-ttl')) {
             return;
         }
         wp_enqueue_script(
