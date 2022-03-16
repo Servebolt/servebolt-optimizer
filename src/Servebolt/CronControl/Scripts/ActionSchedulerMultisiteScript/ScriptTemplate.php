@@ -37,7 +37,8 @@ fi
 for SITE_URL in \$SITE_URLS
 do
     # Run Action Scheduler
-	flock -n "~/.wp_cron_as_\$SITE_URL.lock" wp action-scheduler run --url="\$SITE_URL" --path="\$WP_PATH" --quiet	
+    FLOCK_INDICATOR=$(echo -n \$SITE_URL | md5sum | awk '{print $1}')
+	flock -n ~/.wp_cron_as_\$FLOCK_INDICATOR.lock wp action-scheduler run --url="\$SITE_URL" --path="\$WP_PATH" --quiet	
 done
 
 EOF;

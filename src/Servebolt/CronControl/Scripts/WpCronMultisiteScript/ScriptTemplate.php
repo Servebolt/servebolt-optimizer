@@ -39,7 +39,8 @@ do
 	# Run all event hooks that are due
 	for EVENT_HOOK in $(wp cron event list --format=csv --fields=hook,next_run_relative --url="\$SITE_URL" --path="\$WP_PATH" | grep now$ | awk -F ',' '{print $1}')
 	do
-		flock -n "~/.wp_cron_\$SITE_URL.lock" wp cron event run "\$EVENT_HOOK" --url="\$SITE_URL" --path="\$WP_PATH" --quiet
+        FLOCK_INDICATOR=$(echo -n "\$SITE_URL-\$EVENT_HOOK" | md5sum | awk '{print $1}')
+        flock -n ~/.wp_cron_\$FLOCK_INDICATOR.lock wp cron event run "\$EVENT_HOOK" --url="\$SITE_URL" --path="\$WP_PATH" --quiet
 	done
 done
 
