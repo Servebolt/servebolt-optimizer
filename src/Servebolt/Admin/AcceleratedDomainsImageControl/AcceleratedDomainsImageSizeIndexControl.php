@@ -49,7 +49,7 @@ class AcceleratedDomainsImageSizeIndexControl
             getVersionForStaticAsset(SERVEBOLT_PLUGIN_DIR_PATH . 'assets/dist/js/acd-image-size-index.js'),
             true
         );
-        wp_localize_script('servebolt-optimizer-acd-image-size-index', 'sb_ajax_object_acd_image_size', [
+        wp_localize_script('servebolt-optimizer-acd-image-size-index', 'servebolt_optimizer_ajax_object_acd_image_size', [
             'image_size_regex_pattern' => ImageSizeIndexModel::getValidationRegexPattern(false),
         ]);
     }

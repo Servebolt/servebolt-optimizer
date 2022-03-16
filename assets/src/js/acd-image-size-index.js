@@ -267,7 +267,7 @@ window.acdCheckAllCheckboxAvailability = function() {
  */
 function imageSizeValid(str)
 {
-    var patt = new RegExp(sb_ajax_object_acd_image_size.image_size_regex_pattern);
+    var patt = new RegExp(servebolt_optimizer_ajax_object_acd_image_size.image_size_regex_pattern);
     if (!patt.test(str)) {
         return false;
     }
