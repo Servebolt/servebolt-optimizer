@@ -41,7 +41,11 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 #### 3.5.3
+* Fixed incompatibility issue with plugin Lightweight Sidebar Manager
+* Fixed issue with automatic cron setup (Servebolt-clients only) not working due to bug in the Servebolt API
 * Added migration to clean up legacy transients (orphaned transients without expiry)
+* Fixed bug in settings form for the Prefetch-feature 
+* Fixed bug in feature access check for the Accelerated Domains Image Resize-feature
 * Fixed bug in database migration runner
 
 #### 3.5.2
