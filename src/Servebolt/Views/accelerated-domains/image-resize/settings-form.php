@@ -20,6 +20,7 @@
                         <input name="<?php echo getOptionName('acd_image_resize_switch'); ?>" type="checkbox" disabled title="<?php echo $disabledTitle; ?>" disabled-title="<?php echo $disabledTitle; ?>" class="options-field-switch" id="acd_image_resize_switch" value="1" <?php checked($settings['acd_image_resize_switch']); ?>>
                         <?php _e('Enable', 'servebolt-wp'); ?>
                     </label><br>
+                    <span id="acd-image-resize-disabled-indicator" class="hidden"><?php echo $disabledTitle; ?></span>
                 </fieldset>
             </td>
         </tr>

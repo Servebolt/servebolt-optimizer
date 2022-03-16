@@ -21,7 +21,6 @@ class FeatureAccess
      */
     public static function hasAccess(bool $purgeCache = false): bool
     {
-        return false;
         $config = EnvironmentConfig::getInstance();
         return (bool) $config->get('sb_acd_image_resize', $purgeCache);
     }
