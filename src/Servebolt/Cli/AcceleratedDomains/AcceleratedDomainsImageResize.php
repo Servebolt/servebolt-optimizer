@@ -4,10 +4,13 @@ namespace Servebolt\Optimizer\Cli\AcceleratedDomains;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use WP_CLI;
-use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
+
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize as AcceleratedDomainsImageResizeClass;
 use Servebolt\Optimizer\Cli\CliHelpers;
+use Servebolt\Optimizer\AcceleratedDomains\ImageResize\FeatureAccess;
+use Exception;
+use WP_CLI;
+use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 
@@ -25,6 +28,92 @@ class AcceleratedDomainsImageResize
         WP_CLI::add_command('servebolt acd image-resize status', [$this, 'statusAcdImageResize']);
         WP_CLI::add_command('servebolt acd image-resize activate', [$this, 'activateAcdImageResize']);
         WP_CLI::add_command('servebolt acd image-resize deactivate', [$this, 'deactivateAcdImageResize']);
+    }
+
+    /**
+     * Display whether Accelerated Domains Image Resize-feature is active or not.
+     *
+     * ## OPTIONS
+     *
+     * [--all]
+     * : Get the status for all sites.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
+     * ## EXAMPLES
+     *
+     *     # Return whether the feature is active.
+     *     wp servebolt acd image-resize status
+     *
+     *     # Return whether the feature is active for all sites in multisite.
+     *     wp servebolt acd image-resize status --all
+     *
+     *     # Return whether the feature is active, in JSON-format
+     *     wp servebolt acd image-resize status --format=json
+     */
+    public function statusAcdImageResize($args, $assocArgs): void
+    {
+        CliHelpers::setReturnJson($assocArgs);
+
+        $extra = false;
+        if (!FeatureAccess::hasAccess()) {
+            $message = sprintf(__('Note: %s', 'servebolt-wp'), $this->featureAccessError());
+            $this->disableAll($assocArgs);
+            if (CliHelpers::returnJson()) {
+                $extra = [
+                    'message' => $message,
+                ];
+            } else {
+                WP_CLI::warning($message);
+            }
+        }
+
+        if (CliHelpers::affectAllSites($assocArgs)) {
+            $statusArray = $extra ? [$extra] : [];
+            iterateSites(function ($site) use (&$statusArray) {
+                $activeBoolean = AcceleratedDomainsImageResizeClass::isActive($site->blog_id);
+                if (CliHelpers::returnJson()) {
+                    $statusArray[] = [
+                        'blog_id' => $site->blog_id,
+                        'active' => $activeBoolean,
+                    ];
+                } else {
+                    $statusArray[] = [
+                        'Blog' => get_site_url($site->blog_id),
+                        'Active' => booleanToStateString($activeBoolean),
+                    ];
+                }
+            });
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson($statusArray);
+            } else {
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
+            }
+        } else {
+            $activeBoolean = AcceleratedDomainsImageResizeClass::isActive();
+            $activeState = booleanToStateString($activeBoolean);
+            $message = sprintf(__('Accelerated Domains Image Resize feature is %s.', 'servebolt-wp'), $activeState);
+            if (CliHelpers::returnJson()) {
+
+                $return = [
+                    'active' => $activeBoolean,
+                    'message' => $message,
+                ];
+                if ($extra) {
+                    $return = [$extra, $return];
+                }
+                CliHelpers::printJson($return);
+            } else {
+                WP_CLI::success($message);
+            }
+        }
     }
 
     /**
@@ -58,6 +147,19 @@ class AcceleratedDomainsImageResize
     public function activateAcdImageResize($args, $assocArgs): void
     {
         CliHelpers::setReturnJson($assocArgs);
+        if (!FeatureAccess::hasAccess()) {
+            $message = $this->featureAccessError();
+            $this->disableAll($assocArgs);
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson([
+                    'active' => false,
+                    'message' => $message,
+                ]);
+            } else {
+                WP_CLI::error($message);
+            }
+            return;
+        }
         if (CliHelpers::affectAllSites($assocArgs)) {
             $statusArray = [];
             iterateSites(function ($site) use (&$statusArray) {
@@ -96,73 +198,6 @@ class AcceleratedDomainsImageResize
             if (CliHelpers::returnJson()) {
                 CliHelpers::printJson([
                     'active' => true,
-                    'message' => $message,
-                ]);
-            } else {
-                WP_CLI::success($message);
-            }
-        }
-    }
-
-    /**
-     * Display whether Accelerated Domains Image Resize-feature is active or not.
-     *
-     * ## OPTIONS
-     *
-     * [--all]
-     * : Get the status for all sites.
-     *
-     * [--format=<format>]
-     * : Return format.
-     * ---
-     * default: text
-     * options:
-     *   - text
-     *   - json
-     * ---
-     *
-     * ## EXAMPLES
-     *
-     *     # Return whether the feature is active.
-     *     wp servebolt acd image-resize status
-     *
-     *     # Return whether the feature is active for all sites in multisite.
-     *     wp servebolt acd image-resize status --all
-     *
-     *     # Return whether the feature is active, in JSON-format
-     *     wp servebolt acd image-resize status --format=json
-     */
-    public function statusAcdImageResize($args, $assocArgs): void
-    {
-        CliHelpers::setReturnJson($assocArgs);
-        if (CliHelpers::affectAllSites($assocArgs)) {
-            $statusArray = [];
-            iterateSites(function ($site) use (&$statusArray) {
-                $activeBoolean = AcceleratedDomainsImageResizeClass::isActive($site->blog_id);
-                if (CliHelpers::returnJson()) {
-                    $statusArray[] = [
-                        'blog_id' => $site->blog_id,
-                        'active' => $activeBoolean,
-                    ];
-                } else {
-                    $statusArray[] = [
-                        'Blog' => get_site_url($site->blog_id),
-                        'Active' => booleanToStateString($activeBoolean),
-                    ];
-                }
-            });
-            if (CliHelpers::returnJson()) {
-                CliHelpers::printJson($statusArray);
-            } else {
-                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
-            }
-        } else {
-            $activeBoolean = AcceleratedDomainsImageResizeClass::isActive();
-            $activeState = booleanToStateString($activeBoolean);
-            $message = sprintf(__('Accelerated Domains Image Resize feature is %s.', 'servebolt-wp'), $activeState);
-            if (CliHelpers::returnJson()) {
-                CliHelpers::printJson([
-                    'active' => $activeBoolean,
                     'message' => $message,
                 ]);
             } else {
@@ -246,5 +281,32 @@ class AcceleratedDomainsImageResize
                 WP_CLI::success($message);
             }
         }
+    }
+
+    /**
+     * @return string|void
+     */
+    private function featureAccessError()
+    {
+        return __('Your bolt-subscription does not have access to the Accelerated Domains Image Resize-feature and the feature will therefore not operate. The feature can be enabled in the control panel.', 'servebolt-wp');
+    }
+
+    /**
+     * Disable feature for all sites without any feedback.
+     *
+     * @param $assocArgs
+     * @return void
+     */
+    private function disableAll($assocArgs)
+    {
+        try {
+            if (CliHelpers::affectAllSites($assocArgs)) {
+                iterateSites(function ($site) {
+                    AcceleratedDomainsImageResizeClass::toggleActive(false, $site->blog_id);
+                });
+            } else {
+                AcceleratedDomainsImageResizeClass::toggleActive(false);
+            }
+        } catch (Exception $e) {}
     }
 }
