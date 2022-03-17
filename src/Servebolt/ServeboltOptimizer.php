@@ -44,6 +44,7 @@ class ServeboltOptimizer
      */
     public static function boot()
     {
+        return;
         // Handle activation/deactivation
         new PluginActiveStateHandling;
 
