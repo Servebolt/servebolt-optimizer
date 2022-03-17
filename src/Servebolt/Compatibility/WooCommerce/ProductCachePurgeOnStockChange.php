@@ -151,6 +151,7 @@ class ProductCachePurgeOnStockChange
      */
     private function shouldPurgeCacheOnStockCommonCondition(): bool
     {
+
         if (!CachePurge::featureIsAvailable()) {
             return false; // Cache feature is not available or insufficiently configured
         }

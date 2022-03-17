@@ -247,13 +247,7 @@ class CachePurgeControl
         foreach ($items as $item) {
             switch ($item) {
                 case 'cache_purge_driver':
-                    if (!isHostedAtServebolt()) {
-                        $value = $this->getDefaultCachePurgeDriver(); // Only allow Cloudflare when not hosted at Servebolt
-                    } else {
-                        //$value = getOption($item);
-                        $value = CachePurge::getSelectedCachePurgeDriver();
-                    }
-                    $itemsWithValues['cache_purge_driver'] = $value ?: $this->getDefaultCachePurgeDriver();
+                    $itemsWithValues['cache_purge_driver'] = CachePurge::getSelectedCachePurgeDriver();
                     break;
                 case 'cf_auth_type':
                     $value = getOption($item);

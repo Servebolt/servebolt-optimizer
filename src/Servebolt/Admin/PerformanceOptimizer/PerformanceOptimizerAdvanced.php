@@ -10,6 +10,7 @@ use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionUpdates;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxSiteOptionUpdates;
 use function Servebolt\Optimizer\Helpers\overrideMenuTitle;
@@ -37,8 +38,10 @@ class PerformanceOptimizerAdvanced
     {
         $this->initSettings();
         $this->rewriteHighlightedMenuItem();
-        $this->listenForActionSchedulerUnixCronActivation();
-        $this->listenForWpUnixCronActivation();
+        if (isHostedAtServebolt()) {
+            $this->listenForActionSchedulerUnixCronActivation();
+            $this->listenForWpUnixCronActivation();
+        }
         new SiteOptionsHandling;
     }
 

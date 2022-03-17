@@ -12,6 +12,8 @@ use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use ServeboltWPUnitTestCase;
 use Unit\Traits\CachePurgeTestTrait;
 use Unit\Traits\HeaderTestTrait;
+use function Servebolt\Optimizer\Helpers\getOption;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 
 /**
  * Class FullPageCacheTest
@@ -83,6 +85,7 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
 
     public function testThatPostGetsCachePurgedWhenAddedToHtmlCacheExclusion()
     {
+        add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
         FullPageCache::destroyInstance();
         $this->useQueueBasedCachePurge();
         $this->setUpBogusAcdConfig();
@@ -96,5 +99,7 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
         $this->assertTrue($result['success']);
         $wpObjectQueue = WpObjectQueue::getInstance();
         $this->assertTrue($wpObjectQueue->hasPostInQueue($postId));
+        remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        FullPageCache::destroyInstance();
     }
 }
