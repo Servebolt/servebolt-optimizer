@@ -5,9 +5,7 @@ namespace Servebolt\Optimizer\CachePurge\WordPressCachePurge;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
-use Servebolt\Optimizer\CachePurge\Drivers\ServeboltCdn as ServeboltCdnDriver;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
-use function Servebolt\Optimizer\Helpers\getCachePurgeOriginEvent;
 use function Servebolt\Optimizer\Helpers\isQueueItem;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 

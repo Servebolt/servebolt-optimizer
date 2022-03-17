@@ -35,6 +35,20 @@ class CachePurge
     private $driver;
 
     /**
+     * Drivers that require the site to be hosted at Servebolt.
+     *
+     * @var string[]
+     */
+    private static $serveboltOnlyDrivers = ['acd', 'serveboltcdn'];
+
+    /**
+     * Valid drivers.
+     *
+     * @var string[]
+     */
+    private static $validDrivers = ['cloudflare', 'acd', 'serveboltcdn'];
+
+    /**
      * CachePurge constructor.
      * @param int|null $blogId
      */
@@ -291,18 +305,26 @@ class CachePurge
      * Get the selected cache purge driver.
      *
      * @param int|null $blogId
-     * @return mixed|void
+     * @param bool $strict
+     * @return string
      */
-    public static function getSelectedCachePurgeDriver(?int $blogId = null)
+    public static function getSelectedCachePurgeDriver(?int $blogId = null, bool $strict = true)
     {
-        return apply_filters(
+        $defaultDriver = self::defaultDriverName();
+        $driver = (string) apply_filters(
             'sb_optimizer_selected_cache_purge_driver',
             smartGetOption(
                 $blogId,
                 'cache_purge_driver',
-                self::defaultDriverName()
+                $defaultDriver
             )
         );
+        if (!in_array($driver, self::$validDrivers)) {
+            $driver = $defaultDriver;
+        } else if ($strict && !isHostedAtServebolt() && in_array($driver, self::$serveboltOnlyDrivers)) {
+            $driver = $defaultDriver;
+        }
+        return $driver;
     }
 
     /**
