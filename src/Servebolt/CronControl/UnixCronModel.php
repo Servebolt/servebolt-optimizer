@@ -148,9 +148,30 @@ class UnixCronModel
                 'command' => $commandInstance->generateCommand(),
                 'comment' => $commandInstance->generateComment(),
                 'schedule' => $commandInstance->getInterval(),
-                'notifications' => apply_filters('sb_optimizer_unix_cron_model_default_notification', 'none', $commandInstance),
+                'notifications' => self::defaultNotification($commandInstance),
             ]
         ];
+    }
+
+    /**
+     * Get the notification level for this cron.
+     *
+     * @param $commandInstance
+     * @return string
+     */
+    private static function defaultNotification($commandInstance): string
+    {
+        /**
+         * Determine the level of notifications for this.
+         *
+         * @param string $notifications A string controlling the notification levels for this cron.
+         * @param object $commandInstance An instance of the command being set up as a cron.
+         */
+        return (string) apply_filters(
+            'sb_optimizer_unix_cron_model_default_notification',
+            'all', // Should we use 'none' instead?
+            $commandInstance
+        );
     }
 
     /**
