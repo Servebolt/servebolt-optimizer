@@ -22,15 +22,18 @@
         </tr>
         <tbody id="options-fields"<?php if (!$settings['menu_cache_switch']) echo ' style="display: none;"'; ?>>
             <tr>
-                <th scope="row"><?php _e('Disable for logged in users?', 'servebolt-wp'); ?></th>
+                <th scope="row"><?php _e('Skip feature for authenticated users?', 'servebolt-wp'); ?></th>
                 <td>
                     <fieldset>
-                        <legend class="screen-reader-text"><span><?php _e('Disable for logged in users?', 'servebolt-wp'); ?></span></legend>
+                        <legend class="screen-reader-text"><span><?php _e('Disable for authenticated users?', 'servebolt-wp'); ?></span></legend>
                         <label for="menu_optimizer_disabled_for_authenticated_switch">
                             <input name="<?php echo getOptionName('menu_cache_disabled_for_authenticated_switch'); ?>" type="checkbox" id="menu_optimizer_disabled_for_authenticated_switch" value="1" <?php checked($settings['menu_cache_disabled_for_authenticated_switch']); ?>>
                             <?php _e('Enable', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
+                    <p>
+                        <?php _e('Check this box if you want the menu optimizer-feature only to be active for users that are not logged in.', 'servebolt-wp'); ?>
+                    </p>
                 </td>
             </tr>
             <tr>
@@ -84,7 +87,7 @@
                             <?php _e('Enable', 'servebolt-wp'); ?>
                         </label>
                     </fieldset>
-                    <p><?php _e('Since the current menu item are often highlighted the system need to cache the menu output for each page. If the site does not display the active state on menu items you can check this. This will also save some database resources.', 'servebolt-wp'); ?></p>
+                    <p><?php _e('Since the current menu item is often highlighted then the system need to cache the menu output for each page. If the site does not display the active state on menu items then you can check this. This will also save some database resources.', 'servebolt-wp'); ?></p>
                 </td>
             </tr>
         </tbody>
