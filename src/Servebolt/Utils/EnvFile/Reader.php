@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Exception;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 
 /**
  * Class Reader
@@ -66,6 +67,9 @@ class Reader
 
     public function __construct($folderPath = null, $desiredFileType = 'auto', $basename = null)
     {
+        if (!isHostedAtServebolt()) {
+            return;
+        }
         $this->setBasename($basename);
         $this->setDesiredFileType($desiredFileType);
         $this->resolveFolderPath($folderPath);

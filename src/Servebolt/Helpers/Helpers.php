@@ -294,9 +294,11 @@ function snakeCaseToCamelCase(string $string, bool $capitalizeFirst = false): st
  */
 function getSiteId()
 {
-    $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
-    if ($env->id) {
-        return $env->id;
+    if (isHostedAtServebolt()) {
+        $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
+        if ($env->id) {
+            return $env->id;
+        }
     }
     if ($id = getSiteIdFromWebrootPath()) {
         return $id;
