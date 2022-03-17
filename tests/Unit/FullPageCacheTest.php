@@ -12,8 +12,6 @@ use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use ServeboltWPUnitTestCase;
 use Unit\Traits\CachePurgeTestTrait;
 use Unit\Traits\HeaderTestTrait;
-use function Servebolt\Optimizer\Helpers\getOption;
-use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 
 /**
  * Class FullPageCacheTest
