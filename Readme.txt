@@ -51,7 +51,7 @@ This plugin rewrites HTTP headers of HTML to allow for HTML Caching, and for the
 
 ### Configuration
 
-This plugin can be controlled via the WordPress Dashboard or WP CLI. Additonalaly there are various filters and PHP constants at your disposal.
+This plugin can be controlled via the WordPress Dashboard or WP CLI. Additionally there are various filters and PHP constants at your disposal.
 
 ### Filter and constant reference
 
