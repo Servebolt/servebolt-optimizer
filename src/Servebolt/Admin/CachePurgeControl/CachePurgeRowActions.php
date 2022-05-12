@@ -86,11 +86,10 @@ class CachePurgeRowActions
      */
     public function rowActionCachePurge(): void
     {
+        add_filter('post_row_actions', [$this, 'addPostPurgeRowAction'], 10, 2);
+        add_filter('page_row_actions', [$this, 'addPostPurgeRowAction'], 10, 2);
         foreach($this->taxonomiesToAddCachePurgeRowActionsTo() as $taxonomy) {
             add_filter($taxonomy . '_row_actions', [$this, 'addTermPurgeRowAction'], 10, 2);
-        }
-        foreach($this->postTypesToAddCachePurgeRowActionsTo() as $postType) {
-            add_filter($postType . '_row_actions', [$this, 'addPostPurgeRowAction'], 10, 2);
         }
     }
 
@@ -132,14 +131,16 @@ class CachePurgeRowActions
             $this->cacheFeatureIsAvailable()
             && PurgeActions::canPurgePostCache($post->ID)
         ) {
-            $actions['purge-cache'] = sprintf(
-                '<a href="%1$s" data-post-id="%2$s" data-object-name="%3$s" class="%4$s">%5$s</a>',
-                '#',
-                $post->ID,
-                getPostTypeSingularName($post->ID),
-                'sb-purge-post-cache',
-                esc_html(__('Purge cache', 'servebolt-wp'))
-            );
+            if (in_array($post->post_type, $this->postTypesToAddCachePurgeRowActionsTo())) {
+                $actions['purge-cache'] = sprintf(
+                    '<a href="%1$s" data-post-id="%2$s" data-object-name="%3$s" class="%4$s">%5$s</a>',
+                    '#',
+                    $post->ID,
+                    getPostTypeSingularName($post->ID),
+                    'sb-purge-post-cache',
+                    esc_html(__('Purge cache', 'servebolt-wp'))
+                );
+            }
         }
         return $actions;
     }
