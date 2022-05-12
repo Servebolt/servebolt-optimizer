@@ -48,9 +48,9 @@ trait PostMethods
      * Do cache purge for a post without resolving the whole URL hierarchy.
      *
      * @param int $postId
-     * @return bool
+     * @return bool|null
      */
-    public static function purgePostCacheSimple(int $postId): bool
+    public static function purgePostCacheSimple(int $postId): ?bool
     {
         $shouldPurgeByQueue = self::shouldPurgeByQueue();
 
