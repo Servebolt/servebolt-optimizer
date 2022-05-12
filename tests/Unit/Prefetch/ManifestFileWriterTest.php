@@ -95,9 +95,11 @@ class ManifestFileWriterTest
         $this->assertContains('/wp-includes/css/admin-bar.min.css', file_get_contents(ManifestFileWriter::getFilePath('style')));
         $this->assertContains('/wp-content/plugins/servebolt-optimizer/assets/dist/css/public-style.css', file_get_contents(ManifestFileWriter::getFilePath('style')));
 
+        /*
         $this->assertFileExists(ManifestFileWriter::getFilePath('menu'));
         $this->assertContains('/sample-page/', file_get_contents(ManifestFileWriter::getFilePath('menu')));
         $this->assertContains('/hello-world/', file_get_contents(ManifestFileWriter::getFilePath('menu')));
+        */
     }
 
     public function testThatWeCanUseFullUrlsInManifestFiles(): void
@@ -129,7 +131,7 @@ class ManifestFileWriterTest
         $expectedData = [
             get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-style.txt',
             get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-script.txt',
-            get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-menu.txt',
+            //get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-menu.txt',
         ];
         foreach($expectedData as $file) {
             $this->assertContains($file, $data);
@@ -141,7 +143,7 @@ class ManifestFileWriterTest
         ManifestFileWriter::write();
         $this->assertFileExists(ManifestFileWriter::getFilePath('script'));
         $this->assertFileExists(ManifestFileWriter::getFilePath('style'));
-        $this->assertFileExists(ManifestFileWriter::getFilePath('menu'));
+        //$this->assertFileExists(ManifestFileWriter::getFilePath('menu'));
 
         $data = ManifestFilesModel::get();
         $expectedData = [
@@ -151,6 +153,7 @@ class ManifestFileWriterTest
         ];
         $this->assertEquals($expectedData, $data);
 
+        /*
         updateOption('prefetch_file_menu_switch', 0);
 
         ManifestFileWriter::write();
@@ -164,20 +167,21 @@ class ManifestFileWriterTest
             get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-script.txt',
         ];
         $this->assertEquals($expectedData, $data);
+        */
 
         updateOption('prefetch_file_script_switch', 0);
 
         ManifestFileWriter::write();
         $this->assertFileNotExists(ManifestFileWriter::getFilePath('script'));
         $this->assertFileExists(ManifestFileWriter::getFilePath('style'));
-        $this->assertFileNotExists(ManifestFileWriter::getFilePath('menu'));
+        //$this->assertFileNotExists(ManifestFileWriter::getFilePath('menu));
 
         $data = ManifestFilesModel::get();
         $this->assertEquals([
             get_site_url() . '/wp-content/uploads/acd/prefetch/manifest-style.txt',
         ], $data);
 
-        deleteOption('prefetch_file_menu_switch', 0);
+        //deleteOption('prefetch_file_menu_switch', 0);
         deleteOption('prefetch_file_script_switch', 0);
 
     }
@@ -205,7 +209,7 @@ class ManifestFileWriterTest
         $expected = [
             'Link: <http://example.org/wp-content/uploads/acd/prefetch/manifest-style.txt>; rel="prefetch"',
             'Link: <http://example.org/wp-content/uploads/acd/prefetch/manifest-script.txt>; rel="prefetch"',
-            'Link: <http://example.org/wp-content/uploads/acd/prefetch/manifest-menu.txt>; rel="prefetch"',
+            //'Link: <http://example.org/wp-content/uploads/acd/prefetch/manifest-menu.txt>; rel="prefetch"',
         ];
         $this->assertEquals($expected, ManifestHeaders::getHeaderItems());
     }

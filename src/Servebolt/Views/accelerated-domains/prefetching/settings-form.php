@@ -45,10 +45,12 @@
                             <input type="checkbox" name="<?php echo getOptionName('prefetch_file_script_switch'); ?>" value="1" <?php checked($settings['prefetch_file_script_switch']); ?>> <code><?php _e('Scripts', 'servebolt-wp'); ?></code>
                         </label><br>
 
+                        <?php /*
                         <legend class="screen-reader-text"><span><?php _e('Generate menu manifest-file?', 'servebolt-wp'); ?></span></legend>
                         <label>
                             <input type="checkbox" name="<?php echo getOptionName('prefetch_file_menu_switch'); ?>" value="1" <?php checked($settings['prefetch_file_menu_switch']); ?>> <code><?php _e('Menu', 'servebolt-wp'); ?></code>
                         </label>
+                        */ ?>
                     </fieldset>
                     <p><?php _e('Check the file types that you would like to generate.', 'servebolt-wp'); ?></p>
                 </td>
