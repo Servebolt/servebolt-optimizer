@@ -328,7 +328,7 @@ class WpPrefetching extends Prefetching
     {
         setDefaultOption('prefetch_file_style_switch', '__return_true');
         setDefaultOption('prefetch_file_script_switch', '__return_true');
-        setDefaultOption('prefetch_file_menu_switch', '__return_true');
+        //setDefaultOption('prefetch_file_menu_switch', '__return_true');
     }
 
     /**

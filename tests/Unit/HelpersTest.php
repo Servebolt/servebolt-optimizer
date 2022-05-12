@@ -604,7 +604,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
                     // Default options
                     case 'prefetch_file_style_switch':
                     case 'prefetch_file_script_switch':
-                    case 'prefetch_file_menu_switch':
+                    //case 'prefetch_file_menu_switch':
                     case 'custom_cache_ttl_switch':
                     case 'cache_purge_auto':
                     case 'cache_purge_auto_on_slug_change':
