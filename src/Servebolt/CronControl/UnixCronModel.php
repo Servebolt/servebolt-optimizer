@@ -201,9 +201,7 @@ class UnixCronModel
         $api = ServeboltApi::getInstance();
         try {
             $response = $api->cron->list();
-        } catch (\Throwable $e) {
-            echo '<pre>';
-            var_dump(get_class($e));die;
+        } catch (Throwable $e) {
             return null;
         }
         if (!$response->wasSuccessful() || !$response->hasResult()) {
