@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Admin\CachePurgeControl\Ajax;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Exception;
 use Throwable;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;
@@ -48,7 +49,7 @@ class Configuration extends SharedAjaxMethods
                 return;
             }
             throw new Exception;
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             wp_send_json_error();
         }
     }
@@ -103,7 +104,7 @@ class Configuration extends SharedAjaxMethods
             } else {
                 throw new Exception;
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             wp_send_json_error();
         }
     }
@@ -151,7 +152,7 @@ class Configuration extends SharedAjaxMethods
                             throw new Exception;
                         }
                         $shouldCheckZone = true;
-                    } catch (Exception $e) {
+                    } catch (Throwable $e) {
                         $errors['api_token'] = __('Invalid API token.', 'servebolt-wp');
                     }
                 }
@@ -175,7 +176,7 @@ class Configuration extends SharedAjaxMethods
                             throw new Exception;
                         }
                         $shouldCheckZone = true;
-                    } catch (Exception $e) {
+                    } catch (Throwable $e) {
                         $errors['api_key_credentials'] = __('Invalid API credentials.', 'servebolt-wp');
                     }
                 }
@@ -193,7 +194,7 @@ class Configuration extends SharedAjaxMethods
                     if (!$zoneId = $cfSdk->getZoneById($zoneId)) {
                         throw new Exception;
                     }
-                } catch (Exception $e) {
+                } catch (Throwable $e) {
                     $errors['zone_id'] = __('Seems like we are lacking access to zone (check permissions) or the zone does not exist.');
                 }
             }

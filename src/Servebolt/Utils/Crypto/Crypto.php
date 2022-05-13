@@ -96,7 +96,7 @@ class Crypto
                 case 'mcrypt':
                     return self::mcryptDecrypt($inputString);
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return false;
         }
         return false;
