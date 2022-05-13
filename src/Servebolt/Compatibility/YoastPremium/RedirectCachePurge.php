@@ -3,7 +3,7 @@
 namespace Servebolt\Optimizer\Compatibility\YoastPremium;
 
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
-use Exception;
+use Throwable;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
@@ -77,7 +77,7 @@ class RedirectCachePurge
                     false
                 );
             }
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
     }
 
     /**

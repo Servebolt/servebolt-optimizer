@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\Utils\EnvFile;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Exception;
+use Throwable;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 
@@ -131,7 +132,7 @@ class Reader
             $this->extractedData = $parsedData;
             $this->success = true;
             return true;
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return false;
         }
     }

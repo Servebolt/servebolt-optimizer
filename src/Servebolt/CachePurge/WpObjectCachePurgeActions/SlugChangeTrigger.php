@@ -4,9 +4,9 @@ namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Throwable;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
-use Exception;
 use Servebolt\Optimizer\Traits\EventToggler;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\arrayGet;
@@ -79,7 +79,7 @@ class SlugChangeTrigger
                         // TODO: Consider whether we should add pagination-support to this cache purge
                         setCachePurgeOriginEvent('term_permalink_changed');
                         WordPressCachePurge::purgeByUrl((string) $previousTermPermalink);
-                    } catch (Exception $e) {}
+                    } catch (Throwable $e) {}
                 }
             }
         }
@@ -121,7 +121,7 @@ class SlugChangeTrigger
             try {
                 setCachePurgeOriginEvent('post_permalink_changed');
                 WordPressCachePurge::purgeByUrl((string) $this->previousPostPermalink);
-            } catch (Exception $e) {}
+            } catch (Throwable $e) {}
         }
     }
 

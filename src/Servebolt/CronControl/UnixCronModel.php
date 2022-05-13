@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\CronControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
 use Servebolt\Optimizer\CronControl\Commands\WpCliEventRun;
 use Servebolt\Optimizer\CronControl\Commands\WpCliEventRunMultisite;
@@ -85,7 +85,7 @@ class UnixCronModel
             foreach ($cronJobs as $cronJob) {
                 try {
                     $api->cron->delete($cronJob->id);
-                } catch (Exception $e) {
+                } catch (Throwable $e) {
                     return false; // We could not delete current cron job
                 }
             }
@@ -114,7 +114,7 @@ class UnixCronModel
                 $environmentId
             );
             return $response->wasSuccessful();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return false; // We could not delete current cron job
         }
     }
@@ -201,7 +201,9 @@ class UnixCronModel
         $api = ServeboltApi::getInstance();
         try {
             $response = $api->cron->list();
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
+            echo '<pre>';
+            var_dump(get_class($e));die;
             return null;
         }
         if (!$response->wasSuccessful() || !$response->hasResult()) {

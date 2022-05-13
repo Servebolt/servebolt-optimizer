@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Compatibility\WooCommerce;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\ContentChangeTrigger;
@@ -78,7 +78,7 @@ class ProductCachePurgeOnStockChange
                     } else {
                         WordPressCachePurge::purgeByPostId($productId);
                     }
-                } catch (Exception $e) {}
+                } catch (Throwable $e) {}
             }
         }
     }

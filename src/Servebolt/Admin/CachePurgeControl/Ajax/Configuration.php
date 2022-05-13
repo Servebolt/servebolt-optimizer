@@ -4,11 +4,11 @@ namespace Servebolt\Optimizer\Admin\CachePurgeControl\Ajax;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Throwable;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use Servebolt\Optimizer\Sdk\Cloudflare\Cloudflare as CloudflareSdk;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
-use Exception;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 
 /**

@@ -9,7 +9,7 @@ use WP_CLI;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 #use Servebolt\Optimizer\Exceptions\ApiError;
-use Exception;
+use Throwable;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 
 /**
@@ -81,7 +81,7 @@ class PurgeActions
                     WP_CLI::error($errorMessage);
                 }
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             // TODO: Handle error better
             $errorMessage = sprintf(__('Could not purge cache for URL "%s".', 'servebolt-wp'), $url);
             if (CliHelpers::returnJson()) {
@@ -154,7 +154,7 @@ class PurgeActions
                     WP_CLI::error($errorMessage);
                 }
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             // TODO: Handle error better
             $errorMessage = sprintf(__('Could not purge cache for %s URLs.', 'servebolt-wp'), count($urls));
             if (CliHelpers::returnJson()) {
@@ -221,7 +221,7 @@ class PurgeActions
                     WP_CLI::error($errorMessage);
                 }
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             // TODO: Handle error better
             $errorMessage = sprintf(__('Could not purge cache for post "%s" (ID %s).', 'servebolt-wp'), get_the_title($postId), $postId);
             if (CliHelpers::returnJson()) {
@@ -293,7 +293,7 @@ class PurgeActions
                     WP_CLI::error($errorMessage);
                 }
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             // TODO: Handle error better
             $errorMessage = sprintf(__('Could not purge cache for term "%s" (ID %s).', 'servebolt-wp'), $termName, $termId);
             if (CliHelpers::returnJson()) {
@@ -380,7 +380,7 @@ class PurgeActions
                     }
                 }
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             // TODO: Handle error better
             $errorMessage = __('Could not purge cache.', 'servebolt-wp');
             if (CliHelpers::returnJson()) {
