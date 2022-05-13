@@ -71,12 +71,18 @@ class Reader
         if (!isHostedAtServebolt()) {
             return;
         }
-        $this->setBasename($basename);
-        $this->setDesiredFileType($desiredFileType);
-        $this->resolveFolderPath($folderPath);
-        if ($filePath = $this->resolveEnvironmentFilePath()) {
+        try {
+            $this->setBasename($basename);
+            $this->setDesiredFileType($desiredFileType);
+            $this->resolveFolderPath($folderPath);
+            if (!$filePath = $this->resolveEnvironmentFilePath()) {
+                throw new Exception('Could not resolve environment file path.');
+            }
             $this->readEnvironmentFile($filePath);
+        } catch (Throwable $e) {
+            do_action('sb_optimizer_env_file_reader_failure');
         }
+
     }
 
     public static function disable()
@@ -116,7 +122,7 @@ class Reader
         $fileContent = file_get_contents($filePath);
         $decoded = json_decode($fileContent, true);
         if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
-            return false;
+            throw new Exception('Could not read environment file (.json) content.');
         }
         $this->extractedData = $decoded;
         $this->success = true;
@@ -125,16 +131,12 @@ class Reader
 
     private function readIniFile($filePath) : bool
     {
-        try {
-            if (($parsedData = @parse_ini_file($filePath)) == false) {
-                throw new Exception('Invalid INI file');
-            }
-            $this->extractedData = $parsedData;
-            $this->success = true;
-            return true;
-        } catch (Throwable $e) {
-            return false;
+        if (($parsedData = @parse_ini_file($filePath)) == false) {
+            throw new Exception('Could not read environment file (.ini) content.');
         }
+        $this->extractedData = $parsedData;
+        $this->success = true;
+        return true;
     }
 
     private function readEnvironmentFile($filePath) : bool
@@ -178,13 +180,13 @@ class Reader
         return null;
     }
 
-    private function setDesiredFileType($desiredFileType) : bool
+    private function setDesiredFileType($desiredFileType): bool
     {
         if ($desiredFileType === 'auto' || in_array($desiredFileType, $this->fileExtensions)) {
             $this->desiredFileType = $desiredFileType;
             return true;
         }
-        return false;
+        throw new Exception;
     }
 
     /**
@@ -225,8 +227,9 @@ class Reader
     /**
      * Resolve the path to the folder where the environment files are stored.
      *
-     * @param null|string $folderPath
+     * @param string|null $folderPath
      * @return string
+     * @throws Exception
      */
     private function resolveFolderPath(?string $folderPath) : string
     {
@@ -242,6 +245,7 @@ class Reader
      * Get default folder path to the environment files.
      *
      * @return string
+     * @throws Exception
      */
     private function getDefaultFolderPath() : string
     {
@@ -251,6 +255,6 @@ class Reader
         if (defined('ABSPATH')) {
             return dirname(ABSPATH);
         }
-        return '';
+        throw new Exception('Could not determine default environment file folder path.');
     }
 }
