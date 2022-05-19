@@ -4,12 +4,11 @@ namespace Servebolt\Optimizer\Cli\AcceleratedDomains;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-
+use WP_CLI;
+use Throwable;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize as AcceleratedDomainsImageResizeClass;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\FeatureAccess;
-use Exception;
-use WP_CLI;
 use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\iterateSites;
@@ -307,6 +306,6 @@ class AcceleratedDomainsImageResize
             } else {
                 AcceleratedDomainsImageResizeClass::toggleActive(false);
             }
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
     }
 }

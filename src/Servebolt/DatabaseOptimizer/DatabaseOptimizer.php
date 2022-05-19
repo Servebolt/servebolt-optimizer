@@ -5,7 +5,7 @@ namespace Servebolt\Optimizer\DatabaseOptimizer;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use Servebolt\Optimizer\Traits\Singleton;
 use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
@@ -396,7 +396,7 @@ class DatabaseOptimizer
 			$removePostMetaIndex = $this->removePostMetaIndex();
 			$removeOptionsAutoloadIndex = $this->removeOptionsAutoloadIndex();
 			return $removePostMetaIndex && $removeOptionsAutoloadIndex;
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			return false;
 		}
 	}
@@ -789,7 +789,7 @@ class DatabaseOptimizer
 		try {
 			$this->safeQuery("ALTER TABLE " . $tableName . " ENGINE = MyISAM");
 			return $this->tableHasEngine($tableName, 'myisam');
-		} catch (Exception $e) {
+		} catch (Throwable $e) {
 			return false;
 		}
 	}

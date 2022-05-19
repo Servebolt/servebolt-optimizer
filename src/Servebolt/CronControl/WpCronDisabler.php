@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\CronControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\Utils\WPConfigTransformer;
 use function Servebolt\Optimizer\Helpers\getWpConfigPath;
 
@@ -61,7 +61,7 @@ class WpCronDisabler
                     return true;
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
         return false; // Default value
     }
 
@@ -69,7 +69,7 @@ class WpCronDisabler
      * Get instance of "WPConfigTransformer".
      *
      * @return object|null
-     * @throws Exception
+     * @throws \Exception
      */
     private static function getWPConfigTransformer(): ?object
     {
@@ -103,6 +103,6 @@ class WpCronDisabler
                     $ct->add('constant', self::$constantName, 'true');
                 }
             }
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
     }
 }

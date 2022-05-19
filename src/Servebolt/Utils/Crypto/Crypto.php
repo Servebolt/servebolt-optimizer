@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Utils\Crypto;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 use function Servebolt\Optimizer\Helpers\generateRandomPermanentKey;
 
 /**
@@ -63,7 +63,7 @@ class Crypto
                 case 'mcrypt':
                     return self::mcryptEncrypt($inputString);
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return false;
         }
         return false;
@@ -96,7 +96,7 @@ class Crypto
                 case 'mcrypt':
                     return self::mcryptDecrypt($inputString);
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return false;
         }
         return false;

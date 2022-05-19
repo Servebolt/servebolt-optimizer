@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\FullPageCache;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Traits\Singleton;
@@ -73,7 +73,7 @@ class FullPageCache
         add_action('sb_optimizer_post_added_to_html_cache_exclusion', function($postId) {
             try {
                 WordPressCachePurge::purgeByPostId((int) $postId);
-            } catch (Exception $e) {}
+            } catch (Throwable $e) {}
         }, 10, 1);
     }
 }

@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use function Servebolt\Optimizer\Helpers\isAjax;
@@ -79,7 +79,7 @@ class WpDatabaseMigrations
     {
         try {
             MigrationRunner::handleNewSite($site->blog_id);
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
     }
 
     /**
@@ -92,6 +92,6 @@ class WpDatabaseMigrations
     {
         try {
             MigrationRunner::handleDeletedSite($site->blog_id);
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
     }
 }

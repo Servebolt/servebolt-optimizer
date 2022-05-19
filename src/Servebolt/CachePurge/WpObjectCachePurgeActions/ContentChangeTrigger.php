@@ -4,9 +4,9 @@ namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Throwable;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
-use Exception;
 use Servebolt\Optimizer\Traits\EventToggler;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\arrayGet;
@@ -92,7 +92,7 @@ class ContentChangeTrigger
         try {
             setCachePurgeOriginEvent('term_change');
             WordPressCachePurge::purgeTermCache($termId, $taxonomy);
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
     }
 
     /**
@@ -222,7 +222,7 @@ class ContentChangeTrigger
         try {
             setCachePurgeOriginEvent('post_change');
             WordPressCachePurge::purgeByPostId($postId);
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
     }
 
     /**

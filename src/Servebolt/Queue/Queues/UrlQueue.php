@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Queue\Queues;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Utils\Queue\Queue;
@@ -122,7 +122,7 @@ class UrlQueue
                 if ($cachePurgeDriver->purgeAll()) {
                     $this->queue->completeItems($items); // We successfully purged all cache, flag all items as completed
                 }
-            } catch (Exception $e) {}
+            } catch (Throwable $e) {}
         } else {
             $urls = [];
             foreach ($items as $item) {
@@ -140,7 +140,7 @@ class UrlQueue
                 ) {
                     $this->queue->completeItems($items);
                 }
-            } catch (Exception $e) {}
+            } catch (Throwable $e) {}
         }
     }
 
