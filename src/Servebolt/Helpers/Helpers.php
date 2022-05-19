@@ -21,6 +21,30 @@ function resolveViewPath($templatePath): ?string
 }
 
 /**
+ * Add admin notice if we cannot read the environment file.
+ *
+ * @return void
+ */
+function envFileFailureHandling()
+{
+    add_action('sb_optimizer_env_file_reader_failure', function($e) {
+        add_action('admin_notices', function() use ($e) {
+            $adminUrl = getServeboltAdminUrl();
+            ?>
+            <div class="notice notice-error is-dismissable">
+                <p><?php echo __('Servebolt Optimizer could not read the environment file which is necessary for the plugin to function. This file originates from Servebolt and contains information about your site.', 'servebolt-wp'); ?></p>
+                <p><?php printf(__('To fix this then go to your %ssite settings%s, click "Settings" and make sure that the setting "Environment file in home folder" is <strong>not</strong> to "None".', 'servebolt-wp'), '<a href="' . $adminUrl . '" target="_blank">', '</a>'); ?></p>
+                <p><?php printf(__('%sGet in touch with our support via chat%s if you need assistance with resolving this issue.', 'servebolt-wp'), '<a href="https://admin.servebolt.com/" target="_blank">', '</a>'); ?></p>
+                <?php if ($e->getCode() !== 69): ?>
+                    <p>Error message: <?php echo $e->getMessage(); ?></p>
+                <?php endif; ?>
+            </div>
+            <?php
+        });
+    });
+}
+
+/**
  * Display a view, Laravel style.
  *
  * @param string $templatePath
@@ -292,16 +316,29 @@ function snakeCaseToCamelCase(string $string, bool $capitalizeFirst = false): st
  *
  * @return mixed|null
  */
-function getSiteId()
+function getSiteId(): ?string
 {
     if (isHostedAtServebolt()) {
-        $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
-        if ($env->id) {
-            return $env->id;
+        if ($id = getSiteIdFromEnvFile()) {
+            return $id;
         }
     }
-    if ($id = getSiteIdFromWebrootPath()) {
+    if ($id = getSiteIdFromWebrootPath(false)) {
         return $id;
+    }
+    return null;
+}
+
+/**
+ * Get site ID from Env-file.
+ *
+ * @return mixed|null
+ */
+function getSiteIdFromEnvFile(): ?string
+{
+    $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
+    if ($env->id) {
+        return $env->id;
     }
     return null;
 }
@@ -309,12 +346,14 @@ function getSiteId()
 /**
  * Get site ID from the webroot folder path.
  *
+ * @param bool $attemptFromEnvironmentFile
  * @return string|null
  */
-function getSiteIdFromWebrootPath():? string
+function getSiteIdFromWebrootPath(bool $attemptFromEnvironmentFile = true): ?string
 {
+    $path = $attemptFromEnvironmentFile ? getWebrootPath() : getWebrootPathFromWordPress();
     if (
-        preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", getWebrootPath(), $matches)
+        preg_match('/kunder\/[a-z_0-9]+\/[a-z_]+(\d+)(|\/)/', $path, $matches)
         && isset($matches[1])
     ) {
         return $matches[1];
@@ -330,17 +369,43 @@ function getSiteIdFromWebrootPath():? string
 function getWebrootPath(): ?string
 {
     if (isHostedAtServebolt()) {
-        $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
-        if ($env->public_dir) {
-            return apply_filters('sb_optimizer_wp_webroot_path', $env->public_dir);
+        if ($fromEnvFile = getWebrootPathFromEnvFile()) {
+            return $fromEnvFile;
         }
     }
+    if ($fromWordPress = getWebrootPathFromWordPress()) {
+        return $fromWordPress;
+    }
+    return null;
+}
+
+/**
+ * Get the path to the webroot using the environment file.
+ *
+ * @return string|null
+ */
+function getWebrootPathFromEnvFile(): ?string
+{
+    $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
+    if ($env->public_dir) {
+        return apply_filters('sb_optimizer_wp_webroot_path_from_env', apply_filters('sb_optimizer_wp_webroot_path', $env->public_dir));
+    }
+    return null;
+}
+
+/**
+ * Get the path to the webroot using WordPress.
+ *
+ * @return string
+ */
+function getWebrootPathFromWordPress(): ?string
+{
     if (!function_exists('get_home_path')) {
         require_once ABSPATH . 'wp-admin/includes/file.php';
     }
     if (function_exists('get_home_path')) {
         if ($path = get_home_path()) {
-            return apply_filters('sb_optimizer_wp_webroot_path', $path);
+            return apply_filters('sb_optimizer_wp_webroot_path_from_wp', apply_filters('sb_optimizer_wp_webroot_path', $path));
         }
     }
     return null;

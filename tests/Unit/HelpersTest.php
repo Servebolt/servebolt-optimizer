@@ -30,9 +30,14 @@ use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\getFiltersForHook;
 use function Servebolt\Optimizer\Helpers\getMainSiteBlogId;
 use function Servebolt\Optimizer\Helpers\getOption;
+use function Servebolt\Optimizer\Helpers\getSiteId;
+use function Servebolt\Optimizer\Helpers\getSiteIdFromEnvFile;
+use function Servebolt\Optimizer\Helpers\getSiteIdFromWebrootPath;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\getTaxonomyFromTermId;
 use function Servebolt\Optimizer\Helpers\getTaxonomySingularName;
+use function Servebolt\Optimizer\Helpers\getWebrootPathFromEnvFile;
+use function Servebolt\Optimizer\Helpers\getWebrootPathFromWordPress;
 use function Servebolt\Optimizer\Helpers\isLogin;
 use function Servebolt\Optimizer\Helpers\isValidJson;
 use function Servebolt\Optimizer\Helpers\iterateSites;
@@ -104,7 +109,7 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
     public function testThatViewIsIncludedAndThatArgumentsAreAvailable()
     {
-        add_filter('sb_optimizer_view_folder_path', function() {
+        add_filter('sb_optimizer_view_folder_path', function () {
             return __DIR__ . '/ViewsForTest/';
         });
         $arguments = [
@@ -123,10 +128,82 @@ class HelpersTest extends ServeboltWPUnitTestCase
         add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
         $this->assertEquals('/kunder/serveb_123456/optimi_56789/public', getWebrootPath());
         remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
-        add_filter('sb_optimizer_wp_webroot_path', function() {
+        add_filter('sb_optimizer_wp_webroot_path', function () {
             return '/some/path/to/somewhere/';
         });
         $this->assertEquals('/some/path/to/somewhere/', getWebrootPath());
+    }
+
+    public function testThatWeCanGetSiteId(): void
+    {
+        self::getEnvFileReader();
+        $this->assertNull(getSiteId()); // Null since isHostedAtServebolt is false therefore we're not even looking at the env-file
+        add_filter('sb_optimizer_wp_webroot_path_from_wp', function () {
+            return '/kunder/serveb_123456/optimi_567899';
+        });
+        $this->assertEquals('567899', getSiteId());
+        add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        $this->assertEquals('56789', getSiteId());
+        remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        $this->assertEquals('567899', getSiteId());
+        remove_all_filters('sb_optimizer_wp_webroot_path_from_wp');
+        $this->assertNull(getSiteId());
+    }
+
+    public function testThatWeCanGetSiteIdFromEnvFile(): void
+    {
+        self::getEnvFileReader();
+        $this->assertEquals('56789', getSiteIdFromEnvFile());
+        add_filter('sb_optimizer_env_file_reader_get_id', function () {
+            return '123';
+        });
+        $this->assertEquals('123', getSiteIdFromEnvFile());
+        remove_all_filters('sb_optimizer_env_file_reader_get_id');
+        $this->assertEquals('56789', getSiteIdFromEnvFile());
+    }
+
+    public function testThatWeCanGetSiteIdFromWebroot(): void
+    {
+        self::getEnvFileReader();
+        add_filter('sb_optimizer_wp_webroot_path_from_wp', function () {
+            return '/kunder/serveb_123456/optimi_567899';
+        });
+        $this->assertEquals('567899', getSiteIdFromWebrootPath());
+        add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        $this->assertEquals('56789', getSiteIdFromWebrootPath());
+        $this->assertEquals('567899', getSiteIdFromWebrootPath(false));
+        remove_all_filters('sb_optimizer_wp_webroot_path_from_wp');
+        remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+    }
+
+    public function testThatWeCanGetWebroot(): void
+    {
+        $this->assertContains('bin/tmp/wordpress', getWebrootPath());
+        self::getEnvFileReader();
+        $this->assertContains('bin/tmp/wordpress', getWebrootPath()); // Still unchanged since isHostedAtServebolt is false
+        add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        $this->assertEquals('/kunder/serveb_123456/optimi_56789/public', getWebrootPath()); // Resolved from env-file
+        add_filter('sb_optimizer_wp_webroot_path_from_env', '__return_false'); // Prevent resolving from env-file
+        add_filter('sb_optimizer_wp_webroot_path_from_wp', function () {
+            return '/some/other/path/';
+        });
+        $this->assertEquals('/some/other/path/', getWebrootPath()); // Resolved from WP
+        remove_all_filters('sb_optimizer_wp_webroot_path_from_env');
+        remove_all_filters('sb_optimizer_wp_webroot_path_from_wp');
+        $this->assertEquals('/kunder/serveb_123456/optimi_56789/public', getWebrootPath()); // Resolved from env-file
+        remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        $this->assertContains('bin/tmp/wordpress', getWebrootPath());
+    }
+
+    public function testThatWeCanGetWebrootFromEnvFile(): void
+    {
+        self::getEnvFileReader();
+        $this->assertEquals('/kunder/serveb_123456/optimi_56789/public', getWebrootPathFromEnvFile());
+    }
+
+    public function testThatWeCanGetWebrootFromWordPress(): void
+    {
+        $this->assertContains('bin/tmp/wordpress', getWebrootPathFromWordPress());
     }
 
     public function testThatWeCanGetAdminUrlFromHomePath(): void
@@ -135,6 +212,15 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
         // Test with site ID extracted from webroot path
         self::getEnvFileReader();
+
+        $this->assertNull(getServeboltAdminUrl());
+
+        add_filter('sb_optimizer_wp_webroot_path_from_wp', function () {
+            return '/kunder/serveb_123456/optimi_56789';
+        });
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
+        remove_all_filters('sb_optimizer_wp_webroot_path_from_wp');
+
         add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=56789', getServeboltAdminUrl(['page' => 'accelerated-domains']));
@@ -148,10 +234,13 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
         // Test with site ID extracted from webroot path
         add_filter('sb_optimizer_env_file_reader_get_id', '__return_null');
+
+        var_dump(getServeboltAdminUrl());
+        return;
+
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
         remove_filter('sb_optimizer_env_file_reader_get_id', '__return_null');
         remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
-        return;
 
         // Test with site ID extracted from environment file
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());

@@ -27,11 +27,13 @@ use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
 use function Servebolt\Optimizer\Helpers\featureIsActive;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
+use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl;
 use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isFrontEnd;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\isLogin;
 use function Servebolt\Optimizer\Helpers\isTesting;
+use function Servebolt\Optimizer\Helpers\envFileFailureHandling;
 
 /**
  * Class ServeboltOptimizer
@@ -69,6 +71,9 @@ class ServeboltOptimizer
         if (isHostedAtServebolt()) {
             // ACD Init
             AcceleratedDomains::init();
+
+            // Add admin notice if we cannot read the environment file
+            envFileFailureHandling();
         }
 
         // Sets the correct cache headers for the HTML Cache

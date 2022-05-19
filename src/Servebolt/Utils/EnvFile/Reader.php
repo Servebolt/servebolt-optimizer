@@ -83,10 +83,9 @@ class Reader
         }
         try {
             $this->setSelectedFileExtension($selectedFileExtension);
-            $this->setFileType($selectedFileExtension);
             $envFilePath = $this->resolveEnvFilePath();
             if (!$envFilePath) {
-                throw new Exception('Could not resolve environment file path.');
+                throw new Exception('Could not resolve environment file path.', 69);
             }
             if (!$this->fileFound($envFilePath)) {
                 deleteOption($this->optionsKey);
@@ -94,7 +93,7 @@ class Reader
             }
             $this->readEnvironmentFile($envFilePath);
         } catch (Throwable $e) {
-            do_action('sb_optimizer_env_file_reader_failure');
+            do_action('sb_optimizer_env_file_reader_failure', $e);
         }
     }
 
