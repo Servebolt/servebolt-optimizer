@@ -7,7 +7,10 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Exception;
 use Throwable;
 use Servebolt\Optimizer\Traits\Singleton;
+use function Servebolt\Optimizer\Helpers\deleteOption;
+use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
+use function Servebolt\Optimizer\Helpers\updateOption;
 
 /**
  * Class Reader
@@ -15,41 +18,37 @@ use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
  */
 class Reader
 {
-
     use Singleton;
 
     /**
-     * The possible file extensions of the environment files.
-     *
-     * @var array|string[]
+     * @var array|string[] The possible file extensions of the environment files.
      */
-    private $fileExtensions = ['json', 'ini'];
+    private $allowedFileExtensions = ['json', 'ini'];
 
     /**
-     * Array containing the extracted data.
-     *
-     * @var array
+     * @var array Array containing the extracted data from the environment file.
      */
     private $extractedData = [];
 
     /**
-     * Whether we could read the file or not.
-     *
-     * @var bool
+     * @var bool Whether we could read the file or not.
      */
     private $success = false;
 
     /**
-     * The basename of the environment file.
-     *
-     * @var string
+     * @var string Regex-pattern used to resolve user home folder when we can not resolve it from Wordpress-paths.
+     */
+    private $folderLocateRegex = '/(\/kunder\/[a-z_0-9]+\/[a-z_]+(\d+))/';
+
+    /**
+     * @var string The basename of the environment file.
      */
     private $basename = 'environment';
 
     /**
-     * @var string The desired file type to read (JSON or INI).
+     * @var string The environment file type to read (JSON or INI) (optional, defaults to auto resolution).
      */
-    private $desiredFileType;
+    private $selectedFileExtension;
 
     /**
      * @var string The type of file that was resolved.
@@ -57,7 +56,7 @@ class Reader
     private $resolvedFileType;
 
     /**
-     * @var string The path to the folder that contains the environment file.
+     * @var string The path to the folder that contains the environment file (used for overrides).
      */
     private $folderPath;
 
@@ -66,57 +65,257 @@ class Reader
      */
     private static $enabled = true;
 
-    public function __construct($folderPath = null, $desiredFileType = 'auto', $basename = null)
+    /**
+     * @var string The key used to cache the env file path.
+     */
+    private $optionsKey = 'env_file_path3';
+
+    public function __construct($folderPath = null, $selectedFileExtension = 'auto', $basename = null)
     {
         if (!isHostedAtServebolt()) {
             return;
         }
-        try {
+        if (!is_null($basename)) {
             $this->setBasename($basename);
-            $this->setDesiredFileType($desiredFileType);
-            $this->resolveFolderPath($folderPath);
-            if (!$filePath = $this->resolveEnvironmentFilePath()) {
+        }
+        if ($folderPath) {
+            $this->setFolderPath($folderPath);
+        }
+        try {
+            $this->setSelectedFileExtension($selectedFileExtension);
+            $this->setFileType($selectedFileExtension);
+            $envFilePath = $this->resolveEnvFilePath();
+            if (!$envFilePath) {
                 throw new Exception('Could not resolve environment file path.');
             }
-            $this->readEnvironmentFile($filePath);
+            if (!$this->fileFound($envFilePath)) {
+                deleteOption($this->optionsKey);
+                throw new Exception('Environment file not accessible.');
+            }
+            $this->readEnvironmentFile($envFilePath);
         } catch (Throwable $e) {
             do_action('sb_optimizer_env_file_reader_failure');
         }
-
     }
 
+    /**
+     * Resolve path to environment file, either by getting it from cache or by looking for it on the disk.
+     *
+     * @return false|string
+     */
+    private function resolveEnvFilePath()
+    {
+        $pathFromCache = $this->resolveEnvFilePathFromCache();
+        if ($pathFromCache && $this->fileFound($pathFromCache)) {
+            var_dump('from-cache');
+            return $pathFromCache;
+        }
+
+        $pathFromDiskLookup = $this->resolveEnvironmentFilePathFromDisk();
+        if ($pathFromDiskLookup) {
+            var_dump('from-disk');
+            updateOption($this->optionsKey, $pathFromDiskLookup);
+            return $pathFromDiskLookup;
+        }
+
+        return false;
+    }
+
+    /**
+     * Resolve alleged path to environment file from cache.
+     *
+     * @return false|string
+     */
+    private function resolveEnvFilePathFromCache()
+    {
+        $path = getOption($this->optionsKey);
+        return (is_string($path) && !empty($path)) ? $path : false;
+    }
+
+    /**
+     * Resolve the environment file on the disk, either by using WordPress-paths or by looking for it manually.
+     *
+     * @return false|string
+     */
+    private function resolveEnvironmentFilePathFromDisk()
+    {
+        foreach ($this->allowedFileExtensions as $type) {
+            if ($resolvedFile = $this->lookupFileByType($type)) {
+                return $resolvedFile;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Lookup environment file by type/extension.
+     *
+     * @param $type
+     * @return false|string|void
+     */
+    private function lookupFileByType($type)
+    {
+        if ($this->shouldSkipFileType($type)) {
+            return false; // Skip this if we're only looking for a certain type of env file
+        }
+        $envFileName = $this->basename . '.' . $type;
+        $filePath = $this->attemptToLocateFile($envFileName);
+        return $filePath ?: false;
+    }
+
+    /**
+     * Get default folder path to the environment files (according to WordPress).
+     *
+     * @return string
+     * @throws Exception
+     */
+    private function getDefaultFolderPath() : string
+    {
+        if (isset($_SERVER['DOCUMENT_ROOT'])) {
+            return trailingslashit(dirname($_SERVER['DOCUMENT_ROOT']));
+        }
+        if (defined('ABSPATH')) {
+            return trailingslashit(dirname(ABSPATH));
+        }
+        throw new Exception('Could not determine default environment file folder path.');
+    }
+
+    /**
+     * Attempt to locate the environment file by either folder path override, using WordPress-paths or by manually looking it up using our the patterns of Servebolt infrastructure.
+     *
+     * @param $fileName
+     * @return false|string
+     * @throws Exception
+     */
+    private function attemptToLocateFile($fileName)
+    {
+        // Look for file in specified folder path (optional)
+        if ($this->folderPath) {
+            $attemptPath = $this->folderPath . $fileName;
+            if ($this->fileFound($attemptPath)) {
+                return $attemptPath;
+            }
+        }
+
+        // Locate the file in standard folder (will work with most WP installations).
+        $defaultFolderPath = $this->getDefaultFolderPath();
+        $attemptPath = $defaultFolderPath . $fileName;
+        if ($this->fileFound($attemptPath)) {
+            return $attemptPath;
+        }
+
+        // Locate file manually (for non-standard WP installations).
+        $locatedFolderPath = $this->locateFolderPathFromDefaultPath($defaultFolderPath);
+        if (!$locatedFolderPath) {
+            return false;
+        }
+        $attemptPath = $locatedFolderPath . $fileName;
+        if ($this->fileFound($attemptPath)) {
+            return $attemptPath;
+        }
+
+        return false; // Could not resolve file by filename
+    }
+
+    /**
+     * Locate users home folder from WordPress-path by using pattern matching.
+     *
+     * @param $searchFolderPath
+     * @return false|string
+     */
+    private function locateFolderPathFromDefaultPath($searchFolderPath)
+    {
+        if (
+            preg_match(apply_filters('sb_optimizer_env_file_reader_folder_regex_pattern', $this->folderLocateRegex), $searchFolderPath, $matches)
+            && isset($matches[1])
+            && !empty($matches[1])
+        ) {
+            return trailingslashit($matches[1]);
+        }
+        return false;
+    }
+
+    /**
+     * Determine whether we found a file and if it is readable.
+     *
+     * @param $path
+     * @return bool
+     */
+    private function fileFound($path): bool
+    {
+        return file_exists($path) && is_readable($path);
+    }
+
+    /**
+     * Set folder path to look for environment files (used for overriding).
+     *
+     * @param $folderPath
+     * @return void
+     */
+    private function setFolderPath($folderPath): void
+    {
+        $this->folderPath = trailingslashit($folderPath);
+    }
+
+    /**
+     * Disable feature (used for testing).
+     *
+     * @return void
+     */
     public static function disable()
     {
         self::$enabled = false;
     }
 
+    /**
+     * Enable feature (used for testing).
+     *
+     * @return void
+     */
     public static function enable()
     {
         self::$enabled = true;
     }
 
+    /**
+     * Check if the resolved file type is a given type.
+     *
+     * @param $type
+     * @return bool
+     */
     public function isFileType($type) : bool
     {
         return $type === $this->resolvedFileType;
     }
 
-    public function getExtractedData() : array
-    {
-        return $this->extractedData;
-    }
-
+    /**
+     * Set the basename of the environment file.
+     *
+     * @param $basename
+     * @return void
+     */
     private function setBasename($basename)
     {
-        if (!is_null($basename)) {
-            $this->basename = $basename;
-        }
+        $this->basename = $basename;
     }
 
+    /**
+     * Whether we could successfully read the environment file.
+     *
+     * @return bool
+     */
     public function isSuccess(): bool
     {
         return $this->success === true;
     }
 
+    /**
+     * Read environment file in JSON-format.
+     *
+     * @param $filePath
+     * @return bool
+     * @throws Exception
+     */
     private function readJsonFile($filePath) : bool
     {
         $fileContent = file_get_contents($filePath);
@@ -129,6 +328,13 @@ class Reader
         return true;
     }
 
+    /**
+     * Read environment file in INI-format.
+     *
+     * @param $filePath
+     * @return bool
+     * @throws Exception
+     */
     private function readIniFile($filePath) : bool
     {
         if (($parsedData = @parse_ini_file($filePath)) == false) {
@@ -139,6 +345,13 @@ class Reader
         return true;
     }
 
+    /**
+     * Read environment-file (automatic file extension handling).
+     *
+     * @param $filePath
+     * @return bool
+     * @throws Exception
+     */
     private function readEnvironmentFile($filePath) : bool
     {
         $ext = pathinfo($filePath, PATHINFO_EXTENSION);
@@ -180,10 +393,17 @@ class Reader
         return null;
     }
 
-    private function setDesiredFileType($desiredFileType): bool
+    /**
+     * Set the file extension of the environment file we should look for (default to auto resolution).
+     *
+     * @param $selectedFileExtension
+     * @return bool
+     * @throws Exception
+     */
+    private function setSelectedFileExtension($selectedFileExtension): bool
     {
-        if ($desiredFileType === 'auto' || in_array($desiredFileType, $this->fileExtensions)) {
-            $this->desiredFileType = $desiredFileType;
+        if ($selectedFileExtension === 'auto' || in_array($selectedFileExtension, $this->allowedFileExtensions)) {
+            $this->selectedFileExtension = $selectedFileExtension;
             return true;
         }
         throw new Exception;
@@ -197,64 +417,9 @@ class Reader
      */
     private function shouldSkipFileType($type) : bool
     {
-        if ($this->desiredFileType === 'auto') {
+        if ($this->selectedFileExtension === 'auto') {
             return false;
         }
-        return $type !== $this->desiredFileType;
-    }
-
-    /**
-     * Resolve the environment file, in prioritized order.
-     *
-     * @return false|string
-     */
-    private function resolveEnvironmentFilePath()
-    {
-        foreach ($this->fileExtensions as $type) {
-            $envFileName = $this->basename . '.' . $type;
-            if ($this->shouldSkipFileType($type)) {
-                continue; // Skip this if we're only looking for a certain type of env file
-            }
-            $path = $this->folderPath . $envFileName;
-            if (file_exists($path) && is_readable($path)) {
-                $this->resolvedFileType = $type;
-                return $path;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Resolve the path to the folder where the environment files are stored.
-     *
-     * @param string|null $folderPath
-     * @return string
-     * @throws Exception
-     */
-    private function resolveFolderPath(?string $folderPath) : string
-    {
-        if (is_null($folderPath)) {
-            $this->folderPath = rtrim($this->getDefaultFolderPath(), '/')  . '/';
-        } else {
-            $this->folderPath = rtrim($folderPath, '/') . '/';
-        }
-        return $this->folderPath;
-    }
-
-    /**
-     * Get default folder path to the environment files.
-     *
-     * @return string
-     * @throws Exception
-     */
-    private function getDefaultFolderPath() : string
-    {
-        if (isset($_SERVER['DOCUMENT_ROOT'])) {
-            return dirname($_SERVER['DOCUMENT_ROOT']);
-        }
-        if (defined('ABSPATH')) {
-            return dirname(ABSPATH);
-        }
-        throw new Exception('Could not determine default environment file folder path.');
+        return $type !== $this->selectedFileExtension;
     }
 }
