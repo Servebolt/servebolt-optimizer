@@ -68,7 +68,7 @@ class Reader
     /**
      * @var string The key used to cache the env file path.
      */
-    private $optionsKey = 'env_file_path3';
+    private $optionsKey = 'env_file_path';
 
     public function __construct($folderPath = null, $selectedFileExtension = 'auto', $basename = null)
     {

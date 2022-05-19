@@ -629,6 +629,11 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         // Legacy
         'record_max_num_pages_nonce',
         'sb_optimizer_record_max_num_pages',
+        'cf_items_to_purge',
+        'cf_cron_purge',
+
+        // Env file reader
+        'env_file_path',
 
         // Wipe encryption keys
         'mcrypt_key',
@@ -667,10 +672,6 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'cf_api_key',
         'cf_api_token',
         'queue_based_cache_purge',
-
-        // Legacy
-        'cf_items_to_purge',
-        'cf_cron_purge',
 
         // Accelerated Domains
         'acd_switch',
