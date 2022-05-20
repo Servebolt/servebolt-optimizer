@@ -7,6 +7,7 @@
     <?php wp_nonce_field('servebolt-performance-optimizer-advanced'); ?>
 
     <table class="form-table" role="presentation">
+        <?php view('performance-optimizer.advanced.shared-settings.cron-explanation-heading'); ?>
         <?php view('performance-optimizer.advanced.shared-settings.action-scheduler', compact('settings')); ?>
         <?php view('performance-optimizer.advanced.shared-settings.wp-cron', compact('settings')); ?>
     </table>

@@ -55,7 +55,7 @@ function envFileFailureHandling()
             ?>
             <div class="notice notice-error is-dismissable">
                 <p><?php echo __('Servebolt Optimizer could not read the environment file which is necessary for the plugin to function. This file originates from Servebolt and contains information about your site.', 'servebolt-wp'); ?></p>
-                <p><?php printf(__('To fix this then go to your %ssite settings%s, click "Settings" and make sure that the setting "Environment file in home folder" is <strong>not</strong> to "None".', 'servebolt-wp'), '<a href="' . $adminUrl . '" target="_blank">', '</a>'); ?></p>
+                <p><?php printf(__('To fix this then go to your %ssite settings%s, click "Settings" and make sure that the setting "Environment file in home folder" is <strong>not</strong> to "None". Remember to click "Save settings" to ensure that the file is written to disk regardless of the previous state of the setting.', 'servebolt-wp'), '<a href="' . $adminUrl . '" target="_blank">', '</a>'); ?></p>
                 <p><?php printf(__('%sGet in touch with our support via chat%s if you need assistance with resolving this issue.', 'servebolt-wp'), '<a href="https://admin.servebolt.com/" target="_blank">', '</a>'); ?></p>
                 <?php if ($e->getCode() !== 69): ?>
                     <p>Error message: <?php echo $e->getMessage(); ?></p>
@@ -2037,54 +2037,49 @@ function skipNextListen($optionName): void
  * Listen for updates to one or multiple site options.
  *
  * @param string|array $optionNameOrNames
- * @param string|callable $closureOrAction
+ * @param string|callable $closureOrActionOrFilter
+ * @param string string $type
+ * @return void
  */
-function listenForCheckboxSiteOptionUpdates($optionNameOrNames, $closureOrAction): void
+function listenForCheckboxSiteOptionUpdates($optionNameOrNames, $closureOrActionOrFilter, string $type = 'action'): void
 {
-    if (!is_array($optionNameOrNames)) {
-        $optionNameOrNames = [$optionNameOrNames];
-    }
-    foreach ($optionNameOrNames as $optionName) {
-        add_filter('pre_update_site_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
-            if (shouldSkipEventListen($optionName)) {
-                return $newValue;
-            }
-            $wasActive = checkboxIsChecked($oldValue);
-            $isActive = checkboxIsChecked($newValue);
-            $didChange = $wasActive !== $isActive;
-            if (is_callable($closureOrAction)) {
-                $closureOrAction($wasActive, $isActive, $didChange, $optionName);
-            } else {
-                do_action('servebolt_' . $closureOrAction, $wasActive, $isActive, $didChange, $optionName);
-            }
-            return $newValue;
-        }, 10, 2);
-    }
+    listenForCheckboxOptionUpdates($optionNameOrNames, $closureOrActionOrFilter, $type, 'pre_update_site_option_');
 }
 
 /**
  * Listen for updates to one or multiple options.
  *
  * @param string|array $optionNameOrNames
- * @param string|callable $closureOrAction
+ * @param string|callable $closureOrActionOrFilter
+ * @param string $type
+ * @param string $filterPrefix
+ * @return void
  */
-function listenForCheckboxOptionUpdates($optionNameOrNames, $closureOrAction): void
+function listenForCheckboxOptionUpdates($optionNameOrNames, $closureOrActionOrFilter, string $type = 'action', string $filterPrefix = 'pre_update_option_'): void
 {
+    $type = $type === 'action' ? $type : 'filter';
     if (!is_array($optionNameOrNames)) {
         $optionNameOrNames = [$optionNameOrNames];
     }
     foreach ($optionNameOrNames as $optionName) {
-        add_filter('pre_update_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
+        add_filter($filterPrefix . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrActionOrFilter, $optionName, $type) {
             if (shouldSkipEventListen($optionName)) {
                 return $newValue;
             }
             $wasActive = checkboxIsChecked($oldValue);
             $isActive = checkboxIsChecked($newValue);
             $didChange = $wasActive !== $isActive;
-            if (is_callable($closureOrAction)) {
-                $closureOrAction($wasActive, $isActive, $didChange, $optionName);
+            if (is_callable($closureOrActionOrFilter)) {
+                $returnValue = $closureOrActionOrFilter($wasActive, $isActive, $didChange, $optionName);
+                if ($type === 'filter') {
+                    return $returnValue;
+                }
             } else {
-                do_action('servebolt_' . $closureOrAction, $wasActive, $isActive, $didChange, $optionName);
+                if ($type === 'action') {
+                    do_action('servebolt_' . $closureOrActionOrFilter, $wasActive, $isActive, $didChange, $optionName);
+                } else {
+                    return apply_filters('servebolt_' . $closureOrActionOrFilter, $wasActive, $isActive, $didChange, $optionName);
+                }
             }
             return $newValue;
         }, 10, 2);
