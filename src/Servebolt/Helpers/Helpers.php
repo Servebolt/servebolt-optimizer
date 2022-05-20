@@ -31,6 +31,18 @@ function envFileRead(): bool
 }
 
 /**
+ * Return error in WP CLI if the environment file could not be read.
+ * 
+ * @return void
+ */
+function envFileReadFailureCliHandling()
+{
+    if (!envFileRead()) {
+        \WP_CLI::error(__('Could not obtain config from environment file. Aborting.', 'servebolt-wp'));
+    }
+}
+
+/**
  * Add admin notice if we cannot read the environment file.
  *
  * @return void

@@ -42,6 +42,13 @@ class CachePurge
     private static $serveboltOnlyDrivers = ['acd', 'serveboltcdn'];
 
     /**
+     * Driver classes that require the site to be hosted at Servebolt.
+     *
+     * @var string[]
+     */
+    private static $serveboltOnlyDriverClasses = ['Servebolt', 'ServeboltCdn'];
+
+    /**
      * Valid drivers.
      *
      * @var string[]
@@ -406,6 +413,18 @@ class CachePurge
     public static function driverSupportsItemCachePurge(): bool
     {
         return self::driverSupportsUrlCachePurge();
+    }
+
+    /**
+     * Check if the current driver requires Servebolt hosting.
+     *
+     * @return bool
+     */
+    public static function driverRequiresServeboltHosting(): bool
+    {
+        $driver = self::resolveDriverObject();
+        $className = basename(str_replace('\\', '/', get_class($driver)));
+        return in_array($className, self::$serveboltOnlyDriverClasses);
     }
 
     /**

@@ -11,6 +11,7 @@ use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 #use Servebolt\Optimizer\Exceptions\ApiError;
 use Throwable;
 use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\envFileRead;
 
 /**
  * Class CacheSettings
@@ -29,6 +30,18 @@ class PurgeActions
         WP_CLI::add_command('servebolt cache purge post', [$this, 'purgePost']);
         WP_CLI::add_command('servebolt cache purge term', [$this, 'purgeTerm']);
         WP_CLI::add_command('servebolt cache purge all', [$this, 'purgeAll']);
+    }
+
+    /**
+     * Check whether we require the environment file and if we can access it, return error if not.
+     *
+     * @return void
+     */
+    private function checkForEnvFile()
+    {
+        if (CachePurge::driverRequiresServeboltHosting() && !envFileRead()) {
+            WP_CLI::error(__('Current cache purge driver does not support purging of URLs.', 'servebolt-wp'));
+        }
     }
 
     /**
@@ -54,6 +67,7 @@ class PurgeActions
      */
     public function purgeUrl(array $args, array $assocArgs): void
     {
+        $this->checkForEnvFile();
         if (!CachePurge::driverSupportsUrlCachePurge()) {
             WP_CLI::error(__('Current cache purge driver does not support purging of URLs.', 'servebolt-wp'));
         }
@@ -123,6 +137,7 @@ class PurgeActions
      */
     public function purgeUrls(array $args, array $assocArgs): void
     {
+        $this->checkForEnvFile();
         if (!CachePurge::driverSupportsUrlCachePurge()) {
             WP_CLI::error(__('Current cache purge driver does not support purging of URLs.', 'servebolt-wp'));
         }
@@ -192,6 +207,7 @@ class PurgeActions
      */
     public function purgePost(array $args, array $assocArgs): void
     {
+        $this->checkForEnvFile();
         if (!CachePurge::driverSupportsItemCachePurge()) {
             WP_CLI::error(__('Current cache purge driver does not support purging of URLs/posts.', 'servebolt-wp'));
         }
@@ -262,6 +278,7 @@ class PurgeActions
      */
     public function purgeTerm(array $args, array $assocArgs): void
     {
+        $this->checkForEnvFile();
         if (!CachePurge::driverSupportsItemCachePurge()) {
             WP_CLI::error(__('Current cache purge driver does not support purging of URLs/terms.', 'servebolt-wp'));
         }
@@ -330,6 +347,7 @@ class PurgeActions
      */
     public function purgeAll(array $args, array $assocArgs): void
     {
+        $this->checkForEnvFile();
         if (!CachePurge::driverSupportsCachePurgeAll()) {
             WP_CLI::error(__('Current cache purge driver does not support purge all.', 'servebolt-wp'));
         }
