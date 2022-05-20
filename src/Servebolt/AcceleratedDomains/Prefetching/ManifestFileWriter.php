@@ -18,7 +18,8 @@ class ManifestFileWriter
      *
      * @var string[]
      */
-    private static $itemTypes = ['style', 'script', 'menu'];
+    //private static $itemTypes = ['style', 'script', 'menu'];
+    private static $itemTypes = ['style', 'script'];
 
     /**
      * An array containing the files that was written to disk.

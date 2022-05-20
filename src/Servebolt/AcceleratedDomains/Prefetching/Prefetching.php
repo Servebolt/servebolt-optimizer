@@ -60,6 +60,7 @@ class Prefetching
     /**
      * Add menu item URLs to prefetch list.
      */
+    /*
     function getPrefetchListMenuItems(): void
     {
         if ($menus = wp_get_nav_menus()) {
@@ -80,6 +81,7 @@ class Prefetching
             }
         }
     }
+    */
 
     /**
      * Handle assets - works for both scripts and styles.
