@@ -106,13 +106,11 @@ class Reader
     {
         $pathFromCache = $this->resolveEnvFilePathFromCache();
         if ($pathFromCache && $this->fileFound($pathFromCache)) {
-            var_dump('from-cache');
             return $pathFromCache;
         }
 
         $pathFromDiskLookup = $this->resolveEnvironmentFilePathFromDisk();
         if ($pathFromDiskLookup) {
-            var_dump('from-disk');
             updateOption($this->optionsKey, $pathFromDiskLookup);
             return $pathFromDiskLookup;
         }
