@@ -21,6 +21,16 @@ function resolveViewPath($templatePath): ?string
 }
 
 /**
+ * Check whether we could read environment file.
+ *
+ * @return bool
+ */
+function envFileRead(): bool
+{
+    return did_action('sb_optimizer_env_file_reader_failure') === 0;
+}
+
+/**
  * Add admin notice if we cannot read the environment file.
  *
  * @return void

@@ -22,6 +22,7 @@ use Servebolt\Optimizer\PluginActiveStateHandling\PluginActiveStateHandling;
 use Servebolt\Optimizer\Queue\QueueParseEventHandler;
 use Servebolt\Optimizer\TextDomainLoader\WpTextDomainLoader;
 use Servebolt\Optimizer\Utils\Crypto\OptionEncryption;
+use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 use Servebolt\Optimizer\Utils\PostUpgradeActions;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
@@ -73,6 +74,9 @@ class ServeboltOptimizer
 
             // Add admin notice if we cannot read the environment file
             envFileFailureHandling();
+
+            // Init environment file reader
+            EnvFileReader::getInstance();
         }
 
         // Sets the correct cache headers for the HTML Cache

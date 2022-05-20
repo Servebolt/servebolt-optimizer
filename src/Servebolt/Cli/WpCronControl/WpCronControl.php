@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
 use Servebolt\Optimizer\CronControl\WpCronControl as WpCronControlNotCli;
+use function Servebolt\Optimizer\Helpers\envFileRead;
 
 /**
  * Class WpCronControl
@@ -34,6 +35,9 @@ class WpCronControl
      */
     public function status()
     {
+        if (!envFileRead()) {
+            WP_CLI::error(__('Could not obtain config from environment file. Aborting.', 'servebolt-wp'));
+        }
         if (WpCronControlNotCli::isSetUp()) {
             WP_CLI::success(__('WP Cron setup ok!', 'servebolt-wp'));
         } else {
@@ -52,6 +56,9 @@ class WpCronControl
      */
     public function enable()
     {
+        if (!envFileRead()) {
+            WP_CLI::error(__('Could not obtain config from environment file. Aborting.', 'servebolt-wp'));
+        }
         $wasSatUp = WpCronControlNotCli::isSetUp();
         WpCronControlNotCli::setUp();
         if ($wasSatUp) {
@@ -71,6 +78,9 @@ class WpCronControl
      */
     public function disable()
     {
+        if (!envFileRead()) {
+            WP_CLI::error(__('Could not obtain config from environment file. Aborting.', 'servebolt-wp'));
+        }
         $wasSatUp = WpCronControlNotCli::isSetUp();
         WpCronControlNotCli::tearDown();
         if (!$wasSatUp) {
