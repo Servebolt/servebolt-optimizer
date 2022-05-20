@@ -40,7 +40,8 @@ class PurgeActions
     private function checkForEnvFile()
     {
         if (CachePurge::driverRequiresServeboltHosting() && !envFileRead()) {
-            WP_CLI::error(__('Current cache purge driver does not support purging of URLs.', 'servebolt-wp'));
+            WP_CLI::error(__('Cache purge with the selected driver feature requires the environment file to be read, but we did not success.', 'servebolt-wp'), false);
+            WP_CLI::error(__('Please visit WP Admin and read the instructions in the admin notice. Aborting.', 'servebolt-wp'));
         }
     }
 

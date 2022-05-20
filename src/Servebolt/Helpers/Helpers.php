@@ -32,7 +32,7 @@ function envFileRead(): bool
 
 /**
  * Return error in WP CLI if the environment file could not be read.
- * 
+ *
  * @return void
  */
 function envFileReadFailureCliHandling()
