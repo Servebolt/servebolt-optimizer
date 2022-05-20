@@ -235,8 +235,6 @@ class HelpersTest extends ServeboltWPUnitTestCase
         // Test with site ID extracted from webroot path
         add_filter('sb_optimizer_env_file_reader_get_id', '__return_null');
 
-        var_dump(getServeboltAdminUrl());
-        return;
 
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
         remove_filter('sb_optimizer_env_file_reader_get_id', '__return_null');
