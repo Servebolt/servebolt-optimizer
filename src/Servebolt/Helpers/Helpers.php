@@ -1602,7 +1602,59 @@ function addOrUpdateOption(string $optionName, $value, bool $assertUpdate = true
         }
         return true;
     }
-    return updateOption($optionName, $value);;
+    return updateOption($optionName, $value, $assertUpdate);
+}
+
+/**
+ * Added custom blog option add function that supports autoload-parameter.
+ * @param string|int $id
+ * @param string $option
+ * @param mixed $value
+ * @param string $autoload
+ * @return bool
+ */
+function addBlogOption($id, string $option, $value, string $autoload = 'no')
+{
+    $option = getOptionName($option);
+
+    // From wp-includes/ms-blogs.php
+    $id = (int) $id;
+
+    if ( empty( $id ) ) {
+        $id = get_current_blog_id();
+    }
+
+    if ( get_current_blog_id() == $id ) {
+        return add_option( $option, $value );
+    }
+
+    switch_to_blog( $id );
+    $return = add_option( $option, $value, '', $autoload );
+    restore_current_blog();
+
+    return $return;
+}
+
+/**
+ * Add or update blog option.
+ *
+ * @param int|string $blogId
+ * @param string $optionName
+ * @param mixed $value
+ * @param bool $assertUpdate
+ * @param string $autoload
+ * @return bool
+ */
+function addOrUpdateBlogOption($blogId, string $optionName, $value, bool $assertUpdate = true, string $autoload = 'no'): bool
+{
+    if (addBlogOption($blogId, $optionName, $value, $autoload)) {
+        if ($assertUpdate) {
+            $currentValue = getBlogOption($blogId, $optionName);
+            return ($currentValue == $value);
+        }
+        return true;
+    }
+    return updateBlogOption($blogId, $optionName, $value, $assertUpdate);
 }
 
 /**
@@ -1689,6 +1741,25 @@ function getSiteOption(string $optionName, $default = null)
     $fullOptionName = getOptionName($optionName);
     $value = get_site_option($fullOptionName, $default);
     return apply_filters('sb_optimizer_get_site_option_' . $fullOptionName, $value);
+}
+
+/**
+ * A function that will store the option at the right place (in current blog or a specified blog).
+ *
+ * @param null|int $blogId
+ * @param string $optionName
+ * @param mixed $value
+ * @param bool $assertUpdate
+ * @return bool
+ */
+function smartAddOrUpdateOption(?int $blogId = null, string $optionName, $value, bool $assertUpdate = true): bool
+{
+    if (is_numeric($blogId)) {
+        $result = addOrUpdateBlogOption($blogId, $optionName, $value, $assertUpdate);
+    } else {
+        $result = addOrUpdateOption($optionName, $value, $assertUpdate);
+    }
+    return $result;
 }
 
 /**
