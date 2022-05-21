@@ -368,12 +368,12 @@ function getSiteIdFromEnvFile(): ?string
 /**
  * Get site ID from the webroot folder path.
  *
- * @param bool $attemptFromEnvironmentFile
+ * @param bool $attemptPathFromEnvironmentFile Whether to attempt to get webroot folder path from environment file.
  * @return string|null
  */
-function getSiteIdFromWebrootPath(bool $attemptFromEnvironmentFile = true): ?string
+function getSiteIdFromWebrootPath(bool $attemptPathFromEnvironmentFile = true): ?string
 {
-    $path = $attemptFromEnvironmentFile ? getWebrootPath() : getWebrootPathFromWordPress();
+    $path = $attemptPathFromEnvironmentFile ? getWebrootPath() : getWebrootPathFromWordPress();
     if (
         preg_match('/kunder\/[a-z_0-9]+\/[a-z_]+(\d+)(|\/)/', $path, $matches)
         && isset($matches[1])

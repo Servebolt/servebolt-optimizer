@@ -213,20 +213,18 @@ class HelpersTest extends ServeboltWPUnitTestCase
         // Test with site ID extracted from webroot path
         self::getEnvFileReader();
 
-        $this->assertNull(getServeboltAdminUrl());
+        $this->assertNull(getServeboltAdminUrl()); // False since we're not currently hosted at Servebolt
 
+        // Add manual path which we will extract the ID from
         add_filter('sb_optimizer_wp_webroot_path_from_wp', function () {
-            return '/kunder/serveb_123456/optimi_56789';
+            return '/kunder/serveb_123456/optimi_5678999';
         });
-        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=5678999', getServeboltAdminUrl());
         remove_all_filters('sb_optimizer_wp_webroot_path_from_wp');
 
+        // Test with site ID extracted from environment file
         add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
-        $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=56789', getServeboltAdminUrl(['page' => 'accelerated-domains']));
-
-        // Test with site ID extracted from environment file
-        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl([]));
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&site=56789', getServeboltAdminUrl(['page' => 'accelerated-domains']));
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&some=parameter&another=one&site=56789', getServeboltAdminUrl(['page' => 'accelerated-domains', 'some' => 'parameter', 'another' => 'one']));
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?page=accelerated-domains&webhost_id=69&some=parameter&another=one&site=56789', getServeboltAdminUrl(['page' => 'accelerated-domains', 'webhost_id' => '69', 'some' => 'parameter', 'another' => 'one']));
@@ -234,14 +232,17 @@ class HelpersTest extends ServeboltWPUnitTestCase
 
         // Test with site ID extracted from webroot path
         add_filter('sb_optimizer_env_file_reader_get_id', '__return_null');
+        add_filter('sb_optimizer_wp_webroot_path_from_wp', function () {
+            return '/kunder/serveb_123456/optimi_56780';
+        });
 
-
-        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
+        $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56780', getServeboltAdminUrl());
         remove_filter('sb_optimizer_env_file_reader_get_id', '__return_null');
-        remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
 
         // Test with site ID extracted from environment file
         $this->assertEquals('https://admin.servebolt.com/siteredirect/?site=56789', getServeboltAdminUrl());
+        remove_all_filters('sb_optimizer_wp_webroot_path_from_wp');
+        remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
 
         // Revert env file reader to default state
         EnvFileReader::destroyInstance();
