@@ -55,7 +55,7 @@ function envFileFailureHandling()
             ?>
             <div class="notice notice-error is-dismissable">
                 <p><?php echo __('Servebolt Optimizer could not read the environment file which is necessary for the plugin to function. This file originates from Servebolt and contains information about your site.', 'servebolt-wp'); ?></p>
-                <p><?php printf(__('To fix this then go to your %ssite settings%s, click "Settings" and make sure that the setting "Environment file in home folder" is <strong>not</strong> to "None". Remember to click "Save settings" to ensure that the file is written to disk regardless of the previous state of the setting.', 'servebolt-wp'), '<a href="' . $adminUrl . '" target="_blank">', '</a>'); ?></p>
+                <p><?php printf(__('To fix this then go to your %ssite settings%s, click "Settings" and make sure that the setting "Environment file in home folder" is <strong>not</strong> set to "None". Remember to click "Save settings" to ensure that the file is written to disk regardless of the previous state of the setting.', 'servebolt-wp'), '<a href="' . $adminUrl . '" target="_blank">', '</a>'); ?></p>
                 <p><?php printf(__('%sGet in touch with our support via chat%s if you need assistance with resolving this issue.', 'servebolt-wp'), '<a href="https://admin.servebolt.com/" target="_blank">', '</a>'); ?></p>
                 <?php if ($e->getCode() !== 69): ?>
                     <p>Error message: <?php echo $e->getMessage(); ?></p>
