@@ -66,6 +66,11 @@ class Reader
     private static $enabled = true;
 
     /**
+     * @var bool Used for testing.
+     */
+    private static $cacheActive = true;
+
+    /**
      * @var string The key used to cache the env file path.
      */
     private $optionsKey = 'env_file_path';
@@ -98,6 +103,17 @@ class Reader
     }
 
     /**
+     * Set the file type of the resolved environment path.
+     *
+     * @param $filePath
+     * @return void
+     */
+    private function setResolvedFileType($filePath): void
+    {
+        $this->resolvedFileType = pathinfo($filePath, PATHINFO_EXTENSION);
+    }
+
+    /**
      * Resolve path to environment file, either by getting it from cache or by looking for it on the disk.
      *
      * @return false|string
@@ -106,12 +122,14 @@ class Reader
     {
         $pathFromCache = $this->resolveEnvFilePathFromCache();
         if ($pathFromCache && $this->fileFound($pathFromCache)) {
+            $this->setResolvedFileType($pathFromCache);
             return $pathFromCache;
         }
 
         $pathFromDiskLookup = $this->resolveEnvironmentFilePathFromDisk();
         if ($pathFromDiskLookup) {
             updateOption($this->optionsKey, $pathFromDiskLookup);
+            $this->setResolvedFileType($pathFromDiskLookup);
             return $pathFromDiskLookup;
         }
 
@@ -125,6 +143,9 @@ class Reader
      */
     private function resolveEnvFilePathFromCache()
     {
+        if (!self::$cacheActive) {
+            return false;
+        }
         $path = getOption($this->optionsKey);
         return (is_string($path) && !empty($path)) ? $path : false;
     }
@@ -148,7 +169,8 @@ class Reader
      * Lookup environment file by type/extension.
      *
      * @param $type
-     * @return false|string|void
+     * @return false|string
+     * @throws Exception
      */
     private function lookupFileByType($type)
     {
@@ -252,6 +274,17 @@ class Reader
     private function setFolderPath($folderPath): void
     {
         $this->folderPath = trailingslashit($folderPath);
+    }
+
+    /**
+     * Toggle cache feature on/off.
+     *
+     * @param bool $isActive
+     * @return void
+     */
+    public static function toggleCache(bool $isActive)
+    {
+        self::$cacheActive = $isActive;
     }
 
     /**
