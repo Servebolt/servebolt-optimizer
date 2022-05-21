@@ -1585,6 +1585,27 @@ function deleteOption(string $option, bool $assertUpdate = true)
 }
 
 /**
+ * Add or update a WordPress-option. The option will _not_ auto-load.
+ *
+ * @param string $optionName
+ * @param mixed $value
+ * @param bool $assertUpdate
+ * @param string $autoload
+ * @return bool
+ */
+function addOrUpdateOption(string $optionName, $value, bool $assertUpdate = true, string $autoload = 'no'): bool
+{
+    if (add_option(getOptionName($optionName), $value, '', $autoload)) {
+        if ($assertUpdate) {
+            $currentValue = getOption($optionName);
+            return ($currentValue == $value);
+        }
+        return true;
+    }
+    return updateOption($optionName, $value);;
+}
+
+/**
  * Update option.
  *
  * @param string $optionName

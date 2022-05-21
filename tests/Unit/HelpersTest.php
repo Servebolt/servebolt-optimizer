@@ -9,6 +9,7 @@ use Servebolt\Optimizer\Admin\CloudflareImageResize\CloudflareImageResize;
 use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 use Servebolt\Optimizer\Utils\Queue\QueueItem;
 use ServeboltWPUnitTestCase;
+use function Servebolt\Optimizer\Helpers\addOrUpdateOption;
 use function Servebolt\Optimizer\Helpers\arrayGet;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\booleanToString;
@@ -621,6 +622,25 @@ class HelpersTest extends ServeboltWPUnitTestCase
         $this->assertTrue(deleteSiteOption($key));
         $this->assertNotEquals('some-value', getSiteOption($key));
         $this->assertNull(getSiteOption($key));
+    }
+
+    public function testAddOrUpdateOptionsHelpers()
+    {
+        global $wpdb;
+        $optionsKey = 'add-or-update';
+        $this->assertTrue(addOrUpdateOption($optionsKey, 'some-value'));
+
+        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->options} WHERE option_name = %s", getOptionName($optionsKey)));
+        $this->assertEquals('no', $row->autoload);
+
+        $this->assertTrue(addOrUpdateOption($optionsKey, 'some-other-value'));
+        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->options} WHERE option_name = %s", getOptionName($optionsKey)));
+        $this->assertEquals('no', $row->autoload);
+
+        $optionsKey = 'add-or-update-2';
+        $this->assertTrue(updateOption($optionsKey, 'some-value'));
+        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->options} WHERE option_name = %s", getOptionName($optionsKey)));
+        $this->assertEquals('yes', $row->autoload);
     }
 
     public function testOptionsHelpers()
