@@ -979,7 +979,7 @@ function booleanToStateString(bool $state): string
 /**
  * Get the title with optional blog-parameter.
  *
- * @param $postId
+ * @param string|int $postId
  * @param null|int $blogId
  *
  * @return string
@@ -1011,7 +1011,7 @@ function checkboxIsChecked($value, string $onString = 'on'): bool
 /**
  * Convert an array of post IDs into array of title and Post ID.
  *
- * @param $posts
+ * @param array $posts
  * @param null|int $blogId
  *
  * @return array
@@ -1607,6 +1607,7 @@ function addOrUpdateOption(string $optionName, $value, bool $assertUpdate = true
 
 /**
  * Added custom blog option add function that supports autoload-parameter.
+ *
  * @param string|int $id
  * @param string $option
  * @param mixed $value
@@ -1625,7 +1626,7 @@ function addBlogOption($id, string $option, $value, string $autoload = 'no')
     }
 
     if ( get_current_blog_id() == $id ) {
-        return add_option( $option, $value );
+        return add_option( $option, $value, '', $autoload );
     }
 
     switch_to_blog( $id );
@@ -1647,7 +1648,8 @@ function addBlogOption($id, string $option, $value, string $autoload = 'no')
  */
 function addOrUpdateBlogOption($blogId, string $optionName, $value, bool $assertUpdate = true, string $autoload = 'no'): bool
 {
-    if (addBlogOption($blogId, $optionName, $value, $autoload)) {
+    $addAttempt = addBlogOption($blogId, $optionName, $value, $autoload);
+    if ($addAttempt) {
         if ($assertUpdate) {
             $currentValue = getBlogOption($blogId, $optionName);
             return ($currentValue == $value);

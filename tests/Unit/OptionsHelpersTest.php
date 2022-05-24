@@ -4,19 +4,33 @@ namespace Unit;
 
 use ServeboltWPUnitTestCase;
 use Unit\Traits\MultisiteTrait;
+
+use function Servebolt\Optimizer\Helpers\smartAddOrUpdateOption;
+use function Servebolt\Optimizer\Helpers\smartUpdateOption;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
+use function Servebolt\Optimizer\Helpers\smartDeleteOption;
+
 use function Servebolt\Optimizer\Helpers\addOrUpdateOption;
+use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\getOption;
+use function Servebolt\Optimizer\Helpers\deleteOption;
+
+//use function Servebolt\Optimizer\Helpers\addOrUpdateBlogOption; // Already tested through function "smartAddOrUpdateOption" in multisite context
+use function Servebolt\Optimizer\Helpers\updateBlogOption;
+use function Servebolt\Optimizer\Helpers\getBlogOption;
+use function Servebolt\Optimizer\Helpers\deleteBlogOption;
+
+use function Servebolt\Optimizer\Helpers\updateSiteOption;
+use function Servebolt\Optimizer\Helpers\getSiteOption;
+use function Servebolt\Optimizer\Helpers\deleteSiteOption;
+
 use function Servebolt\Optimizer\Helpers\clearDefaultOption;
 use function Servebolt\Optimizer\Helpers\clearOptionsOverride;
+use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\deleteAllSettings;
 use function Servebolt\Optimizer\Helpers\deleteAllSiteSettings;
-use function Servebolt\Optimizer\Helpers\deleteBlogOption;
-use function Servebolt\Optimizer\Helpers\deleteOption;
-use function Servebolt\Optimizer\Helpers\deleteSiteOption;
 use function Servebolt\Optimizer\Helpers\getAllOptionsNames;
 use function Servebolt\Optimizer\Helpers\getAllSiteOptionNames;
-use function Servebolt\Optimizer\Helpers\getBlogOption;
-use function Servebolt\Optimizer\Helpers\getOption;
-use function Servebolt\Optimizer\Helpers\getSiteOption;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionUpdates;
@@ -24,32 +38,29 @@ use function Servebolt\Optimizer\Helpers\listenForOptionChange;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\skipNextListen;
-use function Servebolt\Optimizer\Helpers\smartDeleteOption;
-use function Servebolt\Optimizer\Helpers\smartGetOption;
-use function Servebolt\Optimizer\Helpers\smartUpdateOption;
-use function Servebolt\Optimizer\Helpers\getOptionName;
-use function Servebolt\Optimizer\Helpers\updateBlogOption;
-use function Servebolt\Optimizer\Helpers\updateOption;
-use function Servebolt\Optimizer\Helpers\updateSiteOption;
 
 class OptionsHelpersTest extends ServeboltWPUnitTestCase
 {
     use MultisiteTrait;
 
-    public function testThatOptionNameIsCorrect()
+    public function testSmartAddOrUpdateBlogOptionsHelpers()
     {
-        $this->assertEquals('servebolt_some_option', getOptionName('some_option'));
-    }
+        $this->skipWithoutMultisite();
+        $this->createBlogs(3);
+        iterateSites(function ($site) {
+            global $wpdb;
+            $optionsName = 'add-or-update';
 
-    public function testSiteOptionsHelpers()
-    {
-        $key = 'some-option-for-testing-site-wide';
-        $this->assertNull(getSiteOption($key));
-        $this->assertTrue(updateSiteOption($key, 'some-value'));
-        $this->assertEquals('some-value', getSiteOption($key));
-        $this->assertTrue(deleteSiteOption($key));
-        $this->assertNotEquals('some-value', getSiteOption($key));
-        $this->assertNull(getSiteOption($key));
+            $this->assertTrue(smartAddOrUpdateOption($site->blog_id, $optionsName, 'some-value'));
+            $this->assertEquals('no', $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
+
+            $this->assertTrue(smartAddOrUpdateOption($site->blog_id, $optionsName, 'some-other-value'));
+            $this->assertEquals('no', $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
+
+            $optionsName = 'add-or-update-2';
+            $this->assertTrue(smartUpdateOption($site->blog_id, $optionsName, 'some-value'));
+            $this->assertEquals('yes', $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
+        }, true);
     }
 
     public function testSmartOptionsHelpersMultisite()
@@ -67,12 +78,31 @@ class OptionsHelpersTest extends ServeboltWPUnitTestCase
         $this->deleteBlogs();
     }
 
-    /*
-    public function testAddOrUpdateBlogOptionsHelpers()
+    public function testSmartOptionsHelpersSinglesite()
     {
-
+        $key = 'some-option-for-testing-smart-option';
+        $this->assertNull(smartGetOption(null, $key));
+        $this->assertTrue(smartUpdateOption(null, $key, 'some-value'));
+        $this->assertEquals('some-value', smartGetOption(null, $key));
+        $this->assertTrue(smartDeleteOption(null, $key));
+        $this->assertNull(smartGetOption(null, $key));
     }
-    */
+
+    public function testThatOptionNameIsCorrect()
+    {
+        $this->assertEquals('servebolt_some_option', getOptionName('some_option'));
+    }
+
+    public function testSiteOptionsHelpers()
+    {
+        $key = 'some-option-for-testing-site-wide';
+        $this->assertNull(getSiteOption($key));
+        $this->assertTrue(updateSiteOption($key, 'some-value'));
+        $this->assertEquals('some-value', getSiteOption($key));
+        $this->assertTrue(deleteSiteOption($key));
+        $this->assertNotEquals('some-value', getSiteOption($key));
+        $this->assertNull(getSiteOption($key));
+    }
 
     public function testOptionsHelpers()
     {
@@ -97,16 +127,6 @@ class OptionsHelpersTest extends ServeboltWPUnitTestCase
             $this->assertNull(getBlogOption($site->blog_id, $key));
         }, true);
         $this->deleteBlogs();
-    }
-
-    public function testSmartOptionsHelpers()
-    {
-        $key = 'some-option-for-testing-smart-option';
-        $this->assertNull(smartGetOption(null, $key));
-        $this->assertTrue(smartUpdateOption(null, $key, 'some-value'));
-        $this->assertEquals('some-value', smartGetOption(null, $key));
-        $this->assertTrue(smartDeleteOption(null, $key));
-        $this->assertNull(smartGetOption(null, $key));
     }
 
     public function testOptionsOverride()
@@ -198,23 +218,27 @@ class OptionsHelpersTest extends ServeboltWPUnitTestCase
         $this->assertEquals('an-actual-value', smartGetOption(null, $key, 'default-value'));
     }
 
+    private function getOptionsAutoloadState($tableName, $optionsName)
+    {
+        global $wpdb;
+        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$tableName} WHERE option_name = %s", $optionsName));
+        return $row->autoload;
+    }
+
     public function testAddOrUpdateOptionsHelpers()
     {
         global $wpdb;
-        $optionsKey = 'add-or-update';
-        $this->assertTrue(addOrUpdateOption($optionsKey, 'some-value'));
+        $optionsName = 'add-or-update';
+        $this->assertTrue(addOrUpdateOption($optionsName, 'some-value'));
 
-        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->options} WHERE option_name = %s", getOptionName($optionsKey)));
-        $this->assertEquals('no', $row->autoload);
+        $this->assertEquals('no', $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
 
-        $this->assertTrue(addOrUpdateOption($optionsKey, 'some-other-value'));
-        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->options} WHERE option_name = %s", getOptionName($optionsKey)));
-        $this->assertEquals('no', $row->autoload);
+        $this->assertTrue(addOrUpdateOption($optionsName, 'some-other-value'));
+        $this->assertEquals('no', $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
 
-        $optionsKey = 'add-or-update-2';
-        $this->assertTrue(updateOption($optionsKey, 'some-value'));
-        $row = $wpdb->get_row($wpdb->prepare("SELECT * FROM {$wpdb->options} WHERE option_name = %s", getOptionName($optionsKey)));
-        $this->assertEquals('yes', $row->autoload);
+        $optionsName = 'add-or-update-2';
+        $this->assertTrue(updateOption($optionsName, 'some-value'));
+        $this->assertEquals('yes', $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
     }
 
     public function testThatWeCanSetADefaultOptionsValueWithFunctionClosure(): void
