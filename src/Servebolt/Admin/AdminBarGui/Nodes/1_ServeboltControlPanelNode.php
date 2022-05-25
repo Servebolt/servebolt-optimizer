@@ -23,7 +23,7 @@ class ServeboltControlPanelNode implements NodeInterface
     {
         return apply_filters(
             'sb_optimizer_admin_bar_display_control_panel_node',
-            (current_user_can('manage_options') && isHostedAtServebolt())
+            (isHostedAtServebolt() && current_user_can('manage_options'))
         );
     }
 

@@ -119,10 +119,7 @@ class AdminBarGui
 
     private function hasNodes(): bool
     {
-        if (is_null($this->nodes)) {
-            $this->nodes = $this->initNodes();
-        }
-        return !empty($this->nodes);
+        return !empty($this->getNodes());
     }
 
     private function getNodes(): ?array
