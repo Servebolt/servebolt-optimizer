@@ -1618,7 +1618,7 @@ function addBlogOption($id, string $option, $value, string $autoload = 'no')
 {
     $option = getOptionName($option);
 
-    // From wp-includes/ms-blogs.php
+    // From function "add_blog_option" in wp-includes/ms-blogs.php:403
     $id = (int) $id;
 
     if ( empty( $id ) ) {
