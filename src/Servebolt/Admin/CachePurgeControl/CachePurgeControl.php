@@ -73,7 +73,7 @@ class CachePurgeControl
         });
         // Fix faulty page title
         add_filter('admin_title', function($admin_title, $title) {
-            if (isScreen('admin_page_servebolt-cache-purge-control')) {
+            if (isScreen('page_servebolt-cache-purge-control')) {
                 return __('Cache Purging', 'servebolt-wp') . ' ' . $admin_title;
             }
             return $admin_title;
@@ -218,7 +218,7 @@ class CachePurgeControl
 
     public function enqueueScripts(): void
     {
-        if (!isScreen('admin_page_servebolt-cache-purge-control')) {
+        if (!isScreen('page_servebolt-cache-purge-control')) {
             return;
         }
         wp_enqueue_script(
@@ -247,13 +247,7 @@ class CachePurgeControl
         foreach ($items as $item) {
             switch ($item) {
                 case 'cache_purge_driver':
-                    if (!isHostedAtServebolt()) {
-                        $value = $this->getDefaultCachePurgeDriver(); // Only allow Cloudflare when not hosted at Servebolt
-                    } else {
-                        //$value = getOption($item);
-                        $value = CachePurge::getSelectedCachePurgeDriver();
-                    }
-                    $itemsWithValues['cache_purge_driver'] = $value ?: $this->getDefaultCachePurgeDriver();
+                    $itemsWithValues['cache_purge_driver'] = CachePurge::getSelectedCachePurgeDriver();
                     break;
                 case 'cf_auth_type':
                     $value = getOption($item);

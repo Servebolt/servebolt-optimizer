@@ -5,7 +5,7 @@ namespace Servebolt\Optimizer\AcceleratedDomains\Prefetching;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_Http;
-use Exception;
+use Throwable;
 
 /**
  * Class Prefetching
@@ -60,6 +60,7 @@ class Prefetching
     /**
      * Add menu item URLs to prefetch list.
      */
+    /*
     function getPrefetchListMenuItems(): void
     {
         if ($menus = wp_get_nav_menus()) {
@@ -80,6 +81,7 @@ class Prefetching
             }
         }
     }
+    */
 
     /**
      * Handle assets - works for both scripts and styles.
@@ -370,7 +372,7 @@ class Prefetching
                 'sslverify' => false,
             ]);
             return true;
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
         return false;
     }
 

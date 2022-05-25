@@ -21,6 +21,52 @@ function resolveViewPath($templatePath): ?string
 }
 
 /**
+ * Check whether we could read environment file.
+ *
+ * @return bool
+ */
+function envFileRead(): bool
+{
+    return did_action('sb_optimizer_env_file_reader_failure') === 0;
+}
+
+/**
+ * Return error in WP CLI if the environment file could not be read.
+ *
+ * @return void
+ */
+function envFileReadFailureCliHandling()
+{
+    if (!envFileRead()) {
+        \WP_CLI::error(__('Could not obtain config from environment file. Aborting.', 'servebolt-wp'));
+    }
+}
+
+/**
+ * Add admin notice if we cannot read the environment file.
+ *
+ * @return void
+ */
+function envFileFailureHandling()
+{
+    add_action('sb_optimizer_env_file_reader_failure', function($e) {
+        add_action('admin_notices', function() use ($e) {
+            $adminUrl = getServeboltAdminUrl();
+            ?>
+            <div class="notice notice-error is-dismissable">
+                <p><?php echo __('Servebolt Optimizer could not read the environment file which is necessary for the plugin to function. This file originates from Servebolt and contains information about your site.', 'servebolt-wp'); ?></p>
+                <p><?php printf(__('To fix this then go to your %ssite settings%s, click "Settings" and make sure that the setting "Environment file in home folder" is <strong>not</strong> set to "None". Remember to click "Save settings" to ensure that the file is written to disk regardless of the previous state of the setting.', 'servebolt-wp'), '<a href="' . $adminUrl . '" target="_blank">', '</a>'); ?></p>
+                <p><?php printf(__('%sGet in touch with our support via chat%s if you need assistance with resolving this issue.', 'servebolt-wp'), '<a href="https://admin.servebolt.com/" target="_blank">', '</a>'); ?></p>
+                <?php if ($e->getCode() !== 69): ?>
+                    <p>Error message: <?php echo $e->getMessage(); ?></p>
+                <?php endif; ?>
+            </div>
+            <?php
+        });
+    });
+}
+
+/**
  * Display a view, Laravel style.
  *
  * @param string $templatePath
@@ -292,14 +338,29 @@ function snakeCaseToCamelCase(string $string, bool $capitalizeFirst = false): st
  *
  * @return mixed|null
  */
-function getSiteId()
+function getSiteId(): ?string
+{
+    if (isHostedAtServebolt()) {
+        if ($id = getSiteIdFromEnvFile()) {
+            return $id;
+        }
+    }
+    if ($id = getSiteIdFromWebrootPath(false)) {
+        return $id;
+    }
+    return null;
+}
+
+/**
+ * Get site ID from Env-file.
+ *
+ * @return mixed|null
+ */
+function getSiteIdFromEnvFile(): ?string
 {
     $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
     if ($env->id) {
         return $env->id;
-    }
-    if ($id = getSiteIdFromWebrootPath()) {
-        return $id;
     }
     return null;
 }
@@ -307,12 +368,14 @@ function getSiteId()
 /**
  * Get site ID from the webroot folder path.
  *
+ * @param bool $attemptPathFromEnvironmentFile Whether to attempt to get webroot folder path from environment file.
  * @return string|null
  */
-function getSiteIdFromWebrootPath():? string
+function getSiteIdFromWebrootPath(bool $attemptPathFromEnvironmentFile = true): ?string
 {
+    $path = $attemptPathFromEnvironmentFile ? getWebrootPath() : getWebrootPathFromWordPress();
     if (
-        preg_match("@kunder/[a-z_0-9]+/[a-z_]+(\d+)/@", getWebrootPath(), $matches)
+        preg_match('/kunder\/[a-z_0-9]+\/[a-z_]+(\d+)(|\/)/', $path, $matches)
         && isset($matches[1])
     ) {
         return $matches[1];
@@ -328,17 +391,43 @@ function getSiteIdFromWebrootPath():? string
 function getWebrootPath(): ?string
 {
     if (isHostedAtServebolt()) {
-        $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
-        if ($env->public_dir) {
-            return apply_filters('sb_optimizer_wp_webroot_path', $env->public_dir);
+        if ($fromEnvFile = getWebrootPathFromEnvFile()) {
+            return $fromEnvFile;
         }
     }
+    if ($fromWordPress = getWebrootPathFromWordPress()) {
+        return $fromWordPress;
+    }
+    return null;
+}
+
+/**
+ * Get the path to the webroot using the environment file.
+ *
+ * @return string|null
+ */
+function getWebrootPathFromEnvFile(): ?string
+{
+    $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
+    if ($env->public_dir) {
+        return apply_filters('sb_optimizer_wp_webroot_path_from_env', apply_filters('sb_optimizer_wp_webroot_path', $env->public_dir));
+    }
+    return null;
+}
+
+/**
+ * Get the path to the webroot using WordPress.
+ *
+ * @return string
+ */
+function getWebrootPathFromWordPress(): ?string
+{
     if (!function_exists('get_home_path')) {
         require_once ABSPATH . 'wp-admin/includes/file.php';
     }
     if (function_exists('get_home_path')) {
         if ($path = get_home_path()) {
-            return apply_filters('sb_optimizer_wp_webroot_path', $path);
+            return apply_filters('sb_optimizer_wp_webroot_path_from_wp', apply_filters('sb_optimizer_wp_webroot_path', $path));
         }
     }
     return null;
@@ -368,21 +457,35 @@ function getServeboltAdminUrl($argsOrPage = []) :? string
 }
 
 /**
- * Check if we are currently viewing a given screen.
+ * Check if we are currently viewing a given network-screen.
  *
- * @param string $screenId
- * @param bool $networkSupport
+ * @param $screenId
  * @return bool
  */
-function isScreen(string $screenId, bool $networkSupport = true): bool
+function isNetworkScreen($screenId): bool
 {
     $currentScreen = get_current_screen();
-    if ($screenId == $currentScreen->id) {
-        return true;
-    }
-    if ($networkSupport) {
-        $networkScreenId = $screenId . '-network';
-        if ($networkScreenId == $currentScreen->id) {
+    return $screenId . '-network' == $currentScreen->id;
+}
+
+/**
+ * Check if we are currently viewing a given screen.
+ *
+ * @param string $screenId The ID of the screen to check for.
+ * @param bool $networkSupport Whether to support network
+ * @param bool $strict
+ * @return bool
+ */
+function isScreen(string $screenId, bool $networkSupport = true, bool $strict = false): bool
+{
+    $prefixes = $strict ? [''] : ['admin_', 'servebolt_'];
+    foreach ($prefixes as $prefix) {
+        $screenIdWithPrefix = $prefix . trim($screenId, '_');
+        $currentScreen = get_current_screen();
+        if ($screenIdWithPrefix == $currentScreen->id) {
+            return true;
+        }
+        if ($networkSupport && isNetworkScreen($screenIdWithPrefix)) {
             return true;
         }
     }
@@ -548,6 +651,11 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         // Legacy
         'record_max_num_pages_nonce',
         'sb_optimizer_record_max_num_pages',
+        'cf_items_to_purge',
+        'cf_cron_purge',
+
+        // Env file reader
+        'env_file_path',
 
         // Wipe encryption keys
         'mcrypt_key',
@@ -586,10 +694,6 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'cf_api_key',
         'cf_api_token',
         'queue_based_cache_purge',
-
-        // Legacy
-        'cf_items_to_purge',
-        'cf_cron_purge',
 
         // Accelerated Domains
         'acd_switch',
@@ -875,7 +979,7 @@ function booleanToStateString(bool $state): string
 /**
  * Get the title with optional blog-parameter.
  *
- * @param $postId
+ * @param string|int $postId
  * @param null|int $blogId
  *
  * @return string
@@ -907,7 +1011,7 @@ function checkboxIsChecked($value, string $onString = 'on'): bool
 /**
  * Convert an array of post IDs into array of title and Post ID.
  *
- * @param $posts
+ * @param array $posts
  * @param null|int $blogId
  *
  * @return array
@@ -1481,6 +1585,81 @@ function deleteOption(string $option, bool $assertUpdate = true)
 }
 
 /**
+ * Add or update a WordPress-option. The option will _not_ auto-load.
+ *
+ * @param string $optionName
+ * @param mixed $value
+ * @param bool $assertUpdate
+ * @param string $autoload
+ * @return bool
+ */
+function addOrUpdateOption(string $optionName, $value, bool $assertUpdate = true, string $autoload = 'no'): bool
+{
+    if (add_option(getOptionName($optionName), $value, '', $autoload)) {
+        if ($assertUpdate) {
+            $currentValue = getOption($optionName);
+            return ($currentValue == $value);
+        }
+        return true;
+    }
+    return updateOption($optionName, $value, $assertUpdate);
+}
+
+/**
+ * Added custom blog option add function that supports autoload-parameter.
+ *
+ * @param string|int $id
+ * @param string $option
+ * @param mixed $value
+ * @param string $autoload
+ * @return bool
+ */
+function addBlogOption($id, string $option, $value, string $autoload = 'no')
+{
+    $option = getOptionName($option);
+
+    // From function "add_blog_option" in wp-includes/ms-blogs.php:403
+    $id = (int) $id;
+
+    if ( empty( $id ) ) {
+        $id = get_current_blog_id();
+    }
+
+    if ( get_current_blog_id() == $id ) {
+        return add_option( $option, $value, '', $autoload );
+    }
+
+    switch_to_blog( $id );
+    $return = add_option( $option, $value, '', $autoload );
+    restore_current_blog();
+
+    return $return;
+}
+
+/**
+ * Add or update blog option.
+ *
+ * @param int|string $blogId
+ * @param string $optionName
+ * @param mixed $value
+ * @param bool $assertUpdate
+ * @param string $autoload
+ * @return bool
+ */
+function addOrUpdateBlogOption($blogId, string $optionName, $value, bool $assertUpdate = true, string $autoload = 'no'): bool
+{
+    $addAttempt = addBlogOption($blogId, $optionName, $value, $autoload);
+    if ($addAttempt) {
+        if ($assertUpdate) {
+            $currentValue = getBlogOption($blogId, $optionName);
+            return ($currentValue == $value);
+        }
+        return true;
+    }
+    return updateBlogOption($blogId, $optionName, $value, $assertUpdate);
+}
+
+/**
  * Update option.
  *
  * @param string $optionName
@@ -1564,6 +1743,25 @@ function getSiteOption(string $optionName, $default = null)
     $fullOptionName = getOptionName($optionName);
     $value = get_site_option($fullOptionName, $default);
     return apply_filters('sb_optimizer_get_site_option_' . $fullOptionName, $value);
+}
+
+/**
+ * A function that will store the option at the right place (in current blog or a specified blog).
+ *
+ * @param null|int $blogId
+ * @param string $optionName
+ * @param mixed $value
+ * @param bool $assertUpdate
+ * @return bool
+ */
+function smartAddOrUpdateOption(?int $blogId = null, string $optionName, $value, bool $assertUpdate = true): bool
+{
+    if (is_numeric($blogId)) {
+        $result = addOrUpdateBlogOption($blogId, $optionName, $value, $assertUpdate);
+    } else {
+        $result = addOrUpdateOption($optionName, $value, $assertUpdate);
+    }
+    return $result;
 }
 
 /**
@@ -1933,54 +2131,49 @@ function skipNextListen($optionName): void
  * Listen for updates to one or multiple site options.
  *
  * @param string|array $optionNameOrNames
- * @param string|callable $closureOrAction
+ * @param string|callable $closureOrActionOrFilter
+ * @param string string $type
+ * @return void
  */
-function listenForCheckboxSiteOptionUpdates($optionNameOrNames, $closureOrAction): void
+function listenForCheckboxSiteOptionUpdates($optionNameOrNames, $closureOrActionOrFilter, string $type = 'action'): void
 {
-    if (!is_array($optionNameOrNames)) {
-        $optionNameOrNames = [$optionNameOrNames];
-    }
-    foreach ($optionNameOrNames as $optionName) {
-        add_filter('pre_update_site_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
-            if (shouldSkipEventListen($optionName)) {
-                return $newValue;
-            }
-            $wasActive = checkboxIsChecked($oldValue);
-            $isActive = checkboxIsChecked($newValue);
-            $didChange = $wasActive !== $isActive;
-            if (is_callable($closureOrAction)) {
-                $closureOrAction($wasActive, $isActive, $didChange, $optionName);
-            } else {
-                do_action('servebolt_' . $closureOrAction, $wasActive, $isActive, $didChange, $optionName);
-            }
-            return $newValue;
-        }, 10, 2);
-    }
+    listenForCheckboxOptionUpdates($optionNameOrNames, $closureOrActionOrFilter, $type, 'pre_update_site_option_');
 }
 
 /**
  * Listen for updates to one or multiple options.
  *
  * @param string|array $optionNameOrNames
- * @param string|callable $closureOrAction
+ * @param string|callable $closureOrActionOrFilter
+ * @param string $type
+ * @param string $filterPrefix
+ * @return void
  */
-function listenForCheckboxOptionUpdates($optionNameOrNames, $closureOrAction): void
+function listenForCheckboxOptionUpdates($optionNameOrNames, $closureOrActionOrFilter, string $type = 'action', string $filterPrefix = 'pre_update_option_'): void
 {
+    $type = $type === 'action' ? $type : 'filter';
     if (!is_array($optionNameOrNames)) {
         $optionNameOrNames = [$optionNameOrNames];
     }
     foreach ($optionNameOrNames as $optionName) {
-        add_filter('pre_update_option_' . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrAction, $optionName) {
+        add_filter($filterPrefix . getOptionName($optionName), function ($newValue, $oldValue) use ($closureOrActionOrFilter, $optionName, $type) {
             if (shouldSkipEventListen($optionName)) {
                 return $newValue;
             }
             $wasActive = checkboxIsChecked($oldValue);
             $isActive = checkboxIsChecked($newValue);
             $didChange = $wasActive !== $isActive;
-            if (is_callable($closureOrAction)) {
-                $closureOrAction($wasActive, $isActive, $didChange, $optionName);
+            if (is_callable($closureOrActionOrFilter)) {
+                $returnValue = $closureOrActionOrFilter($wasActive, $isActive, $didChange, $optionName);
+                if ($type === 'filter') {
+                    return $returnValue;
+                }
             } else {
-                do_action('servebolt_' . $closureOrAction, $wasActive, $isActive, $didChange, $optionName);
+                if ($type === 'action') {
+                    do_action('servebolt_' . $closureOrActionOrFilter, $wasActive, $isActive, $didChange, $optionName);
+                } else {
+                    return apply_filters('servebolt_' . $closureOrActionOrFilter, $wasActive, $isActive, $didChange, $optionName);
+                }
             }
             return $newValue;
         }, 10, 2);

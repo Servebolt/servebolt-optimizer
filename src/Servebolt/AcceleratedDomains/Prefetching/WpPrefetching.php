@@ -201,9 +201,11 @@ class WpPrefetching extends Prefetching
         if ($this->shouldRecordScripts()) {
             add_action('wp_print_scripts', [$this, 'getScriptsToPrefetch'], 99);
         }
+        /*
         if (self::shouldRecordMenuItems()) {
             add_action('wp_footer', [$this, 'getPrefetchListMenuItems'], 99);
         }
+        */
 
         if ($this->shouldStoreManifestData()) {
             add_action('wp_footer', [$this, 'generateManifestFilesData'], 100);
@@ -275,7 +277,7 @@ class WpPrefetching extends Prefetching
         switch ($type) {
             case 'style':
             case 'script':
-            case 'menu':
+            //case 'menu':
                 break;
             default:
                 return false;
@@ -328,7 +330,7 @@ class WpPrefetching extends Prefetching
     {
         setDefaultOption('prefetch_file_style_switch', '__return_true');
         setDefaultOption('prefetch_file_script_switch', '__return_true');
-        setDefaultOption('prefetch_file_menu_switch', '__return_true');
+        //setDefaultOption('prefetch_file_menu_switch', '__return_true');
     }
 
     /**
@@ -370,10 +372,12 @@ class WpPrefetching extends Prefetching
         return (bool) apply_filters('sb_optimizer_prefetching_record_scripts', self::fileIsActive('script'));
     }
 
+    /*
     public static function shouldRecordMenuItems(): bool
     {
         return (bool) apply_filters('sb_optimizer_prefetching_record_menu_items', self::fileIsActive('menu'));
     }
+    */
 
     /**
      * Check whether we should redirect after having recorded prefetch items / generated manifest files.
@@ -392,8 +396,10 @@ class WpPrefetching extends Prefetching
             return $override;
         }
         return apply_filters('sb_optimizer_prefetching_write_manifest_file', true)
-            || $this->shouldRecordScripts()
-            || $this->shouldRecordStyles()
-            || self::shouldRecordMenuItems();
+            && (
+                $this->shouldRecordScripts()
+                || $this->shouldRecordStyles()
+                //|| self::shouldRecordMenuItems()
+            );
     }
 }

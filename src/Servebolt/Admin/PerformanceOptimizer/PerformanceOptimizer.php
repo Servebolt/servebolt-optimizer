@@ -4,9 +4,7 @@ namespace Servebolt\Optimizer\Admin\PerformanceOptimizer;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\CronControl\Scripts\WpCronMultisiteScript\WpCronMultisiteScript;
 use Servebolt\Optimizer\CronControl\WpCronControl;
-use Servebolt\Optimizer\CronControl\WpUnixCronControl;
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\wpCronDisabled;

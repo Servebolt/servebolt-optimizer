@@ -133,7 +133,7 @@ class Assets {
             );
             $cacheFeatureActive = CachePurge::featureIsAvailable();
             $postId = CachePurgeControl::getSinglePostId();
-            wp_localize_script('servebolt-optimizer-block-editor-cache-purge-menu-scripts', 'sb_ajax_object_block_editor_menu', [
+            wp_localize_script('servebolt-optimizer-block-editor-cache-purge-menu-scripts', 'servebolt_optimizer_ajax_object_block_editor_menu', [
                 'cacheFeatureActive' => $cacheFeatureActive,
                 'canPurgePostCache' => $cacheFeatureActive && $postId && PurgeActions::canPurgePostCache($postId),
                 'canPurgeAllCache' => $cacheFeatureActive && PurgeActions::canPurgeAllCache(),
@@ -182,7 +182,7 @@ class Assets {
                 ['jquery'],
                 true
             );
-            wp_localize_script('servebolt-optimizer-cache-purge-trigger-scripts', 'sb_ajax_object', [
+            wp_localize_script('servebolt-optimizer-cache-purge-trigger-scripts', 'servebolt_optimizer_ajax_object', [
                 'is_dev'                 => isDevDebug(),
                 'ajax_nonce'             => getAjaxNonce(),
                 'site_url'               => get_site_url(),

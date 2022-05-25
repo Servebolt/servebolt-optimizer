@@ -34,9 +34,11 @@ class FilePurge
      */
     public function __construct()
     {
+        /*
         if (apply_filters('sb_optimizer_prefetching_should_purge_on_menu_update', WpPrefetching::shouldRecordMenuItems())) {
             $this->purgeOnMenuUpdate();
         }
+        */
         if (apply_filters('sb_optimizer_prefetching_should_purge_on_theme_switch', true)) {
             $this->purgeOnThemeSwitch();
         }
@@ -48,23 +50,27 @@ class FilePurge
     /**
      * Purge menu manifest file on menu update.
      */
+    /*
     private function purgeOnMenuUpdate(): void
     {
         add_filter('pre_set_theme_mod_nav_menu_locations', [$this, 'scheduleManifestFileRegenerationOnDisplayLocationChange'], 10, 1); // When a menu changes
         add_action('transition_post_status', [$this, 'wpRestAutoAddToMenuHandling'], 9, 3); // During automatic addition of a page to one or more menus
     }
+    */
 
     /**
      * Schedule manifest file regeneration when a menu item is automatically added to one or more menus from a page creation-context.
      *
      * @return void
      */
+    /*
     public function wpRestAutoAddToMenuHandling($newStatus, $oldStatus, $post)
     {
         if ($this->shouldAutoAddPagesToMenus($newStatus, $oldStatus, $post) === true) {
             $this->scheduleManifestFileRegeneration();
         }
     }
+    */
 
     /**
      * Check whether we should automatically add new pages to menus.
@@ -129,11 +135,13 @@ class FilePurge
      * @param mixed $value
      * @return mixed
      */
+    /*
     public function scheduleManifestFileRegenerationOnDisplayLocationChange($value)
     {
         $this->scheduleManifestFileRegeneration();
         return $value;
     }
+    */
 
     /**
      * Schedule all manifest files to be regenerated.

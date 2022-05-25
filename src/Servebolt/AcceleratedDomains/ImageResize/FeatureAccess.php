@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\AcceleratedDomains\ImageResize;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-//use Servebolt\Optimizer\Utils\EnvironmentConfig;
+use Servebolt\Optimizer\Utils\EnvironmentConfig;
 
 /**
  * Class FeatureAccess
@@ -21,10 +21,7 @@ class FeatureAccess
      */
     public static function hasAccess(bool $purgeCache = false): bool
     {
-        return true;
-        /*
         $config = EnvironmentConfig::getInstance();
         return (bool) $config->get('sb_acd_image_resize', $purgeCache);
-        */
     }
 }

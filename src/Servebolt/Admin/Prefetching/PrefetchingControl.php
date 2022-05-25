@@ -104,7 +104,7 @@ class PrefetchingControl
         listenForCheckboxOptionChange([
             'prefetch_file_style_switch',
             'prefetch_file_script_switch',
-            'prefetch_file_menu_switch',
+            //'prefetch_file_menu_switch',
         ], function ($wasActive, $isActive, $optionName) {
             if ($isActive) {
                 WpPrefetching::scheduleRecordPrefetchItems();
@@ -150,7 +150,7 @@ class PrefetchingControl
     {
         // TODO: Fix multisite setup menu for prefetching
         // TODO: Fix script for prefetching in multisite
-        if (!isScreen('admin_page_servebolt-prefetching')) {
+        if (!isScreen('page_servebolt-prefetching')) {
             return;
         }
         wp_enqueue_script(
@@ -199,7 +199,7 @@ class PrefetchingControl
             'prefetch_switch',
             'prefetch_file_style_switch',
             'prefetch_file_script_switch',
-            'prefetch_file_menu_switch',
+            //'prefetch_file_menu_switch',
             'prefetch_full_url_switch',
             'prefetch_max_number_of_lines',
         ];

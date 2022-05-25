@@ -2,12 +2,19 @@
 
 namespace Unit\Traits;
 
+use Servebolt\Optimizer\Utils\EnvFile\Reader;
 use WP_UnitTestCase;
 use Unit\Traits\EnvFile\EnvFileReaderTrait;
 
 class EnvironmentFileReaderTest extends WP_UnitTestCase
 {
     use EnvFileReaderTrait;
+
+    public function setUp()
+    {
+        parent::setUp();
+        Reader::toggleCache(false);
+    }
 
     public function testThatWeCanReadFileWithAutoResolution()
     {

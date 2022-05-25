@@ -40,9 +40,8 @@
         <div class="sb-welcome-panel-column" style="padding: 0 1rem 1.5rem 0;">
             <h3><?php _e('Public Beta', 'servebolt-wp'); ?></h3>
             <p>
-                <?php
-                _e('The Image Resize feature of Accelerated Domains is in public beta until late September 2021. The feature has been thoroughly tested by the Servebolt team. However, if you run into any bugs, please report them to the Servebolt support team.', 'servebolt-wp');
-                ?>
+                <?php //_e('The Image Resize feature of Accelerated Domains is in public beta until late September 2021. The feature has been thoroughly tested by the Servebolt team. However, if you run into any bugs, please report them to the Servebolt support team.', 'servebolt-wp'); ?>
+                <?php _e('This feature has been thoroughly tested by the Servebolt team. However, if you run into any bugs, please report them to the Servebolt support team.', 'servebolt-wp'); ?>
             </p>
             <p>
                 <?php

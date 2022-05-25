@@ -137,9 +137,9 @@ window.loadAcdImageSizes = function() {
     window.acdSpinner(true);
     const data = new FormData();
     data.append('action', 'servebolt_acd_load_image_sizes');
-    data.append('security', sb_ajax_object.ajax_nonce);
+    data.append('security', servebolt_optimizer_ajax_object.ajax_nonce);
     const queryString = new URLSearchParams(data).toString();
-    fetch(sb_ajax_object.ajaxurl + '?' + queryString,
+    fetch(servebolt_optimizer_ajax_object.ajaxurl + '?' + queryString,
         {
             method: 'GET'
         }
@@ -267,7 +267,7 @@ window.acdCheckAllCheckboxAvailability = function() {
  */
 function imageSizeValid(str)
 {
-    var patt = new RegExp(sb_ajax_object_acd_image_size.image_size_regex_pattern);
+    var patt = new RegExp(servebolt_optimizer_ajax_object_acd_image_size.image_size_regex_pattern);
     if (!patt.test(str)) {
         return false;
     }
@@ -360,9 +360,9 @@ window.submitAcdImageSizeAction = function(value, action, success, error) {
     window.acdSpinner(true);
     const data = new FormData();
     data.append('action', action);
-    data.append('security', sb_ajax_object.ajax_nonce);
+    data.append('security', servebolt_optimizer_ajax_object.ajax_nonce);
     data.append('value', value);
-    fetch(sb_ajax_object.ajaxurl,
+    fetch(servebolt_optimizer_ajax_object.ajaxurl,
     {
             method: 'POST',
             body: data

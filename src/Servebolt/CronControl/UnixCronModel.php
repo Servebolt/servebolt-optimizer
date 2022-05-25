@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\CronControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
 use Servebolt\Optimizer\CronControl\Commands\WpCliEventRun;
 use Servebolt\Optimizer\CronControl\Commands\WpCliEventRunMultisite;
@@ -85,7 +85,7 @@ class UnixCronModel
             foreach ($cronJobs as $cronJob) {
                 try {
                     $api->cron->delete($cronJob->id);
-                } catch (Exception $e) {
+                } catch (Throwable $e) {
                     return false; // We could not delete current cron job
                 }
             }
@@ -114,9 +114,24 @@ class UnixCronModel
                 $environmentId
             );
             return $response->wasSuccessful();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return false; // We could not delete current cron job
         }
+    }
+
+    /**
+     * Get the default active state.
+     *
+     * @param $commandInstance
+     * @return bool
+     */
+    private static function defaultActiveState($commandInstance): bool
+    {
+        $legacy = apply_filters('sb_optimizer_unix_cron_model_default_enabled', null, $commandInstance);
+        if (is_bool($legacy)) {
+            return $legacy;
+        }
+        return (bool) apply_filters('sb_optimizer_unix_cron_model_default_active', true, $commandInstance);
     }
 
     /**
@@ -129,13 +144,34 @@ class UnixCronModel
     {
         return [
             'attributes' => [
-                'enabled' => apply_filters('sb_optimizer_unix_cron_model_default_enabled', true, $commandInstance),
+                'active' => self::defaultActiveState($commandInstance),
                 'command' => $commandInstance->generateCommand(),
                 'comment' => $commandInstance->generateComment(),
                 'schedule' => $commandInstance->getInterval(),
-                'notifications' => apply_filters('sb_optimizer_unix_cron_model_default_notification', 'none', $commandInstance),
+                'notifications' => self::defaultNotification($commandInstance),
             ]
         ];
+    }
+
+    /**
+     * Get the notification level for this cron.
+     *
+     * @param $commandInstance
+     * @return string
+     */
+    private static function defaultNotification($commandInstance): string
+    {
+        /**
+         * Determine the level of notifications for this.
+         *
+         * @param string $notifications A string controlling the notification levels for this cron.
+         * @param object $commandInstance An instance of the command being set up as a cron.
+         */
+        return (string) apply_filters(
+            'sb_optimizer_unix_cron_model_default_notification',
+            'all', // Should we use 'none' instead?
+            $commandInstance
+        );
     }
 
     /**
@@ -165,7 +201,7 @@ class UnixCronModel
         $api = ServeboltApi::getInstance();
         try {
             $response = $api->cron->list();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return null;
         }
         if (!$response->wasSuccessful() || !$response->hasResult()) {
@@ -175,7 +211,7 @@ class UnixCronModel
         if ($cronJobs && is_array($cronJobs)) {
             if ($onlyActive) {
                 $filteredCronJobs = array_filter($cronJobs, function($cronjob) {
-                    return $cronjob->attributes->enabled;
+                    return $cronjob->attributes->active;
                 });
                 if ($filteredCronJobs) {
                     return $filteredCronJobs;

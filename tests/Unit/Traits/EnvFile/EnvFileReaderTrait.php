@@ -15,10 +15,13 @@ trait EnvFileReaderTrait
      */
     public static function getEnvFileReader(string $type = 'auto', bool $useSingleton = true)
     {
+        add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
         if ($useSingleton) {
-            return Reader::getInstance(__DIR__ . '/', $type);
+            $instance = Reader::getInstance(__DIR__ . '/', $type);
         } else {
-            return new Reader(__DIR__ . '/', $type);
+            $instance = new Reader(__DIR__ . '/', $type);
         }
+        remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        return $instance;
     }
 }

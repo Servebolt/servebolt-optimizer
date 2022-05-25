@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Compatibility\WooCommerce;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\ContentChangeTrigger;
@@ -78,7 +78,7 @@ class ProductCachePurgeOnStockChange
                     } else {
                         WordPressCachePurge::purgeByPostId($productId);
                     }
-                } catch (Exception $e) {}
+                } catch (Throwable $e) {}
             }
         }
     }
@@ -140,7 +140,6 @@ class ProductCachePurgeOnStockChange
         if (apply_filters('sb_optimizer_woocommerce_product_cache_purge_on_stock_status_change', true) === false) {
             return false; // We're not supposed to purge cache on WooCommerce stock status change
         }
-
         return $this->shouldPurgeCacheOnStockCommonCondition();
     }
 

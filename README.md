@@ -40,8 +40,20 @@ Credentials for the SVN repository is stored in the password manager. The creden
 If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to WordPress.org.
 
 ## Changelog
+#### 3.5.4
+* Bugfix - Removed menu manifest file option from Prefetch-feature. Due to some difficulties with making the menu manifest file work in the Prefetch-feature it was decided to remove it until further notice. The script and style file manifest files will persist as before.
+* Bugfix - Resolved issue with the cache purge features in row actions for taxonomies/post types . The plugin adds row actions to purge cache for posts and terms (using ). We previously targeted all registered post types and taxonomies.
+* Bugfix - Automatic cache purge of products during WooCommerce checkout. In some cases there was an error during the WooCommerce checkout. The feature in question purged cache for the product during checkout so that stock amount and status would be kept up to date. This error should now be resolved.
+* Bugfix - Automatic setup of WP Cron on multisite failed. The feature that sets the WP Cron up with the UNIX cron failed when ran on a multisite. This should now be fixed. The cause of the error was that the lockfiles we’re not generated with a valid filename. These lockfiles (originating from “flock”) keeps the system from running concurrent cron tasks, so that we force the system to wait until the previous job is done. Note that this is a Servebolt hosted only feature.
+* Bugfix - Error during plugin uninstallation. There was an error during plugin uninstallation due to a missing PHP constant. This is now fixed.
+* Bugfix - Errors when environment file is not present. There was some error related to the environment file not being found, either because there is a custom WordPress folder structure or because the file is removed (either by deletion on disk or by disabling the file in the control panel). The plugin now handles the absence of this file in a better way - the error handling was improved and there is a admin notice telling the user that the file is missing + instructions on how to fix this.
+
 #### 3.5.3
+* Fixed incompatibility issue with plugin Lightweight Sidebar Manager
+* Fixed issue with automatic cron setup (Servebolt-clients only) not working due to bug in the Servebolt API
 * Added migration to clean up legacy transients (orphaned transients without expiry)
+* Fixed bug in settings form for the Prefetch-feature 
+* Fixed bug in feature access check for the Accelerated Domains Image Resize-feature
 * Fixed bug in database migration runner
 
 #### 3.5.2

@@ -2,7 +2,7 @@
 
 namespace Servebolt\Optimizer\Admin\Prefetching\Ajax;
 
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\AcceleratedDomains\Prefetching\WpPrefetching;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
 use function Servebolt\Optimizer\Helpers\ajaxUserAllowed;
@@ -39,7 +39,7 @@ class PrefetchingControlAjax extends SharedAjaxMethods
         }
         try {
             WpPrefetching::recordPrefetchItemsAndExposeManifestFiles();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             wp_send_json_error();
         }
     }
@@ -66,7 +66,7 @@ class PrefetchingControlAjax extends SharedAjaxMethods
                 'should_expose_manifest_files_after_prefetch_items_record' => WpPrefetching::shouldExposeManifestFilesAfterPrefetchItemsRecord(),
                 'login_url' => WpPrefetching::loginUrl(),
             ]);
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             wp_send_json_error();
         }
     }
@@ -87,7 +87,7 @@ class PrefetchingControlAjax extends SharedAjaxMethods
         try {
             WpPrefetching::scheduleRecordPrefetchItems();
             wp_send_json_success();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             wp_send_json_error();
         }
     }

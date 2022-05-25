@@ -79,13 +79,13 @@ jQuery(document).ready(function($) {
       var spinner = $('#sb-configuration .purge-queue-loading-spinner'),
           data = {
             action: 'servebolt_delete_cache_purge_queue_items',
-            security: sb_ajax_object.ajax_nonce,
+            security: servebolt_optimizer_ajax_object.ajax_nonce,
             items_to_remove: items_to_remove,
           };
       spinner.addClass('is-active');
       $.ajax({
         type: 'POST',
-        url: sb_ajax_object.ajaxurl,
+        url: servebolt_optimizer_ajax_object.ajaxurl,
         data: data,
         success: function (response) {
           spinner.removeClass('is-active');
@@ -158,7 +158,7 @@ jQuery(document).ready(function($) {
         spinner = $('#sb-configuration .zone-loading-spinner'),
         data = {
           action: 'servebolt_lookup_zone',
-          security: sb_ajax_object.ajax_nonce,
+          security: servebolt_optimizer_ajax_object.ajax_nonce,
           form: form.serialize(),
         };
       if ( ! zone_id ) {
@@ -168,7 +168,7 @@ jQuery(document).ready(function($) {
       spinner.addClass('is-active');
       $.ajax({
         type: 'POST',
-        url: sb_ajax_object.ajaxurl,
+        url: servebolt_optimizer_ajax_object.ajaxurl,
         data: data,
         success: function (response) {
           spinner.removeClass('is-active');
@@ -317,14 +317,14 @@ jQuery(document).ready(function($) {
     spinner.addClass('is-active');
     var data = {
       action: 'servebolt_lookup_zones',
-      security: sb_ajax_object.ajax_nonce,
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
       auth_type: auth_type,
       credentials: credentials
     };
     // TODO: Abort any current requests
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function (response) {
         spinner.removeClass('is-active');
@@ -495,14 +495,14 @@ jQuery(document).ready(function($) {
       form = $('#sb-configuration-form'),
       data = {
         action: 'servebolt_validate_cf_settings_form',
-        security: sb_ajax_object.ajax_nonce,
+        security: servebolt_optimizer_ajax_object.ajax_nonce,
         form: form.serialize(),
       };
     form.find('input[type="submit"]').prop('disabled', true);
     spinner.addClass('is-active');
     $.ajax({
       type: 'POST',
-      url: sb_ajax_object.ajaxurl,
+      url: servebolt_optimizer_ajax_object.ajaxurl,
       data: data,
       success: function (response) {
         clear_validation_errors();
