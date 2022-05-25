@@ -23,7 +23,7 @@ function sb_purge_url($url, bool $return_wp_error_object = false)
             // TODO: Return WP Error object
         }
         return false;
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         if ($return_wp_error_object) {
             // TODO: Return WP Error object
         }
@@ -53,7 +53,7 @@ function sb_purge_post_cache($post_id, bool $return_wp_error_object = false)
             // TODO: Return WP Error object
         }
         return false;
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         // TODO: Handle general error
         if ($return_wp_error_object) {
             // TODO: Return WP Error object
@@ -87,7 +87,7 @@ function sb_purge_term_cache($term_id, $taxonomy_slug, bool $return_wp_error_obj
             // TODO: Return WP Error object
         }
         return false;
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         // TODO: Handle general error
         if ($return_wp_error_object) {
             // TODO: Return WP Error object
@@ -116,7 +116,7 @@ function sb_purge_all(bool $return_wp_error_object = false)
             // TODO: Return WP Error object
         }
         return false;
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         // TODO: Handle general error
         if ($return_wp_error_object) {
             // TODO: Return WP Error object
@@ -148,7 +148,7 @@ function sb_purge_all_by_blog_id($blog_id, bool $return_wp_error_object = false)
             // TODO: Return WP Error object
         }
         return false;
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         // TODO: Handle general error
         if ($return_wp_error_object) {
             // TODO: Return WP Error object
@@ -180,7 +180,7 @@ function sb_purge_all_network(bool $return_wp_error_object = false)
             // TODO: Return WP Error object
         }
         return false;
-    } catch (Exception $e) {
+    } catch (Throwable $e) {
         // TODO: Handle general error
         if ($return_wp_error_object) {
             // TODO: Return WP Error object

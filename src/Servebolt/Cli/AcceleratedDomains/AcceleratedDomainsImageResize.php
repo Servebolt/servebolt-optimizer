@@ -9,6 +9,7 @@ use Throwable;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize as AcceleratedDomainsImageResizeClass;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\FeatureAccess;
+use function Servebolt\Optimizer\Helpers\arrayGet;
 use function WP_CLI\Utils\format_items as WP_CLI_FormatItems;
 use function Servebolt\Optimizer\Helpers\booleanToStateString;
 use function Servebolt\Optimizer\Helpers\iterateSites;
@@ -27,6 +28,19 @@ class AcceleratedDomainsImageResize
         WP_CLI::add_command('servebolt acd image-resize status', [$this, 'statusAcdImageResize']);
         WP_CLI::add_command('servebolt acd image-resize activate', [$this, 'activateAcdImageResize']);
         WP_CLI::add_command('servebolt acd image-resize deactivate', [$this, 'deactivateAcdImageResize']);
+    }
+
+    /**
+     * @param array $assocArgs
+     * @return bool
+     */
+    private function hasAccessToFeature($assocArgs): bool
+    {
+        $shouldSkipAccessCheck = arrayGet('force', $assocArgs) === true;
+        if ($shouldSkipAccessCheck) {
+            return true;
+        }
+        return FeatureAccess::hasAccess();
     }
 
     /**
@@ -137,6 +151,9 @@ class AcceleratedDomainsImageResize
      *     # Activate the feature.
      *     wp servebolt acd image-resize activate
      *
+     *     # Activate the feature without checking whether the site have access to the feature.
+     *     wp servebolt acd image-resize activate --force
+     *
      *     # Activate the feature for all sites in multisite.
      *     wp servebolt acd image-resize activate --all
      *
@@ -146,7 +163,7 @@ class AcceleratedDomainsImageResize
     public function activateAcdImageResize($args, $assocArgs): void
     {
         CliHelpers::setReturnJson($assocArgs);
-        if (!FeatureAccess::hasAccess()) {
+        if (!$this->hasAccessToFeature($assocArgs)) {
             $message = $this->featureAccessError();
             $this->disableAll($assocArgs);
             if (CliHelpers::returnJson()) {
@@ -287,7 +304,7 @@ class AcceleratedDomainsImageResize
      */
     private function featureAccessError()
     {
-        return __('Your bolt-subscription does not have access to the Accelerated Domains Image Resize-feature and the feature will therefore not operate. The feature can be enabled in the control panel.', 'servebolt-wp');
+        return __('Your bolt-subscription does not seem have access to the Accelerated Domains Image Resize-feature and the feature will therefore not operate. The feature can be enabled in the control panel.', 'servebolt-wp');
     }
 
     /**
