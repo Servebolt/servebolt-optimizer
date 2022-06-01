@@ -137,6 +137,9 @@ class AcceleratedDomainsImageResize
      * [--all]
      * : Activate on all sites.
      *
+     * [--force]
+     * : Will skip checking whether you have access to the feature or not.
+     *
      * [--format=<format>]
      * : Return format.
      * ---
