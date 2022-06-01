@@ -46,8 +46,10 @@
     "gist-embed": "^2.6.0",
     "imagemin-webpack-plugin": "^2.4.2",
     "jest": "^27.0.5",
+    "npm": "^6.9.0",
     "progress-bar-webpack-plugin": "^1.12.1",
     "regenerator-runtime": "^0.13.2",
+    "rimraf": "^2.6.3",
     "style-loader": "^0.23.1",
     "stylelint": "^10.0.1",
     "stylelint-config-wordpress": "^14.0.0",
@@ -58,8 +60,5 @@
     "webpack-cli": "^3.3.2",
     "webpack-rtl-plugin": "^2.0.0"
   },
-  "dependencies": {
-    "npm": "^6.9.0",
-    "rimraf": "^2.6.3"
-  }
+  "dependencies": {}
 }

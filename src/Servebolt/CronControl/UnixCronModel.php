@@ -80,7 +80,7 @@ class UnixCronModel
      */
     public static function delete($commandInstance): bool
     {
-        if ($cronJobs = self::resolve($commandInstance)) {
+        if ($cronJobs = self::resolve($commandInstance, false)) {
             $api = ServeboltApi::getInstance();
             foreach ($cronJobs as $cronJob) {
                 try {
