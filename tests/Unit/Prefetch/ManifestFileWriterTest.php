@@ -174,7 +174,7 @@ class ManifestFileWriterTest
         ManifestFileWriter::write();
         $this->assertFileNotExists(ManifestFileWriter::getFilePath('script'));
         $this->assertFileExists(ManifestFileWriter::getFilePath('style'));
-        //$this->assertFileNotExists(ManifestFileWriter::getFilePath('menu));
+        //$this->assertFileNotExists(ManifestFileWriter::getFilePath('menu'));
 
         $data = ManifestFilesModel::get();
         $this->assertEquals([
