@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2022-05-20T14:00:13+00:00\n"
+"POT-Creation-Date: 2022-05-27T10:22:41+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.6.0\n"
 "X-Domain: servebolt-wp\n"
@@ -509,48 +509,48 @@ msgstr ""
 msgid "Accelerated Domains deactivated."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:66
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:80
 msgid "Note: %s"
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:101
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:115
 msgid "Accelerated Domains Image Resize feature is %s."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:166
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:183
 msgid "Accelerated Domains Image Resize feature already active on site %s."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:169
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:186
 msgid "Accelerated Domains Image Resize feature activated on site %s."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:192
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:209
 msgid "Accelerated Domains Image Resize feature already active."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:195
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:212
 msgid "Accelerated Domains Image Resize feature activated."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:243
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:260
 msgid "Accelerated Domains Image Resize feature already inactive on site %s."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:246
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:263
 msgid "Accelerated Domains Image Resize feature deactivated on site %s."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:269
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:286
 msgid "Accelerated Domains Image Resize feature already inactive."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:272
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:289
 msgid "Accelerated Domains Image Resize feature deactivated."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:290
-msgid "Your bolt-subscription does not have access to the Accelerated Domains Image Resize-feature and the feature will therefore not operate. The feature can be enabled in the control panel."
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:307
+msgid "Your bolt-subscription does not seem have access to the Accelerated Domains Image Resize-feature and the feature will therefore not operate. The feature can be enabled in the control panel."
 msgstr ""
 
 #: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageSizeIndex.php:61
@@ -1135,7 +1135,7 @@ msgstr ""
 
 #: src/Servebolt/Helpers/Helpers.php:58
 #: src/Servebolt/Views/performance-optimizer/advanced/shared-settings/cron-explanation-heading.php:9
-msgid "To fix this then go to your %ssite settings%s, click \"Settings\" and make sure that the setting \"Environment file in home folder\" is <strong>not</strong> to \"None\". Remember to click \"Save settings\" to ensure that the file is written to disk regardless of the previous state of the setting."
+msgid "To fix this then go to your %ssite settings%s, click \"Settings\" and make sure that the setting \"Environment file in home folder\" is <strong>not</strong> set to \"None\". Remember to click \"Save settings\" to ensure that the file is written to disk regardless of the previous state of the setting."
 msgstr ""
 
 #: src/Servebolt/Helpers/Helpers.php:59
