@@ -51,7 +51,7 @@ abstract class UnixCronControl
             $commandClasses = [static::getCurrentCommandClass()];
         }
         foreach($commandClasses as $commandClass) {
-            if (!UnixCronModel::exists($commandClass)) {
+            if (!UnixCronModel::exists($commandClass, false)) {
                 continue;
             }
             UnixCronModel::delete($commandClass);

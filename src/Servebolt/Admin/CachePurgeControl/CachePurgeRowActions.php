@@ -52,15 +52,44 @@ class CachePurgeRowActions
     }
 
     /**
+     * Return post types to add row actions for cache purging.
+     *
+     * @return array|string[]|void|\WP_Post_Type[]
+     */
+    private function postTypesToAddCachePurgeRowActionsTo()
+    {
+        $postTypes = get_post_types(apply_filters('sb_optimizer_cache_purge_row_action_post_types_query', ['public' => true]));
+        $filteredPostTypes = apply_filters('sb_optimizer_cache_purge_row_action_post_types', $postTypes);
+        if (is_array($filteredPostTypes)) {
+            return $filteredPostTypes;
+        }
+        return $postTypes;
+    }
+
+    /**
+     * Return taxonomies to add row actions for cache purging.
+     *
+     * @return array|string[]|void|\WP_Post_Type[]
+     */
+    private function taxonomiesToAddCachePurgeRowActionsTo()
+    {
+        $taxonomies = get_taxonomies(apply_filters('sb_optimizer_cache_purge_row_action_taxonomies_query', ['public' => true]));
+        $filteredTaxonomies = apply_filters('sb_optimizer_cache_purge_row_action_taxonomies', $taxonomies);
+        if (is_array($filteredTaxonomies)) {
+            return $filteredTaxonomies;
+        }
+        return $taxonomies;
+    }
+
+    /**
      * Add cache purge-action to post/term row actions.
      */
     public function rowActionCachePurge(): void
     {
-        foreach(apply_filters('sb_optimizer_cache_purge_row_action_taxonomies', get_taxonomies()) as $taxonomy) {
+        add_filter('post_row_actions', [$this, 'addPostPurgeRowAction'], 10, 2);
+        add_filter('page_row_actions', [$this, 'addPostPurgeRowAction'], 10, 2);
+        foreach($this->taxonomiesToAddCachePurgeRowActionsTo() as $taxonomy) {
             add_filter($taxonomy . '_row_actions', [$this, 'addTermPurgeRowAction'], 10, 2);
-        }
-        foreach(apply_filters('sb_optimizer_cache_purge_row_action_post_types', get_post_types()) as $postType) {
-            add_filter($postType . '_row_actions', [$this, 'addPostPurgeRowAction'], 10, 2);
         }
     }
 
@@ -102,14 +131,16 @@ class CachePurgeRowActions
             $this->cacheFeatureIsAvailable()
             && PurgeActions::canPurgePostCache($post->ID)
         ) {
-            $actions['purge-cache'] = sprintf(
-                '<a href="%1$s" data-post-id="%2$s" data-object-name="%3$s" class="%4$s">%5$s</a>',
-                '#',
-                $post->ID,
-                getPostTypeSingularName($post->ID),
-                'sb-purge-post-cache',
-                esc_html(__('Purge cache', 'servebolt-wp'))
-            );
+            if (in_array($post->post_type, $this->postTypesToAddCachePurgeRowActionsTo())) {
+                $actions['purge-cache'] = sprintf(
+                    '<a href="%1$s" data-post-id="%2$s" data-object-name="%3$s" class="%4$s">%5$s</a>',
+                    '#',
+                    $post->ID,
+                    getPostTypeSingularName($post->ID),
+                    'sb-purge-post-cache',
+                    esc_html(__('Purge cache', 'servebolt-wp'))
+                );
+            }
         }
         return $actions;
     }

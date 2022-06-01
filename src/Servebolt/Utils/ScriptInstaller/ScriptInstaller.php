@@ -129,7 +129,7 @@ class ScriptInstaller
      *
      * @return string
      */
-    private function resolveInstallPath(): string
+    private function resolveInstallPath(): ?string
     {
         if (is_string($this->installPath)) {
             return $this->installPath;

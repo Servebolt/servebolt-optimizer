@@ -10,6 +10,7 @@ use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\getOptionName;
 use function Servebolt\Optimizer\Helpers\getSiteOption;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionUpdates;
 use function Servebolt\Optimizer\Helpers\listenForCheckboxSiteOptionUpdates;
 use function Servebolt\Optimizer\Helpers\overrideMenuTitle;
@@ -37,8 +38,10 @@ class PerformanceOptimizerAdvanced
     {
         $this->initSettings();
         $this->rewriteHighlightedMenuItem();
-        $this->listenForActionSchedulerUnixCronActivation();
-        $this->listenForWpUnixCronActivation();
+        if (isHostedAtServebolt()) {
+            $this->listenForActionSchedulerUnixCronActivation();
+            $this->listenForWpUnixCronActivation();
+        }
         new SiteOptionsHandling;
     }
 
@@ -47,8 +50,8 @@ class PerformanceOptimizerAdvanced
      */
     private function listenForWpUnixCronActivation(): void
     {
-        listenForCheckboxOptionUpdates('wp_unix_cron_active', [$this, 'handleWpUnixCronActivation']);
-        listenForCheckboxSiteOptionUpdates('wp_unix_cron_active', [$this, 'handleWpUnixCronActivation']);
+        listenForCheckboxOptionUpdates('wp_unix_cron_active', [$this, 'handleWpUnixCronActivation'], 'filter');
+        listenForCheckboxSiteOptionUpdates('wp_unix_cron_active', [$this, 'handleWpUnixCronActivation'], 'filter');
     }
 
     /**
@@ -57,14 +60,20 @@ class PerformanceOptimizerAdvanced
      * @param $wasActive
      * @param $isActive
      * @param $optionName
+     * @return int
      */
     public function handleWpUnixCronActivation($wasActive, $isActive, $optionName)
     {
         if ($isActive) {
             WpCronControl::setUp();
+            if (!WpCronControl::isSetUp()) {
+                $isActive = false;
+            }
         } else {
             WpCronControl::tearDown();
         }
+        return $isActive ? 1 : 0;
+
     }
 
     /**
@@ -72,8 +81,8 @@ class PerformanceOptimizerAdvanced
      */
     private function listenForActionSchedulerUnixCronActivation(): void
     {
-        listenForCheckboxOptionUpdates('action_scheduler_unix_cron_active', [$this, 'handleActionSchedulerUnixCronActivation']);
-        listenForCheckboxSiteOptionUpdates('action_scheduler_unix_cron_active', [$this, 'handleActionSchedulerUnixCronActivation']);
+        listenForCheckboxOptionUpdates('action_scheduler_unix_cron_active', [$this, 'handleActionSchedulerUnixCronActivation'], 'filter');
+        listenForCheckboxSiteOptionUpdates('action_scheduler_unix_cron_active', [$this, 'handleActionSchedulerUnixCronActivation'], 'filter');
     }
 
     /**
@@ -82,14 +91,19 @@ class PerformanceOptimizerAdvanced
      * @param $wasActive
      * @param $isActive
      * @param $optionName
+     * @return int
      */
     public function handleActionSchedulerUnixCronActivation($wasActive, $isActive, $optionName)
     {
         if ($isActive) {
             ActionSchedulerCronControl::setUp();
+            if (!ActionSchedulerCronControl::isSetUp()) {
+                $isActive = false;
+            }
         } else {
             ActionSchedulerCronControl::tearDown();
         }
+        return $isActive ? 1 : 0;
     }
 
     private function initSettings(): void

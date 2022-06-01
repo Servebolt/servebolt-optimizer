@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Traits\EventToggler;
@@ -86,7 +86,7 @@ class DeletionCacheTrigger
             setCachePurgeOriginEvent('term_deleted');
             WordPressCachePurge::skipQueueOnce();
             WordPressCachePurge::purgeByTermId($termId, $taxonomySlug);
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
     }
 
     /**
@@ -100,6 +100,6 @@ class DeletionCacheTrigger
             setCachePurgeOriginEvent('post_deleted');
             WordPressCachePurge::skipQueueOnce();
             WordPressCachePurge::purgeByPostId((int) $postId);
-        } catch (Exception $e) {}
+        } catch (Throwable $e) {}
     }
 }

@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\CronControl;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\Api\Servebolt\Servebolt as ServeboltApi;
 use Servebolt\Optimizer\CronControl\Commands\WpCliEventRun;
 use Servebolt\Optimizer\CronControl\Commands\WpCliEventRunMultisite;
@@ -80,12 +80,12 @@ class UnixCronModel
      */
     public static function delete($commandInstance): bool
     {
-        if ($cronJobs = self::resolve($commandInstance)) {
+        if ($cronJobs = self::resolve($commandInstance, false)) {
             $api = ServeboltApi::getInstance();
             foreach ($cronJobs as $cronJob) {
                 try {
                     $api->cron->delete($cronJob->id);
-                } catch (Exception $e) {
+                } catch (Throwable $e) {
                     return false; // We could not delete current cron job
                 }
             }
@@ -114,7 +114,7 @@ class UnixCronModel
                 $environmentId
             );
             return $response->wasSuccessful();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return false; // We could not delete current cron job
         }
     }
@@ -148,9 +148,30 @@ class UnixCronModel
                 'command' => $commandInstance->generateCommand(),
                 'comment' => $commandInstance->generateComment(),
                 'schedule' => $commandInstance->getInterval(),
-                'notifications' => apply_filters('sb_optimizer_unix_cron_model_default_notification', 'none', $commandInstance),
+                'notifications' => self::defaultNotification($commandInstance),
             ]
         ];
+    }
+
+    /**
+     * Get the notification level for this cron.
+     *
+     * @param $commandInstance
+     * @return string
+     */
+    private static function defaultNotification($commandInstance): string
+    {
+        /**
+         * Determine the level of notifications for this.
+         *
+         * @param string $notifications A string controlling the notification levels for this cron.
+         * @param object $commandInstance An instance of the command being set up as a cron.
+         */
+        return (string) apply_filters(
+            'sb_optimizer_unix_cron_model_default_notification',
+            'all', // Should we use 'none' instead?
+            $commandInstance
+        );
     }
 
     /**
@@ -180,7 +201,7 @@ class UnixCronModel
         $api = ServeboltApi::getInstance();
         try {
             $response = $api->cron->list();
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return null;
         }
         if (!$response->wasSuccessful() || !$response->hasResult()) {

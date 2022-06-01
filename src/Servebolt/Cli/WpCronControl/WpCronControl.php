@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use WP_CLI;
 use Servebolt\Optimizer\CronControl\WpCronControl as WpCronControlNotCli;
+use function Servebolt\Optimizer\Helpers\envFileReadFailureCliHandling;
 
 /**
  * Class WpCronControl
@@ -34,6 +35,7 @@ class WpCronControl
      */
     public function status()
     {
+        envFileReadFailureCliHandling();
         if (WpCronControlNotCli::isSetUp()) {
             WP_CLI::success(__('WP Cron setup ok!', 'servebolt-wp'));
         } else {
@@ -52,6 +54,7 @@ class WpCronControl
      */
     public function enable()
     {
+        envFileReadFailureCliHandling();
         $wasSatUp = WpCronControlNotCli::isSetUp();
         WpCronControlNotCli::setUp();
         if ($wasSatUp) {
@@ -71,6 +74,7 @@ class WpCronControl
      */
     public function disable()
     {
+        envFileReadFailureCliHandling();
         $wasSatUp = WpCronControlNotCli::isSetUp();
         WpCronControlNotCli::tearDown();
         if (!$wasSatUp) {

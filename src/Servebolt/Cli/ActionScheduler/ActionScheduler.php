@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use WP_CLI;
 use Servebolt\Optimizer\CronControl\ActionSchedulerCronControl;
 use function Servebolt\Optimizer\Helpers\actionSchedulerIsActive;
+use function Servebolt\Optimizer\Helpers\envFileReadFailureCliHandling;
 
 /**
  * Class ActionScheduler
@@ -33,6 +34,7 @@ class ActionScheduler
      */
     public function status()
     {
+        envFileReadFailureCliHandling();
         if (actionSchedulerIsActive()) {
             WP_CLI::success(__('Action Scheduler seems to be installed.', 'servebolt-wp'));
         } else {
@@ -55,6 +57,7 @@ class ActionScheduler
      */
     public function enable()
     {
+        envFileReadFailureCliHandling();
         if (!actionSchedulerIsActive()) {
             WP_CLI::confirm(__('Action Scheduler does not seem to be installed. Do you still want to continue?', 'servebolt-wp'));
         }
@@ -76,6 +79,7 @@ class ActionScheduler
      */
     public function disable()
     {
+        envFileReadFailureCliHandling();
         if (!actionSchedulerIsActive()) {
             WP_CLI::confirm(__('Action Scheduler does not seem to be installed. Do you still want to continue?', 'servebolt-wp'));
         }

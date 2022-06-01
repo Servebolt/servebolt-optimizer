@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Admin\CachePurgeControl\Ajax;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Admin\SharedAjaxMethods;
@@ -180,7 +180,7 @@ class PurgeActions extends SharedAjaxMethods
             } else {
                 wp_send_json_error(['type' => 'error', 'message' => $e->getMessage()]);
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             wp_send_json_error(['type' => 'error', 'message' => $e->getMessage()]);
         }
     }
@@ -272,7 +272,7 @@ class PurgeActions extends SharedAjaxMethods
             } else {
                 wp_send_json_error(['message' => $e->getMessage()]);
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             wp_send_json_error(['message' => $e->getMessage()]);
         }
     }
@@ -374,7 +374,7 @@ class PurgeActions extends SharedAjaxMethods
             } else {
                 wp_send_json_error(['message' => $e->getMessage()]);
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             wp_send_json_error(['message' => $e->getMessage()]);
         }
     }
@@ -409,7 +409,7 @@ class PurgeActions extends SharedAjaxMethods
             } else {
                 wp_send_json_success(['message' => __('All cache was purged.', 'servebolt-wp')]);
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->handleErrors($e);
         }
     }
@@ -565,7 +565,7 @@ class PurgeActions extends SharedAjaxMethods
                 'success' => false,
                 'message' => sprintf(__('Could not purge cache on site %s.', 'servebolt-wp'), get_site_url($blogId))
             ];
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return [
                 'success' => false,
                 'message' => sprintf(__('Could not purge cache on site %s.', 'servebolt-wp'), get_site_url($blogId))

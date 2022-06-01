@@ -4,7 +4,7 @@ namespace Servebolt\Optimizer\Traits;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Exception;
+use Throwable;
 
 trait ClientMethodProxy
 {
@@ -31,7 +31,7 @@ trait ClientMethodProxy
         if (is_object($this->client)) {
             try {
                 return $this->client->{$name};
-            } catch (Exception $e) {
+            } catch (Throwable $e) {
                 trigger_error(sprintf('Call to undefined property %s', $name));
             }
         } else {

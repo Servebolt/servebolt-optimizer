@@ -9,7 +9,7 @@ use Exception;
 /**
  * Transforms a wp-config.php file.
  *
- * Borrowed from package wp-cli/wp-config-transformer. Place manually into project due to complexity surrounding automatic class/namespace-prefixing and possible conflics with other plugins etc.
+ * Borrowed from package wp-cli/wp-config-transformer. Placed manually into project due to complexity surrounding automatic class/namespace-prefixing and possible conflicts with other plugins etc.
  */
 class WPConfigTransformer {
 	/**

@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, robsat91, servebolt
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, html cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 5.9.2
+Tested up to: 5.9.3
 Requires PHP: 7.3
-Stable tag: 3.5.3
+Stable tag: 3.5.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,7 +51,7 @@ This plugin rewrites HTTP headers of HTML to allow for HTML Caching, and for the
 
 ### Configuration
 
-This plugin can be controlled via the WordPress Dashboard or WP CLI. Additonalaly there are various filters and PHP constants at your disposal.
+This plugin can be controlled via the WordPress Dashboard or WP CLI. Additionally there are various filters and PHP constants at your disposal.
 
 ### Filter and constant reference
 
@@ -93,6 +93,14 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.4 =
+* Bugfix - Removed menu manifest file option from Prefetch-feature. Due to some difficulties with making the menu manifest file work in the Prefetch-feature it was decided to remove it until further notice. The script and style file manifest files will persist as before.
+* Bugfix - Resolved issue with the cache purge features in row actions for taxonomies/post types. The plugin adds purge cache-link in the row actions for posts and terms. We previously targeted all registered post types and taxonomies, but this is now changed to only target public post types and terms. The targeted post types and terms can also be controlled through filters (sb_optimizer_cache_purge_row_action_post_types, sb_optimizer_cache_purge_row_action_post_types_query, sb_optimizer_cache_purge_row_action_taxonomies, sb_optimizer_cache_purge_row_action_taxonomies_query).
+* Bugfix - Automatic cache purge of products during WooCommerce checkout. In some cases there was an error during the WooCommerce checkout. The feature in question purged cache for the product during checkout so that stock amount and status would be kept up to date. This error should now be resolved.
+* Bugfix - Automatic setup of WP Cron on multisite failed. The feature that sets the WP Cron up with the UNIX cron failed when ran on a multisite. This should now be fixed. The cause of the error was that the lockfiles we’re not generated with a valid filename. These lockfiles (originating from “flock”) keeps the system from running concurrent cron tasks, so that we force the system to wait until the previous job is done. Note that this is a Servebolt hosted only feature.
+* Bugfix - Error during plugin uninstallation. There was an error during plugin uninstallation due to a missing PHP constant. This is now fixed.
+* Bugfix - Errors when environment file is not present. There was some error related to the environment file not being found, either because there is a custom WordPress folder structure or because the file is removed (either by deletion on disk or by disabling the file in the control panel). The plugin now handles the absence of this file in a better way - the error handling was improved and there is an admin notice telling the user that the file is missing + instructions on how to fix this.
+
 = 3.5.3 =
 * Fixed incompatibility issue with plugin Lightweight Sidebar Manager
 * Fixed issue with automatic cron setup (Servebolt-clients only) not working due to bug in the Servebolt API

@@ -108,7 +108,9 @@
                 </td>
             </tr>
 
+            <?php if ($isHostedAtServebolt): ?>
             <?php view('cache-settings.cache-purge.configuration.acd-configuration', $arguments); ?>
+            <?php endif; ?>
 
             <?php if (!$acdLock): ?>
                 <?php view('cache-settings.cache-purge.configuration.cloudflare-configuration', $arguments); ?>

@@ -35,6 +35,20 @@ class CachePurge
     private $driver;
 
     /**
+     * Drivers that require the site to be hosted at Servebolt.
+     *
+     * @var string[]
+     */
+    private static $serveboltOnlyDrivers = ['acd', 'serveboltcdn'];
+
+    /**
+     * Valid drivers.
+     *
+     * @var string[]
+     */
+    private static $validDrivers = ['cloudflare', 'acd', 'serveboltcdn'];
+
+    /**
      * CachePurge constructor.
      * @param int|null $blogId
      */
@@ -68,14 +82,47 @@ class CachePurge
     }
 
     /**
+     * Get the name of the selected driver without checking for proper configuration.
+     *
+     * @param int|null $blogId
+     * @param bool $verbose
+     * @return string
+     */
+    public static function resolveDriverNameWithoutConfigCheck(?int $blogId = null, bool $verbose = false): string
+    {
+        $isActive = self::isActive($blogId);
+        if (
+            $isActive
+            && self::cloudflareIsSelected($blogId)
+        ) {
+            return $verbose ? 'Cloudflare' : 'cloudflare';
+        }
+        if (
+            isHostedAtServebolt()
+            && $isActive
+        ) {
+            if (self::serveboltCdnIsSelected($blogId)) {
+                return $verbose ? 'Servebolt CDN' : 'serveboltcdn';
+            }
+            if (self::acdIsSelected($blogId)) {
+                return $verbose ? 'Accelerated Domains' : 'acd';
+            }
+        }
+        return self::defaultDriverName($verbose);
+    }
+
+    /**
+     * Get the selected driver name.
+     *
      * @param int|null $blogId
      * @param bool $verbose
      * @return string
      */
     public static function resolveDriverName(?int $blogId = null, bool $verbose = false): string
     {
+        $isActive = self::isActive($blogId);
         if (
-            self::isActive($blogId)
+            $isActive
             && self::cloudflareIsSelected($blogId)
             && self::cloudflareIsConfigured($blogId)
         ) {
@@ -83,7 +130,7 @@ class CachePurge
         }
         if (
             isHostedAtServebolt()
-            && self::isActive($blogId)
+            && $isActive
         ) {
             if (
                 self::serveboltCdnIsSelected($blogId)
@@ -291,18 +338,26 @@ class CachePurge
      * Get the selected cache purge driver.
      *
      * @param int|null $blogId
-     * @return mixed|void
+     * @param bool $strict
+     * @return string
      */
-    public static function getSelectedCachePurgeDriver(?int $blogId = null)
+    public static function getSelectedCachePurgeDriver(?int $blogId = null, bool $strict = true)
     {
-        return apply_filters(
+        $defaultDriver = self::defaultDriverName();
+        $driver = (string) apply_filters(
             'sb_optimizer_selected_cache_purge_driver',
             smartGetOption(
                 $blogId,
                 'cache_purge_driver',
-                self::defaultDriverName()
+                $defaultDriver
             )
         );
+        if (!in_array($driver, self::$validDrivers)) {
+            $driver = $defaultDriver;
+        } else if ($strict && !isHostedAtServebolt() && in_array($driver, self::$serveboltOnlyDrivers)) {
+            $driver = $defaultDriver;
+        }
+        return $driver;
     }
 
     /**
@@ -384,6 +439,16 @@ class CachePurge
     public static function driverSupportsItemCachePurge(): bool
     {
         return self::driverSupportsUrlCachePurge();
+    }
+
+    /**
+     * Check if the current driver requires Servebolt hosting.
+     *
+     * @return bool
+     */
+    public static function driverRequiresServeboltHosting(): bool
+    {
+        return in_array(self::resolveDriverNameWithoutConfigCheck(), self::$serveboltOnlyDrivers);
     }
 
     /**
