@@ -93,13 +93,13 @@ class WpCronDisabler
             if (!$ct) {
                 return;
             }
-            $options = ['raw' => true];
-            $configString = $wpCronEnabled ? 'false' : 'true';
-            if ($ct->exists('constant', self::$constantName)) {
-                $ct->update('constant', self::$constantName, $configString, $options);
-            } else {
-                $ct->add('constant', self::$constantName, $configString, $options);
-            }
+            $method = $ct->exists('constant', self::$constantName) ? 'update' : 'add';
+            $ct->$method(
+                'constant',
+                self::$constantName,
+                $wpCronEnabled ? 'false' : 'true',
+                ['raw' => true]
+            );
         } catch (Throwable $e) {}
     }
 }
