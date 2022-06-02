@@ -83,25 +83,22 @@ class WpCronDisabler
     /**
      * Toggle Wp Cron on/off.
      *
-     * @param bool $cronEnabled
+     * @param bool $wpCronEnabled Whether the WP Cron should be disabled or not.
+     * @return void
      */
-    private static function toggleWpCron($cronEnabled)
+    private static function toggleWpCron(bool $wpCronEnabled): void
     {
         try {
             $ct = self::getWPConfigTransformer();
             if (!$ct) {
                 return;
             }
-            if ($cronEnabled) {
-                if ($ct->exists('constant', self::$constantName)) {
-                    $ct->remove('constant', self::$constantName); // Remove constant, fall back to default (false)
-                }
+            $options = ['raw' => true];
+            $configString = $wpCronEnabled ? 'false' : 'true';
+            if ($ct->exists('constant', self::$constantName)) {
+                $ct->update('constant', self::$constantName, $configString, $options);
             } else {
-                if ($ct->exists('constant', self::$constantName)) {
-                    $ct->update('constant', self::$constantName, 'true');
-                } else {
-                    $ct->add('constant', self::$constantName, 'true');
-                }
+                $ct->add('constant', self::$constantName, $configString, $options);
             }
         } catch (Throwable $e) {}
     }
