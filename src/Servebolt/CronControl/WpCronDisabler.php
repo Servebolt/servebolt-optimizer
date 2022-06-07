@@ -81,6 +81,22 @@ class WpCronDisabler
     }
 
     /**
+     * Completely remove the constant from the config file.
+     *
+     * @return void
+     */
+    public static function clearConstant()
+    {
+        try {
+            $ct = self::getWPConfigTransformer();
+            if (!$ct) {
+                return;
+            }
+            $ct->remove('constant', self::$constantName);
+        } catch (Throwable $e) {}
+    }
+
+    /**
      * Toggle Wp Cron on/off.
      *
      * @param bool $wpCronEnabled Whether the WP Cron should be disabled or not.

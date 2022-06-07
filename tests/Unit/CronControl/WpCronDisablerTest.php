@@ -25,6 +25,7 @@ class WpCronDisablerTest extends ServeboltWPUnitTestCase
         $this->assertTrue(WpCronDisabler::wpCronIsEnabled());
         $this->assertFalse(WpCronDisabler::wpCronIsDisabled());
 
+        WpCronDisabler::clearConstant();
         remove_all_filters('sb_optimizer_wp_config_path');
     }
 }

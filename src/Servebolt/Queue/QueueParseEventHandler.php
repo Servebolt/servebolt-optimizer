@@ -32,14 +32,19 @@ class QueueParseEventHandler
      */
     private function shouldParseQueue(): bool
     {
-        // TODO: Rename this to "SERVEBOLT_QUEUE_BASED_CACHE_PURGE_SHOULD_PARSE_QUEUE"
-        if (defined('SERVEBOLT_QUEUE_BASED_CACHE_SHOULD_PARSE_QUEUE') && is_bool(SERVEBOLT_QUEUE_BASED_CACHE_SHOULD_PARSE_QUEUE)) {
-            return SERVEBOLT_QUEUE_BASED_CACHE_SHOULD_PARSE_QUEUE;
+        $value = true;
+        if (defined('SERVEBOLT_QUEUE_BASED_CACHE_PURGE_SHOULD_PARSE_QUEUE') && is_bool(SERVEBOLT_QUEUE_BASED_CACHE_PURGE_SHOULD_PARSE_QUEUE)) {
+            $value = SERVEBOLT_QUEUE_BASED_CACHE_PURGE_SHOULD_PARSE_QUEUE;
         }
-        if (defined('SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE') && is_bool(SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE)) {
-            return SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE; // Legacy
+        // Legacy #1
+        else if (defined('SERVEBOLT_QUEUE_BASED_CACHE_SHOULD_PARSE_QUEUE') && is_bool(SERVEBOLT_QUEUE_BASED_CACHE_SHOULD_PARSE_QUEUE)) {
+            $value = SERVEBOLT_QUEUE_BASED_CACHE_SHOULD_PARSE_QUEUE;
         }
-        return apply_filters('sb_optimizer_should_purge_cache_queue', true);
+        // Legacy #2
+        else if (defined('SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE') && is_bool(SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE)) {
+            $value = SERVEBOLT_CF_PURGE_CRON_PARSE_QUEUE; // Legacy
+        }
+        return apply_filters('sb_optimizer_should_purge_cache_queue', $value);
     }
 
     /**
