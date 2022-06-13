@@ -106,8 +106,9 @@ class ImageResize
             case 'image/svg+xml':
                 return apply_filters('sb_optimizer_acd_image_resize_should_touch', false, $mimeType, $attachmentId);
         }
-        if (!$this->shouldTouchImageBasedOnFileExtension($attachmentId)) {
-            return apply_filters('sb_optimizer_acd_image_resize_should_touch_by_file_extension', false, $mimeType, $attachmentId);
+        $fileExtension = $this->shouldTouchImageBasedOnFileExtension($attachmentId);
+        if ($fileExtension !== true) {
+            return apply_filters('sb_optimizer_acd_image_resize_should_touch_by_file_extension', false, $fileExtension, $mimeType, $attachmentId);
         }
         return apply_filters('sb_optimizer_acd_image_resize_should_touch', true, $mimeType, $attachmentId);
     }
@@ -116,15 +117,15 @@ class ImageResize
      * Check if we should do something with this image based on file extension.
      *
      * @param $attachmentId
-     * @return bool
+     * @return bool|string
      */
-    private function shouldTouchImageBasedOnFileExtension($attachmentId): bool
+    private function shouldTouchImageBasedOnFileExtension($attachmentId)
     {
         $filePath = get_attached_file($attachmentId, true);
-        $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);;
+        $fileExtension = pathinfo($filePath, PATHINFO_EXTENSION);
         switch ($fileExtension) {
             case 'svg':
-                return false;
+                return $fileExtension;
         }
         return true;
     }
