@@ -104,7 +104,7 @@ class ImageResize
         $mimeType = get_post_mime_type($attachmentId);
         switch ($mimeType) {
             case 'image/svg+xml':
-                return apply_filters('sb_optimizer_acd_image_resize_should_touch', false, $mimeType, $attachmentId);
+                return apply_filters('sb_optimizer_acd_image_resize_should_touch_svg', false, $mimeType, $attachmentId);
         }
         $fileExtension = $this->shouldTouchImageBasedOnFileExtension($attachmentId);
         if ($fileExtension !== true) {
@@ -218,7 +218,7 @@ class ImageResize
         $maxHeight = $this->maxHeight();
         if ($maxHeight && $height > $maxHeight) {
             $height = $this->maxHeight();
-            $additionalParams['height'] = $height; // We only want to set height it its bigger than max height
+            $additionalParams['height'] = $height; // We only want to set height it is bigger than max height
         }
         if (apply_filters('sb_optimizer_acd_image_resize_force_add_height', false)) {
             $additionalParams['height'] = $height;

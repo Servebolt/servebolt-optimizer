@@ -59,7 +59,7 @@ class Crypto
             }
             switch ($method) {
                 case 'openssl':
-                    return self::opensslEncrypt($inputString);
+                    return self::openSslEncrypt($inputString);
                 case 'mcrypt':
                     return self::mcryptEncrypt($inputString);
             }
@@ -92,7 +92,7 @@ class Crypto
             }
             switch ($method) {
                 case 'openssl':
-                    return self::opensslDecrypt($inputString);
+                    return self::openSslDecrypt($inputString);
                 case 'mcrypt':
                     return self::mcryptDecrypt($inputString);
             }
@@ -170,7 +170,7 @@ class Crypto
      *
      * @return array
      */
-    public static function opensslKeys(): array
+    public static function openSslKeys(): array
     {
         $key = generateRandomPermanentKey('openssl_key', self::$blogId);
         $iv = generateRandomPermanentKey('openssl_iv', self::$blogId);
@@ -182,10 +182,10 @@ class Crypto
      *
      * @return array
      */
-    public static function opensslInit(): array
+    public static function openSslInit(): array
     {
         $encryptMethod = 'AES-256-CBC';
-        $secret = self::opensslKeys();
+        $secret = self::openSslKeys();
         $key = hash('sha256', $secret['key']);
         $iv = substr(hash('sha256', $secret['iv']), 0, 16);
         return compact('encryptMethod', 'key', 'iv');
@@ -198,9 +198,9 @@ class Crypto
      *
      * @return string
      */
-    public static function opensslEncrypt(string $inputString): string
+    public static function openSslEncrypt(string $inputString): string
     {
-        $init = self::opensslInit();
+        $init = self::openSslInit();
         return base64_encode(
             openssl_encrypt(
                 $inputString,
@@ -219,9 +219,9 @@ class Crypto
      *
      * @return string
      */
-    public static function opensslDecrypt(string $encryptedInputString)
+    public static function openSslDecrypt(string $encryptedInputString)
     {
-        $init = self::opensslInit();
+        $init = self::openSslInit();
         return openssl_decrypt(
             base64_decode($encryptedInputString),
             $init['encryptMethod'],

@@ -430,7 +430,7 @@ class FullPageCacheHeaders
 	private function cacheHeaders()
     {
         do_action('sb_optimizer_fpc_cache_headers', $this, $this->getQueriedObject());
-        if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true)) {
+        if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true, 'cache')) {
 
             $htmlCacheTime = $this->getTtl();
 
@@ -460,7 +460,7 @@ class FullPageCacheHeaders
 	private function noCacheHeaders(): void
     {
         do_action('sb_optimizer_fpc_no_cache_headers', $this);
-        if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true)) {
+        if (apply_filters('sb_optimizer_fpc_send_sb_cache_headers', true, 'no-cache')) {
             $this->header('Cache-Control: max-age=0,no-cache,s-maxage=0');
             $this->header('Pragma: no-cache');
             $this->header('X-Servebolt-Plugin: active');
