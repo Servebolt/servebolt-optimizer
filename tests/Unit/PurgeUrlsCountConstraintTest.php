@@ -16,13 +16,13 @@ class PurgeUrlsCountConstraintTest extends ServeboltWPUnitTestCase
 {
     use PostMethods, CachePurgeTestTrait;
 
-    public function tearDown()
+    public function tearDown() : void
     {
         parent::tearDown();
         remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
     }
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->set_permalink_structure('/%postname%/');

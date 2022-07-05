@@ -10,7 +10,7 @@ class EnvironmentFileReaderTest extends WP_UnitTestCase
 {
     use EnvFileReaderTrait;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         Reader::toggleCache(false);

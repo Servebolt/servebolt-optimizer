@@ -61,3 +61,5 @@ servebolt-optimizer.zip
 # Composer
 vendor
 src/Dependencies
+
+php_errors.log

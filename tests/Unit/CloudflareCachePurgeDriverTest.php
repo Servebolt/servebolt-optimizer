@@ -10,7 +10,7 @@ class CloudflareCachePurgeDriverTest extends WP_UnitTestCase
 
     private $client;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->client = CloudflareSdk::getInstance();

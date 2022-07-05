@@ -7,7 +7,7 @@ use Servebolt\Optimizer\AcceleratedDomains\AcceleratedDomains;
 
 class AcceleratedDomainsTest extends WP_UnitTestCase
 {
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         AcceleratedDomains::init();

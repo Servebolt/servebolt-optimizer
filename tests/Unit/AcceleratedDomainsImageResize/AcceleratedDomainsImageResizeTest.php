@@ -32,7 +32,7 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
     }
     */
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->ir = new ImageResize;

@@ -73,13 +73,33 @@ class HelpersTest extends ServeboltWPUnitTestCase
         }
     }
 
+    /**
+     * This test makes sure that the php error log can be written to
+     * and then read. 
+     * 
+     * *important* this test will fail without the error_log directive 
+     * being set in the php.ini of the current cli version of php
+     */
     public function testWriteToLog()
     {
         $errorMessage = 'error-message-' . uniqid();
         $errorFilePath = ini_get('error_log');
-        $this->assertNotContains($errorMessage, exec('tail -n 1 ' . $errorFilePath));
+        
+        $fileOutputAsArrayFail[] = exec('tail -n 1 ' . $errorFilePath);
+        $this->assertNotContains($errorMessage, $fileOutputAsArrayFail);
+        
         writeLog($errorMessage);
-        $this->assertContains($errorMessage, exec('tail -n 1 ' . $errorFilePath));
+        // Get last row from error file
+        // remove spaces, and everything between square brackets (timestamp)
+        // add to an array so that it exactly matches the input in the correct format 
+        $fileOutputAsArray[] = 
+                    str_replace(" ", '', 
+                        preg_replace('/\[.*\]/', '', 
+                            exec('tail -n 1 ' . $errorFilePath)
+                        )
+                    ); 
+        
+        $this->assertContains($errorMessage, $fileOutputAsArray);
     }
 
     public function testThatViewIsIncludedAndThatArgumentsAreAvailable()

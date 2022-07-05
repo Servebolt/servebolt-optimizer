@@ -10,13 +10,11 @@
     <testsuites>
         <testsuite name="Unit">
             <directory suffix="Test.php">./tests/Unit</directory>
-        </testsuite>
-        <testsuite name="Feature">
-            <directory suffix="Test.php">./tests/Feature</directory>
-        </testsuite>
+        </testsuite>        
     </testsuites>
     <php>
         <env name="WP_TESTS_DIR" value=""/>
         <const name="WP_TESTS_MULTISITE" value="1" />
+        <ini name="display_errors" value="true"/>
     </php>
 </phpunit>
