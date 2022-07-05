@@ -278,6 +278,11 @@ class MigrationRunner
         $instance->rollbackToZero();
     }
 
+    public function tableExistsByName($tableName): bool
+    {
+        global $wpdb;
+        return tableExists($wpdb->prefix . $tableName); 
+    }
     /**
      * Check that all tables exist.
      *
@@ -287,7 +292,7 @@ class MigrationRunner
     {
         $this->ignoreUpperConstraint = true;
         $this->migrationDirection = 'up';
-        if ($migrations = $this->resolveMigrations()) {
+        if ($migrations = $this->resolveMigrations()) {  
             foreach ($migrations as $migration) {
                 $tableName = (new $migration)->getTableNameWithPrefix();
                 if (!$tableName) {
@@ -295,7 +300,7 @@ class MigrationRunner
                 }
                 if (!tableExists($tableName)) {
                     return false;
-                }
+                }                
             }
 
         }
@@ -346,19 +351,13 @@ class MigrationRunner
      */
     private function alreadyCompleted($instance, $migrationMethod): bool
     {
-        return (
-            method_exists($instance, 'hasBeenRun')
-            && (
-                (
-                    $migrationMethod == 'up'
-                    && $instance->hasBeenRun() === true
-                ) ||
-                (
-                    $migrationMethod == 'down'
-                    && $instance->hasBeenRun() === false
-                )
-            )
-        );
+        if(method_exists($instance, 'hasBeenRun')) {
+            return (            
+                $instance->hasBeenRun($migrationMethod) 
+           );
+        }
+        return true;
+        
     }
 
     private function runPreOrPostMigration($preOrPost, $instance, $migrationMethod)

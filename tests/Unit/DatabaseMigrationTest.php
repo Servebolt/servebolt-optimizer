@@ -8,6 +8,7 @@ use ServeboltWPUnitTestCase;
 class DatabaseMigrationTest extends ServeboltWPUnitTestCase
 {
 
+    
     public function setUp(): void
     {
         parent::setUp();
@@ -16,8 +17,8 @@ class DatabaseMigrationTest extends ServeboltWPUnitTestCase
     }
 
     public function tearDown(): void
-    {
-        parent::tearDown();
+    {        
+        parent::tearDown();        
         MigrationRunner::cleanup();
         $this->disallowPersistenceInDatabase();
     }
@@ -31,9 +32,10 @@ class DatabaseMigrationTest extends ServeboltWPUnitTestCase
 
     public function testThatTablesDoesNotExists()
     {
-        MigrationRunner::cleanup();
-        $instance = new MigrationRunner;
-        $this->assertFalse($instance->tablesExist());
+        // always failes as _options table is alwasy there.
+        $this->tearDown();        
+        $instance = new MigrationRunner;        
+        $this->assertFalse($instance->tableExistsByName("sb_queue"));
     }
 
     public function testDownMigrationVersionConstraintMethod()

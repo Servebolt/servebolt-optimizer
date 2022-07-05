@@ -14,13 +14,13 @@ use function Servebolt\Optimizer\Helpers\isQueueItem;
 class QueueSystemTest extends ServeboltWPUnitTestCase
 {
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         MigrationRunner::run();
     }
 
-    public function tearDown()
+    public function tearDown() : void
     {
         parent::tearDown();
         MigrationRunner::cleanup();

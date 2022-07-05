@@ -9,9 +9,9 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2022-05-27T10:22:41+00:00\n"
+"POT-Creation-Date: 2022-06-29T10:18:18+02:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"X-Generator: WP-CLI 2.6.0\n"
+"X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: servebolt-wp\n"
 
 #. Plugin Name of the plugin
@@ -517,39 +517,39 @@ msgstr ""
 msgid "Accelerated Domains Image Resize feature is %s."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:183
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:186
 msgid "Accelerated Domains Image Resize feature already active on site %s."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:186
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:189
 msgid "Accelerated Domains Image Resize feature activated on site %s."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:209
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:212
 msgid "Accelerated Domains Image Resize feature already active."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:212
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:215
 msgid "Accelerated Domains Image Resize feature activated."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:260
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:263
 msgid "Accelerated Domains Image Resize feature already inactive on site %s."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:263
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:266
 msgid "Accelerated Domains Image Resize feature deactivated on site %s."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:286
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:289
 msgid "Accelerated Domains Image Resize feature already inactive."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:289
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:292
 msgid "Accelerated Domains Image Resize feature deactivated."
 msgstr ""
 
-#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:307
+#: src/Servebolt/Cli/AcceleratedDomains/AcceleratedDomainsImageResize.php:310
 msgid "Your bolt-subscription does not seem have access to the Accelerated Domains Image Resize-feature and the feature will therefore not operate. The feature can be enabled in the control panel."
 msgstr ""
 

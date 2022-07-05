@@ -10,6 +10,27 @@ The plugin infrastructure is loosely based on: https://github.com/avillegasn/wp-
 
 ## Development
 
+## Prerequisites
+Befor you start it is best to get the system ready for testing, for this SVN (Subversion) must be installed, and also set the PHP CLI php.ini to contain a log file. Failure to install SVN this first will result in a non-working install of the WordPress test install as it cannot download it from wordpress.org
+
+installing subversion on *nix
+```
+# sudo apt-get install subversion
+```
+
+adapting the php cli php.ini
+```
+// find out what version of php cli you are running
+# php -v
+// change to the report version php cli, replacing 8.0 with your version
+# cd /etc/php/8.0/cli
+// edit the php.ini
+# sudo nano php.ini
+// find the error_log section and adapt it to be
+error_log = php_errors.log 
+
+```
+Don't forget to save the php.ini file. This will put the php_errors.log into the place where it is being run.  You can also adapt it to be ``error_log =/var/log/php_errors.log``
 ### Composer
 First we need to pull in all the dependencies: ``composer install``
 

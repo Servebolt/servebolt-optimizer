@@ -9,7 +9,7 @@ class CachePurgeDriverTest extends WP_UnitTestCase
 {
     private $driver;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->driver = CachePurge::getInstance();

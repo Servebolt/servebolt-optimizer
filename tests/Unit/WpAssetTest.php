@@ -13,7 +13,7 @@ use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 class WpAssetTest extends ServeboltWPUnitTestCase
 {
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->currentPluginVersionNumber = getCurrentPluginVersion(false);

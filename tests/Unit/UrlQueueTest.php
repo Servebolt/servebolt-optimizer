@@ -15,13 +15,13 @@ class UrlQueueTest extends ServeboltWPUnitTestCase
 {
     use CachePurgeTestTrait;
 
-    public function tearDown()
+    public function tearDown() : void
     {
         parent::tearDown();
         remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
     }
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');

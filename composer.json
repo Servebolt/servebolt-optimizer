@@ -27,11 +27,12 @@
     "squizlabs/php_codesniffer": "*",
     "wp-coding-standards/wpcs": "*",
     "phpcompatibility/php-compatibility": "*",
-    "phpunit/phpunit": "7.5.20",
+    "phpunit/phpunit": "7.5.2",
     "phan/phan": "^4.0",
     "overtrue/phplint": "^2.0",
     "symfony/var-dumper": "5.4.x-dev",
-    "symfony/dotenv": "5.4.x-dev"
+    "symfony/dotenv": "5.4.x-dev",
+    "yoast/phpunit-polyfills": "^1.0"
   },
   "keywords": [
     "blocks",

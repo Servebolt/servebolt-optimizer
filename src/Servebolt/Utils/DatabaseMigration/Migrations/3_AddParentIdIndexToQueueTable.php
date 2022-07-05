@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Utils\DatabaseMigration\AbstractMigration;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationInterface;
 use function Servebolt\Optimizer\Helpers\tableHasIndex;
+use function Servebolt\Optimizer\Helpers\tableExists;
 
 /**
  * Class AddParentIdIndexToQueueTable
@@ -50,9 +51,29 @@ class AddParentIdIndexToQueueTable extends AbstractMigration implements Migratio
      *
      * @return bool
      */
-    public function hasBeenRun(): bool
+    public function hasBeenRun($migrationMethod): bool
     {
-        return tableHasIndex($this->getTableNameWithPrefix(), 'parent_id_index');
+        switch($migrationMethod) {
+            case 'up':
+                // if Table does NOT exit return TRUE, to stop processing.
+                // if Table exists and index exists return TRUE to stop processing
+                if (!tableExists($this->getTableNameWithPrefix()) || ( tableExists($this->getTableNameWithPrefix()) && tableHasIndex($this->getTableNameWithPrefix(), 'parent_id_index'))) {
+                    return true;
+                } 
+                // else return false so that processing can continue;
+                return false;
+
+                break;
+            case 'down':
+                // if Table does NOT exit return TRUE, to stop processing.
+                // if Table exists and index does not exist return TRUE to stop processing
+                if (!tableExists($this->getTableNameWithPrefix()) || ( tableExists($this->getTableNameWithPrefix()) && !tableHasIndex($this->getTableNameWithPrefix(), 'parent_id_index'))) {
+                    return true;
+                } 
+                // else return false so that processing can continue;
+                return false;
+                break;
+        }
     }
 
     /**

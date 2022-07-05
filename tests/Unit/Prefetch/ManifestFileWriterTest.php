@@ -31,7 +31,7 @@ class ManifestFileWriterTest
      */
     private $cleanupAfterTest = true;
 
-    public function setUp()
+    public function setUp() : void
     {
         //parent::setUp();
         ManifestFileWriter::shouldLimitHostname(false);
@@ -39,7 +39,7 @@ class ManifestFileWriterTest
         $this->setUpManifestDummyData();
     }
 
-    public function tearDown()
+    public function tearDown() : void
     {
         if ($this->cleanupAfterTest) {
             ManifestFileWriter::clear(null, true);
