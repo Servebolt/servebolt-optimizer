@@ -84,7 +84,7 @@ class CloudflareImageResize
         }
 
         // Prevent certain image sizes to be created since we are using Cloudflare for resizing
-        if (apply_filters('sb_optimizer_cf_image_resize_alter_intermediate_sizes',true)) {
+        if (apply_filters('sb_optimizer_cf_image_resize_alter_intermediate_sizes', true)) {
             ImageSizeCreationOverride::getInstance();
         }
     }

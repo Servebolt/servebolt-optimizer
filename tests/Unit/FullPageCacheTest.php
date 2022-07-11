@@ -20,13 +20,13 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
 {
     use CachePurgeTestTrait, HeaderTestTrait;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         MigrationRunner::run(); // We need the custom tables for the queue system to work
     }
 
-    public function tearDown()
+    public function tearDown() : void
     {
         parent::tearDown();
         MigrationRunner::cleanup();

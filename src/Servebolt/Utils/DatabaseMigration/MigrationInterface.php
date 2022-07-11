@@ -13,9 +13,10 @@ interface MigrationInterface {
     /**
      * Check whether migration is already executed.
      *
+     * @param $migrationMethod string
      * @return bool|null
      */
-    public function hasBeenRun();
+    public function hasBeenRun(String $migrationMethod);
 
     /**
      * Migrate up.

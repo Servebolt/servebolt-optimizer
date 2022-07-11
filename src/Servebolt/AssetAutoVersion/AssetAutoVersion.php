@@ -132,7 +132,9 @@ class AssetAutoVersion {
             return false;
         }
         try {
-            return apply_filters('sb_optimizer_version_parameter_name', $this->parameterName, $filePath) . '=' . filemtime($filePath); // Store the "filemtime" in a transient to remove disk I/O on every page load?
+            $parameterName = apply_filters('sb_optimizer_version_parameter_name', $this->parameterName, $filePath);
+            $parameterValue = apply_filters('sb_optimizer_version_parameter_value', filemtime($filePath), $parameterName, $filePath);
+            return $parameterName . '=' . $parameterValue; // Store the "filemtime" in a transient to remove disk I/O on every page load?
         } catch (Throwable $e) {
             return false;
         }
@@ -150,10 +152,10 @@ class AssetAutoVersion {
         $parsedUrl = parse_url($src);
         // Use these filters too correct any mistakes related to the asset path
         $basePath = apply_filters('sb_optimizer_asset_base_path', rtrim(ABSPATH, '/'), $src, $parsedUrl);
-        $src = $basePath . '/' . apply_filters('sb_optimizer_asset_parsed_url_path', ltrim($parsedUrl['path'], '/'));
-        $src = apply_filters('sb_optimizer_asset_url_to_path_conversion', $src, $parsedUrl);
-        $src = apply_filters('sb_optimizer_asset_url_to_path_conversion_' . $handle, $src, $parsedUrl);
-        return $src;
+        $path = $basePath . '/' . apply_filters('sb_optimizer_asset_parsed_url_path', ltrim($parsedUrl['path'], '/'));
+        $path = apply_filters('sb_optimizer_asset_url_to_path_conversion', $path, $parsedUrl);
+        $path = apply_filters('sb_optimizer_asset_url_to_path_conversion_' . $handle, $path, $parsedUrl);
+        return $path;
     }
 
 }

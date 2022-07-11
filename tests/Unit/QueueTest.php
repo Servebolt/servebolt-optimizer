@@ -15,7 +15,7 @@ use function Servebolt\Optimizer\Helpers\isQueueItem;
  */
 class QueueTest extends ServeboltWPUnitTestCase
 {
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->set_permalink_structure('/%postname%/');

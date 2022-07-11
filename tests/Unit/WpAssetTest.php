@@ -13,7 +13,7 @@ use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 class WpAssetTest extends ServeboltWPUnitTestCase
 {
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         $this->currentPluginVersionNumber = getCurrentPluginVersion(false);
@@ -71,7 +71,10 @@ class WpAssetTest extends ServeboltWPUnitTestCase
 
     private function getAssetPath($url): string
     {
-        $parts = explode('servebolt-optimizer', $url);
-        return SERVEBOLT_PLUGIN_DIR_PATH . trim($parts[1], '/');
+        preg_match('/servebolt-optimizer(.+?(?=\/))\/(.*)/', $url, $matches);
+        if (isset($matches[2])) {
+            return SERVEBOLT_PLUGIN_DIR_PATH . trim($matches[2], '/');
+        }
+        return false;
     }
 }

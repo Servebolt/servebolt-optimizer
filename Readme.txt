@@ -1,11 +1,11 @@
 === Servebolt Optimizer ===
-Contributors: audunhus, erlendeide, robsat91, servebolt
+Contributors: audunhus, erlendeide, robsat91, servebolt, andrewkillen
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, html cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 5.9.3
+Tested up to: 6.0
 Requires PHP: 7.3
-Stable tag: 3.5.4
+Stable tag: 3.5.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,11 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.5 =
+* Tested against WordPress 6.0
+* Added Andrew Killen as developer
+* Updated how Unit Tests work
+
 = 3.5.4 =
 * Bugfix - Removed menu manifest file option from Prefetch-feature. Due to some difficulties with making the menu manifest file work in the Prefetch-feature it was decided to remove it until further notice. The script and style file manifest files will persist as before.
 * Bugfix - Resolved issue with the cache purge features in row actions for taxonomies/post types. The plugin adds purge cache-link in the row actions for posts and terms. We previously targeted all registered post types and taxonomies, but this is now changed to only target public post types and terms. The targeted post types and terms can also be controlled through filters (sb_optimizer_cache_purge_row_action_post_types, sb_optimizer_cache_purge_row_action_post_types_query, sb_optimizer_cache_purge_row_action_taxonomies, sb_optimizer_cache_purge_row_action_taxonomies_query).

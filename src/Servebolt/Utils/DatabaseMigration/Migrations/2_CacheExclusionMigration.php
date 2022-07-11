@@ -54,9 +54,19 @@ EOF;
      *
      * @return bool
      */
-    public function hasBeenRun(): bool
+    public function hasBeenRun($migrationMethod): bool
     {
-        return tableExists($this->getTableNameWithPrefix());
+        switch($migrationMethod) {
+            case 'up':
+                // if Table does exit return TRUE, to true processing.
+                return (tableExists($this->getTableNameWithPrefix())) ? true : false; 
+                break;
+            case 'down':
+                // if Table does exit return FALSE, to continue processing.
+                return (tableExists($this->getTableNameWithPrefix())) ? false : true; 
+                break;
+        }
+        
     }
 
     /**

@@ -12,7 +12,7 @@ class CachePurgeTriggerTest extends ServeboltWPUnitTestCase
 {
     use CachePurgeTestTrait, AttachmentTrait;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
         MigrationRunner::run();
@@ -22,7 +22,7 @@ class CachePurgeTriggerTest extends ServeboltWPUnitTestCase
         WpObjectCachePurgeActions::reloadEvents();
     }
 
-    public function tearDown()
+    public function tearDown() : void
     {
         parent::tearDown();
         MigrationRunner::cleanup();

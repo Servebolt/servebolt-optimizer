@@ -10,6 +10,27 @@ The plugin infrastructure is loosely based on: https://github.com/avillegasn/wp-
 
 ## Development
 
+## Prerequisites
+Befor you start it is best to get the system ready for testing, for this SVN (Subversion) must be installed, and also set the PHP CLI php.ini to contain a log file. Failure to install SVN this first will result in a non-working install of the WordPress test install as it cannot download it from wordpress.org
+
+installing subversion on *nix
+```
+# sudo apt-get install subversion
+```
+
+adapting the php cli php.ini
+```
+// find out what version of php cli you are running
+# php -v
+// change to the report version php cli, replacing 8.0 with your version
+# cd /etc/php/8.0/cli
+// edit the php.ini
+# sudo nano php.ini
+// find the error_log section and adapt it to be
+error_log = php_errors.log 
+
+```
+Don't forget to save the php.ini file. This will put the php_errors.log into the place where it is being run.  You can also adapt it to be ``error_log =/var/log/php_errors.log``
 ### Composer
 First we need to pull in all the dependencies: ``composer install``
 
@@ -40,6 +61,14 @@ Credentials for the SVN repository is stored in the password manager. The creden
 If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to WordPress.org.
 
 ## Changelog
+#### 3.5.5
+* Tested against WordPress 6.0
+* Added Andrew Killen as developer
+* Adapted unit testing methodolgy to be more robust
+* Added PHPUnit pollyfills.
+* Improved inhouse developer documentation
+* Defined working install process for a new developer of this plugin
+* adapted .gitignore to include php_error.log
 #### 3.5.4
 * Bugfix - Removed menu manifest file option from Prefetch-feature. Due to some difficulties with making the menu manifest file work in the Prefetch-feature it was decided to remove it until further notice. The script and style file manifest files will persist as before.
 * Bugfix - Resolved issue with the cache purge features in row actions for taxonomies/post types. The plugin adds purge cache-link in the row actions for posts and terms. We previously targeted all registered post types and taxonomies, but this is now changed to only target public post types and terms. The targeted post types and terms can also be controlled through filters (sb_optimizer_cache_purge_row_action_post_types, sb_optimizer_cache_purge_row_action_post_types_query, sb_optimizer_cache_purge_row_action_taxonomies, sb_optimizer_cache_purge_row_action_taxonomies_query).
