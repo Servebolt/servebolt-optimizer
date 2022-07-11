@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.0
 Requires PHP: 7.3
-Stable tag: 3.5.4
+Stable tag: 3.5.5
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,7 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 = 3.5.5 =
 * Tested against WordPress 6.0
 * Added Andrew Killen as developer
+* Updated how Unit Tests work
 
 = 3.5.4 =
 * Bugfix - Removed menu manifest file option from Prefetch-feature. Due to some difficulties with making the menu manifest file work in the Prefetch-feature it was decided to remove it until further notice. The script and style file manifest files will persist as before.
