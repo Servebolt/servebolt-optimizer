@@ -10,7 +10,7 @@ The plugin infrastructure is loosely based on: https://github.com/avillegasn/wp-
 
 ## Development
 
-## Prerequisites
+## Prerequisites5
 Befor you start it is best to get the system ready for testing, for this SVN (Subversion) must be installed, and also set the PHP CLI php.ini to contain a log file. Failure to install SVN this first will result in a non-working install of the WordPress test install as it cannot download it from wordpress.org
 
 installing subversion on *nix
@@ -61,7 +61,8 @@ Credentials for the SVN repository is stored in the password manager. The creden
 If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to WordPress.org.
 
 ## Changelog
-
+#### 3.5.7
+* bump verion, did not deploy correctly to wordpress.org. 
 #### 3.5.6
 * Added the transformation of SRC's for images implemented via blocks for Accelerated Domains/Servebolt CDN
 * Added unit tests for new functionality

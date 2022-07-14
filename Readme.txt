@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.0
 Requires PHP: 7.3
-Stable tag: 3.5.5
+Stable tag: 3.5.7
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,9 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.7 =
+* bump release, previous verion did not correctly deploy to wordpress.org
+
 = 3.5.6 =
 * Added the transformation of SRC's for images implemented via blocks for Accelerated Domains/Servebolt CDN
 * Added unit tests for new functionality
