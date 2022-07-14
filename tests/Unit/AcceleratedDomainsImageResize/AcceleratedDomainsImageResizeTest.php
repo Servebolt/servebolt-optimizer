@@ -41,6 +41,25 @@ class AcceleratedDomainsImageResizeTest extends WP_UnitTestCase
         new AcceleratedDomainsImageResize;
     }
 
+    public function testThatExternalImagesInTheContentAreNotConverted()
+    {
+        // check that external domains are not converted
+        $this->assertEquals(
+            '<img src="https://domain.com/wp-content/2021/05/some-image.jpg" />', 
+            $this->ir->alterImagesIntheContent('<img src="https://domain.com/wp-content/2021/05/some-image.jpg" />')
+        );
+    }
+
+    public function testThatImagesConvertedInTheContentAreCorrect()
+    {
+        // check that url is processed via regex
+        $this->assertContains('/acd-cgi/img/v1/', $this->ir->regexOperation('<img src="http://example.org/wp-content/2021/05/some-image.jpg" />')  );
+        // check that the_content hook also works
+        $this->assertContains('/acd-cgi/img/v1/', $this->ir->alterImagesIntheContent('<img src="http://example.org/wp-content/2021/05/some-image.jpg" />')  );
+        // check that width fallback of 500 is overridden
+        $this->assertContains('?width=600', $this->ir->regexOperation('<img src="http://example.org/wp-content/2021/05/some-image.jpg" width="600" />')  );
+    }
+
     public function testThatTheResizeServicePrefixIsAddedToAUrlString()
     {
         $this->assertContains('/acd-cgi/img/v1/', $this->ir->buildImageUrl('https://domain.com/wp-content/2021/05/some-image.jpg'));

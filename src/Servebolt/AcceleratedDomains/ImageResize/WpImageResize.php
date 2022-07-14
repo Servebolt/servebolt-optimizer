@@ -21,6 +21,7 @@ class WpImageResize extends ImageResize
         $this->addSingleImageUrlHook();
         $this->addSrcsetImageUrlsHook();
         $this->addOverrideImageSizeCreationHook();
+        $this->addSrcOverrideInTheContentHook();
     }
 
     public function addSingleImageUrlHook(): void
@@ -47,6 +48,15 @@ class WpImageResize extends ImageResize
         }
     }
 
+    /**
+     * Scans the_content for images that have un-transformed urls.
+     */
+    public function addSrcOverrideInTheContentHook(): void
+    {
+        if (apply_filters('sb_optimizer_acd_image_resize_alter_src', true)) {
+            add_filter('the_content', [$this, 'alterImagesIntheContent'], 99, 1 );
+        }
+    }
     /**
      * Add hook to duplicate all existing sizes in the srcset-array to contain half the size.
      */

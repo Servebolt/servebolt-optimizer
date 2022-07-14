@@ -93,6 +93,10 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.6 =
+* Added the transformation of SRC's for images implemented via blocks for Accelerated Domains/Servebolt CDN
+* Added unit tests for new functionality
+
 = 3.5.5 =
 * Tested against WordPress 6.0
 * Added Andrew Killen as developer
