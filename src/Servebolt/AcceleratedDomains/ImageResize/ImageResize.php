@@ -383,4 +383,56 @@ class ImageResize
     {
         return http_build_query($params);
     }
+
+    /**
+     * Use regex to scan HTML for images, pull out the SRC (image url) and replace it
+     * with one for the Acelerated Domains/Servebolt CDN
+     * 
+     * @since 3.5.6
+     * @param string $content html string
+     * @return string $content html string
+     * 
+     */
+    public function regexOperation($content)
+    {
+        if ( preg_match_all( '#<(?P<tag>img)[^<]*?(?:>[\s\S]*?<\/(?P=tag)>|\s*\/>)#', $content, $matches ) )
+        {
+            foreach ( $matches[0] as $match )
+            {
+                preg_match( '/ src="([^"]+)"/', $match, $src );
+                // If it fails, is not from domain, is and SVG or is already transformed, continue to the next.
+                if( $src === false ||
+                    strpos($src[1], content_url() ) === false ||
+                    strpos($src[1], '.svg') === true ||
+                    strpos($src[1], $this->cgiPrefix."/".$this->version) === true ) continue;
+
+                preg_match( '/ width="([0-9]+)"/',  $match, $width  );
+                // Build the real url as needed.
+                $newsrc = $this->buildImageUrl($src[1], ['width' => $width[1]]);
+                // Replace src="content" with src="new content", double replace keeps src=""
+                $content = str_replace($src[0], str_replace($src[1], $newsrc, $src[0]), $content);
+                
+            }
+        }
+        return $content;
+    }
+
+    /**
+     * First checks if in admin or imageless HTML content.
+     * If not perfoms a regex operation on the content.
+     * 
+     * @since 3.5.6
+     * @param string $content html string
+     * @return string $content html string 
+     */
+    public function alterImagesIntheContent($content)
+    {
+        // Exit early so it does not break editing.
+        if( is_admin() ) return $content;
+        // If no images, return instantly.
+        if(strpos($content, '<img') === false) return $content;
+        // Front end only replace image URLs.
+        return $this->regexOperation($content);
+    }
+
 }
