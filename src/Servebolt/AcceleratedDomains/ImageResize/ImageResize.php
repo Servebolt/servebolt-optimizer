@@ -407,8 +407,10 @@ class ImageResize
                     strpos($src[1], $this->cgiPrefix."/".$this->version) === true ) continue;
 
                 preg_match( '/ width="([0-9]+)"/',  $match, $width  );
+                // default to 500px wide if the image does not have a width
+                $image_width = (isset($width[1])) ? $width[1] : 500;
                 // Build the real url as needed.
-                $newsrc = $this->buildImageUrl($src[1], ['width' => $width[1]]);
+                $newsrc = $this->buildImageUrl($src[1], ['width' => $image_width ]);
                 // Replace src="content" with src="new content", double replace keeps src=""
                 $content = str_replace($src[0], str_replace($src[1], $newsrc, $src[0]), $content);
                 
