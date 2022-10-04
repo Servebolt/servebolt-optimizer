@@ -20,6 +20,7 @@ class EnvironmentConfigTest extends WP_UnitTestCase
         add_filter('sb_optimizer_is_accelerated_domains', '__return_true');
         add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
         $config = new EnvironmentConfig;
+        $config->setConfigObject((object) ['sb_acd_image_resize' => true]);
         $this->assertTrue($config->get('sb_acd_image_resize'));
         remove_all_filters('sb_optimizer_environment_config_base_url');
         remove_all_filters('sb_optimizer_is_accelerated_domains');

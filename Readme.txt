@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, robsat91, servebolt, andrewkillen
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, html cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.0
+Tested up to: 6.0.2
 Requires PHP: 7.3
-Stable tag: 3.5.7
+Stable tag: 3.5.8
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,9 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.8 =
+* Adapted clearing of menu cache transients to include 404 page reference transients
+
 = 3.5.7 =
 * bump release, previous verion did not correctly deploy to wordpress.org
 
