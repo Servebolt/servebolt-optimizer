@@ -16,6 +16,10 @@
     {
       "name": "Thomas Audunhus",
       "email": "thomas@servebolt.com"
+    },
+    {
+      "name": "Andrew Killen",
+      "email": "andrew.killen@servebolt.com"
     }
   ],
   "require": {

@@ -42,7 +42,7 @@ class WpAssetTest extends ServeboltWPUnitTestCase
         $this->dequeueAssets();
         add_filter('sb_optimizer_static_asset_plugin_version', '__return_null');
         $this->initAssetsForTest();
-
+        
         $this->assertEquals(filemtime($this->getAssetPath(wp_styles()->registered['servebolt-optimizer-public-styling']->src)), wp_styles()->registered['servebolt-optimizer-public-styling']->ver);
         $this->assertEquals(filemtime($this->getAssetPath(wp_styles()->registered['servebolt-optimizer-styling']->src)), wp_styles()->registered['servebolt-optimizer-styling']->ver);
 
@@ -71,9 +71,18 @@ class WpAssetTest extends ServeboltWPUnitTestCase
 
     private function getAssetPath($url): string
     {
-        preg_match('/servebolt-optimizer(.+?(?=\/))\/(.*)/', $url, $matches);
+        
+        preg_match('/servebolt-optimizer(.+?(?=\/))\/(.*)/', $url, $matches);        
         if (isset($matches[2])) {
-            return SERVEBOLT_PLUGIN_DIR_PATH . trim($matches[2], '/');
+            /**
+             * adapted form 
+             * 
+             * return SERVEBOLT_PLUGIN_DIR_PATH . trim($matches[2], '/');
+             * 
+             * to the new structure and adds 'assets/' to the path to make it work
+             * 
+             */
+            return SERVEBOLT_PLUGIN_DIR_PATH . trim($matches[1], '/'). '/' . trim($matches[2], '/');
         }
         return false;
     }
