@@ -34,6 +34,10 @@ Don't forget to save the php.ini file. This will put the php_errors.log into the
 ### Composer
 First we need to pull in all the dependencies: ``composer install``
 
+### Build assets
+1. Run `yarn install`
+2. Run `yarn build` or `yarn watch` for development build, and `yarn production` for production build
+
 ### Testing
 You can set up the test environment by running the command:
 ``composer install-wp-test db-name username password db-host wp-version skip-db-creation``
@@ -41,12 +45,15 @@ You can set up the test environment by running the command:
 Example:
 ``composer install-wp-test sb_opt_db sb_opt_usr sb_opt_pass 127.0.0.1 latest true``
 
+Create and .env file in the test directory by copying the .env.example file to .env and setting an ACD enabled testing domain.  Also run ``yarn production`` to make sure that the dist css files exist.
+
 You should now be able to run ``composer phpunit`` WP single site or ``composer phpunit-mu`` for WP multi-site.
 
-### Build assets
-1. Run `yarn install`
-2. Run `yarn build` or `yarn watch` for development build, and `yarn production` for production build
+To run without composer to debug failure use, this method allows for CLI arguments where composer does not
+``./vendor/phpunit/phpunit/phpunit -c phpunit.xml --verbose --stop-on-failure``
 
+To work against a singluar test set use (where WPAssetTest is replace with the testing Class Name)
+``./vendor/phpunit/phpunit/phpunit -c phpunit.xml --filter WpAssetTest``
 ### Phan, PHP CodeSniffer and PHPLint
 Phan, PHPCS and PHPLint should be installed by composer.
 You can run the tests with this command: `composer test`
@@ -61,6 +68,10 @@ Credentials for the SVN repository is stored in the password manager. The creden
 If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to WordPress.org.
 
 ## Changelog
+#### 3.5.8
+* Adapted clearing of menu cache transients to include 404 page reference transients
+* Updated installation and testing documentation
+* Removed Featured unit tests from phpcs.sh as the directory nolonger exist
 #### 3.5.7
 * bump verion, did not deploy correctly to wordpress.org. 
 #### 3.5.6

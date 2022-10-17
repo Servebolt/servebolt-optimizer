@@ -210,6 +210,6 @@ class MenuOptimizer
     public static function purgeCache(): void
     {
         global $wpdb;
-        $wpdb->query($wpdb->prepare('DELETE FROM ' . $wpdb->options . ' WHERE option_name LIKE %s', '_transient_sb-menu-cache-%'));
+        $wpdb->query($wpdb->prepare('DELETE FROM ' . $wpdb->options . ' WHERE option_name LIKE %s', '_transient%_sb-menu-cache-%'));
     }
 }
