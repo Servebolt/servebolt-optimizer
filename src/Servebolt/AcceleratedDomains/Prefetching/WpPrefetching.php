@@ -63,7 +63,7 @@ class WpPrefetching extends Prefetching
      */
     public function requestIsFromCloudflarePrefetchAgent(): bool
     {
-        if ('HEAD' !== $_SERVER['REQUEST_METHOD']) {
+        if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'HEAD' !== $_SERVER['REQUEST_METHOD']) {
             return false;
         }
         if (!strContains($_SERVER['HTTP_USER_AGENT'], 'CloudFlare-Prefetch')) {

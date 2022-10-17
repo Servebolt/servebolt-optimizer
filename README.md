@@ -72,6 +72,7 @@ If you want to build a local production-ready version of the plugin you can run 
 #### 3.5.9
 * Added Error Log link to admin menu bar
 * Lots of updated [https://wpplugin.dev.servebolt.com/](filters documentation)
+* Bug fix - added check for REQUEST_METHOD to see if it exists before using it, stopping cron errors
 #### 3.5.8
 * Adapted clearing of menu cache transients to include 404 page reference transients
 * Updated installation and testing documentation
