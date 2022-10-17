@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.0.2
 Requires PHP: 7.3
-Stable tag: 3.5.8
+Stable tag: 3.5.9
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,10 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.9 =
+* New Feature - Added Error Log link to admin menu bar
+* Lots of updated [https://wpplugin.dev.servebolt.com/](filters documentation)
+
 = 3.5.8 =
 * Adapted clearing of menu cache transients to include 404 page reference transients
 
