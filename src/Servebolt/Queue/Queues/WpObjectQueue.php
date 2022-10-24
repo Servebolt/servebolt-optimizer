@@ -425,4 +425,51 @@ class WpObjectQueue
         }
         return false;
     }
+
+    /**
+     * The garbageCollection method checks in the sb_queue table for anything that is older
+     * than 24 hours that has a completed_at_gmt timestamp of that length or greater. 
+     * 
+     * This means that the cache purge has been dealt with but from some reason the purge item
+     * has not been deleted.
+     * 
+     * This is a belt and braces approach to cleanup.
+     * 
+     * TODO: look to see if its better to have this inside the queue class and just
+     * call it from here.
+     */
+    public function garbageCollection() : void
+    {
+        // Need to wait 
+        global $wpdb;
+        if(is_multisite()) {
+            $start_id = get_current_blog_id();
+
+            // loop blog ids
+            $sites = get_sites();
+            foreach ( $sites as $site ) {
+                switch_to_blog( $site->blog_id );
+                
+                // perform a $wpdb delete 
+                $wpdb->query(
+                    $wpdb->prepare(
+                        'DELETE FROM %s WHERE complete_at_gmt < %d', 
+                        $this->queue->getTableName(), 
+                        strtotime("-1 day")
+                        )
+                );
+                restore_current_blog();
+            }
+            switch_to_blog($start_id);
+        } else {
+            $wpdb->query(
+                $wpdb->prepare(
+                    'DELETE FROM %s WHERE complete_at_gmt < %d', 
+                    $this->queue->getTableName(), 
+                    strtotime("-1 day")
+                    )
+            );
+        }
+    }
+
 }
