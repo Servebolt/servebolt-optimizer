@@ -2,6 +2,7 @@
 
 namespace Servebolt\Optimizer\CacheTags;
 
+use Exception;
 use Servebolt\Optimizer\Traits\Multiton;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
@@ -10,7 +11,7 @@ use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isCron;
 use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\isWpRest;
-
+use function Servebolt\Optimizer\Helpers\smartAddOrUpdateOption;
 /**
  * This class adds cache-tags headers to the HTTP pages of the site. This is then
  * used by Cloudflare on Enterprize sites to allow for purging of a lot of pages in 
@@ -97,17 +98,14 @@ class AddCacheTagsHeaders {
         $this->driver = self::getSelectedCachePurgeDriver($blogId);
 
 
-        // if($this->driver != 'cloudflare') {
+        if($this->driver != 'cloudflare') {
 
             $this->domain = str_replace('.', '', parse_url(home_url(), PHP_URL_HOST));
             // send_headers was not possible to use as the query object was not yet
             // created. Thus none of the conditional functions would work without 
             // hammering the db for loads of extra information.
-            add_action( 'wp', [$this,'addCacheTagsHeaders'] );
-            // TODO: make a way of saying that this ^^^ is not working
-            // and thus defaults to urls only.  If the headers have 
-            // already been sent due to bad code it needs the fallback
-        // }
+            add_action( 'wp', [$this,'addCacheTagsHeaders'] );            
+        }
 
     }
 
@@ -305,13 +303,24 @@ class AddCacheTagsHeaders {
             // }
     }
 
+    /**
+     * Converts the $this->headers attay into a HTTP header
+     * that is added after processing using the 'wp' hook
+     */
     protected function appendHeaders() : void 
     {
+        $success = true;
         if(count($this->headers) > 0) {
-            // Add try catch to this that adapts the db to
-            // say that headers did not work
-            header('Cache-Tag: ' . implode(', ', $this->headers));
+            try{
+                header('Cache-Tag: ' . implode(', ', $this->headers));
+            } catch (Exception $e){
+                error_log("Cache-Tag messages could not be added as headers have already been sent.");
+                $success = false;
+            }
         }
+        // saving a site option that will be used if the page is purged so that 
+        // the system will know to use a cache tag or urls for purging.
+        smartAddOrUpdateOption( null, 'added_cache_tags', $success);        
     }
 
     protected function add( $name ) : void
