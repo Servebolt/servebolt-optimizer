@@ -25,6 +25,7 @@ class QueueItem
     private $completed_at_gmt;
     private $updated_at_gmt;
     private $created_at_gmt;
+    private $UID;
 
     /**
      * QueueItem constructor.
@@ -116,11 +117,13 @@ class QueueItem
 
     public function buildItemData(): array
     {
+        $payload = serialize($this->payload);
+
         return [
             'parent_id' => $this->parent_id,
             'parent_queue_name' => $this->parent_queue_name,
             'queue' => $this->queue,
-            'payload' => serialize($this->payload),
+            'payload' => $payload,
             'attempts' => $this->attempts,
             'force_retry' => $this->force_retry ?: false,
             'failed_at_gmt' => $this->failed_at_gmt,
@@ -128,6 +131,7 @@ class QueueItem
             'completed_at_gmt' => $this->completed_at_gmt,
             'updated_at_gmt' => $this->updated_at_gmt,
             'created_at_gmt' => $this->created_at_gmt,
+            'UID' => hash( "sha265", $payload )
         ];
     }
 
@@ -163,6 +167,7 @@ class QueueItem
         $this->completed_at_gmt = $item->completed_at_gmt;
         $this->updated_at_gmt = $item->updated_at_gmt;
         $this->created_at_gmt = $item->created_at_gmt;
+        $this->UID = isset($item->UID) ? $item->UID : '';
     }
 
 }

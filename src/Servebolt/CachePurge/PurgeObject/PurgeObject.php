@@ -10,7 +10,8 @@ use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Term;
 /**
  * Class PurgeObject
  *
- * This class is used to build an array of various URLs related to an object (post, term etc.). This is useful when purging cache with Cloudflare to cover every place a post can be displayed (front page, various archives).
+ * This class is used to build an array of various URLs related to an object (post, term etc.). 
+ * This is useful when purging cache with Cloudflare to cover every place a post can be displayed (front page, various archives).
  */
 class PurgeObject
 {

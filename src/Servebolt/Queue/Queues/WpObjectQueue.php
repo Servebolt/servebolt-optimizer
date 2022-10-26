@@ -289,7 +289,14 @@ class WpObjectQueue
      */
     public function add($itemData): ?object
     {
-        if ($existingItem = $this->queue->get(serialize($itemData), 'payload', true)) {
+        $payload = serialize($itemData);
+        // added unique ID for purge items, should be faster with large queues due to indexing.
+        if($existingItem = $this->queue->get(hash('sha256', $payload), 'UID', true)) {
+            $this->queue->flagItemAsUpdated($existingItem);
+            return $existingItem;
+        }
+        // fall back to payload looking the same
+        if ($existingItem = $this->queue->get($payload, 'payload', true)) {
             $this->queue->flagItemAsUpdated($existingItem);
             return $existingItem;
         }
@@ -385,11 +392,36 @@ class WpObjectQueue
 
     /**
      * Check if a post is already in the queue.
+     * 
+     * TODO: move to UID, this method will only with a queue of 30 items or less. 
      *
      * @param int $postId
      * @return bool
      */
     public function hasPostInQueue(int $postId): bool
+    {
+        if ($items = $this->queue->getActiveItems()) {
+            foreach ($items as $item) {
+                if (
+                    arrayGet('type', $item->payload) === 'post'
+                    && arrayGet('id', $item->payload) === $postId
+                ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check if a post is already in the queue.
+     * 
+     * TODO: move to UID, this method will only with a queue of 30 items or less. 
+     *
+     * @param int $postId
+     * @return bool
+     */
+    public function hasItemInQueue(int $postId): bool
     {
         if ($items = $this->queue->getActiveItems()) {
             foreach ($items as $item) {

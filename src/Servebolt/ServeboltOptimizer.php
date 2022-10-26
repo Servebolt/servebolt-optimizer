@@ -26,6 +26,7 @@ use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 use Servebolt\Optimizer\Utils\PostUpgradeActions;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
+use Servebolt\Optimizer\CacheTags\AddCacheTagsHeaders;
 use function Servebolt\Optimizer\Helpers\featureIsActive;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isCli;
@@ -62,7 +63,7 @@ class ServeboltOptimizer
         add_action('plugins_loaded', function () {
             new PluginCompatibility;
         });
-
+        
         // Make sure we don't store certain options (like API credentials) in clear text.
         new OptionEncryption;
 
@@ -77,6 +78,8 @@ class ServeboltOptimizer
 
             // Init environment file reader
             EnvFileReader::getInstance();
+
+            new AddCacheTagsHeaders;
         }
 
         // Sets the correct cache headers for the HTML Cache
