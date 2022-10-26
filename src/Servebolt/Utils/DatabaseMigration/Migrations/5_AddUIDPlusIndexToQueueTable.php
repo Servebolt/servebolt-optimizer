@@ -43,10 +43,12 @@ class AddUIDPlusIndexToQueueTable extends AbstractMigration implements Migration
      * 
      * Add new column UID, UID will be used to check if item has already be added to the queue 
      * Add index to new colum
+     * 
+     * Usind 64chars to be a sha256 hash of the payload so that it can checked for uniqueness.
      */
     public function up(): void
     {
-        $this->runSql('ALTER TABLE `%table-name%` ADD COLUMN `UID` VARCHAR(2083),  ADD INDEX `uid_index` (`UID`);');
+        $this->runSql('ALTER TABLE `%table-name%` ADD COLUMN `UID` VARCHAR(65), ADD INDEX `uid_index` (`UID`);');
     }
 
     /**
@@ -86,6 +88,6 @@ class AddUIDPlusIndexToQueueTable extends AbstractMigration implements Migration
      */
     public function down(): void
     {
-        $this->runSql('ALTER TABLE `%table-name%` DROP COLUMN `UID` DROP INDEX `uid_index`');
+        $this->runSql('ALTER TABLE `%table-name%` DROP COLUMN `UID`, DROP INDEX `uid_index`');
     }
 }
