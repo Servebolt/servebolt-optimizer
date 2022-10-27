@@ -665,13 +665,15 @@ class Queue
             $parentQueueName = null;
         }
         global $wpdb;
+        $payload = serialize($itemData);
         $wpdb->insert($this->getTableName(), [
             'parent_id' => $parentId,
             'parent_queue_name' => $parentQueueName,
             'queue' => $this->queueName,
-            'payload' => serialize($itemData),
+            'payload' => $payload,
             'attempts' => 0,
             'created_at_gmt' => current_time('timestamp', true),
+            'UID'=> hash('sha256', $payload),
         ]);
         return $this->get($wpdb->insert_id);
     }

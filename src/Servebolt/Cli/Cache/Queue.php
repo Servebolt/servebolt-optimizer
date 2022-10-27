@@ -24,6 +24,7 @@ class Queue
     public function __construct()
     {
         WP_CLI::add_command('servebolt cache purge queue clear', [$this, 'clearCachePurgeQueue']);
+        WP_CLI::add_command('servebolt cache purge queue trash', [$this, 'clearCachePurgeQueueTrash']);
     }
 
     /**
@@ -94,11 +95,88 @@ class Queue
     }
 
     /**
+     * Clear cache purge queue trash.
+     *
+     * ## OPTIONS
+     *
+     * [--all]
+     * : Clear cache purge queue trash on all sites in multisite.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
+     * ## EXAMPLES
+     *
+     *     # Clear cache purge queue
+     *     wp servebolt cache purge queue clear
+     *
+     *     # Clear cache purge queue on all sites in a multisite
+     *     wp servebolt cache purge queue clear --all
+     *
+     */
+    public function clearCachePurgeQueueTrash($args, $assocArgs)
+    {
+        
+        CliHelpers::setReturnJson($assocArgs);
+        if (CliHelpers::affectAllSites($assocArgs)) {
+            $statusArray = [];
+            iterateSites(function ($site) use (&$statusArray) {
+                $this->clearCachePurgeQueuesTrash();
+                $message = sprintf(__('Cache purge queue trash cleared on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                if (CliHelpers::returnJson()) {
+                    $statusArray[] = [
+                        'blog_id' => $site->blog_id,
+                        'success' => true,
+                        'message' => $message,
+                    ];
+                } else {
+                    $statusArray[] = [
+                        'Blog' => get_site_url($site->blog_id),
+                        'Success' => booleanToString(true),
+                        'Message' => $message,
+                    ];
+                }
+            }, true);
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson($statusArray);
+            } else {
+                WP_CLI_FormatItems('table', $statusArray, array_keys(current($statusArray)));
+            }
+        } else {
+            $this->clearCachePurgeQueuesTrash();
+            $message = __('Cache purge queue trash cleared!', 'servebolt-wp');
+            if (CliHelpers::returnJson()) {
+                CliHelpers::printJson([
+                    'success' => true,
+                    'message' => $message,
+                ]);
+            } else {
+                WP_CLI::success($message);
+            }
+        }
+    }
+    /**
      * Clear cache purge queues.
      */
     private function clearCachePurgeQueues(): void
     {
         (new WpObjectQueue)->clearQueue();
         (new UrlQueue)->clearQueue();
+    }
+
+
+    /**
+     * Clear cache purge queues of completed but not removed items.
+     */
+    private function clearCachePurgeQueuesTrash(): void
+    {
+        // passing true tells it that this is a CLI operation, plus do 20k records
+        (new WpObjectQueue)->garbageCollection(true, 20000);
     }
 }

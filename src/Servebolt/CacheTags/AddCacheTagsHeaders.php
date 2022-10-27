@@ -122,8 +122,6 @@ class AddCacheTagsHeaders {
         $this->addPostTypeTag();        
         $this->addHomeTag();
         $this->addWooCommerceTag();
-        // TODO: consider adding sitemap purging, but not thinking its needed.
-        // $this->addSitemapTag();
 
         $this->appendHeaders();
     }
@@ -318,7 +316,7 @@ class AddCacheTagsHeaders {
                 $success = false;
             }
         }
-        // saving a site option that will be used if the page is purged so that 
+        // saving an (site) option that will be used if the page is purged so that 
         // the system will know to use a cache tag or urls for purging.
         smartAddOrUpdateOption( null, 'added_cache_tags', $success);        
     }

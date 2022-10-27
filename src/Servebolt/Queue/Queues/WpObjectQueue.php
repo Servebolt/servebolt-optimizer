@@ -467,27 +467,27 @@ class WpObjectQueue
      * 
      * This is a belt and braces approach to cleanup.
      * 
-     * TODO: look to see if its better to have this inside the queue class and just
-     * call it from here.
+     * note: This only deletes 1000 rows in one go. it runs every minute, thus 1.4m rows is max per day. 
+     * @var bool $cli is it a WP CLI run thing
+     * @var int $limit the maximum number of items deleted in one go
+     * 
      */
-    public function garbageCollection() : void
+    public function garbageCollection($cli = false, $limit = 1000) : void
     {
-        // Need to wait 
         global $wpdb;
-        if(is_multisite()) {
+        if(is_multisite() && $cli == false) {
             $start_id = get_current_blog_id();
 
             // loop blog ids
             $sites = get_sites();
             foreach ( $sites as $site ) {
-                switch_to_blog( $site->blog_id );
-                
+                switch_to_blog( $site->blog_id );                
                 // perform a $wpdb delete 
                 $wpdb->query(
                     $wpdb->prepare(
-                        'DELETE FROM %s WHERE complete_at_gmt < %d', 
-                        $this->queue->getTableName(), 
-                        strtotime("-1 day")
+                        'DELETE FROM '.$this->queue->getTableName().' WHERE completed_at_gmt < %d AND completed_at_gmt IS NOT NULL ORDER BY `id` LIMIT %d',
+                        strtotime("-1 day"),
+                        $limit
                         )
                 );
                 restore_current_blog();
@@ -496,9 +496,9 @@ class WpObjectQueue
         } else {
             $wpdb->query(
                 $wpdb->prepare(
-                    'DELETE FROM %s WHERE complete_at_gmt < %d', 
-                    $this->queue->getTableName(), 
-                    strtotime("-1 day")
+                    'DELETE FROM '.$this->queue->getTableName().' WHERE completed_at_gmt < %d AND completed_at_gmt IS NOT NULL ORDER BY `id` LIMIT %d',
+                    strtotime("-1 day"),
+                    $limit
                     )
             );
         }
