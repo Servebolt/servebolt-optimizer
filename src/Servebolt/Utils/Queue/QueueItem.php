@@ -131,7 +131,7 @@ class QueueItem
             'completed_at_gmt' => $this->completed_at_gmt,
             'updated_at_gmt' => $this->updated_at_gmt,
             'created_at_gmt' => $this->created_at_gmt,
-            'UID' => hash( "sha265", $payload )
+            'UID' => hash( "sha256", $payload )
         ];
     }
 

@@ -8,6 +8,7 @@ use Servebolt\Optimizer\Utils\DatabaseMigration\AbstractMigration;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationInterface;
 use function Servebolt\Optimizer\Helpers\tableHasIndex;
 use function Servebolt\Optimizer\Helpers\tableExists;
+use function Servebolt\Optimizer\Helpers\tableHasColumn;
 
 /**
  * Class AddParentIdIndexToQueueTable
@@ -48,6 +49,7 @@ class AddUIDPlusIndexToQueueTable extends AbstractMigration implements Migration
      */
     public function up(): void
     {
+        error_log('trying to run alter');
         $this->runSql('ALTER TABLE `%table-name%` ADD COLUMN `UID` VARCHAR(65), ADD INDEX `uid_index` (`UID`);');
     }
 
@@ -62,17 +64,24 @@ class AddUIDPlusIndexToQueueTable extends AbstractMigration implements Migration
             case 'up':
                 // if Table does NOT exit return TRUE, to stop processing.
                 // if Table exists and index exists return TRUE to stop processing
-                if (!tableExists($this->getTableNameWithPrefix()) || ( tableExists($this->getTableNameWithPrefix()) && tableHasIndex($this->getTableNameWithPrefix(), 'parent_id_index'))) {
+                if ( 
+                    tableHasColumn($this->getTableNameWithPrefix(), 'UID') && 
+                    tableHasIndex($this->getTableNameWithPrefix(), 'uid_index') ) {
                     return true;
-                } 
+                } else {                    
+                    return false;
+                }
                 // else return false so that processing can continue;
                 return false;
 
                 break;
             case 'down':
-                // if Table does NOT exit return TRUE, to stop processing.
-                // if Table exists and index does not exist return TRUE to stop processing
-                if (!tableExists($this->getTableNameWithPrefix()) || ( tableExists($this->getTableNameWithPrefix()) && !tableHasIndex($this->getTableNameWithPrefix(), 'parent_id_index'))) {
+                // if Table does not exists or the index does not exist return TRUE to stop processing
+                if (
+                    !tableExists($this->getTableNameWithPrefix()) ||
+                    (!tableHasColumn($this->getTableNameWithPrefix(), 'UID') && 
+                     !tableHasIndex($this->getTableNameWithPrefix(), 'uid_index'))
+                ) {
                     return true;
                 } 
                 // else return false so that processing can continue;

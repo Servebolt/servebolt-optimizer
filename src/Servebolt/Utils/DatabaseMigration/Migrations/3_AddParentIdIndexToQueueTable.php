@@ -43,6 +43,7 @@ class AddParentIdIndexToQueueTable extends AbstractMigration implements Migratio
      */
     public function up(): void
     {
+        error_log('trying to add parent index');
         $this->runSql('ALTER TABLE `%table-name%` ADD INDEX `parent_id_index` (`parent_id`);');
     }
 

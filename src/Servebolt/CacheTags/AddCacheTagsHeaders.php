@@ -12,6 +12,7 @@ use function Servebolt\Optimizer\Helpers\isCron;
 use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\isWpRest;
 use function Servebolt\Optimizer\Helpers\smartAddOrUpdateOption;
+use function Servebolt\Optimizer\Helpers\getCondtionalHookPreHeaders;
 /**
  * This class adds cache-tags headers to the HTTP pages of the site. This is then
  * used by Cloudflare on Enterprize sites to allow for purging of a lot of pages in 
@@ -99,12 +100,9 @@ class AddCacheTagsHeaders {
 
 
         if($this->driver != 'cloudflare') {
-
             $this->domain = str_replace('.', '', parse_url(home_url(), PHP_URL_HOST));
-            // send_headers was not possible to use as the query object was not yet
-            // created. Thus none of the conditional functions would work without 
-            // hammering the db for loads of extra information.
-            add_action( 'wp', [$this,'addCacheTagsHeaders'] );            
+            // Get the correct hook based on version of WordPress, pre 6.1 wp, post send_headers
+            add_action( getCondtionalHookPreHeaders(), [$this,'addCacheTagsHeaders'] );
         }
 
     }

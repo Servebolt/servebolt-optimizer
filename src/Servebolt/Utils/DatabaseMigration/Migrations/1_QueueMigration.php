@@ -35,6 +35,7 @@ class QueueMigration extends AbstractMigration implements MigrationInterface
      */
     public function up(): void
     {
+        error_log('trying to run table create');
         $sql = <<<EOF
 CREATE TABLE IF NOT EXISTS `%table-name%` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,

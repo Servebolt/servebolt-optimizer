@@ -1838,6 +1838,28 @@ function tableHasIndex(string $tableName, string $indexName): bool
 }
 
 /**
+ * Check if a table has a given index.
+ *
+ * @param string $tableName
+ * @param string $indexName
+ * @return bool
+ */
+function tableHasColumn(string $tableName, string $columnName): bool
+{
+    global $wpdb;
+    $col  = $wpdb->get_results( "SHOW COLUMNS FROM {$tableName} LIKE '{$columnName}'" );
+    error_log('checking if col exists');
+    error_log(print_r($col, true));
+
+    if ( $col == null || count($col) == 0) {
+        return false;
+    }
+    return true;
+}
+
+
+
+/**
  * A function that will get the option at the right place (in current blog or a specified blog).
  *
  * @param int|null $blogId
@@ -2338,6 +2360,21 @@ function isValidJson(string $allegedJson): bool
 function convertObjectToArray(object $object)
 {
     return json_decode(json_encode($object), true);
+}
+
+/**
+ * Get hook for conditionals (is_[thing]()) befor sending headers. 
+ * 
+ * Pre 6.1 send_headers loads too early for to use conditional queries, thus wp is used.
+ * send_headers pre 6.1 was not possible to use as the query object was not yet
+ * created.
+ * 
+ * see: https://make.wordpress.org/core/2022/10/10/moving-the-send_headers-action-to-later-in-the-load/  
+ **/
+function getCondtionalHookPreHeaders() : bool
+{
+    global $wp_version;
+    return (version_compare($wp_version, '6.1') === -1 )? 'wp' : 'send_headers';
 }
 
 /**
