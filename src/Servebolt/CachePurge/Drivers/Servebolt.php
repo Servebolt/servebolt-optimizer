@@ -7,13 +7,14 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeUrlInterface;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeAllInterface;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgePrefixInterface;
 use Servebolt\Optimizer\Exceptions\ServeboltApiError;
 
 /**
  * Class Servebolt
  * @package Servebolt\Optimizer\CachePurge\Drivers
  */
-class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface
+class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, CachePurgePrefixInterface, CachePurgeTagInterface
 {
     use Singleton, ServeboltDriverTrait;
 
@@ -53,6 +54,46 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface
         }
     }
 
+
+    /**
+     * 
+     * @param array $tags : array of tags to be delted 
+     * @param array $domain : 
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeByTag(array $tags, string $domain) : bool
+    {
+        $response = $this->apiInstance->environment->purgeCache(
+            $this->apiInstance->getEnvironmentId(),
+            $urls
+        );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
+
+    /**
+     * @param array $urls
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeByPrefix(string $prefix): bool
+    {
+        // TODO: purge prefix...
+        return true;
+        // $response = $this->apiInstance->environment->purgeCache(
+        //     $this->apiInstance->getEnvironmentId(),
+        //     $urls
+        // );
+        // if ($response->wasSuccessful()) {
+        //     return true;
+        // } else {
+        //     throw new ServeboltApiError($response->getErrors(), $response);
+        // }
+    }
     /**
      * Purge all cache (for a single site).
      *
