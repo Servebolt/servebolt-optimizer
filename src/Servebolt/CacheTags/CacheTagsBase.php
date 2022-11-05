@@ -189,7 +189,13 @@ class CacheTagsBase {
 
     protected function add( $name ) : void
     {
-        $this->headers[] = $this->domain.'-'.$name;
+        $prefix = ($this->domain == '') ? $this->domain : $this->domain .'-';
+        $this->headers[] = $prefix.$name;
+    }
+
+    protected function setupDomain() : void
+    {
+        $this->domain = str_replace('.', '', parse_url(home_url(), PHP_URL_HOST));
     }
 
 }

@@ -79,9 +79,10 @@ class ServeboltOptimizer
             // Init environment file reader
             EnvFileReader::getInstance();
 
-            new AddCacheTagsHeaders;
+            
         }
 
+        new AddCacheTagsHeaders;
         // Sets the correct cache headers for the HTML Cache
         FullPageCache::init();
 

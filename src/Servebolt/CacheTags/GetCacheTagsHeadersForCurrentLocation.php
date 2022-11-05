@@ -18,10 +18,10 @@ class GetCacheTagsHeadersForCurrentLocation extends CacheTagsBase {
         // TODO: define where we are before adding headers!
 
         // setup headers
-        $this->setupTagHeaders();
+        $this->getTagHeaders();
     }
 
-    protected function setupTagHeaders()
+    protected function getTagHeaders() : void
     {
         $this->addAuthorTag();
         $this->addTaxonomyTermIDTag();
@@ -32,8 +32,9 @@ class GetCacheTagsHeadersForCurrentLocation extends CacheTagsBase {
         $this->addWooCommerceTag();
     }
 
-    public function getHeaders()
+    public function returnHeaders() : array
     {
         return $this->headers;
     }
+    
 }

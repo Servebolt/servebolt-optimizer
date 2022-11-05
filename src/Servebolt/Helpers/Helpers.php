@@ -2370,11 +2370,13 @@ function convertObjectToArray(object $object)
  * created.
  * 
  * see: https://make.wordpress.org/core/2022/10/10/moving-the-send_headers-action-to-later-in-the-load/  
+ * 
+ * @return string
  **/
-function getCondtionalHookPreHeaders() : bool
+function getCondtionalHookPreHeaders()
 {
     global $wp_version;
-    return (version_compare($wp_version, '6.1') === -1 )? 'wp' : 'send_headers';
+    return (version_compare($wp_version, '6.1') == -1 ) ? 'wp' : 'send_headers';
 }
 
 /**
