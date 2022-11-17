@@ -21,7 +21,7 @@ class CacheTagsBase {
     /**
      * Option name used to store the cache tags
      * 
-     * @vart
+     * @var
      */
     protected $cache_tags_status = 'added_cache_tags';
     /**
@@ -131,9 +131,11 @@ class CacheTagsBase {
     }
 
     /**
+     * 
      * TODO: add sitemap cache-tag.  Might be too complex as it would need
-     * to have deal with most popular SEO/Sitemap plugins
-     */
+     * to have deal with most popular SEO/Sitemap plugins.
+     *
+     **/
     protected function addSitemapTag() : void
     {
         $this->add('sitemap');

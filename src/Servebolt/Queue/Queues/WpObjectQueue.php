@@ -84,14 +84,21 @@ class WpObjectQueue
      */
     private function resolveUrlsToPurgeFromWpObject($payload): ?array
     {
-        if (in_array($payload['type'], ['post', 'term'])) {
+        if (in_array($payload['type'], ['post', 'term', 'cachetag'])) {
 
+            $output = [
+                'urls' => [],
+                'tags' => [],
+            ];
+            // TODO: FIX LOGIC
             if ($payload['type'] === 'post' && $originalUrl = arrayGet('original_url', $payload)) {
+                error_log('what is happening, why it is going this way!');
                 add_filter('sb_optimizer_purge_by_post_original_url', function() use ($originalUrl) {
                     return $originalUrl;
                 });
             }
 
+            // The 'cachetag' type is investigated and adapted in the PurgeObject.
             $purgeObject = new PurgeObject(
                 arrayGet('id', $payload),
                 arrayGet('type', $payload),
@@ -101,17 +108,18 @@ class WpObjectQueue
 
                 // Handle simple purge - purging of only object URL without full URL hierachy.
                 if (arrayGet('simplePurge', $payload) === true) {
-                    return [
-                        $purgeObject->getBaseUrl()
-                    ];
+                    $output['urls'][] = $purgeObject->getBaseUrl();
+                    return $output;
                 }
                 if ($urls = $purgeObject->getUrls()) {
+                    $output['urls'] = $urls;
+                    $output['tags'] = $purgeObject->getCacheTags();
                     return $urls;
                 }
             }
             return null;
         } elseif ($payload['type'] == 'url' && $payload['url']) {
-            return [$payload['url']];
+            return $output['urls'][] = $payload['url'];
         }
         return null;
     }
@@ -192,12 +200,24 @@ class WpObjectQueue
                         'type' => 'purge-all',
                     ], $item);
                     break; // We're purging all cache, so no need to continue expanding WP objects to URL items
-                } elseif ($urls = $this->resolveUrlsToPurgeFromWpObject($item->payload)) {
-                    foreach ($urls as $url) {
-                        $this->urlQueue()->add([
-                            'type' => 'url',
-                            'url' => $url,
-                        ], $item);
+                } elseif ($output = $this->resolveUrlsToPurgeFromWpObject($item->payload)) {
+                    error_log('resolveUrlsToPurgeFromWpObject');
+                    error_log(print_r($output,true));
+                    if(!empty($output['urls'])){
+                        foreach ($output['urls'] as $url) {
+                            $this->urlQueue()->add([
+                                'type' => 'url',
+                                'url' => $url,
+                            ], $item);
+                        }
+                    }
+                    if(!empty($output['tags'])){
+                        foreach($output['tags'] as $tag) {
+                            $this->urlQueue()->add([
+                                'type' => 'cachetag',
+                                'tag' => $tag,
+                            ], $item);
+                        }
                     }
                 }
             }
@@ -372,11 +392,29 @@ class WpObjectQueue
      */
     public function hasTermInQueue(int $termId, string $taxonomySlug): bool
     {
+        // Check if term UID hash exists.
+        $payload = [
+            'type' => 'term',
+            'id'  => $termId,
+            'args' => [
+                    'taxonomySlug' => $taxonomySlug
+                ]
+        ];
+        if($this->checkIfPayloadExists($payload)) return true;
+
+        // Check if cachetag UID hash exists.
+        $payload = [
+            'type' => 'cachetag',
+            'id'  => 'term-'.$termId,
+        ];
+        if($this->checkIfPayloadExists($payload)) return true;
+       
         if ($items = $this->queue->getActiveItems()) {
             foreach ($items as $item) {
+                // TODO: does $this apply and not $item?
                 if (!isset($this->payload)) {
                     continue;
-                }
+                }                
                 $args = arrayGet('args', $this->payload);
                 if (
                     arrayGet('type', $item->payload) === 'term'
@@ -391,17 +429,44 @@ class WpObjectQueue
     }
 
     /**
+     * check if payload UID exists
+     * 
+     * Convert the payload to a serialized string and then SHA256 hash
+     * and look for it in the UID column.
+     */
+    public function checkIfPayloadExists(array $payload = [] )
+    {
+        return $this->queue->checkUidExists($payload);
+    }
+
+    /**
      * Check if a post is already in the queue.
      * 
-     * TODO: move to UID, this method will only with a queue of 30 items or less. 
-     *
      * @param int $postId
      * @return bool
      */
     public function hasPostInQueue(int $postId): bool
     {
+        // Check if post UID hash exists.
+        $payload = [
+            'type' => 'post',
+            'id'  => $postId,
+        ];
+
+        if($this->checkIfPayloadExists($payload)) return true;
+        // Check if cachetag UID hash exists.
+        $payload = [
+            'type' => 'cachetags',
+            'id'  => $postId,
+        ];
+
+        if($this->checkIfPayloadExists($payload)) return true;
+        
+
         if ($items = $this->queue->getActiveItems()) {
             foreach ($items as $item) {
+                if($this->checkIfPayloadExists($this->payload)) return true;
+
                 if (
                     arrayGet('type', $item->payload) === 'post'
                     && arrayGet('id', $item->payload) === $postId
@@ -410,19 +475,33 @@ class WpObjectQueue
                 }
             }
         }
+
         return false;
     }
 
     /**
      * Check if a post is already in the queue.
-     * 
-     * TODO: move to UID, this method will only with a queue of 30 items or less. 
      *
      * @param int $postId
      * @return bool
      */
     public function hasItemInQueue(int $postId): bool
     {
+        // Check if post UID hash exists.
+        $payload = [
+            'type' => 'post',
+            'id'  => $postId,
+        ];
+
+        if($this->checkIfPayloadExists($payload)) return true;
+        // Check if cachetag UID hash exists.
+        $payload = [
+            'type' => 'cachetags',
+            'id'  => $postId,
+        ];
+
+        if($this->checkIfPayloadExists($payload)) return true;
+
         if ($items = $this->queue->getActiveItems()) {
             foreach ($items as $item) {
                 if (
@@ -444,6 +523,14 @@ class WpObjectQueue
      */
     public function hasUrlInQueue(string $url): bool
     {
+        // Check if post UID hash exists.
+        $payload = [
+            'type' => 'url',
+            'url'  => $url,
+        ];
+
+        if($this->checkIfPayloadExists($payload)) return true;
+        
         $items = $this->queue->getActiveItems();
         if ($items) {
             foreach ($items as $item) {
@@ -460,14 +547,14 @@ class WpObjectQueue
 
     /**
      * The garbageCollection method checks in the sb_queue table for anything that is older
-     * than 24 hours that has a completed_at_gmt timestamp of that length or greater. 
+     * than 24 hours that has a completed_at_gmt timestamp of that length or greater.
      * 
      * This means that the cache purge has been dealt with but from some reason the purge item
      * has not been deleted.
      * 
      * This is a belt and braces approach to cleanup.
      * 
-     * note: This only deletes 1000 rows in one go. it runs every minute, thus 1.4m rows is max per day. 
+     * note: This only deletes 1000 rows in one go. it runs every minute, thus 1.4m rows is max per day.
      * @var bool $cli is it a WP CLI run thing
      * @var int $limit the maximum number of items deleted in one go
      * 

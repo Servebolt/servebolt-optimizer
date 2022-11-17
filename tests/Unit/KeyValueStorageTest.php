@@ -89,9 +89,7 @@ class KeyValueStorageTest extends ServeboltWPUnitTestCase
         $this->assertEquals('default-value', $instance->getValue('another-key', null, 'default-value'));
         $this->assertTrue($instance->setValue('another-key', 'some-value'));
         $this->assertEquals('some-value', $instance->getValue('another-key'));
-
         $this->assertFalse($instance->setValue('another-key', true));
-
         $this->assertTrue($instance->setValue('another-key', 'some-other-value'));
         $this->assertEquals('some-other-value', $instance->getValue('another-key'));
     }

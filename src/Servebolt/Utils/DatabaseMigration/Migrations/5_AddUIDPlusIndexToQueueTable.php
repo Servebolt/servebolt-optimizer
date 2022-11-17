@@ -49,7 +49,6 @@ class AddUIDPlusIndexToQueueTable extends AbstractMigration implements Migration
      */
     public function up(): void
     {
-        error_log('trying to run alter');
         $this->runSql('ALTER TABLE `%table-name%` ADD COLUMN `UID` VARCHAR(65), ADD INDEX `uid_index` (`UID`);');
     }
 

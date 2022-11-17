@@ -11,6 +11,7 @@ class DatabaseMigrationTest extends ServeboltWPUnitTestCase
     
     public function setUp(): void
     {
+        error_log('db migration test');
         parent::setUp();
         $this->allowPersistenceInDatabase();
         MigrationRunner::refresh();

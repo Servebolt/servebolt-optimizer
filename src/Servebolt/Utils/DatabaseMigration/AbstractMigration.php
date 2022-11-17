@@ -33,7 +33,7 @@ abstract class AbstractMigration
     protected function runSql(string $sql): void
     {
         $sql = $this->populateSql($sql);
-        error_log($sql);
+        
         if ($this->useDbDelta) {
             $this->runDbDeltaQuery($sql);
         } else {

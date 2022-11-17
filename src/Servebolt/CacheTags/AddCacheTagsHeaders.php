@@ -65,7 +65,6 @@ class AddCacheTagsHeaders extends CacheTagsBase {
      */
     public function __construct(?int $blogId = null)
     {
-        error_log('trying');
         if (
             is_admin()
             || isAjax()
@@ -75,11 +74,9 @@ class AddCacheTagsHeaders extends CacheTagsBase {
             || isTesting()
         ) return;
 
-        
         $this->driver = self::getSelectedCachePurgeDriver($blogId);
 
        // if($this->driver == 'acd') {
-            //
             // Get the correct hook based on version of WordPress, pre 6.1 wp, post send_headers
             add_action(getCondtionalHookPreHeaders(), [$this,'addCacheTagsHeaders']);
        // }

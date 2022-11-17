@@ -6,5 +6,5 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 interface CachePurgeTagInterface
 {
-    public function purgeByTag(array $tags, string $domain);
+    public function purgeByTags(array $tags, array $hosts);
 }

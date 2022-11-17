@@ -1848,8 +1848,6 @@ function tableHasColumn(string $tableName, string $columnName): bool
 {
     global $wpdb;
     $col  = $wpdb->get_results( "SHOW COLUMNS FROM {$tableName} LIKE '{$columnName}'" );
-    error_log('checking if col exists');
-    error_log(print_r($col, true));
 
     if ( $col == null || count($col) == 0) {
         return false;

@@ -29,6 +29,13 @@ abstract class SharedMethods
     private $urls = [];
 
     /**
+     * The CacheTags related to the object about to be purged.
+     *
+     * @var array
+     */
+    private $tags = [];
+
+    /**
      * Array of additional arguments for the object to be purged.
      *
      * @var array
@@ -53,11 +60,12 @@ abstract class SharedMethods
         $this->setId($id);
         $this->setArguments($args);
         if ( $this->initObject() ) { // Check if we could find the object first
-            if (apply_filters('sb_optimizer_should_generate_other_urls', true)) { // Check if we should generate all other related URLs for object
+            // Check if we should generate all other related URLs for object
+            if (apply_filters('sb_optimizer_should_generate_other_urls', true)) {
                 $this->generateOtherUrls();
             }
         }
-        $this->postUrlGenerateActions();
+        $this->postUrlGenerateActions();        
     }
 
     /**
@@ -76,6 +84,21 @@ abstract class SharedMethods
         );
     }
 
+     /**
+     * Do stuff after we have generated CacheTags.
+     */
+    protected function postTagGenerateActions(): void
+    {
+        // Let other manipulate CacheTags
+        $this->setCacheTags(
+            apply_filters(
+                'sb_optimizer_alter_tags_for_cache_purge_object',
+                $this->getCacheTags(),
+                $this->getId(),
+                $this->objectType
+            )
+        );
+    }
     /**
      * Set/get whether we could resolve the purge object from the ID (post/term lookup).
      *
@@ -256,4 +279,62 @@ abstract class SharedMethods
          */
         return (int) apply_filters('sb_optimizer_cache_purge_pages_needed', $query->max_num_pages, $type, $this->getId());
     }
+
+    /**
+     * Add URL to be purged cache for.
+     *
+     * @param string $url
+     * @return bool
+     */
+    public function addCacheTag(string $tag): bool
+    {
+        $tags = $this->getCacheTags();
+        if (!in_array($tag, $tags)) {
+            $tags[] = $tag;
+            $this->setCacheTags($tags);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Add multiple CacheTags to be purged cache for.
+     *
+     * @param array $tags
+     */
+    public function addCacheTags(array $tags): void
+    {
+        if (!is_array($tags)) {
+            return;
+        }
+        array_map(function ($tag) {
+            $this->addCacheTag($tag);
+        }, $tags);
+    }
+
+    /**
+     * Set the CacheTags to purge cache for.
+     *
+     * @param array $tags
+     * @return bool
+     */
+    public function setCacheTags(array $tags): bool
+    {
+        if (!is_array($tags)) {
+            return false;
+        }
+        $this->tags = $tags;
+        return true;
+    }
+
+    /**
+     * Get the CacheTags to purge cache for.
+     *
+     * @return array
+     */
+    public function getCacheTags()
+    {
+        return $this->tags;
+    }
+
 }

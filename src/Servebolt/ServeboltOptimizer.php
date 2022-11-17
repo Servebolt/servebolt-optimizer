@@ -79,7 +79,6 @@ class ServeboltOptimizer
             // Init environment file reader
             EnvFileReader::getInstance();
 
-            
         }
 
         new AddCacheTagsHeaders;

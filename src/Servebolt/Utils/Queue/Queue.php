@@ -628,6 +628,30 @@ class Queue
     }
 
     /**
+     * Check if UID hash exists in sb_queue table
+     * 
+     * @return bool
+     */
+    public function checkUidExists(array $payload = [])
+    {
+        if(empty($payload)) return false;
+
+        $uid = hash('sha256', serialize($payload));
+
+        global $wpdb;
+        $sql = $wpdb->prepare("SELECT id FROM {$this->getTableName()} WHERE UID=%s AND completed_at_gmt IS NULL", $uid);
+        
+        $result = $wpdb->get_var($sql);
+        if ($result == NULL || is_wp_error($result)) {
+            error_log('not found UID');
+        } else {
+            error_log('found UID');
+            error_log(print_r($payload, true));
+        }
+        return ($result == NULL || is_wp_error($result)) ? false : true;
+    }
+
+    /**
      * Clear all queue items.
      *
      * @param bool|callable $constraintClosureOrSkipConstraintBoolean
