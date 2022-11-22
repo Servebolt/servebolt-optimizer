@@ -106,7 +106,7 @@ class PurgeObject
     public function addObject($id, string $type = 'post', array $args = [])
     {
         $purgeObject = $this->resolvePurgeObject($id, $type, $args);
-        error_log("purge object details " . print_r($purgeObject, true) );
+      //  error_log("purge object details " . print_r($purgeObject, true) );
         
         if ($purgeObject && !is_wp_error($purgeObject)) {
             $this->purgeObject = $purgeObject;

@@ -26,9 +26,10 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     {
         // If post ID is not correctly set, then leave early
         if($objectId == 0) return;
-
         $this->objectId = $objectId;
+        error_log("post or term id : " . $this->objectId);
         $this->objectType = $objectType; // is this a post type or term?
+        error_log("is a post or term?: " . $this->objectType);
         $this->setupHeaders();        
     }
 
@@ -45,30 +46,103 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
             'post_type' => $this->objectType,
             'p' => $this->objectId
         ];
-                
+
         $loop = new WP_Query($args);
-        if($loop->have_posts()) :
+        if($loop->have_posts()) {
             while ( $loop->have_posts() ) : $loop->the_post();
                 $this->getTagHeaders();
             endwhile;
-        endif;
+        } else {
+            error_log("post not found in header loop");
+        }
         wp_reset_postdata();
     }
 
     protected function getTagHeaders() : void
     {
         $this->addAuthorTag();
+        $this->addHomeTag();
         $this->addTaxonomyTermIDTag();
         $this->addDateTag();
         $this->addRssTag();
-        $this->addPostTypeTag();        
-        $this->addHomeTag();
+        $this->addPostTypeTag();                
         $this->addWooCommerceTag();
     }
 
-    public function getHeaders() : array
+    /**
+     * Clear the homepage and front page.
+     */
+    protected function addHomeTag() : void
     {
-        return $this->headers;
+        $this->add('home');
+    }
+
+    /**
+     * Clear the Feeds for both the comment RSS and general Feed.
+     */
+    protected function addRssTag() : void
+    {
+        $this->add('comment-feed' . get_the_ID());
+        $this->add('feed');
+    }
+
+    /**
+     * Clear the post type archive. 
+     */
+    protected function addPostTypeTag(): void
+    {
+        $this->add('posttype-'.get_post_type());
+    }
+
+    /**
+     * clear date archives for the day month and year.
+     */
+    protected function addDateTag(): void
+    {
+        $this->add('date-'. get_the_date('n') .'-' . get_the_date('Y'));
+        $this->add('year-'.  get_the_date('Y'));
+        $this->add('month-'. get_the_date('n'));
+    }
+
+    /**
+     * Add all terms for this post or page.
+     */
+    protected function addTaxonomyTermIDTag(): void
+    {
+        $taxonomies = get_object_taxonomies( $this->objectType, 'objects' );
+        foreach($taxonomies as $tax) {
+            // ignore non public taxonomies
+            if(!$tax->public) continue;
+            $ids = wp_get_post_terms(get_the_ID(), $tax->name, ['fields' => 'ids']);
+            // ignore empty taxonomies or ignore error and continue;
+            if(count($ids) == 0 || is_wp_error($ids)) continue;
+            // loop all ids and add them
+            foreach($ids as $id) {
+                $this->add('term-'.$id);
+            }
+        } 
     }
     
+    /**
+     * Add author id to single pages and author archive pages
+     * for Cache-Tag headers.
+     * 
+     * domain-author-[author id].
+     */
+    protected function addAuthorTag() : void
+    {
+        $this->add('author-' . get_post_field('post_author', get_the_ID() ) );
+    }
+
+    /**
+     * If a WooCommerce product, clear the shop cache
+     */
+    protected function addWooCommerceTag() : void
+    {
+        // check if woo commerce is working on this site.
+        if ( !class_exists( 'woocommerce' ) ) return;
+        // Add the shop homepage.
+        $this->add('woocommerce-shop');
+    }
+
 }

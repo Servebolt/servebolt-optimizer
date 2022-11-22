@@ -94,9 +94,9 @@ class Cachetag extends SharedMethods
     protected function generateOtherCacheTags(): void
     {
         $cacheHeaders = new GetCacheTagsHeadersForLocation($this->getId(), $this->getPostType());
-
-        $this->addCacheTags($cacheHeaders->getHeaders());
-        // add urls for images
+        // get related cache tags for this post.
+        $this->addCacheTags($cacheHeaders->getHeaders());        
+        // add urls for images.
         $this->addAttachmentUrl();
         // sizes of iamges
         $this->addImageSizes();        

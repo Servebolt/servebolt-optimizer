@@ -70,15 +70,12 @@ class PurgeObjectTest extends ServeboltWPUnitTestCase
         $this->assertIsArray($urlsToPurge);
         $this->assertContains(trailingslashit(get_term_link($termId)), $urlsToPurge);
 
-        error_log('starting cachetag object');
         $purgeObject = new PurgeObject($postId, 'cachetag');
-        error_log(print_r($purgeObject, true));
-        error_log(print_r(get_class_methods($purgeObject), true));
         $tagsToPurge = $purgeObject->getCacheTags();
         $this->assertIsArray($tagsToPurge);
         $this->assertContains('home', $tagsToPurge);
-        $this->assertContains('term-'.$termId, $tagsToPurge);
-        error_log('completed cachetag object');
-
+        $this->assertContains('posttype-post', $tagsToPurge);
+        $this->assertContains('feed', $tagsToPurge);
+        $this->assertContains('year-'.date("Y"), $tagsToPurge);   
     }
 }

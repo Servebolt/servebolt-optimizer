@@ -62,6 +62,42 @@ class QueueTest extends ServeboltWPUnitTestCase
         $this->assertEquals(WpObjectQueue::$queueName, $urlQueueItem->parentQueueName);
     }
 
+    public function testThatPostTagsGetsParsedFromWpObjectQueueToUrlQueue(): void
+    {
+        $postId = $this->factory()->post->create();
+        $postPermalink = get_permalink($postId);
+        $this->assertIsInt($postId);
+        $wpObjectQueue = WpObjectQueue::getInstance();
+        $urlQueueInstance = Queue::getInstance(UrlQueue::$queueName);
+        $queueItem = $wpObjectQueue->add([
+            'id' => $postId,
+            'type' => 'cachetag',
+        ]);
+        $this->assertTrue(isQueueItem($queueItem));
+        $wpObjectQueue->parseQueue();
+
+        $items = $urlQueueInstance->getItems();
+
+        $urlQueueItem = null;
+        $this->assertIsArray($items);
+        $urlOnly = array_filter(array_map(function($item) use ($postPermalink, &$urlQueueItem) {
+            error_log("show the of payload");
+            error_log(print_r($item->payload, true));
+            if ($item->payload['url'] === $postPermalink) {
+                $urlQueueItem = $item;
+            }
+            if (!empty($item->payload['url'])) {
+                return $item->payload['url'];
+            }
+            return null;
+        }, $items));
+        $this->assertContains($postPermalink, $urlOnly);
+
+        $this->assertTrue(isQueueItem($urlQueueItem));
+        $this->assertEquals($queueItem->id, $urlQueueItem->parentId);
+        $this->assertEquals(WpObjectQueue::$queueName, $urlQueueItem->parentQueueName);
+    }
+
     public function testThatTermUrlsGetsParsedFromWpObjectQueueToUrlQueue(): void
     {
         $taxonomy = 'test-taxonomy';

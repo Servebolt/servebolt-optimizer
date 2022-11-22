@@ -126,7 +126,7 @@ class CacheTagsBase {
         }
         
         if(is_feed() && is_singular()) {
-            $this->add('comment-feed');
+            $this->add('comment-feed' . get_queried_object()->ID);
         }
     }
 
@@ -189,7 +189,7 @@ class CacheTagsBase {
         }        
     }
 
-    protected function add( $name ) : void
+    public function add( $name ) : void
     {
         $prefix = ($this->domain == '') ? $this->domain : $this->domain .'-';
         $this->headers[] = $prefix.$name;
@@ -200,4 +200,8 @@ class CacheTagsBase {
         $this->domain = str_replace('.', '', parse_url(home_url(), PHP_URL_HOST));
     }
 
+    public function getHeaders() : array
+    {
+        return $this->headers;
+    }
 }

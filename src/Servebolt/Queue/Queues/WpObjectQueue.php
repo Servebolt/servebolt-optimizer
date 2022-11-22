@@ -92,9 +92,9 @@ class WpObjectQueue
             ];
             // TODO: FIX LOGIC
             if ($payload['type'] === 'post' && $originalUrl = arrayGet('original_url', $payload)) {
-                error_log('what is happening, why it is going this way!');
                 add_filter('sb_optimizer_purge_by_post_original_url', function() use ($originalUrl) {
-                    return $originalUrl;
+                    $output['urls'][] = $originalUrl;
+                    return $output;
                 });
             }
 
@@ -105,17 +105,24 @@ class WpObjectQueue
             );
 
             if ($purgeObject->success()) {
-
+                
                 // Handle simple purge - purging of only object URL without full URL hierachy.
                 if (arrayGet('simplePurge', $payload) === true) {
                     $output['urls'][] = $purgeObject->getBaseUrl();
                     return $output;
                 }
+                // Add urls if they exist.
                 if ($urls = $purgeObject->getUrls()) {
                     $output['urls'] = $urls;
-                    $output['tags'] = $purgeObject->getCacheTags();
-                    return $urls;
+                
                 }
+                // Add tags if they exist.
+                if( $tags = $purgeObject->getCacheTags()) {
+                    $output['tags'] = $tags;
+                }
+                // if there is shomething to share, return it.
+                if(!empty($output['tags']) || !empty($output['urls'])) return $output;
+
             }
             return null;
         } elseif ($payload['type'] == 'url' && $payload['url']) {
