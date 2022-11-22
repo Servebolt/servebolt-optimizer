@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkwpplugin_docs_servebolt_com=self.webpackChunkwpplugin_docs_servebolt_com||[]).push([[700],{5745:function(e){e.exports=JSON.parse('{"name":"docusaurus-plugin-content-pages","id":"default"}')}}]);
