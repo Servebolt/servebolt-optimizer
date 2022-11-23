@@ -382,4 +382,10 @@ class SqlBuilder
         }
         return $this;
     }
+
+    public function resetLimitAndColumns() : void
+    {
+        $this->select = [];
+        $this->limit = [];
+    }
 }
