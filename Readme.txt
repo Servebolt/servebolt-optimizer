@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.0.2
 Requires PHP: 7.3
-Stable tag: 3.5.10
+Stable tag: 3.5.11
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,6 +93,9 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.10 =
+* Added LIMIT to garbage collection query.
+
 = 3.5.10 =
 * Increased batch capibilities action_scheduler, 8x more processing possible.
 
