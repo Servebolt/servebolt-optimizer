@@ -315,9 +315,14 @@ class Queue
         $query = $this->query();
         $query->isActive()
             ->whereMaxAttemptAreExceeded($maxAttempts);
+        // Setting limit of returned rows.
+        $query->limit(150);        
         if ($result = $query->result()) {
+            // Double check its reset.
             $this->setItemsAsFailed($result);
         }
+        // Setting limit of returned numbers and columns.
+        $query->removeLimit();
         return null;
     }
 

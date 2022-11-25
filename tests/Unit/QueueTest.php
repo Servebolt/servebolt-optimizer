@@ -137,4 +137,46 @@ class QueueTest extends ServeboltWPUnitTestCase
         $this->assertEquals($queueItem->id, $urlQueueItem->parentId);
         $this->assertEquals(WpObjectQueue::$queueName, $urlQueueItem->parentQueueName);
     }
+
+
+    /**
+     * This test checks if things that have been attempted 3 times are properly coverted to failed.
+     * 
+     * It adds 300 items to the queue items and then sets them all to be 3 attempts
+     * without success. The system should only convert 100 at a time to failed. 
+     */
+    public function testThatFailedQueueItemIsRemoved(): void
+    {
+        
+        global $wpdb;
+        $table = $wpdb->prefix . "sb_queue";
+
+        $wpObjectQueue = WpObjectQueue::getInstance();
+        
+        for($i = 0; $i < 3000; $i++) {
+            $payload = [
+                'type' => 'url',
+                'url' => 'https://test.com/archive/tag/thing/page/' . $i,
+            ];
+            $queueItem = $wpObjectQueue->add($payload);
+            $this->assertTrue(isQueueItem($queueItem));
+        }
+        
+        $sql = "UPDATE {$table} 
+        SET attempts = 3
+        WHERE completed_at_gmt IS NULL 
+        LIMIT 3000;";
+
+        $wpdb->query($sql);
+        $wpObjectQueue->parseQueue();
+
+        global $wpdb;
+        $wpdb->get_results("SELECT ID FROM " . $table . " WHERE attempts=3" );
+        $this->assertEquals(3000, $wpdb->num_rows, "3000 rows were not sucessfully added to the database" );
+
+        $wpObjectQueue->queue->flagMaxAttemptedItemsAsFailed();
+
+        $wpdb->get_results("SELECT ID FROM " . $table . " WHERE attempts=3 AND failed_at_gmt IS NOT NULL" );
+        $this->assertEquals(150, $wpdb->num_rows, "150 rows were not converted to failed." );
+    }
 }
