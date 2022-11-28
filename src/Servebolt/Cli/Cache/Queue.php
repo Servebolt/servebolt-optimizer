@@ -176,7 +176,7 @@ class Queue
      */
     private function clearCachePurgeQueuesTrash(): void
     {
-        // passing true tells it that this is a CLI operation, plus do 20k records
-        (new WpObjectQueue)->garbageCollection(true, 20000);
+        // passing true tells it that this is a CLI operation, plus do 2k records
+        (new WpObjectQueue)->garbageCollection(true, 2000);
     }
 }

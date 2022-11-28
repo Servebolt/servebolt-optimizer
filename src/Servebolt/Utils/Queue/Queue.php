@@ -647,12 +647,9 @@ class Queue
         $sql = $wpdb->prepare("SELECT id FROM {$this->getTableName()} WHERE UID=%s AND completed_at_gmt IS NULL", $uid);
         
         $result = $wpdb->get_var($sql);
-        if ($result == NULL || is_wp_error($result)) {
-            error_log('not found UID');
-        } else {
-            error_log('found UID');
-            error_log(print_r($payload, true));
-        }
+        // if ($result == NULL || is_wp_error($result)) {
+        //     error_log('not found UID');
+        // }
         return ($result == NULL || is_wp_error($result)) ? false : true;
     }
 

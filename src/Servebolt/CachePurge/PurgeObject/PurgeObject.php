@@ -28,7 +28,7 @@ class PurgeObject
      * PurgeObject constructor.
      *
      * @param int|null $objectId
-     * @param string $objectType
+     * @param string $objectType, the cache object type, not posttype.
      * @param array $args
      */
     public function __construct(?int $objectId = null, string $objectType = 'post', array $args = [])
@@ -106,8 +106,6 @@ class PurgeObject
     public function addObject($id, string $type = 'post', array $args = [])
     {
         $purgeObject = $this->resolvePurgeObject($id, $type, $args);
-      //  error_log("purge object details " . print_r($purgeObject, true) );
-        
         if ($purgeObject && !is_wp_error($purgeObject)) {
             $this->purgeObject = $purgeObject;
             return $this->purgeObject;

@@ -67,13 +67,13 @@ trait PostMethods
      */
     public static function purgePostCacheSimple(int $postId): ?bool
     {
-        $shouldPurgeByQueue = self::shouldPurgeByQueue();
-
         // If this is just a revision, don't purge anything.
         if (!$postId || wp_is_post_revision($postId)) {
             return false;
         }
 
+        // Get purge style.
+        $shouldPurgeByQueue = self::shouldPurgeByQueue();
         /**
          * Fires when cache is being purged for a post.
          *
@@ -118,17 +118,21 @@ trait PostMethods
         return $queueItemData;
     }
 
-    private static function shouldAttemptCacheTags() : bool
+    /**
+     * Check if running Servebotl CDN or ACD and on Servebolt Hosting.
+     * 
+     * @return bool
+     */
+    private static function cacheTagsEnabled() : bool
     {
         $blogId = null;
-
         if(is_multisite()) {
             $blogId = get_current_blog_id();
         }
-        // Check if cache tags exist and work on this site.
-        if( smartGetOption($blogId, 'added_cache_tags', false) === false) return false;
-
-        return true;
+        if(in_array(CachePurgeDriver::resolveDriverNameWithoutConfigCheck($blogId), ['acd', 'serveboltcdn'])) {
+            return true;
+        }
+        return false;
     }
 
     private static function canUseCacheTags() : bool
@@ -151,18 +155,14 @@ trait PostMethods
         if (!$postId || wp_is_post_revision($postId)) {
             return false;
         }
-
+        // Check if set to purge by queue.
         $shouldPurgeByQueue = self::shouldPurgeByQueue();        
-
-        $shouldAttemptCacheTags = self::shouldAttemptCacheTags();
-        // Loading the CachePurgeDriver early so that it can be assessed for CacheTags capibility.
-        $cachePurgeDriver = CachePurgeDriver::getInstance();
-        // Perform check.
-        $canUseCacheTags = self::canCacheTags($cachePurgeDriver);
+        // Check if on Servebolt and Servbolt CDN/ACD.
+        $canUseCacheTags = self::cacheTagsEnabled();
         // Default to URL purging.
         $purgeObjectType = 'post';
         // If Hosted on Servebolt, and is capible of cache tags. 
-        if($shouldAttemptCacheTags && $canUseCacheTags) {
+        if($canUseCacheTags) {
             $purgeObjectType = 'cachetag';
         }
         
@@ -187,26 +187,43 @@ trait PostMethods
             $queueItemData = self::maybeAddOriginalUrl($queueItemData, $postId);
             return isQueueItem($queueInstance->add($queueItemData));
         } else {
+            $cachePurgeDriver = CachePurgeDriver::getInstance();
             if (self::$preventDoublePurge && self::$preventPostDoublePurge && array_key_exists($postId, self::$recentlyPurgedPosts)) {
                 return self::$recentlyPurgedPosts[$postId];
             }
 
             if($purgeObjectType == 'post') {
                 $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
-                $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, $purgeObjectType, $cachePurgeDriver);
+                $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'post', $cachePurgeDriver);
                 $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
+                self::setResultOfPostPurge($postId, $result);
             }
            
             if($purgeObjectType == 'cachetag') {
-                // TODO : consider splitting into max 30 CacheTag items, not expected to be used.
+                // First purge the URL
+                $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
+                $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'post', $cachePurgeDriver);
+                $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
+                // If purging the url does not work, don't go further.
+                self::setResultOfPostPurge($postId, $result);
+                if(!$result) {
+                    return $result;
+                }
+                // Next purge cache tags
                 $tagsToPurge = self::getTagsToPurgeByPostId($postId);                
                 $result = $cachePurgeDriver->purgeByTags($tagsToPurge);
-            }
-            //
-            if (self::$preventDoublePurge && self::$preventPostDoublePurge) {
-                self::$recentlyPurgedPosts[$postId] = $result;
+                if(!$result) {
+                    error_log("Servebolt Optimizer: CacheTags Purge failed via instant purge");
+                }
             }
             return $result;
+        }
+    }
+
+    private static function setResultOfPostPurge(int $postId, bool $result)
+    {
+        if (self::$preventDoublePurge && self::$preventPostDoublePurge) {
+            self::$recentlyPurgedPosts[$postId] = $result;
         }
     }
 }

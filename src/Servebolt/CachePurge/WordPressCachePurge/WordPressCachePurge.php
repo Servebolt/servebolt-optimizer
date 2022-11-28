@@ -48,18 +48,12 @@ class WordPressCachePurge
      */
     public static function purgeByUrl(string $url, bool $shouldAttemptToResolvePostIdFromUrl = true)
     {
+        
         $shouldPurgeByQueue = self::shouldPurgeByQueue();
         if (
             $shouldAttemptToResolvePostIdFromUrl
             && $postId = self::attemptToResolvePostIdFromUrl($url)
-        ) { // Resolve URL to post ID, then purge by post ID
-            /*
-            if ($url !== get_permalink($postId)) {
-                // Purge only URL, not post?
-            } else {
-                // Purge post, since specified URL is identical with post URL
-            }
-            */
+        ) { 
             add_filter('sb_optimizer_purge_by_post_original_url', function() use ($url) {
                 return $url;
             });

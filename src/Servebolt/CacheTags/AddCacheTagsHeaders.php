@@ -12,7 +12,6 @@ use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isCron;
 use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\isWpRest;
-use function Servebolt\Optimizer\Helpers\smartAddOrUpdateOption;
 use function Servebolt\Optimizer\Helpers\getCondtionalHookPreHeaders;
 /**
  * This class adds cache-tags headers to the HTTP pages of the site. This is then
@@ -76,10 +75,10 @@ class AddCacheTagsHeaders extends CacheTagsBase {
 
         $this->driver = self::getSelectedCachePurgeDriver($blogId);
 
-       // if($this->driver == 'acd') {
-            // Get the correct hook based on version of WordPress, pre 6.1 wp, post send_headers
+        if(in_array($this->driver, self::$serveboltOnlyDrivers)) {
+            // Get the correct hook based on version of WordPress, pre 6.1 wp, post send_headers.
             add_action(getCondtionalHookPreHeaders(), [$this,'addCacheTagsHeaders']);
-       // }
+        }
     }
 
     /**
@@ -106,18 +105,13 @@ class AddCacheTagsHeaders extends CacheTagsBase {
      */
     protected function appendHeaders() : void 
     {
-        $success = true;
         if(count($this->headers) > 0) {
             try{
                 header('Cache-Tag: ' . implode(', ', $this->headers));
             } catch (Exception $e){
                 error_log("Cache-Tag messages could not be added as headers have already been sent.");
-                $success = false;
             }
-        }
-        // saving an (site) option that will be used if the page is purged so that 
-        // the system will know to use a cache tag or urls for purging.
-        smartAddOrUpdateOption( null, $this->cache_tags_status, $success);        
+        } 
     }
 
     /**

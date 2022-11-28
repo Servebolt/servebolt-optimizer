@@ -76,6 +76,6 @@ class PurgeObjectTest extends ServeboltWPUnitTestCase
         $this->assertContains('home', $tagsToPurge);
         $this->assertContains('posttype-post', $tagsToPurge);
         $this->assertContains('feed', $tagsToPurge);
-        $this->assertContains('year-'.date("Y"), $tagsToPurge);   
+        $this->assertContains('year-'.date("Y"), $tagsToPurge);
     }
 }

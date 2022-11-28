@@ -208,8 +208,6 @@ class WpObjectQueue
                     ], $item);
                     break; // We're purging all cache, so no need to continue expanding WP objects to URL items
                 } elseif ($output = $this->resolveUrlsToPurgeFromWpObject($item->payload)) {
-                    error_log('resolveUrlsToPurgeFromWpObject');
-                    error_log(print_r($output,true));
                     if(!empty($output['urls'])){
                         foreach ($output['urls'] as $url) {
                             $this->urlQueue()->add([
@@ -419,10 +417,10 @@ class WpObjectQueue
         if ($items = $this->queue->getActiveItems()) {
             foreach ($items as $item) {
                 // TODO: does $this apply and not $item?
-                if (!isset($this->payload)) {
+                if (!isset($item->payload)) {
                     continue;
                 }                
-                $args = arrayGet('args', $this->payload);
+                $args = arrayGet('args', $item->payload);
                 if (
                     arrayGet('type', $item->payload) === 'term'
                     && arrayGet('id', $item->payload) === $termId
@@ -472,7 +470,7 @@ class WpObjectQueue
 
         if ($items = $this->queue->getActiveItems()) {
             foreach ($items as $item) {
-                if($this->checkIfPayloadExists($this->payload)) return true;
+                if($this->checkIfPayloadExists($item->payload)) return true;
 
                 if (
                     arrayGet('type', $item->payload) === 'post'

@@ -26,10 +26,8 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     {
         // If post ID is not correctly set, then leave early
         if($objectId == 0) return;
-        $this->objectId = $objectId;
-        error_log("post or term id : " . $this->objectId);
-        $this->objectType = $objectType; // is this a post type or term?
-        error_log("is a post or term?: " . $this->objectType);
+        $this->objectId = $objectId;        
+        $this->objectType = $objectType; // is this a post type or term?        
         $this->setupHeaders();        
     }
 
