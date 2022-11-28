@@ -2392,9 +2392,11 @@ function checkDomainIsSetupForServeboltCDN() : array
     $host = parse_url( get_site_url(), PHP_URL_HOST  );
     $output['host'] = $host;
     $allowed_cnames = ['routing.serveboltcdn.com', 'routing.accelerateddomains.com'];
-    if(in_array(dns_get_record($host, DNS_CNAME), $allowed_cnames)){
+    $cname = dns_get_record($host, DNS_CNAME);
+    if(in_array($cname, $allowed_cnames)){
         $output['status'] = true;
         $output['cname'] = true;
+        $output['found'] = $cname;
         
         return $output;
     }
