@@ -8,6 +8,7 @@ use WP_CLI;
 use Servebolt\Optimizer\Cli\CliHelpers;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationRunner;
 use function Servebolt\Optimizer\Helpers\deleteAllSettings;
+use function Servebolt\Optimizer\Helpers\checkDomainIsSetupForServeboltCDN;
 
 class General
 {
@@ -19,6 +20,7 @@ class General
     {
         WP_CLI::add_command('servebolt delete-all-settings', [$this, 'commandDeleteAllSettings']);
         WP_CLI::add_command('servebolt check-db-migrations', [$this, 'checkDatabaseMigrations']);
+        WP_CLI::add_command('servebolt check-cdn-setup', [$this, 'checkCdnSetup']);
     }
 
     /**
@@ -95,6 +97,33 @@ class General
             ]);
         } else {
             WP_CLI::success($message);
+        }
+    }
+
+    /**
+     * Checks if Servbolt CDN or Accelerated Domains is correclty configured via A record or CNAME.
+     */
+    public function checkCdnSetup($args, $assocArgs)
+    {
+        CliHelpers::setReturnJson($assocArgs);
+        $response = checkDomainIsSetupForServeboltCDN();
+        $message = "The domain " . $response['host'] ." is *not* configured for Servebolt CDN or Accelerated Domains";
+        if($response['status'] == true){
+            if($response['cname'] == true){
+                $message = "The domain " . $response['host'] ." is corrently configured with a CNAME";
+            }
+            if($response['a-record'] == true){
+                $message = "The domain " . $response['host'] ." is corrently configured with a A Record";
+            }
+        }
+
+        if (CliHelpers::returnJson()) {
+            CliHelpers::printJson([
+                'status' => $response['status'],
+                'message' => $message,
+            ]);
+        } else {
+           ($response['status']) ? WP_CLI::success($message) : WP_CLI::error($message);
         }
     }
 }

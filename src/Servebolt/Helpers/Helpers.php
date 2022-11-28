@@ -2378,6 +2378,37 @@ function getCondtionalHookPreHeaders()
 }
 
 /**
+ * Double check the setup of the domain in WordPress and make sure it's properly
+ * configured 
+ */
+function checkDomainIsSetupForServeboltCDN() : array
+{
+    $output = [
+        'status'    => false,
+        'cname'     => false,
+        'a-record'  => false,
+    ];
+    
+    $host = parse_url( get_site_url(), PHP_URL_HOST  );
+    $output['host'] = $host;
+    $allowed_cnames = ['routing.serveboltcdn.com', 'routing.accelerateddomains.com'];
+    if(in_array(dns_get_record($host, DNS_CNAME), $allowed_cnames)){
+        $output['status'] = true;
+        $output['cname'] = true;
+        
+        return $output;
+    }
+
+    $allowed_ips = ['162.159.153.241', '162.159.152.23'];
+    if(in_array(dns_get_record($host, DNS_A), $allowed_ips)){
+        $output['a-record'] = true;
+        $output['cname'] = true;
+        return $output;
+    }
+
+    return $output;
+}
+/**
  * Check if a class is using a trait.
  *
  * @param $trait
