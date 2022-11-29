@@ -17,17 +17,20 @@ class ActionScheduler
      */
     public function __construct()
     {
-        add_filter('action_scheduler_queue_runner_batch_size', [$this, 'batch_size']);
-        add_filter('action_scheduler_queue_runner_concurrent_batches', [$this, 'concurrent_batches']);
-        add_filter('action_scheduler_queue_runner_time_limit', [$this, 'time_limit']);
-
+        
         if (!apply_filters('sb_optimizer_action_scheduler_compatibility', true)) {
             return;
         }
         if (!actionSchedulerIsActive()) {
             return;
         }
+
         new DisableActionSchedulerDefaultRunner;
+
+        add_filter('action_scheduler_queue_runner_batch_size', [$this, 'batch_size']);
+        add_filter('action_scheduler_queue_runner_concurrent_batches', [$this, 'concurrent_batches']);
+        add_filter('action_scheduler_queue_runner_time_limit', [$this, 'time_limit']);
+
     }
 
     /**
