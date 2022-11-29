@@ -146,6 +146,7 @@ class UrlQueue
             }
             error_log('prep');
             error_log('itemsplit: ' . print_r($itemssplit,true));
+            error_log('cache tags: ' . print_r($cachetags,true));
             // Trying the urls first if not empty.
             try {
                 if (
