@@ -64,8 +64,6 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
      */
     public function purgeByTags(array $tags = [], array $hosts = []) : bool
     {
-        error_log('purge by tags');
-        error_log('tags: ' . print_r($tags, true));
         $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
             [], // files urls
@@ -73,6 +71,7 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
             $tags, // array of tags
             $hosts // array of hosts
         );
+        error_log(print_r($response,true));
         if ($response->wasSuccessful()) {
             return true;
         } else {
