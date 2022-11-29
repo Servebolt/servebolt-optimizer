@@ -144,9 +144,7 @@ class UrlQueue
                         $itemssplit['tags'][] = $item;
                 }
             }
-            error_log('prep');
-            error_log('itemsplit: ' . print_r($itemssplit,true));
-            error_log('cache tags: ' . print_r($cachetags,true));
+            
             // Trying the urls first if not empty.
             try {
                 if (
@@ -157,6 +155,8 @@ class UrlQueue
                 }
             } catch (Throwable $e) {}
             // Trying to purge by cache tags only if the method exists.
+            $cachtagAllowed = ( method_exists($cachePurgeDriver, 'purgeByTags') ) ? "has purgeByTags" : "does not have purgeByTags";
+            error_log($cachtagAllowed);
             try {
                 if (
                     !empty($cachetags)
