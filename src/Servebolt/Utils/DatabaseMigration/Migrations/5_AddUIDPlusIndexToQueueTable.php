@@ -58,9 +58,7 @@ class AddUIDPlusIndexToQueueTable extends AbstractMigration implements Migration
      * @return bool
      */
     public function hasBeenRun($migrationMethod): bool
-    {
-        error_log("working on: " . $this->getTableNameWithPrefix());
-        error_log("method: " . $migrationMethod);
+    {        
         switch($migrationMethod) {
             case 'up':
                 // if Table does NOT exit return TRUE, to stop processing.

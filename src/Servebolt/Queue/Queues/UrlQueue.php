@@ -144,6 +144,8 @@ class UrlQueue
                         $itemssplit['tags'][] = $item;
                 }
             }
+            error_log('prep');
+            error_log('itemsplit: ' . print_r($itemssplit,true));
             // Trying the urls first if not empty.
             try {
                 if (
