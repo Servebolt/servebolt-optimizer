@@ -155,12 +155,12 @@ class UrlQueue
                 }
             } catch (Throwable $e) {}
             // Trying to purge by cache tags only if the method exists.
-            $cachtagAllowed = ( method_exists($cachePurgeDriver, 'purgeByTags') ) ? "has purgeByTags" : "does not have purgeByTags";
+            $cachtagAllowed = ($cachePurgeDriver->driverSupportsCacheTagPurge() ) ? "has purgeByTags" : "does not have purgeByTags";
             error_log($cachtagAllowed);
             try {
                 if (
                     !empty($cachetags)
-                    && method_exists($cachePurgeDriver, 'purgeByTags')
+                    && $cachePurgeDriver->driverSupportsCacheTagPurge()
                     && $cachePurgeDriver->purgeByTags($cachetags)
                 ) {
                     $this->queue->completeItems($itemssplit['tags']);

@@ -452,6 +452,19 @@ class CachePurge
     }
 
     /**
+     * Check if the current driver supports CacheTag purging.
+     *
+     * @return bool
+     */
+    public static function driverSupportsCacheTagPurge(): bool
+    {
+        $driver = self::resolveDriverObject();
+        $interfaces = class_implements($driver);
+        return is_array($interfaces)
+            && in_array('Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeTagInterface', $interfaces);
+    }
+
+    /**
      * Check if the current driver supports URL cache purging.
      *
      * @return bool
@@ -463,7 +476,6 @@ class CachePurge
         return is_array($interfaces)
             && in_array('Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeUrlInterface', $interfaces);
     }
-
     /**
      * Check if the current driver supports prefix cache purging.
      *
