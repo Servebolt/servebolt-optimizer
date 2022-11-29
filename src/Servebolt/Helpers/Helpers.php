@@ -2387,6 +2387,7 @@ function checkDomainIsSetupForServeboltCDN() : array
         'status'    => false,
         'cname'     => false,
         'a-record'  => false,
+        'found'     => ''
     ];
     
     $host = parse_url( get_site_url(), PHP_URL_HOST  );
@@ -2402,10 +2403,11 @@ function checkDomainIsSetupForServeboltCDN() : array
     }
 
     $allowed_ips = ['162.159.153.241', '162.159.152.23'];
-    if(in_array(dns_get_record($host, DNS_A), $allowed_ips)){
+    $arecord = dns_get_record($host, DNS_A);    
+    if(isset($arecord[0]['ip']) && in_array($arecord[0]['ip'], $allowed_ips)){
         $output['a-record'] = true;
-        $output['cname'] = true;
-        return $output;
+        $output['status'] = true;
+        $output['found'] = $arecord[0]['ip'];       
     }
 
     return $output;
