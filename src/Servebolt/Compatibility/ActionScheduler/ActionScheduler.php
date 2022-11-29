@@ -25,12 +25,11 @@ class ActionScheduler
             return;
         }
 
-        new DisableActionSchedulerDefaultRunner;
-
         add_filter('action_scheduler_queue_runner_batch_size', [$this, 'batch_size']);
         add_filter('action_scheduler_queue_runner_concurrent_batches', [$this, 'concurrent_batches']);
         add_filter('action_scheduler_queue_runner_time_limit', [$this, 'time_limit']);
 
+        new DisableActionSchedulerDefaultRunner;
     }
 
     /**

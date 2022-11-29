@@ -37,7 +37,7 @@ class AddUIDPlusIndexToQueueTable extends AbstractMigration implements Migration
     /**
      * @var string The plugin version number that this migration belongs to.
      */
-    public static $version = '3.5.10';
+    public static $version = '3.5.11';
 
     /**
      * Migrate up.
