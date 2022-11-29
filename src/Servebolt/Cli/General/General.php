@@ -113,7 +113,7 @@ class General
                 $message = "The domain " . $response['host'] ." is corrently configured with the CNAME " . $response['found'];
             }
             if($response['a-record'] == true){
-                $message = "The domain " . $response['host'] ." is corrently configured with an A Record";
+                $message = "The domain " . $response['host'] ." is corrently configured with the A Record " . $response['found'];
             }
         }
 
