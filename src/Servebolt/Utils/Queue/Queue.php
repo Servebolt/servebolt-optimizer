@@ -574,18 +574,20 @@ class Queue
 
     /**
      * Get item from queue.
-     *
+     * 
      * @param string|int $identifier
      * @param string $key
      * @param bool $ignoreCompleted
      * @param bool $ignoreFailed
+     * @param int $limit
      * @return null|object
      */
     public function get(
         $identifier,
         string $key = 'id',
         bool $ignoreCompleted = false,
-        bool $ignoreFailed = true
+        bool $ignoreFailed = true,
+        int $limit = 0
     ): ?object
     {
         $query = $this->query();
@@ -595,6 +597,9 @@ class Queue
         }
         if ($ignoreCompleted) {
             $query->isNotCompleted();
+        }
+        if ($limit != 0) {
+            $query->limit($limit);
         }
         if ($item = $query->first()) {
             return $item;

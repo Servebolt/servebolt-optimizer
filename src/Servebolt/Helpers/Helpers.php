@@ -2378,6 +2378,19 @@ function getCondtionalHookPreHeaders()
 }
 
 /**
+ * Get the domain name from the current site.
+ */
+function getDomainNameOfWebSite()
+{
+    $blogId = null;
+    if (is_multisite()) {
+        $blogId = get_current_blog_id();
+    }
+    $url = get_site_url($blogId);
+    return parse_url($url, PHP_URL_HOST);
+}
+
+/**
  * Double check the setup of the domain in WordPress and make sure it's properly
  * configured 
  */
@@ -2398,7 +2411,6 @@ function checkDomainIsSetupForServeboltCDN() : array
         $output['status'] = true;
         $output['cname'] = true;
         $output['found'] = $cname[0]['target'];
-        
         return $output;
     }
 
@@ -2409,7 +2421,6 @@ function checkDomainIsSetupForServeboltCDN() : array
         $output['status'] = true;
         $output['found'] = $arecord[0]['ip'];       
     }
-
     return $output;
 }
 /**

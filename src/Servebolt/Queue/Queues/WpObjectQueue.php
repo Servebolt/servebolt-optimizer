@@ -315,7 +315,7 @@ class WpObjectQueue
     public function add($itemData): ?object
     {
         $payload = serialize($itemData);
-        // added unique ID for purge items, should be faster with large queues due to indexing.
+        // Added unique ID for purge items, should be faster with large queues due to indexing.
         if($existingItem = $this->queue->get(hash('sha256', $payload), 'UID', true)) {
             $this->queue->flagItemAsUpdated($existingItem);
             return $existingItem;

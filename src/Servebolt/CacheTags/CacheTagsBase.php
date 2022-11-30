@@ -12,7 +12,7 @@ class CacheTagsBase {
     protected $headers = [];
 
     /**
-     * Set a domain prefix for tags
+     * Set a domain prefix for tags. Not used but optional.
      *
      * @var string
      */

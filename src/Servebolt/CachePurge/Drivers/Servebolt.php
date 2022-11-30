@@ -10,6 +10,7 @@ use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeAllInterface;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgePrefixInterface;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeTagInterface;
 use Servebolt\Optimizer\Exceptions\ServeboltApiError;
+use function Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
 
 /**
  * Class Servebolt
@@ -64,6 +65,10 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
      */
     public function purgeByTags(array $tags = [], array $hosts = []) : bool
     {
+        if (empty($hosts)) {
+            $hosts[] = getDomainNameOfWebSite();
+            error_log("here is hosts: "  . print_r($hosts, true));
+        }
         $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
             [], // files urls
