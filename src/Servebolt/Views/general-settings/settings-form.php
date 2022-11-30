@@ -14,7 +14,7 @@
                 <fieldset>
                     <legend class="screen-reader-text"><span><?php _e('To use the Cloudflare APO download the Cloudflare plugin, its no longer possible to use APO without the plugin.', 'servebolt-wp'); ?></span></legend>
                     <label for="use_cloudflare_apo">
-                        <!-- <input name="<?php echo getOptionName('use_cloudflare_apo'); ?>" type="checkbox" id="use_cloudflare_apo" value="1"<?php echo $acdActive ? ' disabled' : ''; ?><?php echo $generalSettings->useCloudflareApo() ? ' checked' : ''; ?>> -->
+                    <?php _e('To use the Cloudflare APO download the Cloudflare plugin, its no longer possible to use APO without the plugin.', 'servebolt-wp'); ?>
                         <?php if($acdActive) : ?>
                             <p><strong><?php _e('APO is not available when Accelerated Domains is active.', 'servebolt-wp'); ?></strong></p>
                         <?php endif; ?>
