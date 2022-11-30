@@ -645,16 +645,10 @@ class Queue
     public function checkUidExists(array $payload = [])
     {
         if(empty($payload)) return false;
-
         $uid = hash('sha256', serialize($payload));
-
         global $wpdb;
-        $sql = $wpdb->prepare("SELECT id FROM {$this->getTableName()} WHERE UID=%s AND completed_at_gmt IS NULL", $uid);
-        
+        $sql = $wpdb->prepare("SELECT id FROM {$this->getTableName()} WHERE UID=%s AND completed_at_gmt IS NULL AND failed_at_gmt IS NULL AND attempts != 3 LIMIT 1", $uid);
         $result = $wpdb->get_var($sql);
-        // if ($result == NULL || is_wp_error($result)) {
-        //     error_log('not found UID');
-        // }
         return ($result == NULL || is_wp_error($result)) ? false : true;
     }
 

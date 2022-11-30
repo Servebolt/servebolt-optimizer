@@ -51,7 +51,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
                 $this->getTagHeaders();
             endwhile;
         } else {
-            error_log("post not found in header loop");
+            error_log("post not found in CacheTag investigation loop");
         }
         wp_reset_postdata();
     }

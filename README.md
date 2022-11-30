@@ -68,6 +68,12 @@ Credentials for the SVN repository is stored in the password manager. The creden
 If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to WordPress.org.
 
 ## Changelog
+#### 3.5.12
+* Added ```wp servebolt check-cdn-setup``` to the WP CLI 
+* Removed APO capibility due to it being only possbile now with the cloudflare plugin
+* Added CacheTags to Accelerated Domains and Servebolt CDN, reducing purge comands to only 2 for each post/page update
+* Added new garbage collection for the purge queue
+* Added UID and index to the purge queue tables so that searching for existing queue items could be significantly sped up and also stop repeat adding of an existing 
 #### 3.5.11
 * Added LIMIT to garbage collection query.
 #### 3.5.10

@@ -48,7 +48,6 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface
     {
         if (empty($hosts)) {
             $hosts[] = getDomainNameOfWebSite();
-            error_log("here is hosts: "  . print_r($hosts, true));
         }
         $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),

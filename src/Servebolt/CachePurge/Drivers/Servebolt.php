@@ -67,12 +67,6 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
     {
         if (empty($hosts)) {
             $hosts[] = getDomainNameOfWebSite();
-            error_log("here is hosts: "  . print_r($hosts, true));
-        }
-        if (empty($tags)) {
-            error_log('there are no tags');
-        } else {
-            error_log('sending these tags: ' . print_r($tags, true));
         }
         $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
@@ -81,7 +75,6 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
             $tags, // array of tags
             $hosts // array of hosts
         );
-        error_log(print_r($response,true));
         if ($response->wasSuccessful()) {
             return true;
         } else {
