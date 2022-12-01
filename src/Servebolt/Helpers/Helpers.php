@@ -1297,6 +1297,18 @@ function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
 }
 
 /**
+ * Get current version of the plugin's database migration number.
+ * 
+ * Will first used the constant if there, and default back to plugin version.
+ *
+ * @return string/int
+ */
+function getCurrentDatabaseVersion()
+{    
+    return (defined('SERVEBOLT_PLUGIN_DB_VERSION'))? SERVEBOLT_PLUGIN_DB_VERSION : getCurrentPluginVersion(false) ;
+}
+
+/**
  * Get the version string to use for static assets in the Servebolt plugin.
  *
  * @param string $assetSrc
