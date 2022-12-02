@@ -26,9 +26,10 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     {
         // If post ID is not correctly set, then leave early
         if($objectId == 0) return;
-        $this->objectId = $objectId;        
-        $this->objectType = $objectType; // is this a post type or term?        
-        $this->setupHeaders();        
+        $this->objectId = $objectId;
+        $this->objectType = $objectType; // is this a post type or term?
+        $this->setBlog();
+        $this->setupHeaders();
     }
 
     protected function setupHeaders() : void
@@ -58,6 +59,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
 
     protected function getTagHeaders() : void
     {
+        $this->setPrefixAndSuffixForTags();
         $this->addAuthorTag();
         $this->addHomeTag();
         $this->addTaxonomyTermIDTag();
@@ -97,9 +99,9 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      */
     protected function addDateTag(): void
     {
-        $this->add('date-'. get_the_date('n') .'-' . get_the_date('Y'));
-        $this->add('year-'.  get_the_date('Y'));
-        $this->add('month-'. get_the_date('n'));
+        $this->add('date-'. get_the_date('d-n-Y'));
+        $this->add('year-'. get_the_date('Y'));
+        $this->add('month-'.get_the_date('n'));
     }
 
     /**
@@ -125,7 +127,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      * Add author id to single pages and author archive pages
      * for Cache-Tag headers.
      * 
-     * domain-author-[author id].
+     * author-[author id].
      */
     protected function addAuthorTag() : void
     {

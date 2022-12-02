@@ -59,21 +59,17 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
     /**
      * 
      * @param array $tags : array of tags to be delted 
-     * @param array $hosts : array of domains to purge
      * @return bool
      * @throws ServeboltApiError
      */
-    public function purgeByTags(array $tags = [], array $hosts = []) : bool
+    public function purgeByTags(array $tags = []) : bool
     {
-        if (empty($hosts)) {
-            $hosts[] = getDomainNameOfWebSite();
-        }
         $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
             [], // files urls
             [], // prefixes
             $tags, // array of tags
-            $hosts // array of hosts
+            [] // hosts
         );
         if ($response->wasSuccessful()) {
             return true;

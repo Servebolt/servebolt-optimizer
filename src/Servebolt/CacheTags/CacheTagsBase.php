@@ -1,7 +1,7 @@
 <?php
 namespace Servebolt\Optimizer\CacheTags;
 
-
+use function \Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
 class CacheTagsBase {
 
     /**
@@ -12,11 +12,33 @@ class CacheTagsBase {
     protected $headers = [];
 
     /**
-     * Set a domain prefix for tags. Not used but optional.
+     * Set a blog suffix for tags.
+     *
+     * @var string
+     */
+    protected $blogId = '';
+
+    /**
+     * Set a domain prefix for tags.
      *
      * @var string
      */
     protected $domain = '';
+
+    /**
+     * Set a addionalPrefix for tags.
+     *
+     * @var string
+     */
+    protected $additionalPrefix = '';
+
+    /**
+     * Separator style
+     * 
+     * @var string
+     */
+    protected $separator = '-';
+    
 
     /**
      * Option name used to store the cache tags
@@ -24,10 +46,35 @@ class CacheTagsBase {
      * @var
      */
     protected $cache_tags_status = 'added_cache_tags';
+
+    protected function setPrefixAndSuffixForTags()
+    {
+        $this->setBlog();
+        $this->setDomain();
+        /**
+         * @param string hook for filter sb_optimizer_cachetags_additional_prefix
+         * @param string current state of additional prefix
+         * @param string the domain value without dots
+         * @param string the possible blog id if on multisite
+         */
+        $this->additionalPrefix = apply_filters('sb_optimizer_cachetags_additional_prefix', $this->additionalPrefix, $this->domain, $this->blogId);
+    }
+
+    protected function setDomain()
+    {
+        $this->domain = str_replace('.','',getDomainNameOfWebSite());
+    }
+
+    protected function setBlog()
+    {
+        if (is_multisite()) {
+            $this->blogId = get_current_blog_id();
+        }
+    }
     /**
      * Add post type to Cache-Tag header where possible
      * 
-     * domain-posttype-[posttype name]
+     * posttype-[posttype name]
      */
     protected function addPostTypeTag() : void
     {
@@ -43,7 +90,7 @@ class CacheTagsBase {
      * Add taxanomy ids to single pages or archive pages
      * for Cache-Tag headers
      * 
-     * domain-term-[term id]
+     * term-[term id]
      */
     protected function addTaxonomyTermIDTag() : void
     {
@@ -71,7 +118,7 @@ class CacheTagsBase {
      * Add author id to single pages and author archive pages
      * for Cache-Tag headers
      * 
-     * domain-author-[author id]
+     * author-[author id]
      */
     protected function addAuthorTag() : void
     {
@@ -89,21 +136,21 @@ class CacheTagsBase {
     /**
      * If a data archive add or Single Page
      * 
-     * domain-date-[month number]-[year number]
-     * domain-year-[year number]
-     * domain-month-[month number]
+     * date-[month number]-[year number]
+     * year-[year number]
+     * month-[month number]
      * 
      */
     protected function addDateTag() : void
     {
         if(is_date()) {
-            $this->add('date-'. get_query_var('monthnum') .'-' . get_query_var('year'));
+            $this->add('date-'.get_query_var('day') .'-'. get_query_var('monthnum') .'-'. get_query_var('year'));
             $this->add('year-'.  get_query_var('year'));
             $this->add('month-'. get_query_var('monthnum'));
         }
 
         if(is_singular() && !is_home() && !is_front_page()) {
-            $this->add('date-'. get_the_date('n') .'-' . get_the_date('Y'));
+            $this->add('date-'.get_the_date('d-n-Y'));
             $this->add('year-'.  get_the_date('Y'));
             $this->add('month-'. get_the_date('n'));
         }
@@ -112,11 +159,11 @@ class CacheTagsBase {
     /**
      * If a rss feed add the Cache-Tag
      * 
-     * domain-feed
+     * feed
      * 
      * If a post comment feed add the Cache-Tag
      * 
-     * domain-comment-feed     
+     * comment-feed     
      * 
      */
     protected function addRssTag() : void
@@ -142,10 +189,8 @@ class CacheTagsBase {
     }
 
     /**
-     * If the homepage or the main blog page
-     * 
-     * domain-home
-     * 
+     * If the homepage or the main blog page.
+     *
      */
     protected function addHomeTag() : void
     {
@@ -163,43 +208,53 @@ class CacheTagsBase {
         if ( !class_exists( 'woocommerce' ) ) return;
 
         // is this page generated with woocommerce
-        // domain-woocommerce
+        // woocommerce
         if(is_woocommerce()) {
             $this->add('woocommerce');
         }
         // is the main shop page, normally /shop
-        // domain-woocommerce-shop
+        // woocommerce-shop
         if(is_shop()) {
             $this->add('woocommerce-shop');
         }
         // is a product category archive page of woocommerce
-        // domain-woocommerce-category
+        // woocommerce-category
         if(is_product_category()){
             $this->add('woocommerce-category');
         }
         // is a product tag archive page of woocommerce
-        // domain-woocommerce-tag
+        // woocommerce-tag
         if(is_product_tag()){
             $this->add('woocommerce-tag');
         }
         // is a product page of woocommerce
-        // domain-woocommerce-product
+        // woocommerce-product
         if(is_product()){
             $this->add('woocommerce-product');
         }        
     }
 
+    /**
+     * Add a CacheTag.
+     *
+     * @return void
+     */
     public function add( $name ) : void
     {
-        $prefix = ($this->domain == '') ? $this->domain : $this->domain .'-';
-        $this->headers[] = $prefix.$name;
+        // create tag from name i.e. domain-term-1
+        $tag = $this->domain . $this->separator . $name;
+        // append blog id when multisite i.e. domain-term-1-1
+        $tag .= ($this->blogId != '') ? $this->separator . $this->blogId : '';
+        // prepend addititional suffix if filter has been used. i.e. domain-term-1-1
+        $tag = ($this->additionalPrefix != '') ? $this->additionalPrefix . $this->separator . $tag : $tag;
+        $this->headers[] = $tag;
     }
 
-    protected function setupDomain() : void
-    {
-        $this->domain = str_replace('.', '', parse_url(home_url(), PHP_URL_HOST));
-    }
-
+    /**
+     * Return the array of cachetag headers.
+     *
+     * @return array
+     */
     public function getHeaders() : array
     {
         return $this->headers;

@@ -87,6 +87,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
      */
     public function addCacheTagsHeaders()
     {
+        $this->setPrefixAndSuffixForTags();        
         $this->addAuthorTag();
         $this->addTaxonomyTermIDTag();
         $this->addDateTag();
