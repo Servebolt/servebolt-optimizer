@@ -27,6 +27,10 @@ class InstantPageURLs {
      */
     public function __construct()
     {
+        if (!apply_filters('sb_optimizer_woocommerce_instantpage_urls', true)) {
+            return;            
+        }
+
         add_filter('woocommerce_get_cart_url', [$this, 'addQueryString']);
         add_filter('woocommerce_get_checkout_url', [$this, 'addQueryString']);
     }
@@ -44,7 +48,7 @@ class InstantPageURLs {
         // if there already is a url with a query string on it, ignore
         if(!empty(parse_url($url, PHP_URL_QUERY))) return $url;
         // else append a simple query string.
-        return $url + $this->query_string;
+        return $url . $this->query_string;
     }
 
 }
