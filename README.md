@@ -69,6 +69,7 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 #### 3.5.11
+* Added blacklisted urls via get vars for WooCommerce so that they cannot be prefetched.
 * Added ```wp servebolt check-cdn-setup``` to the WP CLI to check the CDN setup for AcelerateDomains or ServeboltCDN.
 * Added ```wp servebolt servebolt cache purge queue trash``` to the WP CLI to purge old items from the queue
 * Removed APO capability due to it being only possbile now with the cloudflare plugin.
@@ -79,6 +80,7 @@ If you want to build a local production-ready version of the plugin you can run 
 * Added LIMIT to garbage collection query.
 * Slight change to the logic for cach purging to improve payload checking.
 * Moved action_scheduler filters to only be implemented if action_scheduler is installed.
+
 #### 3.5.10
 * Increased batch capibilities action_scheduler, 8x more processing possible.
 #### 3.5.9

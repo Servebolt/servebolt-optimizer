@@ -93,6 +93,11 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.11 =
+* Added cache tags headers for more efficient purging.
+* Added scheduled garbage collection.
+* Added blacklisted urls via get vars for WooCommerce so that they cannot be prefetched.
+
 = 3.5.10 =
 * Added LIMIT to garbage collection query.
 
