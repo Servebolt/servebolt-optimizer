@@ -859,6 +859,16 @@ function isWpRest(): bool
 }
 
 /**
+ * Check if this is a WP REST API request.
+ *
+ * @return bool
+ */
+function isWooCommerce(): bool
+{       
+    return class_exists('woocommerce');
+}
+
+/**
  * Check if execution is initiated by cron.
  *
  * @return bool
