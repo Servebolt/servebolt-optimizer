@@ -23,8 +23,7 @@ class ClearSiteDataHeader
      */
     public function setHeader(): void
     {
-        if (apply_filters('sb_optimizer_clear_site_data_header_active', true)) {
-            error_log('settings header');
+        if (apply_filters('sb_optimizer_clear_site_data_header_active', true)) {            
             header('Clear-Site-Data: "cache", "storage"');
         }
     }

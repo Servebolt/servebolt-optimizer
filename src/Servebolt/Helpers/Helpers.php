@@ -859,7 +859,8 @@ function isWpRest(): bool
 }
 
 /**
- * Check if this is a WP REST API request.
+ * Check if this is a WooCommerce enabled site. Must be run
+ * afer hoook plugins_loaded is completed.
  *
  * @return bool
  */

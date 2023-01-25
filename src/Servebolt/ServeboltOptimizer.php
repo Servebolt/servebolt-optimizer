@@ -32,10 +32,8 @@ use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isFrontEnd;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
-use function Servebolt\Optimizer\Helpers\isLogin;
 use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\envFileFailureHandling;
-use function Servebolt\Optimizer\Helpers\isWooCommerce;
 
 /**
  * Class ServeboltOptimizer
@@ -116,16 +114,14 @@ class ServeboltOptimizer
 
         // Load assets
         new AdminAssets;
-        // force cache clear on login via wp-login.php
-        if (isLogin()) {
-            new ClearSiteDataHeader;
-        }
+        // force cache clear header on login via wp_login hook.         
+        new ClearSiteDataHeader;
         // force cache clear on woocommerce login via my-account page
-        add_action( 'plugins_loaded', function(){
-            if(isWooCommerce()) {
-                new ClearSiteDataHeader;
-            }
-        } );
+        // add_action( 'plugins_loaded', function(){
+        //     if(isWooCommerce()) {
+        //         new ClearSiteDataHeader;
+        //     }
+        // } );
         // Only load the plugin interface in WP Admin
         if (
             is_admin()
