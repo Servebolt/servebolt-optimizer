@@ -5,6 +5,7 @@ namespace Servebolt\Optimizer\CacheTags;
 use Exception;
 use Servebolt\Optimizer\Traits\Multiton;
 use Servebolt\Optimizer\CacheTags\CacheTagsBase;
+use Servebolt\Optimizer\CacheTags\CanUseCacheTags;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\isAjax;
@@ -13,6 +14,7 @@ use function Servebolt\Optimizer\Helpers\isCron;
 use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\isWpRest;
 use function Servebolt\Optimizer\Helpers\getCondtionalHookPreHeaders;
+
 /**
  * This class adds cache-tags headers to the HTTP pages of the site. This is then
  * used by Cloudflare on Enterprize sites to allow for purging of a lot of pages in 
@@ -63,7 +65,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
      * @param int|null $blogId
      */
     public function __construct(?int $blogId = null)
-    {
+    {        
         if (
             is_admin()
             || isAjax()
@@ -75,7 +77,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
 
         $this->driver = self::getSelectedCachePurgeDriver($blogId);
 
-        if(in_array($this->driver, self::$serveboltOnlyDrivers)) {
+        if(in_array($this->driver, CanUseCacheTags::allowedDrivers())) {
             // Get the correct hook based on version of WordPress, pre 6.1 wp, post send_headers.
             add_action(getCondtionalHookPreHeaders(), [$this,'addCacheTagsHeaders']);
         }
