@@ -200,8 +200,9 @@ trait PostMethods
             }
            
             if($purgeObjectType == 'cachetag') {
-                // First purge the URL
+                // First purge the URL.
                 $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
+                // should only be 1 URL, trying for secuity.
                 $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'post', $cachePurgeDriver);
                 $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
                 // If purging the url does not work, don't go further.
@@ -209,11 +210,14 @@ trait PostMethods
                 if(!$result) {
                     return $result;
                 }
-                // Next purge cache tags
-                $tagsToPurge = self::getTagsToPurgeByPostId($postId);                
-                $result = $cachePurgeDriver->purgeByTags($tagsToPurge);
-                if(!$result) {
-                    error_log("Servebolt Optimizer: CacheTags Purge failed via instant purge");
+                // Next purge cache tags.
+                $tagsToPurge = self::getTagsToPurgeByPostId($postId);
+                $chunkedTagsToPurge = array_chunk( $tagsToPurge, 30);
+                foreach($chunkedTagsToPurge as $tags) {
+                    $result = $cachePurgeDriver->purgeByTags($tags);
+                    if(!$result) {
+                        error_log("Servebolt Optimizer: CacheTags Purge failed via instant purge");
+                    }
                 }
             }
             return $result;

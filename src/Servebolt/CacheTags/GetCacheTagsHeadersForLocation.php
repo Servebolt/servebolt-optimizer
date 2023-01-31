@@ -83,7 +83,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     protected function addRssTag() : void
     {
         $this->add('comment-feed' . get_the_ID());
-        $this->add('feed');
+        $this->add('feeds');
     }
 
     /**
@@ -119,6 +119,8 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
             // loop all ids and add them
             foreach($ids as $id) {
                 $this->add('term-'.$id);
+                // Option to later split feeds by tag id i.e. /tags/tagname/feed
+                // $this->add('term-feed-'.$id);
             }
         } 
     }

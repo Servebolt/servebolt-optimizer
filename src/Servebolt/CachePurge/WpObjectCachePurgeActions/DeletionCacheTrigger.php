@@ -30,6 +30,7 @@ class DeletionCacheTrigger
 
     public function registerEvents()
     {
+        
         // Skip this feature if automatic cache purge for deletion is inactive
         if (!CachePurge::automaticCachePurgeOnDeletionIsActive()) {
             return;
@@ -42,25 +43,26 @@ class DeletionCacheTrigger
             return;
         }
 
-        // Purge on term delete
+        // Purge on term delete.
         if (apply_filters('sb_optimizer_automatic_purge_on_term_delete', true)) {
             add_action('delete_term_taxonomy', [$this, 'deleteTerm'], 10, 1);
         }
 
-        // Purge on attachment delete
+        // Purge on attachment delete.
         if (apply_filters('sb_optimizer_automatic_purge_on_attachment_delete', true)) {
             add_action('delete_attachment', [$this, 'deletePost'], 10, 1);
         }
 
-        // Purge on post trash
+        // Purge on post trash.
         if (apply_filters('sb_optimizer_automatic_purge_on_post_trash', true)) {
             add_action('wp_trash_post', [$this, 'deletePost'], 10, 1);
         }
 
-        // Purge on post delete
+        // Purge on post delete.
         if (apply_filters('sb_optimizer_automatic_purge_on_post_delete', true)) {
             add_action('before_delete_post', [$this, 'deletePost'], 10, 1);
         }
+
     }
 
     /**
@@ -102,4 +104,7 @@ class DeletionCacheTrigger
             WordPressCachePurge::purgeByPostId((int) $postId);
         } catch (Throwable $e) {}
     }
+
+
+
 }

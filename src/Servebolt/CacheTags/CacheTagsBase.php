@@ -96,6 +96,8 @@ class CacheTagsBase {
     {
         if(is_category() || is_tag() || is_tax() ) {            
             $this->add('term-'. get_queried_object_id());
+            // TODO: decide how much effort to put into RSS
+            // $this->add('term-feed-'.get_queried_object_id());
         }
 
         if(is_singular()) {
@@ -109,6 +111,8 @@ class CacheTagsBase {
                 // loop all ids and add them
                 foreach($ids as $id) {
                     $this->add('term-'.$id);
+                    // TODO: decide how much effort to put into RSS
+                    //$this->add('term-feed-'.$id);
                 }
             }            
         }
@@ -169,7 +173,7 @@ class CacheTagsBase {
     protected function addRssTag() : void
     {
         if(is_feed() && !is_singular()) {
-            $this->add('feed');
+            $this->add('feeds');
         }
         
         if(is_feed() && is_singular()) {
