@@ -8,17 +8,13 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use function Servebolt\Optimizer\Helpers\getFiltersForHook;
 
 /**
- * Class QueueGarbageCollectionEvent
+ * Class QueueClearExpiredTransients
  * 
- * Event runs every hour to clean up the sb_queue table from anything that is not normally being deleted
- * The deleted items are the ones that have been completed but not removed. 
- * 
- * It is run every hour so that there is a 24hr period for the item to be naturally removed from the table
- * by standard means.
+ * Event runs every day to clean up the options table from any expired 
  * 
  * @package Servebolt\Optimizer\WpCron
  */
-class QueueGarbageCollectionEvent
+class QueueClearExpiredTransients
 {
 
     /**
@@ -29,7 +25,7 @@ class QueueGarbageCollectionEvent
     /**
      * @var string The action hook used when triggering this event.
      */
-    public static $hook = 'sb_optimizer_queue_garbage_collection_event';
+    public static $hook = 'sb_optimizer_queue_clear_expired_transients';
 
     /**
      * QueueGarbageCollectionEvent constructor.

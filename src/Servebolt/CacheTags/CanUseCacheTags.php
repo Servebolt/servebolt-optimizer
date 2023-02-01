@@ -6,7 +6,7 @@ class CanUseCacheTags {
 
     static public function allowedDrivers()
     {
-        return ['acd', 'servebolt-cdn'];
+        return ['acd', 'serveboltcdn'];
     }
 
 }

@@ -6,6 +6,8 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\WpCron\Events\QueueParseEvent;
 use Servebolt\Optimizer\WpCron\Events\QueueGarbageCollectionEvent;
+use Servebolt\Optimizer\WpCron\Events\QueueClearExpiredTransients;
+use Servebolt\Optimizer\WpCron\Tasks\DeleteExpiredTranients;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use Servebolt\Optimizer\Queue\Queues\UrlQueue;
 
@@ -30,6 +32,7 @@ class QueueParseEventHandler
             add_action(QueueParseEvent::$hook, [$this, 'handleWpObjectQueue'], 10);
             add_action(QueueParseEvent::$hook, [$this, 'handleUrlQueue'], 11);
             add_action(QueueGarbageCollectionEvent::$hook, [$this, 'handleQueueGarbageCollection'], 10);
+            add_action(QueueClearExpiredTransients::$hook, [$this, 'handleQueueClearExpiredTransients'],10);
         }
     }
 
@@ -77,6 +80,14 @@ class QueueParseEventHandler
     public function handleQueueGarbageCollection() : void
     {
         (WpObjectQueue::getInstance())->garbageCollection();
+    }
+
+    /**
+     * Trigger clearing of expired transients from options tables
+     */
+    public function handleQueueClearExpiredTransients() : void
+    {
+        DeleteExpiredTranients::remove();
     }
     
 }

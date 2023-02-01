@@ -38,8 +38,12 @@ class CacheTagsBase {
      * @var string
      */
     protected $separator = '-';
-    
-
+    /**
+     * Driver
+     * 
+     * @var string
+     */
+    protected $driver = '';
     /**
      * Option name used to store the cache tags
      * 

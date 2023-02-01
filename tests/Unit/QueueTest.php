@@ -102,12 +102,13 @@ class QueueTest extends ServeboltWPUnitTestCase
                 return $item->payload['tag'];
             }
         }, $items));
-        $this->assertContains('home', $tags);
-        // Perhaps this shoudl be date('n') not 'm'.
-        $this->assertContains('month-' . date('m'), $tags);
-        $this->assertContains('year-' . date('Y'), $tags);
-        $this->assertContains('author-0', $tags);
-        $this->assertContains('feed', $tags);
+        $domainprefix = 'exampleorg-';
+        $mutisite_suffix = (is_multisite()) ? '-'.get_current_blog_id() : '';
+        $this->assertContains($domainprefix . 'home' . $mutisite_suffix, $tags);        
+        $this->assertContains($domainprefix . 'month-' . date('n') . $mutisite_suffix, $tags);
+        $this->assertContains($domainprefix . 'year-' . date('Y') . $mutisite_suffix, $tags);
+        $this->assertContains($domainprefix . 'author-0' . $mutisite_suffix, $tags);
+        $this->assertContains($domainprefix . 'feeds' . $mutisite_suffix, $tags);
     }
 
     public function testThatTermUrlsGetsParsedFromWpObjectQueueToUrlQueue(): void

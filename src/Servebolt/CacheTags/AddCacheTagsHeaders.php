@@ -110,8 +110,11 @@ class AddCacheTagsHeaders extends CacheTagsBase {
     {
         if(count($this->headers) > 0) {
             try{
-                header('Cache-Tag: ' . implode(',', $this->headers));
-                header('x-acd-Cache-Tag: ' . implode(',', $this->headers));                
+                $tags = implode(',', $this->headers);
+                header('Cache-Tag: ' . $tags );
+                if($this->driver == 'acd') {
+                    header('x-acd-Cache-Tag: ' . $tags);
+                }
             }
             catch (Exception $e){
                 error_log("Cache-Tag messages could not be added as headers have already been sent.");

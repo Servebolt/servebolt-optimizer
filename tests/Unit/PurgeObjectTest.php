@@ -73,9 +73,11 @@ class PurgeObjectTest extends ServeboltWPUnitTestCase
         $purgeObject = new PurgeObject($postId, 'cachetag');
         $tagsToPurge = $purgeObject->getCacheTags();
         $this->assertIsArray($tagsToPurge);
-        $this->assertContains('home', $tagsToPurge);
-        $this->assertContains('posttype-post', $tagsToPurge);
-        $this->assertContains('feed', $tagsToPurge);
-        $this->assertContains('year-'.date("Y"), $tagsToPurge);
+        $domainprefix = 'exampleorg-';
+        $mutisite_suffix = (is_multisite()) ? '-'.get_current_blog_id() : '';
+        $this->assertContains($domainprefix . 'home' . $mutisite_suffix, $tagsToPurge);
+        $this->assertContains($domainprefix . 'posttype-post' . $mutisite_suffix, $tagsToPurge);
+        $this->assertContains($domainprefix . 'feeds' . $mutisite_suffix, $tagsToPurge);
+        $this->assertContains($domainprefix . 'year-' . date("Y") . $mutisite_suffix, $tagsToPurge);
     }
 }
