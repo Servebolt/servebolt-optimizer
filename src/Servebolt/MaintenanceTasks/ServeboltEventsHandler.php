@@ -1,6 +1,6 @@
 <?php 
 
-namespace Servebolt\Optimizer\CronEvents;
+namespace Servebolt\Optimizer\MaintenanceTasks;
 
 use Servebolt\Optimizer\WpCron\Events\ClearExpiredTransients;
 use Servebolt\Optimizer\WpCron\Tasks\DeleteExpiredTranients;

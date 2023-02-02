@@ -23,14 +23,14 @@ class WpCronEvents
      */
     private function registerEvents(): void
     {
-        //$events = glob(__DIR__ . '/Events/*.php');
+        //Names of calsses in Events directory
         $events = [
-            __DIR__ . '/Events/QueueParseEvent.php',
-            __DIR__ . '/Events/QueueGarbageCollectionEvent.php',
-            __DIR__ . '/Events/ClearExpiredTransients.php',
+            'QueueParseEvent',
+            'QueueGarbageCollectionEvent',
+            'ClearExpiredTransients',
         ];
-        foreach($events as $file) {
-            $class = '\\Servebolt\\Optimizer\\WpCron\\Events\\' . basename($file, '.php');
+        foreach($events as $className) {
+            $class = '\\Servebolt\\Optimizer\\WpCron\\Events\\' . $className;
             if (class_exists($class)) {
                 new $class;
             }

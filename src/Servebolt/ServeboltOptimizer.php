@@ -27,7 +27,7 @@ use Servebolt\Optimizer\Utils\PostUpgradeActions;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
 use Servebolt\Optimizer\CacheTags\AddCacheTagsHeaders;
-use Servebolt\Optimizer\CronEvents\ServeboltEventsHandler;
+use Servebolt\Optimizer\MaintenanceTasks\ServeboltEventsHandler;
 use function Servebolt\Optimizer\Helpers\featureIsActive;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isCli;
