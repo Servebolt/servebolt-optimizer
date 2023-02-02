@@ -19,8 +19,8 @@ class DeleteExpiredTranients {
             // get sites
             $sites = get_sites();
             // loop sites
-            foreach ( $sites as $site ) {
-                switch_to_blog( $site->blog_id );
+            foreach($sites as $site) {
+                switch_to_blog($site->blog_id);
                 self::clean_options_table();
                 restore_current_blog();
             }
@@ -60,4 +60,5 @@ class DeleteExpiredTranients {
             )
         );
     }
+    
 }

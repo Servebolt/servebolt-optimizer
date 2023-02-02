@@ -98,9 +98,10 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 * Added blacklisted urls via get vars for WooCommerce so that they cannot be prefetched.
 * Removed APO capability due to it being only possbile now with the cloudflare plugin.
 * Added Cache-Tag headers to Accelerated Domains reducing purge comands to only 2 for each post/page update and their related archives, taxonomy terms and feeds.
+* Implemented CachTag purging for Accelerated Domains.
 * Added Cache-Tag headers to Servebolt CDN for later use in purging.  
 * Added new garbage collection for the purge queue via cron scheduler.
-* Added UID and index to the purge queue tables so that searching for existing queue items could be significantly sped up and also stop repeat adding of an existing
+* Added UID column and UID index to the purge queue tables so that searching for existing queue items could be significantly speed up and also stop repeat adding of an existing
 * Changed Database Migrations to work with own version control, unlinking from the plugin version number.
 * Added LIMIT to garbage collection query.
 * Slight change to the logic for cach purging to improve payload checking.

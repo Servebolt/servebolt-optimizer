@@ -5,7 +5,7 @@ namespace Servebolt\Optimizer\WpCron;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
- * Class WpCronEvents
+ * Class WpWpCron
  * @package Servebolt\Optimizer\WpCron
  */
 class WpCronEvents

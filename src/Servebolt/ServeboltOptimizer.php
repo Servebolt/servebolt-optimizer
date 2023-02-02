@@ -27,6 +27,7 @@ use Servebolt\Optimizer\Utils\PostUpgradeActions;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
 use Servebolt\Optimizer\CacheTags\AddCacheTagsHeaders;
+use Servebolt\Optimizer\CronEvents\ServeboltEventsHandler;
 use function Servebolt\Optimizer\Helpers\featureIsActive;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isCli;
@@ -101,6 +102,7 @@ class ServeboltOptimizer
 
         // Queue system
         new QueueParseEventHandler; // Register event listener for queues
+        new ServeboltEventsHandler; // Register maintentce events to cron
 
         // Register cron schedule & event
         new WpCronCustomSchedules; // Register cron schedule

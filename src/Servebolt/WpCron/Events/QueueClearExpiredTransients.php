@@ -4,7 +4,6 @@ namespace Servebolt\Optimizer\WpCron\Events;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use Servebolt\Optimizer\CachePurge\CachePurge;
 use function Servebolt\Optimizer\Helpers\getFiltersForHook;
 
 /**
@@ -32,11 +31,7 @@ class QueueClearExpiredTransients
      */
     public function __construct()
     {
-        if (
-            $this->hasActionsRegistered()
-            && CachePurge::featureIsActive()
-            && CachePurge::queueBasedCachePurgeIsActive()
-        ) {
+        if ($this->hasActionsRegistered()) {
             $this->registerEvent();
         } else {
             $this->deregisterEvent();
