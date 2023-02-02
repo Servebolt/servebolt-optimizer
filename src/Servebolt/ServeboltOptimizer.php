@@ -102,7 +102,9 @@ class ServeboltOptimizer
 
         // Queue system
         new QueueParseEventHandler; // Register event listener for queues
-        new ServeboltEventsHandler; // Register maintentce events to cron
+
+        // Register maintentce events to cron
+        new ServeboltEventsHandler;
 
         // Register cron schedule & event
         new WpCronCustomSchedules; // Register cron schedule
@@ -118,21 +120,14 @@ class ServeboltOptimizer
         new AdminAssets;
         // force cache clear header on login via wp_login hook.         
         new ClearSiteDataHeader;
-        // force cache clear on woocommerce login via my-account page
-        // add_action( 'plugins_loaded', function(){
-        //     if(isWooCommerce()) {
-        //         new ClearSiteDataHeader;
-        //     }
-        // } );
+
         // Only load the plugin interface in WP Admin
         if (
             is_admin()
             || isTesting()
         ) {
-
             // Load this plugins admin interface
             AdminController::getInstance();
-
         }
 
         // Only front-end
@@ -140,12 +135,10 @@ class ServeboltOptimizer
             isFrontEnd()
             || isTesting()
         ) {
-
             // Feature to automatically version all enqueued script/style-tags
             if (featureIsActive('asset_auto_version')) {
                 AssetAutoVersion::init();
             }
-
         }
 
         // Initialize CLI-commands
