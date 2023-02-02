@@ -7,24 +7,24 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use function Servebolt\Optimizer\Helpers\getFiltersForHook;
 
 /**
- * Class QueueClearExpiredTransients
+ * Class ClearExpiredTransients
  * 
  * Event runs every day to clean up the options table from any expired 
  * 
  * @package Servebolt\Optimizer\WpCron
  */
-class QueueClearExpiredTransients
+class ClearExpiredTransients
 {
 
     /**
      * @var string
      */
-    private static $recurrence = 'hourly';
+    private static $recurrence = 'daily';
 
     /**
      * @var string The action hook used when triggering this event.
      */
-    public static $hook = 'sb_optimizer_queue_clear_expired_transients';
+    public static $hook = 'sb_optimizer_clear_expired_transients';
 
     /**
      * QueueGarbageCollectionEvent constructor.

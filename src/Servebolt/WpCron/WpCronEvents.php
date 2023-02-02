@@ -26,6 +26,8 @@ class WpCronEvents
         //$events = glob(__DIR__ . '/Events/*.php');
         $events = [
             __DIR__ . '/Events/QueueParseEvent.php',
+            __DIR__ . '/Events/QueueGarbageCollectionEvent.php',
+            __DIR__ . '/Events/ClearExpiredTransients.php',
         ];
         foreach($events as $file) {
             $class = '\\Servebolt\\Optimizer\\WpCron\\Events\\' . basename($file, '.php');
