@@ -1563,7 +1563,7 @@ function iterateSites($function, bool $runBlogSwitch = false): bool
  * @param bool $assertUpdate
  * @return bool
  */
-function updateBlogOption($blogId, string $optionName, $value, bool $assertUpdate = true): bool
+function updateBlogOption($blogId, string $optionName, $value = '', bool $assertUpdate = true): bool
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_blog_option($blogId, $fullOptionName, $value);
@@ -1616,7 +1616,7 @@ function deleteOption(string $option, bool $assertUpdate = true)
  * @param string $autoload
  * @return bool
  */
-function addOrUpdateOption(string $optionName, $value, bool $assertUpdate = true, string $autoload = 'no'): bool
+function addOrUpdateOption(string $optionName, $value = '', bool $assertUpdate = true, string $autoload = 'no'): bool
 {
     if (add_option(getOptionName($optionName), $value, '', $autoload)) {
         if ($assertUpdate) {
@@ -1637,7 +1637,7 @@ function addOrUpdateOption(string $optionName, $value, bool $assertUpdate = true
  * @param string $autoload
  * @return bool
  */
-function addBlogOption($id, string $option, $value, string $autoload = 'no')
+function addBlogOption($id, string $option, $value = '', string $autoload = 'no')
 {
     $option = getOptionName($option);
 
@@ -1669,7 +1669,7 @@ function addBlogOption($id, string $option, $value, string $autoload = 'no')
  * @param string $autoload
  * @return bool
  */
-function addOrUpdateBlogOption($blogId, string $optionName, $value, bool $assertUpdate = true, string $autoload = 'no'): bool
+function addOrUpdateBlogOption($blogId, string $optionName, $value = '', bool $assertUpdate = true, string $autoload = 'no'): bool
 {
     $addAttempt = addBlogOption($blogId, $optionName, $value, $autoload);
     if ($addAttempt) {
@@ -1690,7 +1690,7 @@ function addOrUpdateBlogOption($blogId, string $optionName, $value, bool $assert
  * @param bool $assertUpdate
  * @return bool
  */
-function updateOption(string $optionName, $value, bool $assertUpdate = true): bool
+function updateOption(string $optionName, $value = '', bool $assertUpdate = true): bool
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_option($fullOptionName, $value);
@@ -1736,13 +1736,13 @@ function deleteSiteOption(string $option, bool $assertUpdate = true)
 /**
  * Update site option.
  *
- * @param string$optionName
+ * @param string $optionName
  * @param mixed $value
  * @param bool $assertUpdate
  *
  * @return bool
  */
-function updateSiteOption(string $optionName, $value, bool $assertUpdate = true)
+function updateSiteOption(string $optionName, $value = '', bool $assertUpdate = true)
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_site_option($fullOptionName, $value);
@@ -1777,7 +1777,7 @@ function getSiteOption(string $optionName, $default = null)
  * @param bool $assertUpdate
  * @return bool
  */
-function smartAddOrUpdateOption(?int $blogId = null, string $optionName, $value, bool $assertUpdate = true): bool
+function smartAddOrUpdateOption(?int $blogId = null, string $optionName, $value = '', bool $assertUpdate = true): bool
 {
     if (is_numeric($blogId)) {
         $result = addOrUpdateBlogOption($blogId, $optionName, $value, $assertUpdate);
@@ -1796,7 +1796,7 @@ function smartAddOrUpdateOption(?int $blogId = null, string $optionName, $value,
  * @param bool $assertUpdate
  * @return bool
  */
-function smartUpdateOption(?int $blogId = null, string $optionName, $value, bool $assertUpdate = true): bool
+function smartUpdateOption(?int $blogId = null, string $optionName, $value = '', bool $assertUpdate = true): bool
 {
     if (is_numeric($blogId)) {
         $result = updateBlogOption($blogId, $optionName, $value, $assertUpdate);

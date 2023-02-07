@@ -597,6 +597,14 @@ class FullPageCacheHeaders
         if (is_bool($customAuthenticationCheck)) {
             return $customAuthenticationCheck;
         }
+        // additional optional check for pluggable.php and if its loaded. 
+        $checkPlugableLoadded = apply_filters('sb_optimizer_pluggable_check', false);
+        // if filters is set to true, and the wanted function does not exist, load it. 
+        if($checkPlugableLoadded) {
+            if(!function_exists('is_user_logged_in')){
+                require_once(ABSPATH.'wp-includes/pluggable.php');
+            }
+        }
 
         // Authenticated user check
         if (!is_user_logged_in()) {
