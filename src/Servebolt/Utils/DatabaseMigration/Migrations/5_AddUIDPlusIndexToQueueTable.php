@@ -36,8 +36,11 @@ class AddUIDPlusIndexToQueueTable extends AbstractMigration implements Migration
 
     /**
      * @var string The plugin version number that this migration belongs to.
+     * 
+     * @since 3.5.11 this is now the db version, number greater than 100
+     * @see getCurrentDatabaseVersion() in helpers and const SERVEBOLT_PLUGIN_DB_VERSION
      */
-    public static $version = '3.5.11';
+    public static $version = '100';
 
     /**
      * Migrate up.

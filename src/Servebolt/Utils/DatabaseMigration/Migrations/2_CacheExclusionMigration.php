@@ -25,8 +25,11 @@ class CacheExclusionMigration extends AbstractMigration implements MigrationInte
      */
     protected $tableName = 'sb_cache_exception';
 
-    /**
+     /**
      * @var string The plugin version number that this migration belongs to.
+     * 
+     * @since 3.5.11 this is now the db version, number greater than 100
+     * @see getCurrentDatabaseVersion() in helpers and const SERVEBOLT_PLUGIN_DB_VERSION
      */
     public static $version = '2.2.0';
 
