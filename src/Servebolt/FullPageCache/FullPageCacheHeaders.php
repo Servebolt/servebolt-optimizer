@@ -101,9 +101,10 @@ class FullPageCacheHeaders
         if ($this->shouldSetCacheHeaders()) {
             if(!is_feed()) {
                 add_filter('posts_results', [$this, 'setHeaders']);
-            } else {
-                add_filter(getCondtionalHookPreHeaders(), [$this, 'setRssHeaders']);
-            }
+            } 
+            // else {
+            //     add_filter(getCondtionalHookPreHeaders(), [$this, 'setRssHeaders']);
+            // }
             add_filter('template_include', [$this, 'lastCall']);
         }
     }
