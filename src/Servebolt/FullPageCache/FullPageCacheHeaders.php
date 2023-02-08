@@ -93,18 +93,12 @@ class FullPageCacheHeaders
      */
     private function __construct()
     {
-
         // Handle "no_cache"-header for authenticated users.
         FullPageCacheAuthHandling::init();
 
         // Unauthenticated cache handling
-        if ($this->shouldSetCacheHeaders()) {
-            if(!is_feed()) {
-                add_filter('posts_results', [$this, 'setHeaders']);
-            } 
-            // else {
-            //     add_filter(getCondtionalHookPreHeaders(), [$this, 'setRssHeaders']);
-            // }
+        if ($this->shouldSetCacheHeaders()) {            
+            add_filter('posts_results', [$this, 'setHeaders']);            
             add_filter('template_include', [$this, 'lastCall']);
         }
     }
@@ -116,9 +110,10 @@ class FullPageCacheHeaders
      */
     public function shouldSetCacheHeaders(): bool
     {
-        if (is_admin() || isAjax() || isWpRest() || isCron()) {
+        if (is_admin() || isAjax() || isWpRest() || isCron()) {            
             return false;
         }
+        // error_log('why return true?');
         return true;
     }
 
@@ -170,6 +165,7 @@ class FullPageCacheHeaders
      */
     public function setHeaders($posts)
     {
+        error_log('starting not logged-in caching headers in setHeaders function ');
         $debug = $this->shouldDebug();
 
         // Abort if cache headers are already set
@@ -372,8 +368,10 @@ class FullPageCacheHeaders
      * @return mixed
      */
     public function lastCall($template)
-    {
-        $this->setHeaders([get_post()]);
+    {        
+        if(!is_feed()) {
+            $this->setHeaders([get_post()]);
+        }
         return $template;
     }
 
