@@ -15,6 +15,7 @@ use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
 use function Servebolt\Optimizer\Helpers\woocommerceIsActive;
 use function Servebolt\Optimizer\Helpers\writeLog;
+use function Servebolt\Optimizer\Helpers\getCondtionalHookPreHeaders;
 
 /**
  * Class FullPageCacheHeaders
@@ -98,7 +99,11 @@ class FullPageCacheHeaders
 
         // Unauthenticated cache handling
         if ($this->shouldSetCacheHeaders()) {
-            add_filter('posts_results', [$this, 'setHeaders']);
+            if(!is_feed()) {
+                add_filter('posts_results', [$this, 'setHeaders']);
+            } else {
+                add_filter(getCondtionalHookPreHeaders(), [$this, 'setRssHeaders']);
+            }
             add_filter('template_include', [$this, 'lastCall']);
         }
     }
@@ -124,6 +129,37 @@ class FullPageCacheHeaders
         $this->headersAlreadySet = $boolean;
     }
 
+    /**
+     * Set Cache Headers on RSS feed pages
+     */
+    public function setRssHeaders() {
+        $debug = $this->shouldDebug();
+
+        // Set "no cache"-headers if HTML Cache is not active, or if we are logged in
+        if (!FullPageCacheSettings::htmlCacheIsActive() || $this->isAuthenticatedUser()) {
+            $this->noCacheHeaders();
+            if ($debug) {
+                $this->header('No-cache-trigger: 1');
+            }
+            return;
+        }
+
+        global $wp_query;
+        $postType = get_post_type();
+
+        // We don't have any posts at the time, abort
+        if (!isset($wp_query) || !$postType) {
+            $this->setHeaderAlreadySetState(false);
+            return;
+        }
+
+        remove_filter(getCondtionalHookPreHeaders(), [$this, 'setRssHeaders']);
+        
+        $this->cacheHeaders();
+        if ($debug) {
+            $this->header('Cache-trigger: 6');
+        }
+    }
     /**
      * Set cache headers - Determine and set the type of headers to be used.
      *

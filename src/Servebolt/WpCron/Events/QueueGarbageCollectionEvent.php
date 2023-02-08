@@ -13,7 +13,7 @@ use function Servebolt\Optimizer\Helpers\getFiltersForHook;
  * Event runs every hour to clean up the sb_queue table from anything that is not normally being deleted
  * The deleted items are the ones that have been completed but not removed. 
  * 
- * It is run every hour so that there is a 24hr period for the item to be naturally removed from the table
+ * It is run every minute so that there is a 24hr period for the item to be naturally removed from the table
  * by standard means.
  * 
  * @package Servebolt\Optimizer\WpCron
@@ -24,7 +24,7 @@ class QueueGarbageCollectionEvent
     /**
      * @var string
      */
-    private static $recurrence = 'hourly';
+    private static $recurrence = 'every_minute';
 
     /**
      * @var string The action hook used when triggering this event.
