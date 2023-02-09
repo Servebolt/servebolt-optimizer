@@ -82,6 +82,8 @@ class FullPageCacheHeaders
 
     /**
      * Alias for "getInstance".
+     * 
+     * @return void
      */
     public static function init(): void
     {
@@ -90,6 +92,8 @@ class FullPageCacheHeaders
 
     /**
      * FullPageCacheHeaders constructor.
+     * 
+     * @return void
      */
     private function __construct()
     {
@@ -104,8 +108,9 @@ class FullPageCacheHeaders
     }
 
     /**
-     * Check whether we should set cache headers or not (disable cache when in WP Admin, AJAX-context, REST API-context or WP Cron-context).
-     *
+     * Check whether we should set cache headers or not (disable cache when in WP Admin, AJAX-context,
+     * REST API-context or WP Cron-context).is_feed() often does not work here as it comes later in the processing chain. 
+     * 
      * @return bool
      */
     public function shouldSetCacheHeaders(): bool
@@ -113,12 +118,12 @@ class FullPageCacheHeaders
         if (is_admin() || isAjax() || isWpRest() || isCron()) {            
             return false;
         }
-        // error_log('why return true?');
         return true;
     }
 
     /**
      * @param $boolean
+     * @return void
      */
     public function setHeaderAlreadySetState($boolean): void
     {
@@ -126,38 +131,8 @@ class FullPageCacheHeaders
     }
 
     /**
-     * Set Cache Headers on RSS feed pages
-     */
-    public function setRssHeaders() {
-        $debug = $this->shouldDebug();
-
-        // Set "no cache"-headers if HTML Cache is not active, or if we are logged in
-        if (!FullPageCacheSettings::htmlCacheIsActive() || $this->isAuthenticatedUser()) {
-            $this->noCacheHeaders();
-            if ($debug) {
-                $this->header('No-cache-trigger: 1');
-            }
-            return;
-        }
-
-        global $wp_query;
-        $postType = get_post_type();
-
-        // We don't have any posts at the time, abort
-        if (!isset($wp_query) || !$postType) {
-            $this->setHeaderAlreadySetState(false);
-            return;
-        }
-
-        remove_filter(getCondtionalHookPreHeaders(), [$this, 'setRssHeaders']);
-        
-        $this->cacheHeaders();
-        if ($debug) {
-            $this->header('Cache-trigger: 6');
-        }
-    }
-    /**
      * Set cache headers - Determine and set the type of headers to be used.
+     * This only works for HTML pages not for RSS feeds
      *
      * @param $posts
      *
@@ -165,7 +140,6 @@ class FullPageCacheHeaders
      */
     public function setHeaders($posts)
     {
-        error_log('starting not logged-in caching headers in setHeaders function ');
         $debug = $this->shouldDebug();
 
         // Abort if cache headers are already set
@@ -175,7 +149,7 @@ class FullPageCacheHeaders
 
         $this->setHeaderAlreadySetState(true);
 
-        // Set "no cache"-headers if HTML Cache is not active, or if we are logged in
+        // Set "no cache"-headers if HTML Cache is not active, or if we are logged in.
         if (!FullPageCacheSettings::htmlCacheIsActive() || $this->isAuthenticatedUser()) {
             $this->noCacheHeaders();
             if ($debug) {
@@ -187,9 +161,18 @@ class FullPageCacheHeaders
         global $wp_query;
         $postType = get_post_type();
 
-        // We don't have any posts at the time, abort
+        // We don't have any posts at the time, abort.
         if (!isset($wp_query) || !$postType) {
             $this->setHeaderAlreadySetState(false);
+            return $posts;
+        }
+
+        // ignore if RSS feed.
+        if( isset($wp_query->query['feed']) && $wp_query->query['feed'] == 'feed'){
+            $this->noCacheHeaders();
+            if ($debug) {
+                $this->header('No-cache-trigger: 1');
+            }
             return $posts;
         }
 
@@ -292,6 +275,7 @@ class FullPageCacheHeaders
      *
      * @param string $key
      * @param null|string $value
+     * @return void
      */
     public function header(string $key, ?string $value = null)
     {
@@ -324,6 +308,7 @@ class FullPageCacheHeaders
      * Set whether to mock or not.
      *
      * @param bool $bool
+     * @return void
      */
     public static function mock(bool $bool = true): void
     {
@@ -350,6 +335,7 @@ class FullPageCacheHeaders
      * Print a header, with support for mocking (for testing purposes).
      *
      * @param $string
+     * @return void
      */
     private static function printHeader($string): void
     {
@@ -407,7 +393,7 @@ class FullPageCacheHeaders
      * Check if we should cache an archive.
      *
      * @param array $posts Posts in the archive
-     * @return boolean      Return true if all posts are cacheable
+     * @return boolean Return true if all posts are cacheable
      */
     private function shouldCacheArchive($posts): bool
     {
