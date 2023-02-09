@@ -22,7 +22,7 @@ class DisableWpRocketCache
         if ($this->shouldDisableCache()) {
             // Disable WP Rocket cache
             add_filter('do_rocket_generate_caching_files', '__return_false');
-            add_filter('rocket_cache_mandatory_cookies', '__ return_empty_array');
+            add_filter('rocket_cache_mandatory_cookies', '__return_empty_array');
             add_filter('rocket_display_varnish_options_tab', '__return_false');
             add_filter('rocket_set_wp_cache_constant', '__return_false');
             add_filter('rocket_generate_advanced_cache_file', '__return_false');
