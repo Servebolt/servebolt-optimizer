@@ -110,6 +110,10 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 * Added LIMIT to garbage collection query.
 * Slight change to the logic for cach purging to improve payload checking.
 * Moved action_scheduler filters to only be implemented if action_scheduler is installed.
+* Fixed bug in WP Rocket compatability.
+* Fixed a few typo's.
+* Added existance checking of API error messages.
+* Fixed cache headers errros on RSS feeds.
 
 = 3.5.10 =
 * Added LIMIT to garbage collection query.

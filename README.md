@@ -80,6 +80,10 @@ If you want to build a local production-ready version of the plugin you can run 
 * Added LIMIT to garbage collection query.
 * Slight change to the logic for cach purging to improve payload checking.
 * Moved action_scheduler filters to only be implemented if action_scheduler is installed.
+* Bugfix in WP Rocket compatability, removed space to allow for proper call to __return_empty_array.
+* Fixed a few typo's.
+* Added existance checking of API error messages.
+* Fixed cache headers errros on RSS feeds.
 
 #### 3.5.10
 * Increased batch capibilities action_scheduler, 8x more processing possible.
