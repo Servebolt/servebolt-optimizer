@@ -239,6 +239,7 @@ class CacheTagsBase {
         // woocommerce-product
         if(is_product()){
             $this->add('woocommerce-product');
+            $this->add('woocommerce-productid-'.get_the_ID());
         }        
     }
 

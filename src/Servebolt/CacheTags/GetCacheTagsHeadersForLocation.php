@@ -145,6 +145,17 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
         if ( !class_exists( 'woocommerce' ) ) return;
         // Add the shop homepage.
         $this->add('woocommerce-shop');
+        /**
+         * clear the product cache so that all of its versions are removed
+         * 1. https://domain.com/product-name
+         * 2. https://domain.com/product-name?price=400
+         * 3. https://domain.com/product-name?color=green
+         * 4. https://domain.com/product-name?color=green&price=400
+         * etc etc
+         */
+        if(function_exists('is_product') && is_product()) {
+            $this->add('woocommerce-productid-'.get_the_ID());
+        }
     }
 
 }
