@@ -3,7 +3,7 @@ Contributors: audunhus, erlendeide, robsat91, servebolt, andrewkillen
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, html cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.0.2
+Tested up to: 6.1.1
 Requires PHP: 7.3
 Stable tag: 3.5.11
 License: GPLv3 or later
@@ -56,6 +56,10 @@ This plugin can be controlled via the WordPress Dashboard or WP CLI. Additionall
 ### Filter and constant reference
 
 The plugin has various filters and PHP constants that allows third-party developers to alter the behaviour of the plugin. Please read the article [Filters and PHP constants](https://servebo.lt/servebolt-optimizer-filters-and-php-constants) in our help center to learn more.
+
+### Testing
+
+We test against the current production version of WordPress and the next beta/development version
 
 == Installation ==
 
