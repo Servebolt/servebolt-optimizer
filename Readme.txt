@@ -99,13 +99,15 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 == Changelog ==
 = 3.5.11 =
 * Added scheduled cleanup of expired tranisients. 
-* Added blacklisted urls via get vars for WooCommerce so that they cannot be prefetched.
+* Added method to stop WooCommerce carts from ever being prefetched by InstantPage.
 * Removed APO capability due to it being only possbile now with the cloudflare plugin.
 * Added CacheTag headers to Accelerated Domains reducing purge comands to only 2 for each post/page update and their related archives, taxonomy terms and feeds.
 * Implemented CachTag purging for Accelerated Domains.
 * Added CacheTag headers to Servebolt CDN for later use in purging.  
 * Added new garbage collection for the purge queue via cron scheduler.
 * Added UID column and UID index to the purge queue tables so that searching for existing queue items could be significantly speed up and also stop repeat adding of an existing
+* Added ```wp servebolt check-cdn-setup``` to the WP CLI to check the CDN setup for AcelerateDomains or ServeboltCDN.
+* Added ```wp servebolt cache purge queue trash``` to the WP CLI to purge old items from the queue
 * Changed Database Migrations to work with own version control, unlinking from the plugin version number.
 * Added LIMIT to garbage collection query.
 * Slight change to the logic for cach purging to improve payload checking.

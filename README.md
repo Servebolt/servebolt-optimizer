@@ -69,9 +69,10 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 #### 3.5.11
-* Added blacklisted urls via get vars for WooCommerce so that they cannot be prefetched.
+* Added scheduled cleanup of expired tranisients.
+* Added method to stop WooCommerce carts from ever being prefetched by InstantPage.
 * Added ```wp servebolt check-cdn-setup``` to the WP CLI to check the CDN setup for AcelerateDomains or ServeboltCDN.
-* Added ```wp servebolt servebolt cache purge queue trash``` to the WP CLI to purge old items from the queue
+* Added ```wp servebolt cache purge queue trash``` to the WP CLI to purge old items from the queue
 * Removed APO capability due to it being only possbile now with the cloudflare plugin.
 * Added CacheTags to Accelerated Domains and Servebolt CDN, reducing purge comands to only 2 for each post/page update
 * Added new garbage collection for the purge queue via cron scheduler
