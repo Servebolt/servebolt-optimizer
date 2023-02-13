@@ -110,10 +110,10 @@ class General
         $message = "The domain " . $response['host'] ." is *not* configured for Servebolt CDN or Accelerated Domains";
         if($response['status'] == true){
             if($response['cname'] == true){
-                $message = "The domain " . $response['host'] ." is corrently configured with the CNAME " . $response['found'];
+                $message = "The domain " . $response['host'] ." is currently configured with the CNAME " . $response['found'];
             }
             if($response['a-record'] == true){
-                $message = "The domain " . $response['host'] ." is corrently configured with the A Record " . $response['found'];
+                $message = "The domain " . $response['host'] ." is currently configured with the A Record " . $response['found'];
             }
         }
 
