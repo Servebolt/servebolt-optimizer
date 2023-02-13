@@ -69,22 +69,22 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 #### 3.5.11
-* Added scheduled cleanup of expired tranisients.
+* Added scheduled cleanup of expired transients.
 * Added method to stop WooCommerce carts from ever being prefetched by InstantPage.
-* Added ```wp servebolt check-cdn-setup``` to the WP CLI to check the CDN setup for AcelerateDomains or ServeboltCDN.
+* Added ```wp servebolt check-cdn-setup``` to the WP CLI to check the CDN setup for Acelerated Domains or ServeboltCDN.
 * Added ```wp servebolt cache purge queue trash``` to the WP CLI to purge old items from the queue
-* Removed APO capability due to it being only possbile now with the cloudflare plugin.
-* Added CacheTags to Accelerated Domains and Servebolt CDN, reducing purge comands to only 2 for each post/page update
+* Removed APO capability due to it being only possible now with the cloudflare plugin.
+* Added CacheTags to Accelerated Domains and Servebolt CDN, reducing purge commands to only 2 for each post/page update
 * Added new garbage collection for the purge queue via cron scheduler
 * Added UID and index to the purge queue tables so that searching for existing queue items could be significantly sped up and also stop repeat adding of an existing
 * Changed Database Migrations to work with own version control, unlinking from the plugin version number.
 * Added LIMIT to garbage collection query.
-* Slight change to the logic for cach purging to improve payload checking.
+* Slight change to the logic for cache purging to improve payload checking.
 * Moved action_scheduler filters to only be implemented if action_scheduler is installed.
-* Bugfix in WP Rocket compatability, removed space to allow for proper call to __return_empty_array.
+* Bugfix in WP Rocket compatibility, removed space to allow for proper call to __return_empty_array.
 * Fixed a few typo's.
-* Added existance checking of API error messages.
-* Fixed cache headers errros on RSS feeds.
+* Added existence checking of API error messages.
+* Fixed cache headers errors on RSS feeds.
 
 #### 3.5.10
 * Increased batch capibilities action_scheduler, 8x more processing possible.

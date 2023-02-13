@@ -24,7 +24,7 @@ class QueueGarbageCollectionEvent
     /**
      * @var string
      */
-    private static $recurrence = 'every_minute';
+    private static $recurrence = 'hourly';
 
     /**
      * @var string The action hook used when triggering this event.
