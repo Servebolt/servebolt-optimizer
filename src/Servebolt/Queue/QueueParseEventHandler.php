@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\WpCron\Events\QueueParseEvent;
 use Servebolt\Optimizer\WpCron\Events\QueueGarbageCollectionEvent;
 use Servebolt\Optimizer\WpCron\Events\QueueClearExpiredTransients;
-use Servebolt\Optimizer\WpCron\Tasks\DeleteExpiredTranients;
+use Servebolt\Optimizer\WpCron\Tasks\DeleteExpiredTransients;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use Servebolt\Optimizer\Queue\Queues\UrlQueue;
 
@@ -86,7 +86,7 @@ class QueueParseEventHandler
      */
     public function handleQueueClearExpiredTransients() : void
     {
-        DeleteExpiredTranients::remove();
+        DeleteExpiredTransients::remove();
     }
     
 }

@@ -3,7 +3,7 @@
 namespace Servebolt\Optimizer\MaintenanceTasks;
 
 use Servebolt\Optimizer\WpCron\Events\ClearExpiredTransients;
-use Servebolt\Optimizer\WpCron\Tasks\DeleteExpiredTranients;
+use Servebolt\Optimizer\WpCron\Tasks\DeleteExpiredTransients;
 
 class ServeboltEventsHandler{
 
@@ -20,7 +20,7 @@ class ServeboltEventsHandler{
      */
     public function handleClearExpiredTransients() : void
     {
-        DeleteExpiredTranients::remove();
+        DeleteExpiredTransients::remove();
     }
     
 }
