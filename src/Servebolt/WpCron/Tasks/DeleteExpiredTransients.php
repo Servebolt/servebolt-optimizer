@@ -10,10 +10,10 @@ class DeleteExpiredTransients {
 
     static public function remove() {
         if ( ! is_multisite() ) {
-            error_log("starting remove transients, single site");
+            
             self::clean_options_table();
         } else {
-            error_log("starting remove transients, multi site");
+            
             // Clear  
             $start_id = get_current_blog_id();
             // get sites
@@ -26,7 +26,7 @@ class DeleteExpiredTransients {
             }
             switch_to_blog($start_id);
             // Now clear the sitemeta table
-            error_log("now removing transients, from sitemeta table");
+            
             global $wpdb;
             $wpdb->query(
                 $wpdb->prepare(
