@@ -343,7 +343,7 @@ abstract class CliKeyValueStorage
      * @param bool $result
      * @return bool
      */
-    protected function setSettingResponse(string $settingKey, $value, ?int $blogId = null, bool $result): bool
+    protected function setSettingResponse(string $settingKey, $value, ?int $blogId = null, bool $result = false ): bool
     {
         if (!$result) {
             if ($blogId) {

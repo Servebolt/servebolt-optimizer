@@ -1777,7 +1777,7 @@ function getSiteOption(string $optionName, $default = null)
  * @param bool $assertUpdate
  * @return bool
  */
-function smartAddOrUpdateOption(?int $blogId = null, string $optionName, $value = '', bool $assertUpdate = true): bool
+function smartAddOrUpdateOption(?int $blogId = null, string $optionName = '', $value = '', bool $assertUpdate = true): bool
 {
     if (is_numeric($blogId)) {
         $result = addOrUpdateBlogOption($blogId, $optionName, $value, $assertUpdate);
@@ -1796,7 +1796,7 @@ function smartAddOrUpdateOption(?int $blogId = null, string $optionName, $value 
  * @param bool $assertUpdate
  * @return bool
  */
-function smartUpdateOption(?int $blogId = null, string $optionName, $value = '', bool $assertUpdate = true): bool
+function smartUpdateOption(?int $blogId = null, string $optionName = '', $value = '', bool $assertUpdate = true): bool
 {
     if (is_numeric($blogId)) {
         $result = updateBlogOption($blogId, $optionName, $value, $assertUpdate);
@@ -1815,7 +1815,7 @@ function smartUpdateOption(?int $blogId = null, string $optionName, $value = '',
  *
  * @return bool|mixed
  */
-function smartDeleteOption(?int $blogId = null, string $optionName, bool $assertUpdate = true)
+function smartDeleteOption(?int $blogId = null, string $optionName = '', bool $assertUpdate = true)
 {
     if (is_numeric($blogId)) {
         $result = deleteBlogOption($blogId, $optionName, $assertUpdate);
@@ -1889,7 +1889,7 @@ function tableHasColumn(string $tableName, string $columnName): bool
  *
  * @return mixed|void
  */
-function smartGetOption(?int $blogId = null, string $optionName, $default = null)
+function smartGetOption(?int $blogId = null, string $optionName = '', $default = null)
 {
     if (is_numeric($blogId)) {
         $result = getBlogOption($blogId, $optionName, $default);
