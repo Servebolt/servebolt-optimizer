@@ -2,7 +2,7 @@
 
 namespace Servebolt\Optimizer\WpCron\Tasks;
 
-class DeleteExpiredTranients {
+class DeleteExpiredTransients {
 
     static public function esc_like( $text ) {
         return addcslashes( $text, '_%\\' );
