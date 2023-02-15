@@ -12,9 +12,10 @@
             <th scope="row"><?php _e('Enable Cloudflare APO support?', 'servebolt-wp'); ?></th>
             <td>
                 <fieldset>
-                    <legend class="screen-reader-text"><span><?php _e('To use the Cloudflare APO download the Cloudflare plugin, its no longer possible to use APO without the plugin.', 'servebolt-wp'); ?></span></legend>
+                <?php $output = sprintf(__('To use the Cloudflare APO %s, its no longer possible to use APO without the plugin.', 'servebolt-wp'), "<a href='https://wordpress.org/plugins/cloudflare/'>" . __('download the Cloudflare plugin', 'servebolt-wp') . "</a>" );  ?>
+                    <legend class="screen-reader-text"><span><?php echo $output ?></span></legend>
                     <label for="use_cloudflare_apo">
-                    <?php _e('To use the Cloudflare APO download the Cloudflare plugin, its no longer possible to use APO without the plugin.', 'servebolt-wp'); ?>
+                    <?php echo $output ?>
                         <?php if($acdActive) : ?>
                             <p><strong><?php _e('APO is not available when Accelerated Domains is active.', 'servebolt-wp'); ?></strong></p>
                         <?php endif; ?>
