@@ -114,6 +114,7 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 * Moved action_scheduler filters to only be implemented if action_scheduler is installed.
 * Fixed bug in WP Rocket compatibility.
 * Fixed a few typo's.
+* Fixed PHP deprecated messages.
 * Added existence checking of API error messages.
 * Fixed cache headers errors on RSS feeds.
 
