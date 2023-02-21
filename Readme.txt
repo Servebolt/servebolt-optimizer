@@ -1,5 +1,5 @@
 === Servebolt Optimizer ===
-Contributors: audunhus, erlendeide, robsat91, servebolt, andrewkillen
+Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, html cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2

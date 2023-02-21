@@ -6,10 +6,6 @@
   "minimum-stability": "dev",
   "authors": [
     {
-      "name": "Robert Sæther",
-      "email": "robert@servebolt.com"
-    },
-    {
       "name": "Erlend Eide",
       "email": "erlend@servebolt.com"
     },
