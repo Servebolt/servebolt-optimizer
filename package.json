@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "yarn install && yarn run watch",
-    "dev": "yarn run clean && cross-env NODE_ENV=development webpack",
-    "production": "cross-env NODE_ENV=production webpack",
-    "build": "yarn run clean && yarn run production",
+    "start": "export NODE_OPTIONS=--openssl-legacy-provider;yarn install && yarn run watch",
+    "dev": "export NODE_OPTIONS=--openssl-legacy-provider;yarn run clean && cross-env NODE_ENV=development webpack",
+    "production": "export NODE_OPTIONS=--openssl-legacy-provider; cross-env NODE_ENV=production webpack",
+    "build": "export NODE_OPTIONS=--openssl-legacy-provider; yarn run clean && yarn run production",
     "watch": "yarn run clean && cross-env NODE_ENV=development webpack --watch",
     "lint-php": "composer run-script phpcs",
     "lint-php:fix": "composer run-script phpcbf",
@@ -15,7 +15,7 @@
     "lint-css:fix": "stylelint --fix --syntax scss \"src/**/*.scss\"",
     "lint-js": "eslint assets/src/**/*.js",
     "lint-js:fix": "eslint assets/src/**/*.js --fix",
-    "lint": "yarn run lint-php && yarn run lint-css && yarn run lint-js",
+    "lint": "export NODE_OPTIONS=--openssl-legacy-provider;yarn run lint-php && yarn run lint-css && yarn run lint-js",
     "update:packages": "npm i -g npm-check-updates && npm-check-updates -u && npm install",
     "clean": "rimraf ./assets/dist",
     "test": "jest --testPathPattern=assets/src/js/tests/"
