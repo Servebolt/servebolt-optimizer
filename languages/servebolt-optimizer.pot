@@ -1,15 +1,15 @@
-# Copyright (C) 2022 Servebolt
+# Copyright (C) 2023 Servebolt
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Servebolt Optimizer 3.5.9\n"
+"Project-Id-Version: Servebolt Optimizer 3.5.11\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/servebolt-optimizer\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2022-10-17T12:56:43+02:00\n"
+"POT-Creation-Date: 2023-02-22T10:48:02+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: servebolt-wp\n"
@@ -806,12 +806,20 @@ msgstr ""
 msgid "Could not purge cache."
 msgstr ""
 
-#: src/Servebolt/Cli/Cache/Queue.php:62
+#: src/Servebolt/Cli/Cache/Queue.php:63
 msgid "Cache purge queue cleared on site %s."
 msgstr ""
 
-#: src/Servebolt/Cli/Cache/Queue.php:84
+#: src/Servebolt/Cli/Cache/Queue.php:85
 msgid "Cache purge queue cleared!"
+msgstr ""
+
+#: src/Servebolt/Cli/Cache/Queue.php:131
+msgid "Cache purge queue trash cleared on site %s."
+msgstr ""
+
+#: src/Servebolt/Cli/Cache/Queue.php:153
+msgid "Cache purge queue trash cleared!"
 msgstr ""
 
 #: src/Servebolt/Cli/CliHelpers.php:155
@@ -901,7 +909,7 @@ msgid "Cloudflare Image Resize feature already inactive on site %s."
 msgstr ""
 
 #: src/Servebolt/Cli/CloudflareImageResize/CloudflareImageResize.php:194
-msgid "Cloudflare Image Resizee feature deactivated on site %s."
+msgid "Cloudflare Image Resize feature deactivated on site %s."
 msgstr ""
 
 #: src/Servebolt/Cli/CloudflareImageResize/CloudflareImageResize.php:218
@@ -912,19 +920,19 @@ msgstr ""
 msgid "Cloudflare Image Resize feature is deactivated."
 msgstr ""
 
-#: src/Servebolt/Cli/General/General.php:51
+#: src/Servebolt/Cli/General/General.php:53
 msgid "Do you really want to delete all settings? This will affect all sites in multi-site network."
 msgstr ""
 
-#: src/Servebolt/Cli/General/General.php:53
+#: src/Servebolt/Cli/General/General.php:55
 msgid "Do you really want to delete all settings?"
 msgstr ""
 
-#: src/Servebolt/Cli/General/General.php:57
+#: src/Servebolt/Cli/General/General.php:59
 msgid "All settings deleted!"
 msgstr ""
 
-#: src/Servebolt/Cli/General/General.php:90
+#: src/Servebolt/Cli/General/General.php:92
 msgid "Successfully ran re-migration."
 msgstr ""
 
@@ -937,7 +945,7 @@ msgid "Default [%s]"
 msgstr ""
 
 #: src/Servebolt/Cli/HtmlCache/HtmlCache.php:407
-#: src/Servebolt/FullPageCache/FullPageCacheHeaders.php:505
+#: src/Servebolt/FullPageCache/FullPageCacheHeaders.php:526
 msgid "All"
 msgstr ""
 
@@ -1146,21 +1154,21 @@ msgstr ""
 msgid "%sGet in touch with our support via chat%s if you need assistance with resolving this issue."
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:1184
-#: src/Servebolt/Helpers/Helpers.php:1196
+#: src/Servebolt/Helpers/Helpers.php:1195
+#: src/Servebolt/Helpers/Helpers.php:1207
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-size-index-list.php:12
 msgid "Delete"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:1185
+#: src/Servebolt/Helpers/Helpers.php:1196
 msgid "View"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:1187
+#: src/Servebolt/Helpers/Helpers.php:1198
 msgid "Edit"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:1194
+#: src/Servebolt/Helpers/Helpers.php:1205
 msgid "Post does not exist."
 msgstr ""
 
@@ -1610,6 +1618,10 @@ msgstr ""
 msgid "Environment ID"
 msgstr ""
 
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cache-purge-triggers.php:8
+msgid "Purge Images"
+msgstr ""
+
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:8
 msgid "Cloudflare API"
 msgstr ""
@@ -2020,11 +2032,11 @@ msgid "Enable Cloudflare APO support?"
 msgstr ""
 
 #: src/Servebolt/Views/general-settings/settings-form.php:15
-msgid "Whether Cloudflare APO-feature should be active for this site. Note that you need to use the Cloudflare proxy for this to work."
+msgid "To use the Cloudflare APO %s, its no longer possible to use APO without the plugin."
 msgstr ""
 
-#: src/Servebolt/Views/general-settings/settings-form.php:18
-msgid "Check this if you want the Cloudflare APO-feature to be active for this site. Note that you need to use the Cloudflare proxy for this to work."
+#: src/Servebolt/Views/general-settings/settings-form.php:15
+msgid "download the Cloudflare plugin"
 msgstr ""
 
 #: src/Servebolt/Views/general-settings/settings-form.php:20

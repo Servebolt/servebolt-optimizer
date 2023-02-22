@@ -469,15 +469,15 @@ class HelpersTest extends ServeboltWPUnitTestCase
     public function testThatWeCanObtainPluginVersion()
     {
         $versionNumber = getCurrentPluginVersion(true);
-        $this->assertRegExp('/^(\d\.){1,2}(\d)$/', $versionNumber);
+        $this->assertRegExp('/^(\d\.){1,2}(\d+)$/', $versionNumber);
 
         $versionNumber = getCurrentPluginVersion(false);
         $this->assertIsString($versionNumber);
         $pattern = '-(alpha|beta|rc)(|\.([0-9]{1,2}))';
         if (preg_match('/' . $pattern . '$/', $versionNumber)) {
-            $this->assertRegExp('/^(\d\.){1,2}(\d)' . $pattern . '$/', $versionNumber);
+            $this->assertRegExp('/^(\d\.){1,2}(\d+)' . $pattern . '$/', $versionNumber);
         } else {
-            $this->assertRegExp('/^(\d\.){1,2}(\d)$/', $versionNumber);
+            $this->assertRegExp('/^(\d\.){1,2}(\d+)$/', $versionNumber);
         }
     }
 

@@ -26,12 +26,13 @@ use Servebolt\Optimizer\Utils\EnvFile\Reader as EnvFileReader;
 use Servebolt\Optimizer\Utils\PostUpgradeActions;
 use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
+use Servebolt\Optimizer\CacheTags\AddCacheTagsHeaders;
+use Servebolt\Optimizer\MaintenanceTasks\ServeboltEventsHandler;
 use function Servebolt\Optimizer\Helpers\featureIsActive;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isFrontEnd;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
-use function Servebolt\Optimizer\Helpers\isLogin;
 use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\envFileFailureHandling;
 
@@ -45,7 +46,7 @@ class ServeboltOptimizer
      * Boot the plugin.
      */
     public static function boot()
-    {
+    {          
         // Handle activation/deactivation
         new PluginActiveStateHandling;
 
@@ -62,7 +63,7 @@ class ServeboltOptimizer
         add_action('plugins_loaded', function () {
             new PluginCompatibility;
         });
-
+        
         // Make sure we don't store certain options (like API credentials) in clear text.
         new OptionEncryption;
 
@@ -77,8 +78,10 @@ class ServeboltOptimizer
 
             // Init environment file reader
             EnvFileReader::getInstance();
+
         }
 
+        new AddCacheTagsHeaders;
         // Sets the correct cache headers for the HTML Cache
         FullPageCache::init();
 
@@ -100,6 +103,9 @@ class ServeboltOptimizer
         // Queue system
         new QueueParseEventHandler; // Register event listener for queues
 
+        // Register maintentce events to cron
+        new ServeboltEventsHandler;
+
         // Register cron schedule & event
         new WpCronCustomSchedules; // Register cron schedule
         new WpCronEvents; // Register event trigger for cron schedule
@@ -112,20 +118,16 @@ class ServeboltOptimizer
 
         // Load assets
         new AdminAssets;
-
-        if (isLogin()) {
-            new ClearSiteDataHeader;
-        }
+        // force cache clear header on login via wp_login hook.         
+        new ClearSiteDataHeader;
 
         // Only load the plugin interface in WP Admin
         if (
             is_admin()
             || isTesting()
         ) {
-
             // Load this plugins admin interface
             AdminController::getInstance();
-
         }
 
         // Only front-end
@@ -133,12 +135,10 @@ class ServeboltOptimizer
             isFrontEnd()
             || isTesting()
         ) {
-
             // Feature to automatically version all enqueued script/style-tags
             if (featureIsActive('asset_auto_version')) {
                 AssetAutoVersion::init();
             }
-
         }
 
         // Initialize CLI-commands

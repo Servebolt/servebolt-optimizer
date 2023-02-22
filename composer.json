@@ -6,10 +6,6 @@
   "minimum-stability": "dev",
   "authors": [
     {
-      "name": "Robert Sæther",
-      "email": "robert@servebolt.com"
-    },
-    {
       "name": "Erlend Eide",
       "email": "erlend@servebolt.com"
     },
@@ -23,9 +19,9 @@
     }
   ],
   "require": {
-    "php": "^7.3",
+    "php": "^7.3|^8.0",
     "composer/installers": "~1.2",
-    "servebolt/sdk": "1.2.0-beta"
+    "servebolt/sdk": "1.2.1"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "*",
@@ -60,7 +56,7 @@
   },
   "config": {
     "platform": {
-      "php": "7.3"
+      "php": "7.4"
     }
   },
   "scripts": {

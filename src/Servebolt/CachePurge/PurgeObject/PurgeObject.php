@@ -6,11 +6,13 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Post;
 use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\Term;
+use Servebolt\Optimizer\CachePurge\PurgeObject\ObjectTypes\CacheTag;
 
 /**
  * Class PurgeObject
  *
- * This class is used to build an array of various URLs related to an object (post, term etc.). This is useful when purging cache with Cloudflare to cover every place a post can be displayed (front page, various archives).
+ * This class is used to build an array of various URLs related to an object (post, term etc.). 
+ * This is useful when purging cache with Cloudflare to cover every place a post can be displayed (front page, various archives).
  */
 class PurgeObject
 {
@@ -26,7 +28,7 @@ class PurgeObject
      * PurgeObject constructor.
      *
      * @param int|null $objectId
-     * @param string $objectType
+     * @param string $objectType, the cache object type, not posttype.
      * @param array $args
      */
     public function __construct(?int $objectId = null, string $objectType = 'post', array $args = [])
@@ -57,6 +59,7 @@ class PurgeObject
             'getBaseUrl',
             'getTitle',
             'getId',
+            'getCacheTags'
         ];
         if (in_array($name, $forwardedMethods) && $this->purgeObject && method_exists($this->purgeObject, $name)) {
             return $this->purgeObject->{$name}();
@@ -81,7 +84,7 @@ class PurgeObject
      * @param $id
      * @param $type
      * @param $args
-     * @return bool|Term|Post
+     * @return bool|Term|Post|Cachetag
      */
     private function resolvePurgeObject($id, $type, $args)
     {
@@ -98,7 +101,7 @@ class PurgeObject
      * @param $id
      * @param string $type
      * @param array $args
-     * @return bool|Post|Term
+     * @return bool|Post|Term|Cachetag
      */
     public function addObject($id, string $type = 'post', array $args = [])
     {

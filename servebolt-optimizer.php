@@ -20,6 +20,14 @@ define('SERVEBOLT_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ));
 define('SERVEBOLT_PLUGIN_PSR4_PATH', SERVEBOLT_PLUGIN_DIR_PATH . 'src/Servebolt/');
 define('SERVEBOLT_PLUGIN_MINIMUM_PHP_VERSION', '7.3');
 define('SERVEBOLT_PLUGIN_ACD_VERSION', '7');
+/**
+ * Added database version for increased flexibilty in updates.
+ * 
+ * change this number to be higher to apply all available updates
+ * when updating the plugin tables.
+ * @since 3.5.11
+ */
+define('SERVEBOLT_PLUGIN_DB_VERSION', 100);
 
 // Abort and display WP admin notice if PHP version is less than constant SERVEBOLT_PLUGIN_MINIMUM_PHP_VERSION
 if (version_compare(phpversion(), SERVEBOLT_PLUGIN_MINIMUM_PHP_VERSION, '<')) {

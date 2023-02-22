@@ -73,7 +73,9 @@ abstract class ApiError extends Exception
         if ($this->hasErrors()) {
             $errors = $this->getErrors();
             $error = current($errors);
-            parent::__construct($error->message, $error->code);
+            if(property_exists($error, "message") && property_exists($error, "code")) {
+                parent::__construct($error->message, $error->code);
+            }
         }
     }
 

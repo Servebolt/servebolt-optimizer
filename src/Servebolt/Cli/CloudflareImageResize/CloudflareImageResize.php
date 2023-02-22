@@ -191,7 +191,7 @@ class CloudflareImageResize
                     $message = sprintf(__('Cloudflare Image Resize feature already inactive on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 } else {
                     CloudflareImageResizeAdmin::toggleActive(false, $site->blog_id);
-                    $message = sprintf(__('Cloudflare Image Resizee feature deactivated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
+                    $message = sprintf(__('Cloudflare Image Resize feature deactivated on site %s.', 'servebolt-wp'), get_site_url($site->blog_id));
                 }
                 if (CliHelpers::returnJson()) {
                     $statusArray[] = [

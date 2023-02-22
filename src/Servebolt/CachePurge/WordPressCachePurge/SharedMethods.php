@@ -39,6 +39,16 @@ trait SharedMethods
     }
 
     /**
+     * Check whether Cache Tags are there or not.
+     *
+     * @param $cachePurgeDriver
+     * @return bool
+     */
+    private static function canCacheTags($cachePurgeDriver): bool
+    {
+        return self::driverIsAcd($cachePurgeDriver);
+    }
+    /**
      * Maybe reduce the amount of URLs to purge based on the driver and filters etc.
      *
      * @param array $urlsToPurge

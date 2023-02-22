@@ -1,9 +1,9 @@
 === Servebolt Optimizer ===
-Contributors: audunhus, erlendeide, robsat91, servebolt, andrewkillen
+Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, html cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.0.2
+Tested up to: 6.1.1
 Requires PHP: 7.3
 Stable tag: 3.5.11
 License: GPLv3 or later
@@ -57,6 +57,10 @@ This plugin can be controlled via the WordPress Dashboard or WP CLI. Additionall
 
 The plugin has various filters and PHP constants that allows third-party developers to alter the behaviour of the plugin. Please read the article [Filters and PHP constants](https://servebo.lt/servebolt-optimizer-filters-and-php-constants) in our help center to learn more.
 
+### Testing
+
+We test against the current production version of WordPress and the next beta/development version
+
 == Installation ==
 
 Navigate to your WordPress Dashboard > Plugins > Add New and then search for **Servebolt** and follow instructions.
@@ -93,10 +97,30 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
-= 3.5.10 =
+= 3.5.11 =
+* Added scheduled cleanup of expired transients. 
+* Added method to stop WooCommerce carts from ever being prefetched by InstantPage.
+* Removed APO capability due to it being only possible now with the cloudflare plugin.
+* Added CacheTag headers to Accelerated Domains reducing purge commands to only 2 for each post/page update and their related archives, taxonomy terms and feeds.
+* Implemented CachTag purging for Accelerated Domains.
+* Added CacheTag headers to Servebolt CDN for later use in purging.  
+* Added new garbage collection for the purge queue via cron scheduler.
+* Added UID column and UID index to the purge queue tables so that searching for existing queue items could be significantly speed up and also stop repeat adding of an existing
+* Added ```wp servebolt check-cdn-setup``` to the WP CLI to check the CDN setup for AcelerateDomains or ServeboltCDN.
+* Added ```wp servebolt cache purge queue trash``` to the WP CLI to purge old items from the queue
+* Changed Database Migrations to work with own version control, unlinking from the plugin version number.
 * Added LIMIT to garbage collection query.
+* Slight change to the logic for cache purging to improve payload checking.
+* Moved action_scheduler filters to only be implemented if action_scheduler is installed.
+* Fixed bug in WP Rocket compatibility.
+* Fixed a few typo's.
+* Fixed PHP deprecated messages.
+* Added existence checking of API error messages.
+* Fixed cache headers errors on RSS feeds.
+
 
 = 3.5.10 =
+* Added LIMIT to garbage collection query.
 * Increased batch capibilities action_scheduler, 8x more processing possible.
 
 = 3.5.9 =

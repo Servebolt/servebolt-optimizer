@@ -7,12 +7,14 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeAllInterface;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Exceptions\ServeboltApiError;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeTagInterface;
+use function Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
 
 /**
  * Class ServeboltCdn
  * @package Servebolt\Optimizer\CachePurge\Drivers
  */
-class ServeboltCdn implements CachePurgeAllInterface
+class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface
 {
     use Singleton, ServeboltDriverTrait;
 
@@ -34,6 +36,29 @@ class ServeboltCdn implements CachePurgeAllInterface
             throw new ServeboltApiError($response->getErrors(), $response);
         }
     }
+
+    /**
+     * 
+     * @param array $tags : array of tags to be delted 
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeByTags(array $tags = []) : bool
+    {
+        $response = $this->apiInstance->environment->purgeCache(
+            $this->apiInstance->getEnvironmentId(),
+            [], // files urls
+            [], // prefixes
+            $tags, // array of tags
+            [] // hosts
+        );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
+
 
     /**
      * Purge CDN cache for all sites in multisite-network.

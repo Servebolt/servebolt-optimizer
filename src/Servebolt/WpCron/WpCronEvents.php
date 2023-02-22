@@ -5,7 +5,7 @@ namespace Servebolt\Optimizer\WpCron;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
- * Class WpCronEvents
+ * Class WpWpCron
  * @package Servebolt\Optimizer\WpCron
  */
 class WpCronEvents
@@ -23,15 +23,18 @@ class WpCronEvents
      */
     private function registerEvents(): void
     {
-        //$events = glob(__DIR__ . '/Events/*.php');
+        //Names of calsses in Events directory
         $events = [
-            __DIR__ . '/Events/QueueParseEvent.php',
+            'QueueParseEvent',
+            'QueueGarbageCollectionEvent',
+            'ClearExpiredTransients',
         ];
-        foreach($events as $file) {
-            $class = '\\Servebolt\\Optimizer\\WpCron\\Events\\' . basename($file, '.php');
+        foreach($events as $className) {
+            $class = '\\Servebolt\\Optimizer\\WpCron\\Events\\' . $className;
             if (class_exists($class)) {
                 new $class;
             }
         }
     }
+
 }

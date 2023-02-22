@@ -59,7 +59,6 @@ class PurgeObjectTest extends ServeboltWPUnitTestCase
 
         shuffle($postIds);
         $postId = current($postIds);
-
         $purgeObject = new PurgeObject($postId);
         $urlsToPurge = $purgeObject->getUrls();
         $this->assertIsArray($urlsToPurge);
@@ -70,5 +69,15 @@ class PurgeObjectTest extends ServeboltWPUnitTestCase
         $urlsToPurge = $purgeObject->getUrls();
         $this->assertIsArray($urlsToPurge);
         $this->assertContains(trailingslashit(get_term_link($termId)), $urlsToPurge);
+
+        $purgeObject = new PurgeObject($postId, 'cachetag');
+        $tagsToPurge = $purgeObject->getCacheTags();
+        $this->assertIsArray($tagsToPurge);
+        $domainprefix = 'exampleorg-';
+        $mutisite_suffix = (is_multisite()) ? '-'.get_current_blog_id() : '';
+        $this->assertContains($domainprefix . 'home' . $mutisite_suffix, $tagsToPurge);
+        $this->assertContains($domainprefix . 'posttype-post' . $mutisite_suffix, $tagsToPurge);
+        $this->assertContains($domainprefix . 'feeds' . $mutisite_suffix, $tagsToPurge);
+        $this->assertContains($domainprefix . 'year-' . date("Y") . $mutisite_suffix, $tagsToPurge);
     }
 }

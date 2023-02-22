@@ -4,7 +4,6 @@ namespace Servebolt\Optimizer\Utils\DatabaseMigration;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
-use function Servebolt\Optimizer\Helpers\getCurrentPluginVersion;
 use function Servebolt\Optimizer\Helpers\iterateSites;
 use function Servebolt\Optimizer\Helpers\runForSite;
 use function Servebolt\Optimizer\Helpers\tableExists;
@@ -13,6 +12,7 @@ use function Servebolt\Optimizer\Helpers\deleteSiteOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\getCurrentDatabaseVersion;
 
 /**
  * Class Migration
@@ -29,7 +29,7 @@ class MigrationRunner
     /**
      * @var string The current version of the plugin.
      */
-    private $currentPluginVersion;
+    private $currentDatabaseVersion;
 
     /**
      * @var string The direction of the migration.
@@ -68,7 +68,7 @@ class MigrationRunner
 
     public function __construct()
     {
-        $this->setCurrentPluginVersion();
+        $this->setCurrentPluginDatabaseVersion();
     }
 
     /**
@@ -104,9 +104,9 @@ class MigrationRunner
         (new self)->rollbackToZero();
     }
 
-    private function setCurrentPluginVersion(): void
+    private function setCurrentPluginDatabaseVersion(): void
     {
-        $this->currentPluginVersion = getCurrentPluginVersion(false);
+        $this->currentDatabaseVersion = getCurrentDatabaseVersion(false);
     }
 
     private function setCurrentMigratedVersion(): void
@@ -152,7 +152,7 @@ class MigrationRunner
     public function checkCurrentMigrationStateAndRunAvailableMigrations(): void
     {
         $this->setCurrentMigratedVersion();
-        if ($this->currentMigratedVersion !== $this->currentPluginVersion) {
+        if ($this->currentMigratedVersion !== $this->currentDatabaseVersion) {
             $this->migrationDirection = $this->getMigrationDirection();
             $this->resolveAndRunMigrations();
             $this->setNewMigratedVersion();
@@ -434,7 +434,7 @@ class MigrationRunner
             $this->migrationDirection == 'down'
             && (
                 $this->ignoreLowerConstraint
-                || self::eligibleForDownMigration($migrationVersion, $this->currentMigratedVersion, $this->currentPluginVersion)
+                || self::eligibleForDownMigration($migrationVersion, $this->currentMigratedVersion, $this->currentDatabaseVersion)
             )
         ) {
             return true; // We should migrate down using this migration
@@ -444,7 +444,7 @@ class MigrationRunner
             $this->migrationDirection == 'up'
             && (
                 $this->ignoreUpperConstraint
-                || self::eligibleForUpMigration($migrationVersion, $this->currentMigratedVersion, $this->currentPluginVersion)
+                || self::eligibleForUpMigration($migrationVersion, $this->currentMigratedVersion, $this->currentDatabaseVersion)
             )
         ) {
             return true; // We should migrate up using this migration
@@ -455,7 +455,7 @@ class MigrationRunner
 
     private function getMigrationDirection(): string
     {
-        return version_compare($this->currentMigratedVersion, $this->currentPluginVersion, '<') ? 'up' : 'down';
+        return version_compare($this->currentMigratedVersion, $this->currentDatabaseVersion, '<') ? 'up' : 'down';
     }
 
     public function getMigratedVersion(): ?string
@@ -465,7 +465,7 @@ class MigrationRunner
 
     public function setNewMigratedVersion(): void
     {
-        $this->currentMigratedVersion = getCurrentPluginVersion(false);
+        $this->currentMigratedVersion = getCurrentDatabaseVersion();
         updateOption($this->migrationVersionOptionsKey(), $this->currentMigratedVersion);
     }
 

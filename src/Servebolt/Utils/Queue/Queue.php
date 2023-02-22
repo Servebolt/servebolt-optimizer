@@ -574,18 +574,20 @@ class Queue
 
     /**
      * Get item from queue.
-     *
+     * 
      * @param string|int $identifier
      * @param string $key
      * @param bool $ignoreCompleted
      * @param bool $ignoreFailed
+     * @param int $limit
      * @return null|object
      */
     public function get(
         $identifier,
         string $key = 'id',
         bool $ignoreCompleted = false,
-        bool $ignoreFailed = true
+        bool $ignoreFailed = true,
+        int $limit = 0
     ): ?object
     {
         $query = $this->query();
@@ -595,6 +597,9 @@ class Queue
         }
         if ($ignoreCompleted) {
             $query->isNotCompleted();
+        }
+        if ($limit != 0) {
+            $query->limit($limit);
         }
         if ($item = $query->first()) {
             return $item;
@@ -630,6 +635,21 @@ class Queue
     public function isEmpty(): bool
     {
         return $this->countItems() === 0;
+    }
+
+    /**
+     * Check if UID hash exists in sb_queue table
+     * 
+     * @return bool
+     */
+    public function checkUidExists(array $payload = [])
+    {
+        if(empty($payload)) return false;
+        $uid = hash('sha256', serialize($payload));
+        global $wpdb;
+        $sql = $wpdb->prepare("SELECT id FROM {$this->getTableName()} WHERE UID=%s AND completed_at_gmt IS NULL AND failed_at_gmt IS NULL AND attempts != 3 LIMIT 1", $uid);
+        $result = $wpdb->get_var($sql);
+        return ($result == NULL || is_wp_error($result)) ? false : true;
     }
 
     /**
@@ -670,13 +690,15 @@ class Queue
             $parentQueueName = null;
         }
         global $wpdb;
+        $payload = serialize($itemData);
         $wpdb->insert($this->getTableName(), [
             'parent_id' => $parentId,
             'parent_queue_name' => $parentQueueName,
             'queue' => $this->queueName,
-            'payload' => serialize($itemData),
+            'payload' => $payload,
             'attempts' => 0,
             'created_at_gmt' => current_time('timestamp', true),
+            'UID'=> hash('sha256', $payload),
         ]);
         return $this->get($wpdb->insert_id);
     }

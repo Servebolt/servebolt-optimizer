@@ -5,11 +5,20 @@ namespace Servebolt\Optimizer\Queue;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\WpCron\Events\QueueParseEvent;
+use Servebolt\Optimizer\WpCron\Events\QueueGarbageCollectionEvent;
+use Servebolt\Optimizer\WpCron\Events\QueueClearExpiredTransients;
+use Servebolt\Optimizer\WpCron\Tasks\DeleteExpiredTransients;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use Servebolt\Optimizer\Queue\Queues\UrlQueue;
 
 /**
  * Class QueueParseEventHandler
+ * 
+ * The constructor of this class sets up actions for the scheduled tasks. 
+ * The hooks for:
+ * 1. sb_optimizer_queue_parse_event
+ * 2. sb_optimizer_queue_garbage_collection_event
+ * 
  * @package Servebolt\Optimizer\Queue
  */
 class QueueParseEventHandler
@@ -22,7 +31,8 @@ class QueueParseEventHandler
         if ($this->shouldParseQueue()) {
             add_action(QueueParseEvent::$hook, [$this, 'handleWpObjectQueue'], 10);
             add_action(QueueParseEvent::$hook, [$this, 'handleUrlQueue'], 11);
-        }
+            add_action(QueueGarbageCollectionEvent::$hook, [$this, 'handleQueueGarbageCollection'], 10);            
+        }        
     }
 
     /**
@@ -48,7 +58,7 @@ class QueueParseEventHandler
     }
 
     /**
-     * Trigger WP Object queue parse.
+     * Trigger WP Object queue parse  for scheduler.
      */
     public function handleWpObjectQueue(): void
     {
@@ -56,10 +66,27 @@ class QueueParseEventHandler
     }
 
     /**
-     * Trigger URL queue parse.
+     * Trigger URL queue parse for scheduler.
      */
     public function handleUrlQueue(): void
     {
         (UrlQueue::getInstance())->parseQueue();
     }
+
+    /**
+     * Trigger Garbage collection of the sb_queue table.
+     */
+    public function handleQueueGarbageCollection() : void
+    {
+        (WpObjectQueue::getInstance())->garbageCollection();
+    }
+
+    /**
+     * Trigger clearing of expired transients from options tables
+     */
+    public function handleQueueClearExpiredTransients() : void
+    {
+        DeleteExpiredTransients::remove();
+    }
+    
 }

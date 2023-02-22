@@ -27,6 +27,9 @@ class ContentChangeTrigger
         remove_action('save_post', [$this, 'purgePostOnSave'], 99, 1);
         remove_action('comment_post', [$this, 'purgePostOnCommentPost'], 99, 3);
         remove_action('transition_comment_status', [$this, 'purgePostOnCommentApproval'], 99, 3);
+        remove_action('edit_comment', [$this, 'purgePostOnPublishedCommentEdited'], 99, 2);
+        remove_action('trash_comment', [$this, 'purgePostOnCommentTrashed'], 99, 2);
+        remove_action('untrash_comment', [$this, 'purgePostOnCommentUnTrashed'], 99, 2);
     }
 
     /**
@@ -35,7 +38,7 @@ class ContentChangeTrigger
     public function registerEvents()
     {
 
-        // Skip this feature if automatic cache purge is inactive
+        // Skip this feature if automatic cache purge is inactive.
         if (!CachePurge::automaticCachePurgeOnContentUpdateIsActive()) {
             return;
         }
@@ -45,25 +48,41 @@ class ContentChangeTrigger
             return;
         }
 
-        // Purge post when term is edited (Work in progress)
+        // Purge post when term is edited (Work in progress).
         if (apply_filters('sb_optimizer_automatic_purge_on_term_save', true)) {
             add_action('edit_term', [$this, 'purgeTermOnSave'], 99, 3);
         }
 
-        // Purge post on post update
+        // Purge post on post update.
         if (apply_filters('sb_optimizer_automatic_purge_on_post_save', true)) {
             add_action('save_post', [$this, 'purgePostOnSave'], 99, 1);
         }
 
-        // Purge post on comment post
+        // Purge post on comment post.
         if (apply_filters('sb_optimizer_automatic_purge_on_comment', true)) {
             add_action('comment_post', [$this, 'purgePostOnCommentPost'], 99, 3);
         }
 
-        // Purge post when comment is approved
+        // Purge post when comment is approved.
         if (apply_filters('sb_optimizer_automatic_purge_on_comment_approval', true)) {
             add_action('transition_comment_status', [$this, 'purgePostOnCommentApproval'], 99, 3);
         }
+
+        // Purge post when comment is edited.
+        if (apply_filters('sb_optimizer_automatic_purge_on_published_comment_edited', true)) {
+            add_action('edit_comment', [$this, 'purgePostOnPublishedCommentEdited'], 99, 2);
+        }
+
+        // Purge post when comment is trashed.
+        if (apply_filters('sb_optimizer_automatic_purge_on_comment_trashed', true)) {
+            add_action('trash_comment', [$this, 'purgePostOnCommentTrashed'], 99, 2);
+        }
+
+        // Purge post when comment is restored from trash.
+        if (apply_filters('sb_optimizer_automatic_purge_on_comment_untrashed', true)) {
+            add_action('untrash_comment', [$this, 'purgePostOnCommentUnTrashed'], 99, 2);
+        }
+        
     }
 
     /**
@@ -300,4 +319,76 @@ class ContentChangeTrigger
         }
         return (int) $commentPostId;
     }
+
+    /**
+     * Deal with edited comment.
+     * 
+     * @param int $comment_id
+     * @param array $commentData
+     * 
+     * @return void
+     */
+    public function purgePostOnPublishedCommentEdited(int $comment_id, array $commentData)
+    {
+        // Get the post ID.
+        $postId = $this->getPostIdFromComment((array) $commentData);
+        // Delete the post if its right for cache purging by post type.
+        $this->maybePurgePost($postId);
+    }
+
+    /**
+     * Deal with deleted comment.
+     * 
+     * @param int $comment_id
+     * @param object $commentData
+     * 
+     * @return void
+     */
+    public function purgePostOnCommentTrashed(int $comment_id, object $commentData)
+    {
+        // If the comment was not approved, do not do anything more.
+        if($commentData->comment_approved != true) return;
+        // Get the post ID.
+        $postId = $commentData->comment_post_ID;
+        // Purge post as needed (checks post type for validity).
+        $this->maybePurgePost($postId);        
+    }
+
+    /**
+     * Deal with deleted comment.
+     * 
+     * @param int $comment_id
+     * @param object $commentData
+     * 
+     * @return void
+     */
+    public function purgePostOnCommentSetAsSpam(int $comment_id, object $commentData)
+    {        
+        // If the comment was not approved, do not do anything more.
+        if($commentData->comment_approved != true) return;
+        // Get the post ID.
+        $postId = $commentData->comment_post_ID;
+        // Purge post as needed (checks post type for validity).
+        $this->maybePurgePost($postId);        
+    }
+
+
+    /**
+     * Deal with comment restored from trash.
+     * 
+     * @param int $comment_id
+     * @param object $commentData
+     * 
+     * @return void
+     */
+    public function purgePostOnCommentUnTrashed(int $comment_id, object $commentData)
+    {
+        // If the comment was not approved, do not do anything more.
+        if($commentData->comment_approved != true) return;
+        // Get the post ID.
+        $postId = $commentData->comment_post_ID;
+        // Purge post as needed (checks post type for validity).
+        $this->maybePurgePost($postId);        
+    }
+
 }

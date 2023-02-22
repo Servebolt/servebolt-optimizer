@@ -26,5 +26,6 @@ class WooCommerce
         new ProductVariationCachePurge;
         new ProductCachePurgeOnStockChange;
         new CacheExceptionRules;
+        new InstantPageURLs;
     }
 }

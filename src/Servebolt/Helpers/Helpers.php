@@ -859,6 +859,17 @@ function isWpRest(): bool
 }
 
 /**
+ * Check if this is a WooCommerce enabled site. Must be run
+ * afer hoook plugins_loaded is completed.
+ *
+ * @return bool
+ */
+function isWooCommerce(): bool
+{       
+    return class_exists('woocommerce');
+}
+
+/**
  * Check if execution is initiated by cron.
  *
  * @return bool
@@ -1297,6 +1308,18 @@ function getCurrentPluginVersion(bool $ignoreBetaVersion = true): ?string
 }
 
 /**
+ * Get current version of the plugin's database migration number.
+ * 
+ * Will first used the constant if there, and default back to plugin version.
+ *
+ * @return string/int
+ */
+function getCurrentDatabaseVersion()
+{    
+    return (defined('SERVEBOLT_PLUGIN_DB_VERSION'))? SERVEBOLT_PLUGIN_DB_VERSION : getCurrentPluginVersion(false) ;
+}
+
+/**
  * Get the version string to use for static assets in the Servebolt plugin.
  *
  * @param string $assetSrc
@@ -1540,7 +1563,7 @@ function iterateSites($function, bool $runBlogSwitch = false): bool
  * @param bool $assertUpdate
  * @return bool
  */
-function updateBlogOption($blogId, string $optionName, $value, bool $assertUpdate = true): bool
+function updateBlogOption($blogId, string $optionName, $value = '', bool $assertUpdate = true): bool
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_blog_option($blogId, $fullOptionName, $value);
@@ -1593,7 +1616,7 @@ function deleteOption(string $option, bool $assertUpdate = true)
  * @param string $autoload
  * @return bool
  */
-function addOrUpdateOption(string $optionName, $value, bool $assertUpdate = true, string $autoload = 'no'): bool
+function addOrUpdateOption(string $optionName, $value = '', bool $assertUpdate = true, string $autoload = 'no'): bool
 {
     if (add_option(getOptionName($optionName), $value, '', $autoload)) {
         if ($assertUpdate) {
@@ -1614,7 +1637,7 @@ function addOrUpdateOption(string $optionName, $value, bool $assertUpdate = true
  * @param string $autoload
  * @return bool
  */
-function addBlogOption($id, string $option, $value, string $autoload = 'no')
+function addBlogOption($id, string $option, $value = '', string $autoload = 'no')
 {
     $option = getOptionName($option);
 
@@ -1646,7 +1669,7 @@ function addBlogOption($id, string $option, $value, string $autoload = 'no')
  * @param string $autoload
  * @return bool
  */
-function addOrUpdateBlogOption($blogId, string $optionName, $value, bool $assertUpdate = true, string $autoload = 'no'): bool
+function addOrUpdateBlogOption($blogId, string $optionName, $value = '', bool $assertUpdate = true, string $autoload = 'no'): bool
 {
     $addAttempt = addBlogOption($blogId, $optionName, $value, $autoload);
     if ($addAttempt) {
@@ -1667,7 +1690,7 @@ function addOrUpdateBlogOption($blogId, string $optionName, $value, bool $assert
  * @param bool $assertUpdate
  * @return bool
  */
-function updateOption(string $optionName, $value, bool $assertUpdate = true): bool
+function updateOption(string $optionName, $value = '', bool $assertUpdate = true): bool
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_option($fullOptionName, $value);
@@ -1713,13 +1736,13 @@ function deleteSiteOption(string $option, bool $assertUpdate = true)
 /**
  * Update site option.
  *
- * @param string$optionName
+ * @param string $optionName
  * @param mixed $value
  * @param bool $assertUpdate
  *
  * @return bool
  */
-function updateSiteOption(string $optionName, $value, bool $assertUpdate = true)
+function updateSiteOption(string $optionName, $value = '', bool $assertUpdate = true)
 {
     $fullOptionName = getOptionName($optionName);
     $result = update_site_option($fullOptionName, $value);
@@ -1754,7 +1777,7 @@ function getSiteOption(string $optionName, $default = null)
  * @param bool $assertUpdate
  * @return bool
  */
-function smartAddOrUpdateOption(?int $blogId = null, string $optionName, $value, bool $assertUpdate = true): bool
+function smartAddOrUpdateOption(?int $blogId = null, string $optionName = '', $value = '', bool $assertUpdate = true): bool
 {
     if (is_numeric($blogId)) {
         $result = addOrUpdateBlogOption($blogId, $optionName, $value, $assertUpdate);
@@ -1773,7 +1796,7 @@ function smartAddOrUpdateOption(?int $blogId = null, string $optionName, $value,
  * @param bool $assertUpdate
  * @return bool
  */
-function smartUpdateOption(?int $blogId = null, string $optionName, $value, bool $assertUpdate = true): bool
+function smartUpdateOption(?int $blogId = null, string $optionName = '', $value = '', bool $assertUpdate = true): bool
 {
     if (is_numeric($blogId)) {
         $result = updateBlogOption($blogId, $optionName, $value, $assertUpdate);
@@ -1792,7 +1815,7 @@ function smartUpdateOption(?int $blogId = null, string $optionName, $value, bool
  *
  * @return bool|mixed
  */
-function smartDeleteOption(?int $blogId = null, string $optionName, bool $assertUpdate = true)
+function smartDeleteOption(?int $blogId = null, string $optionName = '', bool $assertUpdate = true)
 {
     if (is_numeric($blogId)) {
         $result = deleteBlogOption($blogId, $optionName, $assertUpdate);
@@ -1838,6 +1861,26 @@ function tableHasIndex(string $tableName, string $indexName): bool
 }
 
 /**
+ * Check if a table has a given index.
+ *
+ * @param string $tableName
+ * @param string $indexName
+ * @return bool
+ */
+function tableHasColumn(string $tableName, string $columnName): bool
+{
+    global $wpdb;
+    $col  = $wpdb->get_results( "SHOW COLUMNS FROM {$tableName} LIKE '{$columnName}'" );
+
+    if ( $col == null || count($col) == 0) {
+        return false;
+    }
+    return true;
+}
+
+
+
+/**
  * A function that will get the option at the right place (in current blog or a specified blog).
  *
  * @param int|null $blogId
@@ -1846,7 +1889,7 @@ function tableHasIndex(string $tableName, string $indexName): bool
  *
  * @return mixed|void
  */
-function smartGetOption(?int $blogId = null, string $optionName, $default = null)
+function smartGetOption(?int $blogId = null, string $optionName = '', $default = null)
 {
     if (is_numeric($blogId)) {
         $result = getBlogOption($blogId, $optionName, $default);
@@ -2340,6 +2383,69 @@ function convertObjectToArray(object $object)
     return json_decode(json_encode($object), true);
 }
 
+/**
+ * Get hook for conditionals (is_[thing]()) befor sending headers. 
+ * 
+ * Pre 6.1 send_headers loads too early for to use conditional queries, thus wp is used.
+ * send_headers pre 6.1 was not possible to use as the query object was not yet
+ * created.
+ * 
+ * see: https://make.wordpress.org/core/2022/10/10/moving-the-send_headers-action-to-later-in-the-load/  
+ * 
+ * @return string
+ **/
+function getCondtionalHookPreHeaders()
+{
+    global $wp_version;
+    return (version_compare($wp_version, '6.1') == -1 ) ? 'wp' : 'send_headers';
+}
+
+/**
+ * Get the domain name from the current site.
+ */
+function getDomainNameOfWebSite()
+{
+    $blogId = null;
+    if (is_multisite()) {
+        $blogId = get_current_blog_id();
+    }
+    $url = get_site_url($blogId);
+    return parse_url($url, PHP_URL_HOST);
+}
+
+/**
+ * Double check the setup of the domain in WordPress and make sure it's properly
+ * configured 
+ */
+function checkDomainIsSetupForServeboltCDN() : array
+{
+    $output = [
+        'status'    => false,
+        'cname'     => false,
+        'a-record'  => false,
+        'found'     => ''
+    ];
+    
+    $host = parse_url( get_site_url(), PHP_URL_HOST  );
+    $output['host'] = $host;
+    $allowed_cnames = ['routing.serveboltcdn.com', 'routing.accelerateddomains.com'];
+    $cname = dns_get_record($host, DNS_CNAME);
+    if(isset($cname[0]['target']) && in_array($cname[0]['target'], $allowed_cnames)){
+        $output['status'] = true;
+        $output['cname'] = true;
+        $output['found'] = $cname[0]['target'];
+        return $output;
+    }
+
+    $allowed_ips = ['162.159.153.241', '162.159.152.23'];
+    $arecord = dns_get_record($host, DNS_A);    
+    if(isset($arecord[0]['ip']) && in_array($arecord[0]['ip'], $allowed_ips)){
+        $output['a-record'] = true;
+        $output['status'] = true;
+        $output['found'] = $arecord[0]['ip'];       
+    }
+    return $output;
+}
 /**
  * Check if a class is using a trait.
  *

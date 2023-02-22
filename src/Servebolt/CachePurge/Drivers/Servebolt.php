@@ -7,13 +7,16 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeUrlInterface;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeAllInterface;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgePrefixInterface;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeTagInterface;
 use Servebolt\Optimizer\Exceptions\ServeboltApiError;
+use function Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
 
 /**
  * Class Servebolt
  * @package Servebolt\Optimizer\CachePurge\Drivers
  */
-class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface
+class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, CachePurgePrefixInterface, CachePurgeTagInterface
 {
     use Singleton, ServeboltDriverTrait;
 
@@ -45,6 +48,66 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface
         $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
             $urls
+        );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
+
+    /**
+     * 
+     * @param array $tags : array of tags to be delted 
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeByTags(array $tags = []) : bool
+    {
+        $response = $this->apiInstance->environment->purgeCache(
+            $this->apiInstance->getEnvironmentId(),
+            [], // files urls
+            [], // prefixes
+            $tags, // array of tags
+            [] // hosts
+        );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
+
+    /**
+     * @param string $prefix
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeByPrefix(string $prefix): bool
+    {
+        $response = $this->apiInstance->environment->purgeCache(
+            $this->apiInstance->getEnvironmentId(),
+            [], // files urls
+            [$prefix]            
+        );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
+
+    /**
+     * @param array $prefixes
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeByPrefixes( array $prefixes): bool
+    {
+        $response = $this->apiInstance->environment->purgeCache(
+            $this->apiInstance->getEnvironmentId(),
+            [], // files urls
+            $prefixes
         );
         if ($response->wasSuccessful()) {
             return true;

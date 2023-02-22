@@ -124,21 +124,43 @@ class UrlQueue
                 }
             } catch (Throwable $e) {}
         } else {
+            
+            $itemssplit = [
+                'urls' => [],
+                'tags' => [] 
+            ];
             $urls = [];
+            $cachetags = [];
             foreach ($items as $item) {
                 switch ($item->payload['type']) {
                     case 'purge-all':
                         break;
                     case 'url':
                         $urls[] = $item->payload['url'];
+                        $itemssplit['urls'][] = $item;
+                        break;
+                    case 'cachetag':
+                        $cachetags[] = $item->payload['tag'];
+                        $itemssplit['tags'][] = $item;
                 }
             }
+            // Trying the urls first if not empty.
             try {
                 if (
                     !empty($urls)
                     && $cachePurgeDriver->purgeByUrls($urls)
                 ) {
-                    $this->queue->completeItems($items);
+                    $this->queue->completeItems($itemssplit['urls']);
+                }
+            } catch (Throwable $e) {}
+            // Trying to purge by cache tags only if the method exists.
+            try {
+                if (
+                    !empty($cachetags)
+                    && $cachePurgeDriver->driverSupportsCacheTagPurge()
+                    && $cachePurgeDriver->purgeByTags($cachetags)
+                ) {
+                    $this->queue->completeItems($itemssplit['tags']);
                 }
             } catch (Throwable $e) {}
         }

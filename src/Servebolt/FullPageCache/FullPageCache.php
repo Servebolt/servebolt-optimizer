@@ -32,7 +32,7 @@ class FullPageCache
      * FullPageCache constructor.
      */
     public function __construct()
-    {
+    {        
         FullPageCacheSettings::init();
         FullPageCacheHeaders::init();
         if (isHostedAtServebolt() || isTesting()) {
