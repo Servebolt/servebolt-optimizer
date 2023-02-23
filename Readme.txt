@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.1.1
 Requires PHP: 7.3
-Stable tag: 3.5.11
+Stable tag: 3.5.12
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,10 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.12 =
+* Disabled WooCommerce cart url adaption when instantpage is not enabled.
+* Added check for ['url'] in payload of queue creation object.
+
 = 3.5.11 =
 * Added scheduled cleanup of expired transients. 
 * Added method to stop WooCommerce carts from ever being prefetched by InstantPage.
