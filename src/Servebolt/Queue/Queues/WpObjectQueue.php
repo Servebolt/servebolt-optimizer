@@ -84,13 +84,13 @@ class WpObjectQueue
      */
     private function resolveUrlsToPurgeFromWpObject($payload): ?array
     {
+        $output = [
+            'urls' => [],
+            'tags' => [],
+        ];
+        
         if (in_array($payload['type'], ['post', 'term', 'cachetag'])) {
 
-            $output = [
-                'urls' => [],
-                'tags' => [],
-            ];
-            // TODO: FIX LOGIC
             if ($payload['type'] === 'post' && $originalUrl = arrayGet('original_url', $payload)) {
                 add_filter('sb_optimizer_purge_by_post_original_url', function() use ($originalUrl) {
                     $output['urls'][] = $originalUrl;
@@ -120,12 +120,12 @@ class WpObjectQueue
                 if( $tags = $purgeObject->getCacheTags()) {
                     $output['tags'] = $tags;
                 }
-                // if there is shomething to share, return it.
+                // if there is something to share, return it.
                 if(!empty($output['tags']) || !empty($output['urls'])) return $output;
 
             }
             return null;
-        } elseif ($payload['type'] == 'url' && $payload['url']) {
+        } elseif ($payload['type'] == 'url' && !empty($payload['url'])) {
             return $output['urls'][] = $payload['url'];
         }
         return null;

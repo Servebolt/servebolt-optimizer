@@ -2,6 +2,8 @@
 
 namespace Servebolt\Optimizer\Compatibility\WooCommerce;
 
+use Servebolt\Optimizer\AcceleratedDomains\Prefetching\WpPrefetching;
+
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 /**
@@ -27,9 +29,13 @@ class InstantPageURLs {
      */
     public function __construct()
     {
+        
+
         if (!apply_filters('sb_optimizer_woocommerce_instantpage_urls', true)) {
             return;            
         }
+
+        if(!WpPrefetching::isActive()) return;
 
         add_filter('woocommerce_get_cart_url', [$this, 'addQueryString']);
         add_filter('woocommerce_get_checkout_url', [$this, 'addQueryString']);
