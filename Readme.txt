@@ -97,6 +97,9 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.13 =
+* Bugfix for Cloudflare direct purging via purge queue. it was not created purge records correctly.
+
 = 3.5.12 =
 * Disabled WooCommerce cart url adaption when instantpage is not enabled.
 * Added check for ['url'] in payload of queue creation object.

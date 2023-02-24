@@ -2449,7 +2449,7 @@ function checkDomainIsSetupForServeboltCDN() : array
 
 function convertOriginalUrlToString($originUrl)
 {
-    if(is_string($originUrl) && !is_array($originUrl)) {
+    if(is_string($originUrl)) {
         return $originUrl;
     }
 
