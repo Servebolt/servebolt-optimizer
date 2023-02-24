@@ -8,6 +8,7 @@ use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Traits\Multiton;
 use Servebolt\Optimizer\Utils\Queue\Queue;
 use function Servebolt\Optimizer\Helpers\arrayGet;
+use function Servebolt\Optimizer\Helpers\convertOriginalUrlToString;
 
 /**
  * Class WpObjectQueue
@@ -93,6 +94,7 @@ class WpObjectQueue
 
             if ($payload['type'] === 'post' && $originalUrl = arrayGet('original_url', $payload)) {
                 add_filter('sb_optimizer_purge_by_post_original_url', function() use ($originalUrl) {
+                    $originalUrl = convertOriginalUrlToString($originalUrl);
                     $output['urls'][] = $originalUrl;
                     return $output;
                 });
@@ -126,7 +128,7 @@ class WpObjectQueue
             }
             return null;
         } elseif ($payload['type'] == 'url' && !empty($payload['url'])) {
-            return $output['urls'][] = $payload['url'];
+            return $output['urls'][] = convertOriginalUrlToString($payload['url']);
         }
         return null;
     }

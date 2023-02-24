@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use function Servebolt\Optimizer\Helpers\getAllImageSizesByImage;
 use function Servebolt\Optimizer\Helpers\paginateLinksAsArray;
+use function Servebolt\Optimizer\Helpers\convertOriginalUrlToString;
 
 /**
  * Class Post
@@ -172,8 +173,9 @@ class Post extends SharedMethods
     {
         if (has_filter('sb_optimizer_purge_by_post_original_url')) {
             $originalUrl = apply_filters('sb_optimizer_purge_by_post_original_url', null);
+            $originalUrl = convertOriginalUrlToString($originalUrl);
             remove_all_filters('sb_optimizer_purge_by_post_original_url');
-            if ($originalUrl && $postPermalink !== $originalUrl) {
+            if (isset($originalUrl) && $postPermalink !== $originalUrl) {
                 $this->addUrl($originalUrl);
             }
         }
