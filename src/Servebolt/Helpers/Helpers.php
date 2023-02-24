@@ -2446,6 +2446,23 @@ function checkDomainIsSetupForServeboltCDN() : array
     }
     return $output;
 }
+
+function convertOriginalUrlToString($originUrl)
+{
+    if(is_string($originUrl) && !is_array($originUrl)) {
+        return $originUrl;
+    }
+
+    if(is_array($originUrl) && !empty($originUrl['urls'])){
+        return $originUrl['urls'][0];
+    }
+
+    if(is_array($originUrl) && !empty($originUrl[0])){
+        return $originUrl[0];
+    }
+
+    return null;
+}
 /**
  * Check if a class is using a trait.
  *

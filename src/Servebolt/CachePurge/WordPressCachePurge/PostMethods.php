@@ -12,6 +12,7 @@ use function Servebolt\Optimizer\Helpers\isQueueItem;
 use function Servebolt\Optimizer\Helpers\pickupValueFromFilter;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
+use function Servebolt\Optimizer\Helpers\convertOriginalUrlToString;
 /**
  * Trait PostMethods
  * @package Servebolt\Optimizer\CachePurge\WordPressCachePurge
@@ -112,6 +113,7 @@ trait PostMethods
     private static function maybeAddOriginalUrl(array $queueItemData, int $postId)
     {
         $originalUrl = pickupValueFromFilter('sb_optimizer_purge_by_post_original_url');
+        $originalUrl = convertOriginalUrlToString($originalUrl);
         if ($originalUrl && get_permalink($postId) !== $originalUrl) {
             $queueItemData['original_url'] = $originalUrl;
         }

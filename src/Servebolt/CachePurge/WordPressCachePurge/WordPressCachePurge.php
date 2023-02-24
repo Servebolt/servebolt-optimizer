@@ -8,6 +8,7 @@ use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
 use function Servebolt\Optimizer\Helpers\isQueueItem;
 use function Servebolt\Optimizer\Helpers\iterateSites;
+use function Servebolt\Optimizer\Helpers\convertOriginalUrlToString;
 
 /**
  * Class WordPressCachePurge
@@ -55,6 +56,7 @@ class WordPressCachePurge
             && $postId = self::attemptToResolvePostIdFromUrl($url)
         ) { 
             add_filter('sb_optimizer_purge_by_post_original_url', function() use ($url) {
+                $url = convertOriginalUrlToString($url);
                 return $url;
             });
             return self::purgePostCache((int) $postId);

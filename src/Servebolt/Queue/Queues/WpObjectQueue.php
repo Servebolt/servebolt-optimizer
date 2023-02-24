@@ -93,6 +93,9 @@ class WpObjectQueue
 
             if ($payload['type'] === 'post' && $originalUrl = arrayGet('original_url', $payload)) {
                 add_filter('sb_optimizer_purge_by_post_original_url', function() use ($originalUrl) {
+                    if(is_array($originalUrl)) {
+                        $originalUrl = $originalUrl[0];
+                    }
                     $output['urls'][] = $originalUrl;
                     return $output;
                 });
