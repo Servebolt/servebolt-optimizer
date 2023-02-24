@@ -97,6 +97,9 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.14 =
+* version bump to force release 
+
 = 3.5.13 =
 * Bugfix for Cloudflare direct purging via purge queue. it was not created purge records correctly.
 
