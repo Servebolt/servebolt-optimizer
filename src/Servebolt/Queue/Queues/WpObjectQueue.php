@@ -317,8 +317,9 @@ class WpObjectQueue
     public function add($itemData): ?object
     {
         $payload = serialize($itemData);
+
         // Added unique ID for purge items, should be faster with large queues due to indexing.
-        if($existingItem = $this->queue->get(hash('sha256', $payload), 'UID', true)) {
+        if($existingItem = $this->queue->get(hash('sha256', $payload), 'UID', true, true, 1)) {
             $this->queue->flagItemAsUpdated($existingItem);
             return $existingItem;
         }
@@ -440,6 +441,8 @@ class WpObjectQueue
      * 
      * Convert the payload to a serialized string and then SHA256 hash
      * and look for it in the UID column.
+     * 
+     * @return bool / int
      */
     public function checkIfPayloadExists(array $payload = [] )
     {
