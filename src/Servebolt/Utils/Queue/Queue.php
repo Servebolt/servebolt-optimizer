@@ -648,7 +648,7 @@ class Queue
         if(empty($payload)) return false;
         $uid = hash('sha256', serialize($payload));
         global $wpdb;
-        $sql = $wpdb->prepare("SELECT id FROM {$this->getTableName()} WHERE UID=%s AND completed_at_gmt IS NULL AND failed_at_gmt IS NULL AND attempts != 3 LIMIT 1", $uid);
+        $sql = $wpdb->prepare("SELECT id FROM {$this->getTableName()} WHERE UID=%s AND `queue`=%s AND completed_at_gmt IS NULL AND failed_at_gmt IS NULL AND attempts != 3 LIMIT 1", $uid, $this->queueName);
         $result = $wpdb->get_var($sql);
         return ($result == NULL || is_wp_error($result)) ? false : $result;
     }
