@@ -113,6 +113,7 @@ trait PostMethods
     private static function maybeAddOriginalUrl(array $queueItemData, int $postId)
     {
         $originalUrl = pickupValueFromFilter('sb_optimizer_purge_by_post_original_url');
+        
         $originalUrl = convertOriginalUrlToString($originalUrl);
         if ($originalUrl && get_permalink($postId) !== $originalUrl) {
             $queueItemData['original_url'] = $originalUrl;

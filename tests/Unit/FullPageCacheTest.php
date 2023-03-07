@@ -96,14 +96,10 @@ class FullPageCacheTest extends ServeboltWPUnitTestCase
         $result = $htmlCachePostExclusion->addItemsToHtmlCacheExclusion([
             $postId
         ]);
-        error_log('looking for post ' .  $postId);
-        error_log(print_r($wpObjectQueue->getActiveItems(),true));
-        error_log(print_r($result,true));
         $this->assertEquals(1, did_action('sb_optimizer_post_added_to_html_cache_exclusion'));
         $this->assertTrue($result['success']);
         
         $res = ($wpObjectQueue->hasPostInQueue($postId))?'true':'false';
-        error_log('queue respose:'.$res);
         $this->assertTrue($wpObjectQueue->hasPostInQueue($postId));
         remove_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
         FullPageCache::destroyInstance();

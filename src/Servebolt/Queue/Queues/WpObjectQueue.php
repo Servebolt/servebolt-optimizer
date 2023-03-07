@@ -85,6 +85,7 @@ class WpObjectQueue
      */
     private function resolveUrlsToPurgeFromWpObject($payload): ?array
     {
+        
         $output = [
             'urls' => [],
             'tags' => [],
@@ -128,7 +129,14 @@ class WpObjectQueue
             }
             return null;
         } elseif ($payload['type'] == 'url' && !empty($payload['url'])) {
-            return $output['urls'][] = convertOriginalUrlToString($payload['url']);
+            // Get the URL if it exists
+            $url = convertOriginalUrlToString($payload['url']);
+            // if its not null save it to the array
+            if($url == null) {                
+                return null;    
+            }
+            $output['urls'][] = $url;
+            if(is_array($output)) return $output;
         }
         return null;
     }
@@ -316,8 +324,14 @@ class WpObjectQueue
      */
     public function add($itemData): ?object
     {
-        $payload = serialize($itemData);
+        
+        if($existingId = $this->queue->checkUidExists($itemData)){
+            $existingItem = $this->queue->get($existingId, 'id');   
+            $this->queue->flagItemAsUpdated($existingItem);  
+            return $existingItem;
+        }
 
+        $payload = serialize($itemData);
         // Added unique ID for purge items, should be faster with large queues due to indexing.
         if($existingItem = $this->queue->get(hash('sha256', $payload), 'UID', true, true, 1)) {
             $this->queue->flagItemAsUpdated($existingItem);
