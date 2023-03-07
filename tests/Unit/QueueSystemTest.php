@@ -110,11 +110,29 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
             'bar' => 'foo',
         ];
         $queue = new Queue('my-queue');
+        $this->assertEquals(0, $queue->countItems());       
+        $queue->add($itemData);
+        $this->assertEquals(1, $queue->countItems());
+        $itemData['foo'] = 'changed';
+        $queue->add($itemData);
+        $itemData['bar'] = 'changed';
+        $queue->add($itemData);
+        $this->assertEquals(3, $queue->countItems());
+        
+    }
+
+    public function testThatItemsCantBeDuplicated()
+    {
+        $itemData = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        $queue = new Queue('my-queue');
         $this->assertEquals(0, $queue->countItems());
         $queue->add($itemData);
         $queue->add($itemData);
         $queue->add($itemData);
-        $this->assertEquals(3, $queue->countItems());
+        $this->assertEquals(1, $queue->countItems());
     }
 
     public function testThatWeCanReachItemPropertiesWithBothCamelAndSnakeCase()
@@ -175,7 +193,9 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
             'bar' => 'foo',
         ];
         $firstItem = $queue->add($itemData);
+        $itemData['foo'] = "item2";
         $secondItem = $queue->add($itemData);
+        $itemData['bar'] = "item3";
         $thirdItem = $queue->add($itemData);
         $this->assertEquals(3, $queue->countItems());
         $queue->delete($firstItem->id);
@@ -190,17 +210,25 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
     {
         $firstInstance = Queue::getInstance('my-queue-1', 'my-queue-1');
         $secondInstance = Queue::getInstance('my-queue-2', 'my-queue-2');
-        $itemData = [
+        $parentItemData = [
             'foo' => 'bar',
             'bar' => 'foo',
         ];
+        $childItemData = [
+            'foo' => 'barChild',
+            'bar' => 'fooChild',
+        ];
+        $childItemData2 = [
+            'foo' => 'barChild2',
+            'bar' => 'fooChild2',
+        ];
+        $parentItem = $firstInstance->add($parentItemData);
 
-        $parentItem = $firstInstance->add($itemData);
-        $childItem = $secondInstance->add($itemData);
+        $childItem = $secondInstance->add($childItemData);
         $childItem->addParent($parentItem);
         $this->assertEquals($parentItem, $childItem->getParentItem());
 
-        $childItem = $secondInstance->add($itemData, $parentItem);
+        $childItem = $secondInstance->add($childItemData2, $parentItem);
         $this->assertEquals($parentItem, $childItem->getParentItem());
     }
 
@@ -212,7 +240,9 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
             'bar' => 'foo',
         ];
         $queue->add($itemData);
+        $itemData['foo'] = "item2";
         $queue->add($itemData);
+        $itemData['bar'] = "item3";
         $queue->add($itemData);
         $this->assertEquals(3, $queue->countItems());
         $queue->clearQueue();
@@ -257,19 +287,27 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
     public function testThatWeCanReserveItems()
     {
         $queue = new Queue('my-queue');
-        $itemData = [
+        $itemData1 = [
+            'foo' => 'bar',
+            'bar' => 'foo',
+        ];
+        $itemData2 = [
+            'foo' => 'bar2',
+            'bar' => 'foo2',
+        ];
+        $itemData3 = [
             'foo' => 'bar',
             'bar' => 'foo',
         ];
         $items = [
-            $queue->add($itemData),
-            $queue->add($itemData),
-            $queue->add($itemData),
+            $queue->add($itemData1),
+            $queue->add($itemData2),
+            $queue->add($itemData3),
         ];
         $this->assertEquals(0, $queue->countReservedItems());
-        $this->assertEquals(3, $queue->countAvailableItems());
+        $this->assertEquals(2, $queue->countAvailableItems());
         $queue->reserveItems($items);
-        $this->assertEquals(3, $queue->countReservedItems());
+        $this->assertEquals(2, $queue->countReservedItems());
         $this->assertEquals(0, $queue->countAvailableItems());
     }
 
@@ -291,14 +329,22 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
     public function testThatWeCanCompleteItems()
     {
         $queue = new Queue('my-queue');
-        $itemData = [
-            'foo' => 'bar',
+        $itemData1 = [
+            'foo' => 'bar1',
+            'bar' => 'foo',
+        ];
+        $itemData2 = [
+            'foo' => 'bar2',
+            'bar' => 'foo',
+        ];
+        $itemData3 = [
+            'foo' => 'bar3',
             'bar' => 'foo',
         ];
         $items = [
-            $queue->add($itemData),
-            $queue->add($itemData),
-            $queue->add($itemData),
+            $queue->add($itemData1),
+            $queue->add($itemData2),
+            $queue->add($itemData3),
         ];
         $this->assertEquals(0, $queue->countCompletedItems());
         $this->assertEquals(3, $queue->countAvailableItems());
@@ -331,6 +377,7 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
         ];
         $this->assertNull($queue->getItems());
         for ($i = 1; $i <= 32; $i++) {
+            $itemData['foo'] = 'bar' . $i;
             $queue->add($itemData);
         }
         $this->assertCount(30, $queue->getItems());
@@ -345,6 +392,7 @@ class QueueSystemTest extends ServeboltWPUnitTestCase
             'bar' => 'foo',
         ];
         for ($i = 1; $i <= 32; $i++) {
+            $itemData['foo'] = 'bar' . $i;
             $queue->add($itemData);
         }
 

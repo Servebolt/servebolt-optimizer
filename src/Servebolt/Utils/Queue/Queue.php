@@ -640,16 +640,17 @@ class Queue
     /**
      * Check if UID hash exists in sb_queue table
      * 
-     * @return bool
+     * @return bool / int 
      */
     public function checkUidExists(array $payload = [])
     {
         if(empty($payload)) return false;
         $uid = hash('sha256', serialize($payload));
         global $wpdb;
-        $sql = $wpdb->prepare("SELECT id FROM {$this->getTableName()} WHERE UID=%s AND completed_at_gmt IS NULL AND failed_at_gmt IS NULL AND attempts != 3 LIMIT 1", $uid);
+        // removed AND failed_at_gmt IS NULL
+        $sql = $wpdb->prepare("SELECT id FROM {$this->getTableName()} WHERE `UID`=%s AND `queue`=%s AND `completed_at_gmt` IS NULL AND `attempts` != 3 LIMIT 1", $uid, $this->queueName);
         $result = $wpdb->get_var($sql);
-        return ($result == NULL || is_wp_error($result)) ? false : true;
+        return ($result == NULL || is_wp_error($result)) ? false : $result;
     }
 
     /**
@@ -689,6 +690,13 @@ class Queue
             $parentId = null;
             $parentQueueName = null;
         }
+        
+        // exit early if item already exists;
+        if($existingId = $this->checkUidExists($itemData)) {
+            $existingItem = $this->get($existingId, 'id');     
+            return $existingItem;
+        }
+
         global $wpdb;
         $payload = serialize($itemData);
         $wpdb->insert($this->getTableName(), [

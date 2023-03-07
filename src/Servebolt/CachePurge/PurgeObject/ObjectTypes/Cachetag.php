@@ -154,6 +154,7 @@ class Cachetag extends SharedMethods
     {
         if (has_filter('sb_optimizer_purge_by_post_original_url')) {
             $originalUrl = apply_filters('sb_optimizer_purge_by_post_original_url', null);
+            
             $originalUrl = convertOriginalUrlToString($originalUrl);         
             remove_all_filters('sb_optimizer_purge_by_post_original_url');
             if ($originalUrl && $postPermalink !== $originalUrl) {

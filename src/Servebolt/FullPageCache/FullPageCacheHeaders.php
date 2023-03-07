@@ -286,6 +286,8 @@ class FullPageCacheHeaders
             $string = $key . ': ' . $value;
         }
 
+        // Filter gives to the option to adapt each header that is added.
+        $string = apply_filters('sb_optimizer_fullpage_cache_header_item', $string);
         // Abort if headers are already sent
         if (headers_sent() && !self::$allowForceHeaders) {
             writeLog(sprintf('Servebolt Optimizer attempted to set header "%s", but headers were already sent.', $string));

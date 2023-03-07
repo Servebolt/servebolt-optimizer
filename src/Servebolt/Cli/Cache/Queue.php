@@ -114,10 +114,10 @@ class Queue
      * ## EXAMPLES
      *
      *     # Clear cache purge queue
-     *     wp servebolt cache purge queue clear
+     *     wp servebolt cache purge queue trash
      *
      *     # Clear cache purge queue on all sites in a multisite
-     *     wp servebolt cache purge queue clear --all
+     *     wp servebolt cache purge queue trash --all
      *
      */
     public function clearCachePurgeQueueTrash($args, $assocArgs)
