@@ -10,7 +10,7 @@ The plugin infrastructure is loosely based on: https://github.com/avillegasn/wp-
 
 ## Development
 
-## Prerequisites5
+## Prerequisites
 Befor you start it is best to get the system ready for testing, for this SVN (Subversion) must be installed, and also set the PHP CLI php.ini to contain a log file. Failure to install SVN this first will result in a non-working install of the WordPress test install as it cannot download it from wordpress.org
 
 installing subversion on *nix
