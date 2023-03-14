@@ -2,7 +2,22 @@
 namespace Servebolt\Optimizer\CacheTags;
 
 use function \Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
+use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
 class CacheTagsBase {
+    /**
+     * Drivers that require the site to be hosted at Servebolt.
+     *
+     * @var string[]
+     */
+    protected static $serveboltOnlyDrivers = ['acd', 'serveboltcdn'];
+
+    /**
+     * Valid drivers.
+     *
+     * @var string[]
+     */
+    protected static $validDrivers = ['cloudflare', 'acd', 'serveboltcdn'];
 
     /**
      * Array to hold headers that might be added to the page
@@ -89,7 +104,14 @@ class CacheTagsBase {
             $this->add('posttype-'.get_post_type());
         }
     }
-
+    /**
+     * Add 'html' tag to every possible page, its used by Servebolt CDN.
+     * 
+     */
+    protected function addHTMLTag() : void
+    {
+        $this->add('html');
+    }
     /**
      * Add taxanomy ids to single pages or archive pages
      * for Cache-Tag headers
@@ -268,4 +290,43 @@ class CacheTagsBase {
     {
         return $this->headers;
     }
+
+
+    /**
+     * Get default driver name.
+     *
+     * @param bool $verbose
+     * @return string
+     */
+    private static function defaultDriverName(bool $verbose = false): string
+    {
+        return $verbose ? 'Cloudflare' : 'cloudflare';
+    }
+
+    /**
+     * Get the selected cache purge driver.
+     *
+     * @param int|null $blogId
+     * @param bool $strict
+     * @return string
+     */
+    public static function getSelectedCachePurgeDriver(?int $blogId = null, bool $strict = true)
+    {
+        $defaultDriver = self::defaultDriverName();
+        $driver = (string) apply_filters(
+            'sb_optimizer_selected_cache_purge_driver',
+            smartGetOption(
+                $blogId,
+                'cache_purge_driver',
+                $defaultDriver
+            )
+        );
+        if (!in_array($driver, self::$validDrivers)) {
+            $driver = $defaultDriver;
+        } else if ($strict && !isHostedAtServebolt() && in_array($driver, self::$serveboltOnlyDrivers)) {
+            $driver = $defaultDriver;
+        }
+        return $driver;
+    }
+
 }

@@ -6,8 +6,6 @@ use Exception;
 use Servebolt\Optimizer\Traits\Multiton;
 use Servebolt\Optimizer\CacheTags\CacheTagsBase;
 use Servebolt\Optimizer\CacheTags\CanUseCacheTags;
-use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
-use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\isAjax;
 use function Servebolt\Optimizer\Helpers\isCli;
 use function Servebolt\Optimizer\Helpers\isCron;
@@ -46,19 +44,19 @@ class AddCacheTagsHeaders extends CacheTagsBase {
     // Use the Multiton trait to allow for singleton
     use Multiton;
 
-    /**
-     * Drivers that require the site to be hosted at Servebolt.
-     *
-     * @var string[]
-     */
-    private static $serveboltOnlyDrivers = ['acd', 'serveboltcdn'];
+    // /**
+    //  * Drivers that require the site to be hosted at Servebolt.
+    //  *
+    //  * @var string[]
+    //  */
+    // private static $serveboltOnlyDrivers = ['acd', 'serveboltcdn'];
 
-    /**
-     * Valid drivers.
-     *
-     * @var string[]
-     */
-    private static $validDrivers = ['cloudflare', 'acd', 'serveboltcdn'];
+    // /**
+    //  * Valid drivers.
+    //  *
+    //  * @var string[]
+    //  */
+    // private static $validDrivers = ['cloudflare', 'acd', 'serveboltcdn'];
 
     /**
      * CachePurge constructor.
@@ -89,15 +87,19 @@ class AddCacheTagsHeaders extends CacheTagsBase {
      */
     public function addCacheTagsHeaders()
     {
-        $this->setPrefixAndSuffixForTags();        
-        $this->addAuthorTag();
-        $this->addTaxonomyTermIDTag();
-        $this->addDateTag();
-        $this->addRssTag();
-        $this->addPostTypeTag();        
-        $this->addHomeTag();
-        $this->addWooCommerceTag();
-
+        $this->setPrefixAndSuffixForTags();   
+        if($this->driver == 'acd') {
+            $this->addAuthorTag();
+            $this->addTaxonomyTermIDTag();
+            $this->addDateTag();
+            $this->addRssTag();
+            $this->addPostTypeTag();        
+            $this->addHomeTag();
+            $this->addWooCommerceTag();
+        } else {
+            // All Servebolt CDN HTML/RSS pages come under addHTMLTag
+            $this->addHTMLTag();
+        }
         $this->appendHeaders();
     }
 
@@ -120,43 +122,6 @@ class AddCacheTagsHeaders extends CacheTagsBase {
                 error_log("Cache-Tag messages could not be added as headers have already been sent.");
             }
         } 
-    }
-
-    /**
-     * Get default driver name.
-     *
-     * @param bool $verbose
-     * @return string
-     */
-    private static function defaultDriverName(bool $verbose = false): string
-    {
-        return $verbose ? 'Cloudflare' : 'cloudflare';
-    }
-
-    /**
-     * Get the selected cache purge driver.
-     *
-     * @param int|null $blogId
-     * @param bool $strict
-     * @return string
-     */
-    public static function getSelectedCachePurgeDriver(?int $blogId = null, bool $strict = true)
-    {
-        $defaultDriver = self::defaultDriverName();
-        $driver = (string) apply_filters(
-            'sb_optimizer_selected_cache_purge_driver',
-            smartGetOption(
-                $blogId,
-                'cache_purge_driver',
-                $defaultDriver
-            )
-        );
-        if (!in_array($driver, self::$validDrivers)) {
-            $driver = $defaultDriver;
-        } else if ($strict && !isHostedAtServebolt() && in_array($driver, self::$serveboltOnlyDrivers)) {
-            $driver = $defaultDriver;
-        }
-        return $driver;
     }
 
    
