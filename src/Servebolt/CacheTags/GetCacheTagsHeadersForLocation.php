@@ -63,7 +63,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     protected function getTagHeaders() : void
     {
         $this->setPrefixAndSuffixForTags();
-        if($this->driver == 'acd') {
+        if($this->driver !== 'serveboltcdn') {
             $this->addAuthorTag();
             $this->addHomeTag();
             $this->addTaxonomyTermIDTag();

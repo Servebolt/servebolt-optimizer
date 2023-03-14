@@ -20,6 +20,9 @@ class PurgeObjectTest extends ServeboltWPUnitTestCase
 
     public function testThatPurgeObjectResolvesUrls()
     {
+        add_filter('sb_optimizer_is_accelerated_domains', '__return_true');
+        add_filter('sb_optimizer_is_hosted_at_servebolt', '__return_true');
+        
         $taxonomy = 'test-taxonomy';
         $termName = 'test-term';
 
@@ -73,11 +76,14 @@ class PurgeObjectTest extends ServeboltWPUnitTestCase
         $purgeObject = new PurgeObject($postId, 'cachetag');
         $tagsToPurge = $purgeObject->getCacheTags();
         $this->assertIsArray($tagsToPurge);
+        error_log(print_r($tagsToPurge, true));
         $domainprefix = 'exampleorg-';
         $mutisite_suffix = (is_multisite()) ? '-'.get_current_blog_id() : '';
         $this->assertContains($domainprefix . 'home' . $mutisite_suffix, $tagsToPurge);
         $this->assertContains($domainprefix . 'posttype-post' . $mutisite_suffix, $tagsToPurge);
         $this->assertContains($domainprefix . 'feeds' . $mutisite_suffix, $tagsToPurge);
         $this->assertContains($domainprefix . 'year-' . date("Y") . $mutisite_suffix, $tagsToPurge);
+        remove_all_filters('sb_optimizer_is_accelerated_domains');
+        remove_all_filters('sb_optimizer_is_hosted_at_servebolt');
     }
 }

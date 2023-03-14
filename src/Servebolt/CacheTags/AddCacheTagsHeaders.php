@@ -88,7 +88,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
     public function addCacheTagsHeaders()
     {
         $this->setPrefixAndSuffixForTags();   
-        if($this->driver == 'acd') {
+        if($this->driver !== 'serveboltcdn') {
             $this->addAuthorTag();
             $this->addTaxonomyTermIDTag();
             $this->addDateTag();
