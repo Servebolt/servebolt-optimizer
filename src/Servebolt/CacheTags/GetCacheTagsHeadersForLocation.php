@@ -30,7 +30,6 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
         $this->objectType = $objectType; // is this a post type or term?
         $this->setBlog();
         $this->driver = $this->getSelectedCachePurgeDriver(($this->blogId == '')?null:$this->blogId);
-        error_log('this location driver is ' . $this->driver);
         $this->setupHeaders();
     }
 
@@ -73,7 +72,6 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
             $this->addPostTypeTag();
             $this->addWooCommerceTag();
         } else {
-            error_log('servebold CDN add tag for location');
             $this->addHTMLTag();
         }
         
