@@ -75,6 +75,8 @@ class AddCacheTagsHeaders extends CacheTagsBase {
 
         $this->driver = self::getSelectedCachePurgeDriver($blogId);
 
+        error_log('this header driver is ' . $this->driver);
+
         if(in_array($this->driver, CanUseCacheTags::allowedDrivers())) {
             // Get the correct hook based on version of WordPress, pre 6.1 wp, post send_headers.
             add_action(getCondtionalHookPreHeaders(), [$this,'addCacheTagsHeaders']);
@@ -88,7 +90,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
     public function addCacheTagsHeaders()
     {
         $this->setPrefixAndSuffixForTags();   
-        if($this->driver !== 'serveboltcdn') {
+        if($this->driver != 'serveboltcdn') {
             $this->addAuthorTag();
             $this->addTaxonomyTermIDTag();
             $this->addDateTag();
@@ -98,6 +100,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
             $this->addWooCommerceTag();
         } else {
             // All Servebolt CDN HTML/RSS pages come under addHTMLTag
+            error_log('servebold CDN add tag for Headers');
             $this->addHTMLTag();
         }
         $this->appendHeaders();

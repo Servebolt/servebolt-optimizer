@@ -533,7 +533,7 @@ class Queue
      */
     private function resolveItem($item): ?object
     {
-        if(is_null($item)) return null;
+        // if(is_null($item)) return null;
         
         if (is_int($item)) {
             $item = $this->get($item);
