@@ -63,7 +63,14 @@ class AddCacheTagsHeaders extends CacheTagsBase {
      * @param int|null $blogId
      */
     public function __construct(?int $blogId = null)
-    {        
+    {   
+       
+        $this->driver = self::getSelectedCachePurgeDriver($blogId);
+
+        if($this->driver == 'serveboltcdn') {
+            add_filter('sb_optimizer_admin_bar_cache_purge_can_purge_url', '__return_false');
+        }
+        
         if (
             is_admin()
             || isAjax()
@@ -73,12 +80,13 @@ class AddCacheTagsHeaders extends CacheTagsBase {
             || isTesting()
         ) return;
 
-        $this->driver = self::getSelectedCachePurgeDriver($blogId);
-
+        
+        
         if(in_array($this->driver, CanUseCacheTags::allowedDrivers())) {
             // Get the correct hook based on version of WordPress, pre 6.1 wp, post send_headers.
             add_action(getCondtionalHookPreHeaders(), [$this,'addCacheTagsHeaders']);
         }
+        
     }
 
     /**

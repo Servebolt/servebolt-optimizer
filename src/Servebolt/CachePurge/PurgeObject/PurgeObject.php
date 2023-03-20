@@ -88,7 +88,7 @@ class PurgeObject
      */
     private function resolvePurgeObject($id, $type, $args)
     {
-        $className = $this->buildPurgeObjectTypeClassname($type);
+        $className = $this->buildPurgeObjectTypeClassname($type);        
         if (!class_exists($className)) {
             return false;
         }
