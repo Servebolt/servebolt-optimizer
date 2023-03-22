@@ -322,7 +322,7 @@ class WpObjectQueue
      * @return object|null
      */
     public function add($itemData): ?object
-    {   
+    {
         if($existingId = $this->queue->checkUidExists($itemData)){
             $existingItem = $this->queue->get($existingId, 'id');   
             $this->queue->flagItemAsUpdated($existingItem);  

@@ -48,25 +48,25 @@ class WordPressCachePurge
      * @return bool
      */
     public static function purgeByUrl(string $url, bool $shouldAttemptToResolvePostIdFromUrl = true)
-    {        
+    {
         $shouldPurgeByQueue = self::shouldPurgeByQueue();
         if (
             $shouldAttemptToResolvePostIdFromUrl
             && $postId = self::attemptToResolvePostIdFromUrl($url)
-        ) { 
-            add_filter('sb_optimizer_purge_by_post_original_url', function() use ($url) {                
-                $url = convertOriginalUrlToString($url);                
+        ) {
+            add_filter('sb_optimizer_purge_by_post_original_url', function() use ($url) {
+                $url = convertOriginalUrlToString($url);
                 return $url;
-            });            
+            });
             return self::purgePostCache((int) $postId);
         } else {
-            if ($shouldPurgeByQueue) {                
+            if ($shouldPurgeByQueue) {
                 $queueInstance = WpObjectQueue::getInstance();
                 return isQueueItem($queueInstance->add([
                     'type' => 'url',
                     'url' => $url,
                 ]));
-            } else {                
+            } else {
                 $cachePurgeDriver = CachePurgeDriver::getInstance();
                 return $cachePurgeDriver->purgeByUrl($url);
             }

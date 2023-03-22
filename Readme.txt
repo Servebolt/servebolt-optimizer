@@ -97,6 +97,10 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.16 =
+* Added CacheTags to Servebolt CDN
+* Added HTML cache purging to Servebolt CDN
+
 = 3.5.15 =
 * Bugfix for purge queue on large sites. It was giving CRON errors.
 * Added filter to allow for adaption of headers on Full Page Caching.

@@ -69,6 +69,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.16
+* Added CacheTags to Servebolt CDN
+* Added HTML cache purging to Servebolt CDN
 #### 3.5.15
 * Bugfix for purge queue on large sites. It was giving CRON errors.
 * Added filter to allow for adaption of headers on Full Page Caching.
