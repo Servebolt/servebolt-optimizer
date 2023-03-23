@@ -124,8 +124,6 @@ class AddCacheTagsHeaders extends CacheTagsBase {
                 header('Cache-Tag: ' . $tags );
                 if($this->driver == 'acd') {
                     header('x-acd-Cache-Tag: ' . $tags);
-                } else {
-                    header('X-CDN-Cache-Tag: ' . $tags);
                 }
             }
             catch (Exception $e){
