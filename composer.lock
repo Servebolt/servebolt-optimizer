@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "97eb4a3aebfb247239f116a1e2156779",
+    "content-hash": "488aff9baa7d5a2a9ff4995ee72caa04",
     "packages": [
         {
             "name": "composer/installers",
@@ -738,16 +738,16 @@
         },
         {
             "name": "servebolt/sdk",
-            "version": "1.2.1",
+            "version": "1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Servebolt/php-sdk.git",
-                "reference": "060b0cbcfda8fdf1be077eedfc59821c15193dfa"
+                "reference": "e97d1f71303dd485c0b15055d3ae7fc63eaa7c84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/060b0cbcfda8fdf1be077eedfc59821c15193dfa",
-                "reference": "060b0cbcfda8fdf1be077eedfc59821c15193dfa",
+                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/e97d1f71303dd485c0b15055d3ae7fc63eaa7c84",
+                "reference": "e97d1f71303dd485c0b15055d3ae7fc63eaa7c84",
                 "shasum": ""
             },
             "require": {
@@ -791,9 +791,9 @@
             "homepage": "https://servebolt.com",
             "support": {
                 "issues": "https://github.com/Servebolt/php-sdk/issues",
-                "source": "https://github.com/Servebolt/php-sdk/tree/1.2.1"
+                "source": "https://github.com/Servebolt/php-sdk/tree/1.2.2"
             },
-            "time": "2022-11-30T11:09:53+00:00"
+            "time": "2023-03-23T08:20:21+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -4853,7 +4853,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": "^7.3"
+        "php": "^7.3|^8.0"
     },
     "platform-dev": [],
     "platform-overrides": {

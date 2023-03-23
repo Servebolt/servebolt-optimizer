@@ -26,7 +26,7 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
      */
     public function purgeByUrl(string $url): bool
     {
-        $response = $this->apiInstance->environment()->purgeCache(
+        $response = $this->apiInstance->environment()->purgeCdnCache(
             $this->apiInstance->getEnvironmentId(),
             [$url]
         );
@@ -44,7 +44,7 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
      */
     public function purgeByUrls(array $urls): bool
     {
-        $response = $this->apiInstance->environment->purgeCache(
+        $response = $this->apiInstance->environment->purgeCdnCache(
             $this->apiInstance->getEnvironmentId(),
             $urls
         );
@@ -82,12 +82,11 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
      */
     public function purgeByTags(array $tags = []) : bool
     {
-        $response = $this->apiInstance->environment->purgeCache(
+        $response = $this->apiInstance->environment->purgeCdnCache(
             $this->apiInstance->getEnvironmentId(),
-            [], // files urls
-            [], // prefixes
+            [], // hosts
             $tags, // array of tags
-            [] // hosts
+            
         );
         if ($response->wasSuccessful()) {
             return true;
