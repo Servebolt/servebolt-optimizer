@@ -199,6 +199,12 @@ class CachePurge
         return self::isActive($blogId) && self::featureIsConfigured($blogId);
     }
 
+    public static function cachePurgeByUrlIsAvailable(?int $blogId = null) : bool
+    {
+        if(self::serveboltCdnIsSelected($blogId)) return false;
+        return true;
+    }
+
     /**
      * Alias for "featureIsAvailable".
      *

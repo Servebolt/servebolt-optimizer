@@ -41,7 +41,7 @@ Read more about the plugin and all its features in our [Help Center](https://ser
 
 ### Accelerated Domains
 
-The integration with our revolutionairy add-on performance and security enhancing service [Accelerated Domains](https://servebo.lt/4c9dw) is made possible by Servebolt Optimizer. Installing the Servebolt Optimizer will provide the required HTTP headers to make best us of Accelerated Domains.
+The integration with our revolutionairy add-on performance and security enhancing service [Accelerated Domains](https://servebo.lt/4c9dw) is made possible by Servebolt Optimizer. Installing the Servebolt Optimizer will provide the required HTTP headers to make use of Accelerated Domains.
 
 ### Automatic purge of Cloudflare cache
 Servebolt Optimizer supports the most complete solution for Cloudflare cache purging. The HTML Cache is automatically purged when any post type or term has been updated. You can also purge directly from the admin bar. This Cloudflare integration supports both the use of API key and API token authentication when communicating with the Cloudflare API.
@@ -97,6 +97,10 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.16 =
+* Added CacheTags to Servebolt CDN
+* Added HTML cache purging to Servebolt CDN
+
 = 3.5.15 =
 * Bugfix for purge queue on large sites. It was giving CRON errors.
 * Added filter to allow for adaption of headers on Full Page Caching.

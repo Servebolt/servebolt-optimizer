@@ -49,13 +49,12 @@ class WordPressCachePurge
      */
     public static function purgeByUrl(string $url, bool $shouldAttemptToResolvePostIdFromUrl = true)
     {
-        
         $shouldPurgeByQueue = self::shouldPurgeByQueue();
         if (
             $shouldAttemptToResolvePostIdFromUrl
             && $postId = self::attemptToResolvePostIdFromUrl($url)
-        ) { 
-            add_filter('sb_optimizer_purge_by_post_original_url', function() use ($url) {                
+        ) {
+            add_filter('sb_optimizer_purge_by_post_original_url', function() use ($url) {
                 $url = convertOriginalUrlToString($url);
                 return $url;
             });

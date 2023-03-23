@@ -5,18 +5,55 @@ namespace Servebolt\Optimizer\CachePurge\Drivers;
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeAllInterface;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeUrlInterface;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeTagInterface;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Exceptions\ServeboltApiError;
-use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeTagInterface;
 use function Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
 
 /**
  * Class ServeboltCdn
  * @package Servebolt\Optimizer\CachePurge\Drivers
  */
-class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface
+class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, CachePurgeUrlInterface
 {
     use Singleton, ServeboltDriverTrait;
+
+    /**
+     * @param string $url
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeByUrl(string $url): bool
+    {
+        $response = $this->apiInstance->environment()->purgeCdnCache(
+            $this->apiInstance->getEnvironmentId(),
+            [$url]
+        );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
+
+    /**
+     * @param array $urls
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeByUrls(array $urls): bool
+    {
+        $response = $this->apiInstance->environment->purgeCdnCache(
+            $this->apiInstance->getEnvironmentId(),
+            $urls
+        );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response);
+        }
+    }
 
     /**
      * Purge CDN cache (for a single site).
@@ -45,12 +82,11 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface
      */
     public function purgeByTags(array $tags = []) : bool
     {
-        $response = $this->apiInstance->environment->purgeCache(
+        $response = $this->apiInstance->environment->purgeCdnCache(
             $this->apiInstance->getEnvironmentId(),
-            [], // files urls
-            [], // prefixes
+            [], // hosts
             $tags, // array of tags
-            [] // hosts
+            
         );
         if ($response->wasSuccessful()) {
             return true;

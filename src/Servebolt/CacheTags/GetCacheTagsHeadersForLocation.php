@@ -29,6 +29,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
         $this->objectId = $objectId;
         $this->objectType = $objectType; // is this a post type or term?
         $this->setBlog();
+        $this->driver = $this->getSelectedCachePurgeDriver(($this->blogId == '')?null:$this->blogId);
         $this->setupHeaders();
     }
 
@@ -62,15 +63,27 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     protected function getTagHeaders() : void
     {
         $this->setPrefixAndSuffixForTags();
-        $this->addAuthorTag();
-        $this->addHomeTag();
-        $this->addTaxonomyTermIDTag();
-        $this->addDateTag();
-        $this->addRssTag();
-        $this->addPostTypeTag();                
-        $this->addWooCommerceTag();
+        if($this->driver != 'serveboltcdn') {
+            $this->addAuthorTag();
+            $this->addHomeTag();
+            $this->addTaxonomyTermIDTag();
+            $this->addDateTag();
+            $this->addRssTag();
+            $this->addPostTypeTag();
+            $this->addWooCommerceTag();
+        } else {
+            $this->addHTMLTag();
+        }
+        
     }
 
+    /**
+     * 
+     */
+    protected function addHTMLTag() : void
+    {
+        $this->add('html');
+    }
     /**
      * Clear the homepage and front page.
      */
