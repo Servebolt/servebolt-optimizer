@@ -69,6 +69,8 @@ class AddCacheTagsHeaders extends CacheTagsBase {
 
         if($this->driver == 'serveboltcdn') {
             add_filter('sb_optimizer_admin_bar_cache_purge_can_purge_url', '__return_false');
+            add_filter('sb_optimizer_allow_admin_bar_cache_purge_for_term', '__return_false');
+            add_filter('sb_optimizer_can_purge_term_cache', '__return_false');
         }
         
         if (

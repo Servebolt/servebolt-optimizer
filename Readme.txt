@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.1.1
 Requires PHP: 7.3
-Stable tag: 3.5.17
+Stable tag: 3.5.18
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,9 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.18 =
+* hid the 'purge by taxonomy term' menu and quick menu buttons for Servebolt CDN customers. This feature is not possible for them and should not have been showing.
+
 = 3.5.17 =
 bump release. no changes.
 
