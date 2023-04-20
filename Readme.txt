@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, html cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.1.1
+Tested up to: 6.2
 Requires PHP: 7.3
-Stable tag: 3.5.18
+Stable tag: 3.5.19
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,10 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+
+= 3.5.19 =
+* updated supported WordPress version.
+
 = 3.5.18 =
 * hid the 'purge by taxonomy term' menu and quick menu buttons for Servebolt CDN customers. This feature is not possible for them and should not have been showing.
 
