@@ -117,7 +117,7 @@ class CacheTagsBase {
      */
     protected function addSearch() : void
     {
-        if(is_search()) {
+        if(is_singular()) {
             $this->add('search');
         }
     }
