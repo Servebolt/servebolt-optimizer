@@ -69,6 +69,8 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 #### 3.5.21
+* bump release.
+#### 3.5.21
 * added cache-tag headers to search pages, so that they can optionally be cached. Acellerated Domains feature only.
 #### 3.5.20
 * fixed "PHP Deprecated" error when using PHP8.0+ and WP_DEBUG is set to TRUE.
