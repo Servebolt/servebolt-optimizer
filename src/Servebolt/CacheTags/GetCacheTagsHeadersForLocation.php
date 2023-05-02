@@ -71,6 +71,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
             $this->addRssTag();
             $this->addPostTypeTag();
             $this->addWooCommerceTag();
+            $this->addSearch();
         } else {
             $this->addHTMLTag();
         }
@@ -83,6 +84,14 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     protected function addHTMLTag() : void
     {
         $this->add('html');
+    }
+
+    /**
+     * Clear out any cached search pages.
+     */
+    protected function addSearch() : void
+    {
+        $this->add('search');
     }
     /**
      * Clear the homepage and front page.
