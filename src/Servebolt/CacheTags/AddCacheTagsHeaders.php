@@ -106,6 +106,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
             $this->addPostTypeTag();        
             $this->addHomeTag();
             $this->addWooCommerceTag();
+            $this->addSearch();
         } else {
             // All Servebolt CDN HTML/RSS pages come under addHTMLTag
             $this->addHTMLTag();

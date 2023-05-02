@@ -113,6 +113,15 @@ class CacheTagsBase {
         $this->add('html');
     }
     /**
+     * Add search tag when on a search page
+     */
+    protected function addSearch() : void
+    {
+        if(is_search()) {
+            $this->add('search');
+        }
+    }
+    /**
      * Add taxanomy ids to single pages or archive pages
      * for Cache-Tag headers
      * 
