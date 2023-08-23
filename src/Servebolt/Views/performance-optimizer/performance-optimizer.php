@@ -33,7 +33,7 @@
                         <img src="<?php echo SERVEBOLT_PLUGIN_DIR_URL; ?>assets/dist/images/<?php echo ($wpCronDisabled && $unixCronSetup ? 'checked' : 'cancel'); ?>.png" width="20"></div>
                         <span>
                             <?php if ($wpCronDisabled && $unixCronSetup): ?>
-                            <?php _e('WP Cron is disabled and is set up to run on the server cron.', 'servebolt-wp'); ?>
+                            <?php _e('The unix server cron is now enabled (WP Cron is disabled).', 'servebolt-wp'); ?>
                             <?php elseif(!$unixCronSetup && !$wpCronDisabled): ?>
                             <strong><?php _e('WP Cron is not disabled and is not set up to run on the server cron.', 'servebolt-wp'); ?></strong>
                             <?php elseif(!$unixCronSetup): ?>
@@ -42,16 +42,20 @@
                             <?php echo sprintf(__('%sWP Cron is not disabled%s but it is set up to run on the server cron.', 'servebolt-wp'), '<strong>', '</strong>'); ?>
                             <?php endif; ?>
 
-                            <?php _e('Read more about this <a href="https://servebo.lt/vkr8-" target="_blank">here</a>.', 'servebolt-wp'); ?>
+                            <?php _e('Read more about cron based configuration <a href="https://servebolt.com/help/article/how-to-setup-wordpress-and-woocommerce-cron-jobs/" target="_blank">here</a>.', 'servebolt-wp'); ?>
 
                             <?php if (isHostedAtServebolt()): ?>
+                            <?php 
+                                $path = (is_multisite()) ? trailingslashit( network_admin_url() ) :  trailingslashit( get_admin_url() ) ;
+                                $admin_page =  $path .  "admin.php?page=servebolt-performance-optimizer-advanced"; 
+                            ?>
 
                             <?php if(!$unixCronSetup || !$wpCronDisabled): ?>
-                            <br><?php echo sprintf(__('To fix this then run WP CLI-command %swp servebolt cron enable%s.', 'servebolt-wp'), '<code>', '</code>'); ?>
+                            <br><?php echo sprintf(__('To fix this then run WP CLI-command %swp servebolt cron enable%s, or choose to enable "Run WP Cron from UNIX cron" from the <a href="%s">Advanced tab</a>', 'servebolt-wp'), '<code>', '</code>', $admin_page); ?>
                             <?php endif; ?>
 
                             <?php if($unixCronSetup || $wpCronDisabled): ?>
-                            <br><?php echo sprintf(__('To disable feature then run WP CLI-command %swp servebolt cron disable%s.', 'servebolt-wp'), '<code>', '</code>'); ?>
+                            <br><?php echo sprintf(__('To disable feature then run WP CLI-command %swp servebolt cron disable%s, or choose to disable "Run WP Cron from UNIX cron" from the <a href="%s">Advanced tab</a> ', 'servebolt-wp'), '<code>', '</code>', $admin_page); ?>
                             <?php endif; ?>
 
                             <?php endif ?>
