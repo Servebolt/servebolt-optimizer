@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Servebolt Optimizer 3.5.15\n"
+"Project-Id-Version: Servebolt Optimizer 3.5.23\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/servebolt-optimizer\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2023-03-07T14:56:04+01:00\n"
+"POT-Creation-Date: 2023-08-23T13:29:29+02:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.5.0\n"
 "X-Domain: servebolt-wp\n"
@@ -89,7 +89,7 @@ msgid "Purge All Cache"
 msgstr ""
 
 #: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:92
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cache-purge-triggers.php:7
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cache-purge-triggers.php:8
 msgid "Purge a URL"
 msgstr ""
 
@@ -1618,7 +1618,7 @@ msgstr ""
 msgid "Environment ID"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cache-purge-triggers.php:8
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cache-purge-triggers.php:10
 msgid "Purge Images"
 msgstr ""
 
@@ -2307,7 +2307,7 @@ msgid "Disable WP Cron and run it from server cron"
 msgstr ""
 
 #: src/Servebolt/Views/performance-optimizer/performance-optimizer.php:36
-msgid "WP Cron is disabled and is set up to run on the server cron."
+msgid "The unix server cron is now enabled (WP Cron is disabled)."
 msgstr ""
 
 #: src/Servebolt/Views/performance-optimizer/performance-optimizer.php:38
@@ -2323,15 +2323,15 @@ msgid "%sWP Cron is not disabled%s but it is set up to run on the server cron."
 msgstr ""
 
 #: src/Servebolt/Views/performance-optimizer/performance-optimizer.php:45
-msgid "Read more about this <a href=\"https://servebo.lt/vkr8-\" target=\"_blank\">here</a>."
-msgstr ""
-
-#: src/Servebolt/Views/performance-optimizer/performance-optimizer.php:50
-msgid "To fix this then run WP CLI-command %swp servebolt cron enable%s."
+msgid "Read more about cron based configuration <a href=\"https://servebolt.com/help/article/how-to-setup-wordpress-and-woocommerce-cron-jobs/\" target=\"_blank\">here</a>."
 msgstr ""
 
 #: src/Servebolt/Views/performance-optimizer/performance-optimizer.php:54
-msgid "To disable feature then run WP CLI-command %swp servebolt cron disable%s."
+msgid "To fix this then run WP CLI-command %swp servebolt cron enable%s, or choose to enable \"Run WP Cron from UNIX cron\" from the <a href=\"%s\">Advanced tab</a>"
+msgstr ""
+
+#: src/Servebolt/Views/performance-optimizer/performance-optimizer.php:58
+msgid "To disable feature then run WP CLI-command %swp servebolt cron disable%s, or choose to disable \"Run WP Cron from UNIX cron\" from the <a href=\"%s\">Advanced tab</a> "
 msgstr ""
 
 #: src/Servebolt/WpCron/WpCronCustomSchedules.php:25
