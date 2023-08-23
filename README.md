@@ -50,7 +50,7 @@ Create and .env file in the test directory by copying the .env.example file to .
 You should now be able to run ``composer phpunit`` WP single site or ``composer phpunit-mu`` for WP multi-site.
 
 To run without composer to debug failure use, this method allows for CLI arguments where composer does not
-``./vendor/phpunit/phpunit/phpunit -c phpunit.xml --verbose --stop-on-failure``
+``./vendor/phpunit/phpunit/phpunit -c phpunit.xml --verbose --stop-on-failure --debug``
 
 To work against a singluar test set use (where WPAssetTest is replace with the testing Class Name)
 ``./vendor/phpunit/phpunit/phpunit -c phpunit.xml --filter WpAssetTest``
@@ -68,7 +68,12 @@ Credentials for the SVN repository is stored in the password manager. The creden
 If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to WordPress.org.
 
 ## Changelog
-#### 3.5.21
+#### 3.5.23 
+* Small text changes in WP Cron configuration area.
+* Adapted links to include a link to the advanced tab for enabling or disabling cron.
+* Cron enabled checkbox also takes account of the DISABLE_WP_CRON constant, not just the option.
+* proven support for WP 6.3
+#### 3.5.22
 * bump release.
 #### 3.5.21
 * added cache-tag headers to search pages, so that they can optionally be cached. Acellerated Domains feature only.
