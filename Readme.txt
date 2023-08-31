@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, html cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.3
+Tested up to: 6.3.1
 Requires PHP: 7.3
-Stable tag: 3.5.23
+Stable tag: 3.5.24
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,10 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.24 =
+* fixed small bug of missing save button on advanced tab of new installs
+* proven support for 6.3.1
+
 = 3.5.23 =
 * Small text changes in WP Cron configuration area.
 * Adapted links to include a link to the advanced tab for enabling or disabling cron.

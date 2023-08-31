@@ -68,6 +68,10 @@ Credentials for the SVN repository is stored in the password manager. The creden
 If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to WordPress.org.
 
 ## Changelog
+
+#### 3.5.24
+* fixed small bug of missing save button on advanced tab of new installs
+* proven support for 6.3.1
 #### 3.5.23 
 * Small text changes in WP Cron configuration area.
 * Adapted links to include a link to the advanced tab for enabling or disabling cron.
