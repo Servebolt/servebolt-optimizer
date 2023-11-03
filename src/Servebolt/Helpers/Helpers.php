@@ -774,6 +774,21 @@ function deleteAllSettings(bool $allSites = true, bool $includeMigrationOptions 
 }
 
 /**
+ * Checks if we are on NextGen or Legacy
+ */
+function isNextGen($optionalPath = ''): bool
+{
+    if(!isset($_SERVER['DOCUMENT_ROOT'])) return false;
+    $path = $_SERVER['DOCUMENT_ROOT'];
+
+    if($optionalPath != '') {
+        $path = $optionalPath;
+    }
+
+    return ( strpos($path, '/cust/') === 0 );
+}
+
+/**
  * Check whether a variable is an instance of QueueItem.
  *
  * @param $var

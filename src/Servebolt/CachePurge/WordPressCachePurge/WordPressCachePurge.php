@@ -80,7 +80,7 @@ class WordPressCachePurge
      * @return bool
      */
     public static function purgeByUrls(array $urls)
-    {
+    {braces
         if (self::shouldPurgeByQueue()) {
             $queueInstance = WpObjectQueue::getInstance();
             foreach($urls as $url) {
@@ -171,15 +171,7 @@ class WordPressCachePurge
             return isQueueItem($queueInstance->add(['type' => 'purge-all']));
         } else {
             $cachePurgeDriver = CachePurgeDriver::getInstance($blogId);
-            error_log("performing pruge all begin ");
-            $return = $cachePurgeDriver->purgeAll();
-            if($return) {
-                error_log("response object true" . print_r($return,true));
-            } else  {
-                error_log("object is false");
-            }
-            
-            return $return;
+            return $cachePurgeDriver->purgeAll();
         }
     }
 
