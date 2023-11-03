@@ -57,7 +57,7 @@ class Reader
      * /cust/0/quotab_8657/quotab_1350/home/environment.json
      * 
      */
-    private $nextGenFolderLocateRegex = '/(\/cust\/[0-9]\/[a-z_0-9]+\/[a-z_]+(\d+)\/home)/';
+    private $nextGenFolderLocateRegex = '/(\/cust\/[0-9]\/[a-z_0-9]+\/[a-z_]+(\d+))/';
 
     /**
      * @var string The basename of the environment file.
@@ -266,14 +266,19 @@ class Reader
      */
     private function locateFolderPathFromDefaultPath($searchFolderPath)
     {
-        // select the regex to use based on the path.
-        $regex = (strpos($searchFolderPath, '/cust/') === 0) ? $this->nextGenFolderLocateRegex : $this->legacyFolderLocateRegex;
+        $subdir = '';
+        $regex = $this->legacyFolderLocateRegex;
+        // if it begins with /cust/ its next gen and needs to have home appended to the path. 
+        if (strpos($searchFolderPath, '/cust/') === 0) {
+            $subdir = 'home/';
+            $regex =  $this->nextGenFolderLocateRegex;
+        }
         if (
             preg_match(apply_filters('sb_optimizer_env_file_reader_folder_regex_pattern', $regex), $searchFolderPath, $matches)
             && isset($matches[1])
             && !empty($matches[1])
         ) {
-            return trailingslashit($matches[1]);
+            return trailingslashit($matches[1]) . $subdir;
         }
         return false;
     }

@@ -171,7 +171,15 @@ class WordPressCachePurge
             return isQueueItem($queueInstance->add(['type' => 'purge-all']));
         } else {
             $cachePurgeDriver = CachePurgeDriver::getInstance($blogId);
-            return $cachePurgeDriver->purgeAll();
+            error_log("performing pruge all begin ");
+            $return = $cachePurgeDriver->purgeAll();
+            if($return) {
+                error_log("response object true" . print_r($return,true));
+            } else  {
+                error_log("object is false");
+            }
+            
+            return $return;
         }
     }
 
