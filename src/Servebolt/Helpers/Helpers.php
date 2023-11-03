@@ -774,18 +774,20 @@ function deleteAllSettings(bool $allSites = true, bool $includeMigrationOptions 
 }
 
 /**
- * Checks if we are on NextGen or Legacy
+ * Checks if we are on NextGen or a Legacy Server.
  */
-function isNextGen($optionalPath = ''): bool
+function isNextGen($path = ''): bool
 {
-    if(!isset($_SERVER['DOCUMENT_ROOT'])) return false;
-    $path = $_SERVER['DOCUMENT_ROOT'];
-
-    if($optionalPath != '') {
-        $path = $optionalPath;
+    if($path === '') {
+        if (isset($_SERVER['DOCUMENT_ROOT'])) {
+            $path = trailingslashit(dirname($_SERVER['DOCUMENT_ROOT']));
+        } else if (defined('ABSPATH')) {
+            $path = trailingslashit(dirname(ABSPATH));
+        } else {
+            throw new Exception('Could not determine default environment file folder path.');
+        }
     }
-
-    return ( strpos($path, '/cust/') === 0 );
+    return ( strpos($path, '/cust/') === 0 ) ? true : false;
 }
 
 /**

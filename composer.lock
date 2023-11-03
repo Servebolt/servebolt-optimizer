@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "488aff9baa7d5a2a9ff4995ee72caa04",
+    "content-hash": "4f151bacc59e237bf1d338911360ddb7",
     "packages": [
         {
             "name": "composer/installers",
@@ -731,16 +731,16 @@
         },
         {
             "name": "servebolt/sdk",
-            "version": "1.2.4",
+            "version": "1.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Servebolt/php-sdk.git",
-                "reference": "706066388b2d34a9dbbfcbaa24d961150bb44778"
+                "reference": "e97d1f71303dd485c0b15055d3ae7fc63eaa7c84"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/706066388b2d34a9dbbfcbaa24d961150bb44778",
-                "reference": "706066388b2d34a9dbbfcbaa24d961150bb44778",
+                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/e97d1f71303dd485c0b15055d3ae7fc63eaa7c84",
+                "reference": "e97d1f71303dd485c0b15055d3ae7fc63eaa7c84",
                 "shasum": ""
             },
             "require": {
@@ -784,9 +784,9 @@
             "homepage": "https://servebolt.com",
             "support": {
                 "issues": "https://github.com/Servebolt/php-sdk/issues",
-                "source": "https://github.com/Servebolt/php-sdk/tree/1.2.4"
+                "source": "https://github.com/Servebolt/php-sdk/tree/1.2.2"
             },
-            "time": "2023-11-03T10:25:06+00:00"
+            "time": "2023-03-23T08:20:21+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",

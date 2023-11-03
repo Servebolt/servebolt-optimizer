@@ -11,6 +11,7 @@ use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\isNextGen;
 
 /**
  * Class Reader
@@ -269,7 +270,7 @@ class Reader
         $subdir = '';
         $regex = $this->legacyFolderLocateRegex;
         // if it begins with /cust/ its next gen and needs to have home appended to the path. 
-        if (strpos($searchFolderPath, '/cust/') === 0) {
+        if (isNextGen($searchFolderPath)) {
             $subdir = 'home/';
             $regex =  $this->nextGenFolderLocateRegex;
         }
