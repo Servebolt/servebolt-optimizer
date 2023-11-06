@@ -279,6 +279,7 @@ class Reader
             && isset($matches[1])
             && !empty($matches[1])
         ) {
+            error_log('the path : ' . trailingslashit($matches[1]) . $subdir );
             return trailingslashit($matches[1]) . $subdir;
         }
         return false;

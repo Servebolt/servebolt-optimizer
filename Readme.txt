@@ -3,7 +3,7 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, html cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.3.1
+Tested up to: 6.4
 Requires PHP: 7.3
 Stable tag: 3.5.25
 License: GPLv3 or later
@@ -99,6 +99,7 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 == Changelog ==
 = 3.5.25 = 
 * Allows for NextGen servers to be supported.
+* tested with latest version of WordPress (6.4)
 
 = 3.5.24 =
 * fixed small bug of missing save button on advanced tab of new installs
