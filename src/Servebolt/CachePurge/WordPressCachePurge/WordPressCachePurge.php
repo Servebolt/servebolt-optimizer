@@ -80,7 +80,7 @@ class WordPressCachePurge
      * @return bool
      */
     public static function purgeByUrls(array $urls)
-    {braces
+    {
         if (self::shouldPurgeByQueue()) {
             $queueInstance = WpObjectQueue::getInstance();
             foreach($urls as $url) {

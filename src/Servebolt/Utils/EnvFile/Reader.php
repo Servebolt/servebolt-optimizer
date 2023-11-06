@@ -267,28 +267,19 @@ class Reader
      */
     private function locateFolderPathFromDefaultPath($searchFolderPath)
     {
-        // $subdir = '';
-        // $regex = $this->legacyFolderLocateRegex;
-        // // if it begins with /cust/ its next gen and needs to have home appended to the path. 
-        // if (isNextGen($searchFolderPath)) {
-        //     $subdir = 'home/';
-        //     $regex =  $this->nextGenFolderLocateRegex;
-        // }
-        // if (
-        //     preg_match(apply_filters('sb_optimizer_env_file_reader_folder_regex_pattern', $regex), $searchFolderPath, $matches)
-        //     && isset($matches[1])
-        //     && !empty($matches[1])
-        // ) {
-        //     return trailingslashit($matches[1]) . $subdir;
-        // }
-        // return false;
-
+        $subdir = '';
+        $regex = $this->legacyFolderLocateRegex;
+        // if it begins with /cust/ its next gen and needs to have home appended to the path. 
+        if (isNextGen($searchFolderPath)) {
+            $subdir = 'home/';
+            $regex =  $this->nextGenFolderLocateRegex;
+        }
         if (
-            preg_match(apply_filters('sb_optimizer_env_file_reader_folder_regex_pattern', $this->folderLocateRegex), $searchFolderPath, $matches)
+            preg_match(apply_filters('sb_optimizer_env_file_reader_folder_regex_pattern', $regex), $searchFolderPath, $matches)
             && isset($matches[1])
             && !empty($matches[1])
         ) {
-            return trailingslashit($matches[1]);
+            return trailingslashit($matches[1]) . $subdir;
         }
         return false;
     }
