@@ -30,6 +30,8 @@ class ContentChangeTrigger
         remove_action('edit_comment', [$this, 'purgePostOnPublishedCommentEdited'], 99, 2);
         remove_action('trash_comment', [$this, 'purgePostOnCommentTrashed'], 99, 2);
         remove_action('untrash_comment', [$this, 'purgePostOnCommentUnTrashed'], 99, 2);
+        remove_action('wp_insert_post', [$this, 'purgeFirstSave'], 99, 3);
+        
     }
 
     /**
@@ -58,6 +60,11 @@ class ContentChangeTrigger
             add_action('save_post', [$this, 'purgePostOnSave'], 99, 1);
         }
 
+        // Purge post, focus on updating the category term(s)
+        if (apply_filters('sb_optimizer_automatic_purge_on_post_first_save', true)) {
+            add_action('wp_insert_post', [$this, 'purgeFirstSave'], 99, 3);
+        }
+
         // Purge post on comment post.
         if (apply_filters('sb_optimizer_automatic_purge_on_comment', true)) {
             add_action('comment_post', [$this, 'purgePostOnCommentPost'], 99, 3);
@@ -83,6 +90,39 @@ class ContentChangeTrigger
             add_action('untrash_comment', [$this, 'purgePostOnCommentUnTrashed'], 99, 2);
         }
         
+    }
+
+    /**
+     * Double check that the first save purges properly.
+     * 
+     * On first save, wordpress will save the Category as 'unassigned', to only 
+     * later in the save process save it again as the selected Category.
+     * 
+     * This method is here
+     * 
+     * @param $postId The id of the post being saved.
+     * @param $post the post object.
+     * @param $update bool, is this updating an existing post.
+     * 
+     * @return void
+     */
+    public function purgeFirstSave($postId, $post, $update): void
+    {
+        // ignore first 2 rounds of saving. they have no value.
+        if( $post->post_status == 'auto-draft' || $update == false ) return;
+        // we are only interested in Categories as they set a default cat. 
+        $ids = wp_get_post_terms($postId, 'category', ['fields' => 'ids']);
+        // ignore empty taxonomies, also ignore error and continue;
+        if(count($ids) == 0 || is_wp_error($ids)) return;
+        // Make sure to have the default category so we can ignore it. 
+        $default_category = get_option("default_category");
+        // loop all ids and add them.
+        foreach($ids as $id) {
+            // don't do anything if its the default.
+            if($id == $default_category) continue;
+            
+            $this->maybePurgeTerm((int) $id, 'category');
+        }
     }
 
     /**

@@ -269,7 +269,7 @@ class Reader
     {
         $subdir = '';
         $regex = $this->legacyFolderLocateRegex;
-        // if it begins with /cust/ its next gen and needs to have home appended to the path. 
+        // if it begins with /cust/ its NextGen and needs to have home appended to the path. 
         if (isNextGen($searchFolderPath)) {
             $subdir = 'home/';
             $regex =  $this->nextGenFolderLocateRegex;
@@ -279,7 +279,6 @@ class Reader
             && isset($matches[1])
             && !empty($matches[1])
         ) {
-            error_log('the path : ' . trailingslashit($matches[1]) . $subdir );
             return trailingslashit($matches[1]) . $subdir;
         }
         return false;
