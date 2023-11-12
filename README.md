@@ -69,10 +69,10 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 #### 3.5.25
-* Allows for NextGen servers to be supported.
-* Using hook wp_insert_post, added default_category check on first save of a post, so that purging on added categories on new posts can be done. 
+* Allows for NextGen servers to be supported for reading Servebolt Environment files and obtaining the server site id from the path.
+* Using hook set_object_terms, so that it checks if default_category check on first save of a post, is being replace with newer terms on first publish.
 * Tested upto 6.4.1
-* Fixed bug in cache by term id, now uses CacheTags where possible.
+* Fixed bug in cache by term id, now uses CacheTags whenever possible.
 #### 3.5.24
 * fixed small bug of missing save button on advanced tab of new installs
 * proven support for 6.3.1
