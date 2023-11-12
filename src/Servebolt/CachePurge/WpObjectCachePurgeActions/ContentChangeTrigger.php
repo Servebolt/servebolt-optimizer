@@ -128,9 +128,7 @@ class ContentChangeTrigger
         foreach($tt_ids as $term_id) {
             // don't do anything if its the default. It should never have to do this
             // but just in case it does, better not to set an extra purge event.
-            if($term_id == $default_category) continue;
-            error_log("I'm puring $term_id ");
-            // the $taxonomy will always be 'category'
+            if($term_id == $default_category) continue;            
             $this->maybePurgeTerm((int) $term_id, $taxonomy);
         }
     }

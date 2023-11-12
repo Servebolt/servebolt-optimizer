@@ -373,12 +373,20 @@ function getSiteIdFromEnvFile(): ?string
  */
 function getSiteIdFromWebrootPath(bool $attemptPathFromEnvironmentFile = true): ?string
 {
+    $legacy = '/kunder\/[a-z_0-9]+\/[a-z_]+(\d+)(|\/)/';
+    $nextGen = '/(\/cust\/[0-9]\/[a-z_0-9]+\/[a-z_]+(\d+))/';
     $path = $attemptPathFromEnvironmentFile ? getWebrootPath() : getWebrootPathFromWordPress();
+    $regex = $legacy;
+    $match_number = 1;
+    if(isNextGen($path)) {
+        $regex = $nextGen;
+        $match_number = 2;
+    }
     if (
-        preg_match('/kunder\/[a-z_0-9]+\/[a-z_]+(\d+)(|\/)/', $path, $matches)
-        && isset($matches[1])
+        preg_match($regex, $path, $matches)
+        && isset($matches[$match_number])
     ) {
-        return $matches[1];
+        return $matches[$match_number];
     }
     return null;
 }
