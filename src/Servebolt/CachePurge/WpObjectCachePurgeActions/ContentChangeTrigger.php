@@ -62,7 +62,7 @@ class ContentChangeTrigger
 
         // Purge post, focus on updating the category term(s)
         if (apply_filters('sb_optimizer_automatic_purge_on_post_first_save', true)) {
-            add_action('wp_insert_post', [$this, 'purgeFirstSave'], 99, 3);
+            add_action('set_object_terms', [$this, 'purgeCategoryTermsOnFirstSave'], 99, 6);
         }
 
         // Purge post on comment post.
@@ -93,35 +93,45 @@ class ContentChangeTrigger
     }
 
     /**
-     * Double check that the first save purges properly.
+     * Double check that the first save purges properly for the Category taxonomy.
      * 
      * On first save, wordpress will save the Category as 'unassigned', to only 
      * later in the save process save it again as the selected Category.
      * 
-     * This method is here
+     * This method is here to make sure that first save items always purge
+     * the categories on post save. 
      * 
-     * @param $postId The id of the post being saved.
-     * @param $post the post object.
-     * @param $update bool, is this updating an existing post.
+     * @param int $object_id The id of the post being saved.
+     * @param array $terms Array of terms, normally numeric.
+     * @param array $tt_ids Array of numeric terms.
+     * @param string $taxonomy The name of the taxonomy.
+     * @param bool Append terms or replace, replace (false) is default.
+     * @param array $old_tt_ids Array of numeric terms, the previously saved version.
      * 
      * @return void
      */
-    public function purgeFirstSave($postId, $post, $update): void
+    public function purgeCategoryTermsOnFirstSave($object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids): void
     {
-        // ignore first 2 rounds of saving. they have no value.
-        if( $post->post_status == 'auto-draft' || $update == false ) return;
-        // we are only interested in Categories as they set a default cat. 
-        $ids = wp_get_post_terms($postId, 'category', ['fields' => 'ids']);
-        // ignore empty taxonomies, also ignore error and continue;
-        if(count($ids) == 0 || is_wp_error($ids)) return;
-        // Make sure to have the default category so we can ignore it. 
-        $default_category = get_option("default_category");
+        // Check if the taxonomy is 'category' and has required values. exit early.
+        if ( $taxonomy !== 'category' || (isset($terms[0]) && isset($old_tt_ids[0])) === false ) return;
+        // check if values match up, that we are only dealing with the default category in the correct way.
+        $default_category = get_option("default_category");    
+        if( 
+            (count($tt_ids) == 1 && $tt_ids[0] == $default_category) ||
+            (count($old_tt_ids) == 1 && $old_tt_ids[0] != $default_category)
+          ) return;
+        // Check if the post is old or new by comparing GMT datestamp values. They should equal each other,
+        // thus checking for inequality.
+        $post = get_post($object_id);
+        if($post->post_date_gmt !== $post->post_modified_gmt) return;
         // loop all ids and add them.
-        foreach($ids as $id) {
-            // don't do anything if its the default.
-            if($id == $default_category) continue;
-            
-            $this->maybePurgeTerm((int) $id, 'category');
+        foreach($tt_ids as $term_id) {
+            // don't do anything if its the default. It should never have to do this
+            // but just in case it does, better not to set an extra purge event.
+            if($term_id == $default_category) continue;
+            error_log("I'm puring $term_id ");
+            // the $taxonomy will always be 'category'
+            $this->maybePurgeTerm((int) $term_id, $taxonomy);
         }
     }
 
