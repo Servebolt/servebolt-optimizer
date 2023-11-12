@@ -297,6 +297,7 @@ class CacheTagsBase {
      */
     public function getHeaders() : array
     {
+        error_log('request to get headers');
         return $this->headers;
     }
 

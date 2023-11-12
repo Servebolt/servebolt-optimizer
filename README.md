@@ -72,6 +72,7 @@ If you want to build a local production-ready version of the plugin you can run 
 * Allows for NextGen servers to be supported.
 * Using hook wp_insert_post, added default_category check on first save of a post, so that purging on added categories on new posts can be done. 
 * Tested upto 6.4.1
+* Fixed bug in cache by term id, now uses CacheTags where possible.
 #### 3.5.24
 * fixed small bug of missing save button on advanced tab of new installs
 * proven support for 6.3.1

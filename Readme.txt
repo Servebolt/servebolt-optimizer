@@ -98,9 +98,10 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 
 == Changelog ==
 = 3.5.25 = 
-* Allows for NextGen servers to be supported.
-* tested with latest version of WordPress (6.4.1)
-* Using hook wp_insert_post, added default_category check on first save of a post, so that purging on added categories on new posts can be done. 
+* Allows for NextGen servers to be supported for reading Servebolt Environment files and obtaining the server site id from the path.
+* Using hook set_object_terms, so that it checks if default_category is set on first save of a post, and is being replace with newer terms on first publish.
+* Tested upto 6.4.1
+* Fixed bug in cache by term id, now uses CacheTags whenever possible.
 
 = 3.5.24 =
 * fixed small bug of missing save button on advanced tab of new installs

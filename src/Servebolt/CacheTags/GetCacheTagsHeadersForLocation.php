@@ -37,6 +37,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     {
         
         if($this->objectType == 'term') {
+            $this->setPrefixAndSuffixForTags();
             $this->add('term-'.$this->objectId);
             return;
         } 
