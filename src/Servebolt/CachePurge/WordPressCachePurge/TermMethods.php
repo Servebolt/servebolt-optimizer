@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
-use Servebolt\Optimizer\CacheTags\CacheTagsBase;
+use Servebolt\Optimizer\CacheTags\GetCacheTagsHeadersForTag;
 use function Servebolt\Optimizer\Helpers\getCachePurgeOriginEvent;
 use function Servebolt\Optimizer\Helpers\isQueueItem;
 use function Servebolt\Optimizer\Helpers\isAcd;
@@ -56,8 +56,7 @@ trait TermMethods
      */
     private static function getTagToPurgeByTermId(int $termId): array
     {
-        $cachTag = new CacheTagsBase();
-        $cachTag->add('term-'.$termId);
+        $cacheTag = new GetCacheTagsHeadersForTag($termId, 'term');
         return $cacheTag->getHeaders();
     }
 
@@ -134,12 +133,15 @@ trait TermMethods
         } 
         $cachePurgeDriver = CachePurgeDriver::getInstance();
         if ($cachePurgeDriver::driverSupportsCacheTagPurge()) {
-            error_log(
-                "this is ACD! \n\n"
-            );
             $purgeValues = getTagToPurgeByTermId($termId);
-            error_log(print_r($purgeValues, true));
-            $cachePurgeDriver->purgeByTags($purgeValues);
+            if(is_array($purgeValues)) {
+                error_log('purge array of tags : ' . print_r($purgeValues, true));
+            } else if(is_string($purgeValues)) {
+                error_log('purge string of tags : ' . $purgeValues);
+            } else {
+                error_log(' nothing in the reply.  that is not nice');
+            } // purging term:
+            $result = $cachePurgeDriver->purgeByTags($purgeValues);
         } else {
             //
             if (

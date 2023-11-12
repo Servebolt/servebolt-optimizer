@@ -31,7 +31,6 @@ class ContentChangeTrigger
         remove_action('trash_comment', [$this, 'purgePostOnCommentTrashed'], 99, 2);
         remove_action('untrash_comment', [$this, 'purgePostOnCommentUnTrashed'], 99, 2);
         remove_action('wp_insert_post', [$this, 'purgeFirstSave'], 99, 3);
-        
     }
 
     /**
@@ -89,25 +88,24 @@ class ContentChangeTrigger
         if (apply_filters('sb_optimizer_automatic_purge_on_comment_untrashed', true)) {
             add_action('untrash_comment', [$this, 'purgePostOnCommentUnTrashed'], 99, 2);
         }
-        
     }
 
     /**
      * Double check that the first save purges properly for the Category taxonomy.
-     * 
-     * On first save, wordpress will save the Category as 'unassigned', to only 
+     *
+     * On first save, wordpress will save the Category as 'unassigned', to only
      * later in the save process save it again as the selected Category.
-     * 
+     *
      * This method is here to make sure that first save items always purge
-     * the categories on post save. 
-     * 
+     * the categories on post save.
+     *
      * @param int $object_id The id of the post being saved.
      * @param array $terms Array of terms, normally numeric.
      * @param array $tt_ids Array of numeric terms.
      * @param string $taxonomy The name of the taxonomy.
      * @param bool Append terms or replace, replace (false) is default.
      * @param array $old_tt_ids Array of numeric terms, the previously saved version.
-     * 
+     *
      * @return void
      */
     public function purgeCategoryTermsOnFirstSave($object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids): void
