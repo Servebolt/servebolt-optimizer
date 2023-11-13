@@ -98,8 +98,8 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 
 == Changelog ==
 = 3.5.25 = 
-* Allows for NextGen servers to be supported for reading Servebolt Environment files and obtaining the server site id from the path.
-* Using hook set_object_terms, so that it checks if default_category is set on first save of a post, and is being replace with newer terms on first publish.
+* Allows for NextGen servers to be supported for reading Servebolt Environment files and obtaining the site id from the path.
+* Using hook set_object_terms, so that it checks if default_category is used on first save of a post, and if its is being replace with newer terms on first publish.
 * Tested upto 6.4.1
 * Fixed bug in cache by term id, now uses CacheTags whenever possible.
 
