@@ -73,6 +73,7 @@ If you want to build a local production-ready version of the plugin you can run 
 * Using hook set_object_terms, so that it checks if default_category is used on first save of a post, and if its is being replace with newer terms on first publish.
 * Tested upto 6.4.1
 * Fixed bug in cache by term id, now uses CacheTags whenever possible.
+* Added check for Image sizes on Accellerated Domains image resizer so that it can never have a zero value.
 #### 3.5.24
 * fixed small bug of missing save button on advanced tab of new installs
 * proven support for 6.3.1

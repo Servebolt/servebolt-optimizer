@@ -46,7 +46,6 @@ class ImageSizeCreationOverride
      */
     public function overrideImageSizeCreation($sizes, $imageMeta): array
     {
-
         // Store the image sizes for later use
         $this->originalSizes = $sizes;
 
@@ -56,11 +55,13 @@ class ImageSizeCreationOverride
         // Determine which image sizes we should generate files for
         $uploadedImageRatio = $imageMeta['width'] / $imageMeta['height'];
         return array_filter($sizes, function ($size, $key) use ($imageMeta, $uploadedImageRatio) {
-
             // Check if this is a size that we should always generate
             if ( in_array($key, (array) apply_filters('sb_optimizer_image_resize_always_create_sizes', $this->alwaysCreateSizes) ) ) {
                 return true;
             }
+
+            // Check we can't ever do a divide by 0.
+            if($size['width'] == 0 || $size['height'] == 0) return true;
 
             $imageSizeRatio = $size['width'] / $size['height'];
             $uploadedImageHasSameRatioAsCurrentImageSize = $uploadedImageRatio == $imageSizeRatio;

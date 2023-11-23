@@ -85,6 +85,7 @@ class WPConfigTransformer {
 			throw new Exception( "Config type '{$type}' does not exist." );
 		}
 
+		error_log('wp_configs from function Exists :' . print_r($this->wp_configs, true));
 		return isset( $this->wp_configs[ $type ][ $name ] );
 	}
 
@@ -362,5 +363,4 @@ class WPConfigTransformer {
 
 		return true;
 	}
-
 }

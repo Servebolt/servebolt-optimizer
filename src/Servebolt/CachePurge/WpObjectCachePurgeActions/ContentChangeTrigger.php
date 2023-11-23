@@ -30,7 +30,7 @@ class ContentChangeTrigger
         remove_action('edit_comment', [$this, 'purgePostOnPublishedCommentEdited'], 99, 2);
         remove_action('trash_comment', [$this, 'purgePostOnCommentTrashed'], 99, 2);
         remove_action('untrash_comment', [$this, 'purgePostOnCommentUnTrashed'], 99, 2);
-        remove_action('wp_insert_post', [$this, 'purgeFirstSave'], 99, 3);
+        remove_action('set_object_terms', [$this, 'purgeCategoryTermsOnFirstSave'], 99, 6);
     }
 
     /**
@@ -59,7 +59,7 @@ class ContentChangeTrigger
             add_action('save_post', [$this, 'purgePostOnSave'], 99, 1);
         }
 
-        // Purge post, focus on updating the category term(s)
+        // Purge term(s), updating the category terms after first save when replacing the default_category
         if (apply_filters('sb_optimizer_automatic_purge_on_post_first_save', true)) {
             add_action('set_object_terms', [$this, 'purgeCategoryTermsOnFirstSave'], 99, 6);
         }
@@ -436,5 +436,4 @@ class ContentChangeTrigger
         // Purge post as needed (checks post type for validity).
         $this->maybePurgePost($postId);        
     }
-
 }

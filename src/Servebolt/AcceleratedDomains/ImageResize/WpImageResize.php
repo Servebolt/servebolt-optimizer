@@ -57,6 +57,7 @@ class WpImageResize extends ImageResize
             add_filter('the_content', [$this, 'alterImagesIntheContent'], 99, 1 );
         }
     }
+
     /**
      * Add hook to duplicate all existing sizes in the srcset-array to contain half the size.
      */
