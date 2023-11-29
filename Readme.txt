@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, html cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.3.1
+Tested up to: 6.4.1
 Requires PHP: 7.3
-Stable tag: 3.5.24
+Stable tag: 3.5.25
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,13 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.25 = 
+* Allows for NextGen servers to be supported for reading Servebolt Environment files and obtaining the site id from the path.
+* Using hook set_object_terms, so that it checks if default_category is used on first save of a post, and if its is being replace with newer terms on first publish.
+* Tested upto 6.4.1
+* Fixed bug in cache by term id, now uses CacheTags whenever possible.
+* Added check for Image sizes on Accellerated Domains image resizer so that it can never have a zero value.
+
 = 3.5.24 =
 * fixed small bug of missing save button on advanced tab of new installs
 * proven support for 6.3.1

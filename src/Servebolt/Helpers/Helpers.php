@@ -373,12 +373,20 @@ function getSiteIdFromEnvFile(): ?string
  */
 function getSiteIdFromWebrootPath(bool $attemptPathFromEnvironmentFile = true): ?string
 {
+    $legacy = '/kunder\/[a-z_0-9]+\/[a-z_]+(\d+)(|\/)/';
+    $nextGen = '/(\/cust\/[0-9]\/[a-z_0-9]+\/[a-z_]+(\d+))/';
     $path = $attemptPathFromEnvironmentFile ? getWebrootPath() : getWebrootPathFromWordPress();
+    $regex = $legacy;
+    $match_number = 1;
+    if(isNextGen($path)) {
+        $regex = $nextGen;
+        $match_number = 2;
+    }
     if (
-        preg_match('/kunder\/[a-z_0-9]+\/[a-z_]+(\d+)(|\/)/', $path, $matches)
-        && isset($matches[1])
+        preg_match($regex, $path, $matches)
+        && isset($matches[$match_number])
     ) {
-        return $matches[1];
+        return $matches[$match_number];
     }
     return null;
 }
@@ -771,6 +779,23 @@ function deleteAllSettings(bool $allSites = true, bool $includeMigrationOptions 
             deleteOption($optionName);
         }
     }
+}
+
+/**
+ * Checks if we are on NextGen or a Legacy Server.
+ */
+function isNextGen($path = ''): bool
+{
+    if($path === '') {
+        if (isset($_SERVER['DOCUMENT_ROOT'])) {
+            $path = trailingslashit(dirname($_SERVER['DOCUMENT_ROOT']));
+        } else if (defined('ABSPATH')) {
+            $path = trailingslashit(dirname(ABSPATH));
+        } else {
+            throw new Exception('Could not determine default environment file folder path.');
+        }
+    }
+    return ( strpos($path, '/cust/') === 0 ) ? true : false;
 }
 
 /**

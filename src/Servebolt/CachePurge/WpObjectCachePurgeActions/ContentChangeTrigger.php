@@ -30,6 +30,7 @@ class ContentChangeTrigger
         remove_action('edit_comment', [$this, 'purgePostOnPublishedCommentEdited'], 99, 2);
         remove_action('trash_comment', [$this, 'purgePostOnCommentTrashed'], 99, 2);
         remove_action('untrash_comment', [$this, 'purgePostOnCommentUnTrashed'], 99, 2);
+        remove_action('set_object_terms', [$this, 'purgeCategoryTermsOnFirstSave'], 99, 6);
     }
 
     /**
@@ -58,6 +59,11 @@ class ContentChangeTrigger
             add_action('save_post', [$this, 'purgePostOnSave'], 99, 1);
         }
 
+        // Purge term(s), updating the category terms after first save when replacing the default_category
+        if (apply_filters('sb_optimizer_automatic_purge_on_post_first_save', true)) {
+            add_action('set_object_terms', [$this, 'purgeCategoryTermsOnFirstSave'], 99, 6);
+        }
+
         // Purge post on comment post.
         if (apply_filters('sb_optimizer_automatic_purge_on_comment', true)) {
             add_action('comment_post', [$this, 'purgePostOnCommentPost'], 99, 3);
@@ -82,7 +88,47 @@ class ContentChangeTrigger
         if (apply_filters('sb_optimizer_automatic_purge_on_comment_untrashed', true)) {
             add_action('untrash_comment', [$this, 'purgePostOnCommentUnTrashed'], 99, 2);
         }
-        
+    }
+
+    /**
+     * Double check that the first save purges properly for the Category taxonomy.
+     *
+     * On first save, wordpress will save the Category as 'unassigned', to only
+     * later in the save process save it again as the selected Category.
+     *
+     * This method is here to make sure that first save items always purge
+     * the categories on post save.
+     *
+     * @param int $object_id The id of the post being saved.
+     * @param array $terms Array of terms, normally numeric.
+     * @param array $tt_ids Array of numeric terms.
+     * @param string $taxonomy The name of the taxonomy.
+     * @param bool Append terms or replace, replace (false) is default.
+     * @param array $old_tt_ids Array of numeric terms, the previously saved version.
+     *
+     * @return void
+     */
+    public function purgeCategoryTermsOnFirstSave($object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids): void
+    {
+        // Check if the taxonomy is 'category' and has required values. exit early.
+        if ( $taxonomy !== 'category' || (isset($terms[0]) && isset($old_tt_ids[0])) === false ) return;
+        // check if values match up, that we are only dealing with the default category in the correct way.
+        $default_category = get_option("default_category");    
+        if( 
+            (count($tt_ids) == 1 && $tt_ids[0] == $default_category) ||
+            (count($old_tt_ids) == 1 && $old_tt_ids[0] != $default_category)
+          ) return;
+        // Check if the post is old or new by comparing GMT datestamp values. They should equal each other,
+        // thus checking for inequality.
+        $post = get_post($object_id);
+        if($post->post_date_gmt !== $post->post_modified_gmt) return;
+        // loop all ids and add them.
+        foreach($tt_ids as $term_id) {
+            // don't do anything if its the default. It should never have to do this
+            // but just in case it does, better not to set an extra purge event.
+            if($term_id == $default_category) continue;            
+            $this->maybePurgeTerm((int) $term_id, $taxonomy);
+        }
     }
 
     /**
@@ -390,5 +436,4 @@ class ContentChangeTrigger
         // Purge post as needed (checks post type for validity).
         $this->maybePurgePost($postId);        
     }
-
 }

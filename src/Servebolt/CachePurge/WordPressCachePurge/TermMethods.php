@@ -7,8 +7,10 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\CachePurge as CachePurgeDriver;
 use Servebolt\Optimizer\CachePurge\PurgeObject\PurgeObject;
 use Servebolt\Optimizer\Queue\Queues\WpObjectQueue;
+use Servebolt\Optimizer\CacheTags\GetCacheTagsHeadersForLocation;
 use function Servebolt\Optimizer\Helpers\getCachePurgeOriginEvent;
 use function Servebolt\Optimizer\Helpers\isQueueItem;
+use function Servebolt\Optimizer\Helpers\isAcd;
 
 /**
  * Trait TermMethods
@@ -43,6 +45,19 @@ trait TermMethods
             compact('taxonomySlug'),
         );
         return $purgeObject->getUrls();
+    }
+
+    /**
+     * Get all the URLs to purge for a given term.
+     *
+     * @param int $termId
+     * @param string $taxonomySlug
+     * @return bool|mixed
+     */
+    private static function getTagToPurgeByTermId(int $termId): array
+    {
+        $cacheTag = new GetCacheTagsHeadersForLocation($termId, 'term');
+        return $cacheTag->getHeaders();
     }
 
     /**
@@ -101,6 +116,8 @@ trait TermMethods
         do_action('sb_optimizer_purged_term_cache_for_' . $termId, false);
 
         if (self::shouldPurgeByQueue()) {
+            // if queuing, will check the if CacheTag enabled and use it 
+            // as needed during processing.
             $queueInstance = WpObjectQueue::getInstance();
             $queueItemData = [
                 'type' => 'term',
@@ -111,7 +128,16 @@ trait TermMethods
                 $queueItemData['originEvent'] = $originEvent;
             }
             return isQueueItem($queueInstance->add($queueItemData));
+            // should only ever be with ACD but this might change later
+            // so checking to make sure CacheTags will be useable.
+        } 
+        $cachePurgeDriver = CachePurgeDriver::getInstance();
+        if ($cachePurgeDriver::driverSupportsCacheTagPurge()) {
+            $purgeValues = self::getTagToPurgeByTermId((int) $termId);
+            $result = $cachePurgeDriver->purgeByTags($purgeValues);
+            return $result;
         } else {
+            //
             if (
                 self::$preventDoublePurge
                 && self::$preventTermDoublePurge
@@ -120,7 +146,7 @@ trait TermMethods
                 return self::$recentlyPurgedTerms[$termId . '-' . $taxonomySlug];
             }
             $urlsToPurge = self::getUrlsToPurgeByTermId($termId, $taxonomySlug);
-            $cachePurgeDriver = CachePurgeDriver::getInstance();
+            
             $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'term', $cachePurgeDriver);
             $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
             if (self::$preventDoublePurge && self::$preventTermDoublePurge) {

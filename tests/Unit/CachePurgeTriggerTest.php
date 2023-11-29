@@ -19,6 +19,7 @@ class CachePurgeTriggerTest extends ServeboltWPUnitTestCase
         $this->setUpBogusAcdConfig();
         $this->useQueueBasedCachePurge();
         add_filter('sb_optimizer_automatic_purge_on_post_save', '__return_false'); // Prevent post creation from adding the post to the cache purge queue
+        add_filter('sb_optimizer_automatic_purge_on_post_first_save', '__return_false'); // Prevent replacing the default category on first save from making a cache purge
         WpObjectCachePurgeActions::reloadEvents();
     }
 
@@ -27,6 +28,7 @@ class CachePurgeTriggerTest extends ServeboltWPUnitTestCase
         parent::tearDown();
         MigrationRunner::cleanup();
         remove_filter('sb_optimizer_automatic_purge_on_post_save', '__return_false');
+        remove_filter('sb_optimizer_automatic_purge_on_post_first_save', '__return_false');
     }
 
     public function testThatTrashingAPostPurgesCache()

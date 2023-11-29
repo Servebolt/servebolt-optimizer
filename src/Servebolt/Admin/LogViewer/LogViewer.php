@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Traits\Singleton;
 use function Servebolt\Optimizer\Helpers\view;
+use function Servebolt\Optimizer\Helpers\isNextGen;
 
 /**
  * Class Servebolt_Logviewer
@@ -28,7 +29,10 @@ class LogViewer
      */
     private function getErrorLogPath(): string
     {
-        $logDir = str_replace('/public', '/logs', $_SERVER['DOCUMENT_ROOT']);
+        $logDir = str_replace('/public', '/logs', $_SERVER['DOCUMENT_ROOT']); 
+        if(isNextGen()) {
+            $logDir = str_replace('/site/public', '/logs/php', $_SERVER['DOCUMENT_ROOT']);        
+        }
         $logFilePath = $logDir . '/ErrorLog';
         return (string) apply_filters('sb_optimizer_log_file_path', $logFilePath);
     }

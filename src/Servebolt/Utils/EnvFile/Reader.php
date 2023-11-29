@@ -11,6 +11,7 @@ use function Servebolt\Optimizer\Helpers\deleteOption;
 use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\updateOption;
+use function Servebolt\Optimizer\Helpers\isNextGen;
 
 /**
  * Class Reader
@@ -36,9 +37,28 @@ class Reader
     private $success = false;
 
     /**
-     * @var string Regex-pattern used to resolve user home folder when we can not resolve it from Wordpress-paths.
+     * @var string Regex-pattern used to resolve user home folder when on a Legacy Servebolt server, 
+     * and that we can not resolve it from Wordpress-paths. existing strucure is
+     * 
+     * /kunder/<bolt>/<site>/
+     * 
+     * example file location:
+     * /kunder/serveb_12625/acdgro_17912/environment.json
+     * 
      */
-    private $folderLocateRegex = '/(\/kunder\/[a-z_0-9]+\/[a-z_]+(\d+))/';
+    private $legacyFolderLocateRegex = '/(\/kunder\/[a-z_0-9]+\/[a-z_]+(\d+))/';
+
+    /**
+     * @var string Regex-pattern used to resolve user home folder when on a NextGen Servebolt server,
+     * the new struture is 
+     * 
+     * /cust/<partition number>/<bolt>/<site>/home/
+     * 
+     * example file location:
+     * /cust/0/quotab_8657/quotab_1350/home/environment.json
+     * 
+     */
+    private $nextGenFolderLocateRegex = '/(\/cust\/[0-9]\/[a-z_0-9]+\/[a-z_]+(\d+))/';
 
     /**
      * @var string The basename of the environment file.
@@ -238,18 +258,28 @@ class Reader
 
     /**
      * Locate users home folder from WordPress-path by using pattern matching.
+     * 
+     * There are two patterens that can possibly be matched. The Legacy /kunder/ and 
+     * the NextGen /cust/ are the begginings of each possible path. 
      *
      * @param $searchFolderPath
      * @return false|string
      */
     private function locateFolderPathFromDefaultPath($searchFolderPath)
     {
+        $subdir = '';
+        $regex = $this->legacyFolderLocateRegex;
+        // if it begins with /cust/ its NextGen and needs to have home appended to the path. 
+        if (isNextGen($searchFolderPath)) {
+            $subdir = 'home/';
+            $regex =  $this->nextGenFolderLocateRegex;
+        }
         if (
-            preg_match(apply_filters('sb_optimizer_env_file_reader_folder_regex_pattern', $this->folderLocateRegex), $searchFolderPath, $matches)
+            preg_match(apply_filters('sb_optimizer_env_file_reader_folder_regex_pattern', $regex), $searchFolderPath, $matches)
             && isset($matches[1])
             && !empty($matches[1])
         ) {
-            return trailingslashit($matches[1]);
+            return trailingslashit($matches[1]) . $subdir;
         }
         return false;
     }
