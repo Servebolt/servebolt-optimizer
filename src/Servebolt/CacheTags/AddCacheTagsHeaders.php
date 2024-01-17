@@ -44,20 +44,6 @@ class AddCacheTagsHeaders extends CacheTagsBase {
     // Use the Multiton trait to allow for singleton
     use Multiton;
 
-    // /**
-    //  * Drivers that require the site to be hosted at Servebolt.
-    //  *
-    //  * @var string[]
-    //  */
-    // private static $serveboltOnlyDrivers = ['acd', 'serveboltcdn'];
-
-    // /**
-    //  * Valid drivers.
-    //  *
-    //  * @var string[]
-    //  */
-    // private static $validDrivers = ['cloudflare', 'acd', 'serveboltcdn'];
-
     /**
      * CachePurge constructor.
      * @param int|null $blogId
@@ -82,23 +68,22 @@ class AddCacheTagsHeaders extends CacheTagsBase {
             || isTesting()
         ) return;
 
-        
-        
         if(in_array($this->driver, CanUseCacheTags::allowedDrivers())) {
             // Get the correct hook based on version of WordPress, pre 6.1 wp, post send_headers.
             add_action(getCondtionalHookPreHeaders(), [$this,'addCacheTagsHeaders']);
         }
-        
+
     }
 
     /**
-     * 
-     * 
+     * Works out what cache tage headers are needed in the header CacheTag for the current location.
      */
     public function addCacheTagsHeaders()
     {
-        $this->setPrefixAndSuffixForTags();   
-        if($this->driver != 'serveboltcdn') {
+        $this->setPrefixAndSuffixForTags();
+        // Filter allows customer to use reduced instruction set for CacheTags.
+        // If filter returns false, an Accelerated Domains customer will use the Servebolt CDN cache tags.
+        if($this->driver != 'serveboltcdn' && apply_filters('sb_optimizer_cach_tags_fine_grain_control', true) ) {
             $this->addAuthorTag();
             $this->addTaxonomyTermIDTag();
             $this->addDateTag();
@@ -125,6 +110,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
             try{
                 $tags = implode(',', $this->headers);
                 header('Cache-Tag: ' . $tags );
+                header('Test-Tag: ' . $tags );
                 if($this->driver == 'acd') {
                     header('x-acd-Cache-Tag: ' . $tags);
                 }
