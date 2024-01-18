@@ -1,10 +1,53 @@
 <?php
 namespace Servebolt\Optimizer\CacheTags;
 
-use function \Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
+use Servebolt\Optimizer\Api\Servebolt\Servebolt;
+// use function \Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 class CacheTagsBase {
+    /**
+     * Class constants are used to convert labels (const names) into numbers.
+     * This way they human readable in the code, but machine readable as a cachetag
+     *
+     * These are grouped
+     * 0x = global
+     * 1x = post type
+     * 2x = taxonomy
+     * 3x = feeds
+     * 4x = woocommerce
+     *
+     */
+
+    // Global
+    const HOME = 00;
+    const HTML = 01;
+    const SEARCH = 02;
+    const SITEMAP = 03; // Not currently used
+
+    // Post Type
+    const POST_TYPE = 10;
+    const AUTHOR = 11;
+    const DATE = 12;
+    const MONTH = 13;
+    const YEAR = 14;
+
+    // Taxonomy
+    const TERM_ID = 20;
+    const TAXONOMY_ID = 21; // not currently used.
+
+    // Feeds
+    const FEEDS = 30;
+    const COMMENT_FEED = 31;
+
+    // WooCommerce
+    const WOOCOMMERCE = 40;
+    const WOOCOMMERCE_SHOP = 41;
+    const WOOCOMMERCE_CATEGORY = 42;
+    const WOOCOMMERCE_TAG = 43;
+    const WOOCOMMERCE_PRODUCT = 44;
+    const WOOCOMMERCE_PRODUCT_ID = 45;
+
     /**
      * Drivers that require the site to be hosted at Servebolt.
      *
@@ -81,7 +124,10 @@ class CacheTagsBase {
 
     protected function setDomain()
     {
-        $this->domain = str_replace('.','',getDomainNameOfWebSite());
+        $env = Servebolt::getInstance();
+        $this->domain = $env->getEnvironmentId();
+        // remove domain name in favor of env id. 
+        // $this->domain = str_replace('.','',getDomainNameOfWebSite());
     }
 
     protected function setBlog()
@@ -98,10 +144,10 @@ class CacheTagsBase {
     protected function addPostTypeTag() : void
     {
         if(is_post_type_archive()) {
-            $this->add('posttype-'.get_queried_object()->name );
+            $this->add(self::POST_TYPE.'-'.get_queried_object()->name );
         }
         if(is_singular()) {
-            $this->add('posttype-'.get_post_type());
+            $this->add(self::POST_TYPE.'-'.get_post_type());
         }
     }
     /**
@@ -110,7 +156,7 @@ class CacheTagsBase {
      */
     protected function addHTMLTag() : void
     {
-        $this->add('html');
+        $this->add(self::HTML);
     }
     /**
      * Add search tag when on a search page
@@ -118,7 +164,7 @@ class CacheTagsBase {
     protected function addSearch() : void
     {
         if(is_search()) {
-            $this->add('search');
+            $this->add(self::SEARCH);
         }
     }
     /**
@@ -130,7 +176,7 @@ class CacheTagsBase {
     protected function addTaxonomyTermIDTag() : void
     {
         if(is_category() || is_tag() || is_tax() ) {            
-            $this->add('term-'. get_queried_object_id());
+            $this->add(self::TERM_ID . '-'. get_queried_object_id());
             // TODO: decide how much effort to put into RSS
             // $this->add('term-feed-'.get_queried_object_id());
         }
@@ -142,12 +188,10 @@ class CacheTagsBase {
                 if(!$tax->public) continue;
                 $ids = wp_get_post_terms(get_queried_object()->ID, $tax->name, ['fields' => 'ids']);
                 // ignore empty taxonomies or ignore error and continue;
-                if(count($ids) == 0 || is_wp_error($ids)) continue;
-                // loop all ids and add them
+                if( is_wp_error($ids) || count($ids) == 0 ) continue;
+
                 foreach($ids as $id) {
-                    $this->add('term-'.$id);
-                    // TODO: decide how much effort to put into RSS
-                    //$this->add('term-feed-'.$id);
+                    $this->add(self::TERM_ID . '-'.$id);
                 }
             }            
         }
@@ -163,11 +207,13 @@ class CacheTagsBase {
     {
         
         if(is_author()){
-            $this->add('author-' . get_the_author_meta('ID') );
+            $this->add( self::AUTHOR . '-' . get_the_author_meta('ID') );
         }
 
         if(is_singular()){
-            $this->add('author-' . get_post_field('post_author', get_queried_object()->ID ) );
+            if(class_exists( 'woocommerce' ) && is_product()) return;
+
+            $this->add( self::AUTHOR . '-' . get_post_field('post_author', get_queried_object()->ID ) );
         }
 
     }
@@ -183,15 +229,16 @@ class CacheTagsBase {
     protected function addDateTag() : void
     {
         if(is_date()) {
-            $this->add('date-'.get_query_var('day') .'-'. get_query_var('monthnum') .'-'. get_query_var('year'));
-            $this->add('year-'.  get_query_var('year'));
-            $this->add('month-'. get_query_var('monthnum'));
+            $this->add(self::DATE .'-' .get_query_var('day') .'-'. get_query_var('monthnum') .'-'. get_query_var('year'));
+            $this->add(self::YEAR .'-'.  get_query_var('year'));
+            $this->add(self::MONTH .'-'. get_query_var('monthnum'));
         }
 
         if(is_singular() && !is_home() && !is_front_page()) {
-            $this->add('date-'.get_the_date('d-n-Y'));
-            $this->add('year-'.  get_the_date('Y'));
-            $this->add('month-'. get_the_date('n'));
+            if(is_page() || (class_exists( 'woocommerce' ) && is_product() ) ) return;
+            $this->add(self::DATE .'-' .get_the_date('d-n-Y'));
+            $this->add(self::YEAR .'-'.  get_the_date('Y'));
+            $this->add(self::MONTH .'-'. get_the_date('n'));
         }
     }
 
@@ -208,11 +255,11 @@ class CacheTagsBase {
     protected function addRssTag() : void
     {
         if(is_feed() && !is_singular()) {
-            $this->add('feeds');
+            $this->add(self::FEEDS);
         }
         
         if(is_feed() && is_singular()) {
-            $this->add('comment-feed' . get_queried_object()->ID);
+            $this->add(self::COMMENT_FEED. '-' . get_queried_object()->ID);
         }
     }
 
@@ -224,7 +271,7 @@ class CacheTagsBase {
      **/
     protected function addSitemapTag() : void
     {
-        $this->add('sitemap');
+        $this->add(self::SITEMAP);
     }
 
     /**
@@ -234,7 +281,7 @@ class CacheTagsBase {
     protected function addHomeTag() : void
     {
         if(is_home()||is_front_page()) {
-            $this->add('home');
+            $this->add(self::HOME);
         }
     }
 
@@ -249,28 +296,28 @@ class CacheTagsBase {
         // is this page generated with woocommerce
         // woocommerce
         if(is_woocommerce()) {
-            $this->add('woocommerce');
+            $this->add(self::WOOCOMMERCE);
         }
         // is the main shop page, normally /shop
         // woocommerce-shop
         if(is_shop()) {
-            $this->add('woocommerce-shop');
+            $this->add(self::WOOCOMMERCE_SHOP);
         }
         // is a product category archive page of woocommerce
         // woocommerce-category
         if(is_product_category()){
-            $this->add('woocommerce-category');
+            $this->add(self::WOOCOMMERCE_CATEGORY);
         }
         // is a product tag archive page of woocommerce
         // woocommerce-tag
         if(is_product_tag()){
-            $this->add('woocommerce-tag');
+            $this->add(self::WOOCOMMERCE_TAG);
         }
         // is a product page of woocommerce
         // woocommerce-product
         if(is_product()){
-            $this->add('woocommerce-product');
-            $this->add('woocommerce-productid-'.get_the_ID());
+            $this->add(self::WOOCOMMERCE_PRODUCT);
+            $this->add(self::WOOCOMMERCE_PRODUCT_ID.'-'.get_the_ID());
         }        
     }
 
