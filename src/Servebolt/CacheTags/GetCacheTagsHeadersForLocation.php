@@ -38,7 +38,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
         
         if($this->objectType == 'term') {
             $this->setPrefixAndSuffixForTags();
-            $this->add('term-'.$this->objectId);
+            $this->add(self::TERM_ID . '-'.$this->objectId);
             return;
         } 
 
@@ -89,7 +89,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      */
     protected function addHTMLTag() : void
     {
-        $this->add('html');
+        $this->add(self::HTML);
     }
 
     /**
@@ -97,14 +97,14 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      */
     protected function addSearch() : void
     {
-        $this->add('search');
+        $this->add(self::SEARCH);
     }
     /**
      * Clear the homepage and front page.
      */
     protected function addHomeTag() : void
     {
-        $this->add('home');
+        $this->add(self::HOME);
     }
 
     /**
@@ -112,8 +112,8 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      */
     protected function addRssTag() : void
     {
-        $this->add('comment-feed' . get_the_ID());
-        $this->add('feeds');
+        $this->add(self::COMMENT_FEED.'-'. get_the_ID());
+        $this->add(self::FEEDS);
     }
 
     /**
@@ -121,7 +121,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      */
     protected function addPostTypeTag(): void
     {
-        $this->add('posttype-'.get_post_type());
+        $this->add(self::POST_TYPE . '-'.get_post_type());
     }
 
     /**
@@ -129,9 +129,9 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      */
     protected function addDateTag(): void
     {
-        $this->add('date-'. get_the_date('d-n-Y'));
-        $this->add('year-'. get_the_date('Y'));
-        $this->add('month-'.get_the_date('n'));
+        $this->add(self::DATE . '-'. get_the_date('d-n-Y'));
+        $this->add(self::YEAR . '-'. get_the_date('Y'));
+        $this->add(self::MONTH . '-'.get_the_date('n'));
     }
 
     /**
@@ -148,7 +148,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
             if(count($ids) == 0 || is_wp_error($ids)) continue;
             // loop all ids and add them
             foreach($ids as $id) {
-                $this->add('term-'.$id);
+                $this->add(self::TERM_ID . '-' .$id);
                 // Option to later split feeds by tag id i.e. /tags/tagname/feed
                 // $this->add('term-feed-'.$id);
             }
@@ -163,7 +163,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      */
     protected function addAuthorTag() : void
     {
-        $this->add('author-' . get_post_field('post_author', get_the_ID() ) );
+        $this->add(self::AUTHOR . '-' . get_post_field('post_author', get_the_ID() ) );
     }
 
     /**
@@ -174,7 +174,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
         // check if woo commerce is working on this site.
         if ( !class_exists( 'woocommerce' ) ) return;
         // Add the shop homepage.
-        $this->add('woocommerce-shop');
+        $this->add(self::WOOCOMMERCE_SHOP);
         /**
          * clear the product cache so that all of its versions are removed
          * 1. https://domain.com/product-name
@@ -184,7 +184,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
          * etc etc
          */
         if(function_exists('is_product') && is_product()) {
-            $this->add('woocommerce-productid-'.get_the_ID());
+            $this->add(self::WOOCOMMERCE_PRODUCT_ID . '-'.get_the_ID());
         }
     }
 

@@ -110,7 +110,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
             try{
                 $tags = implode(',', $this->headers);
                 header('Cache-Tag: ' . $tags );
-
+                header('Test-Tag: ' . $tags );
                 if($this->driver == 'acd') {
                     header('x-acd-Cache-Tag: ' . $tags);
                 }
