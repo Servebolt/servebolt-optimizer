@@ -4,7 +4,7 @@
 <?php $image_path = trailingslashit(SERVEBOLT_PLUGIN_DIR_URL) . 'assets/dist/images/'; ?>
 
 <div class="wrap sb-content">
-    <img srcset="<?php echo $image_path ?>servebolt-logo.svg, <?php echo $image_path ?>servebolt-logo-retina.svg 2x" src="<?php echo $image_path ?>servebolt-logo.svg" alt="Servebolt logo" width="170px" height="30px">
+    <img srcset="<?php echo $image_path ?>servebolt-logo.svg, <?php echo $image_path ?>servebolt-logo-retina.svg 2x" src="<?php echo $image_path ?>servebolt-logo.svg" alt="Servebolt logo" width="340px" height="60px">
 	<!-- <div class="sb-logo"></div> -->
 	<h1 class="heading"><?php _e('Performance Tools', 'servebolt-wp'); ?></h1>
 

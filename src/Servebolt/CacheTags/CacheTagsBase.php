@@ -2,21 +2,21 @@
 namespace Servebolt\Optimizer\CacheTags;
 
 use Servebolt\Optimizer\Api\Servebolt\Servebolt;
-use function \Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
+// use function \Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 class CacheTagsBase {
     /**
      * Class constants are used to convert labels (const names) into numbers.
      * This way they human readable in the code, but machine readable as a cachetag
-     * 
-     * These are grouped 
-     * 0x = global  
+     *
+     * These are grouped
+     * 0x = global
      * 1x = post type
      * 2x = taxonomy
      * 3x = feeds
      * 4x = woocommerce
-     * 
+     *
      */
 
     // Global
@@ -31,8 +31,7 @@ class CacheTagsBase {
     const DATE = 12;
     const MONTH = 13;
     const YEAR = 14;
-    
-    
+
     // Taxonomy
     const TERM_ID = 20;
     const TAXONOMY_ID = 21; // not currently used.
@@ -48,7 +47,6 @@ class CacheTagsBase {
     const WOOCOMMERCE_TAG = 43;
     const WOOCOMMERCE_PRODUCT = 44;
     const WOOCOMMERCE_PRODUCT_ID = 45;
-    
 
     /**
      * Drivers that require the site to be hosted at Servebolt.
@@ -128,7 +126,7 @@ class CacheTagsBase {
     {
         $env = Servebolt::getInstance();
         $this->domain = $env->getEnvironmentId();
-        // TODO replace domain name env id. 
+        // remove domain name in favor of env id. 
         // $this->domain = str_replace('.','',getDomainNameOfWebSite());
     }
 
@@ -213,6 +211,8 @@ class CacheTagsBase {
         }
 
         if(is_singular()){
+            if(class_exists( 'woocommerce' ) && is_product()) return;
+
             $this->add( self::AUTHOR . '-' . get_post_field('post_author', get_queried_object()->ID ) );
         }
 

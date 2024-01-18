@@ -50,7 +50,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
      */
     public function __construct(?int $blogId = null)
     {   
-       
+
         $this->driver = self::getSelectedCachePurgeDriver($blogId);
 
         if($this->driver == 'serveboltcdn') {
@@ -58,7 +58,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
             add_filter('sb_optimizer_allow_admin_bar_cache_purge_for_term', '__return_false');
             add_filter('sb_optimizer_can_purge_term_cache', '__return_false');
         }
-        
+
         if (
             is_admin()
             || isAjax()
@@ -72,7 +72,6 @@ class AddCacheTagsHeaders extends CacheTagsBase {
             // Get the correct hook based on version of WordPress, pre 6.1 wp, post send_headers.
             add_action(getCondtionalHookPreHeaders(), [$this,'addCacheTagsHeaders']);
         }
-
     }
 
     /**
@@ -110,7 +109,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
             try{
                 $tags = implode(',', $this->headers);
                 header('Cache-Tag: ' . $tags );
-                header('Test-Tag: ' . $tags );
+
                 if($this->driver == 'acd') {
                     header('x-acd-Cache-Tag: ' . $tags);
                 }
@@ -120,6 +119,5 @@ class AddCacheTagsHeaders extends CacheTagsBase {
             }
         } 
     }
-
-   
+  
 }
