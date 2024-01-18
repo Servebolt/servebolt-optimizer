@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\Utils\DatabaseMigration\Migrations;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Utils\DatabaseMigration\AbstractMigration;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationInterface;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
@@ -117,12 +118,15 @@ class ForceCachePurge extends AbstractMigration implements MigrationInterface
      */
     public function up(): void
     {
-        $this->setBlog();
-        $this->driver = $this->getSelectedCachePurgeDriver(($this->blogId == '')?null:$this->blogId);
+        $this->driver = $this->getSelectedCachePurgeDriver(null);
 
-        error_log('running! updater');
-
-        error_log('driver ' .  $this->driver);
+        if($this->driver == 'cloudflare') return;
+        
+        if(is_multisite()) {
+            WordPressCachePurge::purgeAllNetwork();
+        } else {
+            WordPressCachePurge::purgeAll();
+        }
     }
 
     /**
