@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.4.1
 Requires PHP: 7.3
-Stable tag: 3.5.27
+Stable tag: 3.5.28
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,9 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+
+= 3.5.28 =
+* Found extra typo and replaced 'sb_optimizer_cach_tags_fine_grain_control' to be 'sb_optimizer_cache_tags_fine_grain_control'
 
 = 3.5.27 =
 * fixed typo in 'sb_optimizer_cach_tags_fine_grain_control' to be 'sb_optimizer_cache_tags_fine_grain_control'
