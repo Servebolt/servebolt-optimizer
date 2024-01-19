@@ -221,7 +221,10 @@
     margin-left: 13px;
     display: grid;
 
-    grid-template-columns: 1fr 1fr; 
+    grid-template-columns: 1fr; 
+    @media (min-width:700px) {
+        grid-template-columns: 1fr 1fr; 
+    }
     @media (min-width:1200px) {
         grid-template-columns: 1fr 1fr 1fr 1fr;
     }
@@ -231,7 +234,9 @@
 .sb-welcome-panel .sb-welcome-panel-column-container {
     /* clear: both;
     position: relative; */
-    grid-column: 1 / span 2; 
+    @media (min-width:700px) {
+        grid-column: 1 / span 2; 
+    }
     @media (min-width:1200px) {
         grid-column: 1 / span 4;
     }
