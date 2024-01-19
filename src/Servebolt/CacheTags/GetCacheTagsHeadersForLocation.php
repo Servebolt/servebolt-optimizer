@@ -69,7 +69,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
         $this->setPrefixAndSuffixForTags();
         // Filter allows customer to use reduced instruction set for CacheTags.
         // If filter returns false, an Accelerated Domains customer will use the Servebolt CDN cache tags.
-        if($this->driver != 'serveboltcdn' && apply_filters('sb_optimizer_cach_tags_fine_grain_control', true) ) {
+        if($this->driver != 'serveboltcdn' && apply_filters('sb_optimizer_cache_tags_fine_grain_control', true) ) {
             $this->addAuthorTag();
             $this->addHomeTag();
             $this->addTaxonomyTermIDTag();
@@ -81,7 +81,6 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
         } else {
             $this->addHTMLTag();
         }
-        
     }
 
     /**
@@ -154,7 +153,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
             }
         } 
     }
-    
+
     /**
      * Add author id to single pages and author archive pages
      * for Cache-Tag headers.

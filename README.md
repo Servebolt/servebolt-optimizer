@@ -69,6 +69,11 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.27
+* fixed typo in 'sb_optimizer_cach_tags_fine_grain_control' to be 'sb_optimizer_cache_tags_fine_grain_control'
+* added new brand icon
+* added copy text for Servebolt CDN
+
 #### 3.5.26
 * added filter 'sb_optimizer_cach_tags_fine_grain_control' that when set to false will use a single tag for all HTML and RSS
 * converted cachetags from a human readable format to a machine readable format to reduce header size
