@@ -81,7 +81,6 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
         } else {
             $this->addHTMLTag();
         }
-        
     }
 
     /**
@@ -154,7 +153,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
             }
         } 
     }
-    
+
     /**
      * Add author id to single pages and author archive pages
      * for Cache-Tag headers.

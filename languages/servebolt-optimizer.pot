@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-01-18T15:55:44+01:00\n"
+"POT-Creation-Date: 2024-01-19T08:24:34+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: servebolt-wp\n"
@@ -139,7 +139,7 @@ msgstr ""
 #: src/Servebolt/Views/accelerated-domains/control/settings-form.php:12
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-resize.php:7
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:63
-#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:34
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:30
 #: src/Servebolt/Views/dashboard/dashboard-multisite-sub-site.php:16
 #: src/Servebolt/Views/dashboard/dashboard-multisite-super-admin.php:16
 #: src/Servebolt/Views/dashboard/dashboard-single-site.php:16
@@ -1710,7 +1710,7 @@ msgid "Cache provider is automatically set when %sAccelerated Domains%s is activ
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:59
-#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:47
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:43
 msgid "Cloudflare"
 msgstr ""
 
@@ -1834,7 +1834,6 @@ msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-settings/promo.php:4
 #: src/Servebolt/Views/cache-settings/cache-settings/promo.php:20
-#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:29
 #: src/Servebolt/Views/performance-optimizer/menu-optimizer/promo.php:4
 msgid "Servebolt Control Panel dashboard"
 msgstr ""
@@ -1852,7 +1851,6 @@ msgid "Servebolt Cloud HTML Cache (formerly Full Page Cache) is easy to set up, 
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-settings/promo.php:18
-#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:27
 msgid "To activate HTML Cache to go %s and set \"Caching\" to \"Static Files + Full-Page Cache\"."
 msgstr ""
 
@@ -1860,19 +1858,19 @@ msgstr ""
 msgid " like Accelerated Domains offers a solution for improving website performance and security. While it shares similarities with Accelerated Domains, Servebolt CDN lacks some advanced features like globally distributed HTML caching and on-the-fly performance optimisations. However, it provides a cost-effective alternative for users looking to boost performance without the extensive features of Accelerated Domains."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:37
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:33
 msgid "Accelerated Domains has a optimized cache engine and it respect these settings. Disabling cache for a post type in these settings makes Accelerated Domains bypass it from cache."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:42
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:38
 msgid "Not running Accelerated Domains? %sOrder Accelerated Domains in the control panel%s and Servebolt Support will add it to your domain and set it up for you."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:50
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:46
 msgid "When Cloudflare is set up to respect origin cache headers, changing these settings also adjust what post types Cloudflare cache and not. After changing these settings the Cloudflare cache should be purged."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:55
+#: src/Servebolt/Views/cache-settings/cache-settings/promo.php:51
 msgid "%sGet in touch with Servebolt Support%s to get Cloudflare added to your domain and set up correctly."
 msgstr ""
 

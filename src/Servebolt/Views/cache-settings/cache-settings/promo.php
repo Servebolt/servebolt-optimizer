@@ -24,10 +24,6 @@
         <div class="sb-welcome-panel-column" style="padding: 0 1rem 1.5rem 0;">
             <h3><?php _e('Servebolt CDN', 'servebolt-wp'); ?></h3>
             <p><a href='https://servebolt.com/articles/introducing-servebolt-cdn/'><?php _e( 'Servebolt CDN', 'servebolt-wp') ?></a>,<?php _e(' like Accelerated Domains offers a solution for improving website performance and security. While it shares similarities with Accelerated Domains, Servebolt CDN lacks some advanced features like globally distributed HTML caching and on-the-fly performance optimisations. However, it provides a cost-effective alternative for users looking to boost performance without the extensive features of Accelerated Domains.', 'servebolt-wp'); ?></p>
-			<p><?php printf( esc_html__('To activate HTML Cache to go %s and set "Caching" to "Static Files + Full-Page Cache".', 'servebolt-wp'), $sbAdminButton ) ?></p>
-            <?php if ( $sbAdminUrl ) : ?>
-				<p><a href="<?php echo $sbAdminUrl; ?>" target="_blank" class="button"><?php _e('Servebolt Control Panel dashboard', 'servebolt-wp') ?></a></p>
-			<?php endif; ?>
         </div>
 
         <div class="sb-welcome-panel-column" style="padding: 0 1rem 1.5rem 0;">

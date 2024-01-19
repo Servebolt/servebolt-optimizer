@@ -219,19 +219,29 @@
 
 .sb-welcome-panel-content {
     margin-left: 13px;
-    max-width: 1500px;
+    display: grid;
+
+    grid-template-columns: 1fr 1fr; 
+    @media (min-width:1200px) {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+    
 }
 
 .sb-welcome-panel .sb-welcome-panel-column-container {
-    clear: both;
-    position: relative;
+    /* clear: both;
+    position: relative; */
+    grid-column: 1 / span 2; 
+    @media (min-width:1200px) {
+        grid-column: 1 / span 4;
+    }
 }
 
-.sb-welcome-panel .sb-welcome-panel-column {
+/* .sb-welcome-panel .sb-welcome-panel-column {
     width: 32%;
     min-width: 200px;
     float: left;
-}
+} */
 
 .sb-welcome-panel h3 {
     font-size: 16px;
