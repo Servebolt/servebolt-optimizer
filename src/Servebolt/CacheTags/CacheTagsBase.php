@@ -21,11 +21,11 @@ class CacheTagsBase {
      */
 
     // Global
-    const HOME = 00;
-    const HTML = 01;
-    const SEARCH = 02;
-    const SITEMAP = 03; // Not currently used
-
+    // Leading zero is lost when used as an int. 
+    const HOME = '00';
+    const HTML = '01';
+    const SITEMAP = '03'; // Not currently used
+    const SEARCH = '04'; // Not currently used
     // Post Type
     const POST_TYPE = 10;
     const AUTHOR = 11;

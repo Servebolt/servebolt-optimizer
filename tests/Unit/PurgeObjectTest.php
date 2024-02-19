@@ -78,10 +78,10 @@ class PurgeObjectTest extends ServeboltWPUnitTestCase
         $this->assertIsArray($tagsToPurge);        
         $domainprefix = 'exampleorg-';
         $mutisite_suffix = (is_multisite()) ? '-'.get_current_blog_id() : '';
-        $this->assertContains($domainprefix . 'home' . $mutisite_suffix, $tagsToPurge);
-        $this->assertContains($domainprefix . 'posttype-post' . $mutisite_suffix, $tagsToPurge);
-        $this->assertContains($domainprefix . 'feeds' . $mutisite_suffix, $tagsToPurge);
-        $this->assertContains($domainprefix . 'year-' . date("Y") . $mutisite_suffix, $tagsToPurge);
+        $this->assertContains($domainprefix . '00' . $mutisite_suffix, $tagsToPurge);
+        $this->assertContains($domainprefix . '10-post' . $mutisite_suffix, $tagsToPurge);
+        $this->assertContains($domainprefix . '30' . $mutisite_suffix, $tagsToPurge);
+        $this->assertContains($domainprefix . '14-' . date("Y") . $mutisite_suffix, $tagsToPurge);
         remove_all_filters('sb_optimizer_is_accelerated_domains');
         remove_all_filters('sb_optimizer_is_hosted_at_servebolt');
     }

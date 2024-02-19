@@ -50,7 +50,7 @@ class ForceCachePurge extends AbstractMigration implements MigrationInterface
      * @since 3.5.11 this is now the db version, number greater than 100
      * @see getCurrentDatabaseVersion() in helpers and const SERVEBOLT_PLUGIN_DB_VERSION
      */
-    public static $version = '101';
+    public static $version = '102';
 
     /**
      * Driver
