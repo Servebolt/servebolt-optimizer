@@ -98,4 +98,13 @@ class Servebolt
         $env = EnvFileReader::getInstance();
         return $env->api_key;
     }
+
+    /**
+     * @return int
+     */
+    public function getBoltId(): ?int
+    {
+        $env = EnvFileReader::getInstance();
+        return $env->bolt_id;
+    }
 }

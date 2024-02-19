@@ -69,6 +69,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.29
+* adapted cache tags prefix to be unique: Chosing between the shortest of bolt_id plus environment_id as one string, the domain name without dots as the other string.  
+
 #### 3.5.28
 * Found extra typo and replaced 'sb_optimizer_cach_tags_fine_grain_control' to be 'sb_optimizer_cache_tags_fine_grain_control'
 

@@ -8,6 +8,11 @@ use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\Utils\DatabaseMigration\AbstractMigration;
 use Servebolt\Optimizer\Utils\DatabaseMigration\MigrationInterface;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
+use function Servebolt\Optimizer\Helpers\isAjax;
+use function Servebolt\Optimizer\Helpers\isCli;
+use function Servebolt\Optimizer\Helpers\isCron;
+use function Servebolt\Optimizer\Helpers\isTesting;
+use function Servebolt\Optimizer\Helpers\isWpRest;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 
 /**
@@ -118,6 +123,16 @@ class ForceCachePurge extends AbstractMigration implements MigrationInterface
      */
     public function up(): void
     {
+        if (
+            isAjax()
+            || isCron()
+            || isCli()
+            || isWpRest()
+            || isTesting()
+        ) return;
+
+        if(!isHostedAtServebolt()) return;
+
         $this->driver = $this->getSelectedCachePurgeDriver(null);
 
         if($this->driver == 'cloudflare') return;
