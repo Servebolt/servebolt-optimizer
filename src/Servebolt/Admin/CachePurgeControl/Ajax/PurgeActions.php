@@ -28,13 +28,11 @@ use function Servebolt\Optimizer\Helpers\iterateSites;
 
 class PurgeActions extends SharedAjaxMethods
 {
-
     /**
      * CachePurgeActions constructor.
      */
     public function __construct()
     {
-
         add_action('wp_ajax_servebolt_purge_url_cache', [$this, 'purgeUrlCacheCallback']);
         add_action('wp_ajax_servebolt_purge_post_cache', [$this, 'purgePostCacheCallback']);
         add_action('wp_ajax_servebolt_purge_term_cache', [$this, 'purgeTermCacheCallback']);
@@ -302,7 +300,7 @@ class PurgeActions extends SharedAjaxMethods
     {
         if (is_string($taxonomy)) {
             $taxonomyObject = get_taxonomy($taxonomy);
-        } elseif (is_a('\\WP_Taxonomy', $taxonomy)) {
+        } elseif (!is_null($taxonomy) && is_a('\\WP_Taxonomy', $taxonomy)) {
             $taxonomyObject = $taxonomy;
         } elseif (!$taxonomyObject = getTaxonomyFromTermId($termId)) {
             $taxonomyObject = false;

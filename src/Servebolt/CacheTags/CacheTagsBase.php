@@ -2,9 +2,10 @@
 namespace Servebolt\Optimizer\CacheTags;
 
 use Servebolt\Optimizer\Api\Servebolt\Servebolt;
-// use function \Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
+use function \Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
+
 class CacheTagsBase {
     /**
      * Class constants are used to convert labels (const names) into numbers.
@@ -20,11 +21,11 @@ class CacheTagsBase {
      */
 
     // Global
-    const HOME = 00;
-    const HTML = 01;
-    const SEARCH = 02;
-    const SITEMAP = 03; // Not currently used
-
+    // Leading zero is lost when used as an int. 
+    const HOME = '00';
+    const HTML = '01';
+    const SITEMAP = '03'; // Not currently used
+    const SEARCH = '04'; // Not currently used
     // Post Type
     const POST_TYPE = 10;
     const AUTHOR = 11;
@@ -122,12 +123,18 @@ class CacheTagsBase {
         $this->additionalPrefix = apply_filters('sb_optimizer_cachetags_additional_prefix', $this->additionalPrefix, $this->domain, $this->blogId);
     }
 
+    /**
+     * Choose the shortest unique identifier. 
+     * 
+     * 1. the domain name without dots
+     * 2. the servebolt environment ID and bolt ID combined. 
+     */
     protected function setDomain()
     {
-        $env = Servebolt::getInstance();
-        $this->domain = $env->getEnvironmentId();
-        // remove domain name in favor of env id. 
-        // $this->domain = str_replace('.','',getDomainNameOfWebSite());
+        $environment_file = Servebolt::getInstance();
+        $combined_id = $environment_file->getEnvironmentId() . $environment_file->getBoltId();
+        $domain = str_replace('.','',getDomainNameOfWebSite());
+        $this->domain = ( strlen($domain) >= strlen($combined_id) ) ? $domain : $combined_id;
     }
 
     protected function setBlog()

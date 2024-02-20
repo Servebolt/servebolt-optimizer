@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 3.5.28
+Version: 3.5.29
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that implements Servebolt Security & Performance best practises for WordPress.
@@ -27,7 +27,7 @@ define('SERVEBOLT_PLUGIN_ACD_VERSION', '7');
  * when updating the plugin tables.
  * @since 3.5.11
  */
-define('SERVEBOLT_PLUGIN_DB_VERSION', 101);
+define('SERVEBOLT_PLUGIN_DB_VERSION', 102);
 
 // Abort and display WP admin notice if PHP version is less than constant SERVEBOLT_PLUGIN_MINIMUM_PHP_VERSION
 if (version_compare(phpversion(), SERVEBOLT_PLUGIN_MINIMUM_PHP_VERSION, '<')) {
