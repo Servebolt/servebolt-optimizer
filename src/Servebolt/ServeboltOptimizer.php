@@ -83,10 +83,9 @@ class ServeboltOptimizer
 
             // Now settings the API URI based on the environment file->api_url.
             // it always defaults to the Prod api if the environment file value is not present.
-            if(!defined('SERVEBOLT_API_BASE_URI')) {
-                define('SERVEBOLT_API_BASE_URI', getApiUrlFromEnvFile());
+            if(!defined('SERVEBOLT_SDK_BASE_URI')) {
+                define('SERVEBOLT_SDK_BASE_URI', getApiUrlFromEnvFile());
             }
-
         }
 
         new AddCacheTagsHeaders;
