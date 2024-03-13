@@ -356,6 +356,20 @@ function getSiteId(): ?string
  *
  * @return mixed|null
  */
+function getApiUrlFromEnvFile(): ?string
+{
+    $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
+    if ($env->api_url) {
+        return $env->api_url . '/v1/';
+    }
+    return "https://api.servebolt.io/v1/";
+}
+
+/**
+ * Get site API url from Env-file.
+ *
+ * @return mixed|null
+ */
 function getSiteIdFromEnvFile(): ?string
 {
     $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
@@ -364,7 +378,6 @@ function getSiteIdFromEnvFile(): ?string
     }
     return null;
 }
-
 /**
  * Get site ID from the webroot folder path.
  *

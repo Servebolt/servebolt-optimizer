@@ -35,6 +35,7 @@ use function Servebolt\Optimizer\Helpers\isFrontEnd;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\envFileFailureHandling;
+use function Servebolt\Optimizer\Helpers\getApiUrlFromEnvFile;
 
 /**
  * Class ServeboltOptimizer
@@ -46,7 +47,7 @@ class ServeboltOptimizer
      * Boot the plugin.
      */
     public static function boot()
-    {          
+    {
         // Handle activation/deactivation
         new PluginActiveStateHandling;
 
@@ -70,6 +71,7 @@ class ServeboltOptimizer
         WpMenuOptimizer::init();
 
         if (isHostedAtServebolt()) {
+
             // ACD Init
             AcceleratedDomains::init();
 
@@ -79,6 +81,11 @@ class ServeboltOptimizer
             // Init environment file reader
             EnvFileReader::getInstance();
 
+            // Now settings the API URI based on the environment file->api_url.
+            // it always defaults to the Prod api if the environment file value is not present.
+            if(!defined('SERVEBOLT_SDK_BASE_URI')) {
+                define('SERVEBOLT_SDK_BASE_URI', getApiUrlFromEnvFile());
+            }
         }
 
         new AddCacheTagsHeaders;
