@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.4.1
 Requires PHP: 7.3
-Stable tag: 3.5.31
+Stable tag: 3.5.32
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,12 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+
+= 3.5.32 =
+* Updated changelog with 3.5.31 reason for release. 
+
+= 3.5.31 =
+* release bump
 
 = 3.5.30 =
 * When on Servebolt the plugin now checks the environement.json file to see if the key `api_url` exists. If its there it will use that, if not it will continue to use the pre-defined url for communication with the Servebolt API. 

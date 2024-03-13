@@ -69,6 +69,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.32
+* Updated changelog with 3.5.31 reason for release. 
+
 #### 3.5.31
 * release bump
 
