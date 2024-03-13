@@ -69,6 +69,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.31
+* release bump
+
 #### 3.5.30
 * When on Servebolt the plugin now checks the environement.json file to see if the key `api_url` exists. If its there it will use that, if not it will continue to use the pre-defined url for communication with the Servebolt API. 
 
