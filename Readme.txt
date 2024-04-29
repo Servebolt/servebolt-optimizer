@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, html cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.4.1
+Tested up to: 6.5.2
 Requires PHP: 7.3
-Stable tag: 3.5.32
+Stable tag: 3.5.33
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
