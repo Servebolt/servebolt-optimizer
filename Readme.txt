@@ -99,6 +99,7 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 == Changelog ==
 = 3.5.33 =
 * Support for WordPress 6.5.2 confirmed.
+* Added auto healing for environment files where if the cached filepath is incorrect, it is automatically replaced.
 * Bugfix - On some cron based jobs that do not have HTTP_USER_AGENT set, were failing on newer versions of PHP. Added check for 'HTTP_USER_AGENT' before trying to use it in part of the prefetching checks. 
 
 = 3.5.32 =
