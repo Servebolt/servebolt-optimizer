@@ -148,7 +148,7 @@ class Reader
         }
 
         // When not it testing mode. Automatically clear the filepath if it gets this far.
-        if( !isTesting() && isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['DOCUMENT_ROOT'], $pathFromCache) === false) {
+        if( !isTesting() && isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['DOCUMENT_ROOT'], dirname($pathFromCache) ) === false) {
             error_log('[Servebolt Optimizer] Is automatically clearing the environment filepath to force an update.');
             deleteOption($this->optionsKey);
         }   
