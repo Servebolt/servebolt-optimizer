@@ -146,12 +146,21 @@ class Reader
             return $pathFromCache;
         }
 
+        // Check path cache matches current directory structure
+        // if it does not match, we clear path cache to force a re-check.
+        if( isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['DOCUMENT_ROOT'], $pathFromCache) === false) {
+            error_log('[Servebolt Optimizer] Is automatically clearing the environment filepath to force an update.');
+            deleteOption($this->optionsKey);
+        }   
+
         $pathFromDiskLookup = $this->resolveEnvironmentFilePathFromDisk();
         if ($pathFromDiskLookup) {
             updateOption($this->optionsKey, $pathFromDiskLookup);
             $this->setResolvedFileType($pathFromDiskLookup);
             return $pathFromDiskLookup;
         }
+
+        error_log('[Servebolt Optimizer] Could not resolve environment file on the path: ' . $pathFromDiskLookup );
 
         return false;
     }

@@ -97,6 +97,9 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.33 =
+* Support for WordPress 6.5.2 confirmed.
+* Bugfix - On some cron based jobs that do not have HTTP_USER_AGENT set, were failing on newer versions of PHP. Added check for 'HTTP_USER_AGENT' before trying to use it in part of the prefetching checks. 
 
 = 3.5.32 =
 * Updated changelog with 3.5.31 reason for release. 
