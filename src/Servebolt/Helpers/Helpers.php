@@ -1444,6 +1444,8 @@ function strEndsWith(string $haystack, string $needle, bool $php8Fallback = true
  */
 function strContains(string $haystack, string $needle, bool $php8Fallback = true): bool
 {
+    if( $haystack == null || $needle == null ) return false;
+
     if (function_exists('str_contains') && $php8Fallback) {
         return str_contains($haystack, $needle);
     }

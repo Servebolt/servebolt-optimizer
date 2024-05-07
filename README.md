@@ -72,7 +72,8 @@ If you want to build a local production-ready version of the plugin you can run 
 #### 3.5.33
 * Support for WordPress 6.5.2 confirmed.
 * Added auto healing for environment files where if the cached filepath is incorrect, it is automatically replaced.
-* Bugfix - On some cron based jobs that do not have HTTP_USER_AGENT set, were failing on newer versions of PHP. Added check for HTTP_USER_AGENT before trying to use it in part of the prefetching checks. 
+* Bugfix - On some cron based jobs that do not have HTTP_USER_AGENT set, were failing on newer versions of PHP. Added check for HTTP_USER_AGENT before trying to use it in part of the prefetching checks.
+* Bugfix - Added additional checks on the strContains() helper function to deal with PHP8 requirements on null values.
 
 #### 3.5.32
 * Updated changelog with 3.5.31 reason for release. 
