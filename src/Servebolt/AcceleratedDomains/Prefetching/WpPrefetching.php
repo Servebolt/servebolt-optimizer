@@ -66,9 +66,11 @@ class WpPrefetching extends Prefetching
         if ( isset( $_SERVER['REQUEST_METHOD'] ) && 'HEAD' !== $_SERVER['REQUEST_METHOD']) {
             return false;
         }
-        if (!strContains($_SERVER['HTTP_USER_AGENT'], 'CloudFlare-Prefetch')) {
+
+        if ( !isset( $_SERVER['HTTP_USER_AGENT'] ) || !strContains($_SERVER['HTTP_USER_AGENT'], 'CloudFlare-Prefetch')) {
             return false;
         }
+
         return true;
     }
 

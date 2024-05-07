@@ -12,6 +12,7 @@ use function Servebolt\Optimizer\Helpers\getOption;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\updateOption;
 use function Servebolt\Optimizer\Helpers\isNextGen;
+use function Servebolt\Optimizer\Helpers\isTesting;
 
 /**
  * Class Reader
@@ -146,12 +147,20 @@ class Reader
             return $pathFromCache;
         }
 
+        // When not it testing mode. Automatically clear the filepath if it gets this far.
+        if( !isTesting() && isset($_SERVER['DOCUMENT_ROOT']) && strpos($_SERVER['DOCUMENT_ROOT'], dirname($pathFromCache) ) === false) {
+            error_log('[Servebolt Optimizer] Is automatically clearing the environment filepath to force an update.');
+            deleteOption($this->optionsKey);
+        }   
+
         $pathFromDiskLookup = $this->resolveEnvironmentFilePathFromDisk();
         if ($pathFromDiskLookup) {
             updateOption($this->optionsKey, $pathFromDiskLookup);
             $this->setResolvedFileType($pathFromDiskLookup);
             return $pathFromDiskLookup;
         }
+        // If we get this far, we could not resolve the environment file as its missing.
+        error_log('[Servebolt Optimizer] Could not find the environment.[ini,json] file on the path: ' . $pathFromDiskLookup );
 
         return false;
     }

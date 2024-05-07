@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, cache, cloudflare, log, multisite, wp-cli, html cache
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.4.1
+Tested up to: 6.5.2
 Requires PHP: 7.3
-Stable tag: 3.5.32
+Stable tag: 3.5.33
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,11 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+= 3.5.33 =
+* Support for WordPress 6.5.2 confirmed.
+* Added auto healing for environment files where if the cached filepath is incorrect, it is automatically replaced.
+* Bugfix - On some cron based jobs that do not have HTTP_USER_AGENT set, were failing on newer versions of PHP. Added check for 'HTTP_USER_AGENT' before trying to use it in part of the prefetching checks.
+* Bugfix - Added additional checks on the strContains() helper function to deal with PHP8 requirements on null values.
 
 = 3.5.32 =
 * Updated changelog with 3.5.31 reason for release. 
