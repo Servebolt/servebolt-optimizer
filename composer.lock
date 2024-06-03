@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "476f8928d9dd4f329372a52a690b98bc",
+    "content-hash": "b1e1e878a281380bfbb38396d50e1442",
     "packages": [
         {
             "name": "composer/installers",
@@ -731,23 +731,23 @@
         },
         {
             "name": "servebolt/sdk",
-            "version": "1.2.4",
+            "version": "1.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Servebolt/php-sdk.git",
-                "reference": "706066388b2d34a9dbbfcbaa24d961150bb44778"
+                "reference": "63de08a602d1cf15041a2adf778c9cf20f9e28b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/706066388b2d34a9dbbfcbaa24d961150bb44778",
-                "reference": "706066388b2d34a9dbbfcbaa24d961150bb44778",
+                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/63de08a602d1cf15041a2adf778c9cf20f9e28b5",
+                "reference": "63de08a602d1cf15041a2adf778c9cf20f9e28b5",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "guzzlehttp/guzzle": "^7.0",
                 "jakeasmith/http_build_url": "^1",
-                "php": "^7.3|^8.0"
+                "php": "^7.4|^8.0"
             },
             "require-dev": {
                 "dms/phpunit-arraysubset-asserts": "^0.2.1",
@@ -784,9 +784,9 @@
             "homepage": "https://servebolt.com",
             "support": {
                 "issues": "https://github.com/Servebolt/php-sdk/issues",
-                "source": "https://github.com/Servebolt/php-sdk/tree/1.2.4"
+                "source": "https://github.com/Servebolt/php-sdk/tree/1.2.6"
             },
-            "time": "2023-11-03T10:25:06+00:00"
+            "time": "2024-06-02T11:59:31+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -4919,5 +4919,5 @@
     "platform-overrides": {
         "php": "7.4"
     },
-    "plugin-api-version": "2.1.0"
+    "plugin-api-version": "2.6.0"
 }
