@@ -69,6 +69,10 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.34
+* fixed php sdk depreciation error
+* removed php 7.3 support, minimum level is 7.4, which is also minumum level Servebolt hosts.
+
 #### 3.5.33
 * Support for WordPress 6.5.2 confirmed.
 * Added auto healing for environment files where if the cached filepath is incorrect, it is automatically replaced.
