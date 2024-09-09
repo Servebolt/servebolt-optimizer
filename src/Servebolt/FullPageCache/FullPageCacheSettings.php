@@ -75,6 +75,16 @@ class FullPageCacheSettings
     }
 
     /**
+     * Check if 404 caching is active.
+     *
+     * @return bool
+     */
+    public static function isCacheKeyActive($key = '', ?int $blogId = null): bool
+    {
+        return (bool) apply_filters('sb_optimizer_'.$key.'_is_active', checkboxIsChecked(smartGetOption($blogId, $key)));
+    }
+
+    /**
      * Check whether we have overridden the active status for HTML Cache.
      *
      * @return bool

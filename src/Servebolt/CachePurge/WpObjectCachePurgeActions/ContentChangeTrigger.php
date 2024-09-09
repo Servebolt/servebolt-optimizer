@@ -31,6 +31,7 @@ class ContentChangeTrigger
         remove_action('trash_comment', [$this, 'purgePostOnCommentTrashed'], 99, 2);
         remove_action('untrash_comment', [$this, 'purgePostOnCommentUnTrashed'], 99, 2);
         remove_action('set_object_terms', [$this, 'purgeCategoryTermsOnFirstSave'], 99, 6);
+        remove_action('update_option_permalink_structure', [$this, 'purgeAllOnPermalinkUpdates'], 99, 6);
     }
 
     /**
@@ -88,8 +89,19 @@ class ContentChangeTrigger
         if (apply_filters('sb_optimizer_automatic_purge_on_comment_untrashed', true)) {
             add_action('untrash_comment', [$this, 'purgePostOnCommentUnTrashed'], 99, 2);
         }
+
+        // Purge all when permalinks are updated
+        if (apply_filters('sb_optimizer_automatic_purge_on_permalink_update', true)) {
+            add_action('update_option_permalink_structure', [$this, 'purgeAllOnPermalinkUpdates'], 99);
+        }
+
     }
 
+    function purgeAllOnPermalinkUpdates()
+    {
+
+        WordPressCachePurge::purgeAll();
+    }
     /**
      * Double check that the first save purges properly for the Category taxonomy.
      *

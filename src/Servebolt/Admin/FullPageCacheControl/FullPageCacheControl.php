@@ -82,7 +82,10 @@ class FullPageCacheControl
      */
     public function registerSettings(): void
     {
-        foreach(['fpc_settings', 'fpc_switch'] as $key) {
+        foreach(
+            ['fpc_settings', 
+             'fpc_switch', 
+             'cache_404_switch', 'fast_404_switch'] as $key) {
             register_setting('html-cache-options-page', getOptionName($key));
         }
     }
