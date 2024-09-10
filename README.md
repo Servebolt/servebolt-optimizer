@@ -69,6 +69,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.36
+* Bump release due to authentication issue during last release. 
+
 #### 3.5.35
 * Confirmed WordPress 6.6.1 support.
 * Added Admin UI elements to manage Caching of 404's, and fast 404's reponses for static files
