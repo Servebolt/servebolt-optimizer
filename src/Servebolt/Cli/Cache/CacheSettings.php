@@ -27,6 +27,8 @@ class CacheSettings extends CliKeyValueStorage
         'acd_minify_switch' => 'boolean',
 
         // HTML / cache
+        'cache_404_switch' => 'boolean',
+        'fast_404_switch' => 'boolean',
         'fpc_switch' => 'boolean',
         'fpc_settings' => [
             'type' => 'multi',

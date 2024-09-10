@@ -9,6 +9,7 @@ $htmlCacheActive = FullPageCacheSettings::htmlCacheIsActive();
 $htmlCacheActiveOverridden = FullPageCacheSettings::htmlCacheActiveStateIsOverridden();
 $postTypesToCache  = FullPageCacheHeaders::getPostTypesToCache(false, false);
 $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
+
 ?>
 <form method="post" action="options.php">
     <?php settings_fields('html-cache-options-page') ?>
@@ -93,6 +94,21 @@ $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
                         </div>
                     </div>
 
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Caching of 404 pages</th>
+                <td>
+                    <input id="sb-404-cache-switch" name="<?php echo getOptionName('cache_404_switch')?>" type="checkbox"<?php if (FullPageCacheSettings::isCacheKeyActive('cache_404_switch')) echo ' checked'; ?>><label for="sb-404-cache-switch"><?php _e('Enable', 'servebolt-wp'); ?></label>
+                    <p class="description">When enabled, 404 pages are cached.</p>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">Fast static 404's</th>
+                <td>
+                    <input id="sb-fast-404-switch" name="<?php echo getOptionName('fast_404_switch')?>" type="checkbox"<?php if (FullPageCacheSettings::isCacheKeyActive('fast_404_switch')) echo ' checked'; ?>>
+                    <label for="sb-fast-404-switch"><?php _e('Enable', 'servebolt-wp'); ?></label>
+                    <p class="description">When enabled, 404's for all static files with known extension will be sent much earlier, using much less resources.</p>
                 </td>
             </tr>
         </tbody>

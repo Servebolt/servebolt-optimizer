@@ -28,6 +28,7 @@ use Servebolt\Optimizer\WpCron\WpCronCustomSchedules;
 use Servebolt\Optimizer\WpCron\WpCronEvents;
 use Servebolt\Optimizer\CacheTags\AddCacheTagsHeaders;
 use Servebolt\Optimizer\MaintenanceTasks\ServeboltEventsHandler;
+use Servebolt\Optimizer\HttpHeaders\Static404;
 use function Servebolt\Optimizer\Helpers\featureIsActive;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isCli;
@@ -48,6 +49,8 @@ class ServeboltOptimizer
      */
     public static function boot()
     {
+        // prevent unnecessary processing by checking if the request is a static file
+        new Static404;
         // Handle activation/deactivation
         new PluginActiveStateHandling;
 

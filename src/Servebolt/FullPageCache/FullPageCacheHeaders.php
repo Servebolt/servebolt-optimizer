@@ -104,6 +104,7 @@ class FullPageCacheHeaders
         if ($this->shouldSetCacheHeaders()) {            
             add_filter('posts_results', [$this, 'setHeaders']);            
             add_filter('template_include', [$this, 'lastCall']);
+            add_filter('sb_optimizer_fullpage_cache_header_item', [$this, 'kill_cache_404'], 10);
         }
     }
 
@@ -240,6 +241,34 @@ class FullPageCacheHeaders
         return $posts;
     }
 
+    function kill_cache_404( $string ) {
+        // if its not a 404 page, exit early.
+        if(!is_404()) return $string;
+
+        if(smartGetOption(null, 'cache_404_switch', true)) return $string;
+        // Control array shows the header names to be replaced and the new content.
+        $headers = [
+            "Pragma" => "no-cache",
+            "Cache-Control"=> "max-age=0,no-cache,s-maxage=0, public, must-revalidate",
+            "Cdn-Cache-Control" => "max-age=0,no-cache",
+            "Expires" => 'Tue, 1 Jan 1980 01:01:10 +0000',
+        ];
+        // From the incoming string, get the name. This is the stuff in the header string before the :
+        $response_header_name = explode(":", $string)[0];
+        // loop through the change-able headers looking for a candidate to change
+        foreach($headers as $header_name => $new_setting) {
+          // convert both of the name types to lowercase before comparing for equality. 
+          // not equal skips to next loop.
+          if( strtolower($response_header_name) != strtolower($header_name)) continue;
+          // it was equal, so replace that string with a new one.
+          $string = $header_name . ":" . $new_setting;
+          // return the string to prevent the extra loops.
+          return $string;
+        }
+        // if there was no change to the header, return the original.
+        return $string;
+    }
+    
     /**
      * Check if we are in an Ecommerce-context and check if we should not cache.
      *

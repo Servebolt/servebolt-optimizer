@@ -750,6 +750,8 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'menu_cache_simple_menu_signature',
 
         // HTML Cache-related options (formerly FPC / Full Page Cache)
+        'cache_404_switch',
+        'fast_404_switch',
         'fpc_switch',
         'fpc_settings',
         'fpc_exclude',
