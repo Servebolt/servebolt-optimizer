@@ -156,9 +156,10 @@ class Reader
         {
             error_log('[Servebolt Optimizer] Is automatically clearing the environment filepath to force an update.');
             deleteOption($this->optionsKey);
-        }   
+        }
 
         $pathFromDiskLookup = $this->resolveEnvironmentFilePathFromDisk();
+
         if ($pathFromDiskLookup) {
             updateOption($this->optionsKey, $pathFromDiskLookup);
             $this->setResolvedFileType($pathFromDiskLookup);

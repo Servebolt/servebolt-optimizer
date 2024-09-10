@@ -6,8 +6,9 @@ defined( 'ABSPATH' ) || die();
 class CacheHeaders {
 
     static public $second = 1;
+    static public $tenSeconds = 10;
     static public $minute = 60;
-    static public $tenminutes = 600;
+    static public $tenMinutes = 600;
     static public $quarterhour = 900;
     static public $halfhour = 1800;
     static public $hour = 3600;
@@ -24,32 +25,25 @@ class CacheHeaders {
         if($ext == '') return;
         switch($ext) {
             case 'css':
-                $maxAge = self::$hour;
-                break;
             case 'js':
-                $maxAge = self::$hour;
-                break;
             case 'jpg':
             case 'jpeg':
             case 'png':
             case 'gif':
             case 'webp':
-                $sMaxAge = self::$week;
+                $sMaxAge = self::$tenMinutes;
                 break;
-            case 'svg':
-                $sMaxAge = self::$week;
-                break;
+            case 'svg':                
             case 'woff':
             case 'woff2':
             case 'ttf':
             case 'otf':
             case 'eot':
-                $maxAge = self::$tenminutes;
                 $sMaxAge = self::$week;
                 break;
             default:
-                $maxAge = 0;
-                $sMaxAge = 0;
+                $maxAge = self::$tenSeconds;
+                $sMaxAge = self::$minute;
                 break;
         }
 

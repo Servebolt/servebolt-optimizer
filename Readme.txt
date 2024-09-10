@@ -99,7 +99,10 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 == Changelog ==
 
 = 3.5.35 =
-* confirmed WordPress 6.6.1 support.
+* Confirmed WordPress 6.6.1 support.
+* Added Admin UI elements to manage Caching of 404's, and fast 404's reponses for static files
+* Implemented fast 404's for static files, that give a reponse after either mu_plugins_loaded or plugins_loaded. No extra processing or file sizes.
+* Added purge all trigger to options->permalink_structure 
 
 = 3.5.34 =
 * fixed php sdk depreciation error

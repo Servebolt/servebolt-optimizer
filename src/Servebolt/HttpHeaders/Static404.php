@@ -11,7 +11,7 @@ use function Servebolt\Optimizer\Helpers\getOptionName;
 class Static404 {
 
     public function __construct() {
-        add_action( $this->generateHookPoint(), [ $this, 'serve404' ],1 );
+        add_action( $this->generateHookPoint(), [ $this, 'serve404' ], 99 );
 
     }
 
@@ -23,9 +23,9 @@ class Static404 {
     }
 
     function serve404() {
-        error_log("request uri is " . $_SERVER['REQUEST_URI']);
+        
         // must have a path to check for extension
-        if ( ! isset( $_SERVER['REQUEST_URI'] ) || $_SERVER['REQUEST_URI'] === '/' ) {
+        if ( ! isset( $_SERVER['REQUEST_URI'] ) || substr($_SERVER['REQUEST_URI'], -1) === '/' ) {
             return;
         }
     
@@ -72,16 +72,30 @@ class Static404 {
     /**
      * Get the extension of the request.
      *
-     * @return string The extension of the request.
+     * @return mixed [bool/string] The extension of the request.
      */
     function get_request_extension() : string
     {
-        $path = wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
-        if(strpos($path, '.') === false) {
+        $filename = wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+        if(strpos($filename, '.') === false) {
             return false;
         }
-        $request = wp_check_filetype( $path );    
-        return isset( $request['ext'] ) ? $request['ext'] : '';
+        if ( empty( $mimes ) ) {
+            $mimes = wp_get_mime_types();
+            unset( $mimes['swf'], $mimes['exe'], $mimes['msi'], $mimes['msp'], $mimes['msm'], $mimes['html'] );
+        }
+        $type = false;
+        $ext  = false;
+    
+        foreach ( $mimes as $ext_preg => $mime_match ) {
+            $ext_preg = '!\.(' . $ext_preg . ')$!i';
+            if ( preg_match( $ext_preg, $filename, $ext_matches ) ) {
+                $type = $mime_match;
+                $ext  = $ext_matches[1];
+                break;
+            }
+        }
+        return isset( $ext ) ? $ext : false;
     }
     
     /**
