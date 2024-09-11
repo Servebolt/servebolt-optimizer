@@ -69,6 +69,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.37
+* Changed password on SVN/WordPress.org, trying to authenticate again and deploy.
+
 #### 3.5.36
 * Bump release due to authentication issue during last release. 
 
