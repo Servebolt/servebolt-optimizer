@@ -32,6 +32,8 @@ class CacheTagsBase {
     const DATE = 12;
     const MONTH = 13;
     const YEAR = 14;
+    
+    
 
     // Taxonomy
     const TERM_ID = 20;
@@ -236,16 +238,18 @@ class CacheTagsBase {
     protected function addDateTag() : void
     {
         if(is_date()) {
-            $this->add(self::DATE .'-' .get_query_var('day') .'-'. get_query_var('monthnum') .'-'. get_query_var('year'));
-            $this->add(self::YEAR .'-'.  get_query_var('year'));
-            $this->add(self::MONTH .'-'. get_query_var('monthnum'));
+            // $this->add(self::DATE .'-' .get_query_var('day') .'-'. get_query_var('monthnum') .'-'. get_query_var('year'));
+            // $this->add(self::YEAR .'-'.  get_query_var('year'));
+            // $this->add(self::MONTH .'-'. get_query_var('monthnum'));
+            $this->add(self::DATE);
         }
 
         if(is_singular() && !is_home() && !is_front_page()) {
             if(is_page() || (class_exists( 'woocommerce' ) && is_product() ) ) return;
-            $this->add(self::DATE .'-' .get_the_date('d-n-Y'));
-            $this->add(self::YEAR .'-'.  get_the_date('Y'));
-            $this->add(self::MONTH .'-'. get_the_date('n'));
+            // $this->add(self::DATE .'-' .get_the_date('d-n-Y'));
+            // $this->add(self::YEAR .'-'.  get_the_date('Y'));
+            // $this->add(self::MONTH .'-'. get_the_date('n'));
+            $this->add(self::DATE);
         }
     }
 
@@ -305,27 +309,6 @@ class CacheTagsBase {
         if(is_woocommerce()) {
             $this->add(self::WOOCOMMERCE);
         }
-        // is the main shop page, normally /shop
-        // woocommerce-shop
-        if(is_shop()) {
-            $this->add(self::WOOCOMMERCE_SHOP);
-        }
-        // is a product category archive page of woocommerce
-        // woocommerce-category
-        if(is_product_category()){
-            $this->add(self::WOOCOMMERCE_CATEGORY);
-        }
-        // is a product tag archive page of woocommerce
-        // woocommerce-tag
-        if(is_product_tag()){
-            $this->add(self::WOOCOMMERCE_TAG);
-        }
-        // is a product page of woocommerce
-        // woocommerce-product
-        if(is_product()){
-            $this->add(self::WOOCOMMERCE_PRODUCT);
-            $this->add(self::WOOCOMMERCE_PRODUCT_ID.'-'.get_the_ID());
-        }        
     }
 
     /**
