@@ -70,6 +70,11 @@ If you want to build a local production-ready version of the plugin you can run 
 ## Changelog
 
 #### 3.5.37
+* Adapted the action scheduler cron script to check active status of WooCommerce per site, not per network.
+* Removed /favicon.ico from fast404 capability. 
+* Updated Servebolt Linux 8 users control panel link from top menu.
+
+#### 3.5.37
 * Changed password on SVN/WordPress.org, trying to authenticate again and deploy.
 
 #### 3.5.36
