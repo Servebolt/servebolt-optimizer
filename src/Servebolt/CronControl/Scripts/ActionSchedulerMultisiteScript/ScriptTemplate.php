@@ -38,9 +38,13 @@ mkdir -p ~/.cron-lockfiles/
 # Loop through all the sites
 for SITE_URL in \$SITE_URLS
 do
-    # Run Action Scheduler
-    FLOCK_INDICATOR=$(echo -n \$SITE_URL | md5sum | awk '{print $1}')
-	flock -n ~/.cron-lockfiles/.wp_cron_as_\$FLOCK_INDICATOR.lock wp action-scheduler run --url="\$SITE_URL" --path="\$WP_PATH" --quiet	
+    # Check if WooCommerce is installed and active
+    if wp plugin is-installed woocommerce --url="\$SITE_URL" --path="\$WP_PATH" --quiet && \
+       wp plugin status woocommerce --url="\$SITE_URL" --path="\$WP_PATH" | grep -q 'Status: Active'; then
+			# Run Action Scheduler
+        	FLOCK_INDICATOR=$(echo -n \$SITE_URL | md5sum | awk '{print $1}')
+        	flock -n ~/.cron-lockfiles/.wp_cron_as_\$FLOCK_INDICATOR.lock wp action-scheduler run --url="\$SITE_URL" --path="\$WP_PATH" --quiet
+    fi
 done
 
 EOF;

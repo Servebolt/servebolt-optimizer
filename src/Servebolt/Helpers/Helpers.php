@@ -471,6 +471,10 @@ function getServeboltAdminUrl($argsOrPage = []) :? string
             $args = [];
         }
         $baseUrl = 'https://admin.servebolt.com/siteredirect/';
+        if(isNextGen()) {
+            $baseUrl = 'https://adminv3.servebolt.com/siteredirect/';
+        }
+        
         $queryParameters = http_build_query(array_merge($args, compact('site')));
         return $baseUrl . '?' . $queryParameters;
     }

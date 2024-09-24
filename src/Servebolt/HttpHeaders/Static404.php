@@ -10,6 +10,8 @@ use function Servebolt\Optimizer\Helpers\getOptionName;
 
 class Static404 {
 
+    protected $filename;
+
     public function __construct() {
         add_action( $this->generateHookPoint(), [ $this, 'serve404' ], 99 );
 
@@ -26,6 +28,12 @@ class Static404 {
         
         // must have a path to check for extension
         if ( ! isset( $_SERVER['REQUEST_URI'] ) || substr($_SERVER['REQUEST_URI'], -1) === '/' ) {
+            return;
+        }
+
+        $this->filename = wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+        // Exit early if the request is for favicon.ico so that WordPress can still process it.
+        if(ltrim($this->filename, '/') === 'favicon.ico') {
             return;
         }
     
@@ -76,8 +84,7 @@ class Static404 {
      */
     function get_request_extension() : string
     {
-        $filename = wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
-        if(strpos($filename, '.') === false) {
+        if(strpos($this->filename, '.') === false) {
             return false;
         }
         if ( empty( $mimes ) ) {
@@ -89,7 +96,7 @@ class Static404 {
     
         foreach ( $mimes as $ext_preg => $mime_match ) {
             $ext_preg = '!\.(' . $ext_preg . ')$!i';
-            if ( preg_match( $ext_preg, $filename, $ext_matches ) ) {
+            if ( preg_match( $ext_preg, $this->filename, $ext_matches ) ) {
                 $type = $mime_match;
                 $ext  = $ext_matches[1];
                 break;
