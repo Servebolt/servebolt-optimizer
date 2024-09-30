@@ -51,15 +51,19 @@ class OptionsHelpersTest extends ServeboltWPUnitTestCase
             global $wpdb;
             $optionsName = 'add-or-update';
 
+            global $wp_version;
+            $false = (version_compare($wp_version, '6.6.1', '<')) ? 'no' : 'off';
+            $true = (version_compare($wp_version, '6.6.1', '<')) ? 'yes' : 'auto';
+
             $this->assertTrue(smartAddOrUpdateOption($site->blog_id, $optionsName, 'some-value'));
-            $this->assertEquals('no', $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
+            $this->assertEquals($false, $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
 
             $this->assertTrue(smartAddOrUpdateOption($site->blog_id, $optionsName, 'some-other-value'));
-            $this->assertEquals('no', $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
+            $this->assertEquals($false, $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
 
             $optionsName = 'add-or-update-2';
             $this->assertTrue(smartUpdateOption($site->blog_id, $optionsName, 'some-value'));
-            $this->assertEquals('yes', $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
+            $this->assertEquals($true, $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
         }, true);
     }
 
@@ -229,16 +233,20 @@ class OptionsHelpersTest extends ServeboltWPUnitTestCase
     {
         global $wpdb;
         $optionsName = 'add-or-update';
+
+        global $wp_version;
+        $false = (version_compare($wp_version, '6.6.1', '<')) ? 'no' : 'off';
+        $true = (version_compare($wp_version, '6.6.1', '<')) ? 'yes' : 'auto';
         $this->assertTrue(addOrUpdateOption($optionsName, 'some-value'));
 
-        $this->assertEquals('no', $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
+        $this->assertEquals($false, $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
 
         $this->assertTrue(addOrUpdateOption($optionsName, 'some-other-value'));
-        $this->assertEquals('no', $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
+        $this->assertEquals($false, $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
 
         $optionsName = 'add-or-update-2';
         $this->assertTrue(updateOption($optionsName, 'some-value'));
-        $this->assertEquals('yes', $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
+        $this->assertEquals($true, $this->getOptionsAutoloadState($wpdb->options, getOptionName($optionsName)));
     }
 
     public function testThatWeCanSetADefaultOptionsValueWithFunctionClosure(): void

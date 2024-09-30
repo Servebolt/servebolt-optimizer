@@ -364,7 +364,7 @@ jQuery(document).ready(function($) {
           }, 100);
           return;
         }
-        window.sbCachePurgeError();
+        window.sbCachePurgeError('success but still a fail.');
         // TODO: Display errors to the user
         /*
         if ( message ) {
@@ -380,7 +380,7 @@ jQuery(document).ready(function($) {
       },
       error: function() {
         window.sb_loading(false);
-        window.sbCachePurgeError();
+        window.sbCachePurgeError('api error');
       },
     });
   }
@@ -412,24 +412,27 @@ jQuery(document).ready(function($) {
             window.update_cache_purge_list();
           }, 100);
           return;
-        }
-        window.sbCachePurgeError();
-        // TODO: Display errors to the user
-        /*
-        if ( message ) {
-          if ( response.data.type == 'warning' ) {
-            window.sb_warning(title, null, message);
-          } else {
-            window.sbCachePurgeError(message);
-          }
         } else {
-
+          if( Array.isArray(response.data) ) {
+            // Handle multiple messages
+            let output = '<details style="text-align:left;max-height:350px;overflow-y:auto"><summary style="text-align:center">review purge errors</summary><dl>';
+            for (let i = 0; i < response.data.length; i++) {
+               let message = (response.data[i].detail === null || response.data[i].detail === undefined) ? '' : response.data[i].detail;
+               output += "<dt>"+response.data[i].title + "</dt><dd>"+ message +" (code: "+ response.data[i].code +")</dd>";
+            }
+            output += '</dl></details>';
+            window.sbCachePurgeError(output, null, 'Purge API Errors');
+          } else {
+            window.sbCachePurgeError(response.data, null, 'Purge API Error');
+          }
         }
-        */
+
+        
+        
       },
       error: function() {
         window.sb_loading(false);
-        window.sbCachePurgeError();
+        window.sbCachePurgeError('post cache failed');
       }
     });
   }
