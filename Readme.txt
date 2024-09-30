@@ -97,6 +97,13 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+
+= 3.5.39 =
+* Added sanitization to host calls for purging, and better validation, via update to Servebolt SDK.  
+* Made purge based AJAX error messages readable in the modal window.
+* Reduced number of cache tags, removing ones that were never used.
+* Adapted purge call for Servebolt CDN for single post purges, no more purge errors.
+
 = 3.5.38 =
 * Adapted the action scheduler cron script to check active status of WooCommerce per site, not per network.
 * Removed /favicon.ico from fast404 capability. 

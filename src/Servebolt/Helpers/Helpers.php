@@ -811,7 +811,7 @@ function isNextGen($path = ''): bool
         } else if (defined('ABSPATH')) {
             $path = trailingslashit(dirname(ABSPATH));
         } else {
-            throw new Exception('Could not determine default environment file folder path.');
+            throw new \Exception('Could not determine default environment file folder path.');
         }
     }
     return ( strpos($path, '/cust/') === 0 ) ? true : false;
