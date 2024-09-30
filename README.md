@@ -69,7 +69,13 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
-#### 3.5.37
+#### 3.5.39
+* Added sanitization to host calls for purging. 
+* Made purge based AJAX error messages readable in the modal window.
+* Reduced number of cache tags, removing ones that were never used.
+* Adapted purge call for Servebolt CDN for single post purges, no more purge errors.
+
+#### 3.5.38
 * Adapted the action scheduler cron script to check active status of WooCommerce per site, not per network.
 * Removed /favicon.ico from fast404 capability. 
 * Updated Servebolt Linux 8 users control panel link from top menu.
