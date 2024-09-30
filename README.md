@@ -69,6 +69,12 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.40
+* Added stable tag so it gets deployed!
+* Removed changelog pre v 3.5 to make it shorter as requested
+* Adapted the tags to match requested count. 
+
+
 #### 3.5.39
 * Added sanitization to host calls for purging, and better validation, via update to Servebolt SDK.  
 * Made purge based AJAX error messages readable in the modal window.
