@@ -70,7 +70,7 @@ If you want to build a local production-ready version of the plugin you can run 
 ## Changelog
 
 #### 3.5.39
-* Added sanitization to host calls for purging. 
+* Added sanitization to host calls for purging, and better validation, via update to Servebolt SDK.  
 * Made purge based AJAX error messages readable in the modal window.
 * Reduced number of cache tags, removing ones that were never used.
 * Adapted purge call for Servebolt CDN for single post purges, no more purge errors.
