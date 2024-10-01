@@ -69,6 +69,10 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.41
+* further improvement to purging, reducing total payloads for Files as Tags are performing the same job
+* Updated the PHP SDK again, added type to all Servebolt CDN purges to add extra validation.
+
 #### 3.5.40
 * Added stable tag so it gets deployed!
 * Removed changelog pre v 3.5 to make it shorter as requested

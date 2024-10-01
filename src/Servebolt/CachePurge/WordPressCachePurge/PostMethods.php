@@ -203,11 +203,8 @@ trait PostMethods
             }
            
             if($purgeObjectType == 'cachetag') {
-                // First purge the URL.
-                $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
-                // should only be 1 URL, trying for secuity.
-                $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'post', $cachePurgeDriver);
-                $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
+                $url = get_permalink($postId);
+                $result = $cachePurgeDriver->purgeByUrl($url);
                 // If purging the url does not work, don't go further.
                 self::setResultOfPostPurge($postId, $result);
                 if(!$result) {
