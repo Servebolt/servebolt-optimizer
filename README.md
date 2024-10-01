@@ -69,6 +69,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.42
+* forcing release. 45mins after success message from WordPress and its not live. bumping.
+
 #### 3.5.41
 * further improvement to purging, reducing total payloads for Files as Tags are performing the same job
 * Updated the PHP SDK again, added type to all Servebolt CDN purges to add extra validation.
