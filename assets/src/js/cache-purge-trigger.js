@@ -423,7 +423,7 @@ jQuery(document).ready(function($) {
             output += '</dl></details>';
             window.sbCachePurgeError(output, null, 'Purge API Errors');
           } else {
-            window.sbCachePurgeError(response.data, null, 'Purge API Error');
+            window.sbCachePurgeError(response.data.message, null, 'Purge API Error');
           }
         }
 

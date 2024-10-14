@@ -37,6 +37,7 @@ use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\envFileFailureHandling;
 use function Servebolt\Optimizer\Helpers\getApiUrlFromEnvFile;
+use function Servebolt\Optimizer\Helpers\getSmaxAgeFromEnvFile;
 
 /**
  * Class ServeboltOptimizer
@@ -89,6 +90,7 @@ class ServeboltOptimizer
             if(!defined('SERVEBOLT_SDK_BASE_URI')) {
                 define('SERVEBOLT_SDK_BASE_URI', getApiUrlFromEnvFile());
             }
+
         }
 
         new AddCacheTagsHeaders;
