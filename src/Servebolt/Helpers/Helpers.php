@@ -352,9 +352,9 @@ function getSiteId(): ?string
 }
 
 /**
- * Get site ID from Env-file.
+ * Get API endpoint from Env-file.
  *
- * @return mixed|null
+ * @return string
  */
 function getApiUrlFromEnvFile(): ?string
 {
@@ -363,6 +363,20 @@ function getApiUrlFromEnvFile(): ?string
         return $env->api_url . '/v1/';
     }
     return "https://api.servebolt.io/v1/";
+}
+
+/**
+ * Get smaxage from Env-file.
+ *
+ * @return mixed|null
+ */
+function getSmaxAgeFromEnvFile(): ?int
+{
+    $env = \Servebolt\Optimizer\Utils\EnvFile\Reader::getInstance();
+    if ($env->cdn_maxage) {
+        return $env->cdn_maxage;
+    }
+    return null;
 }
 
 /**

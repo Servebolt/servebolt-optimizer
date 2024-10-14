@@ -13,6 +13,7 @@ use function Servebolt\Optimizer\Helpers\pickupValueFromFilter;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\convertOriginalUrlToString;
+use function Servebolt\Optimizer\Helpers\isAcd;
 /**
  * Trait PostMethods
  * @package Servebolt\Optimizer\CachePurge\WordPressCachePurge
@@ -203,20 +204,46 @@ trait PostMethods
             }
            
             if($purgeObjectType == 'cachetag') {
-                $url = get_permalink($postId);
-                $result = $cachePurgeDriver->purgeByUrl($url);
-                // If purging the url does not work, don't go further.
-                self::setResultOfPostPurge($postId, $result);
-                if(!$result) {
-                    return $result;
-                }
-                // Next purge cache tags.
-                $tagsToPurge = self::getTagsToPurgeByPostId($postId);
-                $chunkedTagsToPurge = array_chunk( $tagsToPurge, 30);
-                foreach($chunkedTagsToPurge as $tags) {
-                    $result = $cachePurgeDriver->purgeByTags($tags);
+                $result = false;
+                // If accelerated domains clear the Permalink and tags.
+                if( $cachePurgeDriver->resolveDriverNameWithoutConfigCheck() == 'acd' ) {
+                    $url = get_permalink($postId);
+                    $result = $cachePurgeDriver->purgeByUrl($url);
+                    // If purging the url does not work, don't go further.
+                    self::setResultOfPostPurge($postId, $result);
                     if(!$result) {
-                        error_log("Servebolt Optimizer: CacheTags Purge failed via instant purge");
+                        return $result;
+                    }
+                    // Now purge cache tags.
+                    $tagsToPurge = self::getTagsToPurgeByPostId($postId);
+                    $chunkedTagsToPurge = array_chunk( $tagsToPurge, 30);
+                    foreach($chunkedTagsToPurge as $tags) {
+                        $result = $cachePurgeDriver->purgeByTags($tags);
+                        if(!$result) {
+                            error_log("Servebolt Optimizer: CacheTags Purge failed");
+                        }
+                    }
+                // if Serveblt CDN only use tags when there is more than 16 urls to purge.
+                } else {
+                    $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
+                    if(count($urlsToPurge) < 17) {
+                        $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
+                        // If purging the url does not work, don't go further.
+                        self::setResultOfPostPurge($postId, $result);
+                        if(!$result) {
+                            return $result;
+                        }
+                    } else {
+                        // Next purge cache tags, it should just do 1 tag for all HTML.
+                        $tagsToPurge = self::getTagsToPurgeByPostId($postId);
+                        // for safety, chunk the tags to purge.
+                        $chunkedTagsToPurge = array_chunk( $tagsToPurge, 30);
+                        foreach($chunkedTagsToPurge as $tags) {
+                            $result = $cachePurgeDriver->purgeByTags($tags);
+                            if(!$result) {
+                                error_log("Servebolt Optimizer: CacheTags Purge failed");
+                            }
+                        }
                     }
                 }
             }
