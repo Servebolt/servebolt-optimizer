@@ -24,14 +24,22 @@ class Static404 {
         return 'plugins_loaded';
     }
 
-    function serve404() {
+    /**
+     * Serve a 404 response for static files when needed.
+     */
+    public function serve404() {
         
         // must have a path to check for extension
-        if ( ! isset( $_SERVER['REQUEST_URI'] ) || substr($_SERVER['REQUEST_URI'], -1) === '/' ) {
+        if ( ! isset( $_SERVER['REQUEST_URI'] ) || substr($_SERVER['REQUEST_URI'], -1) === '/' || $_SERVER['REQUEST_URI'] === '' ) {
             return;
         }
 
         $this->filename = wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+        // Exit early if parse url fails, leave this to WordPress.
+        if( !$this->check_filename() ) {
+            return;
+        }
+
         // Exit early if the request is for favicon.ico so that WordPress can still process it.
         if(ltrim($this->filename, '/') === 'favicon.ico') {
             return;
@@ -64,7 +72,7 @@ class Static404 {
     /**
      * Determine the earliest `loaded` action we can use. If we're in an mu-plugin,
      * then fire it on mu-plugins_loaded, otherwise we need to wait until plugins_loaded.
-     * 
+     *
      * If servebolt optimizer is loaded using MU plugins, then we need to use `muplugins_loaded` action,
      * as that will give a earlier boot loader hook. Thus making the response faster.
      *
@@ -76,7 +84,19 @@ class Static404 {
         }
         return 'plugins_loaded';
     }
-    
+
+    /**
+     * Check if the filename is set.
+     *
+     * @return bool
+     */
+    function check_filename( ) : bool {
+        if( $this->filename === false || $this->filename === null ) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Get the extension of the request.
      *
@@ -84,6 +104,10 @@ class Static404 {
      */
     function get_request_extension() : string
     {
+        if( !$this->check_filename() ) {
+            return false;
+        }
+
         if(strpos($this->filename, '.') === false) {
             return false;
         }
@@ -163,4 +187,5 @@ class Static404 {
         $default = (smartGetOption(null, 'cache_404_switch', true))?true:false;
         return apply_filters( 'sb_optimizer_static_404_use_intelligent_cache_headers', $default );
     }
+
 };
