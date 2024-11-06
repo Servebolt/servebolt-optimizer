@@ -10,7 +10,7 @@ use function Servebolt\Optimizer\Helpers\getOptionName;
 
 class Static404 {
 
-    protected $filename;
+    protected $filename = null;
 
     public function __construct() {
         add_action( $this->generateHookPoint(), [ $this, 'serve404' ], 99 );
@@ -90,8 +90,8 @@ class Static404 {
      *
      * @return bool
      */
-    function check_filename( ) : bool {
-        if( $this->filename === false || $this->filename === null ) {
+    function check_filename() : bool {
+        if( $this->filename === false || $this->filename === null || $this->filename === '' ) {
             return false;
         }
         return true;
