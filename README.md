@@ -69,6 +69,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.44
+* added extra checks to prevent php 8.3 deprecation errors on some requests.
+
 #### 3.5.43
 * Removed unneeded url purge request for Servebolt-CDN, reducing purge request by 50%.
 * Adapted purge logic for Servebolt-CDN to reduce unneded purges at the CDN. If less than 17 urls are needed to purge properly, it will choose that, if not will purge by tag all HTML.
