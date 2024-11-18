@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Servebolt Optimizer
-Version: 3.5.44
+Version: 3.5.45
 Author: Servebolt
 Author URI: https://servebolt.com
 Description: A plugin that implements Servebolt Security & Performance best practises for WordPress.
@@ -18,7 +18,7 @@ define('SERVEBOLT_PLUGIN_BASENAME', plugin_basename(__FILE__));
 define('SERVEBOLT_PLUGIN_DIR_URL', plugin_dir_url( __FILE__ ));
 define('SERVEBOLT_PLUGIN_DIR_PATH', plugin_dir_path( __FILE__ ));
 define('SERVEBOLT_PLUGIN_PSR4_PATH', SERVEBOLT_PLUGIN_DIR_PATH . 'src/Servebolt/');
-define('SERVEBOLT_PLUGIN_MINIMUM_PHP_VERSION', '7.3');
+define('SERVEBOLT_PLUGIN_MINIMUM_PHP_VERSION', '7.4');
 define('SERVEBOLT_PLUGIN_ACD_VERSION', '7');
 /**
  * Added database version for increased flexibilty in updates.
