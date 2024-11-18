@@ -192,6 +192,7 @@ class CacheTagsBase {
 
         if(is_singular()) {
             $taxonomies = get_object_taxonomies( get_post_type(), 'objects' );
+            if(is_wp_error($taxonomies) || !$taxonomies || empty($taxonomies)) return;
             foreach($taxonomies as $tax) {
                 // ignore non public taxonomies
                 if(!$tax->public) continue;
@@ -222,7 +223,11 @@ class CacheTagsBase {
         if(is_singular()){
             if(class_exists( 'woocommerce' ) && is_product()) return;
 
-            $this->add( self::AUTHOR . '-' . get_post_field('post_author', get_queried_object()->ID ) );
+            // Added check to prevent errors that some security plugins might cause. They do not allow access to the ID.
+            if(get_queried_object()->ID != null) {
+                $this->add( self::AUTHOR . '-' . get_post_field('post_author', get_queried_object()->ID ) );
+            }
+            
         }
 
     }
@@ -269,8 +274,8 @@ class CacheTagsBase {
             $this->add(self::FEEDS);
         }
         
-        if(is_feed() && is_singular()) {
-            $this->add(self::COMMENT_FEED. '-' . get_queried_object()->ID);
+        if(is_feed() && is_singular() && get_queried_object()->ID != null) {
+                $this->add(self::COMMENT_FEED. '-' . get_queried_object()->ID);
         }
     }
 
