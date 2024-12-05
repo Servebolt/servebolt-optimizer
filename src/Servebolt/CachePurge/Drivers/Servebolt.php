@@ -9,6 +9,7 @@ use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeUrlInterface;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeAllInterface;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgePrefixInterface;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeTagInterface;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeValidateUrlCandidate;
 use Servebolt\Optimizer\Exceptions\ServeboltApiError;
 use function Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
 
@@ -16,9 +17,36 @@ use function Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
  * Class Servebolt
  * @package Servebolt\Optimizer\CachePurge\Drivers
  */
-class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, CachePurgePrefixInterface, CachePurgeTagInterface
+class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, CachePurgePrefixInterface, CachePurgeTagInterface, CachePurgeValidateUrlCandidate
 {
     use Singleton, ServeboltDriverTrait;
+
+     /**
+     * Weed out URL's that can never be cached.
+     * @param string $url
+     * @return bool
+     */
+    public function validateUrl(string $url): bool
+    {
+        $path = parse_url($url, PHP_URL_PATH);
+        if (empty($path)) {
+            return false;
+        }
+        $never_cached_paths = [
+            '/wp-admin/',
+            '/wp-login.php',
+            '/wp-cron.php',
+            '/xmlrpc.php',
+            '/index.php/',
+            '/wp-comments-post.php',
+        ];
+        foreach($never_cached_paths as $never_cached_path) {
+            if (strpos($path, $never_cached_path) !== false) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * @param string $url

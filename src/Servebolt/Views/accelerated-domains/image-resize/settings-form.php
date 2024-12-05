@@ -57,6 +57,21 @@
                     </fieldset>
                 </td>
             </tr>
+
+            <tr>
+                <th scope="row"><?php _e('Force thumbnail width minimum size', 'servebolt-wp'); ?></th>
+                <td>
+                    <fieldset>
+                        <legend class="screen-reader-text"><span><?php _e('Force thumbnail minimum size on corrupted?', 'servebolt-wp'); ?></span></legend>
+                        <label for="acd_image_resize_force_thumbnail_minimum_width">
+                            <input name="<?php echo getOptionName('acd_image_resize_force_thumbnail_minimum_width'); ?>" type="checkbox" id="acd_image_resize_force_thumbnail_minimum_width" value="1" <?php checked($settings['acd_image_resize_force_thumbnail_minimum_width']); ?>>
+                            <?php _e('Enable', 'servebolt-wp'); ?><br>
+                            <p><?php _e('If images dimensions cannot be read by WordPress, this will force the "thumbnail" width as the base image with.', 'servebolt-wp'); ?></p>
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
+
             <tr>
                 <th scope="row"><?php _e('Add half sizes to responsive images', 'servebolt-wp'); ?></th>
                 <td>

@@ -52,6 +52,7 @@ class AcceleratedDomainsImageResize
             if (self::doImageUpscale()) {
                 ImageUpscale::getInstance();
             }
+            $this->imageResize->correctPotentialBadImagesHook();
         }
     }
 
@@ -65,6 +66,7 @@ class AcceleratedDomainsImageResize
         setDefaultOption('acd_image_resize_half_size_switch', '__return_true');
         setDefaultOption('acd_image_resize_src_tag_switch', '__return_true');
         setDefaultOption('acd_image_resize_srcset_tag_switch', '__return_true');
+        setDefaultOption('acd_image_resize_force_thumbnail_minimum_width', '__return_false');
     }
 
     /**

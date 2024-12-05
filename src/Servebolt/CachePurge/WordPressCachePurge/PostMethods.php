@@ -13,7 +13,7 @@ use function Servebolt\Optimizer\Helpers\pickupValueFromFilter;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\convertOriginalUrlToString;
-use function Servebolt\Optimizer\Helpers\isAcd;
+
 /**
  * Trait PostMethods
  * @package Servebolt\Optimizer\CachePurge\WordPressCachePurge
@@ -114,7 +114,6 @@ trait PostMethods
     private static function maybeAddOriginalUrl(array $queueItemData, int $postId)
     {
         $originalUrl = pickupValueFromFilter('sb_optimizer_purge_by_post_original_url');
-        
         $originalUrl = convertOriginalUrlToString($originalUrl);
         if ($originalUrl && get_permalink($postId) !== $originalUrl) {
             $queueItemData['original_url'] = $originalUrl;
@@ -139,12 +138,14 @@ trait PostMethods
         return false;
     }
 
+    /**
+     * If not running on Servebolt, can't use cache tags.
+     * 
+     * @return bool
+     */
     private static function canUseCacheTags() : bool
     {
-        // function to check if running ACD and is on servebolt
-        // if( !isHostedAtServebolt() ) return false;
-       
-
+        if ( !isHostedAtServebolt() ) return false;
         return true;
     }
     /**
@@ -159,102 +160,175 @@ trait PostMethods
         if (!$postId || wp_is_post_revision($postId)) {
             return false;
         }
-        // Check if set to purge by queue.
         $shouldPurgeByQueue = self::shouldPurgeByQueue();        
-        // Check if on Servebolt and Servbolt CDN/ACD.
+        // Check if on Servebolt and Servebolt CDN/ACD.
         $canUseCacheTags = self::cacheTagsEnabled();
-        // Default to URL purging.
-        $purgeObjectType = 'post';
-        // If Hosted on Servebolt, and is capible of cache tags. 
-        if($canUseCacheTags) {
-            $purgeObjectType = 'cachetag';
-        }
+        $purgeObjectType = ($canUseCacheTags) ? 'cachetag' : 'post';
         
         /**
          * Fires when cache is being purged for a post.
          *
          * @param int $postId ID of the post that's being purge cache for.
-         * @param bool $simplePurge Whether this is a simple purge or not, a simple purge meaning that we purge the URL only, and not the full URL hierarchy, like archives etc.
+         * @param bool $simplePurge Whether this is a simple purge or not, 
+         *             a simple purge meaning that we purge the URL only, 
+         *             and not the full URL hierarchy, like archives etc.
          */
         do_action('sb_optimizer_purged_post_cache', $postId, false);
         do_action('sb_optimizer_purged_post_cache_for_' . $postId, false);
 
         if ($shouldPurgeByQueue) {
-            $queueInstance = WpObjectQueue::getInstance();
-            $queueItemData = [
-                'type' => $purgeObjectType, // Replace with cachetag when available, default to post.
-                'id' => $postId,
-            ];
-            if ($originEvent = getCachePurgeOriginEvent()) {
-                $queueItemData['originEvent'] = $originEvent;
-            }
-            $queueItemData = self::maybeAddOriginalUrl($queueItemData, $postId);
-            return isQueueItem($queueInstance->add($queueItemData));
+            return self::setupPurgeByQueue($postId, $purgeObjectType);
         } else {
             $cachePurgeDriver = CachePurgeDriver::getInstance();
             if (self::$preventDoublePurge && self::$preventPostDoublePurge && array_key_exists($postId, self::$recentlyPurgedPosts)) {
                 return self::$recentlyPurgedPosts[$postId];
             }
-
+            // If the purge provider only supports URL purging, use that.
+            // This is for people who are not on Servebolt or not using Servebolt CDN/ACD.
             if($purgeObjectType == 'post') {
-                $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
-                $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'post', $cachePurgeDriver);
-                $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
+                $result = self::setupPurgeByPost($postId, $cachePurgeDriver);
                 self::setResultOfPostPurge($postId, $result);
             }
-           
+            // If the provider supports cachetags, use that. (Servebolt CDN/ACD)
             if($purgeObjectType == 'cachetag') {
-                $result = false;
-                // If accelerated domains clear the Permalink and tags.
-                if( $cachePurgeDriver->resolveDriverNameWithoutConfigCheck() == 'acd' ) {
-                    $url = get_permalink($postId);
-                    $result = $cachePurgeDriver->purgeByUrl($url);
-                    // If purging the url does not work, don't go further.
-                    self::setResultOfPostPurge($postId, $result);
-                    if(!$result) {
-                        return $result;
-                    }
-                    // Now purge cache tags.
-                    $tagsToPurge = self::getTagsToPurgeByPostId($postId);
-                    $chunkedTagsToPurge = array_chunk( $tagsToPurge, 30);
-                    foreach($chunkedTagsToPurge as $tags) {
-                        $result = $cachePurgeDriver->purgeByTags($tags);
-                        if(!$result) {
-                            error_log("Servebolt Optimizer: CacheTags Purge failed");
-                        }
-                    }
-                // if Serveblt CDN only use tags when there is more than 16 urls to purge.
-                } else {
-                    $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
-                    if(count($urlsToPurge) < 17) {
-                        $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
-                        // If purging the url does not work, don't go further.
-                        self::setResultOfPostPurge($postId, $result);
-                        if(!$result) {
-                            return $result;
-                        }
-                    } else {
-                        // Next purge cache tags, it should just do 1 tag for all HTML.
-                        $tagsToPurge = self::getTagsToPurgeByPostId($postId);
-                        // for safety, chunk the tags to purge.
-                        $chunkedTagsToPurge = array_chunk( $tagsToPurge, 30);
-                        foreach($chunkedTagsToPurge as $tags) {
-                            $result = $cachePurgeDriver->purgeByTags($tags);
-                            if(!$result) {
-                                error_log("Servebolt Optimizer: CacheTags Purge failed");
-                            }
-                        }
-                    }
-                }
+                $result = self::setupPurgeByCachetags($postId, $cachePurgeDriver);
             }
             return $result;
         }
     }
 
-    private static function setResultOfPostPurge(int $postId, bool $result)
+    /**
+     * Set the result of a post purge.
+     *
+     * @param int $postId
+     * @param bool $result
+     * 
+     * @return void
+     */
+    private static function setResultOfPostPurge(int $postId, bool $result) : void
     {
         if (self::$preventDoublePurge && self::$preventPostDoublePurge) {
             self::$recentlyPurgedPosts[$postId] = $result;
         }
     }
+
+    /**
+     * Setup purge by queue.
+     * 
+     * The queue stores a stub of the purge request, and is worked on by the queue worker.
+     * TODO: move to getting the queue worker to expand the stub on reciept or already have these
+     * expanded when created, and check for duplicates then.
+     *
+     * @param int $postId
+     * @param string $purgeObjectType
+     * @return bool
+     */
+    protected static function setupPurgeByQueue($postId, $purgeObjectType) {
+        $queueInstance = WpObjectQueue::getInstance();
+        $queueItemData = [
+            'type' => $purgeObjectType, // Replace with cachetag when available, default to post.
+            'id' => $postId,
+        ];
+        if ($originEvent = getCachePurgeOriginEvent()) {
+            $queueItemData['originEvent'] = $originEvent;
+        }
+        $queueItemData = self::maybeAddOriginalUrl($queueItemData, $postId);
+        return isQueueItem($queueInstance->add($queueItemData));
+    }
+
+    /**
+     * Based on the URL's requested to be purged, remove any that are invalid.
+     * 
+     * @param array $urlsToPurge
+     * @param CachePurgeDriver $cachePurgeDriver
+     * 
+     * @return array
+     */
+    protected static function removeInvalidPurgeTargets($urlsToPurge, $cachePurgeDriver) {
+        $validUrlsToPurge = [];
+        foreach($urlsToPurge as $url) {
+            if($cachePurgeDriver->validateUrl($url)) {
+                $validUrlsToPurge[] = $url;
+            }
+        }
+        return $validUrlsToPurge;
+    }
+    /**
+     * Purge post cache via URL's using post Id.
+     *
+     * @param int $postId
+     * @param CachePurgeDriver $cachePurgeDriver
+     *
+     * @return bool always returns true or failure via ServeboltApiError exception.
+     */
+    protected static function setupPurgeByPost($postId, $cachePurgeDriver) {
+        $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
+        // Prototype for removing invalid purge targets.
+        // $urlsToPurge = self::removeInvalidPurgeTargets($urlsToPurge, $cachePurgeDriver);
+        // if(count($urlsToPurge) === 0) {
+        //     return true;
+        // }
+        $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'post', $cachePurgeDriver);
+        return $cachePurgeDriver->purgeByUrls($urlsToPurge);
+    }
+
+
+    /**
+     * Purge post cache via CacheTag's using post Id.
+     *
+     * Checks if using ACD or Servebolt CDN, loads the correct driver and
+     * purge requests for that style of CDN.
+     *
+     * @param int $postId
+     * @param CachePurgeDriver $cachePurgeDriver
+     *
+     * @return bool always returns true or failure via ServeboltApiError exception.
+     */
+    protected static function setupPurgeByCachetags($postId, $cachePurgeDriver){
+        $result = false;
+        // If accelerated domains clear the Permalink and tags.
+        if( $cachePurgeDriver->resolveDriverNameWithoutConfigCheck() == 'acd' ) {
+            $url = get_permalink($postId);
+            $result = $cachePurgeDriver->purgeByUrl($url);
+            self::setResultOfPostPurge($postId, $result);
+            // If purging the url did not work, don't go further, purging via cache tags will no
+            // doubt also fail.
+            if(!$result) {
+                return $result;
+            }
+            // Now purge cache tags.
+            $tagsToPurge = self::getTagsToPurgeByPostId($postId);
+            $chunkedTagsToPurge = array_chunk( $tagsToPurge, 30);
+            foreach($chunkedTagsToPurge as $tags) {
+                $result = $cachePurgeDriver->purgeByTags($tags);
+                if(!$result) {
+                    error_log("Servebolt Optimizer: Accelerated Domains CacheTags Purge failed");
+                }
+            }
+        // if Serveblt CDN only use tags when there is more than 16 urls to purge.
+        } else {
+            $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
+            if(count($urlsToPurge) < 17) {
+                $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
+                // If purging the url does not work, don't go further.
+                self::setResultOfPostPurge($postId, $result);
+                if(!$result) {
+                    return $result;
+                }
+            } else {
+                // Next purge cache tags, it should just do 1 tag for all HTML.
+                $tagsToPurge = self::getTagsToPurgeByPostId($postId);
+                // for safety, chunk the tags to purge.
+                $chunkedTagsToPurge = array_chunk( $tagsToPurge, 30);
+                foreach($chunkedTagsToPurge as $tags) {
+                    $result = $cachePurgeDriver->purgeByTags($tags);
+                    if(!$result) {
+                        error_log("Servebolt Optimizer: ServeboltCDN CacheTags Purge failed");
+                    }
+                }
+            }
+        }
+        return $result;
+    }
+
 }
