@@ -237,8 +237,15 @@ class ImageResize
      * 
      */
     public function correctPotentialBadImages($forceThumbnailMinimumWidth, $width) {
-        if($width < 10 && get_option('sb_optimizer_acd_image_resize_force_add_width')) return true;
+        error_log(get_option('sb_optimizer_acd_image_resize_force_add_width', false) ? 'trying to set width' : 'not trying to not width');
+        if($width < 10 && get_option('sb_optimizer_acd_image_resize_force_add_width', false)) return true;
         return $forceThumbnailMinimumWidth;
+    }
+
+    public function correctPotentialBadImagesHook(): void
+    {
+        error_log('loading filter');
+        add_filter('acd_image_resize_force_thumbnail_minimum_width', [$this, 'correctPotentialBadImages'], 10, 3);
     }
 
     /**

@@ -52,6 +52,7 @@ class AcceleratedDomainsImageResize
             if (self::doImageUpscale()) {
                 ImageUpscale::getInstance();
             }
+            $this->imageResize->correctPotentialBadImagesHook();
         }
     }
 

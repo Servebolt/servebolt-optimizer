@@ -22,7 +22,6 @@ class WpImageResize extends ImageResize
         $this->addSrcsetImageUrlsHook();
         $this->addOverrideImageSizeCreationHook();
         $this->addSrcOverrideInTheContentHook();
-        $this->correctPotentialBadIamgesHook();
     }
 
     public function addSingleImageUrlHook(): void
@@ -69,8 +68,4 @@ class WpImageResize extends ImageResize
         }
     }
 
-    public function correctPotentialBadIamgesHook(): void
-    {
-        add_filter('acd_image_resize_force_thumbnail_minimum_width', [$this, 'correctPotentialBadImages'], 10, 3);
-    }
 }
