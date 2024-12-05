@@ -107,6 +107,7 @@ class AcceleratedDomainsImageResizeControl
             'acd_image_resize_quality',
             'acd_image_resize_metadata_optimization_level',
             'acd_image_resize_upscale',
+            'acd_image_resize_force_thumbnail_minimum_width',
         ];
     }
 }

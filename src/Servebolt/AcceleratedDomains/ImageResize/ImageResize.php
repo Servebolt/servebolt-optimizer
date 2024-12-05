@@ -212,6 +212,12 @@ class ImageResize
         if ($maxWidth && $width > $maxWidth) {
             $width = $this->maxWidth();
         }
+        // Set a useable width if the file was not readable to get the sizes.
+        if(apply_filters('sb_optimizer_acd_image_resize_force_add_width', false, $width, $height)) {
+            global $_wp_additional_image_sizes;
+            $width = $_wp_additional_image_sizes['post_thumbnail']['width'];
+        }
+
         $additionalParams['width'] = $width;
 
         // Set max height
@@ -225,6 +231,14 @@ class ImageResize
         }
 
         return $this->defaultImageResizeParameters($additionalParams);
+    }
+
+    /**
+     * 
+     */
+    public function correctPotentialBadImages($forceThumbnailMinimumWidth, $width) {
+        if($width < 10 && get_option('sb_optimizer_acd_image_resize_force_add_width')) return true;
+        return $forceThumbnailMinimumWidth;
     }
 
     /**
@@ -413,7 +427,6 @@ class ImageResize
                 $newsrc = $this->buildImageUrl($src[1], ['width' => $image_width ]);
                 // Replace src="content" with src="new content", double replace keeps src=""
                 $content = str_replace($src[0], str_replace($src[1], $newsrc, $src[0]), $content);
-                
             }
         }
         return $content;

@@ -69,6 +69,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.46
+* code re-orgainisation for easier reading/debugging in the purge post section.
+
 #### 3.5.45
 * added extra checks to CacheTag creation to deal with plugins that prevent the ID from being readable on is_singular() queries
 

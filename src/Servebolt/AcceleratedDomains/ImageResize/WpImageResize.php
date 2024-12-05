@@ -22,6 +22,7 @@ class WpImageResize extends ImageResize
         $this->addSrcsetImageUrlsHook();
         $this->addOverrideImageSizeCreationHook();
         $this->addSrcOverrideInTheContentHook();
+        $this->correctPotentialBadIamgesHook();
     }
 
     public function addSingleImageUrlHook(): void
@@ -66,5 +67,10 @@ class WpImageResize extends ImageResize
         if (apply_filters('sb_optimizer_acd_image_resize_add_half_sizes', true)) {
             add_filter('wp_calculate_image_srcset', [$this, 'addHalfSizesToSrcset'], 9, 5);
         }
+    }
+
+    public function correctPotentialBadIamgesHook(): void
+    {
+        add_filter('acd_image_resize_force_thumbnail_minimum_width', [$this, 'correctPotentialBadImages'], 10, 3);
     }
 }

@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeAllInterface;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeUrlInterface;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeTagInterface;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeValidateUrlCandidate;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Exceptions\ServeboltApiError;
 use function Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
@@ -15,9 +16,36 @@ use function Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
  * Class ServeboltCdn
  * @package Servebolt\Optimizer\CachePurge\Drivers
  */
-class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, CachePurgeUrlInterface
+class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, CachePurgeUrlInterface, CachePurgeValidateUrlCandidate
 {
     use Singleton, ServeboltDriverTrait;
+
+    /**
+     * Weed out URL's that can never be cached.
+     * @param string $url
+     * @return bool
+     */
+    public function validateUrl(string $url): bool
+    {
+        $path = parse_url($url, PHP_URL_PATH);
+        if (empty($path)) {
+            return false;
+        }
+        $never_cached_paths = [
+            '/wp-admin/',
+            '/wp-login.php',
+            '/wp-cron.php',
+            '/xmlrpc.php',
+            '/index.php/',
+            '/wp-comments-post.php',
+        ];
+        foreach($never_cached_paths as $never_cached_path) {
+            if (strpos($path, $never_cached_path) !== false) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * @param string $url
@@ -36,7 +64,7 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
         if ($response->wasSuccessful()) {
             return true;
         } else {
-            throw new ServeboltApiError($response->getErrors(), $response);
+            throw new ServeboltApiError($response->getErrors(), $response, 'serveboltcdn');
         }
     }
 
@@ -49,12 +77,15 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
     {
         $response = $this->apiInstance->environment->purgeCdnCache(
             $this->apiInstance->getEnvironmentId(),
-            $urls
+            $urls// files
+            // prefixes
+            // tags
+            // hosts
         );
         if ($response->wasSuccessful()) {
             return true;
         } else {
-            throw new ServeboltApiError($response->getErrors(), $response);
+            throw new ServeboltApiError($response->getErrors(), $response, 'serveboltcdn');
         }
     }
 
@@ -76,7 +107,7 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
         if ($response->wasSuccessful()) {
             return true;
         } else {
-            throw new ServeboltApiError($response->getErrors(), $response);
+            throw new ServeboltApiError($response->getErrors(), $response, 'serveboltcdn');
         }
     }
 
@@ -99,7 +130,7 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
         if ($response->wasSuccessful()) {
             return true;
         } else {
-            throw new ServeboltApiError($response->getErrors(), $response);
+            throw new ServeboltApiError($response->getErrors(), $response, 'serveboltcdn');
         }
     }
 
@@ -122,7 +153,7 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
         if ($response->wasSuccessful()) {
             return true;
         } else {
-            throw new ServeboltApiError($response->getErrors(), $response);
+            throw new ServeboltApiError($response->getErrors(), $response, 'serveboltcdn');
         }
     }
 }

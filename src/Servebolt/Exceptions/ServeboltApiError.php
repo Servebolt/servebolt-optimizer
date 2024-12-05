@@ -14,8 +14,8 @@ class ServeboltApiError extends ApiError
      * @param array $errors
      * @param mixed $response
      */
-    public function __construct(array $errors, $response)
+    public function __construct(array $errors, $response, $cdn_name = 'acd')
     {
-        parent::__construct($errors, 'acd', $response);
+        parent::__construct($errors, $cdn_name, $response);
     }
 }
