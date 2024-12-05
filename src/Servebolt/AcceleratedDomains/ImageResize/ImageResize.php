@@ -238,10 +238,8 @@ class ImageResize
      * 
      */
     public function correctPotentialBadImages($forceThumbnailMinimumWidth, $width) {
-
         $blogId = (is_multisite()) ? get_current_blog_id() : null;
-        error_log(smartGetOption($blogId,'acd_image_resize_force_thumbnail_minimum_width', false) ? 'trying to set width' : 'not trying to not width');
-        if($width < 10 && smartGetOption($blogId,'sb_optimizer_acd_image_resize_force_add_width', false)) return true;
+        if($width < 10 && smartGetOption($blogId,'acd_image_resize_force_thumbnail_minimum_width', false)) return true;
         return $forceThumbnailMinimumWidth;
     }
 

@@ -70,6 +70,7 @@ If you want to build a local production-ready version of the plugin you can run 
 ## Changelog
 
 #### 3.5.46
+* Accelerated Domains Image Resizer: added filter to manage problems when WordPress is unable to produce image dimensions by defaulting to the thumbnail size.
 * code re-orgainisation for easier reading/debugging in the purge post section.
 
 #### 3.5.45
