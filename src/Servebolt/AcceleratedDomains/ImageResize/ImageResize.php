@@ -4,6 +4,7 @@ namespace Servebolt\Optimizer\AcceleratedDomains\ImageResize;
 
 if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
+use function Servebolt\Optimizer\Helpers\smartGetOption;
 /**
  * Class ImageResize
  * @package Servebolt\Optimizer\AcceleratedDomains\ImageResize
@@ -213,7 +214,7 @@ class ImageResize
             $width = $this->maxWidth();
         }
         // Set a useable width if the file was not readable to get the sizes.
-        if(apply_filters('sb_optimizer_acd_image_resize_force_add_width', false, $width, $height)) {
+        if(apply_filters('sb_optimizer_acd_image_resize_force_thumbnail_minimum_width', false, $width, $height)) {
             global $_wp_additional_image_sizes;
             $width = $_wp_additional_image_sizes['post_thumbnail']['width'];
         }
@@ -237,15 +238,16 @@ class ImageResize
      * 
      */
     public function correctPotentialBadImages($forceThumbnailMinimumWidth, $width) {
-        error_log(get_option('sb_optimizer_acd_image_resize_force_add_width', false) ? 'trying to set width' : 'not trying to not width');
-        if($width < 10 && get_option('sb_optimizer_acd_image_resize_force_add_width', false)) return true;
+
+        $blogId = (is_multisite()) ? get_current_blog_id() : null;
+        error_log(smartGetOption($blogId,'acd_image_resize_force_thumbnail_minimum_width', false) ? 'trying to set width' : 'not trying to not width');
+        if($width < 10 && smartGetOption($blogId,'sb_optimizer_acd_image_resize_force_add_width', false)) return true;
         return $forceThumbnailMinimumWidth;
     }
 
     public function correctPotentialBadImagesHook(): void
     {
-        error_log('loading filter');
-        add_filter('acd_image_resize_force_thumbnail_minimum_width', [$this, 'correctPotentialBadImages'], 10, 3);
+        add_filter('sb_optimizer_acd_image_resize_force_thumbnail_minimum_width', [$this, 'correctPotentialBadImages'], 10, 3);
     }
 
     /**
