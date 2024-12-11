@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\arrayGet; ?>
 <div class="wrap">
-	<h2><?php _e('Error Log', 'servebolt-wp'); ?></h2>
+	<h2><?php echo $pageTitle; ?></h2>
 	<p>Log file path: <?php echo $logFilePath; ?></p>
 	<?php if (!$logFileExists) : ?>
     <div class="notice notice-warning">
