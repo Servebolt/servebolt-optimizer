@@ -205,7 +205,7 @@ class AdminController
             if (isDevDebug()) {
                 add_submenu_page('servebolt-wp', __('Cloudflare Image Resizing', 'servebolt-wp'), __('Cloudflare Image Resizing', 'servebolt-wp'), 'manage_options', 'servebolt-cf-image-resizing', [CloudflareImageResize::getInstance(), 'render']);
             } else {
-                add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-cf-image-resizing', [CloudflareImageResize::getInstance(), 'render']);
+                add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-cf-image-resizing', [CloudflareImageResize::getInstance(), 'render']);
             }
         }
     }
@@ -217,16 +217,16 @@ class AdminController
     {
         if (isHostedAtServebolt()) {
             add_submenu_page('servebolt-wp', __('Cache Settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-html-cache', [FullPageCacheControl::getInstance(), 'render']);
-            add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-cache-ttl', [CacheTtlControl::getInstance(), 'render']);
-            add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
+            add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-cache-ttl', [CacheTtlControl::getInstance(), 'render']);
+            add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
         } else {
             add_submenu_page('servebolt-wp', __('Cache Settings', 'servebolt-wp'), __('Cache', 'servebolt-wp'), 'manage_options', 'servebolt-cache-purge-control', [CachePurgeControl::getInstance(), 'render']);
         }
 
         // Legacy redirects
-        add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-nginx-cache', [$this, 'htmlCacheLegacyRedirect']);
-        add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-fpc', [$this, 'htmlCacheLegacyRedirect']);
-        add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-cf-cache-control', [$this, 'cachePurgeLegacyRedirect']);
+        add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-nginx-cache', [$this, 'htmlCacheLegacyRedirect']);
+        add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-fpc', [$this, 'htmlCacheLegacyRedirect']);
+        add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-cf-cache-control', [$this, 'cachePurgeLegacyRedirect']);
     }
 
     /**
@@ -235,9 +235,9 @@ class AdminController
     private function acceleratedDomainsMenu(): void
     {
         add_submenu_page('servebolt-wp', __('Accelerated Domains', 'servebolt-wp'), __('Accelerated Domains', 'servebolt-wp'), 'manage_options', 'servebolt-acd', [AcceleratedDomainsControl::getInstance(), 'render']);
-        add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-acd-image-resize', [AcceleratedDomainsImageResizeControl::getInstance(), 'render']);
+        add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-acd-image-resize', [AcceleratedDomainsImageResizeControl::getInstance(), 'render']);
         if (featureIsAvailable('prefetching')) {
-            add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
+            add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-prefetching', [PrefetchingControl::getInstance(), 'render']);
         }
     }
 
@@ -263,13 +263,13 @@ class AdminController
     private function performanceOptimizerMenu(): void
     {
         add_submenu_page('servebolt-wp', __('Performance Optimizer', 'servebolt-wp'), __('Performance Optimizer', 'servebolt-wp'), 'manage_options', 'servebolt-performance-optimizer', [PerformanceOptimizer::getInstance(), 'render']);
-        add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-performance-optimizer-advanced', [PerformanceOptimizerAdvanced::getInstance(), 'render']);
-        add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-performance-optimizer-database', [DatabaseOptimizations::getInstance(), 'render']);
-        add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-menu-optimizer', [MenuOptimizerControl::getInstance(), 'render']);
+        add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-performance-optimizer-advanced', [PerformanceOptimizerAdvanced::getInstance(), 'render']);
+        add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-performance-optimizer-database', [DatabaseOptimizations::getInstance(), 'render']);
+        add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-menu-optimizer', [MenuOptimizerControl::getInstance(), 'render']);
 
         // Legacy redirect
-        add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-performance-tools', [$this, 'performanceOptimizerLegacyRedirect']);
-        add_submenu_page('options.php', null, null, 'manage_options', 'servebolt-menu-cache', [$this, 'menuOptimizerLegacyRedirect']);
+        add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-performance-tools', [$this, 'performanceOptimizerLegacyRedirect']);
+        add_submenu_page('options.php', '', '', 'manage_options', 'servebolt-menu-cache', [$this, 'menuOptimizerLegacyRedirect']);
     }
 
     /**

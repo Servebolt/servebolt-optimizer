@@ -264,10 +264,10 @@ trait PostMethods
     protected static function setupPurgeByPost($postId, $cachePurgeDriver) {
         $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
         // Prototype for removing invalid purge targets.
-        // $urlsToPurge = self::removeInvalidPurgeTargets($urlsToPurge, $cachePurgeDriver);
-        // if(count($urlsToPurge) === 0) {
-        //     return true;
-        // }
+        $urlsToPurge = self::removeInvalidPurgeTargets($urlsToPurge, $cachePurgeDriver);
+        if(count($urlsToPurge) === 0) {
+            return true;
+        }
         $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'post', $cachePurgeDriver);
         return $cachePurgeDriver->purgeByUrls($urlsToPurge);
     }

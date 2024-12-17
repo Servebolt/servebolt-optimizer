@@ -22,6 +22,32 @@ class LogViewer
      */
     private $numberOfEntries = 100;
 
+    private $sl8_log_paths = [
+        [
+            'title' => 'PHP Error Log',
+            'slug' => 'site/public',
+            'log_location' => 'logs/php',
+            'filename' => 'ErrorLog',
+            'template' => 'log-viewer.log-viewer',
+        ],
+        [
+            'title' => 'HTTP Error Log',
+            'slug' => 'site/public',
+            'log_location' => 'logs/http',
+            'filename' => 'ErrorLog',
+            'template' => 'log-viewer.log-viewer',
+        ],
+    ];
+
+    private $sl7_log_paths = [
+        [
+            'title' => 'Error Log',
+            'slug' => '/public',
+            'log_location' => '/logs',
+            'filename' => 'ErrorLog',
+            'template' => 'log-viewer.log-viewer',
+        ],
+    ];
     /**
      * Get log file path.
      *
@@ -29,12 +55,24 @@ class LogViewer
      */
     private function getErrorLogPath(): string
     {
-        $logDir = str_replace('/public', '/logs', $_SERVER['DOCUMENT_ROOT']); 
         if(isNextGen()) {
-            $logDir = str_replace('/site/public', '/logs/php', $_SERVER['DOCUMENT_ROOT']);        
+            $logDir = str_replace('/site/public', '/logs/php', $_SERVER['DOCUMENT_ROOT']);
+            $logFilePath = $logDir . '/ErrorLog';
+        } else {
+            $logDir = str_replace('/public', '/logs', $_SERVER['DOCUMENT_ROOT']); 
+            $logFilePath = $logDir . '/ErrorLog';
         }
-        $logFilePath = $logDir . '/ErrorLog';
+        
         return (string) apply_filters('sb_optimizer_log_file_path', $logFilePath);
+    }
+
+    private function getLogPaths(): array
+    {
+        if(isNextGen()) {
+            return $this->sl8_log_paths;
+        } else {
+            return $this->sl7_log_paths;
+        }
     }
 
     /**
@@ -42,14 +80,33 @@ class LogViewer
      */
     public function render(): void
     {
-        $logFilePath = $this->getErrorLogPath();
-        $logFileExists = file_exists($logFilePath);
-        $logFileReadable = is_readable($logFilePath);
-        $log = $this->tail($logFilePath, $this->numberOfEntries);
-        $entries = $this->prepareEntries($log);
-        $numberOfEntries = $this->numberOfEntries;
-        view('log-viewer.log-viewer', compact('numberOfEntries', 'logFilePath', 'logFileExists', 'logFileReadable', 'log', 'entries'));
-    }
+        $logFileInfo = $this->getLogPaths();
+        foreach($logFileInfo as $logInfo) {
+            $logFilePath = str_replace($logInfo['slug'], $logInfo['log_location'], $_SERVER['DOCUMENT_ROOT']) . '/' . $logInfo['filename'];
+            $logFileExists = file_exists($logFilePath);
+            if(!$logFileExists) {
+                continue;
+            }
+            $logFileReadable = is_readable($logFilePath);
+            if(!$logFileReadable) {
+                continue;
+            }
+            $log = $this->tail($logFilePath, $this->numberOfEntries);
+            $entries = $this->prepareEntries($log);
+            $numberOfEntries = $this->numberOfEntries;
+            $pageTitle = $logInfo['title'];
+            view($logInfo['template'], compact('numberOfEntries', 'logFilePath', 'logFileExists', 'logFileReadable', 'log', 'entries', 'pageTitle'));
+        }
+        // getLogPaths
+        // $logFilePath = $this->getErrorLogPath();
+        // $logFileExists = file_exists($logFilePath);
+        // $logFileReadable = is_readable($logFilePath);
+        // $log = $this->tail($logFilePath, $this->numberOfEntries);
+        // $entries = $this->prepareEntries($log);
+        // $numberOfEntries = $this->numberOfEntries;
+        // $pageTitle = __('Error Log..', 'servebolt-wp');
+        // view('log-viewer.log-viewer', compact('sections','numberOfEntries', 'logFilePath', 'logFileExists', 'logFileReadable', 'log', 'entries'));
+     }
 
     /**
      * Parse log entry line.

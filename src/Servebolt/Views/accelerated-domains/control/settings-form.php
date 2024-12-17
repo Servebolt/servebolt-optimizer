@@ -1,5 +1,8 @@
-<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
-<?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
+<?php 
+if (!defined('ABSPATH')) exit; // Exit if accessed directly 
+use function Servebolt\Optimizer\Helpers\getOptionName; 
+use Servebolt\Optimizer\CachePurge\CachePurge;
+?>
 
 <?php settings_errors(); ?>
 
@@ -38,7 +41,10 @@
 
     <p class="submit">
         <?php submit_button(null, 'primary', 'form-submit', false); ?>
-        <button type="button" class="button-secondary" id="sb-acd-purge-all-cache"><?php _e('Purge all cache', 'servebolt-wp'); ?></button>
+        <button type="button" class="button-secondary" id="sb-acd-purge-all-cache"><?php _e('Purge CDN cache', 'servebolt-wp'); ?></button>
+        <?php if (CachePurge::cachePurgeByServerAvailable() ) : ?>
+            <button type="button" class="button-secondary" id="sb-acd-purge-server-cache"><?php _e('Purge All caches', 'servebolt-wp'); ?></button>
+        <?php endif; ?>
     </p>
 
 </form>

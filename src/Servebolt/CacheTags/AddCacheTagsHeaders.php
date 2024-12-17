@@ -105,7 +105,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
      */
     protected function appendHeaders() : void 
     {
-        if(count($this->headers) > 0) {
+        if(count($this->headers) > 0 && !headers_sent()) {
             try{
                 $tags = implode(',', $this->headers);
                 header('Cache-Tag: ' . $tags );
@@ -115,9 +115,11 @@ class AddCacheTagsHeaders extends CacheTagsBase {
                 }
             }
             catch (Exception $e){
-                error_log("Cache-Tag messages could not be added as headers have already been sent.");
+                error_log("Cache-Tag messages could not be added to the headers. Error: " . $e->getMessage());
             }
-        } 
+        } else {
+            error_log("Cache-Tag headers could not be sent. Headers already have been sent. Cache purging is effected, contact Servebolt Support for help.");
+        }
     }
   
 }

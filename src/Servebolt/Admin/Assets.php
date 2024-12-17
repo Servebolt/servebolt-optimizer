@@ -138,6 +138,7 @@ class Assets {
                 'canPurgePostCache' => $cacheFeatureActive && $postId && PurgeActions::canPurgePostCache($postId),
                 'canPurgeAllCache' => $cacheFeatureActive && PurgeActions::canPurgeAllCache(),
                 'canPurgeCacheByUrl' => $cacheFeatureActive && PurgeActions::canPurgeCacheByUrl(),
+                'canPurgeServerCache' => $cacheFeatureActive && PurgeActions::canPurgeServerCache(),
             ]);
         }
     }
