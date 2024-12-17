@@ -37,6 +37,7 @@ class PurgeActions extends SharedAjaxMethods
         add_action('wp_ajax_servebolt_purge_post_cache', [$this, 'purgePostCacheCallback']);
         add_action('wp_ajax_servebolt_purge_term_cache', [$this, 'purgeTermCacheCallback']);
         add_action('wp_ajax_servebolt_purge_all_cache', [$this, 'purgeAllCacheCallback']);
+        add_action('wp_ajax_servebolt_purge_server_cache', [$this, 'purgeServerCacheCallback']);
         if ( is_multisite() ) {
             add_action('wp_ajax_servebolt_purge_all_network_cache', [$this, 'purgeAllNetworkCacheCallback']);
         }
@@ -74,6 +75,22 @@ class PurgeActions extends SharedAjaxMethods
      * @return bool
      */
     public static function canPurgeAllCache(): bool
+    {
+        return apply_filters(
+            'sb_optimizer_can_purge_all_cache',
+            (
+                CachePurge::driverSupportsCachePurgeAll()
+                && current_user_can('edit_others_posts')
+            )
+        );
+    }
+
+        /**
+     * Check if current user can purge all cache.
+     *
+     * @return bool
+     */
+    public static function canPurgeServerCache(): bool
     {
         return apply_filters(
             'sb_optimizer_can_purge_all_cache',
@@ -403,6 +420,42 @@ class PurgeActions extends SharedAjaxMethods
                 wp_send_json_success( [
                     'title' => __('Just a moment', 'servebolt-wp'),
                     'message' => __('A purge all-request was added to the queue and will be executed shortly.', 'servebolt-wp'),
+                ] );
+            } else {
+                wp_send_json_success(['message' => __('All cache was purged.', 'servebolt-wp')]);
+            }
+        } catch (Throwable $e) {
+            $this->handleErrors($e);
+        }
+    }
+
+
+    /**
+     * Purge all cache cache.
+     */
+    public function purgeServerCacheCallback()
+    {
+        $this->checkAjaxReferer();
+        ajaxUserAllowedByFunction(__CLASS__ . '::canPurgeServerCache');
+        $this->ensureCachePurgeFeatureIsActive();
+
+        $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
+
+        if ($queueBasedCachePurgeIsActive && $this->hasPurgeAllRequestInQueue()) {
+            wp_send_json_success([
+                'title' => __('All good!', 'servebolt-wp'),
+                'message' => __('A Purge Server Cache -request is already queued and should be executed shortly.', 'servebolt-wp'),
+            ]);
+            return;
+        }
+
+        try {
+            setCachePurgeOriginEvent('manual_trigger');
+            WordPressCachePurge::purgeAll();
+            if ($queueBasedCachePurgeIsActive) {
+                wp_send_json_success( [
+                    'title' => __('Just a moment', 'servebolt-wp'),
+                    'message' => __('A Purge Server Cache -request is already queued and should be executed shortly.', 'servebolt-wp'),
                 ] );
             } else {
                 wp_send_json_success(['message' => __('All cache was purged.', 'servebolt-wp')]);

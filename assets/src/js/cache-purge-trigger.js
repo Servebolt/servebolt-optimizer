@@ -14,6 +14,13 @@ jQuery(document).ready(function($) {
     window.sb_purge_all_cache();
   });
 
+  // Purge the Server cache at Servebolt and the CDN at Cloudflare.
+  $('#sb-configuration .sb-purge-server-cache, #wpadminbar .sb-purge-server-cache').click(function (e) {
+    e.preventDefault();
+    sb_close_admin_bar_menu();
+    window.sb_purge_server_cache();
+  });
+
   var list = document.querySelector('#the-list');
   if (list) {
 
@@ -167,12 +174,12 @@ jQuery(document).ready(function($) {
    */
   window.sb_purge_all_cache = function() {
     if (window.sb_use_native_js_fallback()) {
-      if (window.confirm('Do you want to purge all cache?')) {
+      if (window.confirm('Do you want to purge the CDN cache?')) {
         sb_purge_all_cache_confirmed();
       }
     } else {
       Swal.fire({
-        title: 'Do you want to purge all cache?',
+        title: 'Do you want to purge the CDN cache?',
         icon: 'warning',
         showCancelButton: true,
         customClass: {
@@ -223,6 +230,70 @@ jQuery(document).ready(function($) {
       }
     });
   };
+
+
+
+  /**
+   * Clear Server cache in Cloudflare and Servebolt.
+   */
+  window.sb_purge_server_cache = function() {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Do you want to purge the all possible caches?')) {
+        sb_purge_server_cache_confirmed();
+      }
+    } else {
+      Swal.fire({
+        title: 'Do you want to purge all possible caches?',
+        icon: 'warning',
+        showCancelButton: true,
+        customClass: {
+          confirmButton: 'servebolt-button yellow',
+          cancelButton: 'servebolt-button light'
+        },
+        buttonsStyling: false
+      }).then((result) => {
+        if (result.value) {
+          sb_purge_server_cache_confirmed();
+        }
+      });
+    }
+  }
+
+  /**
+   * Confirm callback for function "sb_purge_server_cache".
+   */
+  function sb_purge_server_cache_confirmed() {
+    window.sb_loading(true);
+    var data = {
+      action: 'servebolt_purge_server_cache',
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
+    };
+    $.ajax({
+      type: 'POST',
+      url: servebolt_optimizer_ajax_object.ajaxurl,
+      data: data,
+      success: function(response) {
+        window.sb_loading(false);
+        if (response.success) {
+          setTimeout(function () {
+            sb_cache_purge_success(
+              window.sb_get_message_from_response(response),
+              window.sb_get_from_response(response, 'title')
+            );
+          }, 100);
+          return;
+        }
+        window.sbCachePurgeError();
+        // TODO: Display errors to the user
+        //window.handle_unsuccessful_cache_purge(response);
+      },
+      error: function() {
+        window.sb_loading(false);
+        window.sbCachePurgeError(); // General error
+      }
+    });
+  };
+
 
   window.handle_unsuccessful_cache_purge = function(response) {
     var type = window.sb_get_from_response(response, 'type', 'error'),
@@ -442,7 +513,7 @@ jQuery(document).ready(function($) {
    */
   window.sb_purge_url_cache = function() {
     if ( window.sb_use_native_js_fallback() ) {
-      var value = window.prompt('Which URL do you wish to purge?' + "\n" + 'Please use full URL including "http://"');
+      var value = window.prompt('Which URL do you wish to purge?' + "\n" + 'Please use full URL including "https://"');
       if ( ! value ) {
         window.alert('Please enter a URL.');
         return;
@@ -452,7 +523,7 @@ jQuery(document).ready(function($) {
       Swal.fire({
         text: 'Which URL do you wish to purge?',
         input: 'text',
-        inputPlaceholder: 'Please use full URL including "http://"',
+        inputPlaceholder: 'Please use full URL including "https://"',
         customClass: {
           confirmButton: 'servebolt-button yellow',
           cancelButton: 'servebolt-button light'

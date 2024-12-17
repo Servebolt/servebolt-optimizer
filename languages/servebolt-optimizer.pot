@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Servebolt Optimizer 3.5.27\n"
+"Project-Id-Version: Servebolt Optimizer 3.5.46\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/servebolt-optimizer\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2024-01-19T08:29:27+01:00\n"
+"POT-Creation-Date: 2024-12-12T16:43:22+01:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.7.1\n"
 "X-Domain: servebolt-wp\n"
@@ -44,20 +44,23 @@ msgstr ""
 msgid "Servebolt Optimizer cannot run on PHP-versions older than PHP %s. You currently run PHP version %s. Please upgrade your PHP version to be able to run Servebolt Optimizer."
 msgstr ""
 
-#: src/Servebolt/AcceleratedDomains/Prefetching/WpPrefetching.php:112
+#: src/Servebolt/AcceleratedDomains/Prefetching/WpPrefetching.php:114
 msgid "The manifest files are now generated and should be updated in Accelerated Domains. You will now be sent back to WP Admin."
 msgstr ""
 
-#: src/Servebolt/Admin/AcceleratedDomainsControl/Ajax/PurgeActions.php:36
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:56
+#: src/Servebolt/Admin/AcceleratedDomainsControl/Ajax/PurgeActions.php:37
+#: src/Servebolt/Admin/AcceleratedDomainsControl/Ajax/PurgeActions.php:62
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:54
 msgid "The cache purge feature is not active or is not configured correctly, so we could not purge cache."
 msgstr ""
 
-#: src/Servebolt/Admin/AcceleratedDomainsControl/Ajax/PurgeActions.php:42
+#: src/Servebolt/Admin/AcceleratedDomainsControl/Ajax/PurgeActions.php:43
+#: src/Servebolt/Admin/AcceleratedDomainsControl/Ajax/PurgeActions.php:68
 msgid "All cache was purged!"
 msgstr ""
 
-#: src/Servebolt/Admin/AcceleratedDomainsControl/Ajax/PurgeActions.php:46
+#: src/Servebolt/Admin/AcceleratedDomainsControl/Ajax/PurgeActions.php:47
+#: src/Servebolt/Admin/AcceleratedDomainsControl/Ajax/PurgeActions.php:72
 msgid "Could not purge all cache."
 msgstr ""
 
@@ -84,8 +87,7 @@ msgid "Servebolt Control Panel"
 msgstr ""
 
 #: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:71
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cache-purge-triggers.php:6
-msgid "Purge All Cache"
+msgid "Purge CDN Cache"
 msgstr ""
 
 #: src/Servebolt/Admin/AdminBarGui/Nodes/2_CachePurgeNodes.php:92
@@ -147,7 +149,6 @@ msgid "Accelerated Domains"
 msgstr ""
 
 #: src/Servebolt/Admin/AdminController.php:249
-#: src/Servebolt/Views/log-viewer/log-viewer.php:4
 msgid "Error Log"
 msgstr ""
 
@@ -210,141 +211,141 @@ msgstr ""
 msgid "Validation errors:"
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:148
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:146
 msgid "Please specify the URL you would like to purge cache for."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:156
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:248
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:395
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:154
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:246
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:393
 msgid "All good!"
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:167
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:259
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:361
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:406
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:165
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:257
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:359
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:404
 msgid "Just a moment"
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:168
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:166
 msgid "A cache purge request for the URL \"%s\" was added to the queue and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:171
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:169
 msgid "Cache was purged for URL \"%s\"."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:235
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:233
 msgid "Please specify the post you would like to purge cache for."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:238
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:236
 msgid "The specified post does not exist."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:241
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:239
 msgid "You are not allowed to purge cache for this post."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:249
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:247
 msgid "A cache purge request for the %s \"%s\" is already added to the queue and should be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:260
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:258
 msgid "A cache purge request for the %s \"%s\" was added to the queue and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:263
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:261
 msgid "Cache was purged for the %s \"%s\"."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:336
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:334
 msgid "Please specify the term you would like to purge cache for."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:339
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:337
 msgid "The specified term does not exist."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:342
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:340
 msgid "You are not allowed to purge cache for this taxonomy."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:351
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:349
 msgid "A cache purge request for the term \"%s\" is already added to the queue and should be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:362
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:360
 msgid "A cache purge request for the term \"%s\" was added to the queue and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:365
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:363
 msgid "Cache was purged for the term \"%s\"."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:396
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:394
 msgid "A purge all-request is already queued and should be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:407
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:405
 msgid "A purge all-request was added to the queue and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:410
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:408
 msgid "All cache was purged."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:498
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:496
 msgid "See result below:"
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:501
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:499
 msgid "We we're not successful..."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:502
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:500
 msgid "We got some errors, please see below:"
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:505
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:503
 msgid "We we're not quite successful..."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:506
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:504
 msgid "We got a partial success due to some errors, please see the messages below:"
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:509
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:507
 msgid "We we're almost successful..."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:510
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:508
 msgid "Some actions could not be completed, please see below:"
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:527
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:525
 msgid "Could not purge all cache since cache purge feature is not active on site %s."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:533
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:531
 msgid "Could not purge all cache since cache purge feature is not configured on site %s."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:544
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:542
 msgid "A purge all-request is already queued on site %s and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:555
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:553
 msgid "A purge all-request was added to the queue on site %s and will be executed shortly."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:560
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:558
 msgid "All cache was purged on site %s."
 msgstr ""
 
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:566
-#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:571
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:564
+#: src/Servebolt/Admin/CachePurgeControl/Ajax/PurgeActions.php:569
 msgid "Could not purge cache on site %s."
 msgstr ""
 
@@ -945,7 +946,7 @@ msgid "Default [%s]"
 msgstr ""
 
 #: src/Servebolt/Cli/HtmlCache/HtmlCache.php:407
-#: src/Servebolt/FullPageCache/FullPageCacheHeaders.php:528
+#: src/Servebolt/FullPageCache/FullPageCacheHeaders.php:557
 msgid "All"
 msgstr ""
 
@@ -1154,21 +1155,21 @@ msgstr ""
 msgid "%sGet in touch with our support via chat%s if you need assistance with resolving this issue."
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:1220
-#: src/Servebolt/Helpers/Helpers.php:1232
+#: src/Servebolt/Helpers/Helpers.php:1254
+#: src/Servebolt/Helpers/Helpers.php:1266
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-size-index-list.php:12
 msgid "Delete"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:1221
+#: src/Servebolt/Helpers/Helpers.php:1255
 msgid "View"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:1223
+#: src/Servebolt/Helpers/Helpers.php:1257
 msgid "Edit"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:1230
+#: src/Servebolt/Helpers/Helpers.php:1264
 msgid "Post does not exist."
 msgstr ""
 
@@ -1198,8 +1199,8 @@ msgstr ""
 #: src/Servebolt/Views/cache-settings/cache-purge/network-admin/list.php:16
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:10
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:19
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:68
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:77
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:69
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:78
 #: src/Servebolt/Views/cache-settings/cache-ttl/network-list-view.php:8
 #: src/Servebolt/Views/cache-settings/cache-ttl/network-list-view.php:16
 #: src/Servebolt/Views/cloudflare-image-resize/configration.php:20
@@ -1295,11 +1296,14 @@ msgstr ""
 #: src/Servebolt/Views/accelerated-domains/control/settings-form.php:18
 #: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:21
 #: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:54
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:67
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:68
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:82
 #: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:20
 #: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:65
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:45
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:21
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:22
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:102
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:110
 #: src/Servebolt/Views/cloudflare-image-resize/configration.php:59
 #: src/Servebolt/Views/performance-optimizer/advanced/settings-form.php:20
 #: src/Servebolt/Views/performance-optimizer/advanced/shared-settings/action-scheduler.php:12
@@ -1314,7 +1318,11 @@ msgid "Enable"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/control/settings-form.php:41
-msgid "Purge all cache"
+msgid "Purge CDN cache"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/control/settings-form.php:42
+msgid "Purge All cache"
 msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-resize.php:19
@@ -1333,8 +1341,8 @@ msgstr ""
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-size-index.php:38
 #: src/Servebolt/Views/cache-settings/cache-purge/queue/list.php:16
 #: src/Servebolt/Views/cache-settings/cache-purge/queue/list.php:36
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:49
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:92
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:50
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:93
 msgid "Remove selected"
 msgstr ""
 
@@ -1344,8 +1352,8 @@ msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-size-index.php:18
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-size-index.php:25
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:65
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:74
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:66
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:75
 msgid "Select All"
 msgstr ""
 
@@ -1430,54 +1438,66 @@ msgstr ""
 msgid "This will scale up the dimension of images if the image is too small for the requested image size."
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:61
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:62
+msgid "Force thumbnail width minimum size"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:65
+msgid "Force thumbnail minimum size on corrupted?"
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:69
+msgid "If images dimensions cannot be read by WordPress, this will force the \"thumbnail\" width as the base image with."
+msgstr ""
+
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:76
 msgid "Add half sizes to responsive images"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:64
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:79
 msgid "Add half sizes to srcset-attribute?"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:68
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:83
 msgid "When enabled this will automatically add half sizes of all registered image sizes and help deliver the best possible size to the browser."
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:74
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:89
 msgid "Image quality"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:78
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:93
 msgid "You can adjust the quality the resized images should be delivered in. A lower quality means lower file size, and can both be downloaded and rendered in the browser faster."
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:84
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:99
 msgid "Metadata optimization"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:87
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:89
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:102
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:104
 msgid "Keep all metadata"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:92
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:94
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:107
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:109
 msgid "Keep copyright metadata"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:97
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:99
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:112
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:114
 msgid "No metadata"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:102
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:117
 msgid "Metadata on images (EXIF) is usually not needed and removing it will optimize the size of the images"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:106
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:121
 msgid "Extra responsive image sizes"
 msgstr ""
 
-#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:108
+#: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:123
 msgid "When resizing on responsive images is enabled you can add custom image sizes to optimize the image size downloaded by the browser."
 msgstr ""
 
@@ -1616,6 +1636,10 @@ msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/acd-configuration.php:35
 msgid "Environment ID"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cache-purge-triggers.php:6
+msgid "Purge All Cache"
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/cache-purge-triggers.php:10
@@ -1874,36 +1898,36 @@ msgstr ""
 msgid "%sGet in touch with Servebolt Support%s to get Cloudflare added to your domain and set up correctly."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:19
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:20
 msgid "HTML Cache"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:37
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:38
 msgid ""
 "By default this plugin enables HTML caching of posts, pages and products.\n"
 "                                Activate post types here if you want a different cache setup. If none of the post types above is checked the plugin will use default settings.\n"
 "                                This will override the default setup."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:52
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:53
 msgid "Flush posts"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:55
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:56
 msgid "Add post to exclude"
-msgstr ""
-
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:66
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:75
-msgid "Post ID"
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:67
 #: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:76
+msgid "Post ID"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:68
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:77
 msgid "Post title"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:82
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:83
 msgid "No posts set to be excluded"
 msgstr ""
 
@@ -2054,31 +2078,38 @@ msgstr ""
 msgid "Add automatic version parameter to asset URLs"
 msgstr ""
 
-#: src/Servebolt/Views/log-viewer/log-viewer.php:8
+#: src/Servebolt/Views/log-viewer/sl7-viewer.php:8
+#: src/Servebolt/Views/log-viewer/sl8-viewer.php:8
 msgid "The log file does not exist."
 msgstr ""
 
-#: src/Servebolt/Views/log-viewer/log-viewer.php:11
+#: src/Servebolt/Views/log-viewer/sl7-viewer.php:11
+#: src/Servebolt/Views/log-viewer/sl8-viewer.php:11
 msgid "Log file is not readable."
 msgstr ""
 
-#: src/Servebolt/Views/log-viewer/log-viewer.php:13
+#: src/Servebolt/Views/log-viewer/sl7-viewer.php:13
+#: src/Servebolt/Views/log-viewer/sl8-viewer.php:13
 msgid "Your error log is empty."
 msgstr ""
 
-#: src/Servebolt/Views/log-viewer/log-viewer.php:15
+#: src/Servebolt/Views/log-viewer/sl7-viewer.php:15
+#: src/Servebolt/Views/log-viewer/sl8-viewer.php:15
 msgid "This table lists the %s last entries from today's error log"
 msgstr ""
 
-#: src/Servebolt/Views/log-viewer/log-viewer.php:19
+#: src/Servebolt/Views/log-viewer/sl7-viewer.php:19
+#: src/Servebolt/Views/log-viewer/sl8-viewer.php:19
 msgid "Timestamp"
 msgstr ""
 
-#: src/Servebolt/Views/log-viewer/log-viewer.php:20
+#: src/Servebolt/Views/log-viewer/sl7-viewer.php:20
+#: src/Servebolt/Views/log-viewer/sl8-viewer.php:20
 msgid "IP"
 msgstr ""
 
-#: src/Servebolt/Views/log-viewer/log-viewer.php:21
+#: src/Servebolt/Views/log-viewer/sl7-viewer.php:21
+#: src/Servebolt/Views/log-viewer/sl8-viewer.php:21
 msgid "Error"
 msgstr ""
 

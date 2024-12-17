@@ -92,9 +92,9 @@ class Reader
     private static $cacheActive = true;
 
     /**
-     * @var string The key used to cache the env file path.
+     * @var bool if the environment is on Servebolt Linux 8 or not
      */
-    private $optionsKey = 'env_file_path';
+    public static $isServeboltLinux8 = false;
 
     public function __construct($folderPath = null, $selectedFileExtension = 'auto', $basename = null)
     {

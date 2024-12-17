@@ -83,6 +83,7 @@ class ServeboltOptimizer
             envFileFailureHandling();
 
             // Init environment file reader
+            // For local testing the instantce can be passed a path to a custom environment file.
             EnvFileReader::getInstance();
 
             // Now settings the API URI based on the environment file->api_url.

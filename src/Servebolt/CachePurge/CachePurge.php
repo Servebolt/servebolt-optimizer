@@ -14,6 +14,7 @@ use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\isHostedAtServebolt;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 use function Servebolt\Optimizer\Helpers\smartUpdateOption;
+use function Servebolt\Optimizer\Helpers\isNextGen;
 
 /**
  * Class CachePurge
@@ -199,10 +200,30 @@ class CachePurge
         return self::isActive($blogId) && self::featureIsConfigured($blogId);
     }
 
+    /**
+     * Check whether cache purge by URL is available.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
     public static function cachePurgeByUrlIsAvailable(?int $blogId = null) : bool
     {
         if(self::serveboltCdnIsSelected($blogId)) return false;
         return true;
+    }
+
+    /**
+     * Check whether cache purge by server is available.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function cachePurgeByServerAvailable(?int $blogId = null) : bool
+    {
+        if(!isNextGen()) return false;
+        if(self::serveboltCdnIsSelected($blogId)) return true;
+        if(self::acdIsSelected($blogId)) return true;
+        return false;
     }
 
     /**
@@ -519,6 +540,19 @@ class CachePurge
         $interfaces = class_implements($driver);
         return is_array($interfaces)
             && in_array('Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeAllInterface', $interfaces);
+    }
+
+    /**
+     * Check if the current driver supports cache all purging.
+     *
+     * @return bool
+     */
+    public static function driverSupportsCachePurgeServer(): bool
+    {
+        $driver = self::resolveDriverObject();
+        $interfaces = class_implements($driver);
+        return is_array($interfaces)
+            && in_array('Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeServerInterface', $interfaces);
     }
 
     /**

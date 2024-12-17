@@ -52,6 +52,7 @@ class CachePurgeNodes implements NodeInterface
         self::addPurgeTerm();
         self::addPurgeUrlNode();
         self::addPurgeAllNode();
+        self::addPurgeServerNode();
         return self::$nodes;
     }
 
@@ -68,7 +69,7 @@ class CachePurgeNodes implements NodeInterface
         }
         self::$nodes[] = [
             'id' => 'servebolt-clear-all-cf-cache',
-            'title' => __('Purge All Cache', 'servebolt-wp'),
+            'title' => __('Purge CDN Cache', 'servebolt-wp'),
             'href' => '#',
             'meta' => [
                 'class' => 'sb-admin-button sb-purge-all-cache'
@@ -76,6 +77,26 @@ class CachePurgeNodes implements NodeInterface
         ];
     }
 
+    /**
+     * Purge all cache (for current site).
+     */
+    private static function addPurgeServerNode(): void
+    {
+        if (!apply_filters(
+            'sb_optimizer_admin_bar_cache_purge_can_purge_server',
+            PurgeActions::canPurgeServerCache()
+        )) {
+            return;
+        }
+        self::$nodes[] = [
+            'id' => 'servebolt-clear-server-cache',
+            'title' => __('Purge Server Cache', 'servebolt-wp'),
+            'href' => '#',
+            'meta' => [
+                'class' => 'sb-admin-button sb-purge-server-cache'
+            ]
+        ];
+    }
     /**
      * Purge URL (admin feature).
      */

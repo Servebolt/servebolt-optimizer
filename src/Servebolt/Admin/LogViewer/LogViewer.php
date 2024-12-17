@@ -28,14 +28,14 @@ class LogViewer
             'slug' => 'site/public',
             'log_location' => 'logs/php',
             'filename' => 'ErrorLog',
-            'template' => 'log-viewer.log-viewer',
+            'template' => 'log-viewer.sl8-viewer',
         ],
         [
             'title' => 'HTTP Error Log',
             'slug' => 'site/public',
             'log_location' => 'logs/http',
             'filename' => 'ErrorLog',
-            'template' => 'log-viewer.log-viewer',
+            'template' => 'log-viewer.sl8-viewer',
         ],
     ];
 
@@ -45,7 +45,7 @@ class LogViewer
             'slug' => '/public',
             'log_location' => '/logs',
             'filename' => 'ErrorLog',
-            'template' => 'log-viewer.log-viewer',
+            'template' => 'log-viewer.sl7-viewer',
         ],
     ];
     /**
@@ -93,19 +93,11 @@ class LogViewer
             }
             $log = $this->tail($logFilePath, $this->numberOfEntries);
             $entries = $this->prepareEntries($log);
+            
             $numberOfEntries = $this->numberOfEntries;
             $pageTitle = $logInfo['title'];
             view($logInfo['template'], compact('numberOfEntries', 'logFilePath', 'logFileExists', 'logFileReadable', 'log', 'entries', 'pageTitle'));
         }
-        // getLogPaths
-        // $logFilePath = $this->getErrorLogPath();
-        // $logFileExists = file_exists($logFilePath);
-        // $logFileReadable = is_readable($logFilePath);
-        // $log = $this->tail($logFilePath, $this->numberOfEntries);
-        // $entries = $this->prepareEntries($log);
-        // $numberOfEntries = $this->numberOfEntries;
-        // $pageTitle = __('Error Log..', 'servebolt-wp');
-        // view('log-viewer.log-viewer', compact('sections','numberOfEntries', 'logFilePath', 'logFileExists', 'logFileReadable', 'log', 'entries'));
      }
 
     /**
@@ -115,20 +107,50 @@ class LogViewer
      *
      * @return object
      */
-    private function parseLine($entry)
+    private function parseLine($entry, $logType = 'sl7')
     {
-        preg_match("/^\[(.*)\] (\[.*\] )(\[.*\] )(\[.*Client:(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))):.*\] )(.*)$/Ui", $entry, $matches);
-        if (count($matches) !== 41) {
-            return [
-                'unparsed_line' => $entry
+        
+        if($logType == 'sl7'){
+            preg_match("/^\[(.*)\] (\[.*\] )(\[.*\] )(\[.*Client:(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))):.*\] )(.*)$/Ui", $entry, $matches);
+            if (count($matches) !== 41) {
+                return [
+                    'unparsed_line' => $entry
+                ];
+            }
+            $unixtime = strtotime($matches[1]);
+            return (object) [
+                'date'  => date('Y-m-d H:i:s', $unixtime),
+                'ip'    => $matches[5],
+                'error' => $matches[40],
+            ];
+        } else if($logType == 'sl8-php') {
+            preg_match("/^\[(.*)\] (\[.*\] )(\[.*\] )(\[.*Client:(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))):.*\] )(.*)$/Ui", $entry, $matches);
+            if (count($matches) !== 41) {
+                return [
+                    'unparsed_line' => $entry
+                ];
+            }
+            $unixtime = strtotime($matches[1]);
+            return (object) [
+                'date'  => date('Y-m-d H:i:s', $unixtime),
+                'ip'    => $matches[5],
+                'error' => $matches[40],
+            ];
+        } else if($logType == 'sl8-apache') {
+            preg_match("/^\[(.*)\] (\[.*\] )(\[.*\] )(\[.*Client:(((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)(\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3})|(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))):.*\] )(.*)$/Ui", $entry, $matches);
+            if (count($matches) !== 41) {
+                return [
+                    'unparsed_line' => $entry
+                ];
+            }
+            $unixtime = strtotime($matches[1]);
+            return (object) [
+                'date'  => date('Y-m-d H:i:s', $unixtime),
+                'ip'    => $matches[5],
+                'error' => $matches[40],
             ];
         }
-        $unixtime = strtotime($matches[1]);
-        return (object) [
-            'date'  => date('Y-m-d H:i:s', $unixtime),
-            'ip'    => $matches[5],
-            'error' => $matches[40],
-        ];
+        
     }
 
     /**

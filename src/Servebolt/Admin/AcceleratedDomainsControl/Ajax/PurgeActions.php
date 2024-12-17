@@ -21,6 +21,7 @@ class PurgeActions extends SharedAjaxMethods
     public function __construct()
     {
         add_action('wp_ajax_servebolt_acd_purge_all_cache', [$this, 'acdPurgeAllCacheCallback']);
+        add_action('wp_ajax_servebolt_acd_purge_server_cache', [$this, 'acdPurgeServerCacheCallback']);
     }
 
     /**
@@ -38,6 +39,31 @@ class PurgeActions extends SharedAjaxMethods
         }
         try {
             $sbDriver->purgeAll();
+            wp_send_json_success([
+                'message' => __('All cache was purged!', 'servebolt-wp'),
+            ]);
+        } catch (Throwable $e) {
+            wp_send_json_error([
+                'message' => __('Could not purge all cache.', 'servebolt-wp'),
+            ]);
+        }
+    }
+
+    /**
+     * Purge all cache in ACD.
+     */
+    public function acdPurgeServerCacheCallback(): void
+    {
+        $this->checkAjaxReferer();
+        ajaxUserAllowed(false, '\\Servebolt\\Optimizer\\Admin\\CachePurgeControl\\Ajax\\PurgeActions::canPurgeServerCache');
+        $sbDriver = Servebolt::getInstance();
+        if (!$sbDriver->configurationOk()) {
+            wp_send_json_error([
+                'message' => __('The cache purge feature is not active or is not configured correctly, so we could not purge cache.', 'servebolt-wp'),
+            ]);
+        }
+        try {
+            $sbDriver->purgeServer();
             wp_send_json_success([
                 'message' => __('All cache was purged!', 'servebolt-wp'),
             ]);
