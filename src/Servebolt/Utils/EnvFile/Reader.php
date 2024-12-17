@@ -91,11 +91,6 @@ class Reader
      */
     private static $cacheActive = true;
 
-    /**
-     * @var bool if the environment is on Servebolt Linux 8 or not
-     */
-    public static $isServeboltLinux8 = false;
-
     public function __construct($folderPath = null, $selectedFileExtension = 'auto', $basename = null)
     {
         if (!isHostedAtServebolt()) {
