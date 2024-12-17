@@ -95,7 +95,8 @@ class PurgeActions extends SharedAjaxMethods
         return apply_filters(
             'sb_optimizer_can_purge_all_cache',
             (
-                CachePurge::driverSupportsCachePurgeAll()
+                CachePurge::driverSupportsCachePurgeAll() 
+                && CachePurge::cachePurgeByServerAvailable()
                 && current_user_can('edit_others_posts')
             )
         );

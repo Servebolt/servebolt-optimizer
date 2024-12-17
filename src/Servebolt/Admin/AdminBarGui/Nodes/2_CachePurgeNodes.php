@@ -88,6 +88,7 @@ class CachePurgeNodes implements NodeInterface
         )) {
             return;
         }
+        
         self::$nodes[] = [
             'id' => 'servebolt-clear-server-cache',
             'title' => __('Purge Server Cache', 'servebolt-wp'),

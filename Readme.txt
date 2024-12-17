@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.6.1
 Requires PHP: 7.4
-Stable tag: 3.5.46
+Stable tag: 3.5.47
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,12 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+
+= 3.5.47 =
+* Added option to purge all caches, including the Server and CDN. This applies to those hosted on Servebolt Linux 8 only and using Accelerated Domains or Servebolt CDN. 
+* Fixed some deprecation errors on admin sub menus that have been converted to tabs. 
+* Improved the log file ready on Servebolt Linux 8 to now include PHP and HTTP.
+* Update to the Servebolt PHP-SDK to support the new purge method.
 
 = 3.5.46 =
 * Accelerated Domains Image Resizer: added filter to manage problems when WordPress is unable to produce image dimensions by defaulting to the thumbnail size.

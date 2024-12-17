@@ -91,6 +91,11 @@ class Reader
      */
     private static $cacheActive = true;
 
+    /**
+     * @var string The key used to cache the env file path.
+     */
+    private $optionsKey = 'env_file_path';
+
     public function __construct($folderPath = null, $selectedFileExtension = 'auto', $basename = null)
     {
         if (!isHostedAtServebolt()) {
