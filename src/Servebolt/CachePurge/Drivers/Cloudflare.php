@@ -34,7 +34,6 @@ class Cloudflare implements CachePurgeAllInterface, CachePurgeUrlInterface, Cach
         $never_cached_paths = [
             '/wp-admin/',
             '/index.php/',
-            '/wp-login.php',
         ];
         foreach($never_cached_paths as $never_cached_path) {
             if (strpos($path, $never_cached_path) !== false) {

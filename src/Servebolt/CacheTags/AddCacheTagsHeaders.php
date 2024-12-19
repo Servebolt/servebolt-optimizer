@@ -105,11 +105,16 @@ class AddCacheTagsHeaders extends CacheTagsBase {
      */
     protected function appendHeaders() : void 
     {
+
+        // Exit early if possible
+        if(is_user_logged_in()) return;
+        if(count($this->headers) == 0) return;
+
+        // Add the headers to the HTTP headers
         if(count($this->headers) > 0 && !headers_sent()) {
             try{
                 $tags = implode(',', $this->headers);
                 header('Cache-Tag: ' . $tags );
-
                 if($this->driver == 'acd') {
                     header('x-acd-Cache-Tag: ' . $tags);
                 }
