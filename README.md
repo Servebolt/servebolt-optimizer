@@ -69,6 +69,10 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.48
+* Bugfix: on Servebolt Linux 8/php 8.3+ the purge candidate urls were filtering too many out of being purgable. 
+* Bugfix: False positive error in logs when logged in at that Cache-Tag headers could not be sent. Cache-Tags should never be present for logged in users. 
+
 #### 3.5.47
 * Added option to purge all caches, including the Server and CDN. This applies to those hosted on Servebolt Linux 8 only and using Accelerated Domains or Servebolt CDN. 
 * Fixed some deprecation errors on admin sub menus that have been converted to tabs. 

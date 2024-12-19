@@ -34,11 +34,7 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
         }
         $never_cached_paths = [
             '/wp-admin/',
-            '/wp-login.php',
-            '/wp-cron.php',
-            '/xmlrpc.php',
             '/index.php/',
-            '/wp-comments-post.php',
         ];
         foreach($never_cached_paths as $never_cached_path) {
             if (strpos($path, $never_cached_path) !== false) {

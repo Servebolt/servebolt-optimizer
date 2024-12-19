@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.6.1
 Requires PHP: 7.4
-Stable tag: 3.5.47
+Stable tag: 3.5.49
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,10 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+
+= 3.5.48 =
+* Bugfix: on Servebolt Linux 8/php 8.3+ the purge candidate urls were filtering too many out of being purgable.
+* Bugfix: False positive error in logs when logged in at that Cache-Tag headers could not be sent. Cache-Tags should never be present for logged in users. 
 
 = 3.5.47 =
 * Added option to purge all caches, including the Server and CDN. This applies to those hosted on Servebolt Linux 8 only and using Accelerated Domains or Servebolt CDN. 
