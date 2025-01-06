@@ -101,8 +101,8 @@ class FullPageCacheHeaders
         FullPageCacheAuthHandling::init();
 
         // Unauthenticated cache handling
-        if ($this->shouldSetCacheHeaders()) {            
-            add_filter('posts_results', [$this, 'setHeaders']);            
+        if ($this->shouldSetCacheHeaders()) {
+            add_filter('posts_results', [$this, 'setHeaders']);
             add_filter('template_include', [$this, 'lastCall']);
             add_filter('sb_optimizer_fullpage_cache_header_item', [$this, 'kill_cache_404'], 10);
         }
@@ -179,6 +179,14 @@ class FullPageCacheHeaders
 
         // Only trigger this function once
         remove_filter('posts_results', [$this, 'setHeaders']);
+
+        if ($this->isPasswordProtected()) {
+            $this->noCacheHeaders();
+            if ($debug) {
+                $this->header('No-cache-trigger: 1');
+            }
+            return $posts;
+        }
 
         if ($this->isEcommerceNoCachePage()) {
             $this->noCacheHeaders();
@@ -269,6 +277,18 @@ class FullPageCacheHeaders
         return $string;
     }
     
+    /**
+     * Check if the current page is password protected.
+     *
+     * @return bool
+     */
+    private function isPasswordProtected(): bool
+    {
+        global $wp_query;
+        if (!$wp_query->is_singular()) return false;
+        return apply_filters('sb_optimizer_fpc_password_protected_page', ( isset( $wp_query->post ) && ! empty( $wp_query->post->post_password ) ) );
+    }
+
     /**
      * Check if we are in an Ecommerce-context and check if we should not cache.
      *

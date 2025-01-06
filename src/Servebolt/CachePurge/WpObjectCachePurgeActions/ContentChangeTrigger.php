@@ -32,6 +32,8 @@ class ContentChangeTrigger
         remove_action('untrash_comment', [$this, 'purgePostOnCommentUnTrashed'], 99, 2);
         remove_action('set_object_terms', [$this, 'purgeCategoryTermsOnFirstSave'], 99, 6);
         remove_action('update_option_permalink_structure', [$this, 'purgeAllOnPermalinkUpdates'], 99, 6);
+        remove_action('woocommerce_product_set_stock', [$this, 'purgePostOnWooCommerceUpdate'], 99);
+        remove_action('woocommerce_update_product', [$this, 'purgePostOnWooCommerceUpdate'], 99);
     }
 
     /**
@@ -95,8 +97,35 @@ class ContentChangeTrigger
             add_action('update_option_permalink_structure', [$this, 'purgeAllOnPermalinkUpdates'], 99);
         }
 
+        // Purge post when comment is approved.
+        if (apply_filters('sb_optimizer_automatic_purge_on_woocommerce_update', true)) {
+            add_action('woocommerce_product_set_stock', [$this, 'purgePostOnWooCommerceUpdate'], 99);
+            add_action('woocommerce_update_product', [$this, 'purgePostOnWooCommerceUpdate'], 99);
+        }
     }
 
+    /**
+     * Purge post on WooCommerce update.
+     * 
+     * Covers both the stock update and the product update hooks.
+     * It uses the maybePurgePost method to check if the post is already
+     * scheduled for a purge or not.
+     * 
+     * @param object $product
+     * 
+     * @return void
+     */
+    function purgePostOnWooCommerceUpdate($product)
+    {
+        if(method_exists($product, 'get_id')) return;
+        $this->maybePurgePost((int) $product->get_id());
+    }
+
+    /**
+     * Purge all cache when permalinks are updated.
+     *
+     * @return void
+     */
     function purgeAllOnPermalinkUpdates()
     {
 
@@ -125,7 +154,7 @@ class ContentChangeTrigger
         // Check if the taxonomy is 'category' and has required values. exit early.
         if ( $taxonomy !== 'category' || (isset($terms[0]) && isset($old_tt_ids[0])) === false ) return;
         // check if values match up, that we are only dealing with the default category in the correct way.
-        $default_category = get_option("default_category");    
+        $default_category = get_option("default_category");
         if( 
             (count($tt_ids) == 1 && $tt_ids[0] == $default_category) ||
             (count($old_tt_ids) == 1 && $old_tt_ids[0] != $default_category)
@@ -138,7 +167,7 @@ class ContentChangeTrigger
         foreach($tt_ids as $term_id) {
             // don't do anything if its the default. It should never have to do this
             // but just in case it does, better not to set an extra purge event.
-            if($term_id == $default_category) continue;            
+            if($term_id == $default_category) continue;
             $this->maybePurgeTerm((int) $term_id, $taxonomy);
         }
     }
