@@ -98,6 +98,11 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 
 == Changelog ==
 
+= 3.5.49 =
+* Added purge on WooCommerce stock change or product update, to cover purge events when save_post hook is not fired.
+* Bugfix: Forcing max-age=0 on all posts that are status "Password Protected" to prevent ever being cached. 
+* Added extra image sizes to the SRCSET when using the image resizer to present clearer images on sites that do not have (m)any image sizes. 
+
 = 3.5.48 =
 * Bugfix: on Servebolt Linux 8/php 8.3+ the purge candidate urls were filtering too many out of being purgable.
 * Bugfix: False positive error in logs when logged in at that Cache-Tag headers could not be sent. Cache-Tags should never be present for logged in users. 
