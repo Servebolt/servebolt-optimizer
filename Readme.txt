@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, html cache, cloudflare , multisite
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.6.1
+Tested up to: 6.7.1
 Requires PHP: 7.4
-Stable tag: 3.5.49
+Stable tag: 3.5.50
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,10 +98,13 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 
 == Changelog ==
 
+= 3.5.50 =
+* Bugfix: added extra error checking around WooCommerce product purge after customer reported errors were found.
+* Confirmed WordPress 6.7.1 support
+
 = 3.5.49 =
 * Added purge on WooCommerce stock change or product update, to cover purge events when save_post hook is not fired.
 * Bugfix: Forcing max-age=0 on all posts that are status "Password Protected" to prevent ever being cached. 
-* Added extra image sizes to the SRCSET when using the image resizer to present clearer images on sites that do not have (m)any image sizes. 
 
 = 3.5.48 =
 * Bugfix: on Servebolt Linux 8/php 8.3+ the purge candidate urls were filtering too many out of being purgable.

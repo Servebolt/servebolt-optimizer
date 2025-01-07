@@ -111,14 +111,24 @@ class ContentChangeTrigger
      * It uses the maybePurgePost method to check if the post is already
      * scheduled for a purge or not.
      * 
-     * @param object $product
+     * @param object|int $product
      * 
      * @return void
      */
     function purgePostOnWooCommerceUpdate($product)
     {
-        if(method_exists($product, 'get_id')) return;
-        $this->maybePurgePost((int) $product->get_id());
+        try {
+            if(is_int($product)) {
+                $this->maybePurgePost((int) $product);
+                return;
+            } 
+
+            if(!is_object($product)) return;
+            if(!method_exists($product, 'get_id')) return;
+            $this->maybePurgePost((int) $product->get_id());
+        } catch (\Exception $e) {
+            error_log('Error purging WooCommerce product cache on update: ' . $e->getMessage() );
+        }
     }
 
     /**
