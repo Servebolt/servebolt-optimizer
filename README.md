@@ -69,6 +69,10 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.50
+* Bugfix: added extra error checking around WooCommerce product purge after customer reported errors were found.
+* Confirmed WordPress 6.7.1 support
+
 #### 3.5.49
 * Added purge on WooCommerce stock change or product update, to cover purge events when save_post hook is not fired.
 * Forcing max-age=0 on all posts that are status "Password Protected" to prevent ever being cached. 
