@@ -34,6 +34,8 @@ class ContentChangeTrigger
         remove_action('update_option_permalink_structure', [$this, 'purgeAllOnPermalinkUpdates'], 99, 6);
         remove_action('woocommerce_product_set_stock', [$this, 'purgePostOnWooCommerceUpdate'], 99);
         remove_action('woocommerce_update_product', [$this, 'purgePostOnWooCommerceUpdate'], 99);
+        remove_action('customize_save_after', [$this, 'purgeAllOnCustomizerSave'], 99);
+        remove_action('switch_theme', [$this, 'purgeAllOnThemeChange'], 99);
     }
 
     /**
@@ -102,6 +104,16 @@ class ContentChangeTrigger
             add_action('woocommerce_product_set_stock', [$this, 'purgePostOnWooCommerceUpdate'], 99);
             add_action('woocommerce_update_product', [$this, 'purgePostOnWooCommerceUpdate'], 99);
         }
+
+        // Purge all when Customizer settings are saved
+        if(apply_filters('sb_optimizer_automatic_purge_on_customizer_save', true)) {
+            add_action('customize_save_after', [$this, 'purgeAllOnCustomizerSave'], 99);
+        }
+
+        // Purge all on Theme change
+        if(apply_filters('sb_optimizer_automatic_purge_on_theme_change', true)) {
+            add_action('switch_theme', [$this, 'purgeAllOnThemeChange'], 99);
+        }
     }
 
     /**
@@ -129,6 +141,26 @@ class ContentChangeTrigger
         } catch (\Exception $e) {
             error_log('Error purging WooCommerce product cache on update: ' . $e->getMessage() );
         }
+    }
+
+    /**
+     * Purge all cache when Customizer settings are saved.
+     *
+     * @return void
+     */
+    function purgeAllOnThemeChange()
+    {
+        WordPressCachePurge::purgeAll();
+    }
+
+    /**
+     * Purge all cache when Customizer settings are saved.
+     *
+     * @return void
+     */
+    function purgeAllOnCustomizerSave()
+    {
+        WordPressCachePurge::purgeAll();
     }
 
     /**
