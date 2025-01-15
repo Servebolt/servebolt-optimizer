@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.7.1
 Requires PHP: 7.4
-Stable tag: 3.5.50
+Stable tag: 3.5.51
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,11 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+
+= 3.5.51 =
+* Added purge all on Customizer Update and Theme change.
+* Added error messaging for when the 'post_row_actions' actions array is invalid, and Servebolt Optmizer is unable to add purge actions to CRUD pages.
+* Bugfix: Updated Servebolt PHP-SDK so that the error "PHP Deprecated:  Creation of dynamic property" does not show for PHP8.2+
 
 = 3.5.50 =
 * Bugfix: added extra error checking around WooCommerce product purge after customer reported errors were found.

@@ -69,6 +69,11 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.51
+* Added purge all on Customizer Update and Theme change.
+* Added error messaging for when the 'post_row_actions' actions array is invalid, and Servebolt Optmizer is unable to add purge actions to CRUD pages.
+* Bugfix: Updated Servebolt PHP-SDK so that the error "PHP Deprecated:  Creation of dynamic property" does not show for PHP8.2+
+
 #### 3.5.50
 * Bugfix: added extra error checking around WooCommerce product purge after customer reported errors were found.
 * Confirmed WordPress 6.7.1 support

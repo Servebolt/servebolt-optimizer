@@ -123,10 +123,14 @@ class CachePurgeRowActions
      *
      * @param array $actions
      * @param WP_Post $post
-     * @return array
+     * @return array|null
      */
-    public function addPostPurgeRowAction(array $actions, $post): array
+    public function addPostPurgeRowAction($actions, $post): array
     {
+        if(!is_array($actions)) {
+            error_log('Purge action could not be added to post row actions. Actions array is not an array.');
+            return $actions;
+        }
         if (
             $this->cacheFeatureIsAvailable()
             && PurgeActions::canPurgePostCache($post->ID)
