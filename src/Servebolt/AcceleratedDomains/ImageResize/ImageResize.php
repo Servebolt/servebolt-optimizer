@@ -67,6 +67,10 @@ class ImageResize
     public static $defaultImageMetadataOptimizationLevel = 'copyright';
 
     /**
+     * @var array imageMultipliers
+     */
+    private $imageMultipliers = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2];
+    /**
      * Duplicate all existing sizes in the srcset-array to contain half the size.
      *
      * @param array $sources
@@ -151,6 +155,47 @@ class ImageResize
             ]);
             $sources[$key]['url'] = $this->buildImageUrl($sources[$key]['url'], $resizeParameters);
         }
+
+        $sources = $this->addAdditionalSrcsetUrls($sources, $sizeArray, $imageSrc, $imageMeta, $attachmentId);
+
+        return $sources;
+    }
+
+    /**
+     * Add additional SRCSET urls to the image for sites that use 
+     * limited image sizes. 
+     * 
+     * This helps with keeping image quality acorss all widths.
+     */
+    public function addAdditionalSrcsetUrls(array $sources, array $sizeArray, string $imageSrc, array $imageMeta, int $attachmentId): array
+    {
+        if (!$this->shouldTouchImage($attachmentId) || apply_filters('sb_optimizer_acd_image_resize_skip_additional_srcset', false, $attachmentId)) {
+            return $sources;
+        }
+        
+        $image_multipliers = apply_filters('sb_optimizer_acd_image_resize_additional_srcset_multipliers', $this->imageMultipliers, $attachmentId);
+
+        if(empty($image_multipliers)) return $sources;
+        // get image original url not a thumbnail
+        $imageSrc = wp_get_attachment_url($attachmentId);
+
+        $image_multipliers = array_map('floatval', array_unique($image_multipliers));        
+        $min_image_width = 240;
+        
+        foreach ($image_multipliers as $multiplier) {
+            $new_width = (int) round($imageMeta['width'] * $multiplier);
+            if($new_width < $min_image_width || $new_width > $this->maxWidth || key_exists($new_width, $sources)) continue;
+            $resizeParameters = $this->defaultImageResizeParameters([
+                'width' => $new_width
+            ]);
+            $new_src = $this->buildImageUrl($imageSrc, $resizeParameters);
+            $sources[$new_width]= [
+                'url' => $new_src,
+                'value' => $new_width,
+                'descriptor' => 'w'
+            ];
+        }
+        ksort($sources);
         return $sources;
     }
 

@@ -69,6 +69,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.52
+* Added more image sizes to Image Resizer for Accelerated Domains. This overcomes image quality issues on sites that have minimal SRCSET image sizes implemented.
+
 #### 3.5.51
 * Added purge all on Customizer Update and Theme change.
 * Added error messaging for when the 'post_row_actions' actions array is invalid, and Servebolt Optmizer is unable to add purge actions to CRUD pages.
