@@ -19,7 +19,6 @@ trait AttachmentTrait
      */
     private function getImageMarkupDom(int $attachmentId)
     {
-        error_log('Attachment ID: ' . $attachmentId);
         $imageMarkup = wp_get_attachment_image($attachmentId, 'original');
         $dom = new DOMDocument;
         @$dom->loadHTML($imageMarkup);
