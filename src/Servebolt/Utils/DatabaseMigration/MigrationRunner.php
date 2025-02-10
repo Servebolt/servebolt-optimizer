@@ -466,6 +466,7 @@ class MigrationRunner
     public function setNewMigratedVersion(): void
     {
         $this->currentMigratedVersion = getCurrentDatabaseVersion();
+        if($this->currentMigratedVersion == $this->getMigratedVersion()) return;
         updateOption($this->migrationVersionOptionsKey(), $this->currentMigratedVersion);
     }
 
