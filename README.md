@@ -69,6 +69,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.53
+* Bugfix: Prevent additional db writes to options table on Admin pages by skipping them when the db migraion version is the current migration version. 
+
 #### 3.5.52
 * Added more image sizes to Image Resizer for Accelerated Domains. This overcomes image quality issues on sites that have minimal SRCSET image sizes implemented.
 
