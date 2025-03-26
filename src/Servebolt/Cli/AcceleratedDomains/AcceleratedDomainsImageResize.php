@@ -307,7 +307,7 @@ class AcceleratedDomainsImageResize
      */
     private function featureAccessError()
     {
-        return __('Your bolt-subscription does not seem have access to the Accelerated Domains Image Resize-feature and the feature will therefore not operate. The feature can be enabled in the control panel.', 'servebolt-wp');
+        return __('Your bolt-subscription does not seem have access to the Accelerated Domains Image Resize-feature and the feature will therefore not operate. The feature can be enabled in the admin panel.', 'servebolt-wp');
     }
 
     /**

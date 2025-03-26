@@ -38,7 +38,7 @@ class ServeboltControlPanelNode implements NodeInterface
             return [
                 [
                     'id'    => 'servebolt-control-panel',
-                    'title' => __('Servebolt AdminControl Panel', 'servebolt-wp'),
+                    'title' => __('Servebolt Admin Panel', 'servebolt-wp'),
                     'href'  => $adminUrl,
                     'meta'  => [
                         'target' => '_blank',

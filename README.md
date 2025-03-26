@@ -69,7 +69,8 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 #### 3.5.54 
-* Added the ability to allow for Private post types to be purged. 
+* Added the ability to allow for Private post types to be purged.
+* Bugfix: fixed deprecation errors on PHP 8.4 for nullable types
 
 #### 3.5.53
 * Bugfix: Prevent additional db writes to options table on Admin pages by skipping them when the db migration version is the current migration version. 
