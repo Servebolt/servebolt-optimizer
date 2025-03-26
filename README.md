@@ -2,9 +2,9 @@
 
 This repository contains the WordPress plugin Servebolt Optimizer - a plugin that:
 - Optimizes your WordPress-site through markup cleanup, adding indexes and ensuring that your database is running with the best MySQL storage engine.
-- Adds support and control features for Servebolt Accelerated Domains
+- Adds support and admin features for Servebolt Accelerated Domains
 - Gives you neat features related to Cloudflares services (cache purge, image resize)
-- Gives you additional benefits when hosting your site at Servebolt (cache control, cache purging)
+- Gives you additional benefits when hosting your site at Servebolt (cache admin, cache purging)
 
 The plugin infrastructure is loosely based on: https://github.com/avillegasn/wp-beb
 
@@ -68,6 +68,8 @@ Credentials for the SVN repository is stored in the password manager. The creden
 If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to WordPress.org.
 
 ## Changelog
+#### 3.5.54 
+* Added the ability to allow for Private post types to be purged. 
 
 #### 3.5.53
 * Bugfix: Prevent additional db writes to options table on Admin pages by skipping them when the db migration version is the current migration version. 
@@ -135,7 +137,7 @@ If you want to build a local production-ready version of the plugin you can run 
 #### 3.5.38
 * Adapted the action scheduler cron script to check active status of WooCommerce per site, not per network.
 * Removed /favicon.ico from fast404 capability. 
-* Updated Servebolt Linux 8 users control panel link from top menu.
+* Updated Servebolt Linux 8 users admin panel link from top menu.
 
 #### 3.5.37
 * Changed password on SVN/WordPress.org, trying to authenticate again and deploy.
@@ -238,7 +240,7 @@ Bump release. no changes.
 * Added CacheTags to Accelerated Domains and Servebolt CDN, reducing purge commands to only 2 for each post/page update
 * Added new garbage collection for the purge queue via cron scheduler
 * Added UID and index to the purge queue tables so that searching for existing queue items could be significantly sped up and also stop repeat adding of an existing
-* Changed Database Migrations to work with own version control, unlinking from the plugin version number.
+* Changed Database Migrations to work with own version admin, unlinking from the plugin version number.
 * Added LIMIT to garbage collection query.
 * Slight change to the logic for cache purging to improve payload checking.
 * Moved action_scheduler filters to only be implemented if action_scheduler is installed.
@@ -276,7 +278,7 @@ Bump release. no changes.
 * Bugfix - Automatic cache purge of products during WooCommerce checkout. In some cases there was an error during the WooCommerce checkout. The feature in question purged cache for the product during checkout so that stock amount and status would be kept up to date. This error should now be resolved.
 * Bugfix - Automatic setup of WP Cron on multisite failed. The feature that sets the WP Cron up with the UNIX cron failed when ran on a multisite. This should now be fixed. The cause of the error was that the lockfiles we’re not generated with a valid filename. These lockfiles (originating from “flock”) keeps the system from running concurrent cron tasks, so that we force the system to wait until the previous job is done. Note that this is a Servebolt hosted only feature.
 * Bugfix - Error during plugin uninstallation. There was an error during plugin uninstallation due to a missing PHP constant. This is now fixed.
-* Bugfix - Errors when environment file is not present. There was some error related to the environment file not being found, either because there is a custom WordPress folder structure or because the file is removed (either by deletion on disk or by disabling the file in the control panel). The plugin now handles the absence of this file in a better way - the error handling was improved and there is an admin notice telling the user that the file is missing + instructions on how to fix this.
+* Bugfix - Errors when environment file is not present. There was some error related to the environment file not being found, either because there is a custom WordPress folder structure or because the file is removed (either by deletion on disk or by disabling the file in the admin panel). The plugin now handles the absence of this file in a better way - the error handling was improved and there is an admin notice telling the user that the file is missing + instructions on how to fix this.
 
 #### 3.5.3
 * Fixed incompatibility issue with plugin Lightweight Sidebar Manager
@@ -327,8 +329,8 @@ Whenever a user checks out in WooCommerce then the cache for the products in the
 
 #### 3.2
 * Improved automated cache purging - The automatic cache purge has been improved, primarily in 3 areas. Whenever a post/term gets deleted then the cache gets purged. Whenever an attachment gets updated (resized, cropped etc.) we purge cache for URLs, including all image sizes if the attachment is an image. Whenever a post gets excluded from the HTML Cache (formerly Full Page Cache) then we also purge cache.
-* Custom cache TTL per post type - One can now control the cache TTL (time-to-live) per post type. This allows for more fine-grained cache control.
-* More fine-grained access control to cache purge feature - Previously only administrators could purge cache. This is now changed using more fine-grained capability checks - administrators and editors can now purge cache, while authors can purge cache for their own posts. Contributors and subscribers cannot purge cache.
+* Custom cache TTL per post type - One can now admin the cache TTL (time-to-live) per post type. This allows for more fine-grained cache admin.
+* More fine-grained access admin to cache purge feature - Previously only administrators could purge cache. This is now changed using more fine-grained capability checks - administrators and editors can now purge cache, while authors can purge cache for their own posts. Contributors and subscribers cannot purge cache.
 * Better Jetpack compatibility - Previously the Jetpack Site Accelerator was in conflict with Servebolt’s Accelerated Domains. This is now fixed with Site Accelerator being disabled whenever Accelerated Domains or Accelerated Domains Image Resize-feature is active.
 * Menu cache performance feature - We’ve added a new performance enhancing feature - WordPress menu cache. This usually decreases TTFB with several milliseconds, even for menus with few items. The feature also includes automatic cache purge whenever a menu gets updated.
 * Translation loader performance feature - We’ve added a new performance enhancing feature - improved WordPress translations file loader. Whenever WordPress loads the translations from MO-files this causes a lot disk I/O. This feature will cache the MO-file using transients which in return decreases the loading time.
@@ -340,7 +342,7 @@ Whenever a user checks out in WooCommerce then the cache for the products in the
 * Accelerated Domains Image Resizing - This version introduces a new feature - Accelerated Domains Image Resizing. This feature will resize, optimize metadata and cache your images on the fly, improving load time and enhancing the user experience.
 * PHP version constraint - We have changed the required PHP version from 7 to 7.3. This means that whenever the plugin is activated in an environment running PHP version less than 7.3 then they will get a admin notice in WP Admin telling them to upgrade to be able to used the plugin.
 * Yoast SEO Premium - automatic cache purge for redirects - Whenever you add or remove a redirect to Yoast SEO Premium the plugin will purge the cache for the given URLs. This is useful since otherwise one would potentially need to manually purge these URLs after adding/removing a redirect.
-* Added CDN cache control header - We have now added a new header (CDN-Cache-Control) that allows for more fine-grained control over the cache feature in the CDN-nodes.
+* Added CDN cache admin header - We have now added a new header (CDN-Cache-Control) that allows for more fine-grained admin over the cache feature in the CDN-nodes.
 * Improved WP Rocket compatibility - We’ve improved the compatibility with WP Rocket’s cache feature so that it will not interfere with the cache feature of Servebolt Optimizer.
 
 #### 3.0.2

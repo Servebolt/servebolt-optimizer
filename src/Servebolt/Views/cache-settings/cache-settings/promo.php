@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl; ?>
 <?php $sbAdminUrl = getServeboltAdminUrl(); ?>
-<?php $sbAdminButton = $sbAdminUrl ? sprintf('<a href="%s" target="_blank">%s</a>', $sbAdminUrl, __('Servebolt Control Panel dashboard', 'servebolt-wp')) : __('Servebolt Control Panel dashboard', 'servebolt-wp'); ?>
+<?php $sbAdminButton = $sbAdminUrl ? sprintf('<a href="%s" target="_blank">%s</a>', $sbAdminUrl, __('Servebolt Admin Panel', 'servebolt-wp')) : __('Servebolt Admin Panel', 'servebolt-wp'); ?>
 
 
 <div class="sb-welcome-panel" id="acd-welcome-panel">
@@ -17,7 +17,7 @@
             <p><?php _e('Servebolt Cloud HTML Cache (formerly Full Page Cache) is easy to set up, but should always be tested before activating it on production environments.', 'servebolt-wp'); ?></p>
 			<p><?php printf( esc_html__('To activate HTML Cache to go %s and set "Caching" to "Static Files + Full-Page Cache".', 'servebolt-wp'), $sbAdminButton ) ?></p>
             <?php if ( $sbAdminUrl ) : ?>
-				<p><a href="<?php echo $sbAdminUrl; ?>" target="_blank" class="button"><?php _e('Servebolt Control Panel dashboard', 'servebolt-wp') ?></a></p>
+				<p><a href="<?php echo $sbAdminUrl; ?>" target="_blank" class="button"><?php _e('Servebolt Admin Panel', 'servebolt-wp') ?></a></p>
 			<?php endif; ?>
         </div>
 
@@ -35,7 +35,7 @@
             </p>
             <p>
                 <?php
-                echo sprintf(__('Not running Accelerated Domains? %sOrder Accelerated Domains in the control panel%s and Servebolt Support will add it to your domain and set it up for you.', 'servebolt-wp'), '<a href="' . getServeboltAdminUrl('accelerated-domains') . '">', '</a>' );
+                echo sprintf(__('Not running Accelerated Domains? %sOrder Accelerated Domains in the admin panel%s and Servebolt Support will add it to your domain and set it up for you.', 'servebolt-wp'), '<a href="' . getServeboltAdminUrl('accelerated-domains') . '">', '</a>' );
                 ?>
             </p>
         </div>

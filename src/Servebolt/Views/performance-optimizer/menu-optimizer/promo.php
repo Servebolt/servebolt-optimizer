@@ -1,7 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\getServeboltAdminUrl; ?>
 <?php $sbAdminUrl = getServeboltAdminUrl(); ?>
-<?php $sbAdminButton = $sbAdminUrl ? sprintf('<a href="%s" target="_blank">%s</a>', $sbAdminUrl, __('Servebolt Control Panel dashboard', 'servebolt-wp')) : __('Servebolt Control Panel dashboard', 'servebolt-wp'); ?>
+<?php $sbAdminButton = $sbAdminUrl ? sprintf('<a href="%s" target="_blank">%s</a>', $sbAdminUrl, __('Servebolt Admin Panel', 'servebolt-wp')) : __('Servebolt Admin Panel', 'servebolt-wp'); ?>
 
 
 <div class="sb-welcome-panel" id="acd-welcome-panel">
