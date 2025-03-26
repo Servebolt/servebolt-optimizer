@@ -5,11 +5,11 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.7.1
 Requires PHP: 7.4
-Stable tag: 3.5.53
+Stable tag: 3.5.54
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-This plugin implements Servebolt's WordPress best practices, and connects your site to the Servebolt Control Panel.
+This plugin implements Servebolt's WordPress best practices, and connects your site to the Servebolt Admin Panel.
 
 == Description ==
 
@@ -17,7 +17,7 @@ The Servebolt Optimizer plugin adds functionality to implement Servebolt's best 
 
 Specifically, Servebolt Optimizer does two things for your site:
 
-1. It connects your [WordPress hosted](https://servebo.lt/e3ke3) or [WooCommerce hosted](https://servebo.lt/724lz) Servebolt site to your [Servebolt Control Panel](https://servebo.lt/pf3hu).
+1. It connects your [WordPress hosted](https://servebo.lt/e3ke3) or [WooCommerce hosted](https://servebo.lt/724lz) Servebolt site to your [Servebolt Admin Panel](https://servebo.lt/pf3hu).
 2. Its features implement Servebolt's best practices for performance. These best practizes include database optimizations, error log review, automatic cache purging, automatic image optimization/resizing, performance recommendations and support for down stream HTML caching.
 
 This project is maintained on [Github](https://servebo.lt/sog).
@@ -98,8 +98,12 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 
 == Changelog ==
 
+= 3.5.54 =
+* Added the ability to allow for Private post types to be purged.
+* Bugfix: fixed deprecation errors on PHP 8.4 for nullable types
+
 = 3.5.53 =
-* Bugfix: Prevent additional db writes to options table on Admin pages by skipping them when the db migraion version is the current migration version. 
+* Bugfix: Prevent additional db writes to options table on Admin pages by skipping them when the db migration version is the current migration version. 
 
 = 3.5.52 =
 * Added more image sizes to Image Resizer for Accelerated Domains. This overcomes image quality issues on sites that have minimal SRCSET image sizes implemented.
@@ -164,7 +168,7 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 = 3.5.38 =
 * Adapted the action scheduler cron script to check active status of WooCommerce per site, not per network.
 * Removed /favicon.ico from fast404 capability. 
-* Updated Servebolt Linux 8 users control panel link from top menu.
+* Updated Servebolt Linux 8 users admin panel link from top menu.
 
 = 3.5.37 =
 * Changed password on SVN/WordPress.org, trying to authenticate again and deploy.
@@ -278,7 +282,7 @@ bump release. no changes.
 * Added UID column and UID index to the purge queue tables so that searching for existing queue items could be significantly speed up and also stop repeat adding of an existing
 * Added ```wp servebolt check-cdn-setup``` to the WP CLI to check the CDN setup for AcelerateDomains or ServeboltCDN.
 * Added ```wp servebolt cache purge queue trash``` to the WP CLI to purge old items from the queue
-* Changed Database Migrations to work with own version control, unlinking from the plugin version number.
+* Changed Database Migrations to work with own version admin, unlinking from the plugin version number.
 * Added LIMIT to garbage collection query.
 * Slight change to the logic for cache purging to improve payload checking.
 * Moved action_scheduler filters to only be implemented if action_scheduler is installed.
@@ -319,7 +323,7 @@ bump release. no changes.
 * Bugfix - Automatic cache purge of products during WooCommerce checkout. In some cases there was an error during the WooCommerce checkout. The feature in question purged cache for the product during checkout so that stock amount and status would be kept up to date. This error should now be resolved.
 * Bugfix - Automatic setup of WP Cron on multisite failed. The feature that sets the WP Cron up with the UNIX cron failed when ran on a multisite. This should now be fixed. The cause of the error was that the lockfiles we’re not generated with a valid filename. These lockfiles (originating from “flock”) keeps the system from running concurrent cron tasks, so that we force the system to wait until the previous job is done. Note that this is a Servebolt hosted only feature.
 * Bugfix - Error during plugin uninstallation. There was an error during plugin uninstallation due to a missing PHP constant. This is now fixed.
-* Bugfix - Errors when environment file is not present. There was some error related to the environment file not being found, either because there is a custom WordPress folder structure or because the file is removed (either by deletion on disk or by disabling the file in the control panel). The plugin now handles the absence of this file in a better way - the error handling was improved and there is an admin notice telling the user that the file is missing + instructions on how to fix this.
+* Bugfix - Errors when environment file is not present. There was some error related to the environment file not being found, either because there is a custom WordPress folder structure or because the file is removed (either by deletion on disk or by disabling the file in the admin panel). The plugin now handles the absence of this file in a better way - the error handling was improved and there is an admin notice telling the user that the file is missing + instructions on how to fix this.
 
 = 3.5.3 =
 * Fixed incompatibility issue with plugin Lightweight Sidebar Manager
