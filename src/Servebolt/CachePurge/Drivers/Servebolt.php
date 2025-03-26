@@ -34,7 +34,7 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
             return false;
         }
         $never_cached_paths = [
-            '/wp-admin/',            
+            '/wp-admin/',
             '/index.php/',
         ];
         foreach($never_cached_paths as $never_cached_path) {

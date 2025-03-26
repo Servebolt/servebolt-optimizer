@@ -712,6 +712,9 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'action_scheduler_unix_cron_active',
         'wp_unix_cron_active',
 
+        // Eager Images
+        'eager_image_count',
+
         // Prefetching
         'prefetch_switch',
         'prefetch_file_style_switch',

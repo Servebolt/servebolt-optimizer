@@ -330,7 +330,7 @@ class ContentChangeTrigger
         $postTypeObject = get_post_type_object($postType);
         if (
             $postTypeObject
-            && $postTypeObject->public !== true
+            && ($postTypeObject->public !== true && self::shouldPurgePostTypeCache($postType) !== true)
             /*&& (
                 $postTypeObject->public !== true
                 || $postTypeObject->publicly_queryable !== true
