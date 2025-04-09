@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.7.2
 Requires PHP: 7.4
-Stable tag: 3.5.55
+Stable tag: 3.5.56
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,9 +98,13 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 
 == Changelog ==
 
+= 3.5.56 =
+* Bugfix: fixed malformed http response headers when selecting 0 seconds for specific post type cache TTL for Accelerated Domains. 
+
 = 3.5.55 =
 * Confirmed WordPress 6.7.2 compatibility
 * cleaned off the tail of the readme file
+
 
 = 3.5.54 =
 * Added the ability to allow for Private post types to be purged.
