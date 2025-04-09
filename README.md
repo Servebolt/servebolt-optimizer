@@ -69,6 +69,8 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.56
+* Bugfix: fixed malformed http response headers when selecting 0 seconds for specific post type cache TTL for Accelerated Domains. 
 #### 3.5.55
 * Confirmed WordPress 6.7.2 compatibility
 
