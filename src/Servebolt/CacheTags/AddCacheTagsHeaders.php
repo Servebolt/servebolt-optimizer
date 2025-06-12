@@ -12,6 +12,7 @@ use function Servebolt\Optimizer\Helpers\isCron;
 use function Servebolt\Optimizer\Helpers\isTesting;
 use function Servebolt\Optimizer\Helpers\isWpRest;
 use function Servebolt\Optimizer\Helpers\getCondtionalHookPreHeaders;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
 
 /**
  * This class adds cache-tags headers to the HTTP pages of the site. This is then
@@ -69,6 +70,12 @@ class AddCacheTagsHeaders extends CacheTagsBase {
         ) return;
 
         if(in_array($this->driver, CanUseCacheTags::allowedDrivers())) {
+            if($this->driver == 'cloudflare') {
+                if(smartGetOption($blogId, 'cf_cache_tags', false) === false) {
+                    return;
+                }
+            }
+
             // Get the correct hook based on version of WordPress, pre 6.1 wp, post send_headers.
             add_action(getCondtionalHookPreHeaders(), [$this,'addCacheTagsHeaders']);
         }

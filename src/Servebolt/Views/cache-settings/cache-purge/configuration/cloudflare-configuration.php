@@ -1,13 +1,28 @@
-<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
-<?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
+<?php if (!defined('ABSPATH')) exit; // Exit if accessed directly 
+?>
+<?php
+
+use function Servebolt\Optimizer\Helpers\getOptionName; ?>
 <?php $cfApi = Servebolt\Optimizer\Api\Cloudflare\Cloudflare::getInstance(); ?>
 
 <tbody class="sb-config-field-general sb-config-field-cloudflare <?php if (!$cachePurgeIsActive || $settings['cache_purge_driver'] !== 'cloudflare') echo 'sb-config-field-hidden'; ?>">
     <tr>
         <th scope="row" colspan="100%" style="padding-bottom: 5px;">
             <h3 style="margin-bottom: 0;"><?php _e('Cloudflare API', 'servebolt-wp'); ?></h3>
-            <p style="font-weight: normal;"><?php _e('Servebolt Optimizer connects to the Cloudflare cache through the Cloudflare API. Best practice is to use API token for authentication.', 'servebolt-wp');?></p>
+            <p style="font-weight: normal;"><?php _e('Servebolt Optimizer connects to the Cloudflare cache through the Cloudflare API. Best practice is to use API token for authentication.', 'servebolt-wp'); ?></p>
         </th>
+    </tr>
+    <tr>
+        <th scope="row"><?php _e('Cache-Tags', 'servebolt-wp'); ?></th>
+        <td>
+            <fieldset>
+                <legend class="screen-reader-text"><span><?php _e('Use Cache Tags', 'servebolt-wp'); ?></span></legend>
+                <label for="cf_cache_tags">
+                    <input name="<?php echo getOptionName('cf_cache_tags'); ?>" type="checkbox" id="cf_cache_tags" value="1" <?php checked($cfCacheTagsIsActive); ?>>
+                    <?php _e('Enable', 'servebolt-wp'); ?>
+                </label><br>
+            </fieldset>
+        </td>
     </tr>
     <tr>
         <th scope="row"><?php _e('Authentication type', 'servebolt-wp'); ?></th>
@@ -25,7 +40,7 @@
             </fieldset>
         </td>
     </tr>
-    <tr class="feature_cf_auth_type-api_token"<?php if ( $settings['cf_auth_type'] != 'api_token' ) echo ' style="display: none;"' ?>>
+    <tr class="feature_cf_auth_type-api_token" <?php if ($settings['cf_auth_type'] != 'api_token') echo ' style="display: none;"' ?>>
         <th scope="row"><label for="sb_cf_api_token"><?php _e('API token', 'servebolt-wp'); ?></label></th>
         <td>
 
@@ -40,14 +55,14 @@
             <p><small><?php echo sprintf(__('Make sure to add permissions for %s when creating a token.', 'servebolt-wp'), $cfApi->apiPermissionsNeeded()); ?></small></p>
         </td>
     </tr>
-    <tr class="feature_cf_auth_type-api_key"<?php if ( $settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
+    <tr class="feature_cf_auth_type-api_key" <?php if ($settings['cf_auth_type'] != 'api_key') echo ' style="display: none;"' ?>>
         <th scope="row"><label for="sb_cf_email"><?php _e('Cloudflare e-mail', 'servebolt-wp'); ?></label></th>
         <td>
             <input name="<?php echo getOptionName('cf_email'); ?>" type="text" id="sb_cf_email" autocomplete="off" data-original-value="<?php echo esc_attr($settings['cf_email']); ?>" value="<?php echo esc_attr($settings['cf_email']); ?>" class="regular-text validate-field validation-input-email validation-group-api_key_credentials validation-group-api_credentials">
             <p class="invalid-message"></p>
         </td>
     </tr>
-    <tr class="feature_cf_auth_type-api_key"<?php if ( $settings['cf_auth_type'] != 'api_key' ) echo ' style="display: none;"' ?>>
+    <tr class="feature_cf_auth_type-api_key" <?php if ($settings['cf_auth_type'] != 'api_key') echo ' style="display: none;"' ?>>
         <th scope="row"><label for="sb_cf_api_key"><?php _e('API key', 'servebolt-wp'); ?></label></th>
         <td>
             <div class="sb-pwd">
@@ -69,13 +84,13 @@
             <span class="spinner zone-loading-spinner"></span>
             <p class="invalid-message"></p>
 
-            <p class="active-zone"<?php if ( ! isset($selectedCfZone) || ! $selectedCfZone ) echo ' style="display: none;"'; ?>><?php _e('Selected zone:', 'servebolt-wp'); ?> <span><?php if ( isset($selectedCfZone) && $selectedCfZone ) echo $selectedCfZone->name; ?></span></p>
+            <p class="active-zone" <?php if (! isset($selectedCfZone) || ! $selectedCfZone) echo ' style="display: none;"'; ?>><?php _e('Selected zone:', 'servebolt-wp'); ?> <span><?php if (isset($selectedCfZone) && $selectedCfZone) echo $selectedCfZone->name; ?></span></p>
 
-            <div class="zone-selector-container"<?php if ( ! $haveZones ) echo ' style="display: none;"'; ?>>
+            <div class="zone-selector-container" <?php if (! $haveZones) echo ' style="display: none;"'; ?>>
                 <p style="margin-top: 10px;"><?php _e('Available zones:', 'servebolt-wp'); ?></p>
                 <ul class="zone-selector" style="margin: 5px 0;">
                     <?php if ($haveZones) : ?>
-                        <?php foreach($cfZones as $cfZone) : ?>
+                        <?php foreach ($cfZones as $cfZone) : ?>
                             <li><a href="#" data-name="<?php echo esc_attr($cfZone->name); ?>" data-id="<?php echo esc_attr($cfZone->id); ?>"><?php echo $cfZone->name; ?> (<?php echo $cfZone->id; ?>)</a></li>
                         <?php endforeach; ?>
                     <?php endif; ?>
