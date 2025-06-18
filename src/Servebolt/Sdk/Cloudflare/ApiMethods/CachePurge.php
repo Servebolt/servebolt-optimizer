@@ -115,6 +115,34 @@ trait CachePurge
         }
     }
 
+     /**
+     * Purge one or more tags in a zone.
+     *
+     * @param array $tags
+     * @return bool
+     * @throws ApiError
+     */
+    public function purgeTags(array $tags): bool
+    {
+
+        $zoneId = $this->getZoneId();
+        if (!$zoneId) {
+            return false;
+        }
+
+        $response = $this->request('zones/' . $zoneId . '/purge_cache', 'POST', [
+            'tags' => $tags,
+        ]);
+        if ($this->wasSuccessful($response)) {
+            return true;
+        } else {
+            throw new ApiError(
+                ApiRequestHelpers::getErrorsFromRequest($response),
+                $response
+            );
+        }
+    }
+
     /**
      * Check whether the request was succesful.
      *

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-06-12T13:06:06+00:00\n"
+"POT-Creation-Date: 2025-06-18T20:07:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: servebolt-wp\n"
@@ -1250,21 +1250,21 @@ msgstr ""
 msgid "%sGet in touch with our support via chat%s if you need assistance with resolving this issue."
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:1257
-#: src/Servebolt/Helpers/Helpers.php:1269
+#: src/Servebolt/Helpers/Helpers.php:1258
+#: src/Servebolt/Helpers/Helpers.php:1270
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-size-index-list.php:12
 msgid "Delete"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:1258
+#: src/Servebolt/Helpers/Helpers.php:1259
 msgid "View"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:1260
+#: src/Servebolt/Helpers/Helpers.php:1261
 msgid "Edit"
 msgstr ""
 
-#: src/Servebolt/Helpers/Helpers.php:1267
+#: src/Servebolt/Helpers/Helpers.php:1268
 msgid "Post does not exist."
 msgstr ""
 
@@ -1395,6 +1395,7 @@ msgstr ""
 #: src/Servebolt/Views/accelerated-domains/image-resize/settings-form.php:82
 #: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:20
 #: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:65
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:22
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:45
 #: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:22
 #: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:102
@@ -1725,8 +1726,8 @@ msgid "Environment API key"
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/acd-configuration.php:24
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:34
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:55
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:49
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:70
 msgid "Show password"
 msgstr ""
 
@@ -1743,59 +1744,67 @@ msgstr ""
 msgid "Purge All Caches"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:8
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:11
 msgid "Cloudflare API"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:9
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:12
 msgid "Servebolt Optimizer connects to the Cloudflare cache through the Cloudflare API. Best practice is to use API token for authentication."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:13
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:16
-msgid "Authentication type"
-msgstr ""
-
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:18
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:29
-msgid "API token"
+msgid "Cache-Tags"
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:19
+msgid "Use Cache Tags"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:28
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:31
+msgid "Authentication type"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:33
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:44
+msgid "API token"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:34
 msgid "How to make an API token"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:22
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:51
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:37
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:66
 msgid "API key"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:23
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:38
 msgid "How to get your API key"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:40
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:55
 #, php-format
 msgid "Make sure to add permissions for %s when creating a token."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:44
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:59
 msgid "Cloudflare e-mail"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:63
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:78
 msgid "Cloudflare Zone ID"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:68
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:83
 msgid "You can find the Zone ID in the Cloudflare Overview tab of the zone you'd like to connect, in the right sidebar under the API section."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:72
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:87
 msgid "Selected zone:"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:75
+#: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:90
 msgid "Available zones:"
 msgstr ""
 

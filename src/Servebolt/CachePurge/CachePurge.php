@@ -288,7 +288,7 @@ class CachePurge
     public static function cfCacheTagsIsActive(?int $blogId = null): bool
     {
         return checkboxIsChecked(
-            smartGetOption($blogId, 'cf_cache_tags')
+            smartGetOption($blogId, 'cf_cache_tags', '1')
         );
     }
 

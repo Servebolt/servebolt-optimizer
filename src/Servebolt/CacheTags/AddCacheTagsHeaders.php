@@ -71,7 +71,7 @@ class AddCacheTagsHeaders extends CacheTagsBase {
 
         if(in_array($this->driver, CanUseCacheTags::allowedDrivers())) {
             if($this->driver == 'cloudflare') {
-                if(smartGetOption($blogId, 'cf_cache_tags', false) === false) {
+                if(smartGetOption($blogId, 'cf_cache_tags', '1') !== '1') {
                     return;
                 }
             }
