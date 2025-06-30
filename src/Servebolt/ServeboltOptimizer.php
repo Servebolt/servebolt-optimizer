@@ -97,7 +97,9 @@ class ServeboltOptimizer
 
         }
 
+        // Cache Tags headers (Initializing and Inserting)
         new AddCacheTagsHeaders;
+        
         // Sets the correct cache headers for the HTML Cache
         FullPageCache::init();
 
