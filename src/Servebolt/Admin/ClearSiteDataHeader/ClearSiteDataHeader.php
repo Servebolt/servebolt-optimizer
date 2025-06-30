@@ -32,11 +32,12 @@ class ClearSiteDataHeader
 
     public function maybeSetHeader()
     {
-        if (!empty($_COOKIE['clear_site_data']) && 
+        if (
+            $_SERVER['REQUEST_METHOD'] == 'GET' &&
+            !empty($_COOKIE['clear_site_data']) && 
             is_user_logged_in() &&
             $this->get_browser()== 'firefox') {
             header('Clear-Site-Data: "cache", "storage"');
-
             // Clear the cookie immediately after use
             setcookie('clear_site_data', '', time() - 3600, '/', '', is_ssl(), true);
         }
