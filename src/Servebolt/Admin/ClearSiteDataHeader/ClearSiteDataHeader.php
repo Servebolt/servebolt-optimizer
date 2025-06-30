@@ -14,16 +14,20 @@ class ClearSiteDataHeader
     {
         add_action('wp_login', [$this, 'flagLogin'], 10, 2);
         add_action('template_redirect', [$this, 'maybeSetHeader']);
-        add_action('wp_footer', [$this, 'wp_footer']);
-        add_action('admin_footer', [$this, 'wp_footer']);
-        add_action('login_footer', [$this, 'wp_footer']);
+
 
     }
+
+    
 
     public function flagLogin($user_login, $user)
     {
         // Set a transient or cookie to indicate we just logged in
-        setcookie('clear_site_data', '1', time() + 100, '/', '', is_ssl(), true);
+        if($this->get_browser()== 'firefox') {
+            setcookie('clear_site_data', '1', time() + 3600, '/', '', is_ssl(), true);
+        } else {
+            setcookie('clear_browser_cache', '1', time() + 3600, '/', '', is_ssl(), false);
+        } 
     }
 
     public function maybeSetHeader()
@@ -48,7 +52,8 @@ class ClearSiteDataHeader
 
     $userAgent = strtolower($userAgent);
 
-     // Detect Chromium-based browsers
+    if (strpos($userAgent, 'safari') !== false && strpos($userAgent, 'chrome') === false) return 'safari';
+    // Detect Chromium-based browsers
     if (
         strpos($userAgent, 'chrome') !== false ||
         strpos($userAgent, 'crios') !== false ||         // Chrome on iOS
@@ -60,36 +65,10 @@ class ClearSiteDataHeader
         return 'chrome';
     }
 
-    if (strpos($userAgent, 'safari') !== false && strpos($userAgent, 'chrome') === false) return 'safari';
     if (strpos($userAgent, 'firefox') !== false) return 'firefox';
     if (strpos($userAgent, 'msie') !== false || strpos($userAgent, 'trident/') !== false) return 'internet explorer';
 
     return 'unknown';
     }
 
-    function wp_footer() {
-        if (!is_user_logged_in()) return;
-
-        $shouldReload = false;
-        if( defined('SB_OPTIMIZER_CLEAR_CACHE_RELOAD_CHROME') ) {
-            $reload = SB_OPTIMIZER_CLEAR_CACHE_RELOAD_CHROME;
-        }
-
-        ?>
-        <script>
-        (function() {
-            const ua = navigator.userAgent;
-            const isChrome = /Chrome/.test(ua) && !/Edg|OPR|SamsungBrowser|CriOS/.test(ua);
-
-            if (isChrome && document.cookie.includes('clear_cache=1')) {
-                document.cookie = 'clear_cache=1; Max-Age=0; path=/';
-                fetch('/?clear_site_data=1', { credentials: 'include' })
-                    <?php if ($shouldReload): ?>
-                    .then(() => location.reload(true));
-                    <?php endif; ?>
-            }
-        })();
-        </script>
-    <?php
-    }
 }
