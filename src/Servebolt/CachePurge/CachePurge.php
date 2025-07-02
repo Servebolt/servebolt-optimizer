@@ -280,6 +280,19 @@ class CachePurge
     }
 
     /**
+     * Whether we should use Cache Tags for Cloudflare
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function cfCacheTagsIsActive(?int $blogId = null): bool
+    {
+        return checkboxIsChecked(
+            smartGetOption($blogId, 'cf_cache_tags', '1')
+        );
+    }
+
+    /**
      * Whether we should purge cache automatically when an attachment is updated.
      *
      * @param int|null $blogId

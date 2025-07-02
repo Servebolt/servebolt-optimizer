@@ -35,7 +35,7 @@ class Cloudflare implements CachePurgeAllInterface, CachePurgeUrlInterface, Cach
             '/wp-admin/',
             '/index.php/',
         ];
-        foreach($never_cached_paths as $never_cached_path) {
+        foreach ($never_cached_paths as $never_cached_path) {
             if (strpos($path, $never_cached_path) !== false) {
                 return false;
             }
@@ -102,6 +102,30 @@ class Cloudflare implements CachePurgeAllInterface, CachePurgeUrlInterface, Cach
             $instance = CloudflareApi::getInstance();
             if ($instance->isConfigured()) {
                 $instance->purgeAll();
+                return true;
+            }
+            return false;
+        } catch (CloudflareSdkApiError $e) {
+            throw new CloudflareApiError(
+                $e->getErrors(),
+                $e->getResponse()
+            );
+        }
+    }
+
+    /**
+     * Purge an array of tags.
+     *
+     * @param array $urls
+     * @return bool
+     * @throws CloudflareApiError
+     */
+    public function purgeByTags(array $tags): bool
+    {
+        try {
+            $instance = CloudflareApi::getInstance();
+            if ($instance->isConfigured()) {
+                $instance->purgeTags($tags);
                 return true;
             }
             return false;

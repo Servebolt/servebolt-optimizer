@@ -29,6 +29,7 @@ use Servebolt\Optimizer\WpCron\WpCronEvents;
 use Servebolt\Optimizer\CacheTags\AddCacheTagsHeaders;
 use Servebolt\Optimizer\MaintenanceTasks\ServeboltEventsHandler;
 use Servebolt\Optimizer\HttpHeaders\Static404;
+use Servebolt\Optimizer\CachePurge\BrowserManagment;
 use function Servebolt\Optimizer\Helpers\featureIsActive;
 use function Servebolt\Optimizer\Helpers\featureIsAvailable;
 use function Servebolt\Optimizer\Helpers\isCli;
@@ -92,9 +93,13 @@ class ServeboltOptimizer
                 define('SERVEBOLT_SDK_BASE_URI', getApiUrlFromEnvFile());
             }
 
+            BrowserManagment::init();
+
         }
 
+        // Cache Tags headers (Initializing and Inserting)
         new AddCacheTagsHeaders;
+        
         // Sets the correct cache headers for the HTML Cache
         FullPageCache::init();
 
