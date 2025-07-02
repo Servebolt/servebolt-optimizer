@@ -729,6 +729,7 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         'cache_purge_auto_on_slug_change',
         'cache_purge_auto_on_deletion',
         'cache_purge_driver',
+        'cf_cache_tags',
         'cf_switch',
         'cf_zone_id',
         'cf_auth_type',
