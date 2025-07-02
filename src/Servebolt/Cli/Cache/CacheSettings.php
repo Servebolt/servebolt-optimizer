@@ -53,6 +53,7 @@ class CacheSettings extends CliKeyValueStorage
                 'api_key',
             ]
         ],
+        'cf_cache_tags' => 'boolean',
         'cf_email' => 'string',
         'cf_api_key' => 'string',
         'cf_api_token' => 'string',

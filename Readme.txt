@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, html cache, cloudflare , multisite
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.7.2
+Tested up to: 6.8.1
 Requires PHP: 7.4
-Stable tag: 3.5.56
+Stable tag: 3.5.57
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,11 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+
+= 3.5.57 =
+* Bugfix: fixed slow cache clear on chrome browsers, and enabled cache clear on firefox correctly
+* New Feature: Option for cloudflare direct communicaitons to work with Cache-Tags for purging.  This enhances perfomance of those that have a cloudflare plan on Servebolt.
+
 
 = 3.5.56 =
 * Bugfix: fixed malformed http response headers when selecting 0 seconds for specific post type cache TTL for Accelerated Domains. 
@@ -232,45 +237,3 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 * Tested upto 6.4.1
 * Fixed bug in cache by term id, now uses CacheTags whenever possible.
 * Added check for Image sizes on Accellerated Domains image resizer so that it can never have a zero value.
-
-= 3.5.24 =
-* fixed small bug of missing save button on advanced tab of new installs
-* proven support for 6.3.1
-
-= 3.5.23 =
-* Small text changes in WP Cron configuration area.
-* Adapted links to include a link to the advanced tab for enabling or disabling cron.
-* Cron enabled checkbox also takes account of the DISABLE_WP_CRON constant, not just the option.
-* proven support for WP 6.3
-
-= 3.5.22 =
-* bump release
-
-= 3.5.21 =
-* added cache-tag headers to search pages, so that they can optionally be cached. Acellerated Domains feature only.
-
-= 3.5.20 =
-* fixed "PHP Deprecated" error when using PHP8.0+ and WP_DEBUG is set to TRUE.
-
-= 3.5.19 =
-* updated supported WordPress version.
-
-= 3.5.18 =
-* hid the 'purge by taxonomy term' menu and quick menu buttons for Servebolt CDN customers. This feature is not possible for them and should not have been showing.
-
-= 3.5.17 =
-bump release. no changes.
-
-= 3.5.16 =
-* Added CacheTags to Servebolt CDN
-* Added HTML cache purging to Servebolt CDN
-
-= 3.5.15 =
-* Bugfix for purge queue on large sites. It was giving CRON errors.
-* Added filter to allow for adaption of headers on Full Page Caching.
-
-= 3.5.14 =
-* version bump to force release 
-
-= 3.5.13 =
-* Bugfix for Cloudflare direct purging via purge queue. it was not created purge records correctly.

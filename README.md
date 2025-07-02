@@ -16,20 +16,17 @@ Befor you start it is best to get the system ready for testing, for this SVN (Su
 installing subversion on *nix
 ```
 # sudo apt-get install subversion
-```
 
 adapting the php cli php.ini
 ```
 // find out what version of php cli you are running
 # php -v
 // change to the report version php cli, replacing 8.0 with your version
-# cd /etc/php/8.0/cli
 // edit the php.ini
 # sudo nano php.ini
 // find the error_log section and adapt it to be
 error_log = php_errors.log 
 
-```
 Don't forget to save the php.ini file. This will put the php_errors.log into the place where it is being run.  You can also adapt it to be ``error_log =/var/log/php_errors.log``
 ### Composer
 First we need to pull in all the dependencies: ``composer install``
@@ -68,6 +65,10 @@ Credentials for the SVN repository is stored in the password manager. The creden
 If you want to build a local production-ready version of the plugin you can run the command `composer local-build`. When the command has executed you should have a file in the project root path called `servebolt-optimizer.zip` which contains the plugin prepared the same way as when it is shipped to WordPress.org.
 
 ## Changelog
+
+#### 3.5.57
+* Bugfix: fixed slow cache clear on chrome browsers, and enabled cache clear on firefox correctly
+* New Feature: Option for cloudflare direct communicaitons to work with Cache-Tags for purging.  This enhances perfomance of those that have a cloudflare plan on Servebolt.
 
 #### 3.5.56
 * Bugfix: fixed malformed http response headers when selecting 0 seconds for specific post type cache TTL for Accelerated Domains. 

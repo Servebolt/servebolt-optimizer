@@ -126,14 +126,21 @@ trait PostMethods
      * 
      * @return bool
      */
-    private static function cacheTagsEnabled() : bool
+    private static function cacheTagsEnabled(): bool
     {
         $blogId = null;
-        if(is_multisite()) {
+        if (is_multisite()) {
             $blogId = get_current_blog_id();
         }
-        if(in_array(CachePurgeDriver::resolveDriverNameWithoutConfigCheck($blogId), ['acd', 'serveboltcdn'])) {
+        if (in_array(CachePurgeDriver::resolveDriverNameWithoutConfigCheck($blogId), ['acd', 'serveboltcdn'])) {
             return true;
+        }
+
+        // Check if Cloudflare is used as driver and if cf_cache_tags is 1 (Enabled)
+        if (CachePurgeDriver::resolveDriverNameWithoutConfigCheck($blogId) === 'cloudflare') {
+            if (smartGetOption($blogId, 'cf_cache_tag', '1') === '1') {
+                return true;
+            }
         }
         return false;
     }
@@ -143,9 +150,9 @@ trait PostMethods
      * 
      * @return bool
      */
-    private static function canUseCacheTags() : bool
+    private static function canUseCacheTags(): bool
     {
-        if ( !isHostedAtServebolt() ) return false;
+        if (!isHostedAtServebolt()) return false;
         return true;
     }
     /**
@@ -160,11 +167,11 @@ trait PostMethods
         if (!$postId || wp_is_post_revision($postId)) {
             return false;
         }
-        $shouldPurgeByQueue = self::shouldPurgeByQueue();        
+        $shouldPurgeByQueue = self::shouldPurgeByQueue();
         // Check if on Servebolt and Servebolt CDN/ACD.
         $canUseCacheTags = self::cacheTagsEnabled();
         $purgeObjectType = ($canUseCacheTags) ? 'cachetag' : 'post';
-        
+
         /**
          * Fires when cache is being purged for a post.
          *
@@ -185,12 +192,12 @@ trait PostMethods
             }
             // If the purge provider only supports URL purging, use that.
             // This is for people who are not on Servebolt or not using Servebolt CDN/ACD.
-            if($purgeObjectType == 'post') {
+            if ($purgeObjectType == 'post') {
                 $result = self::setupPurgeByPost($postId, $cachePurgeDriver);
                 self::setResultOfPostPurge($postId, $result);
             }
             // If the provider supports cachetags, use that. (Servebolt CDN/ACD)
-            if($purgeObjectType == 'cachetag') {
+            if ($purgeObjectType == 'cachetag') {
                 $result = self::setupPurgeByCachetags($postId, $cachePurgeDriver);
             }
             return $result;
@@ -205,7 +212,7 @@ trait PostMethods
      * 
      * @return void
      */
-    private static function setResultOfPostPurge(int $postId, bool $result) : void
+    private static function setResultOfPostPurge(int $postId, bool $result): void
     {
         if (self::$preventDoublePurge && self::$preventPostDoublePurge) {
             self::$recentlyPurgedPosts[$postId] = $result;
@@ -223,7 +230,8 @@ trait PostMethods
      * @param string $purgeObjectType
      * @return bool
      */
-    protected static function setupPurgeByQueue($postId, $purgeObjectType) {
+    protected static function setupPurgeByQueue($postId, $purgeObjectType)
+    {
         $queueInstance = WpObjectQueue::getInstance();
         $queueItemData = [
             'type' => $purgeObjectType, // Replace with cachetag when available, default to post.
@@ -244,10 +252,11 @@ trait PostMethods
      * 
      * @return array
      */
-    protected static function removeInvalidPurgeTargets($urlsToPurge, $cachePurgeDriver) {
+    protected static function removeInvalidPurgeTargets($urlsToPurge, $cachePurgeDriver)
+    {
         $validUrlsToPurge = [];
-        foreach($urlsToPurge as $url) {
-            if($cachePurgeDriver->validateUrl($url)) {
+        foreach ($urlsToPurge as $url) {
+            if ($cachePurgeDriver->validateUrl($url)) {
                 $validUrlsToPurge[] = $url;
             }
         }
@@ -261,11 +270,12 @@ trait PostMethods
      *
      * @return bool always returns true or failure via ServeboltApiError exception.
      */
-    protected static function setupPurgeByPost($postId, $cachePurgeDriver) {
+    protected static function setupPurgeByPost($postId, $cachePurgeDriver)
+    {
         $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
         // Prototype for removing invalid purge targets.
         $urlsToPurge = self::removeInvalidPurgeTargets($urlsToPurge, $cachePurgeDriver);
-        if(count($urlsToPurge) === 0) {
+        if (count($urlsToPurge) === 0) {
             return true;
         }
         $urlsToPurge = self::maybeSliceUrlsToPurge($urlsToPurge, 'post', $cachePurgeDriver);
@@ -284,45 +294,71 @@ trait PostMethods
      *
      * @return bool always returns true or failure via ServeboltApiError exception.
      */
-    protected static function setupPurgeByCachetags($postId, $cachePurgeDriver){
+    protected static function setupPurgeByCachetags($postId, $cachePurgeDriver)
+    {
         $result = false;
         // If accelerated domains clear the Permalink and tags.
-        if( $cachePurgeDriver->resolveDriverNameWithoutConfigCheck() == 'acd' ) {
+        if ($cachePurgeDriver->resolveDriverNameWithoutConfigCheck() == 'acd') {
             $url = get_permalink($postId);
             $result = $cachePurgeDriver->purgeByUrl($url);
             self::setResultOfPostPurge($postId, $result);
             // If purging the url did not work, don't go further, purging via cache tags will no
             // doubt also fail.
-            if(!$result) {
+            if (!$result) {
                 return $result;
             }
             // Now purge cache tags.
             $tagsToPurge = self::getTagsToPurgeByPostId($postId);
-            $chunkedTagsToPurge = array_chunk( $tagsToPurge, 30);
-            foreach($chunkedTagsToPurge as $tags) {
+            $chunkedTagsToPurge = array_chunk($tagsToPurge, 30);
+            foreach ($chunkedTagsToPurge as $tags) {
                 $result = $cachePurgeDriver->purgeByTags($tags);
-                if(!$result) {
+                if (!$result) {
                     error_log("Servebolt Optimizer: Accelerated Domains CacheTags Purge failed");
                 }
             }
-        // if Serveblt CDN only use tags when there is more than 16 urls to purge.
-        } else {
-            $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
-            if(count($urlsToPurge) < 17) {
+        } elseif ($cachePurgeDriver->resolveDriverNameWithoutConfigCheck() == 'cloudflare') {
+            $blogId = null;
+            if (is_multisite()) {
+                $blogId = get_current_blog_id();
+            }
+
+            if (smartGetOption($blogId, 'cf_cache_tags', '1') === '1') {
+                $tagsToPurge = self::getTagsToPurgeByPostId($postId);
+                // for safety, chunk the tags to purge.
+                $chunkedTagsToPurge = array_chunk($tagsToPurge, 30);
+                foreach ($chunkedTagsToPurge as $tags) {
+                    $result = $cachePurgeDriver->purgeByTags($tags);
+                    if (!$result) {
+                        error_log("Servebolt Optimizer: Cloudflare CacheTags Purge failed");
+                    }
+                }
+            } else {
+                $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
                 $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
                 // If purging the url does not work, don't go further.
                 self::setResultOfPostPurge($postId, $result);
-                if(!$result) {
+                if (!$result) {
+                    return $result;
+                }
+            }
+        } else {
+            // if Serveblt CDN only use tags when there is more than 16 urls to purge.
+            $urlsToPurge = self::getUrlsToPurgeByPostId($postId);
+            if (count($urlsToPurge) < 17) {
+                $result = $cachePurgeDriver->purgeByUrls($urlsToPurge);
+                // If purging the url does not work, don't go further.
+                self::setResultOfPostPurge($postId, $result);
+                if (!$result) {
                     return $result;
                 }
             } else {
                 // Next purge cache tags, it should just do 1 tag for all HTML.
                 $tagsToPurge = self::getTagsToPurgeByPostId($postId);
                 // for safety, chunk the tags to purge.
-                $chunkedTagsToPurge = array_chunk( $tagsToPurge, 30);
-                foreach($chunkedTagsToPurge as $tags) {
+                $chunkedTagsToPurge = array_chunk($tagsToPurge, 30);
+                foreach ($chunkedTagsToPurge as $tags) {
                     $result = $cachePurgeDriver->purgeByTags($tags);
-                    if(!$result) {
+                    if (!$result) {
                         error_log("Servebolt Optimizer: ServeboltCDN CacheTags Purge failed");
                     }
                 }
@@ -330,5 +366,4 @@ trait PostMethods
         }
         return $result;
     }
-
 }

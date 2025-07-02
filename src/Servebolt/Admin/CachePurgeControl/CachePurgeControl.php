@@ -100,6 +100,7 @@ class CachePurgeControl
         $queueBasedCachePurgeActiveStateIsOverridden = CachePurge::queueBasedCachePurgeActiveStateIsOverridden();
         $queueBasedCachePurgeIsActive = CachePurge::queueBasedCachePurgeIsActive();
         $automaticCachePurgeIsAvailable = CachePurge::automaticCachePurgeIsAvailable();
+        $cfCacheTagsIsActive = CachePurge::cfCacheTagsIsActive();
 
         view(
             'cache-settings.cache-purge.cache-purge',
@@ -118,6 +119,7 @@ class CachePurgeControl
                 'queueBasedCachePurgeActiveStateIsOverridden',
                 'queueBasedCachePurgeIsActive',
                 'acdLock',
+                'cfCacheTagsIsActive',
             ])
         );
     }
@@ -298,6 +300,7 @@ class CachePurgeControl
             'cache_purge_auto_on_deletion',
             'cache_purge_auto_on_attachment_update',
             'cache_purge_driver',
+            'cf_cache_tags',
             'cf_zone_id',
             'cf_auth_type',
             'cf_email',

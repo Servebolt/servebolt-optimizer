@@ -8,7 +8,7 @@
         </div>
         <div class="buttons">
             <a href="https://servebolt.com" target="_blank" class="sb-button light"><?php _e('See what we offer', 'servebolt-wp'); ?></a>
-            <a href="https://admin.servebolt.com/account/register" target="_blank" class="sb-button yellow"><?php _e('Sign up', 'servebolt-wp'); ?></a>
+            <a href="https://admin.servebolt.com/signup" target="_blank" class="sb-button yellow"><?php _e('Sign up', 'servebolt-wp'); ?></a>
         </div>
     </div>
 </div>
