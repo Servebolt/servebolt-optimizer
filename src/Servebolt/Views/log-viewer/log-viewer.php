@@ -38,7 +38,16 @@
         </h2>
     <?php endif; ?>
 
-	<p>Log file path: <?php echo $logFilePath; ?></p>
+    <?php $prettyPath = isset($logFilePath) ? (string) $logFilePath : ''; ?>
+    <div style="margin:6px 0 10px;">
+        <span style="display:inline-flex; align-items:center; gap:8px;">
+            <span class="sb-path-label"><?php echo esc_html(__('Log file path:', 'servebolt-wp')); ?></span>
+            <span class="sb-path" title="<?php echo esc_attr($prettyPath); ?>">
+                <span class="sb-path-text"><?php echo esc_html($prettyPath); ?></span>
+            </span>
+            <button type="button" class="button button-small" title="<?php echo esc_attr(__('Copy file path', 'servebolt-wp')); ?>" onclick="(function(p){try{navigator.clipboard.writeText(p);}catch(e){var t=document.createElement('textarea');t.value=p;document.body.appendChild(t);t.select();try{document.execCommand('copy');}finally{document.body.removeChild(t);} } })(this.getAttribute('data-path'))" data-path="<?php echo esc_attr($prettyPath); ?>"><?php echo esc_html(__('Copy to Clipboard', 'servebolt-wp')); ?></button>
+        </span>
+    </div>
     <style>
         .sb-log .sb-level-fatal td { background: #fbeaea; }
         .sb-log .sb-level-warning td { background: #fff8e5; }
@@ -74,6 +83,14 @@
         .sb-status-badge { display:inline-block; padding:6px 10px; border-radius:999px; background:#fff8e5; color:#7a5d00; border:1px solid #f0c36d; font-weight:600; margin:6px 0; }
         .sb-status-badge a { color:#7a5d00; text-decoration:underline; font-weight:600; margin-left:8px; }
         .sb-tab-badge { display:inline-block; margin-left:8px; padding:0 8px; border-radius:999px; background:#e11d48; color:#fff; font-size:11px; line-height:18px; }
+        .sb-age-sub { display:block; font-size:12px; color:#6c7781; margin-top:2px; }
+        .sb-path { max-width: 100%; display:inline-block; background:#fff; border:1px solid #e0e0e0; border-radius:6px; padding:6px 10px; }
+        .sb-path-text { display:inline-block; max-width: 60vw; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; color:#1d2327; }
+        .sb-path-label { color:#50575e; font-weight:600; }
+        .sb-error-cell { position: relative; }
+        .sb-error-text { display:block; }
+        .sb-copy-inline { display:inline-block; margin-top:4px; font-size:12px; color:#2271b1; text-decoration:underline; cursor:pointer; opacity:0; visibility:hidden; transition: opacity .15s ease; }
+        .sb-error-cell:hover .sb-copy-inline { opacity:1; visibility:visible; transition-delay:.4s; }
     </style>
 	<?php if (!$logFileExists) : ?>
     <div class="notice notice-warning">
@@ -140,7 +157,14 @@
                     <div class="sb-divider"></div>
                     <div class="sb-filter-chips">
                     <?php
-                        $allUrl = function_exists('remove_query_arg') ? remove_query_arg(['level'], $levelsBaseUrl) : $levelsBaseUrl;
+                        if (function_exists('add_query_arg')) {
+                            $allUrl = add_query_arg(['level' => 'all', 'paged' => 1], $levelsBaseUrl);
+                        } else {
+                            $sep = (strpos($levelsBaseUrl, '?') === false) ? '?' : '&';
+                            $tmp = preg_replace('/([&?])level=[^&#]*/', '$1', $levelsBaseUrl);
+                            $tmp = preg_replace('/([&?])paged=\d+/', '$1', $tmp);
+                            $allUrl = $tmp . $sep . 'level=all&paged=1';
+                        }
                         $allActive = empty($selectedLevel);
                     ?>
                     <a href="<?php echo esc_url($allUrl); ?>" class="sb-chip <?php echo $allActive ? 'active' : ''; ?>" aria-current="<?php echo $allActive ? 'true' : 'false'; ?>">
@@ -237,12 +261,13 @@
                 return '0 seconds';
             };
         ?>
-        <p><?php printf( __('Showing %1$s per page — %2$s entries in view', 'servebolt-wp'), (int)$numberOfEntries, (int)$totalEntries ); ?>:</p>
+        <?php if ((int)$totalEntries >= (int)$numberOfEntries): ?>
+            <p><?php printf( __('Showing %1$s per page — %2$s entries in view', 'servebolt-wp'), (int)$numberOfEntries, (int)$totalEntries ); ?>:</p>
+        <?php endif; ?>
         <table class="wp-list-table widefat striped posts sb-log">
             <thead>
             <tr>
                 <th><?php _e('Timestamp', 'servebolt-wp'); ?></th>
-                <th><?php _e('Age', 'servebolt-wp'); ?></th>
                 <?php if (isset($selectedType) && $selectedType === 'http'): ?>
                     <th><?php _e('IP', 'servebolt-wp'); ?></th>
                 <?php endif; ?>
@@ -260,22 +285,27 @@
                         }
                     }
                 ?>
+                <?php $unparsedLine = arrayGet('unparsed_line', $entry); ?>
                 <tr class="<?php echo esc_attr($rowClass); ?>">
-                    <?php if ($unparsedLine = arrayGet('unparsed_line', $entry)): ?>
+                    <?php if ($unparsedLine): ?>
                         <?php if (isset($selectedType) && $selectedType === 'http'): ?>
-                            <td colspan="4" title="Could not parse error line, showing raw content"><?php echo esc_html($unparsedLine); ?></td>
-                        <?php else: ?>
                             <td colspan="3" title="Could not parse error line, showing raw content"><?php echo esc_html($unparsedLine); ?></td>
+                        <?php else: ?>
+                            <td colspan="2" title="Could not parse error line, showing raw content"><?php echo esc_html($unparsedLine); ?></td>
                         <?php endif; ?>
                     <?php else: ?>
                         <?php $ts = is_string($entry->date) ? strtotime($entry->date) : 0; ?>
-                        <td><?php echo esc_html($entry->date); ?></td>
-                        <td><?php echo $ts ? esc_html($humanDiff($ts, $nowTs) . ' ' . __('ago', 'servebolt-wp')) : '—'; ?></td>
+                        <td>
+                            <?php echo esc_html($entry->date); ?>
+                            <?php if ($ts): ?>
+                                <span class="sb-age-sub"><?php echo esc_html('(' . $humanDiff($ts, $nowTs) . ' ' . __('ago', 'servebolt-wp') . ')'); ?></span>
+                            <?php endif; ?>
+                        </td>
                         <?php if (isset($selectedType) && $selectedType === 'http'): ?>
                             <td><?php echo isset($entry->ip) ? esc_html((string) $entry->ip) : '—'; ?></td>
                         <?php endif; ?>
-                        <td>
-                            <?php echo esc_html((string) $entry->error); ?>
+                        <td class="sb-error-cell">
+                            <span class="sb-error-text"><?php echo esc_html((string) $entry->error); ?></span>
                             <?php if (is_object($entry) && !empty($entry->trace_lines) && is_array($entry->trace_lines)): ?>
                                 <?php $traceCount = count($entry->trace_lines); ?>
                                 <details style="margin-top:6px;">
@@ -285,6 +315,7 @@
                                     </pre>
                                 </details>
                             <?php endif; ?>
+                            <a href="#" class="sb-copy-inline"><?php echo esc_html(__('Copy to Clipboard', 'servebolt-wp')); ?></a>
                         </td>
                     <?php endif; ?>
                 </tr>
@@ -303,5 +334,41 @@
                 <a class="sb-page-link" href="<?php echo esc_url($mk($next)); ?>"><?php echo esc_html(__('Next', 'servebolt-wp')); ?> &raquo;</a>
             </div>
         <?php endif; ?>
+
+        <script>
+        (function(){
+            function copyText(t){
+                if (!t) return;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(t).catch(function(){});
+                } else {
+                    try {
+                        var ta = document.createElement('textarea');
+                        ta.value = t; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);
+                    } catch(e) {}
+                }
+            }
+            document.addEventListener('click', function(ev){
+                var link = ev.target.closest && ev.target.closest('a.sb-copy-inline');
+                if (!link) return;
+                ev.preventDefault();
+                var cell = link.closest('.sb-error-cell');
+                var textEl = cell ? cell.querySelector('.sb-error-text') : null;
+                var text = textEl ? textEl.textContent : '';
+                var pre = cell ? cell.querySelector('pre') : null;
+                if (pre) {
+                    var trace = pre.textContent || pre.innerText || '';
+                    trace = trace ? trace.replace(/\u00A0/g, ' ').trim() : '';
+                    if (trace) {
+                        text = text ? (text + "\n" + trace) : trace;
+                    }
+                }
+                copyText(text);
+                var old = link.textContent;
+                link.textContent = '<?php echo esc_js(__('Copied!', 'servebolt-wp')); ?>';
+                setTimeout(function(){ link.textContent = old; }, 800);
+            });
+        })();
+        </script>
 	<?php endif; ?>
 </div>

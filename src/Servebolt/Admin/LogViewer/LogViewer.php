@@ -144,12 +144,40 @@ class LogViewer
             ];
         }, $existingInfos);
 
+        // If no explicit level chosen, default to fatal if any exist, else error if any, else All
+        if (!isset($_GET['level'])) {
+            // Find the info for the selected type to read its file
+            $selectedInfo = null;
+            foreach ($existingInfos as $info) {
+                if (($info['parser'] ?? null) === $selectedType) { $selectedInfo = $info; break; }
+            }
+            if ($selectedInfo && !empty($selectedInfo['exists']) && !empty($selectedInfo['resolved_path'])) {
+                $rawDefaultScan = $this->tail((string)$selectedInfo['resolved_path'], 2500);
+                $parsedDefaultScan = $this->prepareEntries($rawDefaultScan, $selectedInfo['parser'] ?? null, false);
+                $fatalCount = 0; $errorCount = 0;
+                foreach ($parsedDefaultScan as $e) {
+                    if (is_object($e) && isset($e->level) && is_string($e->level)) {
+                        $lvl = strtolower($e->level);
+                        if ($lvl === 'fatal') { $fatalCount++; }
+                        elseif ($lvl === 'error') { $errorCount++; }
+                    }
+                }
+                if ($fatalCount > 0) { $selectedLevel = 'fatal'; }
+                elseif ($errorCount > 0) { $selectedLevel = 'error'; }
+                else { $selectedLevel = null; }
+            }
+        }
+
         // Available levels per type
         $levelsByType = [
             'php'  => ['fatal', 'error', 'warning', 'deprecated'],
             'http' => ['fatal', 'error', 'warning', 'deprecated'], // http log may contain embedded PHP messages
         ];
         $availableLevels = $levelsByType[$selectedType] ?? ['fatal', 'error', 'warning'];
+        // Normalize explicit "all" to no level filter
+        if ($selectedLevel === 'all') {
+            $selectedLevel = null;
+        }
         if ($selectedLevel && !in_array($selectedLevel, $availableLevels, true)) {
             $selectedLevel = null;
             $lineLimit = 1000;
