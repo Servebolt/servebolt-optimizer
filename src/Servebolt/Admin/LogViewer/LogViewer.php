@@ -77,8 +77,29 @@ class LogViewer
     {
         $logFileInfo = $this->getLogPaths();
 
+        // Resolve file paths and availability for each log type (used for tabs and selection)
+        $resolvedInfos = [];
+        foreach ($logFileInfo as $info) {
+            $path = str_replace($info['slug'], $info['log_location'], $_SERVER['DOCUMENT_ROOT']) . '/' . $info['filename'];
+            if (isDevDebug()) {
+                $path = '/fake-logs/' . $info['log_location'] . '/' . $info['filename'];
+            }
+            $exists = file_exists($path) && is_readable($path);
+            $info['resolved_path'] = $path;
+            $info['exists'] = $exists;
+            $resolvedInfos[] = $info;
+        }
+        $existingInfos = array_values(array_filter($resolvedInfos, function ($i) { return !empty($i['exists']); }));
+
+        // If no readable logs are present, render an empty state
+        if (empty($existingInfos)) {
+            $pageTitle = __('Logs', 'servebolt-wp');
+            view('log-viewer.empty', compact('pageTitle'));
+            return;
+        }
+
         // Determine selected tab (log type) and selected level
-        $availableTypes = array_values(array_unique(array_map(function ($i) { return (string) ($i['parser'] ?? ''); }, $logFileInfo)));
+        $availableTypes = array_values(array_unique(array_map(function ($i) { return (string) ($i['parser'] ?? ''); }, $existingInfos)));
         $defaultType = $availableTypes[0] ?? 'php';
         $selectedType = isset($_GET['log']) ? strtolower((string) $_GET['log']) : $defaultType;
         if (!in_array($selectedType, $availableTypes, true)) {
@@ -87,18 +108,41 @@ class LogViewer
 
         $selectedLevel = isset($_GET['level']) ? strtolower((string) $_GET['level']) : null; // fatal|error|warning|deprecated|null
 
-        // Configure line limits per requirements
-        $lineLimit = $selectedLevel ? 100 : 1000;
-        $numberOfEntries = $lineLimit; // for UI copy
+        // Configure display + pagination; cap read window to 2500 lines total
+        $maxReadWindow = 2500; // hard cap for file scanning
+        $perPageOptions = [100, 250, 500];
+        $perPageReq = isset($_GET['per_page']) ? (int) $_GET['per_page'] : 100;
+        $perPage = in_array($perPageReq, $perPageOptions, true) ? $perPageReq : 100;
+        $numberOfEntries = $perPage; // for UI copy
 
-        // Tabs meta for the view
-        $tabs = array_map(function ($info) use ($selectedType) {
+        // Compute important counts (fatal + error) per existing tab within the 2500-line cap
+        $tabImportantCounts = [];
+        foreach ($existingInfos as $info) {
+            $path = (string) ($info['resolved_path'] ?? '');
+            $raw = $this->tail($path, 2500);
+            $parsed = $this->prepareEntries($raw, $info['parser'] ?? null, false);
+            $imp = 0;
+            foreach ($parsed as $p) {
+                if (is_object($p) && isset($p->level) && is_string($p->level)) {
+                    $lvl = strtolower($p->level);
+                    if ($lvl === 'fatal' || $lvl === 'error') {
+                        $imp++;
+                    }
+                }
+            }
+            $tabImportantCounts[(string) ($info['parser'] ?? '')] = $imp;
+        }
+
+        // Tabs meta for the view (only logs with existing files)
+        $tabs = array_map(function ($info) use ($selectedType, $tabImportantCounts) {
+            $type = (string) ($info['parser'] ?? '');
             return [
                 'label'  => (string) $info['title'],
-                'type'   => (string) $info['parser'],
-                'active' => (string) $info['parser'] === $selectedType,
+                'type'   => $type,
+                'active' => $type === $selectedType,
+                'count'  => (int) ($tabImportantCounts[$type] ?? 0),
             ];
-        }, $logFileInfo);
+        }, $existingInfos);
 
         // Available levels per type
         $levelsByType = [
@@ -114,7 +158,7 @@ class LogViewer
 
         // Find the log config for the selected type
         $logInfo = null;
-        foreach ($logFileInfo as $info) {
+        foreach ($resolvedInfos as $info) {
             if (($info['parser'] ?? null) === $selectedType) {
                 $logInfo = $info;
                 break;
@@ -124,11 +168,7 @@ class LogViewer
             return; // Nothing to show
         }
 
-        $logFilePath = str_replace($logInfo['slug'], $logInfo['log_location'], $_SERVER['DOCUMENT_ROOT']) . '/' . $logInfo['filename'];
-
-        if(isDevDebug()) {
-            $logFilePath = '/fake-logs/' . $logInfo['log_location'] . '/' . $logInfo['filename'];
-        }
+        $logFilePath = $logInfo['resolved_path'] ?? (str_replace($logInfo['slug'], $logInfo['log_location'], $_SERVER['DOCUMENT_ROOT']) . '/' . $logInfo['filename']);
 
         $logFileExists = file_exists($logFilePath);
         $logFileReadable = $logFileExists ? is_readable($logFilePath) : false;
@@ -138,10 +178,13 @@ class LogViewer
 
         $levelCounts = [];
         $allCount = 0;
+        // Determine UI deprecation hidden state regardless of active level filter
+        $deprecationsHidden = $this->getExcludeDeprecations();
+
         if ($logFileExists && $logFileReadable) {
             if ($selectedLevel) {
-                // Read a larger chunk, parse, then filter to selected level and slice to 100
-                $chunkSize = max(1000, $lineLimit * 50); // heuristic to find up to 100 level-matched entries
+                // Read up to maxReadWindow lines, parse, then filter to selected level and slice to 100
+                $chunkSize = $maxReadWindow;
                 $raw = $this->tail($logFilePath, $chunkSize);
                 $excludeDeprecations = false; // ignore deprecation toggle when explicitly filtering by level
                 $parsed = $this->prepareEntries($raw, $logInfo['parser'] ?? null, $excludeDeprecations);
@@ -158,16 +201,22 @@ class LogViewer
                 $filtered = array_values(array_filter($parsed, function ($entry) use ($selectedLevel) {
                     return is_object($entry) && isset($entry->level) && strtolower((string) $entry->level) === $selectedLevel;
                 }));
-                $entries = array_slice($filtered, 0, $lineLimit);
+                // Pagination over filtered entries
+                $totalEntries = count($filtered);
+                $totalPages = max(1, (int) ceil($totalEntries / $perPage));
+                $currentPage = isset($_GET['paged']) ? max(1, (int) $_GET['paged']) : 1;
+                if ($currentPage > $totalPages) { $currentPage = $totalPages; }
+                $offset = ($currentPage - 1) * $perPage;
+                $entries = array_slice($filtered, $offset, $perPage);
                 // For UI consistency
                 $log = $raw;
             } else {
-                // No level filter: read last 1000 lines and parse normally
-                $raw = $this->tail($logFilePath, $lineLimit);
+                // No level filter: parse up to 2500 lines, then paginate
+                $raw = $this->tail($logFilePath, $maxReadWindow);
                 $excludeDeprecations = $this->getExcludeDeprecations();
-                $entries = $this->prepareEntries($raw, $logInfo['parser'] ?? null, $excludeDeprecations);
-                // Count levels across parsed entries
-                foreach ($entries as $p) {
+                $parsed = $this->prepareEntries($raw, $logInfo['parser'] ?? null, $excludeDeprecations);
+                // Count levels across full parsed window
+                foreach ($parsed as $p) {
                     if (is_object($p) && isset($p->level) && is_string($p->level)) {
                         $lvl = strtolower($p->level);
                         if (in_array($lvl, $availableLevels, true)) {
@@ -175,13 +224,25 @@ class LogViewer
                         }
                     }
                 }
-                $allCount = is_array($entries) ? count($entries) : 0;
+                $allCount = is_array($parsed) ? count($parsed) : 0;
+                // Pagination over parsed entries
+                $totalEntries = count($parsed);
+                $totalPages = max(1, (int) ceil($totalEntries / $perPage));
+                $currentPage = isset($_GET['paged']) ? max(1, (int) $_GET['paged']) : 1;
+                if ($currentPage > $totalPages) { $currentPage = $totalPages; }
+                $offset = ($currentPage - 1) * $perPage;
+                $entries = array_slice($parsed, $offset, $perPage);
                 $log = $raw;
             }
         }
 
         $pageTitle = $logInfo['title'];
         $template = $logInfo['template'];
+
+        // Ensure pagination vars set even if file missing
+        if (!isset($totalEntries)) { $totalEntries = 0; }
+        if (!isset($totalPages)) { $totalPages = 1; }
+        if (!isset($currentPage)) { $currentPage = 1; }
 
         view($template, compact(
             'numberOfEntries',
@@ -196,7 +257,13 @@ class LogViewer
             'availableLevels',
             'selectedLevel',
             'levelCounts',
-            'allCount'
+            'allCount',
+            'deprecationsHidden',
+            'perPageOptions',
+            'perPage',
+            'totalEntries',
+            'totalPages',
+            'currentPage'
         ));
     }
 
@@ -205,49 +272,85 @@ class LogViewer
      */
     private function prepareEntries($log, ?string $parser = null, bool $excludeDeprecations = true)
     {
-        $lines = explode(PHP_EOL, $log);
-        $lines = array_reverse($lines);
-        $lines = array_filter($lines);
-        $results = [];
-        foreach ($lines as $line) {
-            $parsed = null;
-            if ($parser === 'php') {
-                $parsed = $this->parsePhpLine($line);
-            } elseif ($parser === 'http') {
-                $parsed = $this->parseHttpLine($line);
-            } else {
-                $parsed = [ 'unparsed_line' => $line ];
-            }
-            if ($parsed === null) {
-                continue;
-            }
-            if (is_array($parsed) && (isset($parsed[0]) || $parsed === [])) {
-                // Parser returned multiple entries
-                foreach ($parsed as $p) {
-                    if ($p !== null) {
-                        $results[] = $p;
+        $rawLines = preg_split("/(\r\n|\n|\r)/", (string) $log);
+        $rawLines = array_values(array_filter($rawLines, function ($l) { return trim((string)$l) !== ''; }));
+
+        // Special handling for PHP logs to group multi-line stack traces
+        if ($parser === 'php') {
+            $entries = [];
+            $current = null;
+            foreach ($rawLines as $line) {
+                $line = (string) $line;
+                $trim = trim($line);
+                if ($trim === '') { continue; }
+
+                $isStart = (bool) preg_match('/^\[[^\]]+\]\s*(?:PHP\s+)?(?:Fatal error|Parse error|Warning|Notice|Deprecated|Error|Exception|Recoverable fatal error|Core Warning|Core Error|Strict|User Deprecated|User Warning|User Notice|User Error)?/i', $trim);
+
+                if ($isStart) {
+                    if ($current) {
+                        $entries[] = $current;
                     }
+                    $parsed = $this->parsePhpLine($trim);
+                    if (is_object($parsed)) {
+                        $parsed->trace_lines = [];
+                        $current = $parsed;
+                    } else {
+                        $current = (object) [
+                            'date' => '',
+                            'ip' => null,
+                            'error' => $trim,
+                            'level' => null,
+                            'trace_lines' => [],
+                        ];
+                    }
+                    continue;
                 }
-            } else {
-                $results[] = $parsed;
+
+                // Continuation line: part of a previous PHP entry (stack trace or thrown-in line)
+                if ($current) {
+                    // unify whitespace a bit
+                    $current->trace_lines[] = $trim;
+                } else {
+                    // Orphan continuation; keep as unparsed
+                    $entries[] = ['unparsed_line' => $trim];
+                }
+            }
+            if ($current) {
+                $entries[] = $current;
+            }
+            // Newest first
+            $results = array_reverse($entries);
+        } else {
+            // HTTP and generic: parse line-by-line (newest first), while supporting multi-emit from HTTP lines
+            $lines = array_reverse($rawLines);
+            $results = [];
+            foreach ($lines as $line) {
+                $parsed = null;
+                if ($parser === 'http') {
+                    $parsed = $this->parseHttpLine($line);
+                } else {
+                    $parsed = ['unparsed_line' => $line];
+                }
+                if ($parsed === null) { continue; }
+                if (is_array($parsed) && (isset($parsed[0]) || $parsed === [])) {
+                    foreach ($parsed as $p) { if ($p !== null) { $results[] = $p; } }
+                } else {
+                    $results[] = $parsed;
+                }
             }
         }
+
         if ($excludeDeprecations) {
             $results = array_filter($results, function ($entry) {
                 if (is_array($entry) && isset($entry['unparsed_line'])) {
-                    // If we can't parse level, keep it (conservative), unless it clearly contains 'deprecated'
                     return stripos($entry['unparsed_line'], 'deprecated') === false;
                 }
                 if (is_object($entry)) {
                     if (isset($entry->level) && is_string($entry->level)) {
-                        if (stripos($entry->level, 'deprecated') !== false) {
-                            return false;
-                        }
+                        if (stripos($entry->level, 'deprecated') !== false) { return false; }
                     }
                     if (isset($entry->error) && is_string($entry->error)) {
-                        if (stripos($entry->error, 'deprecated') !== false) {
-                            return false;
-                        }
+                        if (stripos($entry->error, 'deprecated') !== false) { return false; }
                     }
                 }
                 return true;
@@ -315,6 +418,34 @@ class LogViewer
             return null;
         }
 
+        // Helper to extract IP from various Apache/Nginx patterns
+        $extractIp = function(string $text) {
+            // Prefer bracket tokens first: [client 1.2.3.4:12345] or [remote 2a10:...]
+            if (preg_match('/\[(?:client|remote)\s+([^\]]+)\]/i', $text, $m)) {
+                $token = trim($m[1]);
+                // If token ends with :<digits>, strip the port while preserving IPv6
+                if (preg_match('/^(.*?):(\d+)$/', $token, $pm)) {
+                    // only strip if left side looks like IP (contains ':' for IPv6 or '.' for IPv4)
+                    if (strpos($pm[1], ':') !== false || strpos($pm[1], '.') !== false) {
+                        return $pm[1];
+                    }
+                }
+                return $token;
+            }
+            // Fallbacks: client: x.x.x.x or remote: x:x::x etc within free text
+            if (preg_match('/(?:,\s*)?(?:client|remote):\s*([0-9a-fA-F:\.]+)/', $text, $mi)) {
+                $token = $mi[1];
+                // Strip trailing :port for IPv4; for IPv6 ambiguous, attempt same numeric port strip
+                if (preg_match('/^(.*?):(\d+)$/', $token, $pm)) {
+                    if (strpos($pm[1], ':') !== false || strpos($pm[1], '.') !== false) {
+                        return $pm[1];
+                    }
+                }
+                return $token;
+            }
+            return null;
+        };
+
         if (preg_match('/^(?P<date>\d{4}\/\d{2}\/\d{2}\s+\d{2}:\d{2}:\d{2})\s+\[(?P<level>\w+)\]\s+[^:]*:?\s*(?:\*\d+\s+)?(?P<rest>.*)$/', $entry, $m)) {
             $timestamp = strtotime(str_replace('/', '-', $m['date']));
             $date = $timestamp ? date('Y-m-d H:i:s', $timestamp) : '';
@@ -329,10 +460,7 @@ class LogViewer
                 $level = 'error';
             }
 
-            $ip = null;
-            if (preg_match('/(?:,\s*)?client:\s*(?P<ip>[0-9a-fA-F:\.]+)/', $rest, $mi)) {
-                $ip = $mi['ip'];
-            }
+            $ip = $extractIp($rest) ?: null;
 
             // If the line contains embedded PHP messages, split them and emit separate entries
             if (stripos($rest, 'php message:') !== false) {
@@ -392,10 +520,7 @@ class LogViewer
             $timestamp = strtotime($dateStr ?: $m['date']);
             $date = $timestamp ? date('Y-m-d H:i:s', $timestamp) : '';
             $rest = $m['rest'];
-            $ip = null;
-            if (preg_match('/\bclient[\s\-]*:?\s*(?P<ip>[0-9a-fA-F:\.]+)/i', $rest, $mi)) {
-                $ip = $mi['ip'];
-            }
+            $ip = $extractIp($rest) ?: null;
             if (stripos($rest, 'php message:') !== false) {
                 $segments = preg_split('/php message:\s*/i', $rest);
                 $out = [];
@@ -436,6 +561,18 @@ class LogViewer
             }
             return (object) [
                 'date'  => $date,
+                'ip'    => $ip,
+                'error' => $rest,
+            ];
+        }
+
+        // Apache-like without explicit date, e.g.:
+        // [authz_core:error] [pid ...] [remote 2a10:...] AH01630: client denied by server configuration: ...
+        if (preg_match('/^\[[^\]]+\]\s+(?P<rest>.*)$/', $entry, $m)) {
+            $rest = $m['rest'];
+            $ip = $extractIp($entry) ?: $extractIp($rest);
+            return (object) [
+                'date'  => '',
                 'ip'    => $ip,
                 'error' => $rest,
             ];
