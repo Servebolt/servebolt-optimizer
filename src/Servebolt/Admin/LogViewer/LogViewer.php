@@ -115,6 +115,10 @@ class LogViewer
         $perPage = in_array($perPageReq, $perPageOptions, true) ? $perPageReq : 100;
         $numberOfEntries = $perPage; // for UI copy
 
+        // Grouping toggle: default on; allow ?group=off to disable
+        $groupParam = isset($_GET['group']) ? strtolower((string) $_GET['group']) : 'on';
+        $groupEnabled = !in_array($groupParam, ['off','0','false','no'], true);
+
         // Compute important counts (fatal + error) per existing tab within the 2500-line cap
         $tabImportantCounts = [];
         foreach ($existingInfos as $info) {
@@ -229,13 +233,18 @@ class LogViewer
                 $filtered = array_values(array_filter($parsed, function ($entry) use ($selectedLevel) {
                     return is_object($entry) && isset($entry->level) && strtolower((string) $entry->level) === $selectedLevel;
                 }));
-                // Pagination over filtered entries
-                $totalEntries = count($filtered);
+                // Group (optional), then paginate
+                $items = $groupEnabled ? $this->groupConsecutiveEntries($filtered) : $filtered;
+                $totalEntries = count($items);
                 $totalPages = max(1, (int) ceil($totalEntries / $perPage));
                 $currentPage = isset($_GET['paged']) ? max(1, (int) $_GET['paged']) : 1;
                 if ($currentPage > $totalPages) { $currentPage = $totalPages; }
                 $offset = ($currentPage - 1) * $perPage;
-                $entries = array_slice($filtered, $offset, $perPage);
+                if ($groupEnabled) {
+                    $groupedEntries = array_slice($items, $offset, $perPage);
+                } else {
+                    $entries = array_slice($items, $offset, $perPage);
+                }
                 // For UI consistency
                 $log = $raw;
             } else {
@@ -253,13 +262,18 @@ class LogViewer
                     }
                 }
                 $allCount = is_array($parsed) ? count($parsed) : 0;
-                // Pagination over parsed entries
-                $totalEntries = count($parsed);
+                // Group (optional), then paginate
+                $items = $groupEnabled ? $this->groupConsecutiveEntries($parsed) : $parsed;
+                $totalEntries = count($items);
                 $totalPages = max(1, (int) ceil($totalEntries / $perPage));
                 $currentPage = isset($_GET['paged']) ? max(1, (int) $_GET['paged']) : 1;
                 if ($currentPage > $totalPages) { $currentPage = $totalPages; }
                 $offset = ($currentPage - 1) * $perPage;
-                $entries = array_slice($parsed, $offset, $perPage);
+                if ($groupEnabled) {
+                    $groupedEntries = array_slice($items, $offset, $perPage);
+                } else {
+                    $entries = array_slice($items, $offset, $perPage);
+                }
                 $log = $raw;
             }
         }
@@ -291,8 +305,38 @@ class LogViewer
             'perPage',
             'totalEntries',
             'totalPages',
-            'currentPage'
+            'currentPage',
+            'groupedEntries',
+            'groupEnabled'
         ));
+    }
+
+    /**
+     * Group consecutive identical entries by their visible error text (or raw line) and count repeats.
+     * Returns an array of ['entry' => object|array, 'count' => int].
+     */
+    private function groupConsecutiveEntries(array $entries): array
+    {
+        $grouped = [];
+        $prevKey = null;
+        foreach ($entries as $e) {
+            $key = '';
+            if (is_array($e) && isset($e['unparsed_line'])) {
+                $key = 'raw:' . strtolower(trim((string)$e['unparsed_line']));
+            } elseif (is_object($e) && isset($e->error)) {
+                $key = 'err:' . strtolower(trim((string)$e->error));
+            } else {
+                $key = 'other:' . md5(serialize($e));
+            }
+            if ($prevKey !== null && $key === $prevKey) {
+                $last = count($grouped) - 1;
+                $grouped[$last]['count']++;
+            } else {
+                $grouped[] = [ 'entry' => $e, 'count' => 1 ];
+                $prevKey = $key;
+            }
+        }
+        return $grouped;
     }
 
     /**

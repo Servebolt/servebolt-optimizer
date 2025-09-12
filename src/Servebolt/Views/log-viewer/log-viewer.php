@@ -91,6 +91,7 @@
         .sb-error-text { display:block; }
         .sb-copy-inline { display:inline-block; margin-top:4px; font-size:12px; color:#2271b1; text-decoration:underline; cursor:pointer; opacity:0; visibility:hidden; transition: opacity .15s ease; }
         .sb-error-cell:hover .sb-copy-inline { opacity:1; visibility:visible; transition-delay:.4s; }
+        .sb-repeat-badge { display:inline-block; margin-left:8px; padding:0 6px; border-radius:999px; background:#f0f0f1; color:#50575e; font-size:11px; line-height:18px; vertical-align:baseline; }
     </style>
 	<?php if (!$logFileExists) : ?>
     <div class="notice notice-warning">
@@ -211,6 +212,30 @@
                         <?php endif; ?>
                     <?php endif; ?>
                     <?php
+                        // Grouping toggle chip
+                        $groupEnabled = isset($groupEnabled) ? (bool)$groupEnabled : true;
+                        if (function_exists('remove_query_arg')) {
+                            $groupBase = remove_query_arg(['group','paged'], $currentUrl);
+                        } else {
+                            $groupBase = $currentUrl;
+                        }
+                        if (function_exists('add_query_arg')) {
+                            $groupToggleUrl = add_query_arg(['group' => $groupEnabled ? 'off' : 'on', 'paged' => 1], $groupBase);
+                        } else {
+                            $sep = (strpos($groupBase, '?') === false) ? '?' : '&';
+                            $tmp = preg_replace('/([&?])group=[^&#]*/', '$1', $groupBase);
+                            $tmp = preg_replace('/([&?])paged=\d+/', '$1', $tmp);
+                            $groupToggleUrl = $tmp . $sep . 'group=' . ($groupEnabled ? 'off' : 'on') . '&paged=1';
+                        }
+                    ?>
+                    <?php
+                        $groupBtnClass = $groupEnabled ? 'button button-primary' : 'button button-secondary';
+                        $groupBtnLabel = $groupEnabled ? __('Grouped errors: On', 'servebolt-wp') : __('Grouped errors: Off', 'servebolt-wp');
+                    ?>
+                    <a class="<?php echo esc_attr($groupBtnClass); ?>" href="<?php echo esc_url($groupToggleUrl); ?>" aria-pressed="<?php echo $groupEnabled ? 'true' : 'false'; ?>" title="<?php echo esc_attr(__('Toggle grouped errors (merge repeats)', 'servebolt-wp')); ?>">
+                        <?php echo esc_html($groupBtnLabel); ?>
+                    </a>
+                    <?php
                         // Per-page chips (100/250/500) — only show if pagination is needed
                         $perPage = isset($perPage) ? (int)$perPage : 100;
                         $perPageOptions = isset($perPageOptions) && is_array($perPageOptions) ? $perPageOptions : [100,250,500];
@@ -264,6 +289,7 @@
         <?php if ((int)$totalEntries >= (int)$numberOfEntries): ?>
             <p><?php printf( __('Showing %1$s per page — %2$s entries in view', 'servebolt-wp'), (int)$numberOfEntries, (int)$totalEntries ); ?>:</p>
         <?php endif; ?>
+        <?php /* Grouping now happens in the controller; using provided $groupedEntries */ ?>
         <table class="wp-list-table widefat striped posts sb-log">
             <thead>
             <tr>
@@ -275,7 +301,13 @@
             </tr>
             </thead>
             <tbody>
-            <?php foreach ($entries as $entry) : ?>
+            <?php
+                $items = isset($groupedEntries) && is_array($groupedEntries)
+                    ? $groupedEntries
+                    : array_map(function($e){ return ['entry'=>$e,'count'=>1]; }, (array)($entries ?? []));
+            ?>
+            <?php foreach ($items as $group) : ?>
+                <?php $entry = $group['entry']; $repeatCount = (int) ($group['count'] ?? 1); ?>
                 <?php
                     $rowClass = '';
                     if (is_object($entry) && isset($entry->level) && is_string($entry->level)) {
@@ -306,6 +338,9 @@
                         <?php endif; ?>
                         <td class="sb-error-cell">
                             <span class="sb-error-text"><?php echo esc_html((string) $entry->error); ?></span>
+                            <?php if ($repeatCount > 1): ?>
+                                <span class="sb-repeat-badge" title="<?php echo esc_attr(sprintf(__('Repeated %d times', 'servebolt-wp'), $repeatCount)); ?>">×<?php echo (int)$repeatCount; ?></span>
+                            <?php endif; ?>
                             <?php if (is_object($entry) && !empty($entry->trace_lines) && is_array($entry->trace_lines)): ?>
                                 <?php $traceCount = count($entry->trace_lines); ?>
                                 <details style="margin-top:6px;">
