@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, html cache, cloudflare , multisite
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.8.1
+Tested up to: 6.8.2
 Requires PHP: 7.4
-Stable tag: 3.5.57
+Stable tag: 3.5.58
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,10 +98,12 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 
 == Changelog ==
 
+= 3.5.58 =
+* Error Log Viewer: Grouped errors with a smart, tabbed PHP/HTTP overview. Automatic level selection (Fatal → Error → All), level chips with counters, strict 2,500-line scan, and pagination options (100/250/500). Enhanced support for Servebolt Linux 8 log format, a subtle “Copy full error + trace” link, and a refined toolbar.
+
 = 3.5.57 =
 * Bugfix: fixed slow cache clear on chrome browsers, and enabled cache clear on firefox correctly
 * New Feature: Option for cloudflare direct communicaitons to work with Cache-Tags for purging.  This enhances perfomance of those that have a cloudflare plan on Servebolt.
-
 
 = 3.5.56 =
 * Bugfix: fixed malformed http response headers when selecting 0 seconds for specific post type cache TTL for Accelerated Domains. 
@@ -109,7 +111,6 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 = 3.5.55 =
 * Confirmed WordPress 6.7.2 compatibility
 * cleaned off the tail of the readme file
-
 
 = 3.5.54 =
 * Added the ability to allow for Private post types to be purged.
