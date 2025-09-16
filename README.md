@@ -66,6 +66,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.5.58
+* Error Log Viewer: Grouped errors with a smart, tabbed PHP/HTTP overview. Automatic level selection (Fatal → Error → All), level chips with counters, strict 2,500-line scan, and pagination options (100/250/500). Enhanced support for Servebolt Linux 8 log format, a subtle “Copy full error + trace” link, and a refined toolbar.
+
 #### 3.5.57
 * Bugfix: fixed slow cache clear on chrome browsers, and enabled cache clear on firefox correctly
 * New Feature: Option for cloudflare direct communicaitons to work with Cache-Tags for purging.  This enhances perfomance of those that have a cloudflare plan on Servebolt.
@@ -74,7 +77,6 @@ If you want to build a local production-ready version of the plugin you can run 
 * Bugfix: fixed malformed http response headers when selecting 0 seconds for specific post type cache TTL for Accelerated Domains. 
 #### 3.5.55
 * Confirmed WordPress 6.7.2 compatibility
-
 
 #### 3.5.54 
 * Added the ability to allow for Private post types to be purged.
