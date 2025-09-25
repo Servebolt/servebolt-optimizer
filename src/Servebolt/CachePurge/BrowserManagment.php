@@ -34,72 +34,37 @@ class BrowserManagment
         add_action('wp_footer', [$this, 'wp_footer']);
         add_action('admin_footer', [$this, 'wp_footer']);
         add_action('login_footer', [$this, 'wp_footer']);
-        add_action('init', [$this, 'clear_chrome_cache']);
+        add_action('init', [$this, 'clear_site_data']);
     }
 
-    public function clear_chrome_cache() {
-        if (
-            $_SERVER['REQUEST_METHOD'] == 'GET' &&
-            isset($_GET['clear_site_data']) &&
-            is_user_logged_in() &&
-            $this->get_browser()== 'chrome'
-        ) {
+    public function clear_site_data()
+    {
+        if ($_SERVER['REQUEST_METHOD'] == 'GET' && isset($_GET['clear_site_data'])) {
             header('Clear-Site-Data: "cache", "storage"');
             header('Content-Type: application/javascript');
-            echo '/* cache cleared */';
+            header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+            echo 'Clear-Site-Data: "cache", "storage" header sent. Browser cache is now cleared.';
             exit;
         }
     }
 
-    protected function get_browser($userAgent = null) {
-        if ($userAgent === null) {
-        if (!isset($_SERVER['HTTP_USER_AGENT'])) {
-            return 'unknown';
-        }
-        $userAgent = $_SERVER['HTTP_USER_AGENT'];
-    }
-
-    $userAgent = strtolower($userAgent);
-
-     // Detect Chromium-based browsers
-    if (
-        strpos($userAgent, 'chrome') !== false ||
-        strpos($userAgent, 'crios') !== false ||         // Chrome on iOS
-        strpos($userAgent, 'edg/') !== false ||          // Edge
-        strpos($userAgent, 'opr/') !== false ||          // Opera
-        strpos($userAgent, 'brave') !== false ||         // Brave
-        strpos($userAgent, 'chromium') !== false
-    ) {
-        return 'chrome';
-    }
-
-    if (strpos($userAgent, 'safari') !== false && strpos($userAgent, 'chrome') === false) return 'safari';
-    if (strpos($userAgent, 'firefox') !== false) return 'firefox';
-    if (strpos($userAgent, 'msie') !== false || strpos($userAgent, 'trident/') !== false) return 'internet explorer';
-
-    return 'unknown';
-    }
-
-    function wp_footer() {
+    function wp_footer()
+    {
         $shouldReload = false;
-        if( defined('SB_OPTIMIZER_CLEAR_CACHE_RELOAD_CHROME') ) {
-            $reload = SB_OPTIMIZER_CLEAR_CACHE_RELOAD_CHROME;
+        if (defined('SB_OPTIMIZER_CLEAR_CACHE_RELOAD_CHROME')) {
+            $shouldReload = SB_OPTIMIZER_CLEAR_CACHE_RELOAD_CHROME;
         }
 
         ?>
         <script>
-        (function() {
-            if ( /Chrome|Chromium|Edg|OPR|SamsungBrowser|CriOS/.test(navigator.userAgent) && 
-            document.cookie.includes('clear_browser_cache=1')) 
-            {
-                document.cookie = 'clear_browser_cache=1; Max-Age=0; path=/';
-                fetch('/?clear_site_data=1', { credentials: 'include' })
-                    <?php if ($shouldReload): ?>
-                    .then(() => location.reload(true));
-                    <?php endif; ?>
-            }
-        })();
+            (function() {
+                if (document.cookie.includes('clear_site_data=1')) {
+                    fetch('/?clear_site_data=1', {
+                        credentials: 'include'
+                    })<?php if ($shouldReload): ?>.then(() => location.reload(true));<?php endif; ?>
+                }
+            })();
         </script>
-    <?php
+        <?php
     }
 }
