@@ -18,6 +18,6 @@ class ClearSiteDataHeader
     public function flagLogin($user_login, $user)
     {
         // Set a cookie to indicate we just logged in and need to clear site data
-        setcookie('clear_site_data', '1', time() + 3600, '/', '', is_ssl(), true);
+        setcookie('clear_site_data', '1', time() + 3600, '/', '', is_ssl(), false);
     }
 }

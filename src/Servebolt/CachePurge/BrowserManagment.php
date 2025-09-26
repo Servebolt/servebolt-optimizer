@@ -44,6 +44,8 @@ class BrowserManagment
             header('Content-Type: application/javascript');
             header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
             echo 'Clear-Site-Data: "cache", "storage" header sent. Browser cache is now cleared.';
+
+            setcookie('clear_site_data', '', time() - 3600, '/', '', is_ssl(), false);
             exit;
         }
     }
@@ -59,9 +61,7 @@ class BrowserManagment
         <script>
             (function() {
                 if (document.cookie.includes('clear_site_data=1')) {
-                    fetch('/?clear_site_data=1', {
-                        credentials: 'include'
-                    })<?php if ($shouldReload): ?>.then(() => location.reload(true));<?php endif; ?>
+                    fetch('/?clear_site_data', {credentials: 'include'})<?php if ($shouldReload): ?>.then(() => location.reload(true));<?php endif; ?>
                 }
             })();
         </script>
