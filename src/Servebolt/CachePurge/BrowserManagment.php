@@ -43,9 +43,10 @@ class BrowserManagment
             header('Clear-Site-Data: "cache", "storage"');
             header('Content-Type: application/javascript');
             header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-            echo 'Clear-Site-Data: "cache", "storage" header sent. Browser cache is now cleared.';
 
             setcookie('clear_site_data', '', time() - 3600, '/', '', is_ssl(), false);
+
+            echo 'Clear-Site-Data: "cache", "storage" header sent. Browser cache is now cleared.';
             exit;
         }
     }
