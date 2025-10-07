@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, html cache, cloudflare , multisite
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.8.2
+Tested up to: 6.8.3
 Requires PHP: 7.4
-Stable tag: 3.5.58
+Stable tag: 3.5.59
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
