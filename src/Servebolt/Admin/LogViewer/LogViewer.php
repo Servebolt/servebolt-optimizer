@@ -207,6 +207,7 @@ class LogViewer
 
         $entries = [];
         $log = '';
+        $groupedEntries = null;
 
         $levelCounts = [];
         $allCount = 0;

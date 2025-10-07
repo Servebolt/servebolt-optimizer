@@ -140,6 +140,15 @@ class MenuOptimizer
      */
     private static function addCacheIndicatorOutput($output, $text = null)
     {
+        if (!is_string($output)) {
+            return $output;
+        }
+
+        // Avoid corrupting serialized payloads (e.g. Timber caches expect the raw string)
+        if (function_exists('is_serialized') && is_serialized($output)) {
+            return $output;
+        }
+
         if (!$text) {
             $text = self::menuCacheMessage();
         }

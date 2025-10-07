@@ -3,9 +3,9 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, html cache, cloudflare , multisite
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.8.2
+Tested up to: 6.8.3
 Requires PHP: 7.4
-Stable tag: 3.5.58
+Stable tag: 3.5.59
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,10 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+
+= 3.5.59 =
+* Bugfix: clear-site-data header should now always be sent no matter the browser type
+* Bugfix: Menu Optimizer - Added a guard so the cache-indicator comment isn’t appended when the cached payload isn’t a plain string or is already serialized, preventing Timber’s unserialize() warning etc.
 
 = 3.5.58 =
 * Error Log Viewer: Grouped errors with a smart, tabbed PHP/HTTP overview. Automatic level selection (Fatal → Error → All), level chips with counters, strict 2,500-line scan, and pagination options (100/250/500). Enhanced support for Servebolt Linux 8 log format, a subtle “Copy full error + trace” link, and a refined toolbar.
