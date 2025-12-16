@@ -15,5 +15,12 @@
             </button>
         <?php endif; ?>
     </p>
+    <?php if (CachePurge::opCachePurgeIsAvailable()) : ?>
+        <p class="sb-opcache-secondary">
+            <button type="button" class="sb-purge-opcache sb-button grey inline">
+                <?php _e('Purge PHP OPCache', 'servebolt-wp'); ?>
+            </button>
+        </p>
+    <?php endif; ?>
     <br>
 <?php endif; ?>

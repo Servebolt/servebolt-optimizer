@@ -227,6 +227,24 @@ class CachePurge
     }
 
     /**
+     * Whether OpCache purge is available for the current environment.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function opCachePurgeIsAvailable(?int $blogId = null) : bool
+    {
+        if (!isHostedAtServebolt()) {
+            return false;
+        }
+        $sbApi = ServeboltApi::getInstance();
+        if (!$sbApi->isConfigured()) {
+            return false;
+        }
+        return self::driverSupportsOpCachePurge($blogId);
+    }
+
+    /**
      * Alias for "featureIsAvailable".
      *
      * @param int|null $blogId
@@ -566,6 +584,20 @@ class CachePurge
         $interfaces = class_implements($driver);
         return is_array($interfaces)
             && in_array('Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeServerInterface', $interfaces);
+    }
+
+    /**
+     * Check if the current driver supports OpCache purging.
+     *
+     * @param int|null $blogId
+     * @return bool
+     */
+    public static function driverSupportsOpCachePurge(?int $blogId = null): bool
+    {
+        $driver = self::resolveDriverObject($blogId);
+        $interfaces = class_implements($driver);
+        return is_array($interfaces)
+            && in_array('Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeOpCacheInterface', $interfaces);
     }
 
     /**
