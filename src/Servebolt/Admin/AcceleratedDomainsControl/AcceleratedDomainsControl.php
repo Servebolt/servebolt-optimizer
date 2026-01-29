@@ -86,11 +86,7 @@ class AcceleratedDomainsControl
         $items = $this->getSettingsItems();
         $itemsWithValues = [];
         foreach ($items as $item) {
-            switch ($item) {
-                default:
-                    $itemsWithValues[$item] = getOption($item);
-                    break;
-            }
+            $itemsWithValues[$item] = getOption($item);
         }
         return $itemsWithValues;
     }

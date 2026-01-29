@@ -741,6 +741,7 @@ function getAllOptionsNames(bool $includeMigrationOptions = false): array
         // Accelerated Domains
         'acd_switch',
         'acd_minify_switch',
+        'acd_vary_headers',
 
         // Accelerated Domains Image Resize
         'acd_image_resize_switch',

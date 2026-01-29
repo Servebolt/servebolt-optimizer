@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Api\Cloudflare\Cloudflare;
 use Servebolt\Optimizer\CachePurge\CachePurge;
+use Servebolt\Optimizer\AcceleratedDomains\VaryHeadersConfig;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\Configuration;
 use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\PurgeActions;
 //use Servebolt\Optimizer\Admin\CachePurgeControl\Ajax\QueueHandling;
@@ -92,6 +93,7 @@ class CachePurgeControl
         $selectedCfZone = $this->getSelectedCfZone($settings);
         $cfZones = $this->getCfZones($settings);
         $cachePurgeIsActive = CachePurge::isActive();
+        $acdIsActive = (bool) getOption('acd_switch');
         $automaticCachePurgeOnContentUpdateIsActive = CachePurge::automaticCachePurgeOnContentUpdateIsActive();
         $automaticCachePurgeOnSlugChangeIsActive = CachePurge::automaticCachePurgeOnSlugChangeIsActive();
         $automaticCachePurgeOnDeletionIsActive = CachePurge::automaticCachePurgeOnDeletionIsActive();
@@ -112,6 +114,7 @@ class CachePurgeControl
                 'cfZones',
                 'automaticCachePurgeIsAvailable',
                 'cachePurgeIsActive',
+                'acdIsActive',
                 'automaticCachePurgeOnContentUpdateIsActive',
                 'automaticCachePurgeOnSlugChangeIsActive',
                 'automaticCachePurgeOnDeletionIsActive',
@@ -255,6 +258,10 @@ class CachePurgeControl
                     $value = getOption($item);
                     $itemsWithValues['cf_auth_type'] = $value ?: $this->getDefaultCfAuthType();
                     break;
+                case VaryHeadersConfig::optionKey():
+                    $value = getOption($item, []);
+                    $itemsWithValues[$item] = is_array($value) ? $value : [];
+                    break;
                 default:
                     $itemsWithValues[$item] = getOption($item);
                     break;
@@ -282,7 +289,7 @@ class CachePurgeControl
     public function registerSettings(): void
     {
         foreach ($this->getSettingsItems() as $key) {
-            register_setting('sb-cache-purge-options-page', getOptionName($key));
+            register_setting('sb-cache-purge-options-page', getOptionName($key), $this->getSettingArgs($key));
         }
     }
 
@@ -307,7 +314,23 @@ class CachePurgeControl
             'cf_api_key',
             'cf_api_token',
             'queue_based_cache_purge',
+            VaryHeadersConfig::optionKey(),
         ];
+    }
+
+    /**
+     * Additional register_setting args per key.
+     */
+    private function getSettingArgs(string $key): array
+    {
+        if ($key === VaryHeadersConfig::optionKey()) {
+            return [
+                'type' => 'array',
+                'sanitize_callback' => [VaryHeadersConfig::class, 'sanitizeSelection'],
+                'default' => [],
+            ];
+        }
+        return [];
     }
 
     /**

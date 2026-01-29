@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "170747eb4514f32b004a94031e69b8ef",
+    "content-hash": "27fd1d254d1a0395b678d092a1248a49",
     "packages": [
         {
             "name": "composer/installers",
@@ -731,16 +731,16 @@
         },
         {
             "name": "servebolt/sdk",
-            "version": "1.2.12",
+            "version": "1.2.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Servebolt/php-sdk.git",
-                "reference": "5e355483200e8cc3684bb862f677ed70d6b0c435"
+                "reference": "c0f3ad6728c75443a1c006fa2df06a210a538f83"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/5e355483200e8cc3684bb862f677ed70d6b0c435",
-                "reference": "5e355483200e8cc3684bb862f677ed70d6b0c435",
+                "url": "https://api.github.com/repos/Servebolt/php-sdk/zipball/c0f3ad6728c75443a1c006fa2df06a210a538f83",
+                "reference": "c0f3ad6728c75443a1c006fa2df06a210a538f83",
                 "shasum": ""
             },
             "require": {
@@ -779,9 +779,9 @@
             "homepage": "https://servebolt.com",
             "support": {
                 "issues": "https://github.com/Servebolt/php-sdk/issues",
-                "source": "https://github.com/Servebolt/php-sdk/tree/1.2.12"
+                "source": "https://github.com/Servebolt/php-sdk/tree/1.2.14"
             },
-            "time": "2025-03-26T11:40:34+00:00"
+            "time": "2026-01-27T16:00:54+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",
@@ -4972,15 +4972,15 @@
     "aliases": [],
     "minimum-stability": "dev",
     "stability-flags": {
-        "symfony/var-dumper": 20,
-        "symfony/dotenv": 20
+        "symfony/dotenv": 20,
+        "symfony/var-dumper": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
         "php": "^7.3|^8.0"
     },
-    "platform-dev": [],
+    "platform-dev": {},
     "platform-overrides": {
         "php": "7.4"
     },
