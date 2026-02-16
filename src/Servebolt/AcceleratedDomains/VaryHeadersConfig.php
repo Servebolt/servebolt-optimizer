@@ -24,6 +24,7 @@ class VaryHeadersConfig
     use Singleton;
 
     private const OPTION_KEY = 'acd_vary_headers';
+    private const DEFAULT_SELECTION = [];
 
     /**
      * Map of allowed keys to HTTP header names.
@@ -41,7 +42,7 @@ class VaryHeadersConfig
 
     public function __construct()
     {
-        setDefaultOption(self::OPTION_KEY, []);
+        setDefaultOption(self::OPTION_KEY, self::defaultSelection());
 
         add_filter('servebolt_get_option_' . getOptionName(self::OPTION_KEY), function ($value) {
             return is_array($value) ? $value : [];
@@ -67,6 +68,15 @@ class VaryHeadersConfig
     }
 
     /**
+     * Default vary header selection.
+     * All vary headers are disabled by default.
+     */
+    public static function defaultSelection(): array
+    {
+        return self::DEFAULT_SELECTION;
+    }
+
+    /**
      * Allowed vary header keys mapped to header names.
      */
     public static function availableHeaders(): array
@@ -79,7 +89,7 @@ class VaryHeadersConfig
      */
     public static function selection(): array
     {
-        return self::sanitizeSelection(getOption(self::OPTION_KEY, []));
+        return self::sanitizeSelection(getOption(self::OPTION_KEY, self::defaultSelection()));
     }
 
     /**

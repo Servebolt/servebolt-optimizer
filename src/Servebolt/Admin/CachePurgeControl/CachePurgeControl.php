@@ -327,7 +327,7 @@ class CachePurgeControl
             return [
                 'type' => 'array',
                 'sanitize_callback' => [VaryHeadersConfig::class, 'sanitizeSelection'],
-                'default' => [],
+                'default' => VaryHeadersConfig::defaultSelection(),
             ];
         }
         return [];

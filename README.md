@@ -66,6 +66,33 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.6.1
+
+- **Introduced support for Vary Headers Caching** (requires Accelerated Domains)
+
+  Allows cache separation at the edge based on specific request headers, enabling personalized content delivery without sacrificing cache performance.
+
+  ### New Cache Key Options
+
+  Available under:  
+  `Servebolt Optimizer → Cache → Cache Settings`  
+  *(Visible when Accelerated Domains is active)*
+
+  - **User-Agent**  
+    Splits cache by Mobile, Tablet, and Desktop.
+
+  - **Language (Accept-Language)**  
+    Varies cache by the visitor’s primary browser language.
+
+  - **Origin Country (X-Origin-Country)**  
+    Varies cache by detected visitor country.
+
+  These options can be enabled individually or combined depending on your use case.
+
+- **Added "Purge PHP OPcache" button**
+
+  Adds a dedicated button in the plugin to purge PHP OPcache directly from the WordPress admin interface.
+
 #### 3.5.59
 * Bugfix: clear-site-data header should now always be sent no matter the browser type
 * Bugfix: Menu Optimizer - Added a guard so the cache-indicator comment isn’t appended when the cached payload isn’t a plain string or is already serialized, preventing Timber’s unserialize() warning etc.
@@ -513,6 +540,5 @@ Whenever a user checks out in WooCommerce then the cache for the products in the
 * Added WP-CLI support
 * Issues on Github #8 added uninstall.php + bug fixes #7 #9
 * Added changelog to Readme.txt
-
 
 

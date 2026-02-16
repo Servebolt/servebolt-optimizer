@@ -32,6 +32,56 @@ $selectedVaryHeaders = VaryHeadersConfig::selection();
             </tr>
         </tbody>
         <tbody id="sb-html-cache-form"<?php echo ($htmlCacheActive ? '' : ' style="display: none;"'); ?>>
+            <?php if ($acdIsActive): ?>
+            <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
+                <th scope="row">
+                    <?php _e('Vary headers', 'servebolt-wp'); ?>
+                    <span class="description" style="display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-weight: 600; color: #056839; background: #e6f6ee; border: 1px solid #b8e5cd;"><?php _e('New in 3.6.1', 'servebolt-wp'); ?></span>
+                </th>
+                <td>
+                    <?php
+                    $availableHeaders = VaryHeadersConfig::availableHeaders();
+                    $varyHeaderOptions = [
+                        'br' => [
+                            'label' => __('User-Agent', 'servebolt-wp'),
+                            'description' => __('Split cache by Mobile, Tablet, Desktop user agents.', 'servebolt-wp'),
+                        ],
+                        'lang' => [
+                            'label' => __('Language (Accept-Language)', 'servebolt-wp'),
+                            'description' => __('Cache varies by primary browser language.', 'servebolt-wp'),
+                        ],
+                        'co' => [
+                            'label' => __('Origin country (X-Origin-Country)', 'servebolt-wp'),
+                            'description' => __('Cache varies by visitor country.', 'servebolt-wp'),
+                        ],
+                    ];
+                    ?>
+                    <fieldset>
+                        <legend class="screen-reader-text"><span><?php _e('Select which headers to vary cache by', 'servebolt-wp'); ?></span></legend>
+                        <input type="hidden" name="<?php echo getOptionName(VaryHeadersConfig::optionKey()); ?>[]" value="">
+                        <?php foreach ($availableHeaders as $key => $headerName) : ?>
+                            <?php $option = $varyHeaderOptions[$key] ?? ['label' => $headerName, 'description' => '']; ?>
+                            <div style="margin-bottom: 10px;">
+                                <label for="cache_purge_vary_header_<?php echo esc_attr($key); ?>">
+                                    <input
+                                        name="<?php echo getOptionName(VaryHeadersConfig::optionKey()); ?>[]"
+                                        type="checkbox"
+                                        id="cache_purge_vary_header_<?php echo esc_attr($key); ?>"
+                                        value="<?php echo esc_attr($key); ?>"
+                                        <?php checked(in_array($key, $selectedVaryHeaders, true)); ?>
+                                    >
+                                    <?php echo esc_html($option['label']); ?>
+                                </label>
+                                <?php if (!empty($option['description'])) : ?>
+                                    <p class="description" style="margin: 4px 0 0 24px;"><?php echo esc_html($option['description']); ?></p>
+                                <?php endif; ?>
+                            </div>
+                        <?php endforeach; ?>
+                        <p class="description"><?php _e('Accelerated Domains will vary cache by the headers selected above.', 'servebolt-wp'); ?></p>
+                    </fieldset>
+                </td>
+            </tr>
+            <?php endif; ?>
             <tr>
                 <th scope="row">Cache post types</th>
                 <td>
@@ -116,51 +166,6 @@ $selectedVaryHeaders = VaryHeadersConfig::selection();
                     <p class="description">When enabled, 404's for all static files with known extension will be sent much earlier, using much less resources.</p>
                 </td>
             </tr>
-            <?php if ($acdIsActive): ?>
-            <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
-                <th scope="row"><?php _e('Vary headers', 'servebolt-wp'); ?></th>
-                <td>
-                    <?php
-                    $availableHeaders = VaryHeadersConfig::availableHeaders();
-                    $varyHeaderOptions = [
-                        'ua' => [
-                            'label' => __('User-Agent', 'servebolt-wp'),
-                            'description' => __('Split cache by Mobile, Tablet, Desktop user agents.', 'servebolt-wp'),
-                        ],
-                        'le' => [
-                            'label' => __('Language (Accept-Language)', 'servebolt-wp'),
-                            'description' => __('Cache varies by primary browser language.', 'servebolt-wp'),
-                        ],
-                        'oc' => [
-                            'label' => __('Origin country (X-Origin-Country)', 'servebolt-wp'),
-                            'description' => __('Cache varies by visitor country.', 'servebolt-wp'),
-                        ],
-                    ];
-                    ?>
-                    <fieldset>
-                        <legend class="screen-reader-text"><span><?php _e('Select which headers to vary cache by', 'servebolt-wp'); ?></span></legend>
-                        <input type="hidden" name="<?php echo getOptionName(VaryHeadersConfig::optionKey()); ?>[]" value="">
-                        <?php foreach ($availableHeaders as $key => $headerName) : ?>
-                            <?php $option = $varyHeaderOptions[$key] ?? ['label' => $headerName, 'description' => '']; ?>
-                            <label for="cache_purge_vary_header_<?php echo esc_attr($key); ?>">
-                                <input
-                                    name="<?php echo getOptionName(VaryHeadersConfig::optionKey()); ?>[]"
-                                    type="checkbox"
-                                    id="cache_purge_vary_header_<?php echo esc_attr($key); ?>"
-                                    value="<?php echo esc_attr($key); ?>"
-                                    <?php checked(in_array($key, $selectedVaryHeaders, true)); ?>
-                                >
-                                <?php echo esc_html($option['label']); ?>
-                            </label>
-                            <?php if (!empty($option['description'])) : ?>
-                                <p class="description"><?php echo esc_html($option['description']); ?></p>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                        <p class="description"><?php _e('When Accelerated Domains is active, selected headers are added to the Vary response header and synced to Servebolt.', 'servebolt-wp'); ?></p>
-                    </fieldset>
-                </td>
-            </tr>
-            <?php endif; ?>
         </tbody>
     </table>
     <?php submit_button(); ?>

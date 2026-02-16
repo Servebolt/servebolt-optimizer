@@ -97,7 +97,7 @@ class FullPageCacheControl
                 $args = [
                     'type' => 'array',
                     'sanitize_callback' => [VaryHeadersConfig::class, 'sanitizeSelection'],
-                    'default' => [],
+                    'default' => VaryHeadersConfig::defaultSelection(),
                 ];
             }
             register_setting('html-cache-options-page', getOptionName($key), $args);
