@@ -15,6 +15,7 @@ use function Servebolt\Optimizer\Helpers\listenForCheckboxOptionChange;
 use function Servebolt\Optimizer\Helpers\listenForOptionChange;
 use function Servebolt\Optimizer\Helpers\setDefaultOption;
 use function Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
+use function Servebolt\Optimizer\Helpers\updateOption;
 
 /**
  * Handles storage and sanitization for Accelerated Domains vary headers.
@@ -25,6 +26,8 @@ class VaryHeadersConfig
 
     private const OPTION_KEY = 'acd_vary_headers';
     private const DEFAULT_SELECTION = [];
+    private const CF_METADATA_ENDPOINT = '/environments/%d/cf-metadata';
+    private $skipOutboundSyncOnOptionUpdate = false;
 
     /**
      * Map of allowed keys to HTTP header names.
@@ -49,6 +52,9 @@ class VaryHeadersConfig
         });
 
         listenForOptionChange(self::OPTION_KEY, function ($newValue) {
+            if ($this->skipOutboundSyncOnOptionUpdate) {
+                return;
+            }
             $this->sync($newValue);
         });
 
@@ -87,8 +93,11 @@ class VaryHeadersConfig
     /**
      * Current sanitized selection from options.
      */
-    public static function selection(): array
+    public static function selection(bool $syncFromMetadata = false): array
     {
+        if ($syncFromMetadata) {
+            self::getInstance()->syncLocalSelectionFromCfMetadata();
+        }
         return self::sanitizeSelection(getOption(self::OPTION_KEY, self::defaultSelection()));
     }
 
@@ -122,10 +131,6 @@ class VaryHeadersConfig
             is_null($selection) ? self::selection() : $selection
         );
 
-        if (empty($selectedHeaders)) {
-            return;
-        }
-
         $payload = $this->buildPayload($selectedHeaders);
         if (is_null($payload)) {
             return;
@@ -150,6 +155,96 @@ class VaryHeadersConfig
         }
     }
 
+    /**
+     * Sync local option value from cf-metadata endpoint.
+     * Fail silently if metadata can not be retrieved.
+     */
+    public function syncLocalSelectionFromCfMetadata(): void
+    {
+        if (!AcceleratedDomains::isActive()) {
+            return;
+        }
+
+        $domain = getDomainNameOfWebSite();
+        $zone = $this->getZone();
+        if (empty($domain) || empty($zone)) {
+            return;
+        }
+
+        try {
+            $serveboltApi = ServeboltApi::getInstance();
+            if (!$serveboltApi->isConfigured()) {
+                return;
+            }
+
+            $requestUrl = sprintf(self::CF_METADATA_ENDPOINT, $serveboltApi->getEnvironmentId());
+            $requestUrl = add_query_arg([
+                'domain' => $domain,
+                'zone' => $zone,
+            ], $requestUrl);
+
+            $response = $serveboltApi->httpClient->get($requestUrl);
+            $statusCode = (string) $response->getResponseObject()->getStatusCode();
+            if (substr($statusCode, 0, 2) !== '20') {
+                return;
+            }
+
+            $responseBody = $response->getDecodedBody();
+            if (!is_object($responseBody)) {
+                return;
+            }
+
+            $varyHeaders = null;
+
+            if (
+                isset($responseBody->custom_metadata)
+                && is_object($responseBody->custom_metadata)
+                && property_exists($responseBody->custom_metadata, 'vary_headers')
+            ) {
+                $varyHeaders = $responseBody->custom_metadata->vary_headers;
+            } elseif (
+                isset($responseBody->data)
+                && is_object($responseBody->data)
+                && isset($responseBody->data->custom_metadata)
+                && is_object($responseBody->data->custom_metadata)
+                && property_exists($responseBody->data->custom_metadata, 'vary_headers')
+            ) {
+                $varyHeaders = $responseBody->data->custom_metadata->vary_headers;
+            }
+
+            if (is_null($varyHeaders)) {
+                return;
+            }
+
+            if (is_string($varyHeaders)) {
+                $varyHeaders = trim($varyHeaders);
+                if ($varyHeaders === '') {
+                    $selectionFromMetadata = [];
+                } else {
+                    $selectionFromMetadata = self::sanitizeSelection(explode(',', $varyHeaders));
+                }
+            } elseif (is_array($varyHeaders)) {
+                $selectionFromMetadata = self::sanitizeSelection($varyHeaders);
+            } else {
+                return;
+            }
+
+            $currentSelection = self::sanitizeSelection(getOption(self::OPTION_KEY, self::defaultSelection()));
+            if ($selectionFromMetadata === $currentSelection) {
+                return;
+            }
+
+            // Avoid triggering outbound sync when local state is updated from remote metadata.
+            $this->skipOutboundSyncOnOptionUpdate = true;
+            try {
+                updateOption(self::OPTION_KEY, $selectionFromMetadata, false);
+            } finally {
+                $this->skipOutboundSyncOnOptionUpdate = false;
+            }
+        } catch (Throwable $e) {
+            return;
+        }
+    }
 
     /**
      * Build the payload for the API request.
@@ -159,11 +254,11 @@ class VaryHeadersConfig
      */
     private function buildPayload(array $selectedHeaders): ?array
     {
-        $varyHeaders = $this->buildApiValue($selectedHeaders);
+        $varyHeaders = implode(',', self::sanitizeSelection($selectedHeaders));
         $domain = getDomainNameOfWebSite();
         $zone = $this->getZone();
 
-        if (empty($varyHeaders) || empty($domain) || empty($zone)) {
+        if (empty($domain) || empty($zone)) {
             return null;
         }
 
@@ -172,17 +267,6 @@ class VaryHeadersConfig
             'domain' => $domain,
             'zone' => $zone,
         ];
-    }
-
-    /**
-     * Transform the selection to the compact value expected by the API.
-     *
-     * @param array $selectedHeaders
-     * @return string
-     */
-    private function buildApiValue(array $selectedHeaders): string
-    {
-        return implode(',', self::sanitizeSelection($selectedHeaders));
     }
 
     /**

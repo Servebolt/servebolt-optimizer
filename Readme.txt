@@ -99,8 +99,15 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 == Changelog ==
 
 = 3.6.1 =
-* Added configurable Vary headers controls for Accelerated Domains on Cache -> Cache Settings page.
-* Updated the Vary headers options UI to display each option on separate rows with a "New in 3.6.1" label.
+* New: Variable Edge Caching with Vary Headers (requires Accelerated Domains).
+* New cache variation options under `Servebolt Optimizer -> Cache -> Cache Settings`
+  (visible when Accelerated Domains is enabled):
+* Device (`User-Agent`): Separates cache for Mobile, Tablet, and Desktop visitors.
+* Browser language (`Accept-Language`): Serves cache by the visitor's primary browser language.
+* Visitor country (`X-Origin-Country`): Enables country-specific cached content.
+* Variations can be enabled individually or combined.
+* New: Added a "Purge PHP OPcache" button in WordPress admin.
+* Allows clearing PHP OPcache instantly without SSH or manual intervention.
 
 = 3.5.59 =
 * Bugfix: clear-site-data header should now always be sent no matter the browser type

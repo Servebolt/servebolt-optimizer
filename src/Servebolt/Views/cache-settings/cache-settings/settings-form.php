@@ -14,7 +14,7 @@ $postTypesToCache  = FullPageCacheHeaders::getPostTypesToCache(false, false);
 $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
 $cachePurgeIsActive = CachePurge::isActive();
 $acdIsActive = AcceleratedDomains::isActive();
-$selectedVaryHeaders = VaryHeadersConfig::selection();
+$selectedVaryHeaders = VaryHeadersConfig::selection($acdIsActive);
 ?>
 <form method="post" action="options.php">
     <?php settings_fields('html-cache-options-page') ?>
