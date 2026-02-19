@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.8.3
 Requires PHP: 7.4
-Stable tag: 3.5.59
+Stable tag: 3.6.1
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,17 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+
+= 3.6.1 =
+* New: Variable Edge Caching with Vary Headers (requires Accelerated Domains).
+* New cache variation options under `Servebolt Optimizer -> Cache -> Cache Settings`
+  (visible when Accelerated Domains is enabled):
+* Device (`User-Agent`): Separates cache for Mobile, Tablet, and Desktop visitors.
+* Browser language (`Accept-Language`): Serves cache by the visitor's primary browser language.
+* Visitor country (`X-Origin-Country`): Enables country-specific cached content.
+* Variations can be enabled individually or combined.
+* New: Added a "Purge PHP OPcache" button in WordPress admin.
+* Allows clearing PHP OPcache instantly without SSH or manual intervention.
 
 = 3.5.59 =
 * Bugfix: clear-site-data header should now always be sent no matter the browser type

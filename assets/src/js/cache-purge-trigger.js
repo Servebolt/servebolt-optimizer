@@ -21,6 +21,13 @@ jQuery(document).ready(function($) {
     window.sb_purge_server_cache();
   });
 
+  // Purge OpCache through the Servebolt API.
+  $('#sb-configuration .sb-purge-opcache, #wpadminbar .sb-purge-opcache').click(function (e) {
+    e.preventDefault();
+    sb_close_admin_bar_menu();
+    window.sb_purge_opcache();
+  });
+
   var list = document.querySelector('#the-list');
   if (list) {
 
@@ -286,6 +293,65 @@ jQuery(document).ready(function($) {
         window.sbCachePurgeError();
         // TODO: Display errors to the user
         //window.handle_unsuccessful_cache_purge(response);
+      },
+      error: function() {
+        window.sb_loading(false);
+        window.sbCachePurgeError(); // General error
+      }
+    });
+  };
+
+  /**
+   * Purge PHP OpCache.
+   */
+  window.sb_purge_opcache = function() {
+    if (window.sb_use_native_js_fallback()) {
+      if (window.confirm('Do you want to purge the PHP OpCache?')) {
+        sb_purge_opcache_confirmed();
+      }
+    } else {
+      Swal.fire({
+        title: 'Do you want to purge the PHP OpCache?',
+        icon: 'warning',
+        showCancelButton: true,
+        customClass: {
+          confirmButton: 'servebolt-button yellow',
+          cancelButton: 'servebolt-button light'
+        },
+        buttonsStyling: false
+      }).then((result) => {
+        if (result.value) {
+          sb_purge_opcache_confirmed();
+        }
+      });
+    }
+  }
+
+  /**
+   * Confirm callback for function "sb_purge_opcache".
+   */
+  function sb_purge_opcache_confirmed() {
+    window.sb_loading(true);
+    var data = {
+      action: 'servebolt_purge_opcache',
+      security: servebolt_optimizer_ajax_object.ajax_nonce,
+    };
+    $.ajax({
+      type: 'POST',
+      url: servebolt_optimizer_ajax_object.ajaxurl,
+      data: data,
+      success: function(response) {
+        window.sb_loading(false);
+        if (response.success) {
+          setTimeout(function () {
+            sb_cache_purge_success(
+              window.sb_get_message_from_response(response),
+              window.sb_get_from_response(response, 'title')
+            );
+          }, 100);
+          return;
+        }
+        window.sbCachePurgeError();
       },
       error: function() {
         window.sb_loading(false);

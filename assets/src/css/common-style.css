@@ -46,6 +46,15 @@
     background: #ffaf00;
 }
 
+.servebolt-button.grey,
+.sb-content .sb-button.grey {
+    background: #d1d1d1;
+}
+
+.sb-content .sb-opcache-secondary {
+    margin-top: 10px;
+}
+
 #servebolt-loading {
     display: none;
 }

@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) exit; // Exit if accessed directly
 
 use Servebolt\Optimizer\Admin\FullPageCacheControl\Ajax\HtmlCachePostExclusion;
 use Servebolt\Optimizer\Traits\Singleton;
+use \Servebolt\Optimizer\AcceleratedDomains\VaryHeadersConfig;
 use function Servebolt\Optimizer\Helpers\getVersionForStaticAsset;
 use function Servebolt\Optimizer\Helpers\isScreen;
 use function Servebolt\Optimizer\Helpers\view;
@@ -82,11 +83,24 @@ class FullPageCacheControl
      */
     public function registerSettings(): void
     {
-        foreach(
-            ['fpc_settings', 
-             'fpc_switch', 
-             'cache_404_switch', 'fast_404_switch'] as $key) {
-            register_setting('html-cache-options-page', getOptionName($key));
+        $keys = [
+            'fpc_settings',
+            'fpc_switch',
+            'cache_404_switch',
+            'fast_404_switch',
+            VaryHeadersConfig::optionKey(),
+        ];
+
+        foreach ($keys as $key) {
+            $args = [];
+            if ($key === VaryHeadersConfig::optionKey()) {
+                $args = [
+                    'type' => 'array',
+                    'sanitize_callback' => [VaryHeadersConfig::class, 'sanitizeSelection'],
+                    'default' => VaryHeadersConfig::defaultSelection(),
+                ];
+            }
+            register_setting('html-cache-options-page', getOptionName($key), $args);
         }
     }
 

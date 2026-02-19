@@ -38,6 +38,7 @@ class PurgeActions extends SharedAjaxMethods
         add_action('wp_ajax_servebolt_purge_term_cache', [$this, 'purgeTermCacheCallback']);
         add_action('wp_ajax_servebolt_purge_all_cache', [$this, 'purgeAllCacheCallback']);
         add_action('wp_ajax_servebolt_purge_server_cache', [$this, 'purgeServerCacheCallback']);
+        add_action('wp_ajax_servebolt_purge_opcache', [$this, 'purgeOpCacheCallback']);
         if ( is_multisite() ) {
             add_action('wp_ajax_servebolt_purge_all_network_cache', [$this, 'purgeAllNetworkCacheCallback']);
         }
@@ -70,7 +71,7 @@ class PurgeActions extends SharedAjaxMethods
     }
 
     /**
-     * Check if current user can purge all cache.
+     * Check if current user can purge server cache.
      *
      * @return bool
      */
@@ -85,7 +86,7 @@ class PurgeActions extends SharedAjaxMethods
         );
     }
 
-        /**
+    /**
      * Check if current user can purge all cache.
      *
      * @return bool
@@ -95,8 +96,24 @@ class PurgeActions extends SharedAjaxMethods
         return apply_filters(
             'sb_optimizer_can_purge_all_cache',
             (
-                CachePurge::driverSupportsCachePurgeAll() 
+                CachePurge::driverSupportsCachePurgeAll()
                 && CachePurge::cachePurgeByServerAvailable()
+                && current_user_can('edit_others_posts')
+            )
+        );
+    }
+
+    /**
+     * Check if current user can purge OpCache.
+     *
+     * @return bool
+     */
+    public static function canPurgeOpCache(): bool
+    {
+        return apply_filters(
+            'sb_optimizer_can_purge_opcache',
+            (
+                CachePurge::opCachePurgeIsAvailable()
                 && current_user_can('edit_others_posts')
             )
         );
@@ -461,6 +478,30 @@ class PurgeActions extends SharedAjaxMethods
             } else {
                 wp_send_json_success(['message' => __('All cache was purged.', 'servebolt-wp')]);
             }
+        } catch (Throwable $e) {
+            $this->handleErrors($e);
+        }
+    }
+
+    /**
+     * Purge PHP OpCache.
+     */
+    public function purgeOpCacheCallback()
+    {
+        $this->checkAjaxReferer();
+        ajaxUserAllowedByFunction(__CLASS__ . '::canPurgeOpCache');
+        $this->ensureCachePurgeFeatureIsActive();
+
+        if (!CachePurge::opCachePurgeIsAvailable()) {
+            wp_send_json_error([
+                'message' => __('The Servebolt environment API is not configured, so we could not purge OpCache.', 'servebolt-wp'),
+            ]);
+        }
+
+        try {
+            $cachePurge = CachePurge::getInstance();
+            $cachePurge->purgeOpCache();
+            wp_send_json_success(['message' => __('PHP OpCache was purged.', 'servebolt-wp')]);
         } catch (Throwable $e) {
             $this->handleErrors($e);
         }

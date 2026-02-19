@@ -8,6 +8,8 @@ use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\AcceleratedDomainsImageResize;
 use Servebolt\Optimizer\AcceleratedDomains\ImageResize\FeatureAccess;
+use Servebolt\Optimizer\AcceleratedDomains\VaryHeaders;
+use Servebolt\Optimizer\AcceleratedDomains\VaryHeadersConfig;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\setOptionOverride;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
@@ -36,6 +38,8 @@ class AcceleratedDomains
     {
         new AcceleratedDomainsHeaders;
         new AcceleratedDomainsSettings;
+        VaryHeadersConfig::init();
+        VaryHeaders::init();
 
         new AcceleratedDomainsImageResize;
         /*if (FeatureAccess::hasAccess()) {

@@ -9,6 +9,7 @@ use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeUrlInterface;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeTagInterface;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeValidateUrlCandidate;
 use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeServerInterface;
+use Servebolt\Optimizer\CachePurge\Interfaces\CachePurgeOpCacheInterface;
 use Servebolt\Optimizer\Traits\Singleton;
 use Servebolt\Optimizer\Exceptions\ServeboltApiError;
 use function Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
@@ -17,7 +18,7 @@ use function Servebolt\Optimizer\Helpers\getDomainNameOfWebSite;
  * Class ServeboltCdn
  * @package Servebolt\Optimizer\CachePurge\Drivers
  */
-class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, CachePurgeUrlInterface, CachePurgeValidateUrlCandidate, CachePurgeServerInterface
+class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, CachePurgeUrlInterface, CachePurgeValidateUrlCandidate, CachePurgeServerInterface, CachePurgeOpCacheInterface
 {
     use Singleton, ServeboltDriverTrait;
 
@@ -124,6 +125,24 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
             return true;
         } else {
            throw new ServeboltApiError($response->getErrors(), 'serveboltcdn');
+        }
+    }
+
+    /**
+     * Purge PHP OpCache for the environment.
+     *
+     * @return bool
+     * @throws ServeboltApiError
+     */
+    public function purgeOpCache(): bool
+    {
+        $response = $this->apiInstance->environment->purgeOpCache(
+            $this->apiInstance->getEnvironmentId()
+        );
+        if ($response->wasSuccessful()) {
+            return true;
+        } else {
+            throw new ServeboltApiError($response->getErrors(), $response, 'serveboltcdn');
         }
     }
 
