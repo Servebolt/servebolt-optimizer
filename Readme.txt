@@ -99,15 +99,30 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 == Changelog ==
 
 = 3.6.1 =
-* New: Variable Edge Caching with Vary Headers (requires Accelerated Domains).
-* New cache variation options under `Servebolt Optimizer -> Cache -> Cache Settings`
-  (visible when Accelerated Domains is enabled):
-* Device (`User-Agent`): Separates cache for Mobile, Tablet, and Desktop visitors.
-* Browser language (`Accept-Language`): Serves cache by the visitor's primary browser language.
-* Visitor country (`X-Origin-Country`): Enables country-specific cached content.
-* Variations can be enabled individually or combined.
-* New: Added a "Purge PHP OPcache" button in WordPress admin.
-* Allows clearing PHP OPcache instantly without SSH or manual intervention.
+Variable Edge Caching (Requires Accelerated Domains)
+We’ve introduced support for Vary Headers Caching, unlocking smarter edge caching with Accelerated Domains. It allows cache separation at the edge based on specific request headers, enabling personalized content delivery without sacrificing cache performance.
+Instead of serving one generic cached version to every visitor, your site can now cache and deliver the right version instantly — without bypassing cache or adding backend complexity.
+This means:
+Personalized experiences at full edge speed
+Higher cache hit ratios
+No performance trade-offs
+ New Cache Variation Options
+Available under:  Servebolt Optimizer → Cache → Cache Settings
+ (Visible when Accelerated Domains is enabled)
+You can now vary cache based on:
+Device (User-Agent)
+ Automatically separates cache for Mobile, Tablet, and Desktop visitors.
+
+Browser Language (Accept-Language)
+ Serves the correct language version based on the visitor’s primary browser setting.
+
+Visitor Country (X-Origin-Country)
+ Enables country-specific content, pricing, or campaigns — fully cached at the edge.
+
+These variations can be enabled individually or combined, depending on your site’s needs.
+New: Purge PHP OPcache Button
+Added a dedicated “Purge PHP OPcache” button directly in the WordPress admin.
+This allows you to clear PHP OPcache instantly without SSH access or manual intervention — making deployments and troubleshooting faster and easier.
 
 = 3.5.59 =
 * Bugfix: clear-site-data header should now always be sent no matter the browser type
