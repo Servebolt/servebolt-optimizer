@@ -157,6 +157,11 @@ class ImageResize
         }
 
         $sources = $this->addAdditionalSrcsetUrls($sources, $sizeArray, $imageSrc, $imageMeta, $attachmentId);
+        $this->debugLog('srcset_resize', [
+            'attachment_id' => $attachmentId,
+            'source_count' => count($sources),
+            'size_array' => $sizeArray,
+        ]);
 
         return $sources;
     }
@@ -237,7 +242,16 @@ class ImageResize
             return $image;
         }
         if ($image) {
-            $image[0] = $this->buildImageUrl($image[0], $this->generateImageResizeParameters($image));
+            $resizeParameters = $this->generateImageResizeParameters($image);
+            $this->debugLog('single_image_resize', [
+                'attachment_id' => $attachmentId,
+                'incoming_url' => $image[0],
+                'incoming_width' => $image[1] ?? null,
+                'incoming_height' => $image[2] ?? null,
+                'is_intermediate' => $image[3] ?? null,
+                'resize_parameters' => $resizeParameters,
+            ]);
+            $image[0] = $this->buildImageUrl($image[0], $resizeParameters);
         }
         return $image;
     }
@@ -475,6 +489,11 @@ class ImageResize
                 preg_match( '/ width="([0-9]+)"/',  $match, $width  );
                 // default to 500px wide if the image does not have a width
                 $image_width = (isset($width[1])) ? $width[1] : 500;
+                $this->debugLog('regex_resize', [
+                    'incoming_url' => $src[1],
+                    'tag_width_attribute' => $width[1] ?? null,
+                    'resolved_width' => $image_width,
+                ]);
                 // Build the real url as needed.
                 $newsrc = $this->buildImageUrl($src[1], ['width' => $image_width ]);
                 // Replace src="content" with src="new content", double replace keeps src=""
@@ -500,6 +519,26 @@ class ImageResize
         if(strpos($content, '<img') === false) return $content;
         // Front end only replace image URLs.
         return $this->regexOperation($content);
+    }
+
+    private function debugLoggingEnabled(): bool
+    {
+        if (defined('SB_OPTIMIZER_ACD_IMAGE_RESIZE_DEBUG')) {
+            return (bool) constant('SB_OPTIMIZER_ACD_IMAGE_RESIZE_DEBUG');
+        }
+        return (bool) apply_filters('sb_optimizer_acd_image_resize_debug_logging', false);
+    }
+
+    private function debugLog(string $event, array $context = []): void
+    {
+        if (!$this->debugLoggingEnabled()) {
+            return;
+        }
+        $encodedContext = function_exists('wp_json_encode') ? wp_json_encode($context) : json_encode($context);
+        if ($encodedContext === false || $encodedContext === null) {
+            $encodedContext = '{}';
+        }
+        error_log('[SB Optimizer][ACD Image Resize] ' . $event . ' ' . $encodedContext);
     }
 
 }
