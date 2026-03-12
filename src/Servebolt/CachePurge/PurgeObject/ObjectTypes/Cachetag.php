@@ -93,7 +93,12 @@ class Cachetag extends SharedMethods
      */
     protected function generateOtherCacheTags(): void
     {
-        $cacheHeaders = new GetCacheTagsHeadersForLocation($this->getId(), $this->getPostType());
+        $args = [];
+        $originEvent = $this->getArgument('originEvent');
+        if (is_string($originEvent) && !empty($originEvent)) {
+            $args['originEvent'] = $originEvent;
+        }
+        $cacheHeaders = new GetCacheTagsHeadersForLocation($this->getId(), $this->getPostType(), $args);
         // get related cache tags for this post.
         $this->addCacheTags($cacheHeaders->getHeaders());
         // make sure that the post page is cleared

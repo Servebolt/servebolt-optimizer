@@ -100,10 +100,16 @@ class WpObjectQueue
                 });
             }
 
+            $purgeObjectArgs = [];
+            if ($originEvent = arrayGet('originEvent', $payload)) {
+                $purgeObjectArgs['originEvent'] = (string) $originEvent;
+            }
+
             // The 'cachetag' type is investigated and adapted in the PurgeObject.
             $purgeObject = new PurgeObject(
                 arrayGet('id', $payload),
                 arrayGet('type', $payload),
+                $purgeObjectArgs
             );
 
             if ($purgeObject->success()) {
