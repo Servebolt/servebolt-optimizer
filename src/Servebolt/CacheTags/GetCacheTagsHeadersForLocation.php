@@ -240,6 +240,10 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      */
     protected function addAuthorTag() : void
     {
+        if ($this->objectType == 'product') {
+            return;
+        }
+
         $this->add(self::AUTHOR . '-' . get_post_field('post_author', get_the_ID() ) );
     }
 

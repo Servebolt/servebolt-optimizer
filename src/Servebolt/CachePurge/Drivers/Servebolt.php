@@ -57,6 +57,9 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
             $this->apiInstance->getEnvironmentId(),
             [$url]
         );
+        $this->debugRequest('acd', __FUNCTION__, [
+            'files' => [$url],
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -75,6 +78,9 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
             $this->apiInstance->getEnvironmentId(),
             $urls
         );
+        $this->debugRequest('acd', __FUNCTION__, [
+            'files' => $urls,
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -97,6 +103,12 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
             $tags, // array of tags
             [] // hosts
         );
+        $this->debugRequest('acd', __FUNCTION__, [
+            'files' => [],
+            'prefixes' => [],
+            'tags' => $tags,
+            'hosts' => [],
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -116,6 +128,10 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
             [], // files urls
             [$prefix]            
         );
+        $this->debugRequest('acd', __FUNCTION__, [
+            'files' => [],
+            'prefixes' => [$prefix],
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -135,6 +151,10 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
             [], // files urls
             $prefixes
         );
+        $this->debugRequest('acd', __FUNCTION__, [
+            'files' => [],
+            'prefixes' => $prefixes,
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -154,6 +174,9 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
             $this->apiInstance->getEnvironmentId(),
             'acd'
         );
+        $this->debugRequest('acd', __FUNCTION__, [
+            'target' => 'acd',
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -172,6 +195,7 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
         $response = $this->apiInstance->environment->purgeOpCache(
             $this->apiInstance->getEnvironmentId()
         );
+        $this->debugRequest('acd', __FUNCTION__, [], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -187,11 +211,16 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
      */
     public function purgeAll(): bool
     {
+        $prefixes = $this->getPurgeAllPrefixes();
         $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
             [],
-            $this->getPurgeAllPrefixes()
+            $prefixes
         );
+        $this->debugRequest('acd', __FUNCTION__, [
+            'files' => [],
+            'prefixes' => $prefixes,
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -207,11 +236,16 @@ class Servebolt implements CachePurgeAllInterface, CachePurgeUrlInterface, Cache
      */
     public function purgeAllNetwork(): bool
     {
+        $prefixes = $this->getPurgeAllPrefixesWithMultisiteSupport();
         $response = $this->apiInstance->environment->purgeCache(
             $this->apiInstance->getEnvironmentId(),
             [],
-            $this->getPurgeAllPrefixesWithMultisiteSupport()
+            $prefixes
         );
+        $this->debugRequest('acd', __FUNCTION__, [
+            'files' => [],
+            'prefixes' => $prefixes,
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {

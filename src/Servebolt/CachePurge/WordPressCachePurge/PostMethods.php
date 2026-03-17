@@ -139,7 +139,7 @@ trait PostMethods
 
         // Check if Cloudflare is used as driver and if cf_cache_tags is 1 (Enabled)
         if (CachePurgeDriver::resolveDriverNameWithoutConfigCheck($blogId) === 'cloudflare') {
-            if (smartGetOption($blogId, 'cf_cache_tag', '1') === '1') {
+            if (smartGetOption($blogId, 'cf_cache_tags', '1') === '1') {
                 return true;
             }
         }
