@@ -1,6 +1,7 @@
 <?php if (!defined('ABSPATH')) exit; // Exit if accessed directly ?>
 <?php use function Servebolt\Optimizer\Helpers\htmlCacheExcludePostTableRowMarkup; ?>
 <?php use function Servebolt\Optimizer\Helpers\getOptionName; ?>
+<?php use function Servebolt\Optimizer\Helpers\woocommerceIsActive; ?>
 <?php use Servebolt\Optimizer\FullPageCache\FullPageCacheHeaders; ?>
 <?php use Servebolt\Optimizer\FullPageCache\CachePostExclusion; ?>
 <?php use Servebolt\Optimizer\FullPageCache\FullPageCacheSettings; ?>
@@ -14,6 +15,8 @@ $postTypesToCache  = FullPageCacheHeaders::getPostTypesToCache(false, false);
 $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
 $cachePurgeIsActive = CachePurge::isActive();
 $acdIsActive = AcceleratedDomains::isActive();
+$woocommerceIsActive = woocommerceIsActive();
+$woocommerceHomepagePurgeOptionKey = 'woocommerce_purge_homepage_on_product_events';
 $selectedVaryHeaders = VaryHeadersConfig::selection($acdIsActive);
 ?>
 <form method="post" action="options.php">
@@ -79,6 +82,21 @@ $selectedVaryHeaders = VaryHeadersConfig::selection($acdIsActive);
                         <?php endforeach; ?>
                         <p class="description"><?php _e('Accelerated Domains will vary cache by the headers selected above.', 'servebolt-wp'); ?></p>
                     </fieldset>
+                </td>
+            </tr>
+            <?php endif; ?>
+            <?php if ($acdIsActive && $woocommerceIsActive): ?>
+            <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
+                <th scope="row"><?php _e('WooCommerce homepage purge', 'servebolt-wp'); ?></th>
+                <td>
+                    <input
+                        id="sb-woocommerce-homepage-purge-switch"
+                        name="<?php echo getOptionName($woocommerceHomepagePurgeOptionKey); ?>"
+                        type="checkbox"
+                        <?php checked(FullPageCacheSettings::isCacheKeyActive($woocommerceHomepagePurgeOptionKey)); ?>
+                    >
+                    <label for="sb-woocommerce-homepage-purge-switch"><?php _e('Enable', 'servebolt-wp'); ?></label>
+                    <p class="description"><?php _e('Purge the homepage when WooCommerce products are created, deleted, or marked as out of stock.', 'servebolt-wp'); ?></p>
                 </td>
             </tr>
             <?php endif; ?>

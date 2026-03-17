@@ -66,6 +66,10 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.6.2
+
+* New (Accelerated Domains): Introduced “WooCommerce homepage purge” in Cache → Cache Settings (disabled by default). Automatically purges the homepage only on product create, delete, or out-of-stock events.
+
 #### 3.6.1
 
 - **Introduced support for Vary Headers Caching** (requires Accelerated Domains)

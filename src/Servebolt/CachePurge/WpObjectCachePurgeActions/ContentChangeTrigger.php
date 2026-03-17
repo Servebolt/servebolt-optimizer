@@ -130,14 +130,15 @@ class ContentChangeTrigger
     function purgePostOnWooCommerceUpdate($product)
     {
         try {
+            $originEvent = $this->resolveOriginEventForWooCommerceProduct($product);
             if(is_int($product)) {
-                $this->maybePurgePost((int) $product);
+                $this->maybePurgePost((int) $product, $originEvent);
                 return;
             } 
 
             if(!is_object($product)) return;
             if(!method_exists($product, 'get_id')) return;
-            $this->maybePurgePost((int) $product->get_id());
+            $this->maybePurgePost((int) $product->get_id(), $originEvent);
         } catch (\Exception $e) {
             error_log('Error purging WooCommerce product cache on update: ' . $e->getMessage() );
         }
@@ -362,15 +363,41 @@ class ContentChangeTrigger
      *
      * @param int $postId
      */
-    private function maybePurgePost(int $postId): void
+    private function maybePurgePost(int $postId, string $originEvent = 'post_change'): void
     {
         if (!self::shouldPurgePostCache($postId)) {
             return;
         }
         try {
-            setCachePurgeOriginEvent('post_change');
+            setCachePurgeOriginEvent($originEvent);
             WordPressCachePurge::purgeByPostId($postId);
         } catch (Throwable $e) {}
+    }
+
+    /**
+     * Resolve origin event for WooCommerce-triggered product purge.
+     *
+     * @param mixed $product
+     * @return string
+     */
+    private function resolveOriginEventForWooCommerceProduct($product): string
+    {
+        $stockStatus = null;
+
+        if (is_object($product) && method_exists($product, 'get_stock_status')) {
+            $stockStatus = (string) $product->get_stock_status();
+        } elseif (is_int($product) && function_exists('wc_get_product')) {
+            $resolvedProduct = wc_get_product($product);
+            if (is_object($resolvedProduct) && method_exists($resolvedProduct, 'get_stock_status')) {
+                $stockStatus = (string) $resolvedProduct->get_stock_status();
+            }
+        }
+
+        if ($stockStatus === 'outofstock') {
+            return 'woocommerce_out_of_stock';
+        }
+
+        return 'woocommerce_product_update';
     }
 
     /**

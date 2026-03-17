@@ -59,6 +59,9 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
             // tags
             // hosts
         );
+        $this->debugRequest('serveboltcdn', __FUNCTION__, [
+            'files' => [$url],
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -80,6 +83,9 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
             // tags
             // hosts
         );
+        $this->debugRequest('serveboltcdn', __FUNCTION__, [
+            'files' => $urls,
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -95,13 +101,18 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
      */
     public function purgeAll(): bool
     {
+        $prefixes = $this->getPurgeAllPrefixes();
         $response = $this->apiInstance->environment->purgeCdnCache(
             $this->apiInstance->getEnvironmentId(),
             [], // files
-            $this->getPurgeAllPrefixes() // prefixes
+            $prefixes // prefixes
             // tags
             // hosts
         );
+        $this->debugRequest('serveboltcdn', __FUNCTION__, [
+            'files' => [],
+            'prefixes' => $prefixes,
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -121,6 +132,9 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
             $this->apiInstance->getEnvironmentId(),
             'serveboltcdn'
         );
+        $this->debugRequest('serveboltcdn', __FUNCTION__, [
+            'target' => 'serveboltcdn',
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -139,6 +153,7 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
         $response = $this->apiInstance->environment->purgeOpCache(
             $this->apiInstance->getEnvironmentId()
         );
+        $this->debugRequest('serveboltcdn', __FUNCTION__, [], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -162,6 +177,11 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
             // hosts
             
         );
+        $this->debugRequest('serveboltcdn', __FUNCTION__, [
+            'files' => [],
+            'prefixes' => [],
+            'tags' => $tags,
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {
@@ -178,13 +198,18 @@ class ServeboltCdn implements CachePurgeAllInterface, CachePurgeTagInterface, Ca
      */
     public function purgeAllNetwork(): bool
     {
+        $prefixes = $this->getPurgeAllPrefixesWithMultisiteSupport();
         $response = $this->apiInstance->environment->purgeCdnCache(
             $this->apiInstance->getEnvironmentId(),
             [], // files
-            $this->getPurgeAllPrefixesWithMultisiteSupport()
+            $prefixes
             // tags
             // hosts
         );
+        $this->debugRequest('serveboltcdn', __FUNCTION__, [
+            'files' => [],
+            'prefixes' => $prefixes,
+        ], $response);
         if ($response->wasSuccessful()) {
             return true;
         } else {

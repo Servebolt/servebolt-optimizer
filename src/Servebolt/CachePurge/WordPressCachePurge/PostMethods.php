@@ -53,11 +53,12 @@ trait PostMethods
      * @param int $postId
      * @return array
      */
-    private static function getTagsToPurgeByPostId(int $postId): array
+    private static function getTagsToPurgeByPostId(int $postId, array $args = []): array
     {
         $purgeObject = new PurgeObject(
             $postId,
-            'cachetag'
+            'cachetag',
+            $args
         );
         return $purgeObject->getCacheTags();
     }
@@ -138,7 +139,7 @@ trait PostMethods
 
         // Check if Cloudflare is used as driver and if cf_cache_tags is 1 (Enabled)
         if (CachePurgeDriver::resolveDriverNameWithoutConfigCheck($blogId) === 'cloudflare') {
-            if (smartGetOption($blogId, 'cf_cache_tag', '1') === '1') {
+            if (smartGetOption($blogId, 'cf_cache_tags', '1') === '1') {
                 return true;
             }
         }
@@ -168,6 +169,8 @@ trait PostMethods
             return false;
         }
         $shouldPurgeByQueue = self::shouldPurgeByQueue();
+        $originEvent = getCachePurgeOriginEvent();
+        $originEvent = is_string($originEvent) ? $originEvent : null;
         // Check if on Servebolt and Servebolt CDN/ACD.
         $canUseCacheTags = self::cacheTagsEnabled();
         $purgeObjectType = ($canUseCacheTags) ? 'cachetag' : 'post';
@@ -184,7 +187,7 @@ trait PostMethods
         do_action('sb_optimizer_purged_post_cache_for_' . $postId, false);
 
         if ($shouldPurgeByQueue) {
-            return self::setupPurgeByQueue($postId, $purgeObjectType);
+            return self::setupPurgeByQueue($postId, $purgeObjectType, $originEvent);
         } else {
             $cachePurgeDriver = CachePurgeDriver::getInstance();
             if (self::$preventDoublePurge && self::$preventPostDoublePurge && array_key_exists($postId, self::$recentlyPurgedPosts)) {
@@ -198,7 +201,7 @@ trait PostMethods
             }
             // If the provider supports cachetags, use that. (Servebolt CDN/ACD)
             if ($purgeObjectType == 'cachetag') {
-                $result = self::setupPurgeByCachetags($postId, $cachePurgeDriver);
+                $result = self::setupPurgeByCachetags($postId, $cachePurgeDriver, $originEvent);
             }
             return $result;
         }
@@ -230,14 +233,14 @@ trait PostMethods
      * @param string $purgeObjectType
      * @return bool
      */
-    protected static function setupPurgeByQueue($postId, $purgeObjectType)
+    protected static function setupPurgeByQueue($postId, $purgeObjectType, ?string $originEvent = null)
     {
         $queueInstance = WpObjectQueue::getInstance();
         $queueItemData = [
             'type' => $purgeObjectType, // Replace with cachetag when available, default to post.
             'id' => $postId,
         ];
-        if ($originEvent = getCachePurgeOriginEvent()) {
+        if (!empty($originEvent)) {
             $queueItemData['originEvent'] = $originEvent;
         }
         $queueItemData = self::maybeAddOriginalUrl($queueItemData, $postId);
@@ -294,9 +297,13 @@ trait PostMethods
      *
      * @return bool always returns true or failure via ServeboltApiError exception.
      */
-    protected static function setupPurgeByCachetags($postId, $cachePurgeDriver)
+    protected static function setupPurgeByCachetags($postId, $cachePurgeDriver, ?string $originEvent = null)
     {
         $result = false;
+        $purgeObjectArgs = [];
+        if (!empty($originEvent)) {
+            $purgeObjectArgs['originEvent'] = $originEvent;
+        }
         // If accelerated domains clear the Permalink and tags.
         if ($cachePurgeDriver->resolveDriverNameWithoutConfigCheck() == 'acd') {
             $url = get_permalink($postId);
@@ -308,7 +315,7 @@ trait PostMethods
                 return $result;
             }
             // Now purge cache tags.
-            $tagsToPurge = self::getTagsToPurgeByPostId($postId);
+            $tagsToPurge = self::getTagsToPurgeByPostId($postId, $purgeObjectArgs);
             $chunkedTagsToPurge = array_chunk($tagsToPurge, 30);
             foreach ($chunkedTagsToPurge as $tags) {
                 $result = $cachePurgeDriver->purgeByTags($tags);
@@ -323,7 +330,7 @@ trait PostMethods
             }
 
             if (smartGetOption($blogId, 'cf_cache_tags', '1') === '1') {
-                $tagsToPurge = self::getTagsToPurgeByPostId($postId);
+                $tagsToPurge = self::getTagsToPurgeByPostId($postId, $purgeObjectArgs);
                 // for safety, chunk the tags to purge.
                 $chunkedTagsToPurge = array_chunk($tagsToPurge, 30);
                 foreach ($chunkedTagsToPurge as $tags) {
@@ -353,7 +360,7 @@ trait PostMethods
                 }
             } else {
                 // Next purge cache tags, it should just do 1 tag for all HTML.
-                $tagsToPurge = self::getTagsToPurgeByPostId($postId);
+                $tagsToPurge = self::getTagsToPurgeByPostId($postId, $purgeObjectArgs);
                 // for safety, chunk the tags to purge.
                 $chunkedTagsToPurge = array_chunk($tagsToPurge, 30);
                 foreach ($chunkedTagsToPurge as $tags) {

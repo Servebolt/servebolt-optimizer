@@ -8,6 +8,7 @@ use Throwable;
 use Servebolt\Optimizer\CachePurge\CachePurge;
 use Servebolt\Optimizer\CachePurge\WordPressCachePurge\WordPressCachePurge;
 use Servebolt\Optimizer\CachePurge\WpObjectCachePurgeActions\ContentChangeTrigger;
+use function Servebolt\Optimizer\Helpers\setCachePurgeOriginEvent;
 
 /**
  * Class ProductCachePurgeOnStockChange
@@ -44,6 +45,7 @@ class ProductCachePurgeOnStockChange
         if ($productId = $this->resolveProductPostId($product)) {
             if (ContentChangeTrigger::shouldPurgePostCache($productId)) { // Check if we should purge cache for the current product in regards to rules in ContentChangeTrigger::class
                 try {
+                    $this->setPurgeOriginByProductStockStatus($product);
 
                     /**
                      * Determine whether we should do an immediate purge whenever the product stock changes.
@@ -227,5 +229,23 @@ class ProductCachePurgeOnStockChange
             }
         }
         return null;
+    }
+
+    /**
+     * Set purge origin based on current product stock status.
+     *
+     * @param WC_Product|WC_Product_Simple|WC_Product_Grouped|WC_Product_External|WC_Product_Variable $product
+     */
+    private function setPurgeOriginByProductStockStatus($product): void
+    {
+        $originEvent = 'woocommerce_product_stock_change';
+        if (
+            is_object($product)
+            && method_exists($product, 'get_stock_status')
+            && $product->get_stock_status() === 'outofstock'
+        ) {
+            $originEvent = 'woocommerce_out_of_stock';
+        }
+        setCachePurgeOriginEvent($originEvent);
     }
 }

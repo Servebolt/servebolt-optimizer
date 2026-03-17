@@ -108,6 +108,16 @@ class AddCacheTagsHeaders extends CacheTagsBase
             $this->addHTMLTag();
         }
         $this->appendHeaders();
+        if (defined('SB_OPTIMIZER_CACHE_TAGS_DEBUG') && SB_OPTIMIZER_CACHE_TAGS_DEBUG === true) {
+            add_action('wp_footer', function() {
+                if (count($this->headers) === 0) {
+                    return;
+                }
+                $tags = implode(',', $this->headers);
+                $tags = str_replace('--', '- -', $tags);
+                echo '<div id="sb-cache-tags-debug" style="position:fixed;left:0;right:0;bottom:0;z-index:999999;padding:8px 12px;background:#111;color:#0f0;font:12px/1.4 monospace;word-break:break-word;">Servebolt Cache-Tags: ' . esc_html($tags) . '</div>';
+            }, 9999);
+        }
     }
 
 

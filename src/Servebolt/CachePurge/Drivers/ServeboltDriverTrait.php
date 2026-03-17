@@ -33,6 +33,80 @@ trait ServeboltDriverTrait
     }
 
     /**
+     * Whether to debug requests sent via the Servebolt SDK.
+     *
+     * Reuses the Cloudflare constant for backwards compatibility, while allowing
+     * for a Servebolt-specific constant and filter override.
+     *
+     * @return bool
+     */
+    private function debugRequests(): bool
+    {
+        if (defined('SB_SERVEBOLT_REQUEST_DEBUG') && is_bool(SB_SERVEBOLT_REQUEST_DEBUG)) {
+            return SB_SERVEBOLT_REQUEST_DEBUG;
+        }
+        if (defined('SB_CF_REQUEST_DEBUG') && is_bool(SB_CF_REQUEST_DEBUG)) {
+            return SB_CF_REQUEST_DEBUG;
+        }
+        return (bool) apply_filters('sb_optimizer_servebolt_api_request_debug', false);
+    }
+
+    /**
+     * Write a compact debug summary for Servebolt-backed purge requests.
+     *
+     * @param string $driver
+     * @param string $action
+     * @param array $request
+     * @param mixed $response
+     * @return void
+     */
+    private function debugRequest(string $driver, string $action, array $request, $response): void
+    {
+        if (!$this->debugRequests()) {
+            return;
+        }
+        error_log(wp_json_encode([
+            'service' => 'servebolt',
+            'driver' => $driver,
+            'action' => $action,
+            'environmentId' => $this->apiInstance->getEnvironmentId(),
+            'request' => $request,
+            'response' => $this->debugResponseSummary($response),
+        ]));
+    }
+
+    /**
+     * Extract the most useful bits from the SDK response object without relying
+     * on its full internal structure.
+     *
+     * @param mixed $response
+     * @return array
+     */
+    private function debugResponseSummary($response): array
+    {
+        $summary = [
+            'type' => is_object($response) ? get_class($response) : gettype($response),
+        ];
+        $methodMap = [
+            'wasSuccessful' => 'success',
+            'getErrors' => 'errors',
+            'getMessages' => 'messages',
+            'getStatusCode' => 'statusCode',
+            'getResponseCode' => 'responseCode',
+        ];
+        foreach ($methodMap as $method => $key) {
+            if (is_object($response) && method_exists($response, $method)) {
+                try {
+                    $summary[$key] = $response->{$method}();
+                } catch (\Throwable $e) {
+                    $summary[$key] = sprintf('unavailable: %s', $e->getMessage());
+                }
+            }
+        }
+        return $summary;
+    }
+
+    /**
      * Allow for custom handling of prefixes when purging all cache.
      *
      * @param bool $isMultisite

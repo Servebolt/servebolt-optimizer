@@ -3,6 +3,8 @@ namespace Servebolt\Optimizer\CacheTags;
 
 use Servebolt\Optimizer\CacheTags\CacheTagsBase;
 use \WP_Query;
+use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
+use function Servebolt\Optimizer\Helpers\smartGetOption;
 
 class GetCacheTagsHeadersForLocation extends CacheTagsBase {
 
@@ -17,17 +19,33 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      * @var string 
      */
     protected $objectType = 'post';
+    
+    /**
+     * Origin event for this purge context.
+     *
+     * @var string
+     */
+    protected $originEvent = '';
+
+    /**
+     * Option key for controlling WooCommerce homepage purge behavior.
+     *
+     * @var string
+     */
+    private const WOOCOMMERCE_HOMEPAGE_PURGE_OPTION = 'woocommerce_purge_homepage_on_product_events';
 
     /**
      * @param int $objectId
      * @param string $objectType
+     * @param array $args
      */
-    public function __construct(int $objectId = 0, string $objectType = 'post')
+    public function __construct(int $objectId = 0, string $objectType = 'post', array $args = [])
     {
         // If post ID is not correctly set, then leave early
         if($objectId == 0) return;
         $this->objectId = $objectId;
         $this->objectType = $objectType; // is this a post type or term?
+        $this->originEvent = strtolower((string) ($args['originEvent'] ?? ''));
         $this->setBlog();
         $this->driver = $this->getSelectedCachePurgeDriver(($this->blogId == '')?null:$this->blogId);
         $this->setupHeaders();
@@ -103,7 +121,67 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      */
     protected function addHomeTag() : void
     {
+        if (!$this->shouldAddHomeTag()) {
+            return;
+        }
         $this->add(self::HOME);
+    }
+
+    /**
+     * Determine whether the homepage cache tag should be included.
+     *
+     * @return bool
+     */
+    private function shouldAddHomeTag(): bool
+    {
+        if ($this->objectType !== 'product') {
+            return true;
+        }
+
+        if (!$this->woocommerceHomepagePurgeControlIsEnabled()) {
+            return true;
+        }
+
+        if (in_array($this->originEvent, [
+            'post_created',
+            'post_deleted',
+            'woocommerce_out_of_stock',
+        ], true)) {
+            return true;
+        }
+
+        if ($this->originEvent === 'post_change' && $this->postLooksNewlyCreatedProduct()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Whether the WooCommerce homepage purge control setting is enabled.
+     *
+     * @return bool
+     */
+    private function woocommerceHomepagePurgeControlIsEnabled(): bool
+    {
+        return checkboxIsChecked(smartGetOption(null, self::WOOCOMMERCE_HOMEPAGE_PURGE_OPTION, false));
+    }
+
+    /**
+     * Best-effort check for whether this product post appears newly created.
+     *
+     * @return bool
+     */
+    private function postLooksNewlyCreatedProduct(): bool
+    {
+        $post = get_post($this->objectId);
+        if (!is_object($post)) {
+            return false;
+        }
+        if (!isset($post->post_status, $post->post_date_gmt, $post->post_modified_gmt)) {
+            return false;
+        }
+        return $post->post_status === 'publish' && $post->post_date_gmt === $post->post_modified_gmt;
     }
 
     /**
@@ -162,6 +240,10 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      */
     protected function addAuthorTag() : void
     {
+        if ($this->objectType == 'product') {
+            return;
+        }
+
         $this->add(self::AUTHOR . '-' . get_post_field('post_author', get_the_ID() ) );
     }
 
