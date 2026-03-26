@@ -90,6 +90,9 @@ class FullPageCacheControl
             'fast_404_switch',
             VaryHeadersConfig::optionKey(),
             'woocommerce_purge_homepage_on_product_events',
+            'woocommerce_purge_shop_page_on_product_events',
+            'woocommerce_purge_terms_on_product_events',
+            'woocommerce_purge_archive_on_product_events',
         ];
 
         foreach ($keys as $key) {

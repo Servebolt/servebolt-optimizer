@@ -3,7 +3,7 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, html cache, cloudflare , multisite
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.8.3
+Tested up to: 6.9.4
 Requires PHP: 7.4
 Stable tag: 3.6.2
 License: GPLv3 or later
@@ -97,6 +97,9 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+
+= 3.6.3 =
+* Further improvements on WooCommerce limited purge featured added in 3.6.2. There is now options to limit Cache tag purging for Shop Page, Post archives, Product categories, Term, and other public taxonomy pages
 
 = 3.6.2 =
 * New (Accelerated Domains): Introduced “WooCommerce homepage purge” in Cache → Cache Settings (disabled by default). Automatically purges the homepage only on product create, delete, or out-of-stock events.

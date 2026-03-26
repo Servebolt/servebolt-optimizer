@@ -16,7 +16,28 @@ $availablePostTypes = FullPageCacheHeaders::getAvailablePostTypesToCache(true);
 $cachePurgeIsActive = CachePurge::isActive();
 $acdIsActive = AcceleratedDomains::isActive();
 $woocommerceIsActive = woocommerceIsActive();
-$woocommerceHomepagePurgeOptionKey = 'woocommerce_purge_homepage_on_product_events';
+$woocommerceProductEventPurgeOptions = [
+    'woocommerce_purge_homepage_on_product_events' => [
+        'id' => 'sb-woocommerce-homepage-purge-switch',
+        'label' => __('Homepage', 'servebolt-wp'),
+        'description' => __('Front page.', 'servebolt-wp'),
+    ],
+    'woocommerce_purge_shop_page_on_product_events' => [
+        'id' => 'sb-woocommerce-shop-page-purge-switch',
+        'label' => __('Shop page', 'servebolt-wp'),
+        'description' => __('The WooCommerce shop listing.', 'servebolt-wp'),
+    ],
+    'woocommerce_purge_terms_on_product_events' => [
+        'id' => 'sb-woocommerce-terms-purge-switch',
+        'label' => __('Terms / taxonomies', 'servebolt-wp'),
+        'description' => __('Related WooCommerce product categories, tags, and other public taxonomy pages.', 'servebolt-wp'),
+    ],
+    'woocommerce_purge_archive_on_product_events' => [
+        'id' => 'sb-woocommerce-archive-purge-switch',
+        'label' => __('Archive', 'servebolt-wp'),
+        'description' => __('Post archives.', 'servebolt-wp'),
+    ],
+];
 $selectedVaryHeaders = VaryHeadersConfig::selection($acdIsActive);
 ?>
 <form method="post" action="options.php">
@@ -87,16 +108,26 @@ $selectedVaryHeaders = VaryHeadersConfig::selection($acdIsActive);
             <?php endif; ?>
             <?php if ($acdIsActive && $woocommerceIsActive): ?>
             <tr class="sb-config-field-general <?php if (!$cachePurgeIsActive) echo ' sb-config-field-hidden'; ?>">
-                <th scope="row"><?php _e('WooCommerce homepage purge', 'servebolt-wp'); ?></th>
+                <th scope="row"><?php _e('Limit Cache purging on WooCommerce product updates', 'servebolt-wp'); ?></th>
                 <td>
-                    <input
-                        id="sb-woocommerce-homepage-purge-switch"
-                        name="<?php echo getOptionName($woocommerceHomepagePurgeOptionKey); ?>"
-                        type="checkbox"
-                        <?php checked(FullPageCacheSettings::isCacheKeyActive($woocommerceHomepagePurgeOptionKey)); ?>
-                    >
-                    <label for="sb-woocommerce-homepage-purge-switch"><?php _e('Enable', 'servebolt-wp'); ?></label>
-                    <p class="description"><?php _e('Purge the homepage when WooCommerce products are created, deleted, or marked as out of stock.', 'servebolt-wp'); ?></p>
+                    <fieldset>
+                        <legend class="screen-reader-text"><span><?php _e('Select which Cache tag groups to avoid purging on product updates', 'servebolt-wp'); ?></span></legend>
+                        <?php foreach ($woocommerceProductEventPurgeOptions as $optionKey => $optionConfig) : ?>
+                            <div style="margin-bottom: 10px;">
+                                <label for="<?php echo esc_attr($optionConfig['id']); ?>">
+                                    <input
+                                        id="<?php echo esc_attr($optionConfig['id']); ?>"
+                                        name="<?php echo getOptionName($optionKey); ?>"
+                                        type="checkbox"
+                                        <?php checked(FullPageCacheSettings::isCacheKeyActive($optionKey)); ?>
+                                    >
+                                    <?php echo esc_html($optionConfig['label']); ?>
+                                </label>
+                                <p class="description" style="margin: 4px 0 0 24px;"><?php echo esc_html($optionConfig['description']); ?></p>
+                            </div>
+                        <?php endforeach; ?>
+                        <p class="description"><?php _e('When enabled for a Cache tag group, Product updates will only purge that group on create, delete, and out-of-stock events. When disabled, all product updates will keep purging that group.', 'servebolt-wp'); ?></p>
+                    </fieldset>
                 </td>
             </tr>
             <?php endif; ?>

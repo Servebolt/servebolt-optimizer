@@ -66,6 +66,9 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.6.3
+* Further improvements on WooCommerce limited purge featured added in 3.6.2. There is now options to limit Cache tag purging for Shop Page, Post archives, Product categories, Term, and other public taxonomy pages
+
 #### 3.6.2
 
 * New (Accelerated Domains): Introduced “WooCommerce homepage purge” in Cache → Cache Settings (disabled by default). Automatically purges the homepage only on product create, delete, or out-of-stock events.

@@ -28,11 +28,12 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     protected $originEvent = '';
 
     /**
-     * Option key for controlling WooCommerce homepage purge behavior.
-     *
-     * @var string
+     * Option keys for limiting WooCommerce product-event purges by cache tag group.
      */
     private const WOOCOMMERCE_HOMEPAGE_PURGE_OPTION = 'woocommerce_purge_homepage_on_product_events';
+    private const WOOCOMMERCE_SHOP_PAGE_PURGE_OPTION = 'woocommerce_purge_shop_page_on_product_events';
+    private const WOOCOMMERCE_TERMS_PURGE_OPTION = 'woocommerce_purge_terms_on_product_events';
+    private const WOOCOMMERCE_ARCHIVE_PURGE_OPTION = 'woocommerce_purge_archive_on_product_events';
 
     /**
      * @param int $objectId
@@ -121,27 +122,87 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      */
     protected function addHomeTag() : void
     {
-        if (!$this->shouldAddHomeTag()) {
+        if (!$this->skipCacheTag(self::WOOCOMMERCE_HOMEPAGE_PURGE_OPTION)) {
             return;
         }
         $this->add(self::HOME);
     }
 
     /**
-     * Determine whether the homepage cache tag should be included.
+     * Clear the post type archive.
      *
+     * @return void
+     */
+    protected function addPostTypeTag(): void
+    {
+        if (!$this->skipCacheTag(self::WOOCOMMERCE_ARCHIVE_PURGE_OPTION)) {
+            return;
+        }
+        $this->add(self::POST_TYPE . '-'.get_post_type());
+    }
+
+    /**
+     * Add all terms for this post or page.
+     */
+    protected function addTaxonomyTermIDTag(): void
+    {
+        if (!$this->skipCacheTag(self::WOOCOMMERCE_TERMS_PURGE_OPTION)) {
+            return;
+        }
+
+        $taxonomies = get_object_taxonomies( $this->objectType, 'objects' );
+        foreach($taxonomies as $tax) {
+            // ignore non public taxonomies
+            if(!$tax->public) continue;
+            $ids = wp_get_post_terms(get_the_ID(), $tax->name, ['fields' => 'ids']);
+            // ignore empty taxonomies or ignore error and continue;
+            if(count($ids) == 0 || is_wp_error($ids)) continue;
+            // loop all ids and add them
+            foreach($ids as $id) {
+                $this->add(self::TERM_ID . '-' .$id);
+                // Option to later split feeds by tag id i.e. /tags/tagname/feed
+                // $this->add('term-feed-'.$id);
+            }
+        }
+    }
+
+    /**
+     * Determine whether the selected cache tag group should be included for the current product event.
+     *
+     * @param string $optionName
      * @return bool
      */
-    private function shouldAddHomeTag(): bool
+    private function skipCacheTag(string $optionName): bool
     {
         if ($this->objectType !== 'product') {
             return true;
         }
 
-        if (!$this->woocommerceHomepagePurgeControlIsEnabled()) {
+        if (!$this->woocommerceProductEventPurgeControlIsEnabled($optionName)) {
             return true;
         }
 
+        return $this->isWooCommercePriorityProductPurgeEvent();
+    }
+
+    /**
+     * Whether the selected WooCommerce product-event purge control setting is enabled.
+     *
+     * @param string $optionName
+     * @return bool
+     */
+    private function woocommerceProductEventPurgeControlIsEnabled(string $optionName): bool
+    {
+        return checkboxIsChecked(smartGetOption(null, $optionName, false));
+    }
+
+    /**
+     * Whether the current product event should still purge limited cache tag groups.
+     *
+     * @return bool
+     */
+    private function isWooCommercePriorityProductPurgeEvent(): bool
+    {
         if (in_array($this->originEvent, [
             'post_created',
             'post_deleted',
@@ -155,16 +216,6 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
         }
 
         return false;
-    }
-
-    /**
-     * Whether the WooCommerce homepage purge control setting is enabled.
-     *
-     * @return bool
-     */
-    private function woocommerceHomepagePurgeControlIsEnabled(): bool
-    {
-        return checkboxIsChecked(smartGetOption(null, self::WOOCOMMERCE_HOMEPAGE_PURGE_OPTION, false));
     }
 
     /**
@@ -194,42 +245,16 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     }
 
     /**
-     * Clear the post type archive. 
-     */
-    protected function addPostTypeTag(): void
-    {
-        $this->add(self::POST_TYPE . '-'.get_post_type());
-    }
-
-    /**
      * clear date archives for the day month and year.
      */
     protected function addDateTag(): void
     {
+        if (!$this->skipCacheTag(self::WOOCOMMERCE_ARCHIVE_PURGE_OPTION)) {
+            return;
+        }
         $this->add(self::DATE . '-'. get_the_date('d-n-Y'));
         $this->add(self::YEAR . '-'. get_the_date('Y'));
         $this->add(self::MONTH . '-'.get_the_date('n'));
-    }
-
-    /**
-     * Add all terms for this post or page.
-     */
-    protected function addTaxonomyTermIDTag(): void
-    {
-        $taxonomies = get_object_taxonomies( $this->objectType, 'objects' );
-        foreach($taxonomies as $tax) {
-            // ignore non public taxonomies
-            if(!$tax->public) continue;
-            $ids = wp_get_post_terms(get_the_ID(), $tax->name, ['fields' => 'ids']);
-            // ignore empty taxonomies or ignore error and continue;
-            if(count($ids) == 0 || is_wp_error($ids)) continue;
-            // loop all ids and add them
-            foreach($ids as $id) {
-                $this->add(self::TERM_ID . '-' .$id);
-                // Option to later split feeds by tag id i.e. /tags/tagname/feed
-                // $this->add('term-feed-'.$id);
-            }
-        } 
     }
 
     /**
@@ -255,7 +280,9 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
         // check if woo commerce is working on this site.
         if ( !class_exists( 'woocommerce' ) ) return;
         // Add the shop homepage.
-        $this->add(self::WOOCOMMERCE_SHOP);
+        if ($this->skipCacheTag(self::WOOCOMMERCE_SHOP_PAGE_PURGE_OPTION)) {
+            $this->add(self::WOOCOMMERCE_SHOP);
+        }
         /**
          * clear the product cache so that all of its versions are removed
          * 1. https://domain.com/product-name
