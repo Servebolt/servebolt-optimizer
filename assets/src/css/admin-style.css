@@ -33,6 +33,21 @@
     text-align: center;
 }
 
+.sb-content .sb-new-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 8px;
+    border: 1px solid #b8e5cd;
+    border-radius: 999px;
+    background: #e6f6ee;
+    color: #056839;
+    font-weight: 600;
+}
+
+.sb-content .sb-option-description {
+    margin: 4px 0 0 24px;
+}
+
 .sb-content .actions {
     display: flex;
     flex-direction: column;
