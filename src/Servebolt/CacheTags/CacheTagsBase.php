@@ -26,6 +26,7 @@ class CacheTagsBase {
     const HTML = '01';
     const SITEMAP = '03'; // Not currently used
     const SEARCH = '04'; // Not currently used
+    
     // Post Type
     const POST_TYPE = 10;
     const AUTHOR = 11;
@@ -33,8 +34,6 @@ class CacheTagsBase {
     const MONTH = 13;
     const YEAR = 14;
     
-    
-
     // Taxonomy
     const TERM_ID = 20;
     const TAXONOMY_ID = 21; // not currently used.

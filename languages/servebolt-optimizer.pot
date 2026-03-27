@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv3 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Servebolt Optimizer 3.6.1\n"
+"Project-Id-Version: Servebolt Optimizer 3.6.3\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/servebolt-optimizer\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-03-16T11:34:14+00:00\n"
+"POT-Creation-Date: 2026-03-27T13:13:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: servebolt-wp\n"
@@ -1308,8 +1308,8 @@ msgstr ""
 #: src/Servebolt/Views/cache-settings/cache-purge/network-admin/list.php:16
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:10
 #: src/Servebolt/Views/cache-settings/cache-settings/network-list-view.php:19
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:142
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:151
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:176
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:185
 #: src/Servebolt/Views/cache-settings/cache-ttl/network-list-view.php:8
 #: src/Servebolt/Views/cache-settings/cache-ttl/network-list-view.php:16
 #: src/Servebolt/Views/cloudflare-image-resize/configration.php:20
@@ -1411,10 +1411,9 @@ msgstr ""
 #: src/Servebolt/Views/accelerated-domains/prefetching/settings-form.php:65
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/cloudflare-configuration.php:22
 #: src/Servebolt/Views/cache-settings/cache-purge/configuration/configuration.php:45
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:30
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:98
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:175
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:183
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:51
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:209
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:217
 #: src/Servebolt/Views/cloudflare-image-resize/configration.php:59
 #: src/Servebolt/Views/performance-optimizer/advanced/settings-form.php:20
 #: src/Servebolt/Views/performance-optimizer/advanced/shared-settings/action-scheduler.php:12
@@ -1452,8 +1451,8 @@ msgstr ""
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-size-index.php:38
 #: src/Servebolt/Views/cache-settings/cache-purge/queue/list.php:16
 #: src/Servebolt/Views/cache-settings/cache-purge/queue/list.php:36
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:123
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:166
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:157
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:200
 msgid "Remove selected"
 msgstr ""
 
@@ -1463,8 +1462,8 @@ msgstr ""
 
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-size-index.php:18
 #: src/Servebolt/Views/accelerated-domains/image-resize/image-size-index.php:25
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:139
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:148
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:173
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:182
 msgid "Select All"
 msgstr ""
 
@@ -2026,84 +2025,124 @@ msgstr ""
 msgid "%sGet in touch with Servebolt Support%s to get Cloudflare added to your domain and set up correctly."
 msgstr ""
 
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:22
+msgid "Homepage"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:23
+msgid "Front page."
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:27
+msgid "Shop page"
+msgstr ""
+
 #: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:28
-msgid "HTML Cache"
+msgid "The WooCommerce shop listing."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:41
-msgid "Vary headers"
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:32
+msgid "Terms / taxonomies"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:42
-msgid "New in 3.6.1"
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:33
+msgid "Related WooCommerce product categories, tags, and other public taxonomy pages."
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:37
+msgid "Archive"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:38
+msgid "Post archives."
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:49
-msgid "User-Agent"
+msgid "HTML Cache"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:50
-msgid "Split cache by Mobile, Tablet, Desktop user agents."
-msgstr ""
-
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:53
-msgid "Language (Accept-Language)"
-msgstr ""
-
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:54
-msgid "Cache varies by primary browser language."
-msgstr ""
-
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:57
-msgid "Origin country (X-Origin-Country)"
-msgstr ""
-
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:58
-msgid "Cache varies by visitor country."
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:62
+msgid "Vary headers"
 msgstr ""
 
 #: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:63
+msgid "New in 3.6.1"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:70
+msgid "User-Agent"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:71
+msgid "Split cache by Mobile, Tablet, Desktop user agents."
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:74
+msgid "Language (Accept-Language)"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:75
+msgid "Cache varies by primary browser language."
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:78
+msgid "Origin country (X-Origin-Country)"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:79
+msgid "Cache varies by visitor country."
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:84
 msgid "Select which headers to vary cache by"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:83
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:104
 msgid "Accelerated Domains will vary cache by the headers selected above."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:90
-msgid "WooCommerce homepage purge"
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:112
+msgid "Limit Cache purging on WooCommerce product updates"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:99
-msgid "Purge the homepage when WooCommerce products are created, deleted, or marked as out of stock."
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:113
+msgid "New in 3.6.2"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:111
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:117
+msgid "Select which cache groups to avoid purging on product updates"
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:132
+msgid "When enabled for a cache group, Product updates will only purge that group on create, delete, and out-of-stock events. When disabled, all product updates will keep purging that group."
+msgstr ""
+
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:145
 msgid ""
 "By default this plugin enables HTML caching of posts, pages and products.\n"
 "                                Activate post types here if you want a different cache setup. If none of the post types above is checked the plugin will use default settings.\n"
 "                                This will override the default setup."
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:126
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:160
 msgid "Flush posts"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:129
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:163
 msgid "Add post to exclude"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:140
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:149
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:174
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:183
 msgid "Post ID"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:141
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:150
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:175
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:184
 msgid "Post title"
 msgstr ""
 
-#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:156
+#: src/Servebolt/Views/cache-settings/cache-settings/settings-form.php:190
 msgid "No posts set to be excluded"
 msgstr ""
 

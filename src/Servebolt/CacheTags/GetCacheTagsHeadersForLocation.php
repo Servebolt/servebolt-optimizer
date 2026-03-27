@@ -1,4 +1,5 @@
 <?php
+
 namespace Servebolt\Optimizer\CacheTags;
 
 use Servebolt\Optimizer\CacheTags\CacheTagsBase;
@@ -6,7 +7,8 @@ use \WP_Query;
 use function Servebolt\Optimizer\Helpers\checkboxIsChecked;
 use function Servebolt\Optimizer\Helpers\smartGetOption;
 
-class GetCacheTagsHeadersForLocation extends CacheTagsBase {
+class GetCacheTagsHeadersForLocation extends CacheTagsBase
+{
 
     /**
      * Post Type or Term ID
@@ -19,7 +21,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      * @var string 
      */
     protected $objectType = 'post';
-    
+
     /**
      * Origin event for this purge context.
      *
@@ -28,11 +30,12 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     protected $originEvent = '';
 
     /**
-     * Option key for controlling WooCommerce homepage purge behavior.
-     *
-     * @var string
+     * Option keys for limiting WooCommerce product-event purges by cache tag group.
      */
     private const WOOCOMMERCE_HOMEPAGE_PURGE_OPTION = 'woocommerce_purge_homepage_on_product_events';
+    private const WOOCOMMERCE_SHOP_PAGE_PURGE_OPTION = 'woocommerce_purge_shop_page_on_product_events';
+    private const WOOCOMMERCE_TERMS_PURGE_OPTION = 'woocommerce_purge_terms_on_product_events';
+    private const WOOCOMMERCE_ARCHIVE_PURGE_OPTION = 'woocommerce_purge_archive_on_product_events';
 
     /**
      * @param int $objectId
@@ -42,23 +45,23 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     public function __construct(int $objectId = 0, string $objectType = 'post', array $args = [])
     {
         // If post ID is not correctly set, then leave early
-        if($objectId == 0) return;
+        if ($objectId == 0) return;
         $this->objectId = $objectId;
         $this->objectType = $objectType; // is this a post type or term?
         $this->originEvent = strtolower((string) ($args['originEvent'] ?? ''));
         $this->setBlog();
-        $this->driver = $this->getSelectedCachePurgeDriver(($this->blogId == '')?null:$this->blogId);
+        $this->driver = $this->getSelectedCachePurgeDriver(($this->blogId == '') ? null : $this->blogId);
         $this->setupHeaders();
     }
 
-    protected function setupHeaders() : void
+    protected function setupHeaders(): void
     {
-        
-        if($this->objectType == 'term') {
+
+        if ($this->objectType == 'term') {
             $this->setPrefixAndSuffixForTags();
-            $this->add(self::TERM_ID . '-'.$this->objectId);
+            $this->add(self::TERM_ID . '-' . $this->objectId);
             return;
-        } 
+        }
 
         $args = [
             'posts_per_page' => 1,
@@ -67,14 +70,14 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
         ];
 
         $loop = new WP_Query($args);
-        if($loop->have_posts()) {
-            while ( $loop->have_posts() ) : $loop->the_post();
+        if ($loop->have_posts()) {
+            while ($loop->have_posts()) : $loop->the_post();
                 $this->getTagHeaders();
             endwhile;
         } else {
-           // Removed error message when the $loop is not there,
-           // keeping it in for later debugging. 
-           // error_log("post not found in CacheTag investigation loop");
+            // Removed error message when the $loop is not there,
+            // keeping it in for later debugging. 
+            // error_log("post not found in CacheTag investigation loop");
         }
         wp_reset_postdata();
     }
@@ -82,12 +85,12 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     /**
      * Works out what cache tage headers are needed for the purge of the current location
      */
-    protected function getTagHeaders() : void
+    protected function getTagHeaders(): void
     {
         $this->setPrefixAndSuffixForTags();
         // Filter allows customer to use reduced instruction set for CacheTags.
         // If filter returns false, an Accelerated Domains customer will use the Servebolt CDN cache tags.
-        if($this->driver != 'serveboltcdn' && apply_filters('sb_optimizer_cache_tags_fine_grain_control', true) ) {
+        if ($this->driver != 'serveboltcdn' && apply_filters('sb_optimizer_cache_tags_fine_grain_control', true)) {
             $this->addAuthorTag();
             $this->addHomeTag();
             $this->addTaxonomyTermIDTag();
@@ -104,7 +107,7 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     /**
      * 
      */
-    protected function addHTMLTag() : void
+    protected function addHTMLTag(): void
     {
         $this->add(self::HTML);
     }
@@ -112,36 +115,96 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     /**
      * Clear out any cached search pages.
      */
-    protected function addSearch() : void
+    protected function addSearch(): void
     {
         $this->add(self::SEARCH);
     }
     /**
      * Clear the homepage and front page.
      */
-    protected function addHomeTag() : void
+    protected function addHomeTag(): void
     {
-        if (!$this->shouldAddHomeTag()) {
+        if (!$this->shouldSkipCacheTag(self::WOOCOMMERCE_HOMEPAGE_PURGE_OPTION)) {
             return;
         }
         $this->add(self::HOME);
     }
 
     /**
-     * Determine whether the homepage cache tag should be included.
+     * Clear the post type archive.
      *
+     * @return void
+     */
+    protected function addPostTypeTag(): void
+    {
+        if (!$this->shouldSkipCacheTag(self::WOOCOMMERCE_ARCHIVE_PURGE_OPTION)) {
+            return;
+        }
+        $this->add(self::POST_TYPE . '-' . get_post_type());
+    }
+
+    /**
+     * Add all terms for this post or page.
+     */
+    protected function addTaxonomyTermIDTag(): void
+    {
+        if (!$this->shouldSkipCacheTag(self::WOOCOMMERCE_TERMS_PURGE_OPTION)) {
+            return;
+        }
+
+        $taxonomies = get_object_taxonomies($this->objectType, 'objects');
+        foreach ($taxonomies as $tax) {
+            // ignore non public taxonomies
+            if (!$tax->public) continue;
+            $ids = wp_get_post_terms(get_the_ID(), $tax->name, ['fields' => 'ids']);
+            // ignore empty taxonomies or ignore error and continue;
+            if (count($ids) == 0 || is_wp_error($ids)) continue;
+            // loop all ids and add them
+            foreach ($ids as $id) {
+                $this->add(self::TERM_ID . '-' . $id);
+                // Option to later split feeds by tag id i.e. /tags/tagname/feed
+                // $this->add('term-feed-'.$id);
+            }
+        }
+    }
+
+    /**
+     * Determine whether the selected cache tag group should be included for the current product event.
+     *
+     * @param string $optionName
      * @return bool
      */
-    private function shouldAddHomeTag(): bool
+    private function shouldSkipCacheTag(string $optionName): bool
     {
         if ($this->objectType !== 'product') {
             return true;
         }
 
-        if (!$this->woocommerceHomepagePurgeControlIsEnabled()) {
+        if (!$this->woocommerceProductEventPurgeControlIsEnabled($optionName)) {
             return true;
         }
 
+        return $this->isWooCommercePriorityProductPurgeEvent();
+    }
+
+    /**
+     * Whether the selected WooCommerce product-event purge control setting is enabled.
+     *
+     * @param string $optionName
+     * @return bool
+     */
+    private function woocommerceProductEventPurgeControlIsEnabled(string $optionName): bool
+    {
+        return checkboxIsChecked(smartGetOption(null, $optionName, false));
+    }
+
+    /**
+     * Whether the current product event should still purge limited cache tag groups.
+     *
+     * @return bool
+     */
+    private function isWooCommercePriorityProductPurgeEvent(): bool
+    {
         if (in_array($this->originEvent, [
             'post_created',
             'post_deleted',
@@ -155,16 +218,6 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
         }
 
         return false;
-    }
-
-    /**
-     * Whether the WooCommerce homepage purge control setting is enabled.
-     *
-     * @return bool
-     */
-    private function woocommerceHomepagePurgeControlIsEnabled(): bool
-    {
-        return checkboxIsChecked(smartGetOption(null, self::WOOCOMMERCE_HOMEPAGE_PURGE_OPTION, false));
     }
 
     /**
@@ -187,18 +240,10 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
     /**
      * Clear the Feeds for both the comment RSS and general Feed.
      */
-    protected function addRssTag() : void
+    protected function addRssTag(): void
     {
-        $this->add(self::COMMENT_FEED.'-'. get_the_ID());
+        $this->add(self::COMMENT_FEED . '-' . get_the_ID());
         $this->add(self::FEEDS);
-    }
-
-    /**
-     * Clear the post type archive. 
-     */
-    protected function addPostTypeTag(): void
-    {
-        $this->add(self::POST_TYPE . '-'.get_post_type());
     }
 
     /**
@@ -206,30 +251,12 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      */
     protected function addDateTag(): void
     {
-        $this->add(self::DATE . '-'. get_the_date('d-n-Y'));
-        $this->add(self::YEAR . '-'. get_the_date('Y'));
-        $this->add(self::MONTH . '-'.get_the_date('n'));
-    }
-
-    /**
-     * Add all terms for this post or page.
-     */
-    protected function addTaxonomyTermIDTag(): void
-    {
-        $taxonomies = get_object_taxonomies( $this->objectType, 'objects' );
-        foreach($taxonomies as $tax) {
-            // ignore non public taxonomies
-            if(!$tax->public) continue;
-            $ids = wp_get_post_terms(get_the_ID(), $tax->name, ['fields' => 'ids']);
-            // ignore empty taxonomies or ignore error and continue;
-            if(count($ids) == 0 || is_wp_error($ids)) continue;
-            // loop all ids and add them
-            foreach($ids as $id) {
-                $this->add(self::TERM_ID . '-' .$id);
-                // Option to later split feeds by tag id i.e. /tags/tagname/feed
-                // $this->add('term-feed-'.$id);
-            }
-        } 
+        if (!$this->shouldSkipCacheTag(self::WOOCOMMERCE_ARCHIVE_PURGE_OPTION)) {
+            return;
+        }
+        $this->add(self::DATE . '-' . get_the_date('d-n-Y'));
+        $this->add(self::YEAR . '-' . get_the_date('Y'));
+        $this->add(self::MONTH . '-' . get_the_date('n'));
     }
 
     /**
@@ -238,24 +265,26 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
      * 
      * author-[author id].
      */
-    protected function addAuthorTag() : void
+    protected function addAuthorTag(): void
     {
         if ($this->objectType == 'product') {
             return;
         }
 
-        $this->add(self::AUTHOR . '-' . get_post_field('post_author', get_the_ID() ) );
+        $this->add(self::AUTHOR . '-' . get_post_field('post_author', get_the_ID()));
     }
 
     /**
      * If a WooCommerce product, clear the shop cache
      */
-    protected function addWooCommerceTag() : void
+    protected function addWooCommerceTag(): void
     {
         // check if woo commerce is working on this site.
-        if ( !class_exists( 'woocommerce' ) ) return;
+        if (!class_exists('woocommerce')) return;
         // Add the shop homepage.
-        $this->add(self::WOOCOMMERCE_SHOP);
+        if ($this->shouldSkipCacheTag(self::WOOCOMMERCE_SHOP_PAGE_PURGE_OPTION)) {
+            $this->add(self::WOOCOMMERCE_SHOP);
+        }
         /**
          * clear the product cache so that all of its versions are removed
          * 1. https://domain.com/product-name
@@ -264,9 +293,8 @@ class GetCacheTagsHeadersForLocation extends CacheTagsBase {
          * 4. https://domain.com/product-name?color=green&price=400
          * etc etc
          */
-        if(function_exists('is_product') && is_product()) {
-            $this->add(self::WOOCOMMERCE_PRODUCT_ID . '-'.get_the_ID());
+        if (function_exists('is_product') && is_product()) {
+            $this->add(self::WOOCOMMERCE_PRODUCT_ID . '-' . get_the_ID());
         }
     }
-
 }
