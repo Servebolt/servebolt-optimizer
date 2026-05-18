@@ -5,7 +5,7 @@ Donate link: https://servebolt.com
 Requires at least: 4.9.2
 Tested up to: 6.9.4
 Requires PHP: 7.4
-Stable tag: 3.6.3
+Stable tag: 3.6.4
 License: GPLv3 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,12 @@ Yes, you can. The database optimizations are beneficial for everyone as well as 
 If you're a Servebolt client, please reach out to our Support Team and we'll be happy to help you out there. Alternatively, you can create a support forum request [here](https://wordpress.org/support/plugin/servebolt-optimizer/).
 
 == Changelog ==
+
+= 3.6.4 =
+* Prepend /bin/bash on commands that executes .sh script when adding as a Cron Job. This is to ensure bash is the shell script interpreter.
+* wp-cli command 'servebolt html-cache' now supports JSON output
+* Remove optimized table indexes on uninstall
+* Default "Fast static 404" and "Caching of 404 pages" to false 
 
 = 3.6.3 =
 * Further improvements on WooCommerce limited purge featured added in 3.6.2. There is now options to limit Cache tag purging for Shop Page, Post archives, Product categories, Term, and other public taxonomy pages

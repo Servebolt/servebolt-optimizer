@@ -27,7 +27,7 @@ class ActionSchedulerRunMultisite extends AbstractCommand
     /**
      * @var string The command template.
      */
-    public static $baseCommand = '%s';
+    public static $baseCommand = '/bin/bash %s';
 
     /**
      * Try to match the current command with a specified command.

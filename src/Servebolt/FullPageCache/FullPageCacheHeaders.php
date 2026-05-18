@@ -253,7 +253,7 @@ class FullPageCacheHeaders
         // if its not a 404 page, exit early.
         if(!is_404()) return $string;
 
-        if(smartGetOption(null, 'cache_404_switch', true)) return $string;
+        if(smartGetOption(null, 'cache_404_switch', false)) return $string;
         // Control array shows the header names to be replaced and the new content.
         $headers = [
             "Pragma" => "no-cache",

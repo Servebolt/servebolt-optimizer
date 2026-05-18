@@ -27,7 +27,7 @@ class WpCliEventRunMultisite extends AbstractCommand
     /**
      * @var string The command template.
      */
-    public static $command = '%s';
+    public static $command = '/bin/bash %s';
 
     /**
      * Try to match the current command with a specified command.
