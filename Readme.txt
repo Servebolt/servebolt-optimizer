@@ -3,7 +3,7 @@ Contributors: audunhus, erlendeide, servebolt, andrewkillen
 Tags: performance, optimization, html cache, cloudflare , multisite
 Donate link: https://servebolt.com
 Requires at least: 4.9.2
-Tested up to: 6.9.4
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 3.6.4
 License: GPLv3 or later
@@ -102,7 +102,8 @@ If you're a Servebolt client, please reach out to our Support Team and we'll be 
 * Prepend /bin/bash on commands that executes .sh script when adding as a Cron Job. This is to ensure bash is the shell script interpreter.
 * wp-cli command 'servebolt html-cache' now supports JSON output
 * Remove optimized table indexes on uninstall
-* Default "Fast static 404" and "Caching of 404 pages" to false 
+* Default "Fast static 404" and "Caching of 404 pages" to false
+* Prevent scripts and styles on the Admin Bar if less than an Editor
 
 = 3.6.3 =
 * Further improvements on WooCommerce limited purge featured added in 3.6.2. There is now options to limit Cache tag purging for Shop Page, Post archives, Product categories, Term, and other public taxonomy pages
