@@ -171,8 +171,8 @@ class Static404 {
      */
     function wordpressShouldProcessRequest() : bool 
     {
-        // defaults to false, meaning that WordPress SHOULD NOT process the request.
-        $default = (smartGetOption(null, 'fast_404_switch', true))?false:true;
+        // defaults to true, meaning that WordPress SHOULD process the request.
+        $default = (smartGetOption(null, 'fast_404_switch', false))?false:true;
         return apply_filters( 'sb_optimizer_static_404_wordpress_to_process_request', $default, $_SERVER['REQUEST_URI'] );
     }
 
@@ -183,8 +183,8 @@ class Static404 {
      */
     function useIntelligentCacheHeaders() : bool
     {
-        // defaults to true, only disable if explicitly set to false.
-        $default = (smartGetOption(null, 'cache_404_switch', true))?true:false;
+        // defaults to false, only enable if explicitly set to true.
+        $default = (smartGetOption(null, 'cache_404_switch', false))?true:false;
         return apply_filters( 'sb_optimizer_static_404_use_intelligent_cache_headers', $default );
     }
 

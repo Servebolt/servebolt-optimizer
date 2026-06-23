@@ -66,6 +66,12 @@ If you want to build a local production-ready version of the plugin you can run 
 
 ## Changelog
 
+#### 3.6.4
+* Prepend /bin/bash on commands that executes .sh script when adding as a Cron Job. This is to ensure bash is the shell script interpreter.
+* wp-cli command 'servebolt html-cache' now supports JSON output
+* Remove optimized table indexes on uninstall
+* Default "Fast static 404" and "Caching of 404 pages" to false 
+
 #### 3.6.3
 * Further improvements on WooCommerce limited purge featured added in 3.6.2. There is now options to limit Cache tag purging for Shop Page, Post archives, Product categories, Term, and other public taxonomy pages
 

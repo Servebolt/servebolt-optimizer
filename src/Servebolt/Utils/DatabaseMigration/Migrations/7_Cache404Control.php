@@ -80,8 +80,8 @@ class Cache404Control extends AbstractMigration implements MigrationInterface
         $this->setBlog();
 
         // adding defaults for two new options
-        smartUpdateOption($this->blogId, 'cache_404_switch', 1, true);
-        smartUpdateOption($this->blogId, 'fast_404_switch', 1, true);
+        smartUpdateOption($this->blogId, 'cache_404_switch', 0, true);
+        smartUpdateOption($this->blogId, 'fast_404_switch', 0, true);
 
         if(is_multisite()) {
             WordPressCachePurge::purgeAllNetwork();

@@ -97,6 +97,12 @@ class FullPageCacheControl
 
         foreach ($keys as $key) {
             $args = [];
+            if (in_array($key, ['cache_404_switch', 'fast_404_switch'], true)) {
+                $args = [
+                    'type' => 'boolean',
+                    'default' => false,
+                ];
+            }
             if ($key === VaryHeadersConfig::optionKey()) {
                 $args = [
                     'type' => 'array',

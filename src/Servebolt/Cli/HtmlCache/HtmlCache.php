@@ -58,6 +58,15 @@ class HtmlCache
      * [--all]
      * : Check status on all sites in multisite-network.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     wp servebolt html-cache status
@@ -102,6 +111,15 @@ class HtmlCache
      * [--status]
      * : Display status after command is executed.
      *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
+     *
      * ## EXAMPLES
      *
      *     # Activate HTML Cache, but only for pages and posts
@@ -109,6 +127,9 @@ class HtmlCache
      *
      *     # Activate HTML Cache for all public post types on all sites in multisite-network
      *     wp servebolt html-cache activate --post-types=all --all
+     *
+     *     # Activate HTML Cache, get response in JSON-format.
+     *     wp servebolt html-cache activate --format=json
      *
      */
     public function commandHtmlCacheEnable($args, $assocArgs)
@@ -123,10 +144,19 @@ class HtmlCache
      * ## OPTIONS
      *
      * [--all]
-     * : Activate on all sites in multisite.
+     * : Deactivate on all sites in multisite.
      *
      * [--status]
      * : Display status after command is executed.
+     *
+     * [--format=<format>]
+     * : Return format.
+     * ---
+     * default: text
+     * options:
+     *   - text
+     *   - json
+     * ---
      *
      * ## EXAMPLES
      *
@@ -135,6 +165,9 @@ class HtmlCache
      *
      *     # Deactivate HTML Cache for all sites in multisite-network
      *     wp servebolt html-cache deactivate --all
+     *
+     *     # Deactivate HTML Cache, get response in JSON-format.
+     *     wp servebolt html-cache deactivate --format=json
      *
      */
     public function commandHtmlCacheDisable($args, $assocArgs)
@@ -412,19 +445,40 @@ class HtmlCache
     /**
      * Toggle cache active/inactive for site.
      *
-     * @param $newCacheState
+     * @param bool $newCacheState
      * @param null|int $blogId
+     * @return array
      */
-    private function htmlCacheToggleCacheForBlog($newCacheState, ?int $blogId = null)
+    private function htmlCacheToggleCacheForBlog(bool $newCacheState, ?int $blogId = null): array
     {
         $url = get_site_url($blogId);
         $cacheActiveString = booleanToStateString($newCacheState);
-        if ($cacheActiveString === FullPageCacheSettings::htmlCacheIsActive($blogId)) {
-            WP_CLI::warning(sprintf( __('HTML Cache already %s on site %s', 'servebolt-wp'), $cacheActiveString, $url ));
+        $alreadyInState = $newCacheState === FullPageCacheSettings::htmlCacheIsActive($blogId);
+
+        if ($alreadyInState) {
+            $message = sprintf(__('HTML Cache already %s on site %s', 'servebolt-wp'), $cacheActiveString, $url);
+            if (!CliHelpers::returnJson()) {
+                WP_CLI::warning($message);
+            }
         } else {
             FullPageCacheSettings::htmlCacheToggleActive($newCacheState, $blogId);
-            WP_CLI::success(sprintf( __('HTML Cache %s on site %s', 'servebolt-wp'), $cacheActiveString, $url ));
+            $message = sprintf(__('HTML Cache %s on site %s', 'servebolt-wp'), $cacheActiveString, $url);
+            if (!CliHelpers::returnJson()) {
+                WP_CLI::success($message);
+            }
         }
+
+        $result = [
+            'active' => $newCacheState,
+            'changed' => !$alreadyInState,
+            'message' => $message,
+        ];
+        if ($blogId) {
+            $result = array_merge([
+                'blog_id' => $blogId,
+            ], $result);
+        }
+        return $result;
     }
 
     /**
@@ -460,31 +514,48 @@ class HtmlCache
         $displayStatus = array_key_exists('status', $args);
         $excludeIds = arrayGet('exclude', $args);
         $postTypes = $this->htmlCachePreparePostTypeArgument($args);
+        $result = [];
         if ($affectAllBlogs) {
-            WP_CLI::line(__('Applying settings to all sites', 'servebolt-wp'));
-            iterateSites(function($site) use ($cacheActive, $postTypes, $displayStatus, $args) {
-                $this->htmlCacheToggleCacheForBlog($cacheActive, $site->blog_id);
+            if (!CliHelpers::returnJson()) {
+                WP_CLI::line(__('Applying settings to all sites', 'servebolt-wp'));
+            }
+            iterateSites(function($site) use ($cacheActive, $postTypes, $displayStatus, &$result) {
+                $siteResult = $this->htmlCacheToggleCacheForBlog($cacheActive, $site->blog_id);
                 if ($postTypes) {
-                    $this->htmlCacheSetPostTypes($postTypes, $site->blog_id);
+                    $siteResult['post_types'] = $this->htmlCacheSetPostTypes($postTypes, $site->blog_id);
                 }
-                if ($displayStatus) {
-                    $this->commandHtmlCacheStatus([], $args);
+                if ($displayStatus && CliHelpers::returnJson()) {
+                    $siteResult['status'] = $this->getHtmlCacheStatus($site->blog_id);
                 }
+                $result[] = $siteResult;
             });
             if ($excludeIds) {
-                WP_CLI::warning(__('Exclude IDs were not set since ids are relative to each site.', 'servebolt-wp'));
+                $message = __('Exclude IDs were not set since ids are relative to each site.', 'servebolt-wp');
+                if (CliHelpers::returnJson()) {
+                    $result[] = [
+                        'warning' => true,
+                        'message' => $message,
+                    ];
+                } else {
+                    WP_CLI::warning($message);
+                }
             }
         } else {
-            $this->htmlCacheToggleCacheForBlog($cacheActive);
+            $result = $this->htmlCacheToggleCacheForBlog($cacheActive);
             if ($postTypes) {
-                $this->htmlCacheSetPostTypes($postTypes);
+                $result['post_types'] = $this->htmlCacheSetPostTypes($postTypes);
             }
             if ($excludeIds) {
-                $this->htmlCacheSetExcludeIds($excludeIds);
+                $result['excluded_posts'] = $this->htmlCacheSetExcludeIds($excludeIds);
             }
-            if ($displayStatus) {
-                $this->commandHtmlCacheStatus([], $args);
+            if ($displayStatus && CliHelpers::returnJson()) {
+                $result['status'] = $this->getHtmlCacheStatus();
             }
+        }
+        if ($displayStatus && !CliHelpers::returnJson()) {
+            $this->commandHtmlCacheStatus([], $args);
+        } elseif (CliHelpers::returnJson()) {
+            CliHelpers::printJson($result);
         }
     }
 
@@ -493,8 +564,9 @@ class HtmlCache
      *
      * @param $postTypes
      * @param null|int $blogId
+     * @return array
      */
-    private function htmlCacheSetPostTypes($postTypes, ?int $blogId = null)
+    private function htmlCacheSetPostTypes($postTypes, ?int $blogId = null): array
     {
         if ($postTypes === false) {
             $postTypes = [];
@@ -507,17 +579,24 @@ class HtmlCache
         FullPageCacheHeaders::setCacheablePostTypes($postTypes, $blogId);
         if (empty($postTypes)) {
             if ($blogId) {
-                WP_CLI::success(sprintf(__('Cache post type(s) cleared on site %s'), get_site_url($blogId)));
+                $message = sprintf(__('Cache post type(s) cleared on site %s'), get_site_url($blogId));
             } else {
-                WP_CLI::success(sprintf(__('Cache post type(s) cleared'), get_site_url($blogId)));
+                $message = sprintf(__('Cache post type(s) cleared'), get_site_url($blogId));
             }
         } else {
             if ($blogId) {
-                WP_CLI::success(sprintf(__('Cache post type(s) set to %s on site %s'), formatArrayToCsv($postTypes), get_site_url($blogId)));
+                $message = sprintf(__('Cache post type(s) set to %s on site %s'), formatArrayToCsv($postTypes), get_site_url($blogId));
             } else {
-                WP_CLI::success(sprintf(__('Cache post type(s) set to %s'), formatArrayToCsv($postTypes)));
+                $message = sprintf(__('Cache post type(s) set to %s'), formatArrayToCsv($postTypes));
             }
         }
+        if (!CliHelpers::returnJson()) {
+            WP_CLI::success($message);
+        }
+        return [
+            'post_types' => array_values($postTypes),
+            'message' => $message,
+        ];
     }
 
     /**
@@ -541,8 +620,9 @@ class HtmlCache
      *
      * @param $idsToExclude
      * @param null|int $blogId
+     * @return array
      */
-    private function htmlCacheSetExcludeIds($idsToExclude, ?int $blogId = null)
+    private function htmlCacheSetExcludeIds($idsToExclude, ?int $blogId = null): array
     {
         if (is_string($idsToExclude)) {
             $idsToExclude = formatCommaStringToArray($idsToExclude);
@@ -552,11 +632,23 @@ class HtmlCache
 
         if ($clearAll) {
             CachePostExclusion::setIdsToExcludeFromCache([], $blogId);
-            WP_CLI::success(__('All excluded posts were cleared.', 'servebolt-wp'));
-            return;
+            $message = __('All excluded posts were cleared.', 'servebolt-wp');
+            if (!CliHelpers::returnJson()) {
+                WP_CLI::success($message);
+            }
+            return [
+                'cleared' => true,
+                'message' => $message,
+            ];
         } elseif (is_array($idsToExclude) && empty($idsToExclude)) {
-            WP_CLI::warning(__('No IDs were specified.', 'servebolt-wp'));
-            return;
+            $message = __('No IDs were specified.', 'servebolt-wp');
+            if (!CliHelpers::returnJson()) {
+                WP_CLI::warning($message);
+            }
+            return [
+                'warning' => true,
+                'message' => $message,
+            ];
         }
 
         $alreadyAdded = [];
@@ -567,26 +659,44 @@ class HtmlCache
                 $invalidId[] = $id;
             } elseif (!in_array($id, $alreadyExcluded)) {
                 $wasExcluded[] = $id;
-                $alreadyAdded[] = $id;
             } else {
                 $alreadyAdded[] = $id;
             }
         }
-        CachePostExclusion::setIdsToExcludeFromCache($alreadyExcluded, $blogId);
+        CachePostExclusion::setIdsToExcludeFromCache(array_unique(array_merge($alreadyExcluded, $wasExcluded)), $blogId);
 
+        $messages = [];
         if (!empty($alreadyAdded)) {
-            WP_CLI::warning(sprintf(__('The following ids were already excluded: %s', 'servebolt-wp'), formatArrayToCsv($alreadyAdded)));
+            $messages[] = sprintf(__('The following ids were already excluded: %s', 'servebolt-wp'), formatArrayToCsv($alreadyAdded));
+            if (!CliHelpers::returnJson()) {
+                WP_CLI::warning(end($messages));
+            }
         }
 
         if (!empty($invalidId)) {
-            WP_CLI::warning(sprintf(__('The following IDs were invalid: %s', 'servebolt-wp'), formatArrayToCsv($invalidId)));
+            $messages[] = sprintf(__('The following IDs were invalid: %s', 'servebolt-wp'), formatArrayToCsv($invalidId));
+            if (!CliHelpers::returnJson()) {
+                WP_CLI::warning(end($messages));
+            }
         }
 
         if (!empty($wasExcluded)) {
-            WP_CLI::success(sprintf(__('Added %s to the list of excluded ids', 'servebolt-wp'), formatArrayToCsv($wasExcluded)));
+            $messages[] = sprintf(__('Added %s to the list of excluded ids', 'servebolt-wp'), formatArrayToCsv($wasExcluded));
+            if (!CliHelpers::returnJson()) {
+                WP_CLI::success(end($messages));
+            }
         } else {
-            WP_CLI::warning(__('No action was made.', 'servebolt-wp'));
+            $messages[] = __('No action was made.', 'servebolt-wp');
+            if (!CliHelpers::returnJson()) {
+                WP_CLI::warning(end($messages));
+            }
         }
+        return [
+            'already_excluded' => array_values($alreadyAdded),
+            'invalid_ids' => array_values($invalidId),
+            'excluded' => array_values($wasExcluded),
+            'messages' => $messages,
+        ];
     }
 
     /**
