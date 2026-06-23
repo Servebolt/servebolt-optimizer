@@ -18,61 +18,67 @@ use function Servebolt\Optimizer\Helpers\isDevDebug;
  *
  * This class includes the CSS and JavaScript of the plugin.
  */
-class Assets {
+class Assets
+{
 
-	/**
-	 * Assets constructor.
-	 */
-	public function __construct()
+    /**
+     * Assets constructor.
+     */
+    public function __construct()
     {
-		add_action('init', [$this, 'initAssets']);
-	}
+        add_action('init', [$this, 'initAssets']);
+    }
 
     /**
      * Determine whether we should enqueue plugin assets in general.
      *
      * @return bool
      */
-	private function shouldInitAssets(): bool
+    private function shouldInitAssets(): bool
     {
-        return apply_filters('sb_optimizer_should_init_assets', is_user_logged_in());
+        if (apply_filters('sb_optimizer_should_init_assets', is_user_logged_in()) === false) {
+            return false;
+        }
+        if (current_user_can('edit_others_posts')) {
+            return true;
+        }
+        return false;
     }
 
-	/**
-	 * Init assets.
-	 */
-	public function initAssets(): void
+    /**
+     * Init assets.
+     */
+    public function initAssets(): void
     {
         if (!$this->shouldInitAssets()) {
             return;
         }
 
-		// Front-end only assets
-		add_action('wp_enqueue_scripts', [$this, 'pluginPublicStyling']);
-		add_action('wp_enqueue_scripts', [$this, 'pluginPublicScripts']);
+        // Front-end only assets
+        add_action('wp_enqueue_scripts', [$this, 'pluginPublicStyling']);
+        add_action('wp_enqueue_scripts', [$this, 'pluginPublicScripts']);
 
         // Admin only assets
         add_action('admin_enqueue_scripts', [$this, 'pluginAdminStyling']);
         add_action('admin_enqueue_scripts', [$this, 'pluginAdminScripts']);
 
-		// Common assets (both public and admin)
-		add_action('wp_enqueue_scripts', [$this, 'pluginCommonStyling']);
-		add_action('wp_enqueue_scripts', [$this, 'pluginCommonScripts']);
-		add_action('admin_enqueue_scripts', [$this, 'pluginCommonStyling']);
+        // Common assets (both public and admin)
+        add_action('wp_enqueue_scripts', [$this, 'pluginCommonStyling']);
+        add_action('wp_enqueue_scripts', [$this, 'pluginCommonScripts']);
+        add_action('admin_enqueue_scripts', [$this, 'pluginCommonStyling']);
         add_action('admin_enqueue_scripts', [$this, 'pluginCommonScripts']);
+    }
 
-	}
-
-	/**
-	 * Plugin styling (public only).
-	 */
-	public function pluginPublicStyling(): void
+    /**
+     * Plugin styling (public only).
+     */
+    public function pluginPublicStyling(): void
     {
         $this->enqueueStyle(
             'servebolt-optimizer-public-styling',
             'assets/dist/css/public-style.css'
         );
-	}
+    }
 
     /**
      * Plugin styling (admin only).
@@ -94,7 +100,7 @@ class Assets {
     /**
      * Plugin styling (styling for both WP Admin and front end).
      */
-	public function pluginCommonStyling()
+    public function pluginCommonStyling()
     {
         if ($this->shouldLoadCommonAssets('styling')) {
             $generalSettings = GeneralSettings::getInstance();
@@ -109,17 +115,17 @@ class Assets {
                 'assets/dist/css/common-style.css'
             );
         }
-	}
+    }
 
     /**
      * Plugin scripts (public only).
      */
-	public function pluginPublicScripts(): void {}
+    public function pluginPublicScripts(): void {}
 
     /**
      * Plugin scripts (admin only).
      */
-	public function pluginAdminScripts(): void
+    public function pluginAdminScripts(): void
     {
         if (
             $this->isBlockEditor()
@@ -146,10 +152,10 @@ class Assets {
     /**
      * Plugin common scripts (scripts for both WP Admin and front end).
      */
-	public function pluginCommonScripts()
+    public function pluginCommonScripts()
     {
-	    if ($this->shouldLoadCommonAssets('scripts')) {
-	        $generalSettings = GeneralSettings::getInstance();
+        if ($this->shouldLoadCommonAssets('scripts')) {
+            $generalSettings = GeneralSettings::getInstance();
             if (!$generalSettings->useNativeJsFallback()) {
                 $this->enqueueScript(
                     'sb-sweetalert2',
@@ -193,7 +199,7 @@ class Assets {
                 //'cron_purge_is_active'   => sb_cf_cache()->cron_purge_is_active(),
             ]);
         }
-	}
+    }
 
     /**
      * Check whether current screen is the block editor.
